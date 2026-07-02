@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class SkipNavigationTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_model_is_readonly()
     {
         var model = CreateModel();
@@ -54,7 +54,7 @@ public class SkipNavigationTest
             Assert.Throws<InvalidOperationException>(() => navigation.SetPropertyAccessMode(null)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Gets_expected_default_values()
     {
         var model = (IConventionModel)CreateModel();
@@ -90,7 +90,7 @@ public class SkipNavigationTest
         Assert.Same(navigation, firstEntity.GetDeclaredSkipNavigations().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key()
     {
         var model = (IConventionModel)CreateModel();
@@ -119,7 +119,7 @@ public class SkipNavigationTest
         Assert.Null(navigation.GetForeignKeyConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_foreign_key_to_skip_navigation_with_wrong_dependent_throws()
     {
         var model = CreateModel();
@@ -139,7 +139,7 @@ public class SkipNavigationTest
             Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_foreign_key_to_skip_navigation_with_wrong_principal_throws()
     {
         var model = CreateModel();
@@ -160,7 +160,7 @@ public class SkipNavigationTest
             Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_foreign_key_with_wrong_inverse_throws()
     {
         var model = CreateModel();
@@ -193,7 +193,7 @@ public class SkipNavigationTest
             Assert.Throws<InvalidOperationException>(() => productsNavigation.SetForeignKey(orderProductForeignKey)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_inverse()
     {
         var model = CreateModel();
@@ -239,7 +239,7 @@ public class SkipNavigationTest
         Assert.Null(((IConventionSkipNavigation)ordersNavigation).GetInverseConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_inverse_targetting_wrong_type_throws()
     {
         var model = CreateModel();
@@ -269,7 +269,7 @@ public class SkipNavigationTest
             Assert.Throws<InvalidOperationException>(() => productsNavigation.SetInverse(ordersNavigation)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_inverse_with_wrong_join_type_throws()
     {
         var model = CreateModel();

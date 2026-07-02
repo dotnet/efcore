@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ContextDescription");
 
         /// <summary>
-        ///     The directory to put the DbContext file in. Paths are relative to the project directory.
+        ///     The directory to put the DbContext file in. Paths are relative to the project or file-based app directory.
         /// </summary>
         public static string ContextDirDescription
             => GetString("ContextDirDescription");
@@ -236,10 +236,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("FrameworkDescription");
 
         /// <summary>
-        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project.
+        ///     Unable to retrieve project metadata. Ensure it's an SDK-style project or a file-based app.
         /// </summary>
         public static string GetMetadataFailed
             => GetString("GetMetadataFailed");
+
+        /// <summary>
+        ///     Unable to retrieve project metadata. Restore the project or file-based app (e.g. by running 'dotnet restore') and try again.
+        /// </summary>
+        public static string RestoreRequired
+            => GetString("RestoreRequired");
+
+        /// <summary>
+        ///     The file '{file}' could not be found.
+        /// </summary>
+        public static string ProjectFileNotFound(object? file)
+            => string.Format(
+                GetString("ProjectFileNotFound", nameof(file)),
+                file);
 
         /// <summary>
         ///     Generate a script that can be used on a database at any migration.
@@ -320,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsNamespaceDescription");
 
         /// <summary>
-        ///     The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
+        ///     The directory to put files in. Paths are relative to the project or file-based app directory. Defaults to "Migrations".
         /// </summary>
         public static string MigrationsOutputDirDescription
             => GetString("MigrationsOutputDirDescription");
@@ -504,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("OutputDescription");
 
         /// <summary>
-        ///     The directory to put files in. Paths are relative to the project directory.
+        ///     The directory to put files in. Paths are relative to the project or file-based app directory.
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
@@ -632,12 +646,28 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("UseDatabaseNamesDescription");
 
         /// <summary>
+        ///     Using file-based app '{file}'.
+        /// </summary>
+        public static string UsingFileBasedApp(object? file)
+            => string.Format(
+                GetString("UsingFileBasedApp", nameof(file)),
+                file);
+
+        /// <summary>
         ///     Using project '{project}'.
         /// </summary>
         public static string UsingProject(object? project)
             => string.Format(
                 GetString("UsingProject", nameof(project)),
                 project);
+
+        /// <summary>
+        ///     Using startup file-based app '{file}'.
+        /// </summary>
+        public static string UsingStartupFileBasedApp(object? file)
+            => string.Format(
+                GetString("UsingStartupFileBasedApp", nameof(file)),
+                file);
 
         /// <summary>
         ///     Using startup project '{startupProject}'.

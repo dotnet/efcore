@@ -43,8 +43,15 @@ public class DateOnlyToStringConverter : StringDateOnlyConverter<DateOnly, strin
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static DateOnlyToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateOnly), typeof(string), i => new DateOnlyToStringConverter(i.MappingHints), DefaultHints);
+        = new(typeof(DateOnly), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateOnlyToStringConverter(i.MappingHints),
+            DefaultHints);
 }

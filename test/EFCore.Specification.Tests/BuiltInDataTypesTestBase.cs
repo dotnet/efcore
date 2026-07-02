@@ -17,7 +17,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_filter_projection_with_captured_enum_variable(bool async)
     {
         using var context = CreateContext();
@@ -36,7 +36,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(EmailTemplateTypeDto.PasswordResetRequest, results.Single().TemplateType);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_filter_projection_with_inline_enum_variable(bool async)
     {
         using var context = CreateContext();
@@ -53,7 +53,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(EmailTemplateTypeDto.PasswordResetRequest, results.Single().TemplateType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_perform_query_with_max_length()
     {
         var shortString = "Sky";
@@ -105,7 +105,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_perform_query_with_ansi_strings_test()
     {
         var shortString = Fixture.SupportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
@@ -173,7 +173,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_with_max_length_set()
     {
         const string shortString = "Sky";
@@ -214,7 +214,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_binary_key()
     {
         if (!Fixture.SupportsBinaryKeys)
@@ -285,7 +285,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_null_binary_foreign_key()
     {
         using (var context = CreateContext())
@@ -304,7 +304,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_string_key()
     {
         using (var context = CreateContext())
@@ -333,7 +333,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_null_string_foreign_key()
     {
         using (var context = CreateContext())
@@ -449,7 +449,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
             || type == typeof(ushort)
             || type == typeof(char);
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_object_backed_data_types()
     {
         using (var context = CreateContext())
@@ -530,7 +530,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_read_back_mapped_enum_from_collection_first_or_default()
     {
         using var context = CreateContext();
@@ -541,7 +541,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(IdentificationMethod.EarTag, result.Method);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_read_back_bool_mapped_as_int_through_navigation()
     {
         using var context = CreateContext();
@@ -553,7 +553,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.True(result.BoolField);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_compare_enum_to_constant()
     {
         using var context = CreateContext();
@@ -565,7 +565,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(IdentificationMethod.EarTag, result.Method);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_compare_enum_to_parameter()
     {
         var method = IdentificationMethod.EarTag;
@@ -578,7 +578,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(IdentificationMethod.EarTag, result.Method);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Object_to_string_conversion()
     {
         using var context = CreateContext();
@@ -639,7 +639,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         Assert.Equal(expected.Char, actual.Char);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_datetime_reading_null_from_database()
     {
         using var context = CreateContext();
@@ -655,7 +655,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_query_multiline_string()
     {
         using var context = CreateContext();

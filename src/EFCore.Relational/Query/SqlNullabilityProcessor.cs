@@ -511,7 +511,107 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
+        if (IsNull(elseResult))
+        {
+            elseResult = null;
+        }
+
+        // optimize expressions such as expr != null ? expr : null and expr == null ? null : expr
+        if (testIsCondition && whenClauses is [var clause] && (elseResult is null || IsNull(clause.Result)))
+        {
+            HashSet<SqlExpression> nullPropagatedOperands = [];
+
+            var (test, expr) = elseResult is null
+                ? (clause.Test, clause.Result)
+                : (_sqlExpressionFactory.Not(clause.Test), elseResult);
+
+            DetectNullPropagatingNodes(expr, nullPropagatedOperands);
+            test = DropNotNullChecks(test, nullPropagatedOperands);
+
+            if (IsTrue(test))
+            {
+                return expr;
+            }
+
+            if (elseResult != null)
+            {
+                test = _sqlExpressionFactory.Not(test);
+            }
+
+            whenClauses = [new(test, clause.Result)];
+        }
+
         return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
+
+        SqlExpression DropNotNullChecks(SqlExpression expression, HashSet<SqlExpression> nullPropagatedOperands)
+            => expression switch
+            {
+                SqlUnaryExpression { OperatorType: ExpressionType.NotEqual } isNotNull
+                    when nullPropagatedOperands.Contains(isNotNull.Operand)
+                    => _sqlExpressionFactory.Constant(true, expression.Type, expression.TypeMapping),
+
+                SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary
+                    => _sqlExpressionFactory.MakeBinary(
+                        ExpressionType.AndAlso,
+                        DropNotNullChecks(binary.Left, nullPropagatedOperands),
+                        DropNotNullChecks(binary.Right, nullPropagatedOperands),
+                        expression.TypeMapping,
+                        expression)!,
+
+                _ => expression,
+            };
+
+        // TODO: unify nullability computations
+        static void DetectNullPropagatingNodes(SqlExpression expression, HashSet<SqlExpression> operands)
+        {
+            if (!operands.Add(expression))
+            {
+                return;
+            }
+
+            switch (expression)
+            {
+                case AtTimeZoneExpression atTimeZone:
+                    DetectNullPropagatingNodes(atTimeZone.Operand, operands);
+                    DetectNullPropagatingNodes(atTimeZone.TimeZone, operands);
+                    break;
+
+                case CollateExpression collate:
+                    DetectNullPropagatingNodes(collate.Operand, operands);
+                    break;
+
+                case SqlUnaryExpression { OperatorType: not (ExpressionType.Equal or ExpressionType.NotEqual) } unary:
+                    DetectNullPropagatingNodes(unary.Operand, operands);
+                    break;
+
+                case SqlBinaryExpression { OperatorType: not (
+                        ExpressionType.AndAlso or
+                        ExpressionType.OrElse or
+                        ExpressionType.Coalesce
+                    ) } binary:
+                    DetectNullPropagatingNodes(binary.Left, operands);
+                    DetectNullPropagatingNodes(binary.Right, operands);
+                    break;
+
+                case SqlFunctionExpression { IsNullable: true } func:
+                    if (func.InstancePropagatesNullability is true)
+                    {
+                        DetectNullPropagatingNodes(func.Instance!, operands);
+                    }
+
+                    if (!func.IsNiladic)
+                    {
+                        for (var i = 0; i < func.ArgumentsPropagateNullability.Count; i++)
+                        {
+                            if (func.ArgumentsPropagateNullability[i])
+                            {
+                                DetectNullPropagatingNodes(func.Arguments[i], operands);
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     /// <summary>
@@ -929,8 +1029,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 // parameters all share the same query plan, reducing query plan fragmentation.
                 if (translationMode is ParameterTranslationMode.MultipleParameters)
                 {
-                    var padFactor = CalculateParameterBucketSize(values.Count, elementTypeMapping);
-                    var padding = CalculatePadding(values.Count, padFactor);
+                    var padding = CalculateBucketPadding(values.Count, elementTypeMapping);
                     for (var i = 0; i < padding; i++)
                     {
                         // Create parameter for value if we didn't create it yet,
@@ -1599,6 +1698,17 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     [EntityFrameworkInternal]
     protected virtual int CalculatePadding(int count, int padFactor)
         => (padFactor - (count % padFactor)) % padFactor;
+
+    /// <summary>
+    ///     Calculates the number of padding parameters to append to a multi-parameter collection expansion so that
+    ///     parameter counts align to a shared bucket size. This is composed from <see cref="CalculateParameterBucketSize"/>
+    ///     and <see cref="CalculatePadding"/>.
+    /// </summary>
+    /// <param name="count">Number of value parameters.</param>
+    /// <param name="elementTypeMapping">The type mapping for the collection element.</param>
+    [EntityFrameworkInternal]
+    protected virtual int CalculateBucketPadding(int count, RelationalTypeMapping elementTypeMapping)
+        => CalculatePadding(count, CalculateParameterBucketSize(count, elementTypeMapping));
 
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)

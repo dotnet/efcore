@@ -10,7 +10,7 @@ public class GlobalDatabaseTest
 {
     private static readonly InMemoryDatabaseRoot _databaseRoot = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Different_stores_are_used_when_options_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -32,7 +32,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AddDbContext_does_not_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -55,7 +55,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Global_store_can_be_used_when_options_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -79,7 +79,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Owned_types_are_found_correctly_with_database_root()
     {
         var options = new DbContextOptionsBuilder()
@@ -115,7 +115,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Global_store_can_be_used_when_AddDbContext_force_different_internal_service_provider()
     {
         using (var context = new BooFooContext(
@@ -141,7 +141,7 @@ public class GlobalDatabaseTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnableNullChecks_forces_different_internal_service_provider()
     {
         using var context1 = new ChangeNullabilityChecksContext(enableNullChecks: true);
@@ -160,7 +160,7 @@ public class GlobalDatabaseTest
                     b => b.EnableNullChecks(_enableNullChecks));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_changing_nullability_checks_in_OnConfiguring_when_UseInternalServiceProvider()
     {
         using (var context = new ChangeNullabilityChecksCacheContext(false))

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
 public class VectorTranslationsSqlServerTest : IClassFixture<VectorTranslationsSqlServerTest.VectorQueryFixture>
 {
     private VectorQueryFixture Fixture { get; }
@@ -23,7 +23,7 @@ public class VectorTranslationsSqlServerTest : IClassFixture<VectorTranslationsS
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task VectorDistance_with_parameter()
     {
         using var ctx = CreateContext();
@@ -47,7 +47,7 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], @vector)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task VectorDistance_with_constant()
     {
         using var ctx = CreateContext();
@@ -70,8 +70,7 @@ ORDER BY VECTOR_DISTANCE('cosine', [v].[Vector], CAST('[1,2,100]' AS VECTOR(3)))
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_project_entity_and_distance()
     {
         using var ctx = CreateContext();
@@ -104,8 +103,7 @@ ORDER BY [v0].[Distance]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_exact_knn()
     {
         using var ctx = CreateContext();
@@ -137,8 +135,7 @@ ORDER BY [v0].[Distance]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_project_entity_only_with_distance_filter()
     {
         using var ctx = CreateContext();
@@ -177,8 +174,7 @@ ORDER BY [v0].[Distance]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_in_subquery()
     {
         using var ctx = CreateContext();
@@ -221,8 +217,7 @@ ORDER BY [v1].[Distance]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_with_Where_before_Take()
     {
         using var ctx = CreateContext();
@@ -258,8 +253,7 @@ ORDER BY [v0].[Distance]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_with_Join_before_Take()
     {
         using var ctx = CreateContext();
@@ -298,8 +292,7 @@ ORDER BY [v0].[Distance]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_with_Take_and_Skip()
     {
         using var ctx = CreateContext();
@@ -339,8 +332,7 @@ OFFSET @p2 ROWS
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_reranking()
     {
         using var ctx = CreateContext();
@@ -384,8 +376,7 @@ ORDER BY [v1].[Id]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task WithApproximate_without_Take_throws()
     {
         using var ctx = CreateContext();
@@ -402,8 +393,7 @@ ORDER BY [v1].[Id]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task WithApproximate_with_Skip_and_Take_throws()
     {
         using var ctx = CreateContext();
@@ -423,8 +413,7 @@ ORDER BY [v1].[Id]
     }
 
     // The latest vector index version (required for VECTOR_SEARCH) is only available on Azure SQL (#36384).
-    [ConditionalFact]
-    [SqlServerCondition(SqlServerCondition.IsAzureSql)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
     public async Task VectorSearch_without_WithApproximate_logs_warning()
     {
         using var ctx = CreateContext();
@@ -439,13 +428,13 @@ ORDER BY [v1].[Id]
             .Take(1)
             .ToListAsync();
 
-        var warning = Assert.Single(Fixture.TestSqlLoggerFactory.Log, l => l.Id == SqlServerEventId.VectorSearchWithoutApproximateWarning);
+        var warning = Assert.Single(Fixture.TestSqlLoggerFactory.Log, l => l.Id == SqlServerEventId.VectorSearchWithoutApproximateIndexWarning);
         Assert.Equal(LogLevel.Warning, warning.Level);
         Assert.Contains("IndexedVector", warning.Message);
         Assert.Contains("VectorEntity", warning.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Length()
     {
         using var ctx = CreateContext();
@@ -555,7 +544,7 @@ WITH (METRIC = 'Cosine', TYPE = 'DiskANN');
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder)
-                .ConfigureWarnings(w => w.Log(SqlServerEventId.VectorSearchWithoutApproximateWarning));
+                .ConfigureWarnings(w => w.Log(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning));
 
         protected override Task SeedAsync(VectorQueryContext context)
             => VectorQueryContext.SeedAsync(context);

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_added_property_is_not_mapped_to_store()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -25,7 +25,7 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_spatial_message_when_geometry_property_is_not_mapped()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -41,7 +41,7 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_spatial_message_when_declaring_type_is_geometry()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -56,7 +56,7 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -73,7 +73,7 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void Detects_non_list_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -97,7 +97,7 @@ public partial class RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_complex_collection_is_not_mapped_to_json()
     {
         var modelBuilder = CreateConventionlessModelBuilder();

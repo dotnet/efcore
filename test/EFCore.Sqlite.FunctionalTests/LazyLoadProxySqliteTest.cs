@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture fixture)
     : LazyLoadProxyRelationalTestBase<LazyLoadProxySqliteTest.LoadSqliteFixture>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public void IsLoaded_is_not_set_if_loading_principal_collection_fails()
     {
         using var context = Fixture.CreateContext();
@@ -27,7 +27,7 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
         Assert.True(context.Entry(principal).Collection(e => e.Children).IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsLoaded_is_not_set_if_loading_principal_single_reference_fails()
     {
         using var context = Fixture.CreateContext();
@@ -46,7 +46,7 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
         Assert.True(context.Entry(principal).Reference(e => e.Single).IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsLoaded_is_not_set_if_loading_many_to_many_collection_fails()
     {
         using var context = Fixture.CreateContext();
@@ -65,7 +65,7 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
         Assert.True(context.Entry(principal).Collection(e => e.ManyChildren).IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsLoaded_is_not_set_if_loading_dependent_single_reference_fails()
     {
         using var context = Fixture.CreateContext();
@@ -84,7 +84,7 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
         Assert.True(context.Entry(dependent).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsLoaded_is_not_set_if_loading_dependent_collection_reference_fails()
     {
         using var context = Fixture.CreateContext();

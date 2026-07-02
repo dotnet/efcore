@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task BigModel_with_JSON_columns()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
@@ -44,9 +44,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
 
                     if (jsonColumns)
                     {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
-#pragma warning restore EF8001
                     }
                     else
                     {
@@ -71,9 +69,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 {
                     if (jsonColumns)
                     {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                         ob.ToJson();
-#pragma warning restore EF8001
                     }
                     else
                     {
@@ -524,10 +520,13 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         {
             eb.ComplexCollection<IList<OwnedType>, OwnedType>(
                 "ManyOwned", "OwnedCollection", eb => eb.ToJson());
+            eb.ComplexProperty(p => p.Dependent, cb => cb.ToJson());
+            eb.HasIndex(e => e.Dependent, "IX_PrincipalDerived_Dependent");
+            eb.HasIndex(["ManyOwned[0].Details"], "IX_PrincipalDerived_ManyOwned_Indexer");
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public override Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
@@ -663,10 +662,34 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     Assert.All(detailsMappings, m => Assert.Same(detailsProp, m.Property));
                 }
             }
+
+            var manyOwnedDetailsProperty = manyOwnedComplexProperty.ComplexType.FindProperty(nameof(OwnedType.Details))!;
+
+            var manyOwnedIndexerIndex = principalDerived.GetIndexes().Single(i => i.Name == "IX_PrincipalDerived_ManyOwned_Indexer");
+            Assert.Same(manyOwnedDetailsProperty, manyOwnedIndexerIndex.Properties.Single());
+            Assert.NotNull(manyOwnedIndexerIndex.CollectionIndices);
+            Assert.Equal(new int?[] { 0 }, manyOwnedIndexerIndex.CollectionIndices.Single());
         }
+
+        var dependentComplexProperty = principalDerived.FindComplexProperty(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.False(dependentComplexProperty.IsCollection);
+        Assert.True(dependentComplexProperty.ComplexType.IsMappedToJson());
+        Assert.Equal(
+            nameof(PrincipalDerived<DependentBase<byte?>>.Dependent),
+            dependentComplexProperty.ComplexType.GetContainerColumnName());
+
+        var dependentIndex = principalDerived.GetIndexes().Single(i => i.Name == "IX_PrincipalDerived_Dependent");
+        Assert.Single(dependentIndex.Properties);
+        Assert.Same(dependentComplexProperty, dependentIndex.Properties[0]);
+
+        var principalBaseTable2 = principalBase.GetTableMappings().Single().Table;
+        var dependentJsonColumn = principalBaseTable2.FindColumn(nameof(PrincipalDerived<DependentBase<byte?>>.Dependent))!;
+        Assert.NotNull(dependentJsonColumn);
+        var dependentTableIndex = principalBaseTable2.Indexes.Single(i => i.Name == "IX_PrincipalDerived_Dependent");
+        Assert.Same(dependentJsonColumn, dependentTableIndex.Columns.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Tpc_Sprocs()
         => Test(
             BuildTpcSprocsModel,
@@ -1052,7 +1075,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             model.GetEntityTypes());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Sequences()
         => Test(
             modelBuilder =>
@@ -1077,7 +1100,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.NotNull(longSequence.ToString());
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task CheckConstraints()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -1097,7 +1120,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     Assert.Throws<InvalidOperationException>(() => dataEntity.GetCheckConstraints()).Message);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Triggers()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -1118,7 +1141,23 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 Assert.Equal(2, dataEntity.GetDeclaredTriggers().Count());
             });
 
-    [ConditionalFact]
+    [Fact]
+    public virtual Task Owned_entity_sharing_table_with_owner_that_has_an_index()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Post>(eb =>
+            {
+                eb.HasOne<Blog>().WithMany(b => b.Posts).IsRequired();
+                eb.OwnsOne(p => p.Author);
+            }),
+            model =>
+            {
+                // Forces the relational model to be created, which threw when an owned entity sharing the
+                // owner's table was processed before the owner. See https://github.com/dotnet/efcore/issues/37981
+                var relationalModel = model.GetRelationalModel();
+                Assert.Contains(relationalModel.Tables, t => t.Indexes.Any());
+            });
+
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
@@ -1339,7 +1378,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Custom_function_type_mapping()
         => Test<FunctionTypeMappingContext>(
             assertModel: model =>
@@ -1365,7 +1404,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Custom_function_parameter_type_mapping()
         => Test<FunctionParameterTypeMappingContext>(
             assertModel: model =>
@@ -1392,7 +1431,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Throws_for_custom_function_translation()
         => Test<FunctionTranslationContext>(
             expectedExceptionMessage: RelationalStrings.CompiledModelFunctionTranslation("GetSqlFragmentStatic"));
@@ -1411,7 +1450,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Dynamic_schema()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(eb =>
@@ -1508,6 +1547,25 @@ public partial class DbContextModel
 
     public class SpatialTypes : AbstractBase;
 
+    public class Blog
+    {
+        public int Id { get; set; }
+
+        public ICollection<Post> Posts { get; set; } = new List<Post>();
+    }
+
+    public class Post
+    {
+        public int Id { get; set; }
+
+        public Author Author { get; set; } = new();
+    }
+
+    public class Author
+    {
+        public string Name { get; set; } = "";
+    }
+
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
     {
         base.AddReferences(build, filePath);
@@ -1518,5 +1576,8 @@ public partial class DbContextModel
 
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder)
-            .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
+            .ConfigureWarnings(
+                w => w.Ignore(
+                    RelationalEventId.ForeignKeyTpcPrincipalWarning,
+                    RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 }

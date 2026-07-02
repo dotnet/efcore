@@ -216,6 +216,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder HasPrecision(int precision);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationTemporalPeriodPropertyBuilder IsHidden(bool hidden = true);"
+        },
+        {
           "Member": "override string? ToString();"
         }
       ]
@@ -1298,7 +1301,7 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId UniqueConstraintFound"
         },
         {
-          "Member": "static readonly Microsoft.Extensions.Logging.EventId VectorSearchWithoutApproximateWarning"
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId VectorSearchWithoutApproximateIndexWarning"
         }
       ]
     },
@@ -2340,6 +2343,9 @@
           "Member": "static bool CanSetIdentityColumnSeed(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, long? seed, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "static bool CanSetIsHidden(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, bool? hidden, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static bool CanSetIsSparse(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder property, bool? sparse, bool fromDataAnnotation = false);"
         },
         {
@@ -2392,6 +2398,9 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? HasValueGenerationStrategy(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy? valueGenerationStrategy, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? IsHidden(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, bool? hidden, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder IsSparse(this Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder propertyBuilder, bool sparse = true);"
@@ -2516,6 +2525,9 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIdentitySeedConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalPropertyOverrides overrides);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsHiddenConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsSparseConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property);"
         },
         {
@@ -2556,6 +2568,9 @@
         },
         {
           "Member": "static bool IsCompatibleWithValueGeneration(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+        },
+        {
+          "Member": "static bool IsHidden(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
         },
         {
           "Member": "static bool? IsSparse(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
@@ -2610,6 +2625,12 @@
         },
         {
           "Member": "static long? SetIdentitySeed(this Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalPropertyOverrides overrides, long? seed, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetIsHidden(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, bool? hidden);"
+        },
+        {
+          "Member": "static bool? SetIsHidden(this Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, bool? hidden, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static void SetIsSparse(this Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, bool? sparse);"
@@ -3028,6 +3049,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder HasPrecision(int precision);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TemporalPeriodPropertyBuilder IsHidden(bool hidden = true);"
         },
         {
           "Member": "override string? ToString();"

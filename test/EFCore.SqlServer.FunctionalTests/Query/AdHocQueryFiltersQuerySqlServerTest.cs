@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -100,7 +100,7 @@ FROM [Entities] AS [e]
 
     #region 11803
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_filter_with_db_set_should_not_block_other_filters()
     {
         var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
@@ -120,7 +120,7 @@ WHERE EXISTS (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Keyless_type_used_inside_defining_query()
     {
         var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());

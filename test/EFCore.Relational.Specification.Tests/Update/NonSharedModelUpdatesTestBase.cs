@@ -11,7 +11,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     protected override string NonSharedStoreName
         => "NonSharedModelUpdatesTestBase";
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29356
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #29356
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -84,7 +84,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public Author? Author { get; set; }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29379
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #29379
     public virtual async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
@@ -118,7 +118,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public string? Name { get; set; }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -167,7 +167,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Save_and_query_with_partially_loaded_primitive_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -212,7 +212,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Query_with_not_auto_loaded_property_tracked(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -241,7 +241,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Query_with_not_auto_loaded_property_no_tracking(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -266,7 +266,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Explicit_select_of_not_auto_loaded_property(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -291,7 +291,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_on_not_auto_loaded_property(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -319,7 +319,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Query_with_not_auto_loaded_primitive_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -362,7 +362,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         public List<string> Tags { get; set; } = [];
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #36059
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #36059
     public virtual async Task Replacing_owned_entity_with_FK_to_another_entity(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(

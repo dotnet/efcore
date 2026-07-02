@@ -19,7 +19,7 @@ public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQuer
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -252,7 +252,7 @@ WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\' AND
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FromSql_is_composed()
     {
         using (var context = Fixture.CreateContext())
@@ -274,7 +274,7 @@ WHERE [m].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FromSql_is_composed_when_filter_has_navigation()
     {
         using (var context = Fixture.CreateContext())

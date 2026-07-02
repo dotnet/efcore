@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbContextOptionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Warnings_can_be_configured()
     {
         var optionsBuilder = new DbContextOptionsBuilder()
@@ -20,7 +20,7 @@ public class DbContextOptionsTest
         Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Model_can_be_set_explicitly_in_options()
     {
         var model = new Model();
@@ -30,7 +30,7 @@ public class DbContextOptionsTest
         Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sensitive_data_logging_can_be_set_explicitly_in_options()
     {
         var model = new Model();
@@ -41,7 +41,7 @@ public class DbContextOptionsTest
         Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_find_extension_with_GetExtension()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -56,7 +56,7 @@ public class DbContextOptionsTest
         Assert.Same(extension, optionsBuilder.Options.GetExtension<FakeDbContextOptionsExtension1>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Extensions_can_be_added_to_options()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -78,7 +78,7 @@ public class DbContextOptionsTest
         Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_update_an_existing_extension()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -96,7 +96,7 @@ public class DbContextOptionsTest
         Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_remove_an_existing_extension()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -116,7 +116,7 @@ public class DbContextOptionsTest
         Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension2>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_non_existent_extension_is_no_op()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -132,7 +132,7 @@ public class DbContextOptionsTest
         Assert.Same(extension, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Removing_extension_from_middle_renormalizes_ordinals_and_preserves_insertion_order()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -166,7 +166,7 @@ public class DbContextOptionsTest
         Assert.Same(extension2New, extensionsList[2]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsConfigured_returns_true_if_any_provider_extensions_have_been_added()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -181,7 +181,7 @@ public class DbContextOptionsTest
         Assert.False(extension.AppliedServices);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsConfigured_returns_false_if_only_non_provider_extensions_have_been_added()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -305,7 +305,7 @@ public class DbContextOptionsTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UseModel_on_generic_builder_returns_generic_builder()
     {
         var model = new Model();
@@ -315,7 +315,7 @@ public class DbContextOptionsTest
         Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UseLoggerFactory_on_generic_builder_returns_generic_builder()
     {
         var loggerFactory = new LoggerFactory();
@@ -325,7 +325,7 @@ public class DbContextOptionsTest
         Assert.Same(loggerFactory, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().LoggerFactory);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UseMemoryCache_on_generic_builder_returns_generic_builder()
     {
         var memoryCache = new FakeMemoryCache();
@@ -350,7 +350,7 @@ public class DbContextOptionsTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void UseInternalServiceProvider_on_generic_builder_returns_generic_builder()
     {
         var serviceProvider = new FakeServiceProvider();
@@ -366,15 +366,15 @@ public class DbContextOptionsTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnableSensitiveDataLogging_on_generic_builder_returns_generic_builder()
         => GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableSensitiveDataLogging());
 
-    [ConditionalFact]
+    [Fact]
     public void EnableDetailedErrors_on_generic_builder_returns_generic_builder()
         => GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableDetailedErrors());
 
-    [ConditionalFact]
+    [Fact]
     public void UseQueryTrackingBehavior_on_generic_builder_returns_generic_builder()
     {
         var optionsBuilder = GenericCheck(
@@ -384,7 +384,7 @@ public class DbContextOptionsTest
             QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().QueryTrackingBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ConfigureWarnings_on_generic_builder_returns_generic_builder()
     {
         var optionsBuilder = GenericCheck(
@@ -398,7 +398,7 @@ public class DbContextOptionsTest
     private DbContextOptionsBuilder<UnkoolContext> GenericCheck(DbContextOptionsBuilder<UnkoolContext> optionsBuilder)
         => optionsBuilder;
 
-    [ConditionalFact]
+    [Fact]
     public void Generic_builder_returns_generic_options()
     {
         var builder = new DbContextOptionsBuilder<UnkoolContext>();

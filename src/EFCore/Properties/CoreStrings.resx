@@ -435,11 +435,17 @@
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
     <value>There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}' and targeting the principal entity type '{principalEntityType}'.</value>
   </data>
+  <data name="ConflictingNamedIndex" xml:space="preserve">
+    <value>The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.</value>
+  </data>
   <data name="ConflictingKeylessAndPrimaryKeyAttributes" xml:space="preserve">
     <value>The entity type '{entity}' has both [Keyless] and [PrimaryKey] attributes; one must be removed.</value>
   </data>
-  <data name="ConflictingPropertyOrNavigation" xml:space="preserve">
-    <value>The property or navigation '{member}' cannot be added to the '{type}' type because a property or navigation with the same name already exists on the '{conflictingType}' type.</value>
+  <data name="ConflictingPropertyOrNavigationOnBaseType" xml:space="preserve">
+    <value>The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.</value>
+  </data>
+  <data name="ConflictingPropertyOrNavigationWithKind" xml:space="preserve">
+    <value>The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists. Remove the existing {conflictingMemberKind} first.</value>
   </data>
   <data name="ConflictingRelationshipConversions" xml:space="preserve">
     <value>The property '{entityType}.{property}' participates in several relationship chains that have conflicting conversions: '{valueConversion}' and '{conflictingValueConversion}'.</value>
@@ -552,6 +558,9 @@
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
   </data>
+  <data name="DuplicateOwnedEntityInstance" xml:space="preserve">
+    <value>The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.</value>
+  </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.</value>
   </data>
@@ -596,6 +605,12 @@
   </data>
   <data name="EFParameterInvoked" xml:space="preserve">
     <value>The 'EF.Parameter&lt;T&gt;' method may only be used within Entity Framework LINQ queries.</value>
+  </data>
+  <data name="ElementNotMapped" xml:space="preserve">
+    <value>The element type '{elementType}' of the primitive collection '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the element value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="ElementTypeNotCompatible" xml:space="preserve">
+    <value>The element type '{elementType}' is not compatible with the type '{collectionType}' of the primitive collection '{entityType}.{property}'. The collection type must implement 'IEnumerable&lt;T&gt;' where 'T' is assignable to the element type.</value>
   </data>
   <data name="EmptyComplexType" xml:space="preserve">
     <value>Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.</value>
@@ -760,8 +775,20 @@
   <data name="IncorrectNumberOfArguments" xml:space="preserve">
     <value>'{method}' was invoked with {argumentCount} arguments, but has {parameterCount} parameters.</value>
   </data>
+  <data name="IndexOnComplexCollection" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because it traverses the complex collection '{property}'. Indexes cannot reference properties whose path goes through a complex collection.</value>
+  </data>
+  <data name="IndexOnComplexProperty" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because it is defined on the complex property '{property}'. Indexes are not supported on complex properties.</value>
+  </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
+  </data>
+  <data name="IndexPropertyMustBePropertyOrComplexProperty" xml:space="preserve">
+    <value>The index property '{property}' on the entity type '{entityType}' cannot be configured because it is not a scalar property or a complex property. Only scalar properties and complex properties can be referenced by an index.</value>
+  </data>
+  <data name="IndexValueFactoryWithComplexProperty" xml:space="preserve">
+    <value>A value factory cannot be created for the index {indexProperties} on the entity type '{entityType}' because it contains the complex property '{property}'. Index value factories are not supported for indexes that contain complex properties.</value>
   </data>
   <data name="IndexWrongType" xml:space="preserve">
     <value>The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
@@ -774,6 +801,9 @@
   </data>
   <data name="InvalidAlternateKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys may not.</value>
+  </data>
+  <data name="InvalidCollectionIndicesEntryLength" xml:space="preserve">
+    <value>The collection-indices entry for property '{property}' on index {indexProperties} has {actualCount} element(s), but the property path traverses {expectedCount} complex collection(s).</value>
   </data>
   <data name="InvalidComplexType" xml:space="preserve">
     <value>The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type.</value>
@@ -793,9 +823,6 @@
   <data name="InvalidIncludeExpression" xml:space="preserve">
     <value>The expression '{expression}' is invalid inside an 'Include' operation, since it does not represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, use casting ('t =&gt; ((Derived)t).MyProperty') or the 'as' operator ('t =&gt; (t as Derived).MyProperty'). Collection navigation access can be filtered by composing Where, OrderBy(Descending), ThenBy(Descending), Skip or Take operations. For more information on including related data, see https://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
-  <data name="InvalidJsonPathOrdinalCount" xml:space="preserve">
-    <value>The number of ordinals provided ({ordinalsCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).</value>
-  </data>
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because its primary key property '{keyProperty}' is null.</value>
   </data>
@@ -810,6 +837,9 @@
   </data>
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The [InverseProperty] attribute on property '{1_entityType}.{0_property}' is not valid. The property '{referencedProperty}' is not a valid navigation on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation.</value>
+  </data>
+  <data name="InvalidNumberOfIndexCollectionIndices" xml:space="preserve">
+    <value>Invalid number of index collection-indices entries provided for {indexProperties}: {numValues} entries were provided, but the index has {numProperties} properties.</value>
   </data>
   <data name="InvalidNumberOfIndexSortOrderValues" xml:space="preserve">
     <value>Invalid number of index sort order values provided for {indexProperties}: {numValues} values were provided, but the index has {numProperties} properties.</value>
@@ -840,6 +870,9 @@
   </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'. See https://aka.ms/efcore-docs-owned for more information.</value>
+  </data>
+  <data name="InvalidStructuredJsonPathIndexCount" xml:space="preserve">
+    <value>The number of indices provided ({indicesCount}) must match the number of array segments in the JSON path ({arraySegmentCount}).</value>
   </data>
   <data name="InvalidSwitch" xml:space="preserve">
     <value>Invalid {name}: {value}</value>
@@ -885,6 +918,12 @@
   </data>
   <data name="KeylessTypeWithKey" xml:space="preserve">
     <value>The key {keyProperties} cannot be added to keyless type '{entityType}'.</value>
+  </data>
+  <data name="KeyOnComplexCollection" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be configured because it traverses the complex collection '{property}'. Keys cannot reference properties whose path goes through a complex collection.</value>
+  </data>
+  <data name="KeyOnNullableComplexProperty" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be configured because the complex property '{property}' it traverses is configured as optional. Mark the complex property as required in order to use one of its properties as part of a key.</value>
   </data>
   <data name="KeyPropertiesWrongEntity" xml:space="preserve">
     <value>The specified key properties {keyProperties} are not declared on the entity type '{entityType}'. Ensure key properties are declared on the target entity type.</value>
@@ -995,6 +1034,10 @@
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
+  </data>
+  <data name="LogEnsureCreatedWithTrackedEntities" xml:space="preserve">
+    <value>'EnsureCreated' was called on a context that is already tracking added, modified, or deleted entities. These tracked changes would be lost if a retry occurs due to a transient failure. Call 'EnsureCreated' before making changes to the context, or disable this warning by using 'ConfigureWarnings(w =&gt; w.Ignore(CoreEventId.EnsureCreatedWithTrackedEntitiesWarning))'.</value>
+    <comment>Warning CoreEventId.EnsureCreatedWithTrackedEntitiesWarning</comment>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
     <value>An exception occurred while iterating over the results of a query for context type '{contextType}'.{newline}{error}</value>
@@ -1195,6 +1238,10 @@
   <data name="LogShadowPropertyCreated" xml:space="preserve">
     <value>The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
     <comment>Debug CoreEventId.ShadowPropertyCreated string string</comment>
+  </data>
+  <data name="LogShadowPropertyNameNotValidIdentifier" xml:space="preserve">
+    <value>The shadow property '{entityType}.{property}' has a name that is not a valid identifier. This can cause issues in generated code. Consider renaming the property to use only letters, digits (except for the first character), and underscore.</value>
+    <comment>Warning CoreEventId.ShadowPropertyNameNotValidIdentifierWarning string string</comment>
   </data>
   <data name="LogSkipCollectionChangeDetected" xml:space="preserve">
     <value>{addedCount} entities were added and {removedCount} entities were removed from skip navigation '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
@@ -1475,6 +1522,12 @@
   </data>
   <data name="OwnedEntitiesCannotBeTrackedWithoutTheirOwner" xml:space="preserve">
     <value>A tracking query is attempting to project an owned entity without a corresponding owner in its result, but owned entities cannot be tracked without their owner. Either include the owner entity in the result or make the query non-tracking using 'AsNoTracking'.</value>
+  </data>
+  <data name="OwnershipNotCascadeDelete" xml:space="preserve">
+    <value>The ownership relationship from '{principalEntityType}' to '{dependentEntityType}' is configured with '{deleteBehavior}' delete behavior. Ownership relationships must use '{cascadeBehavior}' delete behavior. Either remove the explicit delete behavior configuration or don't configure this relationship as an ownership.</value>
+  </data>
+  <data name="OwnershipNotRequired" xml:space="preserve">
+    <value>The ownership relationship from '{principalEntityType}' to '{dependentEntityType}' is configured as optional. Ownership relationships must be required. Either remove the optional configuration or don't configure this relationship as an ownership.</value>
   </data>
   <data name="OwnerlessOwnedType" xml:space="preserve">
     <value>The entity type '{ownedType}' has been marked as owned and must be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}' or don't configure it as owned.</value>
@@ -1805,6 +1858,9 @@
   </data>
   <data name="UnhandledNavigationBase" xml:space="preserve">
     <value>Unhandled 'INavigationBase' of type '{type}'.</value>
+  </data>
+  <data name="UnionTypeNotSupported" xml:space="preserve">
+    <value>The type '{type}' cannot be mapped because union types are not supported. See https://github.com/dotnet/efcore/issues/36375 for more information.</value>
   </data>
   <data name="UnknownEntity" xml:space="preserve">
     <value>Unhandled {entity} encountered.</value>

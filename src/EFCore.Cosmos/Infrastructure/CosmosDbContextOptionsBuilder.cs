@@ -243,8 +243,8 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="enabled"><see langword="true" /> to enable the Cosmos DB SDK bulk feature.</param>
-    public virtual CosmosDbContextOptionsBuilder BulkExecutionEnabled(bool enabled = true)
-        => WithOption(e => e.BulkExecutionEnabled(enabled));
+    public virtual CosmosDbContextOptionsBuilder BulkExecutionAllowed(bool enabled = true)
+        => WithOption(e => e.BulkExecutionAllowed(enabled));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

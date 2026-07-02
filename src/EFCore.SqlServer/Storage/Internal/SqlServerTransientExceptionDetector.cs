@@ -318,11 +318,11 @@ public static class SqlServerTransientExceptionDetector
                     // Cannot obtain a LOCK resource at this time due to internal error. Rerun your statement when there are fewer active users.
                     case 22335:
                     // SQL Error Code: 22226
-                    // An internal error (%d, %d) occured. Please retry the operation again. If the problem persists contact
+                    // An internal error (%d, %d) occurred. Please retry the operation again. If the problem persists contact
                     // Microsoft Azure Customer Support.
                     case 22226:
                     // SQL Error Code: 22225
-                    // An internal error (%d, %d) occured. Please retry the operation again. If the problem persists contact
+                    // An internal error (%d, %d) occurred. Please retry the operation again. If the problem persists contact
                     // Microsoft Azure Customer Support.
                     case 22225:
                     // SQL Error Code: 21503

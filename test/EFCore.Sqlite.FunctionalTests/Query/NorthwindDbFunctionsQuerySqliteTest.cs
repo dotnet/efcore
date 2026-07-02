@@ -16,7 +16,7 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
         : base(fixture)
         => Fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Glob(bool async)
     {
         await AssertCount(
@@ -34,7 +34,7 @@ WHERE "c"."ContactName" GLOB '*M*'
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Glob_negated(bool async)
     {
         await AssertCount(

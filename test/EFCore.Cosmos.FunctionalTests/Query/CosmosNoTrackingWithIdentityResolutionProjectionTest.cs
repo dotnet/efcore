@@ -15,7 +15,7 @@ public class CosmosNoTrackingWithIdentityResolutionQueryTest
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Owned_reference_with_owner_key_after_owned_reference_projects_owner_key_first()
     {
         await AssertQuery(
@@ -40,7 +40,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Owned_collection_with_owner_key_after_owned_collection_projects_owner_key_first()
     {
         await AssertQuery(
@@ -61,7 +61,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Owned_reference_without_owner_key_throws()
     {
         using var context = CreateContext();
@@ -76,7 +76,7 @@ FROM root c
         AssertMissingOwnerKeyMessage(exception);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Owned_collection_without_owner_key_throws()
     {
         using var context = CreateContext();
@@ -91,7 +91,7 @@ FROM root c
         AssertMissingOwnerKeyMessage(exception);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SelectMany_owned_collection_throws()
     {
         using var context = CreateContext();
@@ -106,7 +106,7 @@ FROM root c
         AssertMissingOwnerKeyMessage(exception);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SelectMany_owned_collection_with_owner_key_throws()
     {
         using var context = CreateContext();
@@ -121,7 +121,7 @@ FROM root c
         Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Root_entity_projection_with_owned_reference_without_owner_key_throws()
     {
         using var context = CreateContext();
@@ -147,7 +147,7 @@ FROM root c
         protected override ITestStoreFactory NonSharedTestStoreFactory
             => CosmosTestStoreFactory.Instance;
 
-        [ConditionalFact]
+        [Fact]
         public async Task Double_owned_reference_returns_same()
         {
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
@@ -192,7 +192,7 @@ FROM root c
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Owned_collection_with_duplicate_returns_same()
         {
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
@@ -244,7 +244,7 @@ FROM root c
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Owned_collection_concat_returns_same()
         {
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
@@ -302,7 +302,7 @@ FROM root c
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Duplicate_owned_collection_returns_same()
         {
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
@@ -366,7 +366,7 @@ FROM root c
             }
         }
 
-        [ConditionalFact(Skip = "Fails on main, and also: #37954")]
+        [Fact(Skip = "Fails on main, and also: #37954")]
         public async Task Ordinal_owned_collection_concat_returns_same()
         {
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();
@@ -422,7 +422,7 @@ FROM root c
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Duplicate_ordinal_owned_collection_returns_same()
         {
             var contextFactory = await InitializeNonSharedTest<ValidationContext>();

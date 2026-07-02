@@ -13,7 +13,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
     protected override string NonSharedStoreName
         => "StoredProcedureUpdateTest";
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_output_parameter(bool async);
 
     protected async Task Insert_with_output_parameter(bool async, string createSprocSql)
@@ -39,7 +39,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_twice_with_output_parameter(bool async);
 
     protected async Task Insert_twice_with_output_parameter(bool async, string createSprocSql)
@@ -67,7 +67,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_result_column(bool async);
 
     protected async Task Insert_with_result_column(bool async, string createSprocSql)
@@ -91,7 +91,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_two_result_columns(bool async);
 
     protected async Task Insert_with_two_result_columns(bool async, string createSprocSql)
@@ -124,7 +124,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Insert_with_output_parameter_and_result_column(bool async);
 
     protected async Task Insert_with_output_parameter_and_result_column(bool async, string createSprocSql)
@@ -156,7 +156,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update(bool async);
 
     protected async Task Update(bool async, string createSprocSql)
@@ -186,7 +186,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update_partial(bool async);
 
     protected async Task Update_partial(bool async, string createSprocSql)
@@ -220,7 +220,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update_with_output_parameter_and_rows_affected_result_column(bool async);
 
     protected async Task Update_with_output_parameter_and_rows_affected_result_column(bool async, string createSprocSql)
@@ -261,7 +261,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async);
 
     protected async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async, string createSprocSql)
@@ -303,7 +303,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Delete(bool async);
 
     protected async Task Delete(bool async, string createSprocSql)
@@ -332,7 +332,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Delete_and_insert(bool async);
 
     protected async Task Delete_and_insert(bool async, string createSprocSql)
@@ -368,7 +368,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_parameter(bool async);
 
     protected async Task Rows_affected_parameter(bool async, string createSprocSql)
@@ -401,7 +401,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_parameter_and_concurrency_failure(bool async);
 
     protected async Task Rows_affected_parameter_and_concurrency_failure(bool async, string createSprocSql)
@@ -438,7 +438,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_result_column(bool async);
 
     protected async Task Rows_affected_result_column(bool async, string createSprocSql)
@@ -471,7 +471,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_result_column_and_concurrency_failure(bool async);
 
     protected async Task Rows_affected_result_column_and_concurrency_failure(bool async, string createSprocSql)
@@ -508,7 +508,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_return_value(bool async);
 
     protected async Task Rows_affected_return_value(bool async, string createSprocSql)
@@ -541,7 +541,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Rows_affected_return_value_and_concurrency_failure(bool async);
 
     protected async Task Rows_affected_return_value_and_concurrency_failure(bool async, string createSprocSql)
@@ -578,7 +578,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Store_generated_concurrency_token_as_in_out_parameter(bool async);
 
     protected async Task Store_generated_concurrency_token_as_in_out_parameter(bool async, string createSprocSql)
@@ -620,7 +620,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Store_generated_concurrency_token_as_two_parameters(bool async);
 
     protected async Task Store_generated_concurrency_token_as_two_parameters(bool async, string createSprocSql)
@@ -666,7 +666,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, entry.Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task User_managed_concurrency_token(bool async);
 
     protected async Task User_managed_concurrency_token(bool async, string createSprocSql)
@@ -714,7 +714,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         Assert.Same(entity1, Assert.Single(exception.Entries).Entity);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Original_and_current_value_on_non_concurrency_token(bool async);
 
     protected async Task Original_and_current_value_on_non_concurrency_token(bool async, string createSprocSql)
@@ -750,7 +750,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Input_or_output_parameter_with_input(bool async);
 
     protected async Task Input_or_output_parameter_with_input(bool async, string createSprocSql)
@@ -783,7 +783,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Input_or_output_parameter_with_output(bool async);
 
     protected async Task Input_or_output_parameter_with_output(bool async, string createSprocSql)
@@ -816,7 +816,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tph(bool async);
 
     protected async Task Tph(bool async, string createSprocSql)
@@ -867,7 +867,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tpt(bool async);
 
     protected async Task Tpt(bool async, string createSprocSql)
@@ -912,7 +912,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tpt_mixed_sproc_and_non_sproc(bool async);
 
     protected async Task Tpt_mixed_sproc_and_non_sproc(bool async, string createSprocSql)
@@ -953,7 +953,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Tpc(bool async);
 
     protected async Task Tpc(bool async, string createSprocSql)
@@ -991,7 +991,7 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public abstract Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async);
 
     protected async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async, string createSprocSql)

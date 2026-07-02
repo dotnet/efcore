@@ -1230,24 +1230,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             = (valueConverter?.ProviderClrType
                 ?? typeMapping.ClrType).UnwrapNullableType();
 
-        if (!column.TryGetDefaultValue(out var defaultValue))
-        {
-            // for non-nullable collections of primitives that are mapped to JSON we set a default value corresponding to empty JSON collection
-            defaultValue = !inline
-                && column is
-                {
-                    IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: { } columnValueConverter }
-                }
-                && columnValueConverter.GetType() is { IsGenericType: true } columnValueConverterType
-                && columnValueConverterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>)
-                    ? "[]"
-                    : null;
-        }
-
+        column.TryGetDefaultValue(out var defaultValue);
         columnOperation.DefaultValue = defaultValue
             ?? (inline || isNullable
                 ? null
-                : GetDefaultValue(columnOperation.ClrType));
+                : typeMapping.GetDefaultProviderValue());
         columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ColumnType = column.StoreType;
         columnOperation.MaxLength = column.MaxLength;
@@ -1525,7 +1512,28 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             && MultilineEquals(source.Filter, target.Filter)
             && !HasDifferences(source.GetAnnotations(), target.GetAnnotations())
             && source.Columns.Select(p => p.Name).SequenceEqual(
-                target.Columns.Select(p => diffContext.FindSource(p)?.Name));
+                target.Columns.Select(p => diffContext.FindSource(p)?.Name))
+            && JsonIndexEqual(source, target);
+
+    private static bool JsonIndexEqual(ITableIndex source, ITableIndex target)
+    {
+        // The JsonIndex annotation captures both the mapped JSON elements and the complex-collection
+        // indices traversed to reach each indexed property. RelationalJsonIndex.Equals compares both
+        // element identity (column + path) and the parallel collection-indices list.
+        var sourceJson = source[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        var targetJson = target[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
+        if (sourceJson is null && targetJson is null)
+        {
+            return true;
+        }
+
+        if (sourceJson is null || targetJson is null)
+        {
+            return false;
+        }
+
+        return sourceJson.Equals(targetJson);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2533,19 +2541,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             // ReSharper disable once RedundantEnumerableCastCall
             .Cast<string>()
             .Distinct();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual object? GetDefaultValue(Type type)
-        => type == typeof(string)
-            ? string.Empty
-            : type.IsArray
-                ? Array.CreateInstance(type.GetElementType()!, 0)
-                : type.UnwrapNullableType().GetDefaultValue();
 
     private static ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
         => (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;

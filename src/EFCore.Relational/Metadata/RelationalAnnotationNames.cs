@@ -360,6 +360,20 @@ public static class RelationalAnnotationNames
     public const string JsonElementMappings = Prefix + "JsonElementMappings";
 
     /// <summary>
+    ///     The name for the annotation that captures the mapped JSON elements and complex-collection
+    ///     indices for a table index defined over properties contained in a JSON-mapped column.
+    /// </summary>
+    public const string JsonIndex = Prefix + nameof(JsonIndex);
+
+    /// <summary>
+    ///     The name for the annotation that captures the JSON paths of a scaffolded JSON index. The
+    ///     value is a <see cref="ValueTuple{T1, T2}" /> of the JSON container column name and the
+    ///     ordered list of indexed JSON paths (each in the SQL/JSON `$.path` form accepted by the
+    ///     provider's CREATE JSON INDEX statement).
+    /// </summary>
+    public const string JsonIndexPaths = Prefix + nameof(JsonIndexPaths);
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -433,6 +447,8 @@ public static class RelationalAnnotationNames
         ContainerColumnType,
         JsonPropertyName,
         StoreType,
-        JsonElementMappings
+        JsonElementMappings,
+        JsonIndex,
+        JsonIndexPaths
     };
 }

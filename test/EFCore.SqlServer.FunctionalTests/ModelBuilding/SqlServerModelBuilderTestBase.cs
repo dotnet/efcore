@@ -16,7 +16,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerNonRelationship(SqlServerModelBuilderFixture fixture)
         : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Index_has_a_filter_if_nonclustered_unique_with_nullable_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -75,7 +75,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Null(index.GetFilter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Indexes_can_have_same_name_across_tables()
         {
             var modelBuilder = CreateModelBuilder();
@@ -103,7 +103,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     StoreObjectIdentifier.Table("CustomerDetails")));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_store_type_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -137,7 +137,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("nchar(max)", entityType.FindProperty("Bottom")!.GetColumnType());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_fixed_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -166,7 +166,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(entityType.FindProperty("Bottom")!.IsFixedLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_collation_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -195,7 +195,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Bottom")!.GetCollation());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_store_type_for_primitive_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -221,7 +221,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("varchar(max)", entityType.FindProperty("Bottom")!.GetColumnType());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_fixed_length_for_primitive_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -240,7 +240,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(entityType.FindProperty("Charm")!.IsFixedLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_collation_for_primitive_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -259,7 +259,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("Latin1_General_CI_AI", entityType.FindProperty("Charm")!.GetCollation());
         }
 
-        [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+        [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
         [Experimental("EF9105")]
         public virtual void Can_configure_vector_index_with_fluent_api()
         {
@@ -286,7 +286,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(nameof(VectorIndexEntity.Vector), index.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_full_text_index_with_fluent_api()
         {
             var modelBuilder = CreateModelBuilder();
@@ -314,7 +314,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(nameof(FullTextEntity.Title), index.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_full_text_index_with_multiple_columns()
         {
             var modelBuilder = CreateModelBuilder();
@@ -339,7 +339,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("French", index.GetFullTextLanguage("Body"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_full_text_catalog_with_fluent_api()
         {
             var modelBuilder = CreateModelBuilder();
@@ -363,7 +363,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.False(catalogs[0].IsAccentSensitive);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_configure_full_text_index_with_change_tracking_off_no_population()
         {
             var modelBuilder = CreateModelBuilder();
@@ -391,7 +391,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             public byte[]? Document { get; set; }
         }
 
-        [ConditionalTheory, InlineData(true), InlineData(false)]
+        [Theory, InlineData(true), InlineData(false)]
         public virtual void Can_avoid_attributes_when_discovering_properties(bool useAttributes)
         {
             var modelBuilder = CreateModelBuilder(c => c.Conventions.Replace(s => new PropertyDiscoveryConvention(
@@ -439,7 +439,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerInheritance(SqlServerModelBuilderFixture fixture)
         : RelationalInheritanceTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        [ConditionalFact] // #7240
+        [Fact] // #7240
         public void Can_use_shadow_FK_that_collides_with_convention_shadow_FK_on_other_derived_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -460,7 +460,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnName(StoreObjectIdentifier.Table(nameof(Child))));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Inherited_clr_properties_are_mapped_to_the_same_column()
         {
             var modelBuilder = CreateModelBuilder();
@@ -477,7 +477,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(nameof(Child.Name), property2.GetColumnName());
         }
 
-        [ConditionalFact] //Issue#10659
+        [Fact] //Issue#10659
         public void Index_convention_run_for_fk_when_derived_type_discovered_before_base_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -490,7 +490,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("[CustomerId] IS NOT NULL", index.GetFilter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Index_convention_sets_filter_for_unique_index_when_base_type_changed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -510,7 +510,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Null(index.GetFilter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_override_TPC_with_TPH()
         {
             var modelBuilder = CreateModelBuilder();
@@ -530,7 +530,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(nameof(Q), model.FindEntityType(typeof(Q))!.GetDiscriminatorValue());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void TPT_identifying_FK_is_created_only_on_declaring_table()
         {
             var modelBuilder = CreateModelBuilder();
@@ -592,7 +592,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Single(sesameBunFk.GetMappedConstraints());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void TPC_identifying_FKs_are_created_on_all_tables()
         {
             var modelBuilder = CreateModelBuilder();
@@ -656,7 +656,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 ingredientIndex.GetDatabaseName(StoreObjectIdentifier.Create(bunType, StoreObjectType.Table)!.Value));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void TPT_index_can_use_inherited_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -683,7 +683,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.All(bunType.GetIndexes(), i => Assert.Null(i.GetFilter()));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_add_check_constraints()
         {
             var modelBuilder = CreateModelBuilder();
@@ -720,7 +720,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Empty(child.GetDeclaredCheckConstraints());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Adding_conflicting_check_constraint_to_derived_type_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -733,7 +733,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     => modelBuilder.Entity<Child>().ToTable(tb => tb.HasCheckConstraint("LargeId", "Id > 1000"))).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Adding_conflicting_check_constraint_to_derived_type_before_base_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -773,7 +773,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerOneToMany(SqlServerModelBuilderFixture fixture)
         : RelationalOneToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Shadow_foreign_keys_to_generic_types_have_terrible_names_that_should_not_change()
         {
             var modelBuilder = CreateModelBuilder();
@@ -833,7 +833,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerManyToMany(SqlServerModelBuilderFixture fixture)
         : RelationalManyToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Join_entity_type_uses_same_schema()
         {
             var modelBuilder = CreateModelBuilder();
@@ -861,7 +861,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Join_entity_type_uses_default_schema_if_related_are_different()
         {
             var modelBuilder = CreateModelBuilder();
@@ -893,7 +893,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
     public abstract class SqlServerOwnedTypes(SqlServerModelBuilderFixture fixture)
         : RelationalOwnedTypesTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void Owned_types_use_table_splitting_by_default()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1014,7 +1014,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.All(bookId.PropertyMappings, m => Assert.Equal(ValueGenerated.OnUpdateSometimes, m.Property.ValueGenerated));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Owned_types_can_be_mapped_to_different_tables()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1189,7 +1189,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 ValueGenerated.Never, bookLabel2Ownership21.DeclaringEntityType.FindPrimaryKey()!.Properties.Single().ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Owned_type_collections_can_be_mapped_to_different_tables()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1242,7 +1242,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Null(owned.GetSchema());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Owned_type_collections_are_mapped_to_same_tables_by_default()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1289,7 +1289,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Owned_type_collections_can_be_mapped_to_a_view()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1328,7 +1328,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("foo", owned.GetViewSchema());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Owner_can_be_mapped_to_a_view()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1367,7 +1367,59 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Null(owned.GetSchema());
         }
 
-        [ConditionalFact]
+        [Fact]
+        public virtual void Temporal_table_period_columns_hidden_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal());
+            modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+            Assert.True(entity.IsTemporal());
+            Assert.True(entity.GetProperty(entity.GetPeriodStartPropertyName()!).IsHidden());
+            Assert.True(entity.GetProperty(entity.GetPeriodEndPropertyName()!).IsHidden());
+        }
+
+        [Fact]
+        public virtual void Temporal_table_period_columns_can_be_made_visible_per_column()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                ttb.HasPeriodEnd("PeriodEnd").IsHidden(false);
+            }));
+            modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+            Assert.True(entity.IsTemporal());
+            Assert.False(entity.GetProperty("PeriodStart").IsHidden());
+            Assert.False(entity.GetProperty("PeriodEnd").IsHidden());
+        }
+
+        [Fact]
+        public virtual void Temporal_table_period_column_can_be_made_visible_per_column()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+            {
+                ttb.HasPeriodStart("PeriodStart").IsHidden(false);
+                ttb.HasPeriodEnd("PeriodEnd");
+            }));
+            modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+            Assert.False(entity.GetProperty("PeriodStart").IsHidden());
+            Assert.True(entity.GetProperty("PeriodEnd").IsHidden());
+        }
+
+        [Fact]
         public virtual void Temporal_table_default_settings()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1401,7 +1453,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Temporal_table_with_history_table_configuration()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1440,7 +1492,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Temporal_table_with_changed_configuration()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1486,7 +1538,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Temporal_table_with_period_column_names_changed_configuration()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1532,7 +1584,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Temporal_table_with_explicit_properties_mapped_to_the_period_columns()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1581,7 +1633,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void
             Temporal_table_with_explicit_properties_with_same_name_as_default_periods_but_different_periods_defined_explicity_as_well()
         {
@@ -1637,7 +1689,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.Never, propertyMappedToEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Switching_from_temporal_to_non_temporal_default_settings()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1655,7 +1707,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(5, entity.GetProperties().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Implicit_many_to_many_converted_from_non_temporal_to_temporal()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1675,7 +1727,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(joinEntity.IsTemporal());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Temporal_table_with_period_mapped_to_CLR_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1706,7 +1758,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Temporal_table_with_period_mapped_to_CLR_property_via_lambda()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1737,8 +1789,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
         }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_and_normal_owned_can_exist_side_by_side_on_same_entity()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1776,7 +1827,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(nonJson.All(x => x.GetProperty("Enum").GetJsonPropertyName() == null));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_with_tph_inheritance()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1812,7 +1863,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("reference_on_derived", jsonColumnNames[3]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_with_nested_structure_same_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1915,7 +1966,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal(16, model.FindEntityTypes(typeof(OwnedEntity)).Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_nested_enums_have_conversions_to_int_by_default_ToJson_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1969,7 +2020,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_nested_enums_have_conversions_to_int_by_default_ToJson_last()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2023,7 +2074,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Entity_mapped_to_json_and_unwound_afterwards_properly_cleans_up_its_state()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2080,8 +2131,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             }
         }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_mapped_to_view()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2105,7 +2155,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(ownedEntities.All(x => x.GetViewName() == "MyView"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_mapped_to_view_with_custom_schema()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2130,7 +2180,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.True(ownedEntities.All(x => x.GetViewSchema() == "MySchema"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Json_entity_with_custom_property_names()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2255,9 +2305,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.Equal("InnerEnum", ownedEntity.GetProperty("Enum").GetJsonPropertyName());
             }
         }
-#pragma warning restore EF8001
     }
-#pragma warning restore EF8001 // Owned JSON entities are obsolete
 
     public class SqlServerModelBuilderFixture : RelationalModelBuilderFixture
     {
@@ -2424,6 +2472,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public TestTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
+
+        public TestTemporalPeriodPropertyBuilder IsHidden(bool hidden = true)
+            => new(TemporalPeriodPropertyBuilder.IsHidden(hidden));
     }
 
     public class TestOwnedNavigationTemporalPeriodPropertyBuilder(
@@ -2433,6 +2484,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         public TestOwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
+
+        public TestOwnedNavigationTemporalPeriodPropertyBuilder IsHidden(bool hidden = true)
+            => new(TemporalPeriodPropertyBuilder.IsHidden(hidden));
     }
 
 #pragma warning disable EF9105 // Vector indexes are experimental

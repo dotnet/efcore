@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsTemporalTablesCascadeDeleteSupported))]
 public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
     TemporalOwnedQuerySqlServerTest.TemporalOwnedQuerySqlServerFixture>
 {
@@ -36,7 +36,7 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
         return rewriter.Visit(serverQueryExpression);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_on_owned_entity_mapped_to_same_table_works_with_all_temporal_methods(bool async)
     {
         var context = CreateContext();
@@ -87,7 +87,7 @@ FROM [OwnedPerson] FOR SYSTEM_TIME BETWEEN '1990-01-01T00:00:00.0000000' AND '22
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_on_owned_entity_mapped_to_different_table_fails_for_non_asof(bool async)
     {
         var context = CreateContext();
@@ -1293,7 +1293,7 @@ SELECT (
     LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
     LEFT JOIN [Star] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [p].[StarId] = [s].[Id]
     WHERE [o0].[Key] = [o1].[Key]) AS [p1], (
-    SELECT COALESCE(SUM([s0].[Id]), 0)
+    SELECT ISNULL(SUM([s0].[Id]), 0)
     FROM (
         SELECT 1 AS [Key], [o4].[PersonAddress_Country_PlanetId]
         FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o4]
@@ -1447,7 +1447,7 @@ ORDER BY [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId],
 SELECT [p].[Id], [p].[Name], [p].[PeriodEnd], [p].[PeriodStart], [p].[StarId], [s].[Id], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart], [s].[StarId], [s].[Id0], [s].[Discriminator], [s].[Name0], [s].[PeriodEnd0], [s].[PeriodStart0], [s0].[ClientId], [s0].[Id], [s0].[OrderDate], [s0].[PeriodEnd], [s0].[PeriodStart], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0], [s0].[Detail], [s0].[PeriodEnd0], [s0].[PeriodStart0], [s].[PersonAddress_AddressLine], [s].[PersonAddress_PlaceType], [s].[PersonAddress_ZipCode], [s].[PersonAddress_Country_Name], [s].[PersonAddress_Country_PlanetId], [s].[BranchAddress_BranchName], [s].[BranchAddress_PlaceType], [s].[BranchAddress_Country_Name], [s].[BranchAddress_Country_PlanetId], [s].[LeafBAddress_LeafBType], [s].[LeafBAddress_PlaceType], [s].[LeafBAddress_Country_Name], [s].[LeafBAddress_Country_PlanetId], [s].[LeafAAddress_LeafType], [s].[LeafAAddress_PlaceType], [s].[LeafAAddress_Country_Name], [s].[LeafAAddress_Country_PlanetId]
 FROM [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p]
 LEFT JOIN (
-    SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[PeriodEnd], [p0].[PeriodStart], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[PeriodEnd], [p0].[PeriodStart], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], [o].[PeriodEnd] AS [PeriodEnd0], [o].[PeriodStart] AS [PeriodStart0], 1 AS [marker], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p0]
     LEFT JOIN [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o] ON [p0].[Id] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[Id0]
@@ -1467,7 +1467,7 @@ ORDER BY [p].[Id], [s].[Id], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [
         AssertSql(
             """
 SELECT [o].[Id] AS [Key], (
-    SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
+    SELECT ISNULL(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
     FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     WHERE [o].[Id] = [o0].[Id]) AS [Sum]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]

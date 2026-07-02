@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
@@ -14,7 +14,7 @@ public class TPCManyToManyQuerySqlServerTest : TPCManyToManyQueryRelationalTestB
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -216,7 +216,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[Key1]), 0)
+SELECT ISNULL(SUM([s].[Key1]), 0)
 FROM (
     SELECT [r].[Id]
     FROM [Roots] AS [r]
@@ -290,7 +290,7 @@ FROM [EntityThrees] AS [e]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([e1].[Id]), 0)
+    SELECT ISNULL(SUM([e1].[Id]), 0)
     FROM [EntityOneEntityTwo] AS [e0]
     INNER JOIN [EntityOnes] AS [e1] ON [e0].[OneSkipSharedId] = [e1].[Id]
     WHERE [e].[Id] = [e0].[TwoSkipSharedId])

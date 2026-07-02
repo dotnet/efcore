@@ -12,7 +12,7 @@ using static Microsoft.EntityFrameworkCore.Migrations.MigrationsInfrastructureFi
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    [SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.IsNotCI)]
+    [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql)), SkipOnCI("Flaky on CI")]
     public class MigrationsInfrastructureSqlServerTest(
         MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
@@ -685,7 +685,7 @@ GO
             Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", ActiveProvider);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_when_no_migrations()
         {
             using var context = new DbContext(
@@ -704,7 +704,7 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_when_no_migrations_async()
         {
             using var context = new DbContext(
@@ -723,7 +723,7 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_when_no_snapshot()
         {
             using var context = new MigrationsContext(
@@ -743,7 +743,7 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_when_no_snapshot_async()
         {
             using var context = new MigrationsContext(
@@ -763,7 +763,7 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_for_old_migration_version()
         {
             using var context = new BloggingContext(
@@ -784,7 +784,7 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_for_old_migration_version_async()
         {
             using var context = new BloggingContext(
@@ -805,7 +805,7 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Throws_for_nondeterministic_HasData()
         {
             using var context = new BloggingContext(
@@ -825,7 +825,7 @@ GO
                 (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Throws_for_nondeterministic_HasData_async()
         {
             using var context = new BloggingContext(
@@ -845,7 +845,7 @@ GO
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Empty_Migration_Creates_Database()
         {
             using var context = new BloggingContext(
@@ -863,7 +863,7 @@ GO
             Assert.True(creator.Exists());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Non_transactional_migration_is_retried()
         {
             using var context = new BloggingContext(
@@ -974,7 +974,7 @@ SELECT @result
                 ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
+        [Fact]
         public async Task Non_transactional_migration_is_retried_async()
         {
             using var context = new BloggingContext(
@@ -2028,7 +2028,7 @@ END
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
 
-            public override async Task InitializeAsync()
+            public override async ValueTask InitializeAsync()
             {
                 await base.InitializeAsync();
                 await ((SqlServerTestStore)TestStore).ExecuteNonQueryAsync(

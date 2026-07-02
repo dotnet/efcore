@@ -8,7 +8,7 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
 public class AdHocJsonQuerySqlServerJsonTypeTest(NonSharedFixture fixture) : AdHocJsonQuerySqlServerTestBase(fixture)
 {
     #region BadJsonProperties

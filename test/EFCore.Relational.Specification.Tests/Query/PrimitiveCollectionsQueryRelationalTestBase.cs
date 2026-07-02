@@ -12,7 +12,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode);
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Inline_collection_Count_with_zero_values()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Count_with_zero_values());
@@ -23,7 +23,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     protected static IEnumerable<object[]> ParameterTranslationModeValues()
         => Enum.GetValues<ParameterTranslationMode>().Select<ParameterTranslationMode, object[]>(x => [x]);
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -43,7 +43,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -64,7 +64,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -84,7 +84,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Constant(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -105,7 +105,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -126,7 +126,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -147,7 +147,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
         ParameterTranslationMode mode)
     {
@@ -169,7 +169,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 100 }, result);
     }
 
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_Contains_with_default_mode_EF_MultipleParameters(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -190,7 +190,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_Contains_parameter_bucketization()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -211,8 +211,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         Assert.Equivalent(new[] { 2 }, result);
     }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
         var contextFactory = await InitializeNonSharedTest<TestContext>(
@@ -233,7 +232,6 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         result = await context.Set<TestOwner>().SingleAsync(o => o.Owned.Strings[1] == "bar");
         Assert.Equivalent(new[] { "foo", "bar" }, result.Owned.Strings);
     }
-#pragma warning restore EF8001
 
     public override Task Column_collection_Concat_parameter_collection_equality_inline_collection()
         => AssertTranslationFailed(base.Column_collection_Concat_parameter_collection_equality_inline_collection);
@@ -246,7 +244,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     public override async Task Column_collection_Where_equality_inline_collection()
         => await AssertTranslationFailed(base.Column_collection_Where_equality_inline_collection);
 
-    [ConditionalFact]
+    [Fact]
     public override void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
         // The array indexing is translated as a subquery over e.g. OPENJSON with LIMIT/OFFSET.
@@ -275,7 +273,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     }
 
     // #38008
-    [ConditionalTheory, MemberData(nameof(ParameterTranslationModeValues))]
+    [Theory, MemberData(nameof(ParameterTranslationModeValues))]
     public virtual async Task Parameter_collection_of_enum_Cast_from_different_enum_type(ParameterTranslationMode mode)
     {
         var contextFactory = await InitializeNonSharedTest<Context38008>(

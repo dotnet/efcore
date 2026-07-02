@@ -269,6 +269,17 @@ WHERE CAST([b].[Id] AS smallint) = CAST(8 AS smallint)
         AssertSql();
     }
 
+    public override async Task RuntimeConstantExpression()
+    {
+        await base.RuntimeConstantExpression();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name], [b].[Json]
+FROM [Blogs] AS [b]
+""");
+    }
+
     #endregion Expression types
 
     #region Regular operators
@@ -1453,12 +1464,12 @@ WHERE [b].[Id] = 7
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1469,12 +1480,12 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """,
             //
             """
-SELECT COALESCE(SUM([b].[Id]), 0)
+SELECT ISNULL(SUM([b].[Id]), 0)
 FROM [Blogs] AS [b]
 """);
     }
@@ -1485,6 +1496,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1502,6 +1514,7 @@ FROM [Blogs] AS [b]
 
         AssertSql(
             """
+SET NOCOUNT OFF;
 DELETE FROM [b]
 FROM [Blogs] AS [b]
 WHERE [b].[Id] > 8
@@ -1521,6 +1534,7 @@ FROM [Blogs] AS [b]
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1542,6 +1556,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
             """
 @newValue='NewValue' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = @newValue
 FROM [Blogs] AS [b]
@@ -1563,6 +1578,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'NewValue'
             """
 @suffix='Suffix' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = COALESCE([b].[Name], N'') + @suffix
 FROM [Blogs] AS [b]
@@ -1584,6 +1600,7 @@ WHERE [b].[Id] = 9 AND [b].[Name] = N'Blog2Suffix'
             """
 @newValue='NewValue' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [b]
 SET [b].[Name] = @newValue
 FROM [Blogs] AS [b]
@@ -1841,7 +1858,7 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task SqlServerAggregateFunctionExpression()
     {
         await Test(
@@ -1862,7 +1879,7 @@ GROUP BY [b].[Id]
 
     // SqlServerOpenJsonExpression is covered by PrecompiledQueryRelationalTestBase.Contains_with_parameterized_collection
 
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task TableValuedFunctionExpression_toplevel()
 //         => Test(
 //             "_ = context.GetBlogsWithAtLeast(9).ToList();",
@@ -1900,7 +1917,7 @@ GROUP BY [b].[Id]
 // """,
 //             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
 //
-//     [ConditionalFact]
+//     [Fact]
 //     public virtual Task TableValuedFunctionExpression_non_toplevel()
 //         => Test(
 //             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
@@ -2170,7 +2187,31 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    public override async Task Materialize_entity_with_primitive_collection_mapped_to_column()
+    {
+        await base.Materialize_entity_with_primitive_collection_mapped_to_column();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Tags]
+FROM [EntitiesWithPrimitiveCollection] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task Project_primitive_collection_mapped_to_column()
+    {
+        await base.Project_primitive_collection_mapped_to_column();
+
+        AssertSql(
+            """
+SELECT [e].[Tags]
+FROM [EntitiesWithPrimitiveCollection] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -2186,7 +2227,7 @@ FROM [Blogs] AS [b]
             // TODO: Figure out if there's a nice way to continue using the retrying strategy
             var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);
             sqlServerOptionsBuilder.ExecutionStrategy(d => new NonRetryingExecutionStrategy(d));
-            return builder;
+            return builder.EnableDetailedErrors();
         }
 
         public override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers

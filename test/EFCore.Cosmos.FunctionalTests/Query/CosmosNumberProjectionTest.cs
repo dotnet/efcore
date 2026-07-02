@@ -11,7 +11,7 @@ public class NumberProjectionCosmosTest : QueryTestBase<NumberProjectionCosmosTe
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Int_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Int / (e.Int - 1) }),
@@ -28,7 +28,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_int_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Int != null).Select(e => new { e.Id, Value = e.Int / (e.Int - 1) }),
@@ -47,7 +47,7 @@ WHERE (c["Int"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Long_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Long / (e.Long - 1) }),
@@ -64,7 +64,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_long_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Long != null).Select(e => new { e.Id, Value = e.Long / (e.Long - 1) }),
@@ -83,7 +83,7 @@ WHERE (c["Long"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Short_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Short / (e.Short - 1) }),
@@ -100,7 +100,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_short_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Short != null).Select(e => new { e.Id, Value = e.Short / (e.Short - 1) }),
@@ -119,7 +119,7 @@ WHERE (c["Short"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Float_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Float / (e.Float - 1) }),
@@ -136,7 +136,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_float_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Float != null).Select(e => new { e.Id, Value = e.Float / (e.Float - 1) }),
@@ -155,7 +155,7 @@ WHERE (c["Float"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task UShort_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.UShort / (e.UShort - 1) }),
@@ -172,7 +172,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_ushort_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.UShort != null).Select(e => new { e.Id, Value = e.UShort / (e.UShort - 1) }),
@@ -191,7 +191,7 @@ WHERE (c["UShort"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task UInt_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.UInt / (e.UInt - 1) }),
@@ -208,7 +208,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_uint_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.UInt != null).Select(e => new { e.Id, Value = e.UInt / (e.UInt - 1) }),
@@ -227,7 +227,7 @@ WHERE (c["UInt"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ULong_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.ULong / (e.ULong - 1) }),
@@ -244,7 +244,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_ulong_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.ULong != null).Select(e => new { e.Id, Value = e.ULong / (e.ULong - 1) }),
@@ -263,7 +263,7 @@ WHERE (c["ULong"] != null)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Int_subprojection_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new[] { e.Int / (e.Int - 1), e.Int / (e.Int - 1) }.Average()),
@@ -278,7 +278,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_int_subprojection_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Select(e => new[] { e.Int!.Value / (e.Int.Value - 1), e.Int.Value / (e.Int.Value - 1) }.Average()),
@@ -293,7 +293,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Float_subprojection_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new float[] { e.Float / (e.Float - 1), e.Float / (e.Float - 1) }.Average()),
@@ -308,7 +308,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nullable_float_subprojection_devided()
     {
         await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Select(e => new float[] { e.Float!.Value / (e.Float.Value - 1), e.Float.Value / (e.Float.Value - 1) }.Average()),
@@ -324,7 +324,7 @@ FROM root c
     }
 
 
-    [ConditionalFact]
+    [Fact]
     public async Task Int_devided_zero_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Int / (e.Int - 1)),
@@ -337,7 +337,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Int_devided_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Int / (e.Int + 1)),
@@ -351,7 +351,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact(Skip = "Convert not supported")] // Not a regression from 10.0
+    [Fact(Skip = "Convert not supported")] // Not a regression from 10.0
     public async Task Int_as_double_devided_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => (double)e.Int / (e.Int - 1)));
@@ -363,7 +363,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Float_devided_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Float / (e.Float - 1)));
@@ -375,7 +375,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact(Skip = "Convert not supported")] // Not a regression from 10.0
+    [Fact(Skip = "Convert not supported")] // Not a regression from 10.0
     public async Task Float_devided_int_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Float / (int)(e.Float - 1)));

@@ -6,7 +6,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
 public class FullTextSearchTranslationsSqlServerTest : IClassFixture<FullTextSearchTranslationsSqlServerTest.FullTextSearchQueryFixture>
 {
     private FullTextSearchQueryFixture Fixture { get; }
@@ -20,7 +20,7 @@ public class FullTextSearchTranslationsSqlServerTest : IClassFixture<FullTextSea
 
     #region FREETEXTTABLE TVF tests
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_all_columns()
     {
         using var context = CreateContext();
@@ -40,7 +40,7 @@ FROM FREETEXTTABLE([Articles], *, @p) AS [f]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_single_column()
     {
         using var context = CreateContext();
@@ -61,7 +61,7 @@ FROM FREETEXTTABLE([Articles], [Title], @p) AS [f]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_multiple_columns()
     {
         using var context = CreateContext();
@@ -81,7 +81,7 @@ FROM FREETEXTTABLE([Articles], ([Title], [Content]), @p) AS [f]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_join_as_inner()
     {
         using var context = CreateContext();
@@ -106,7 +106,7 @@ INNER JOIN FREETEXTTABLE([Articles], *, @p) AS [f] ON [a].[Id] = [f].[KEY]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_join_as_outer()
     {
         using var context = CreateContext();
@@ -131,7 +131,7 @@ INNER JOIN [Articles] AS [a0] ON [f].[KEY] = [a0].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_with_language_term()
     {
         using var context = CreateContext();
@@ -151,7 +151,7 @@ FROM FREETEXTTABLE([Articles], [Title], @p, LANGUAGE N'English') AS [f]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_with_top_n()
     {
         using var context = CreateContext();
@@ -172,7 +172,7 @@ FROM FREETEXTTABLE([Articles], [Content], @p, @p1) AS [f]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_with_language_and_top_n()
     {
         using var context = CreateContext();
@@ -193,7 +193,7 @@ FROM FREETEXTTABLE([Articles], [Content], @p, LANGUAGE N'English', @p1) AS [f]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_join_to_get_entity()
     {
         using var context = CreateContext();
@@ -219,7 +219,7 @@ ORDER BY [f].[RANK] DESC
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeTextTable_order_by_rank()
     {
         using var context = CreateContext();
@@ -250,7 +250,7 @@ ORDER BY [f].[RANK] DESC
 
     #region CONTAINSTABLE TVF tests
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_all_columns()
     {
         using var context = CreateContext();
@@ -270,7 +270,7 @@ FROM CONTAINSTABLE([Articles], *, @p) AS [c]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_single_column()
     {
         using var context = CreateContext();
@@ -291,7 +291,7 @@ FROM CONTAINSTABLE([Articles], [Title], @p) AS [c]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_multiple_columns()
     {
         using var context = CreateContext();
@@ -311,7 +311,7 @@ FROM CONTAINSTABLE([Articles], ([Title], [Content]), @p) AS [c]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_with_language_term()
     {
         using var context = CreateContext();
@@ -331,7 +331,7 @@ FROM CONTAINSTABLE([Articles], [Title], @p, LANGUAGE N'English') AS [c]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_with_top_n()
     {
         using var context = CreateContext();
@@ -352,7 +352,7 @@ FROM CONTAINSTABLE([Articles], [Content], @p, @p1) AS [c]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_join_as_inner()
     {
         using var context = CreateContext();
@@ -377,7 +377,7 @@ INNER JOIN CONTAINSTABLE([Articles], *, @p) AS [c] ON [a].[Id] = [c].[KEY]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ContainsTable_join_as_outer()
     {
         using var context = CreateContext();
@@ -406,7 +406,7 @@ INNER JOIN [Articles] AS [a0] ON [c].[KEY] = [a0].[Id]
 
     #region FREETEXT predicate tests
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeText_literal()
     {
         using var context = CreateContext();
@@ -424,14 +424,14 @@ WHERE FREETEXT([a].[Title], N'database')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FreeText_client_eval_throws()
     {
         Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
         Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FreeText_multiple_words()
     {
         using var context = CreateContext();
@@ -449,7 +449,7 @@ WHERE FREETEXT([a].[Content], N'data performance')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FreeText_with_language_term()
     {
         using var context = CreateContext();
@@ -465,7 +465,7 @@ WHERE FREETEXT([a].[Title], N'querying', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FreeText_with_non_literal_language_term()
     {
         var language = 1033;
@@ -482,7 +482,7 @@ WHERE FREETEXT([a].[Title], N'querying', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void FreeText_multiple_predicates()
     {
         using var context = CreateContext();
@@ -501,7 +501,7 @@ WHERE FREETEXT([a].[Title], N'database') AND FREETEXT([a].[Content], N'performan
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeText_throws_when_using_non_parameter_or_constant_for_freetext_string()
     {
         using var context = CreateContext();
@@ -515,7 +515,7 @@ WHERE FREETEXT([a].[Title], N'database') AND FREETEXT([a].[Content], N'performan
             => await context.Articles.FirstOrDefaultAsync(a => EF.Functions.FreeText(a.Title, a.Content.ToUpper())));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeText_throws_when_using_non_column_for_property_reference()
     {
         using var context = CreateContext();
@@ -530,7 +530,7 @@ WHERE FREETEXT([a].[Title], N'database') AND FREETEXT([a].[Content], N'performan
 
     #region CONTAINS predicate tests
 
-    [ConditionalFact]
+    [Fact]
     public void Contains_should_throw_on_client_eval()
     {
         var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
@@ -544,7 +544,7 @@ WHERE FREETEXT([a].[Title], N'database') AND FREETEXT([a].[Content], N'performan
             exLang.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_should_throw_when_using_non_parameter_or_constant_for_contains_string()
     {
         using var context = CreateContext();
@@ -558,7 +558,7 @@ WHERE FREETEXT([a].[Title], N'database') AND FREETEXT([a].[Content], N'performan
             => await context.Articles.FirstOrDefaultAsync(a => EF.Functions.Contains(a.Title, a.Content.ToUpper())));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_literal()
     {
         using var context = CreateContext();
@@ -576,7 +576,7 @@ WHERE CONTAINS([a].[Title], N'database')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Contains_with_language_term()
     {
         using var context = CreateContext();
@@ -592,7 +592,7 @@ WHERE CONTAINS([a].[Title], N'querying', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Contains_with_non_literal_language_term()
     {
         var language = 1033;
@@ -609,7 +609,7 @@ WHERE CONTAINS([a].[Title], N'querying', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_with_logical_operator()
     {
         using var context = CreateContext();
@@ -627,7 +627,7 @@ WHERE CONTAINS([a].[Content], N'data OR storage')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_with_prefix_term_and_language_term()
     {
         using var context = CreateContext();
@@ -644,7 +644,7 @@ WHERE CONTAINS([a].[Title], N'"query*"', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_with_proximity_term_and_language_term()
     {
         using var context = CreateContext();
@@ -666,7 +666,7 @@ WHERE CONTAINS([a].[Content], N'NEAR((data, performance), 5)', LANGUAGE 1033)
 
     #region Binary column full-text search tests
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeText_with_binary_column()
     {
         using var context = CreateContext();
@@ -682,7 +682,7 @@ WHERE FREETEXT([b].[Content], N'bombing')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task FreeText_with_binary_column_and_language_term()
     {
         using var context = CreateContext();
@@ -698,7 +698,7 @@ WHERE FREETEXT([b].[Content], N'bombing', LANGUAGE 1033)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_with_binary_column()
     {
         using var context = CreateContext();
@@ -714,7 +714,7 @@ WHERE CONTAINS([b].[Content], N'bomb')
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Contains_with_binary_column_and_language_term()
     {
         using var context = CreateContext();

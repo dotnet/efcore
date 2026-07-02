@@ -327,6 +327,121 @@ public static class CosmosEntityTypeExtensions
         => entityType.FindAnnotation(CosmosAnnotationNames.HasShadowId)?.GetConfigurationSource();
 
     /// <summary>
+    ///     Returns the list of paths to exclude from the container's indexing policy when automatic indexing is configured for
+    ///     the container via <c>HasAutomaticIndexing</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     The list of excluded indexing-policy paths, or <see langword="null" /> if no exceptions were configured or automatic
+    ///     indexing is disabled.
+    /// </returns>
+    public static IReadOnlyList<string>? GetAutomaticIndexingExceptions(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetAutomaticIndexingExceptions()
+            : entityType.GetAutomaticIndexingEnabled() == false
+                ? null
+                : (IReadOnlyList<string>?)entityType[CosmosAnnotationNames.AutomaticIndexingExceptions];
+
+    /// <summary>
+    ///     Configures the list of paths to exclude from the container's indexing policy when automatic indexing is configured for
+    ///     the container.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="exceptions">
+    ///     The excluded paths, or <see langword="null" /> to remove the setting.
+    /// </param>
+    public static void SetAutomaticIndexingExceptions(this IMutableEntityType entityType, IReadOnlyList<string>? exceptions)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions, exceptions);
+
+    /// <summary>
+    ///     Configures the list of paths to exclude from the container's indexing policy when automatic indexing is configured for
+    ///     the container.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="exceptions">
+    ///     The excluded paths, or <see langword="null" /> to remove the setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static IReadOnlyList<string>? SetAutomaticIndexingExceptions(
+        this IConventionEntityType entityType,
+        IReadOnlyList<string>? exceptions,
+        bool fromDataAnnotation = false)
+        => (IReadOnlyList<string>?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.AutomaticIndexingExceptions, exceptions, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetAutomaticIndexingExceptions" />.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetAutomaticIndexingExceptionsConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether Cosmos automatic indexing (the default <c>/*</c> included path) is enabled
+    ///     for the container. <see langword="null" /> means that no explicit choice has been made; the Cosmos default is to
+    ///     emit <c>/*</c>.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     <see langword="true" /> when automatic indexing is explicitly enabled, <see langword="false" /> when explicitly
+    ///     disabled, or <see langword="null" /> when not configured.
+    /// </returns>
+    public static bool? GetAutomaticIndexingEnabled(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetAutomaticIndexingEnabled()
+            : (bool?)entityType[CosmosAnnotationNames.AutomaticIndexingEnabled];
+
+    /// <summary>
+    ///     Configures whether Cosmos automatic indexing (the default <c>/*</c> included path) is enabled for the container.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing, <see langword="false" /> to disable it,
+    ///     <see langword="null" /> to remove the setting.
+    /// </param>
+    public static void SetAutomaticIndexingEnabled(this IMutableEntityType entityType, bool? enabled)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled, enabled);
+
+    /// <summary>
+    ///     Configures whether Cosmos automatic indexing (the default <c>/*</c> included path) is enabled for the container.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing, <see langword="false" /> to disable it,
+    ///     <see langword="null" /> to remove the setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetAutomaticIndexingEnabled(
+        this IConventionEntityType entityType,
+        bool? enabled,
+        bool fromDataAnnotation = false)
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.AutomaticIndexingEnabled, enabled, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetAutomaticIndexingEnabled" />.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetAutomaticIndexingEnabledConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled)?.GetConfigurationSource();
+
+    /// <summary>
     ///     Returns a value indicating whether the entity type discriminator should be included in the JSON "id" value.
     ///     Prior to EF Core 9, it was always included. Starting with EF Core 9, it is not included by default.
     /// </summary>

@@ -17,7 +17,7 @@ public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalT
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -418,8 +418,8 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
-    SELECT TOP(1) COALESCE((
+SELECT ISNULL((
+    SELECT TOP(1) ISNULL((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID] AND ([o0].[OrderID] <> (
@@ -445,8 +445,8 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
-    SELECT TOP(1) COALESCE((
+SELECT ISNULL((
+    SELECT TOP(1) ISNULL((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)
@@ -856,8 +856,24 @@ WHERE [c].[CustomerID] = N'ALFKI'
     {
         await base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@i='1'
+
+SELECT (
+    SELECT TOP(LEAST(@i, 1)) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @i='1'
 
 SELECT (
@@ -871,6 +887,7 @@ SELECT (
     ORDER BY [o0].[OrderID])
 FROM [Customers] AS [c]
 """);
+        }
     }
 
     public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(bool async)
@@ -928,7 +945,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [o0].[OrderID]
     FROM [Order Details] AS [o0]
     INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
@@ -1213,6 +1230,19 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+    {
+        await base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async);
+
+        AssertSql(
+            """
+SELECT [v].[Value] AS [k], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+CROSS APPLY (VALUES (CAST(N'a' AS nvarchar(max))), (N'b')) AS [v]([Value])
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
+    }
+
     public override async Task SelectMany_correlated_with_outer_1(bool async)
     {
         await base.SelectMany_correlated_with_outer_1(async);
@@ -1369,8 +1399,22 @@ INNER JOIN (
     {
         await base.Select_with_multiple_Take(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+@p='5'
+@p1='3'
+
+SELECT TOP(LEAST(@p, @p1)) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 @p1='3'
 @p='5'
 
@@ -1382,6 +1426,7 @@ FROM (
 ) AS [c0]
 ORDER BY [c0].[CustomerID]
 """);
+        }
     }
 
     public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
@@ -1390,7 +1435,7 @@ ORDER BY [c0].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], COALESCE((
+SELECT [c].[CustomerID], ISNULL((
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -1927,7 +1972,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderDate] DESC, [o].[OrderID]), 0)
@@ -2864,6 +2909,61 @@ OUTER APPLY (
 ) AS [u]
 ORDER BY [c0].[CustomerID]
 """);
+    }
+
+    public override async Task Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(bool async, string method)
+    {
+        await base.Multiple_members_of_correlated_single_result_subquery_lift_to_single_join(async, method);
+
+        AssertSql(
+            method switch
+            {
+                nameof(Queryable.First) or
+                nameof(Queryable.FirstOrDefault) or
+                nameof(Queryable.Single) or
+                nameof(Queryable.SingleOrDefault) => """
+SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
+    FROM (
+        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID]) AS [row]
+        FROM [Customers] AS [c]
+    ) AS [c0]
+    WHERE [c0].[row] <= 1
+) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
+WHERE [o].[CustomerID] IS NOT NULL
+""",
+                nameof(Queryable.Last) or
+                nameof(Queryable.LastOrDefault) => """
+SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
+    FROM (
+        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID] DESC) AS [row]
+        FROM [Customers] AS [c]
+    ) AS [c0]
+    WHERE [c0].[row] <= 1
+) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
+WHERE [o].[CustomerID] IS NOT NULL
+""",
+                nameof(Queryable.ElementAt) or
+                nameof(Queryable.ElementAtOrDefault) => """
+SELECT [o].[OrderID], [c1].[City], [c1].[Country], [c1].[ContactName]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [c0].[City], [c0].[ContactName], [c0].[Country], [c0].[CustomerID0]
+    FROM (
+        SELECT [c].[City], [c].[ContactName], [c].[Country], [c].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [c].[CustomerID] ORDER BY [c].[CustomerID]) AS [row]
+        FROM [Customers] AS [c]
+    ) AS [c0]
+    WHERE 0 < [c0].[row] AND [c0].[row] <= 1
+) AS [c1] ON [o].[CustomerID] = [c1].[CustomerID0]
+WHERE [o].[CustomerID] IS NOT NULL
+""",
+                _ => throw new InvalidOperationException(method)
+            });
     }
 
     private void AssertSql(params string[] expected)

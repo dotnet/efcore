@@ -6,15 +6,15 @@
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTestBase(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Basic_cosmos_model()
         => Test(
             modelBuilder =>
@@ -31,7 +31,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                     eb.HasKey("Id", "PartitionId");
                     eb.ToContainer("DataContainer");
                     eb.Property<Dictionary<string, string[]>>("Map");
-                    eb.Property<List<Dictionary<string, int>>>("List");
+                    eb.PrimitiveCollection<List<Dictionary<string, int>>>("List");
                     eb.Property<ReadOnlyMemory<byte>>("Bytes");
                     eb.UseETagConcurrency();
                     eb.HasNoDiscriminator();
@@ -182,6 +182,45 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
 
                 Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, eTag], dataEntity.GetProperties());
             });
+
+    [Fact]
+    public virtual Task Cosmos_model_with_index_types()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+
+                modelBuilder.Entity<IndexedData>(b =>
+                {
+                    b.ToContainer("IndexedContainer");
+                    b.HasPartitionKey(e => e.PartitionId);
+                    b.HasAutomaticIndexing().Except("/Notes/?");
+                    b.HasIndex(e => new { e.Region, e.Category });
+                    b.HasIndex(e => e.Embedding).IsVectorIndex(VectorIndexType.Flat);
+                    b.Property(e => e.Embedding).IsVectorProperty(DistanceFunction.Cosine, 4);
+                    b.HasIndex(e => e.Description).IsFullTextIndex();
+                    b.Property(e => e.Description).EnableFullTextSearch();
+                });
+            },
+            model =>
+            {
+                // Index-policy and automatic-indexing annotations are design-time-only and stripped from the runtime model.
+                var entityType = model.FindEntityType(typeof(IndexedData))!;
+                Assert.Null(entityType.GetAutomaticIndexingEnabled());
+                Assert.Null(entityType.GetAutomaticIndexingExceptions());
+                Assert.Equal(3, entityType.GetIndexes().Count());
+            });
+
+    public class IndexedData
+    {
+        public int Id { get; set; }
+        public string PartitionId { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public string Region { get; set; } = null!;
+        public string Category { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public ReadOnlyMemory<float> Embedding { get; set; }
+    }
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -607,6 +646,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
             eb.ComplexProperty(
                 c => c.Owned, ob =>
                 {
+                    ob.IsRequired();
                     ob.Ignore(e => e.RefTypeArray);
                     ob.Ignore(e => e.RefTypeList);
                     ob.ComplexProperty(
@@ -647,6 +687,9 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     protected override bool SupportsNonAutoLoadedProperties
         => false;
 
+    protected override bool SupportsIndexes
+        => false;
+
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 
@@ -657,6 +700,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
     {
         base.AddReferences(build);
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Cosmos"));
+        build.References.Add(BuildReference.ByName("Microsoft.Azure.Cosmos.Client"));
         build.References.Add(BuildReference.ByName("Newtonsoft.Json"));
         return build;
     }

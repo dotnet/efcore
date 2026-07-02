@@ -23,7 +23,7 @@ WHERE (c["Id"] < 4)
 """);
     });
 
-    [ConditionalTheory(Skip = "issue #35702")]
+    [Theory(Skip = "issue #35702")]
     public override Task Project_top_level_json_entity_with_missing_scalars(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
@@ -693,7 +693,7 @@ WHERE (c["Id"] = 4)
 
     #region 30028
 
-    [ConditionalTheory(Skip = "issue #35702")]
+    [Theory(Skip = "issue #35702")]
     public override Task Missing_navigation_works_with_deduplication(bool async)
         => base.Missing_navigation_works_with_deduplication(async);
 

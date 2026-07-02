@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class CommandBatchPreparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_added_entities()
     {
         var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -54,7 +54,7 @@ public class CommandBatchPreparerTest
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_modified_entities()
     {
         var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -95,7 +95,7 @@ public class CommandBatchPreparerTest
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_deleted_entities()
     {
         var stateManager = CreateContextServices(CreateSimpleFKModel()).GetRequiredService<IStateManager>();
@@ -126,7 +126,7 @@ public class CommandBatchPreparerTest
         Assert.False(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_does_not_create_separate_batch_without_principal_key_database_generation()
     {
         var configuration = CreateContextServices(CreateFKOneToManyModelWithGeneratedIds());
@@ -147,7 +147,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_separate_batch_with_principal_key_database_generation()
     {
         var configuration = CreateContextServices(CreateFKOneToManyModelWithGeneratedIds());
@@ -171,7 +171,7 @@ public class CommandBatchPreparerTest
             b => Assert.Equal([relatedEntry1, relatedEntry2], b.ModificationCommands.Select(m => m.Entries.Single())));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_related_added_entities()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -195,7 +195,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_added_and_related_modified_entities()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -219,7 +219,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(mc => mc.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_unrelated_entities()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -243,7 +243,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_entities_when_reparenting()
     {
         var configuration = CreateContextServices(CreateCyclicFKModel());
@@ -272,7 +272,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_when_reassigning_child()
     {
         var configuration = CreateContextServices(CreateSimpleFKModel());
@@ -300,7 +300,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_entities_while_reassigning_child_tree()
     {
         var configuration = CreateContextServices(CreateTwoLevelFKModel());
@@ -336,7 +336,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_batches_lazily()
     {
         var configuration = FakeRelationalTestHelpers.Instance.CreateContextServices(
@@ -366,7 +366,7 @@ public class CommandBatchPreparerTest
         Assert.Equal(2, factory.CreateCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Batch_command_does_not_order_non_unique_index_values()
     {
         var model = CreateCyclicFKModel();
@@ -401,7 +401,7 @@ public class CommandBatchPreparerTest
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_throws_on_non_store_generated_temporary_values()
     {
         var configuration = CreateContextServices(CreateTwoLevelFKModel());
@@ -417,7 +417,7 @@ public class CommandBatchPreparerTest
                 entry.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test")).Message);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_commands_with_circular_dependencies(bool sensitiveLogging)
     {
         var model = CreateCyclicFKModel();
@@ -449,7 +449,7 @@ ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
                 .Message);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_commands_with_circular_dependencies_including_indexes(bool sensitiveLogging)
     {
         var model = CreateCyclicFKModel();
@@ -493,7 +493,7 @@ Index { 'UniqueValue' } FakeEntity [Added]"
                 [fakeEntry, relatedFakeEntry, fakeEntry2], modelData, sensitiveLogging)).Message);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void Batch_command_throws_on_delete_commands_with_circular_dependencies(bool sensitiveLogging)
     {
         var model = CreateCyclicFkWithTailModel();
@@ -530,7 +530,7 @@ FakeEntity [Deleted]"
                 () => CreateBatches([anotherFakeEntry, fakeEntry, relatedFakeEntry], modelData, sensitiveLogging)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_works_with_duplicate_values_for_unique_indexes()
     {
         var model = CreateCyclicFKModel();
@@ -558,7 +558,7 @@ FakeEntity [Deleted]"
             e => Assert.Equal(EntityState.Modified, e.EntityState));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -613,7 +613,7 @@ FakeEntity [Deleted]"
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_modified_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -666,7 +666,7 @@ FakeEntity [Deleted]"
         Assert.True(columnMod.IsWrite);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_deleted_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -712,7 +712,7 @@ FakeEntity [Deleted]"
         Assert.False(columnMod.IsWrite);
     }
 
-    [InlineData(true), InlineData(false), ConditionalTheory]
+    [InlineData(true), InlineData(false), Theory]
     public void BatchCommands_throws_on_conflicting_updates_for_shared_table_added_entities(bool sensitiveLogging)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -747,7 +747,7 @@ FakeEntity [Deleted]"
         }
     }
 
-    [InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false), ConditionalTheory]
+    [InlineData(true, true), InlineData(true, false), InlineData(false, true), InlineData(false, false), Theory]
     public void BatchCommands_throws_on_conflicting_values_for_shared_table_added_entities(bool useCurrentValues, bool sensitiveLogging)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -817,7 +817,7 @@ FakeEntity [Deleted]"
         }
     }
 
-    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), ConditionalTheory]
+    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), Theory]
     public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_principal(EntityState state)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -893,7 +893,7 @@ FakeEntity [Deleted]"
         // Assert.True(columnMod.IsWrite);
     }
 
-    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), ConditionalTheory]
+    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), Theory]
     public void BatchCommands_works_with_incomplete_updates_for_shared_table_no_leaf_dependent(EntityState state)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -914,7 +914,7 @@ FakeEntity [Deleted]"
         Assert.Single(batches);
     }
 
-    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), ConditionalTheory]
+    [InlineData(EntityState.Added), InlineData(EntityState.Deleted), Theory]
     public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state)
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -1177,7 +1177,7 @@ FakeEntity [Deleted]"
         public string DerivedValue { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_handles_null_values_when_sensitive_logging_enabled()
     {
         // Test for issue where null values in FormatValues caused NullReferenceException
@@ -1206,7 +1206,7 @@ FakeEntity [Deleted]"
         Assert.DoesNotContain("Object reference not set", exception.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_replaced_entity_with_TPH_and_owned_type_and_concurrency_token()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
@@ -1329,7 +1329,7 @@ FakeEntity [Deleted]"
         public int? AnotherId { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_added_entities_with_TPC_abstract_principal()
     {
         var configuration = CreateContextServices(CreateTpcFKModel());
@@ -1353,7 +1353,7 @@ FakeEntity [Deleted]"
             batch.ModificationCommands.Select(c => c.Entries.Single()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BatchCommands_sorts_deleted_entities_with_TPC_abstract_principal()
     {
         var configuration = CreateContextServices(CreateTpcFKModel());

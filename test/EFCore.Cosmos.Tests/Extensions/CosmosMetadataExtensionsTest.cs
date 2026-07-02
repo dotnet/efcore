@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class CosmosMetadataExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_collection_name()
     {
         var modelBuilder = CreateModelBuilder();
@@ -33,7 +33,7 @@ public class CosmosMetadataExtensionsTest
         Assert.Equal("Unicorn", entityType.GetContainer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_partition_key_name()
     {
         var modelBuilder = CreateModelBuilder();
@@ -58,7 +58,7 @@ public class CosmosMetadataExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_partition_key_name_obsolete()
     {
         var modelBuilder = CreateModelBuilder();
@@ -83,7 +83,7 @@ public class CosmosMetadataExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_hierarchical_partition_key_name()
     {
         var modelBuilder = CreateModelBuilder();
@@ -108,7 +108,7 @@ public class CosmosMetadataExtensionsTest
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_and_set_etag_name()
     {
         var modelBuilder = CreateModelBuilder();

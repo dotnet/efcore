@@ -148,6 +148,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
             nameof(TemporalPeriodPropertyBuilder.HasColumnName), [typeof(string)])!;
 
+    private static readonly MethodInfo TemporalPropertyIsHiddenMethodInfo
+        = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
+            nameof(TemporalPeriodPropertyBuilder.IsHidden), [typeof(bool)])!;
+
     private static readonly MethodInfo ModelHasFullTextCatalogMethodInfo
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.HasFullTextCatalog), [typeof(ModelBuilder), typeof(string)])!;
@@ -304,6 +308,11 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                     : new MethodCallCodeFragment(methodInfo, false));
         }
 
+        // The HIDDEN flag on temporal period columns is emitted via the temporal table builder
+        // (ttb.HasPeriodStart(...).IsHidden(false)), so remove it here to avoid also emitting it as a
+        // raw property-level annotation in the snapshot.
+        annotations.Remove(SqlServerAnnotationNames.IsHidden);
+
         return fragments;
     }
 
@@ -371,19 +380,17 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         : new MethodCallCodeFragment(TemporalTableUseHistoryTableMethodInfo2, historyTableName));
             }
 
-            // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart")
+            // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart").IsHidden(false)
+            // IsHidden(false) is only chained when the user explicitly configured the column visible —
+            // the default is HIDDEN, so omitting matches the legacy snapshot output.
             temporalTableBuilderCalls.Add(
-                periodStartColumnName != null
-                    ? new MethodCallCodeFragment(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName)
-                        .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
-                    : new MethodCallCodeFragment(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName));
+                BuildPeriodPropertyCall(
+                    TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName, periodStartColumnName, periodStartProperty));
 
-            // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd")
+            // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd").IsHidden(false)
             temporalTableBuilderCalls.Add(
-                periodEndColumnName != null
-                    ? new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName)
-                        .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodEndColumnName))
-                    : new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName));
+                BuildPeriodPropertyCall(
+                    TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName, periodEndColumnName, periodEndProperty));
 
             // ToTable(tb => tb.IsTemporal(ttb => { ... }))
             var toTemporalTableCall = new MethodCallCodeFragment(
@@ -406,6 +413,27 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         }
 
         return fragments;
+
+        static MethodCallCodeFragment BuildPeriodPropertyCall(
+            MethodInfo hasPeriodMethod,
+            string? periodPropertyName,
+            string? periodColumnName,
+            IReadOnlyProperty? periodProperty)
+        {
+            var call = new MethodCallCodeFragment(hasPeriodMethod, periodPropertyName);
+
+            if (periodColumnName != null)
+            {
+                call = call.Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodColumnName));
+            }
+
+            if (periodProperty?.IsHidden() == false)
+            {
+                call = call.Chain(new MethodCallCodeFragment(TemporalPropertyIsHiddenMethodInfo, false));
+            }
+
+            return call;
+        }
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -167,7 +168,11 @@ public static class SqlServerIndexBuilderExtensions
 
         IncludeProperties(
             indexBuilder,
-            includeExpression.GetMemberAccessList().Select(EntityFrameworkMemberInfoExtensions.GetSimpleMemberName).ToArray());
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            includeExpression.GetMemberAccessChainList()
+                .Select(chain => string.Join(".", chain.Select(EntityFrameworkMemberInfoExtensions.GetSimpleMemberName)))
+                .ToArray());
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         return indexBuilder;
     }

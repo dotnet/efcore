@@ -392,7 +392,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
             if (!dryRun)
             {
-                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
+                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
             }
         }
 
@@ -424,11 +424,11 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             Directory.CreateDirectory(migrationDirectory);
             Directory.CreateDirectory(modelSnapshotDirectory);
 
-            File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
-            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
+            File.WriteAllText(migrationFile, migration.MigrationCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingSnapshot(modelSnapshotFile));
-            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
+            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
         }
 
         return new MigrationFiles

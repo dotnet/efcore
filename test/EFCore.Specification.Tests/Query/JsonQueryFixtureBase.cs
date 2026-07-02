@@ -392,6 +392,8 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
         Assert.Equal(expected.TestUnsignedInt32, actual.TestUnsignedInt32);
         Assert.Equal(expected.TestUnsignedInt64, actual.TestUnsignedInt64);
         Assert.Equal(expected.TestNullableInt32, actual.TestNullableInt32);
+        Assert.Equal(expected.TestNullableDateTime, actual.TestNullableDateTime);
+        Assert.Equal(expected.TestNullableDateOnly, actual.TestNullableDateOnly);
         Assert.Equal(expected.TestEnum, actual.TestEnum);
         Assert.Equal(expected.TestEnumWithIntConverter, actual.TestEnumWithIntConverter);
         Assert.Equal(expected.TestNullableEnum, actual.TestNullableEnum);

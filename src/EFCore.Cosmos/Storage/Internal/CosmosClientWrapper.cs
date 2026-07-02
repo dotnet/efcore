@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
@@ -184,7 +185,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         var vectorIndexes = new Collection<VectorIndexPath>();
         var fullTextIndexPaths = new Collection<FullTextIndexPath>();
-        var fullTextProperties = parametersTuple.Parameters.FullTextProperties.Select(x => x.Property).ToList();
+        var includedPaths = new Collection<IncludedPath>();
+        var conventionIncludedPaths = new Collection<IncludedPath>();
+        var compositeIndexes = new Collection<Collection<CompositePath>>();
+        var seenIncludedPaths = new HashSet<string>();
+        var seenCompositeIndexes = new HashSet<string>();
         foreach (var index in parameters.Indexes)
         {
             var vectorIndexType = index.GetVectorIndexType();
@@ -200,6 +205,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                 vectorIndexes.Add(
                     new VectorIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]), Type = vectorIndexType.Value });
+                continue;
             }
 
             if (index.IsFullTextIndex() == true)
@@ -214,6 +220,40 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                 fullTextIndexPaths.Add(
                     new FullTextIndexPath { Path = GetJsonPropertyPathFromRoot(index.Properties[0]) });
+                continue;
+            }
+
+            var isConvention = index is IConventionIndex convIndex
+                && convIndex.GetConfigurationSource() == ConfigurationSource.Convention;
+
+            if (index.Properties.Count == 1)
+            {
+                var path = GetJsonPropertyPathFromRoot(index.Properties[0]) + "/?";
+                if (seenIncludedPaths.Add(path))
+                {
+                    (isConvention ? conventionIncludedPaths : includedPaths)
+                        .Add(new IncludedPath { Path = path });
+                }
+            }
+            else
+            {
+                // Composite indexes are additive: they coexist with automatic indexing and don't affect /* emission.
+                var compositePaths = new Collection<CompositePath>();
+                var key = new StringBuilder();
+                for (var i = 0; i < index.Properties.Count; i++)
+                {
+                    var path = GetJsonPropertyPathFromRoot(index.Properties[i]);
+                    var order = index.IsDescending?[i] == true
+                        ? CompositePathSortOrder.Descending
+                        : CompositePathSortOrder.Ascending;
+                    compositePaths.Add(new CompositePath { Path = path, Order = order });
+                    key.Append(path).Append('=').Append(order).Append('|');
+                }
+
+                if (seenCompositeIndexes.Add(key.ToString()))
+                {
+                    compositeIndexes.Add(compositePaths);
+                }
             }
         }
 
@@ -263,9 +303,66 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
         }
 
-        if (vectorIndexes.Count != 0 || fullTextIndexPaths.Count != 0)
+        // Tri-state interpretation for automatic indexing:
+        //   - true                → explicit opt-in: emit /* + exceptions; explicit single-prop included paths are
+        //                           redundant and skipped.
+        //   - false               → explicit opt-out: don't emit /*; only the explicit included paths are indexed.
+        //   - null (unconfigured) → default to enabled, but if any explicit single-property indexes were declared,
+        //                           treat as disabled so those declarations don't get silently overridden by /*.
+        // Convention single-property indexes (e.g. FK indexes) don't influence the heuristic, but are emitted as
+        // included paths whenever automatic indexing is off.
+        // Composite, vector and full-text indexes are always emitted.
+        // TODO: Calculate this using a convention when #15898 is implemented.
+        var automaticIndexingEnabled = parameters.AutomaticIndexingEnabled
+            ?? includedPaths.Count == 0;
+
+        if (vectorIndexes.Count != 0
+            || fullTextIndexPaths.Count != 0
+            || compositeIndexes.Count != 0
+            || includedPaths.Count != 0
+            || !automaticIndexingEnabled
+            || parameters.AutomaticIndexingExceptions is not null)
         {
-            containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes, FullTextIndexes = fullTextIndexPaths };
+            var indexingPolicy = new IndexingPolicy
+            {
+                VectorIndexes = vectorIndexes,
+                FullTextIndexes = fullTextIndexPaths
+            };
+
+            if (automaticIndexingEnabled)
+            {
+                indexingPolicy.IncludedPaths.Add(new IncludedPath { Path = "/*" });
+                if (parameters.AutomaticIndexingExceptions is not null)
+                {
+                    foreach (var path in parameters.AutomaticIndexingExceptions)
+                    {
+                        indexingPolicy.ExcludedPaths.Add(new ExcludedPath { Path = path });
+                    }
+                }
+            }
+            else
+            {
+                foreach (var includedPath in includedPaths)
+                {
+                    indexingPolicy.IncludedPaths.Add(includedPath);
+                }
+
+                foreach (var includedPath in conventionIncludedPaths)
+                {
+                    indexingPolicy.IncludedPaths.Add(includedPath);
+                }
+
+                // Cosmos requires the mandatory "/" path to be covered by either includedPaths or excludedPaths.
+                // With automatic indexing disabled, exclude "/*" so only the explicit paths above are indexed.
+                indexingPolicy.ExcludedPaths.Add(new ExcludedPath { Path = "/*" });
+            }
+
+            foreach (var compositeIndex in compositeIndexes)
+            {
+                indexingPolicy.CompositeIndexes.Add(compositeIndex);
+            }
+
+            containerProperties.IndexingPolicy = indexingPolicy;
         }
 
         if (fullTextPaths.Count != 0)
@@ -285,24 +382,104 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return response.StatusCode == HttpStatusCode.Created;
     }
 
-    private static string GetJsonPropertyPathFromRoot(IReadOnlyProperty property)
-        => GetPathFromRoot((IReadOnlyEntityType)property.DeclaringType) + "/" + property.GetJsonPropertyName();
-
-    private static string GetPathFromRoot(IReadOnlyEntityType entityType)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static string GetJsonPropertyPathFromRoot(IReadOnlyPropertyBase property)
     {
-        if (entityType.IsOwned())
+        var builder = new StringBuilder();
+        AppendTypePathFromRoot(builder, property.DeclaringType);
+        AppendPropertyBaseSegment(builder, property);
+        return builder.ToString();
+    }
+
+    private static void AppendPropertyBaseSegment(StringBuilder builder, IReadOnlyPropertyBase property)
+    {
+        switch (property)
         {
-            var ownership = entityType.FindOwnership()!;
-            var resultPath = GetPathFromRoot(ownership.PrincipalEntityType)
-                + "/"
-                + ownership.GetNavigation(pointsToPrincipal: false)!.TargetEntityType.GetContainingPropertyName();
-
-            return !ownership.IsUnique
-                ? throw new NotSupportedException(CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(resultPath))
-                : resultPath;
+            case IReadOnlyProperty scalar:
+                builder.Append('/');
+                AppendEscapedPathSegment(builder, scalar.GetJsonPropertyName());
+                break;
+            case IReadOnlyComplexProperty complexProperty:
+                AppendComplexPropertySegment(builder, complexProperty);
+                break;
+            default:
+                throw new UnreachableException(
+                    $"Unsupported property base '{property.GetType().ShortDisplayName()}' on '{property.DeclaringType.DisplayName()}.{property.Name}'.");
         }
+    }
 
-        return "";
+    private static void AppendTypePathFromRoot(StringBuilder builder, IReadOnlyTypeBase declaringType)
+    {
+        switch (declaringType)
+        {
+            case IReadOnlyComplexType complexType:
+            {
+                var complexProperty = complexType.ComplexProperty;
+                AppendTypePathFromRoot(builder, complexProperty.DeclaringType);
+                AppendComplexPropertySegment(builder, complexProperty);
+                break;
+            }
+            case IReadOnlyEntityType entityType when entityType.IsOwned():
+            {
+                var ownership = entityType.FindOwnership()!;
+                var containingPropertyName = ownership.GetNavigation(pointsToPrincipal: false)!
+                    .TargetEntityType.GetContainingPropertyName()
+                    ?? throw new UnreachableException("Containing property name should not be null for owned entity types.");
+
+                AppendTypePathFromRoot(builder, ownership.PrincipalEntityType);
+                builder.Append('/');
+                AppendEscapedPathSegment(builder, containingPropertyName);
+
+                if (!ownership.IsUnique)
+                {
+                    throw new NotSupportedException(
+                        CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported(builder.ToString()));
+                }
+
+                break;
+            }
+        }
+    }
+
+    private static void AppendComplexPropertySegment(StringBuilder builder, IReadOnlyComplexProperty complexProperty)
+    {
+        builder.Append('/');
+        AppendEscapedPathSegment(builder, complexProperty.GetJsonPropertyName());
+        if (complexProperty.IsCollection)
+        {
+            builder.Append("/[]");
+        }
+    }
+
+    private static void AppendEscapedPathSegment(StringBuilder builder, string segment)
+    {
+        // Cosmos indexing-policy paths support identifier-like segments unquoted; anything else must be wrapped
+        // in double-quotes with embedded '"' and '\' escaped.
+        // See https://learn.microsoft.com/azure/cosmos-db/index-policy#path-formatting.
+        if (segment.Length == 0 || char.IsDigit(segment[0]) || !segment.All(static c => char.IsLetterOrDigit(c) || c == '_'))
+        {
+            builder.Append('"');
+            foreach (var c in segment)
+            {
+                if (c is '\\' or '"')
+                {
+                    builder.Append('\\');
+                }
+
+                builder.Append(c);
+            }
+
+            builder.Append('"');
+        }
+        else
+        {
+            builder.Append(segment);
+        }
     }
 
     /// <summary>
@@ -927,5 +1104,4 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             return response;
         }
     }
-
 }

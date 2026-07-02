@@ -10,240 +10,183 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+[EntityFrameworkInternal]
+public partial class DependentDerivedEntityType
 {
-    [EntityFrameworkInternal]
-    public partial class DependentDerivedEntityType
+    public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
     {
-        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
-        {
-            var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<int>",
-                typeof(CompiledModelTestBase.DependentDerived<int>),
-                baseEntityType,
-                discriminatorProperty: "$type",
-                discriminatorValue: "DependentDerived",
-                propertyCount: 4,
-                keyCount: 1);
+        var runtimeEntityType = model.AddEntityType(
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<int>",
+            typeof(CompiledModelTestBase.DependentDerived<int>),
+            baseEntityType,
+            discriminatorProperty: "Discriminator",
+            discriminatorValue: "DependentDerived",
+            propertyCount: 4,
+            keyCount: 1);
 
-            var id = runtimeEntityType.AddProperty(
-                "Id",
-                typeof(int),
-                propertyInfo: typeof(CompiledModelTestBase.AbstractBase).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.DependentBase<int>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
-            id.SetGetter(
-                int (CompiledModelTestBase.DependentDerived<int> instance) => DependentBaseUnsafeAccessors<int>.Id(instance),
-                bool (CompiledModelTestBase.DependentDerived<int> instance) => DependentBaseUnsafeAccessors<int>.Id(instance) == 0);
-            id.SetSetter(
-                CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, int value) =>
-                {
-                    DependentBaseUnsafeAccessors<int>.Id(instance) = value;
-                    return instance;
-                });
-            id.SetMaterializationSetter(
-                CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, int value) =>
-                {
-                    DependentBaseUnsafeAccessors<int>.Id(instance) = value;
-                    return instance;
-                });
-            id.SetAccessors(
-                int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
-                int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
-            id.SetPropertyIndexes(
-                index: 0,
-                originalValueIndex: 0,
-                shadowIndex: -1,
-                relationshipIndex: 0,
-                storeGenerationIndex: -1);
-            id.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                providerValueComparer: new ValueComparer<int>(
-                    bool (int v1, int v2) => v1 == v2,
-                    int (int v) => v,
-                    int (int v) => v),
-                clrType: typeof(int),
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
-            id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+        var id = runtimeEntityType.AddProperty(
+            "Id",
+            typeof(int),
+            propertyInfo: typeof(CompiledModelTestBase.AbstractBase).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(CompiledModelTestBase.DependentBase<int>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            sentinel: 0);
+        id.SetGetter(
+            int (CompiledModelTestBase.DependentDerived<int> instance) => DependentBaseUnsafeAccessors<int>.Id(instance),
+            bool (CompiledModelTestBase.DependentDerived<int> instance) => DependentBaseUnsafeAccessors<int>.Id(instance) == 0);
+        id.SetSetter(
+            CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, int value) =>
+            {
+                DependentBaseUnsafeAccessors<int>.Id(instance) = value;
+                return instance;
+            });
+        id.SetMaterializationSetter(
+            CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, int value) =>
+            {
+                DependentBaseUnsafeAccessors<int>.Id(instance) = value;
+                return instance;
+            });
+        id.SetAccessors(
+            int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
+            int (IInternalEntry entry) => DependentBaseUnsafeAccessors<int>.Id(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
+            int (IInternalEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+            int (IInternalEntry entry) => ((InternalEntityEntry)entry).ReadRelationshipSnapshotValue<int>(id, 0));
+        id.SetPropertyIndexes(
+            index: 0,
+            originalValueIndex: 0,
+            shadowIndex: -1,
+            relationshipIndex: 0,
+            storeGenerationIndex: -1);
+        id.TypeMapping = CosmosTypeMapping<int>.Default;
+        id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
-            var type = runtimeEntityType.AddProperty(
-                "$type",
-                typeof(string),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-            type.SetAccessors(
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 1),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
-            type.SetPropertyIndexes(
-                index: 1,
-                originalValueIndex: 1,
-                shadowIndex: 0,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            type.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var data = runtimeEntityType.AddProperty(
+            "Data",
+            typeof(string),
+            propertyInfo: typeof(CompiledModelTestBase.DependentDerived<int>).GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            fieldInfo: typeof(CompiledModelTestBase.DependentDerived<int>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+            nullable: true);
+        data.SetGetter(
+            string (CompiledModelTestBase.DependentDerived<int> instance) => DependentDerivedUnsafeAccessors<int>.Data(instance),
+            bool (CompiledModelTestBase.DependentDerived<int> instance) => DependentDerivedUnsafeAccessors<int>.Data(instance) == null);
+        data.SetSetter(
+            CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, string value) =>
+            {
+                DependentDerivedUnsafeAccessors<int>.Data(instance) = value;
+                return instance;
+            });
+        data.SetMaterializationSetter(
+            CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, string value) =>
+            {
+                DependentDerivedUnsafeAccessors<int>.Data(instance) = value;
+                return instance;
+            });
+        data.SetAccessors(
+            string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
+            string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(data, 1),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(data));
+        data.SetPropertyIndexes(
+            index: 1,
+            originalValueIndex: 1,
+            shadowIndex: -1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        data.TypeMapping = CosmosTypeMapping<string>.Default;
 
-            var data = runtimeEntityType.AddProperty(
-                "Data",
-                typeof(string),
-                propertyInfo: typeof(CompiledModelTestBase.DependentDerived<int>).GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CompiledModelTestBase.DependentDerived<int>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true);
-            data.SetGetter(
-                string (CompiledModelTestBase.DependentDerived<int> instance) => DependentDerivedUnsafeAccessors<int>.Data(instance),
-                bool (CompiledModelTestBase.DependentDerived<int> instance) => DependentDerivedUnsafeAccessors<int>.Data(instance) == null);
-            data.SetSetter(
-                CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, string value) =>
-                {
-                    DependentDerivedUnsafeAccessors<int>.Data(instance) = value;
-                    return instance;
-                });
-            data.SetMaterializationSetter(
-                CompiledModelTestBase.DependentDerived<int> (CompiledModelTestBase.DependentDerived<int> instance, string value) =>
-                {
-                    DependentDerivedUnsafeAccessors<int>.Data(instance) = value;
-                    return instance;
-                });
-            data.SetAccessors(
-                string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                string (IInternalEntry entry) => DependentDerivedUnsafeAccessors<int>.Data(((CompiledModelTestBase.DependentDerived<int>)(entry.Entity))),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(data, 2),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(data));
-            data.SetPropertyIndexes(
-                index: 2,
-                originalValueIndex: 2,
-                shadowIndex: -1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            data.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(discriminator, 2),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(discriminator));
+        discriminator.SetPropertyIndexes(
+            index: 2,
+            originalValueIndex: 2,
+            shadowIndex: 0,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default;
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
-            var __id = runtimeEntityType.AddProperty(
-                "__id",
-                typeof(string),
-                afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new IdValueGeneratorFactory().Create);
-            __id.SetAccessors(
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(1),
-                string (IInternalEntry entry) => entry.ReadShadowValue<string>(1),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(__id, 3),
-                string (IInternalEntry entry) => entry.GetCurrentValue<string>(__id));
-            __id.SetPropertyIndexes(
-                index: 3,
-                originalValueIndex: 3,
-                shadowIndex: 1,
-                relationshipIndex: -1,
-                storeGenerationIndex: -1);
-            __id.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                clrType: typeof(string),
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.AddAnnotation("Cosmos:PropertyName", "id");
+        var __id = runtimeEntityType.AddProperty(
+            "__id",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new IdValueGeneratorFactory().Create);
+        __id.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(1),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(1),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(__id, 3),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(__id));
+        __id.SetPropertyIndexes(
+            index: 3,
+            originalValueIndex: 3,
+            shadowIndex: 1,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
+        __id.AddAnnotation("Cosmos:PropertyName", "id");
 
-            var key = runtimeEntityType.AddKey(
-                new[] { id });
-            runtimeEntityType.SetPrimaryKey(key);
+        var key = runtimeEntityType.AddKey(
+            new[] { id });
+        runtimeEntityType.SetPrimaryKey(key);
 
-            return runtimeEntityType;
-        }
-
-        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
-        {
-            var id = runtimeEntityType.FindProperty("Id");
-            var type = runtimeEntityType.FindProperty("$type");
-            var data = runtimeEntityType.FindProperty("Data");
-            var __id = runtimeEntityType.FindProperty("__id");
-            var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
-            runtimeEntityType.SetOriginalValuesFactory(
-                ISnapshot (IInternalEntry source) =>
-                {
-                    var structuralType = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<int, string, string, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)(((IProperty)data).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(data))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
-                });
-            runtimeEntityType.SetStoreGeneratedValuesFactory(
-                ISnapshot () => Snapshot.Empty);
-            runtimeEntityType.SetTemporaryValuesFactory(
-                ISnapshot (IInternalEntry source) => Snapshot.Empty);
-            runtimeEntityType.SetShadowValuesFactory(
-                ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string>((source.ContainsKey("$type") ? ((string)(source["$type"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
-            runtimeEntityType.SetEmptyShadowValuesFactory(
-                ISnapshot () => ((ISnapshot)(new Snapshot<string, string>(default(string), default(string)))));
-            runtimeEntityType.SetRelationshipSnapshotFactory(
-                ISnapshot (IInternalEntry source) =>
-                {
-                    var structuralType = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
-                });
-            runtimeEntityType.SetCounts(new PropertyCounts(
-                propertyCount: 4,
-                navigationCount: 0,
-                complexPropertyCount: 0,
-                complexCollectionCount: 0,
-                originalValueCount: 4,
-                shadowCount: 2,
-                relationshipCount: 1,
-                storeGeneratedCount: 0));
-
-            Customize(runtimeEntityType);
-        }
-
-        static partial void Customize(RuntimeEntityType runtimeEntityType);
+        return runtimeEntityType;
     }
+
+    public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+    {
+        var id = runtimeEntityType.FindProperty("Id");
+        var data = runtimeEntityType.FindProperty("Data");
+        var discriminator = runtimeEntityType.FindProperty("Discriminator");
+        var __id = runtimeEntityType.FindProperty("__id");
+        var key = runtimeEntityType.FindKey(new[] { id });
+        key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
+        key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
+        runtimeEntityType.SetOriginalValuesFactory(
+            ISnapshot (IInternalEntry source) =>
+            {
+                var structuralType = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
+                return ((ISnapshot)(new Snapshot<int, string, string, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)(((IProperty)data).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(data))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
+            });
+        runtimeEntityType.SetStoreGeneratedValuesFactory(
+            ISnapshot () => Snapshot.Empty);
+        runtimeEntityType.SetTemporaryValuesFactory(
+            ISnapshot (IInternalEntry source) => Snapshot.Empty);
+        runtimeEntityType.SetShadowValuesFactory(
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
+        runtimeEntityType.SetEmptyShadowValuesFactory(
+            ISnapshot () => ((ISnapshot)(new Snapshot<string, string>(default(string), default(string)))));
+        runtimeEntityType.SetRelationshipSnapshotFactory(
+            ISnapshot (IInternalEntry source) =>
+            {
+                var structuralType = ((CompiledModelTestBase.DependentDerived<int>)(source.Entity));
+                return ((ISnapshot)(new Snapshot<int>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)))));
+            });
+        runtimeEntityType.SetCounts(new PropertyCounts(
+            propertyCount: 4,
+            navigationCount: 0,
+            complexPropertyCount: 0,
+            complexCollectionCount: 0,
+            originalValueCount: 4,
+            shadowCount: 2,
+            relationshipCount: 1,
+            storeGeneratedCount: 0));
+
+        Customize(runtimeEntityType);
+    }
+
+    static partial void Customize(RuntimeEntityType runtimeEntityType);
 }

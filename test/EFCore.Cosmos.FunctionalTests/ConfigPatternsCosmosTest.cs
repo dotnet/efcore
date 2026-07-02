@@ -3,14 +3,12 @@
 
 using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fixture)
     : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
@@ -20,7 +18,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
 
     protected CosmosFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public async Task Cosmos_client_instance_is_shared_between_contexts()
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);
@@ -50,7 +48,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Should_not_throw_if_specified_region_is_right()
     {
         var regionName = Regions.AustraliaCentral;
@@ -68,7 +66,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Should_throw_if_specified_region_is_wrong()
     {
         var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -91,12 +89,9 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
             exception.Message);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
+    [SkipOnPlatform(TestPlatforms.OSX, "Cosmos emulator on macOS does not support Direct connection mode.")]
     // Linux emulator: ConnectionMode.Direct may not be supported
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "Test is very environment-dependent; when running the Cosmos emulator in a VM on Mac, ConnectionMode.Direct causes severe issues")]
     public async Task Should_not_throw_if_specified_connection_mode_is_right()
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName, o => o.ConnectionMode(ConnectionMode.Direct));
@@ -112,7 +107,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         await context.SaveChangesAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Should_throw_if_specified_connection_mode_is_wrong()
     {
         var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
@@ -132,7 +127,7 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
         });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Cosmos_client_instance_is_thread_safe()
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync(DatabaseName);

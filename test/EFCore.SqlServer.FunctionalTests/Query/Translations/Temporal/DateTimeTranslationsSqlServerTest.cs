@@ -243,7 +243,7 @@ WHERE [b].[DateTime] = @p
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
     {
         await AssertQuery(
@@ -257,7 +257,7 @@ WHERE GETDATE() > '2025-01-01T00:00:00.000'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task UtcNow_has_proper_type_mapping_for_constant_comparison()
     {
         await AssertQuery(
@@ -271,7 +271,7 @@ WHERE GETUTCDATE() > '2025-01-01T00:00:00.000'
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_day()
     {
         await AssertQueryScalar(
@@ -285,7 +285,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_hour()
     {
         await AssertQueryScalar(
@@ -300,7 +300,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

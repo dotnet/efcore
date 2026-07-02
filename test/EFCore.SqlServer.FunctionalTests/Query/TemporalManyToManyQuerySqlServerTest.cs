@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsTemporalTablesCascadeDeleteSupported))]
 public class TemporalManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTestBase<TemporalManyToManyQuerySqlServerFixture>
 {
     public TemporalManyToManyQuerySqlServerTest(TemporalManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -232,7 +232,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[Key1]), 0)
+SELECT ISNULL(SUM([s].[Key1]), 0)
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
     SELECT [e1].[Key1], [e0].[RootSkipSharedId]
@@ -295,7 +295,7 @@ FROM [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([e1].[Id]), 0)
+    SELECT ISNULL(SUM([e1].[Id]), 0)
     FROM [EntityOneEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[OneSkipSharedId] = [e1].[Id]
     WHERE [e].[Id] = [e0].[TwoSkipSharedId])

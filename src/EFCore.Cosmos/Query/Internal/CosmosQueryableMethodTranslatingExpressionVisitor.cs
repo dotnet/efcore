@@ -428,12 +428,48 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             subquery.ClearOrdering();
         }
 
-        var translation = _sqlExpressionFactory.Exists(subquery);
-        var selectExpression = new SelectExpression(translation);
+        // For subqueries, Cosmos supports EXISTS over correlated subqueries (e.g. within a WHERE clause).
+        if (_subquery)
+        {
+            var translation = _sqlExpressionFactory.Exists(subquery);
+            var selectExpression = new SelectExpression(translation);
 
-        return source.Update(
-            selectExpression,
-            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+            return source.Update(
+                selectExpression,
+                Expression.Convert(
+                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+        }
+
+        // For top-level Any(), Cosmos doesn't support EXISTS over uncorrelated subqueries. Instead, we project a constant 'true'
+        // with LIMIT 1:
+        //   SELECT VALUE true FROM root c WHERE <predicate> OFFSET 0 LIMIT 1
+        // If at least one document matches, we get back 'true'; if no documents match, the result set is empty.
+        // We override the result cardinality to SingleOrDefault so that an empty result returns default(bool) = false
+        // (the caller sets ResultCardinality.Single which would throw on empty results).
+
+        // TODO: Subquery pushdown, #33968
+        if (subquery.IsDistinct)
+        {
+            return null;
+        }
+
+        subquery.ClearOrdering();
+
+        var topLevelTranslation = _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true));
+        var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), topLevelTranslation } };
+        subquery.ReplaceProjectionMapping(projectionMapping);
+
+        if (!TryApplyLimit(subquery, TranslateExpression(Expression.Constant(1))!))
+        {
+            return null;
+        }
+
+        return source
+            .UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)))
+            .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
     }
 
     /// <summary>
@@ -473,6 +509,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
+        // Strip convert to object. Other converts should be fine as they will have a type mapping found but object won't
+
+        if (item is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression && unaryExpression.Type == typeof(object))
+        {
+            item = unaryExpression.Operand;
+        }
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
@@ -628,7 +670,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -814,6 +856,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateRightJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        AddTranslationErrorDetails(CosmosStrings.CrossDocumentJoinNotSupported);
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateFullJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,
@@ -1158,7 +1217,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1277,7 +1336,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }

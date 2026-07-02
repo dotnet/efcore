@@ -11,9 +11,118 @@ updates:
     open-pull-requests-limit: 5
     schedule:
       interval: "weekly"
+      day: "monday"
     labels:
       - "area-infrastructure"
     ignore:
+      # Packages managed by Maestro dependency flow (eng/Version.Details.props)
+      - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
+      - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
+      - dependency-name: "Microsoft.DotNet.Helix.Sdk"
+      - dependency-name: "Microsoft.Extensions.Caching.Memory"
+      - dependency-name: "Microsoft.Extensions.Configuration"
+      - dependency-name: "Microsoft.Extensions.Configuration.EnvironmentVariables"
+      - dependency-name: "Microsoft.Extensions.Configuration.Json"
+      - dependency-name: "Microsoft.Extensions.DependencyInjection"
+      - dependency-name: "Microsoft.Extensions.DependencyModel"
+      - dependency-name: "Microsoft.Extensions.HostFactoryResolver.Sources"
+      - dependency-name: "Microsoft.Extensions.Logging"
+      - dependency-name: "Microsoft.NETCore.App.Ref"
+      - dependency-name: "Microsoft.NETCore.Platforms"
+      - dependency-name: "System.Formats.Asn1"
+      - dependency-name: "System.Runtime.Caching"
+      - dependency-name: "System.Text.Encodings.Web"
+      - dependency-name: "System.Text.Json"
+
+  - package-ecosystem: "nuget"
+    directory: "/"
+    target-branch: "release/8.0"
+    registries:
+      - dotnet-public
+    open-pull-requests-limit: 5
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    commit-message:
+      prefix: "[release/8.0]"
+    labels:
+      - "area-infrastructure"
+    ignore:
+      # Only update to the latest minor or patch version, never major
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # Packages managed by Maestro dependency flow (eng/Version.Details.props)
+      - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
+      - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
+      - dependency-name: "Microsoft.DotNet.Helix.Sdk"
+      - dependency-name: "Microsoft.Extensions.Caching.Memory"
+      - dependency-name: "Microsoft.Extensions.Configuration"
+      - dependency-name: "Microsoft.Extensions.Configuration.EnvironmentVariables"
+      - dependency-name: "Microsoft.Extensions.Configuration.Json"
+      - dependency-name: "Microsoft.Extensions.DependencyInjection"
+      - dependency-name: "Microsoft.Extensions.DependencyModel"
+      - dependency-name: "Microsoft.Extensions.HostFactoryResolver.Sources"
+      - dependency-name: "Microsoft.Extensions.Logging"
+      - dependency-name: "Microsoft.NETCore.App.Ref"
+      - dependency-name: "Microsoft.NETCore.Platforms"
+      - dependency-name: "System.Formats.Asn1"
+      - dependency-name: "System.Runtime.Caching"
+      - dependency-name: "System.Text.Encodings.Web"
+      - dependency-name: "System.Text.Json"
+
+  - package-ecosystem: "nuget"
+    directory: "/"
+    target-branch: "release/9.0"
+    registries:
+      - dotnet-public
+    open-pull-requests-limit: 5
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+    commit-message:
+      prefix: "[release/9.0]"
+    labels:
+      - "area-infrastructure"
+    ignore:
+      # Only update to the latest minor or patch version, never major
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # Packages managed by Maestro dependency flow (eng/Version.Details.props)
+      - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
+      - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
+      - dependency-name: "Microsoft.DotNet.Helix.Sdk"
+      - dependency-name: "Microsoft.Extensions.Caching.Memory"
+      - dependency-name: "Microsoft.Extensions.Configuration"
+      - dependency-name: "Microsoft.Extensions.Configuration.EnvironmentVariables"
+      - dependency-name: "Microsoft.Extensions.Configuration.Json"
+      - dependency-name: "Microsoft.Extensions.DependencyInjection"
+      - dependency-name: "Microsoft.Extensions.DependencyModel"
+      - dependency-name: "Microsoft.Extensions.HostFactoryResolver.Sources"
+      - dependency-name: "Microsoft.Extensions.Logging"
+      - dependency-name: "Microsoft.NETCore.App.Ref"
+      - dependency-name: "Microsoft.NETCore.Platforms"
+      - dependency-name: "System.Formats.Asn1"
+      - dependency-name: "System.Runtime.Caching"
+      - dependency-name: "System.Text.Encodings.Web"
+      - dependency-name: "System.Text.Json"
+
+  - package-ecosystem: "nuget"
+    directory: "/"
+    target-branch: "release/10.0"
+    registries:
+      - dotnet-public
+    open-pull-requests-limit: 5
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+    commit-message:
+      prefix: "[release/10.0]"
+    labels:
+      - "area-infrastructure"
+    ignore:
+      # Only update to the latest minor or patch version, never major
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class RelationalBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_set_fixed_length()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -31,7 +31,7 @@ public class RelationalBuilderExtensionsTest
         Assert.False(property.IsFixedLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -47,7 +47,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Eman", property.GetColumnName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -62,7 +62,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("nvarchar(42)", property.GetColumnType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_default_expression()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -78,7 +78,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_column_default_expression_does_not_modify_explicitly_set_value_generated()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -95,7 +95,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_computed_expression()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -111,7 +111,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_column_computed_expression_does_not_modify_explicitly_set_value_generated()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -128,7 +128,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_default_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -145,7 +145,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_default_value_implicit_conversion()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -161,7 +161,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_column_default_value_does_not_modify_explicitly_set_value_generated()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -179,7 +179,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_column_default_value_of_enum_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -196,7 +196,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_alternate_key_name_is_based_on_key_column_names()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -225,7 +225,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("KeyLimePie", key.GetName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_key()
     {
         var modelBuilder = CreateBuilder();
@@ -243,7 +243,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Splow", keyBuilder.Metadata.GetName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_foreign_key_name_is_based_on_fk_column_names()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -262,7 +262,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("FK_Order_Customer_CID", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key_name_for_one_to_many()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -283,7 +283,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key_name_for_one_to_many_with_FK_specified()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -299,7 +299,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("LemonSupreme", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key_name_for_many_to_one()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -320,7 +320,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key_name_for_many_to_one_with_FK_specified()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -336,7 +336,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("LemonSupreme", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key_name_for_one_to_one()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -357,7 +357,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_foreign_key_name_for_one_to_one_with_FK_specified()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -372,7 +372,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("LemonSupreme", foreignKey.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_index()
     {
         var modelBuilder = CreateBuilder();
@@ -396,7 +396,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Null(indexBuilder.Metadata.GetFilter());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_index_database_name_is_based_on_index_column_names()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -417,7 +417,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("IX_Customer_Eendax", index.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_index_database_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -432,7 +432,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Eeeendeeex", index.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_write_index_filter_with_where_clauses()
     {
         var builder = CreateConventionModelBuilder();
@@ -449,7 +449,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("[Id] % 2 = 0", index.GetFilter());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_table_name()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -464,7 +464,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Splow", typeBuilder.Metadata.GetTableName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_table_name_and_schema()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -482,7 +482,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", typeBuilder.Metadata.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_override_existing_schema()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -502,7 +502,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("1", typeBuilder.Metadata.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_check_constraint()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -520,7 +520,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("AlternateId > Id", checkConstraint.Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_check_constraint_with_duplicate_name_replaces_existing()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -542,7 +542,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("AlternateId < Id", checkConstraint.Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_check_constraint()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -561,7 +561,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("s < p", entityType.GetCheckConstraints().Single().Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Base_check_constraint_overrides_derived_one()
     {
         var modelBuilder = CreateBuilder();
@@ -609,7 +609,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Same(baseEntityType.GetCheckConstraints().Single(), derivedEntityType.GetCheckConstraints().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Base_check_constraint_overrides_derived_one_after_base_is_set()
     {
         var modelBuilder = CreateBuilder();
@@ -648,7 +648,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Same(baseEntityType.GetCheckConstraints().Single(), derivedEntityType.GetCheckConstraints().Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_trigger()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -666,7 +666,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_trigger_with_duplicate_name_replaces_existing()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -688,7 +688,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Table2", trigger.GetDatabaseName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_trigger()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -714,7 +714,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Table2", entityType.GetDeclaredTriggers().Single().GetTableName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_using_property_expression()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -732,7 +732,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_using_property_expression_separately()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -755,7 +755,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_using_property_name()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -773,7 +773,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_using_property_name_separately()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -796,7 +796,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -814,7 +814,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_non_generic_separately()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -837,7 +837,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_discriminator_value_shadow_entity()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -855,7 +855,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_default_discriminator_value()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -873,7 +873,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_default_discriminator_value_separately()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -895,7 +895,45 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void Embedded_discriminator_name_is_used_for_json_entity_and_complex_discriminators()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.HasEmbeddedDiscriminatorName("Terminator");
+        modelBuilder.Entity<JsonContainer>(
+            b =>
+            {
+                b.OwnsOne(
+                    e => e.JsonOwned, bb =>
+                    {
+                        bb.ToJson();
+                    });
+                b.ComplexProperty(
+                    e => e.JsonComplex, bb =>
+                    {
+                        bb.ToJson();
+                        bb.HasDiscriminator<string>("ComplexDiscriminator");
+                    });
+            });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(JsonContainer))!;
+        var ownedEntityType = entityType.FindNavigation(nameof(JsonContainer.JsonOwned))!.TargetEntityType;
+        var discriminatorBuilder = ((EntityType)ownedEntityType).Builder.HasDiscriminator(
+            "EntityDiscriminator", typeof(string), ConfigurationSource.Explicit)!;
+        discriminatorBuilder.HasValue(typeof(JsonOwned), "Owned");
+        var complexType = entityType.FindComplexProperty(nameof(JsonContainer.JsonComplex))!.ComplexType;
+
+        var ownedDiscriminatorProperty = ownedEntityType.FindDiscriminatorProperty()!;
+        var complexDiscriminatorProperty = complexType.FindDiscriminatorProperty()!;
+
+        Assert.Equal("EntityDiscriminator", ownedDiscriminatorProperty.Name);
+        Assert.Equal("Terminator", ownedDiscriminatorProperty.GetJsonPropertyName());
+        Assert.Equal("ComplexDiscriminator", complexDiscriminatorProperty.Name);
+        Assert.Equal("Terminator", complexDiscriminatorProperty.GetJsonPropertyName());
+    }
+
+    [Fact]
     public void Can_set_schema_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -907,7 +945,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("db0", modelBuilder.Model.GetDefaultSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Model_schema_is_used_if_table_schema_not_set()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -929,7 +967,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("db0", entityType.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Model_schema_is_not_used_if_table_schema_is_set()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -948,7 +986,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("db1", entityType.GetSchema());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_is_in_model_schema_if_not_specified_explicitly()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -962,7 +1000,7 @@ public class RelationalBuilderExtensionsTest
         ValidateSchemaNamedSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_is_not_in_model_schema_if_specified_explicitly()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -976,7 +1014,7 @@ public class RelationalBuilderExtensionsTest
         ValidateSchemaNamedSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_named_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -999,7 +1037,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_schema_named_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1022,7 +1060,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Same(typeof(long), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_named_sequence_with_specific_facets()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1039,7 +1077,7 @@ public class RelationalBuilderExtensionsTest
         ValidateNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_named_sequence_with_specific_facets_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1056,7 +1094,7 @@ public class RelationalBuilderExtensionsTest
         ValidateNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_named_sequence_with_specific_facets_using_nested_closure()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1076,7 +1114,7 @@ public class RelationalBuilderExtensionsTest
         ValidateNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_named_sequence_with_specific_facets_using_nested_closure_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1107,7 +1145,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Same(typeof(int), sequence.Type);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_schema_named_sequence_with_specific_facets()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1124,7 +1162,7 @@ public class RelationalBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_schema_named_sequence_with_specific_facets_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1141,7 +1179,7 @@ public class RelationalBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_schema_named_sequence_with_specific_facets_using_nested_closure()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1155,7 +1193,7 @@ public class RelationalBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_schema_named_sequence_with_specific_facets_using_nested_closure_non_generic()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1170,7 +1208,7 @@ public class RelationalBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sequence);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_comment()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
@@ -1186,7 +1224,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("My Comment 2", entityType.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_dbFunction()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1203,7 +1241,7 @@ public class RelationalBuilderExtensionsTest
     public static int MethodA(string a, int b)
         => throw new NotImplementedException();
 
-    [ConditionalFact]
+    [Fact]
     public void Relational_entity_methods_dont_break_out_of_the_generics()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1219,7 +1257,7 @@ public class RelationalBuilderExtensionsTest
                 .ToTable("Jay", "Simon"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Relational_entity_methods_have_non_generic_overloads()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1233,7 +1271,7 @@ public class RelationalBuilderExtensionsTest
             .ToTable("Jay", "Simon");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Relational_property_methods_dont_break_out_of_the_generics()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1269,7 +1307,7 @@ public class RelationalBuilderExtensionsTest
                 .HasDefaultValue("Neil"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Relational_property_methods_have_non_generic_overloads()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1325,7 +1363,7 @@ public class RelationalBuilderExtensionsTest
             .HasDefaultValue("Neil");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_property()
     {
         var propertyBuilder = CreateBuilder()
@@ -1367,7 +1405,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("runthis()", propertyBuilder.Metadata.GetComputedColumnSql());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Relational_relationship_methods_dont_break_out_of_the_generics()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1393,7 +1431,7 @@ public class RelationalBuilderExtensionsTest
                 .HasConstraintName("Simon"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Relational_relationship_methods_have_non_generic_overloads()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1416,7 +1454,7 @@ public class RelationalBuilderExtensionsTest
             .HasConstraintName("Simon");
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_relationship()
     {
         var modelBuilder = CreateBuilder();
@@ -1434,7 +1472,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_access_relationship_ExcludeForeignKeyFromMigrations()
     {
         var modelBuilder = CreateBuilder();
@@ -1520,6 +1558,23 @@ public class RelationalBuilderExtensionsTest
 
         public int OrderId { get; set; }
         public Order Order { get; }
+    }
+
+    private class JsonContainer
+    {
+        public int Id { get; set; }
+        public JsonOwned JsonOwned { get; set; } = null!;
+        public JsonComplex JsonComplex { get; set; } = null!;
+    }
+
+    private class JsonOwned
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    private class JsonComplex
+    {
+        public string Name { get; set; } = null!;
     }
 
     private class Splot

@@ -10,11 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 public class TPHInheritanceQuerySqlServerTest(TPHInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : TPHInheritanceQueryTestBase<TPHInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Common_property_shares_column()
     {
         using var context = CreateContext();

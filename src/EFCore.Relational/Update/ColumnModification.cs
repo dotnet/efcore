@@ -254,7 +254,7 @@ public class ColumnModification : IColumnModification
         => entry.IsStoreGenerated(property);
 
     /// <inheritdoc />
-    public virtual JsonPath? JsonPath { get; }
+    public virtual StructuredJsonPath? JsonPath { get; }
 
     /// <inheritdoc />
     public virtual void AddSharedColumnModification(IColumnModification modification)

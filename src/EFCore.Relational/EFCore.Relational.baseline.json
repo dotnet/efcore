@@ -527,7 +527,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<bool>",
       "Methods": [
         {
           "Member": "BoolTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Boolean);"
@@ -549,7 +549,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteArrayTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteArrayTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<byte[]>",
       "Methods": [
         {
           "Member": "ByteArrayTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Binary, int? size = null);"
@@ -571,7 +571,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<byte>",
       "Methods": [
         {
           "Member": "ByteTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Byte);"
@@ -652,7 +652,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.CharTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.CharTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<char>",
       "Methods": [
         {
           "Member": "CharTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.String);"
@@ -936,7 +936,7 @@
           "Member": "virtual bool IsWrite { get; set; }"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; }"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; }"
         },
         {
           "Member": "virtual string? OriginalParameterName { get; }"
@@ -986,7 +986,7 @@
           "Member": "ColumnModificationParameters(Microsoft.EntityFrameworkCore.Update.IUpdateEntry? entry, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, Microsoft.EntityFrameworkCore.Metadata.IColumnBase column, System.Func<string> generateParameterName, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping typeMapping, bool valueIsRead, bool valueIsWrite, bool columnIsKey, bool columnIsCondition, bool sensitiveLoggingEnabled);"
         },
         {
-          "Member": "ColumnModificationParameters(string columnName, object? value, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, string? columnType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, Microsoft.EntityFrameworkCore.Infrastructure.JsonPath jsonPath, bool read, bool write, bool key, bool condition, bool sensitiveLoggingEnabled, bool? isNullable = null);"
+          "Member": "ColumnModificationParameters(string columnName, object? value, Microsoft.EntityFrameworkCore.Metadata.IProperty? property, string? columnType, Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping? typeMapping, Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath jsonPath, bool read, bool write, bool key, bool condition, bool sensitiveLoggingEnabled, bool? isNullable = null);"
         },
         {
           "Member": "ColumnModificationParameters();"
@@ -1042,7 +1042,7 @@
           "Member": "bool IsWrite { get; init; }"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; init; }"
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; init; }"
         },
         {
           "Member": "object? OriginalValue { get; init; }"
@@ -1976,7 +1976,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.DateOnly>",
       "Methods": [
         {
           "Member": "DateOnlyTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Date);"
@@ -1998,7 +1998,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeOffsetTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeOffsetTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.DateTimeOffset>",
       "Methods": [
         {
           "Member": "DateTimeOffsetTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.DateTimeOffset);"
@@ -2020,7 +2020,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DateTimeTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.DateTime>",
       "Methods": [
         {
           "Member": "DateTimeTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.DateTime);"
@@ -2388,7 +2388,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DecimalTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DecimalTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<decimal>",
       "Methods": [
         {
           "Member": "DecimalTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Decimal, int? precision = null, int? scale = null);"
@@ -2531,7 +2531,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.DoubleTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.DoubleTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<double>",
       "Methods": [
         {
           "Member": "DoubleTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Double);"
@@ -2966,7 +2966,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.FloatTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.FloatTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<float>",
       "Methods": [
         {
           "Member": "FloatTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Single);"
@@ -3040,7 +3040,36 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.PredicateJoinExpressionBase",
+      "Methods": [
+        {
+          "Member": "FullJoinExpression(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase table, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate, bool prunable = false);"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "override void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression Quote();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression Update(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase table, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression Update(Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase table);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression WithAnnotations(System.Collections.Generic.IReadOnlyDictionary<string, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> annotations);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.GuidTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.Guid>",
       "Methods": [
         {
           "Member": "GuidTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Guid);"
@@ -3581,7 +3610,7 @@
           "Member": "bool IsWrite { get; set; }"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.JsonPath? JsonPath { get; }"
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath? JsonPath { get; }"
         },
         {
           "Member": "string? OriginalParameterName { get; }"
@@ -5341,7 +5370,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.IntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.IntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<int>",
       "Methods": [
         {
           "Member": "IntTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Int32);"
@@ -5356,6 +5385,23 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.IntTypeMapping Default { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Design.IOperationReporter",
+      "Methods": [
+        {
+          "Member": "void WriteError(string message);"
+        },
+        {
+          "Member": "void WriteInformation(string message);"
+        },
+        {
+          "Member": "void WriteVerbose(string message);"
+        },
+        {
+          "Member": "void WriteWarning(string message);"
         }
       ]
     },
@@ -6192,7 +6238,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? ParentElement { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> Path { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Path { get; }"
         },
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IJsonElementMapping> PropertyMappings { get; }"
@@ -6408,6 +6454,14 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IModel Model { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Migrations.ISnapshotModelProcessor",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IModel? Process(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel? model, bool resetVersion = false);"
         }
       ]
     },
@@ -7305,56 +7359,6 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.JsonPath",
-      "Methods": [
-        {
-          "Member": "JsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> segments, int[] ordinals);"
-        },
-        {
-          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual bool IsRoot { get; }"
-        },
-        {
-          "Member": "virtual int[] Ordinals { get; }"
-        },
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.JsonPath Root { get; }"
-        },
-        {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment> Segments { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment",
-      "Methods": [
-        {
-          "Member": "JsonPathSegment(string propertyName);"
-        },
-        {
-          "Member": "override string ToString();"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.JsonPathSegment Array { get; }"
-        },
-        {
-          "Member": "bool IsArray { get; }"
-        },
-        {
-          "Member": "string? PropertyName { get; }"
-        }
-      ]
-    },
-    {
       "Type": "class Microsoft.EntityFrameworkCore.Query.JsonQueryExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
       "Methods": [
         {
@@ -7376,7 +7380,13 @@
           "Member": "override bool Equals(object? obj);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement? FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
+        },
+        {
           "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement GetJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase propertyBase);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.JsonQueryExpression MakeNullable();"
@@ -7554,7 +7564,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.LongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.LongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<long>",
       "Methods": [
         {
           "Member": "LongTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Int64);"
@@ -7969,6 +7979,9 @@
         },
         {
           "Member": "int LastCommittedCommandIndex { get; set; }"
+        },
+        {
+          "Member": "bool SeedingCompleted { get; set; }"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? Transaction { get; set; }"
@@ -8445,7 +8458,7 @@
       ],
       "Properties": [
         {
-          "Member": "virtual string? LatestMigrationId { get; }"
+          "Member": "virtual string? LastMigrationId { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IModel Model { get; }"
@@ -9504,6 +9517,9 @@
           "Member": "virtual System.Linq.Expressions.Expression VisitFromSql(Microsoft.EntityFrameworkCore.Query.SqlExpressions.FromSqlExpression fromSqlExpression);"
         },
         {
+          "Member": "virtual System.Linq.Expressions.Expression VisitFullJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.FullJoinExpression fullJoinExpression);"
+        },
+        {
           "Member": "virtual System.Linq.Expressions.Expression VisitInnerJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.InnerJoinExpression innerJoinExpression);"
         },
         {
@@ -10033,6 +10049,14 @@
           "Value": "Relational:JsonElementMappings"
         },
         {
+          "Member": "const string JsonIndex",
+          "Value": "Relational:JsonIndex"
+        },
+        {
+          "Member": "const string JsonIndexPaths",
+          "Value": "Relational:JsonIndexPaths"
+        },
+        {
           "Member": "const string JsonPropertyName",
           "Value": "Relational:JsonPropertyName"
         },
@@ -10180,6 +10204,12 @@
       "Methods": [
         {
           "Member": "RelationalAnnotationProvider(Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotationProviderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex CreateJsonIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex modelIndex, Microsoft.EntityFrameworkCore.Metadata.ITableIndex tableIndex);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement FindJsonElement(Microsoft.EntityFrameworkCore.Metadata.IPropertyBase property, Microsoft.EntityFrameworkCore.Metadata.ITable table);"
         },
         {
           "Member": "virtual System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation> For(Microsoft.EntityFrameworkCore.Metadata.IRelationalModel model, bool designTime);"
@@ -10719,6 +10749,9 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetJsonPropertyNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionComplexProperty complexProperty);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier> GetMappedStoreObjects(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyComplexProperty property, Microsoft.EntityFrameworkCore.Metadata.StoreObjectType storeObjectType);"
         },
         {
           "Member": "static void SetJsonPropertyName(this Microsoft.EntityFrameworkCore.Metadata.IMutableComplexProperty complexProperty, string? name);"
@@ -11326,6 +11359,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Storage.IExecutionStrategy ExecutionStrategy { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> Logger { get; init; }"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Migrations.IMigrationCommandExecutor MigrationCommandExecutor { get; init; }"
@@ -12749,6 +12785,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId OptionalDependentWithoutIdentifyingPropertyWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId OwnedEntityMappedToJsonCollectionWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId PendingModelChangesWarning"
         },
         {
@@ -13170,6 +13209,31 @@
       ]
     },
     {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex : System.IEquatable<Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex>",
+      "Methods": [
+        {
+          "Member": "RelationalJsonIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> elements, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.RelationalJsonIndex? other);"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? CollectionIndices { get; }"
+        },
+        {
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> Elements { get; }"
+        }
+      ]
+    },
+    {
       "Type": "static class Microsoft.EntityFrameworkCore.RelationalKeyBuilderExtensions",
       "Methods": [
         {
@@ -13454,6 +13518,9 @@
           "Member": "static void OptionalDependentWithoutIdentifyingPropertyWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
+          "Member": "static void OwnedEntityMappedToJsonCollectionWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+        },
+        {
           "Member": "static void PendingModelChangesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, System.Type contextType);"
         },
         {
@@ -13662,6 +13729,20 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies RelationalDependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.RelationalMemberClassifier : Microsoft.EntityFrameworkCore.Metadata.MemberClassifier",
+      "Methods": [
+        {
+          "Member": "RelationalMemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "override bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "override bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out System.Type? elementType, out bool explicitlyConfigured);"
         }
       ]
     },
@@ -14156,7 +14237,10 @@
           "Member": "override void ValidateIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
-          "Member": "virtual void ValidateIndexMappedToTable(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+          "Member": "override void ValidateIndexOnComplexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> complexProperties, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "override void ValidateIndexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase property, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateIndexPropertyMapping(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -14202,6 +14286,9 @@
         },
         {
           "Member": "virtual void ValidateOptionalDependents(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "virtual void ValidateOwnedEntityMappedToJsonCollection(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "override void ValidatePrimitiveCollection(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -14482,20 +14569,16 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TSource, TTarget> HasJsonPropertyName<TSource, TTarget>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TSource, TTarget> navigationBuilder, string? name);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder);",
-          "Stage": "Obsolete"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder);",
-          "Stage": "Obsolete"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder, string? jsonColumnName);",
-          "Stage": "Obsolete"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder, string? jsonColumnName);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder, string? jsonColumnName);",
-          "Stage": "Obsolete"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder ToJson(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationBuilder builder, string? jsonColumnName);"
         }
       ]
     },
@@ -15331,6 +15414,9 @@
         },
         {
           "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFirstOrDefault(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression? predicate, System.Type returnType, bool returnDefault);"
+        },
+        {
+          "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFullJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression outer, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression inner, System.Linq.Expressions.LambdaExpression outerKeySelector, System.Linq.Expressions.LambdaExpression innerKeySelector, System.Linq.Expressions.LambdaExpression resultSelector);"
         },
         {
           "Member": "override Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateGroupBy(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression keySelector, System.Linq.Expressions.LambdaExpression? elementSelector, System.Linq.Expressions.LambdaExpression? resultSelector);"
@@ -16504,6 +16590,12 @@
           "Member": "static string IncorrectDefaultValueType(object? value, object? valueType, object? property, object? propertyType, object? entityType);"
         },
         {
+          "Member": "static string IndexOnNonJsonComplexProperty(object? indexProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string IndexPropertiesMixedJsonAndNonJsonMapping(object? indexProperties, object? entityType);"
+        },
+        {
           "Member": "static string InsertDataOperationNoModel(object? table);"
         },
         {
@@ -16555,6 +16647,9 @@
           "Member": "static string JsonCantNavigateToParentEntity(object? jsonEntity, object? parentEntity, object? navigation);"
         },
         {
+          "Member": "static string JsonElementMappingNotFound(object? structuralType, object? name, object? columnName);"
+        },
+        {
           "Member": "static string JsonEntityMappedToDifferentColumnThanOwner(object? jsonType, object? containingColumn, object? ownerType, object? ownerContainingColumn);"
         },
         {
@@ -16597,6 +16692,15 @@
           "Member": "static string JsonObjectWithMultiplePropertiesMappedToSameJsonProperty(object? property1, object? property2, object? type, object? jsonPropertyName);"
         },
         {
+          "Member": "static string JsonPathIndexElementsCollectionIndicesMismatch(object? elementCount, object? collectionIndicesCount);"
+        },
+        {
+          "Member": "static string JsonPathIndexPropertiesInDifferentJsonColumns(object? indexProperties, object? entityType, object? firstColumn, object? secondColumn);"
+        },
+        {
+          "Member": "static string JsonPathIndexPropertyMissingJsonColumn(object? indexProperties, object? entityType, object? property);"
+        },
+        {
           "Member": "static string JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution);"
         },
         {
@@ -16606,6 +16710,9 @@
           "Member": "static string JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(object? asNoTrackingWithIdentityResolution);"
         },
         {
+          "Member": "static string JsonQueryExpressionWithoutUnderlyingColumn(object? structuralType);"
+        },
+        {
           "Member": "static string JsonRequiredEntityWithNullJson(object? entity);"
         },
         {
@@ -16613,6 +16720,9 @@
         },
         {
           "Member": "static string KeylessMappingStrategy(object? mappingStrategy, object? entityType);"
+        },
+        {
+          "Member": "static string KeyPropertyInJsonComplexType(object? keyProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string LastUsedWithoutOrderBy(object? method);"
@@ -16640,6 +16750,9 @@
         },
         {
           "Member": "static string ModificationCommandInvalidEntityStateSensitive(object? entityType, object? keyValues, object? entityState);"
+        },
+        {
+          "Member": "static string MultipleAnnotationConflict(object? annotationName);"
         },
         {
           "Member": "static string MultipleColumnsWithSameJsonContainerName(object? entityType, object? columnName);"
@@ -16888,6 +17001,9 @@
           "Member": "static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor);"
         },
         {
+          "Member": "static string UniqueIndexOnComplexProperty(object? indexProperties, object? entityType, object? property);"
+        },
+        {
           "Member": "static string UnknownOperation(object? sqlGeneratorType, object? operationType);"
         },
         {
@@ -16941,7 +17057,8 @@
       ],
       "Properties": [
         {
-          "Member": "static string BadSequenceString { get; }"
+          "Member": "static string BadSequenceString { get; }",
+          "Stage": "Obsolete"
         },
         {
           "Member": "static string BadSequenceType { get; }"
@@ -17353,6 +17470,9 @@
           "Member": "static string? GetContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase typeBase);"
         },
         {
+          "Member": "static string? GetContainerColumnName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase typeBase, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetContainerColumnNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase typeBase);"
         },
         {
@@ -17481,7 +17601,7 @@
           "Member": "abstract Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping.RelationalTypeMappingParameters parameters);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(in Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingInfo? mappingInfo = null, System.Type? clrType = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? providerValueComparer = null, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null, Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix? storeTypePostfix = null);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping Clone(in Microsoft.EntityFrameworkCore.Storage.RelationalTypeMappingInfo? mappingInfo = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? providerValueComparer = null, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null, Microsoft.EntityFrameworkCore.Storage.StoreTypePostfix? storeTypePostfix = null);"
         },
         {
           "Member": "virtual void ConfigureParameter(System.Data.Common.DbParameter parameter);"
@@ -17506,6 +17626,9 @@
         },
         {
           "Member": "static System.Reflection.MethodInfo GetDataReaderMethod(System.Type type);"
+        },
+        {
+          "Member": "virtual object? GetDefaultProviderValue();"
         },
         {
           "Member": "virtual string ProcessStoreType(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping.RelationalTypeMappingParameters parameters, string storeType, string storeTypeNameBase);"
@@ -17622,6 +17745,20 @@
         },
         {
           "Member": "bool Unicode { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)] T> : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Methods": [
+        {
+          "Member": "RelationalTypeMapping(Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping.RelationalTypeMappingParameters parameters);"
+        },
+        {
+          "Member": "RelationalTypeMapping(string storeType, System.Type clrType, System.Data.DbType? dbType = null, bool unicode = false, int? size = null, bool fixedLength = false, int? precision = null, int? scale = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null);"
+        },
+        {
+          "Member": "override Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer CreateDefaultComparer(bool favorStructuralComparisons);"
         }
       ]
     },
@@ -18287,7 +18424,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.SByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.SByteTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<sbyte>",
       "Methods": [
         {
           "Member": "SByteTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.SByte);"
@@ -18353,6 +18490,12 @@
         },
         {
           "Member": "System.Linq.Expressions.Expression AddCrossJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression innerSource, System.Linq.Expressions.Expression outerShaper);"
+        },
+        {
+          "Member": "void AddFullJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression innerSelectExpression, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate);"
+        },
+        {
+          "Member": "System.Linq.Expressions.Expression AddFullJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression innerSource, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate, System.Linq.Expressions.Expression outerShaper);"
         },
         {
           "Member": "void AddInnerJoin(Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression innerSelectExpression, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SqlExpression joinPredicate);"
@@ -18704,7 +18847,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<short>",
       "Methods": [
         {
           "Member": "ShortTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Int16);"
@@ -18727,6 +18870,17 @@
       "Methods": [
         {
           "Member": "SingularModificationCommandBatch(Microsoft.EntityFrameworkCore.Update.ModificationCommandBatchFactoryDependencies dependencies);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Migrations.SnapshotModelProcessor : Microsoft.EntityFrameworkCore.Migrations.ISnapshotModelProcessor",
+      "Methods": [
+        {
+          "Member": "SnapshotModelProcessor(Microsoft.EntityFrameworkCore.Design.IOperationReporter operationReporter, Microsoft.EntityFrameworkCore.Infrastructure.IModelRuntimeInitializer modelRuntimeInitializer);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IModel? Process(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel? model, bool resetVersion = false);"
         }
       ]
     },
@@ -19847,7 +20001,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.StringTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.StringTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<string>",
       "Methods": [
         {
           "Member": "StringTypeMapping(string storeType, System.Data.DbType? dbType, bool unicode = false, int? size = null);"
@@ -19925,6 +20079,59 @@
         },
         {
           "Member": "override System.Type Type { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath",
+      "Methods": [
+        {
+          "Member": "StructuredJsonPath(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> segments, System.Collections.Generic.IReadOnlyList<int?>? indices);"
+        },
+        {
+          "Member": "virtual System.Text.StringBuilder AppendTo(System.Text.StringBuilder builder, char? wildcardForNullIndex = null);"
+        },
+        {
+          "Member": "virtual string ToString(char? wildcardForNullIndex = null);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<int?>? Indices { get; }"
+        },
+        {
+          "Member": "virtual bool IsRoot { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Infrastructure.StructuredJsonPath Root { get; }"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment> Segments { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment",
+      "Methods": [
+        {
+          "Member": "StructuredJsonPathSegment(string propertyName);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.StructuredJsonPathSegment Array { get; }"
+        },
+        {
+          "Member": "bool IsArray { get; }"
+        },
+        {
+          "Member": "string? PropertyName { get; }"
         }
       ]
     },
@@ -20307,7 +20514,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeOnlyTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.TimeOnly>",
       "Methods": [
         {
           "Member": "TimeOnlyTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Time);"
@@ -20329,7 +20536,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeSpanTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.TimeSpanTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<System.TimeSpan>",
       "Methods": [
         {
           "Member": "TimeSpanTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.Time);"
@@ -20499,7 +20706,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.UIntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.UIntTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<uint>",
       "Methods": [
         {
           "Member": "UIntTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.UInt32);"
@@ -20518,7 +20725,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.ULongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.ULongTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<ulong>",
       "Methods": [
         {
           "Member": "ULongTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.UInt64);"
@@ -20842,7 +21049,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping",
+      "Type": "class Microsoft.EntityFrameworkCore.Storage.UShortTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<ushort>",
       "Methods": [
         {
           "Member": "UShortTypeMapping(string storeType, System.Data.DbType? dbType = System.Data.DbType.UInt16);"

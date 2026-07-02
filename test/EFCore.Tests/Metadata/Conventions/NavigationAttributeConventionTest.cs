@@ -19,7 +19,7 @@ public class NavigationAttributeConventionTest
 {
     #region NotMappedAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_overrides_configuration_from_convention_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
@@ -45,7 +45,7 @@ public class NavigationAttributeConventionTest
         Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<BlogDetails>();
@@ -66,7 +66,7 @@ public class NavigationAttributeConventionTest
         Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NotMappedAttribute_ignores_navigation_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -81,7 +81,7 @@ public class NavigationAttributeConventionTest
 
     #region RequiredAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_overrides_configuration_from_convention_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -107,7 +107,7 @@ public class NavigationAttributeConventionTest
         Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -132,7 +132,7 @@ public class NavigationAttributeConventionTest
         Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Post.Blog));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_does_not_set_is_required_for_collection_navigation()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -160,7 +160,7 @@ public class NavigationAttributeConventionTest
                 nameof(Principal), nameof(Principal.Dependents)), logEntry.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_does_nothing_when_principal_end_is_ambiguous()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -186,7 +186,7 @@ public class NavigationAttributeConventionTest
         Assert.Empty(ListLoggerFactory.Log);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_sets_is_required_with_conventional_builder()
     {
         var modelBuilder = CreateModelBuilder();
@@ -198,7 +198,7 @@ public class NavigationAttributeConventionTest
                 .IsRequired);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RequiredAttribute_does_not_configure_skip_navigations()
     {
         var postEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
@@ -236,7 +236,7 @@ public class NavigationAttributeConventionTest
 
     #region InversePropertyAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_overrides_configuration_from_convention_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -262,7 +262,7 @@ public class NavigationAttributeConventionTest
         Validate(dependentEntityTypeBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -288,7 +288,7 @@ public class NavigationAttributeConventionTest
         Validate(dependentEntityTypeBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_does_not_configure_ambiguous_navigations()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<AmbiguousDependent>();
@@ -337,7 +337,7 @@ public class NavigationAttributeConventionTest
                 nameof(AmbiguousPrincipal.Dependent)), logEntry.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_does_not_configure_non_ownership_navigation()
     {
         var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
@@ -374,7 +374,7 @@ public class NavigationAttributeConventionTest
                 nameof(Principal.Dependents)), logEntry.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_throws_if_self_navigation()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<SelfReferencingEntity>();
@@ -385,7 +385,7 @@ public class NavigationAttributeConventionTest
             Assert.Throws<InvalidOperationException>(() => RunEntityTypeConventions(entityTypeBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_throws_if_navigation_does_not_exist()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<NonExistentNavigation>();
@@ -396,7 +396,7 @@ public class NavigationAttributeConventionTest
             Assert.Throws<InvalidOperationException>(() => RunEntityTypeConventions(entityTypeBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_throws_if_navigation_return_type_is_wrong()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<WrongNavigationType>();
@@ -406,7 +406,7 @@ public class NavigationAttributeConventionTest
             Assert.Throws<InvalidOperationException>(() => RunEntityTypeConventions(entityTypeBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void InversePropertyAttribute_throws_if_inverse_properties_are_not_pointing_at_each_other()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<MismatchedInverseProperty>();
@@ -421,7 +421,7 @@ public class NavigationAttributeConventionTest
 
     #region ForeignKeyAttribute
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_overrides_configuration_from_convention_source(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -453,7 +453,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("PrincipalFk", relationshipBuilder.Metadata.Properties.First().Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_does_not_override_configuration_from_explicit_source(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -485,7 +485,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("PrincipalId", relationshipBuilder.Metadata.Properties.First().Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_dependent_to_principal_navigation(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -517,7 +517,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("PrincipalFk", relationshipBuilder.Metadata.Properties.First().Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_principal_to_dependent_navigation(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -549,7 +549,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("PrincipalAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_property_on_dependent_side(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -581,7 +581,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("PrincipalAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_on_field_sets_foreign_key_properties_when_applied_on_property_on_dependent_side(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentField>();
@@ -613,7 +613,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("_principalFieldAnotherFk", relationshipBuilder.Metadata.Properties.First().Name);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_sets_foreign_key_properties_after_inverting_when_applied_on_property_on_principal_side(
         bool useNavigation)
     {
@@ -650,7 +650,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal(typeof(Principal), relationshipBuilder.Metadata.PrincipalEntityType.ClrType);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_sets_composite_foreign_key_properties_when_applied_on_navigation(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -686,7 +686,7 @@ public class NavigationAttributeConventionTest
             p => Assert.Equal("PrincipalFk", p.Name));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_throws_when_values_on_property_and_navigation_in_entity_type_do_not_match(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<FkPropertyNavigationMismatch>();
@@ -708,7 +708,7 @@ public class NavigationAttributeConventionTest
             ).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_throws_when_defining_composite_foreign_key_using_attribute_on_properties(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeFkOnProperty>();
@@ -730,7 +730,7 @@ public class NavigationAttributeConventionTest
             ).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_throws_when_property_list_on_navigation_is_in_incorrect_format(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<InvalidPropertyListOnNavigation>();
@@ -753,7 +753,7 @@ public class NavigationAttributeConventionTest
             ).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_throws_when_same_set_of_properties_are_pointed_by_multiple_navigations(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<MultipleNavigationsSameFk>();
@@ -775,7 +775,7 @@ public class NavigationAttributeConventionTest
             ).Message);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void ForeignKeyAttribute_throws_when_specified_on_principal_property_with_collection(bool useNavigation)
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -892,7 +892,7 @@ public class NavigationAttributeConventionTest
 
     #region BackingFieldAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void BackingFieldAttribute_overrides_configuration_from_convention_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentForNavWithBackingField>();
@@ -912,7 +912,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal("_backingFieldFromAttribute", navigationBuilder.Metadata.GetFieldName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void BackingFieldAttribute_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<DependentForNavWithBackingField>();
@@ -938,7 +938,7 @@ public class NavigationAttributeConventionTest
 
     #region DeleteBehaviorAttribute
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteBehaviorAttribute_overrides_configuration_from_convention_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -961,7 +961,7 @@ public class NavigationAttributeConventionTest
         Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DeleteBehaviorAttribute_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
@@ -999,7 +999,7 @@ public class NavigationAttributeConventionTest
 
     #endregion
 
-    [ConditionalFact]
+    [Fact]
     public void Navigation_attribute_convention_runs_for_private_property()
     {
         var modelBuilder = CreateModelBuilder();

@@ -18,11 +18,11 @@ public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelat
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_skip_without_orderby(bool async)
     {
         await AssertQuery(
@@ -51,7 +51,7 @@ WHERE [l].[Id] < 3
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
@@ -1092,7 +1092,7 @@ ORDER BY [l0].[Name], [l].[Id]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([l0].[Level1_Required_Id]), 0)
+SELECT ISNULL(SUM([l0].[Level1_Required_Id]), 0)
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 """);
@@ -1164,7 +1164,7 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CASE
+SELECT ISNULL(SUM(CASE
     WHEN [l0].[Id] IS NULL THEN 0
     ELSE [l0].[Level1_Required_Id]
 END), 0)
@@ -1322,7 +1322,7 @@ INNER JOIN (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Multiple_complex_includes_from_sql()
     {
         using var context = CreateContext();
@@ -2024,7 +2024,7 @@ INNER JOIN (
             """
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
 FROM [LevelOne] AS [l]
-INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = COALESCE((
+INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = ISNULL((
     SELECT TOP(1) [l1].[Id]
     FROM [LevelTwo] AS [l1]
     ORDER BY [l1].[Id]), 0)
@@ -2921,7 +2921,7 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 
         AssertSql(
             """
-SELECT COALESCE([l].[Name], N'') + N' ' + COALESCE(CASE
+SELECT ISNULL([l].[Name], N'') + N' ' + ISNULL(CASE
     WHEN [l1].[Id] IS NOT NULL THEN [l1].[Name]
     ELSE N'NULL'
 END, N'')
@@ -3104,13 +3104,26 @@ ORDER BY [i].[Id], [i1].[Id], [i2].[Id]
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
-        AssertSql(
-            """
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT GREATEST([l0].[Level1_Required_Id], 7)
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToOne_Optional_PK_Inverse2Id]
+WHERE [l0].[Id] IS NOT NULL
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
 SELECT [l0].[Level1_Required_Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToOne_Optional_PK_Inverse2Id]
 WHERE [l0].[Id] IS NOT NULL
 """);
+        }
     }
 
     public override async Task Accessing_optional_property_inside_result_operator_subquery(bool async)
@@ -3782,7 +3795,7 @@ WHERE [l0].[Id] IS NOT NULL AND [l0].[Name] = N'L2 01'
 
         AssertSql(
             """
-SELECT COALESCE(SUM([l].[Id]), 0)
+SELECT ISNULL(SUM([l].[Id]), 0)
 FROM [LevelOne] AS [l]
 """);
     }
@@ -3796,7 +3809,7 @@ FROM [LevelOne] AS [l]
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 WHERE [l].[Id] > (
-    SELECT COALESCE(SUM([l0].[Id]), 0)
+    SELECT ISNULL(SUM([l0].[Id]), 0)
     FROM [LevelTwo] AS [l0]
     WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id])
 """);
@@ -3950,7 +3963,7 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
 GROUP BY [l1].[Name]
 HAVING (
-    SELECT MIN(COALESCE([l5].[Id], 0) + COALESCE([l5].[Id], 0))
+    SELECT MIN(ISNULL([l5].[Id], 0) + ISNULL([l5].[Id], 0))
     FROM [LevelOne] AS [l2]
     LEFT JOIN [LevelTwo] AS [l3] ON [l2].[Id] = [l3].[Id]
     LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[Id]
@@ -4091,7 +4104,7 @@ LEFT JOIN [LevelOne] AS [l1] ON [l].[Level1_Optional_Id] = [l1].[Id]
 SELECT [l2].[Key]
 FROM [LevelOne] AS [l]
 INNER JOIN (
-    SELECT [l1].[Key], COALESCE(SUM([l1].[Id]), 0) AS [Sum]
+    SELECT [l1].[Key], ISNULL(SUM([l1].[Id]), 0) AS [Sum]
     FROM (
         SELECT [l0].[Id], [l0].[Id] % 3 AS [Key]
         FROM [LevelTwo] AS [l0]
@@ -4110,7 +4123,7 @@ INNER JOIN (
 SELECT [l2].[Key]
 FROM [LevelOne] AS [l]
 INNER JOIN (
-    SELECT [l1].[Key], COALESCE(SUM([l1].[Id]), 0) AS [Sum]
+    SELECT [l1].[Key], ISNULL(SUM([l1].[Id]), 0) AS [Sum]
     FROM (
         SELECT [l0].[Id], [l0].[Id] % 3 AS [Key]
         FROM [LevelTwo] AS [l0]
@@ -4326,7 +4339,7 @@ LEFT JOIN (
 CROSS APPLY (
     SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id]
     FROM [LevelOne] AS [l1]
-    WHERE [l1].[Id] <> COALESCE([l0].[Level1_Required_Id], 0)
+    WHERE [l1].[Id] <> ISNULL([l0].[Level1_Required_Id], 0)
 ) AS [l2]
 """);
     }
@@ -4434,7 +4447,7 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Id]
 GROUP BY [l1].[Name]
 HAVING (
-    SELECT MIN(COALESCE([l5].[Id], 0))
+    SELECT MIN(ISNULL([l5].[Id], 0))
     FROM [LevelOne] AS [l2]
     LEFT JOIN [LevelTwo] AS [l3] ON [l2].[Id] = [l3].[Id]
     LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[Id]
@@ -4816,7 +4829,7 @@ FROM (
 ) AS [l4]
 LEFT JOIN (
     SELECT [l0].[Id], [l1].[Id] AS [Id0], [l2].[Id] AS [Id1], CASE
-        WHEN COALESCE((
+        WHEN ISNULL((
             SELECT MAX([l3].[Id])
             FROM [LevelFour] AS [l3]
             WHERE [l1].[Id] IS NOT NULL AND [l1].[Id] = [l3].[OneToMany_Optional_Inverse4Id]), 0) > 1 THEN CAST(1 AS bit)

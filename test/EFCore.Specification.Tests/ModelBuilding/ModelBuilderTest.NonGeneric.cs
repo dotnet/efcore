@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -82,7 +83,7 @@ public abstract partial class ModelBuilderTest
 
         public override TestKeyBuilder<TEntity> HasKey(Expression<Func<TEntity, object?>> keyExpression)
             => new NonGenericTestKeyBuilder<TEntity>(
-                EntityTypeBuilder.HasKey(keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                EntityTypeBuilder.HasKey(keyExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray()));
 
         public override TestKeyBuilder<TEntity> HasKey(params string[] propertyNames)
             => new NonGenericTestKeyBuilder<TEntity>(EntityTypeBuilder.HasKey(propertyNames));
@@ -90,7 +91,7 @@ public abstract partial class ModelBuilderTest
         public override TestKeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object?>> keyExpression)
             => new NonGenericTestKeyBuilder<TEntity>(
                 EntityTypeBuilder.HasAlternateKey(
-                    keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                    keyExpression.GetMemberAccessChainList().Select(ToDottedName).ToArray()));
 
         public override TestKeyBuilder<TEntity> HasAlternateKey(params string[] propertyNames)
             => new NonGenericTestKeyBuilder<TEntity>(EntityTypeBuilder.HasAlternateKey(propertyNames));
@@ -258,15 +259,30 @@ public abstract partial class ModelBuilderTest
             => Wrap(EntityTypeBuilder.Ignore(propertyName));
 
         public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
-            => new NonGenericTestIndexBuilder<TEntity>(
-                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+        {
+            var (members, isCollection, collectionIndices) = indexExpression.MatchComplexMemberAccessList(nameof(indexExpression));
+            var builder = ((EntityType)EntityTypeBuilder.Metadata).Builder;
+            var properties = builder.GetOrCreateProperties(members, isCollection, ConfigurationSource.Explicit)!;
+            return new NonGenericTestIndexBuilder<TEntity>(
+                new IndexBuilder(
+                    builder.HasIndex(properties, collectionIndices, name: null, ConfigurationSource.Explicit)!.Metadata));
+        }
 
         public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name)
-            => new NonGenericTestIndexBuilder<TEntity>(
-                EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray(), name));
+        {
+            var (members, isCollection, collectionIndices) = indexExpression.MatchComplexMemberAccessList(nameof(indexExpression));
+            var builder = ((EntityType)EntityTypeBuilder.Metadata).Builder;
+            var properties = builder.GetOrCreateProperties(members, isCollection, ConfigurationSource.Explicit)!;
+            return new NonGenericTestIndexBuilder<TEntity>(
+                new IndexBuilder(
+                    builder.HasIndex(properties, collectionIndices, name, ConfigurationSource.Explicit)!.Metadata));
+        }
 
         public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
             => new NonGenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));
+
+        public override TestIndexBuilder<TEntity> HasIndex(string[] propertyNames, string name)
+            => new NonGenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames, name));
 
         public override TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)
             => new NonGenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(
@@ -1630,6 +1646,9 @@ public abstract partial class ModelBuilderTest
 
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
             => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.IsRequired(isRequired));
+
+        public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true)
+            => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.IsConstrained(constrained));
 
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(

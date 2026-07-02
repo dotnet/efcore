@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class LanguageBasedSelectorTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Select_works()
     {
         var vbService = new TestLanguageBasedService("VB");
@@ -21,7 +21,7 @@ public class LanguageBasedSelectorTests
         Assert.Same(vbService, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_favors_legacy_services()
     {
         var legacyService = new TestLanguageBasedService(null);
@@ -34,7 +34,7 @@ public class LanguageBasedSelectorTests
         Assert.Same(legacyService, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_ignores_case()
     {
         var csharpService = new TestLanguageBasedService("C#");
@@ -45,7 +45,7 @@ public class LanguageBasedSelectorTests
         Assert.Same(csharpService, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_picks_csharp_when_no_language()
     {
         var csharpService = new TestLanguageBasedService("C#");
@@ -59,7 +59,7 @@ public class LanguageBasedSelectorTests
         Assert.Same(csharpService, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_throws_when_no_service()
     {
         var selector = new TestLanguageBasedSelector(new TestLanguageBasedService("C#"));
@@ -69,7 +69,7 @@ public class LanguageBasedSelectorTests
         Assert.Equal(DesignStrings.NoLanguageService("VB", "TestLanguageBasedService"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Select_uses_last_when_multiple_services()
     {
         var lastService = new TestLanguageBasedService("C#");

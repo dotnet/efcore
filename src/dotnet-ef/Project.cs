@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 
 internal class Project
 {
+    private const string MissingAssetsFileErrorCode = "NETSDK1004";
+
     private readonly string _file;
     private readonly string? _framework;
     private readonly string? _configuration;
@@ -51,6 +53,11 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
+        if (!File.Exists(file))
+        {
+            throw new CommandException(Resources.ProjectFileNotFound(file));
+        }
+
         var args = new List<string> { "build", "--no-restore", };
 
         if (framework != null)
@@ -81,19 +88,44 @@ internal class Project
         args.Add(file);
 
         var output = new StringBuilder();
+        var error = new StringBuilder();
 
         Reporter.WriteVerbose(Resources.RunningCommand("dotnet " + string.Join(" ", args)));
 
-        var exitCode = Exe.Run("dotnet", args, handleOutput: line =>
-        {
-            output.AppendLine(line);
-            Reporter.WriteVerbose(line);
-        });
+        var exitCode = Exe.Run(
+            "dotnet", args,
+            handleOutput: line =>
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+
+                output.AppendLine(line);
+                Reporter.WriteVerbose(line);
+            },
+            handleError: line =>
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+
+                error.AppendLine(line);
+                Reporter.WriteError(line);
+            });
         if (exitCode != 0)
         {
             if (framework == null && HasMultipleTargetFrameworks(file))
             {
                 throw new CommandException(Resources.MultipleTargetFrameworks);
+            }
+
+            // NETSDK1004 indicates the assets file is missing, i.e. the project hasn't been restored yet.
+            if (output.ToString().Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal)
+                || error.ToString().Contains(MissingAssetsFileErrorCode, StringComparison.Ordinal))
+            {
+                throw new CommandException(Resources.RestoreRequired);
             }
 
             throw new CommandException(Resources.GetMetadataFailed);

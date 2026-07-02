@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
@@ -190,7 +190,7 @@ ORDER BY [l].[Id]
 """);
     }
 
-    [ConditionalTheory(Skip = "See issue#28058")]
+    [Theory(Skip = "See issue#28058")]
     public override async Task Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(bool async)
     {
         await base.Complex_query_with_let_collection_projection_FirstOrDefault_with_ToList_on_inner_and_outer(async);
@@ -1849,9 +1849,9 @@ ORDER BY [l].[Id]
 
 SELECT CASE
     WHEN [s].[OneToOne_Required_PK_Date] IS NULL OR [s].[Level1_Required_Id] IS NULL OR [s].[OneToMany_Required_Inverse2Id] IS NULL OR CASE
-        WHEN [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[PeriodEnd0]
+        WHEN [s].[PeriodStart0] IS NOT NULL THEN [s].[PeriodEnd0]
     END IS NULL OR CASE
-        WHEN [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[PeriodStart0]
+        WHEN [s].[PeriodEnd0] IS NOT NULL THEN [s].[PeriodStart0]
     END IS NULL THEN 0
     WHEN [s].[OneToOne_Required_PK_Date] IS NOT NULL AND [s].[Level1_Required_Id] IS NOT NULL AND [s].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[Id0]
 END, [l].[Id], [s].[Id], [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id], [l4].[PeriodEnd], [l4].[PeriodStart]
@@ -1867,9 +1867,9 @@ LEFT JOIN (
         WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
     END
     WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
-        WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+        WHEN [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
     END IS NOT NULL AND CASE
-        WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+        WHEN [l2].[PeriodEnd] IS NOT NULL THEN [l2].[PeriodStart]
     END IS NOT NULL
 ) AS [s] ON [l].[Id] = [s].[Level1_Required_Id]
 LEFT JOIN (
@@ -2249,9 +2249,9 @@ FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT CASE
         WHEN [l2].[Level2_Required_Id] IS NULL OR [l2].[OneToMany_Required_Inverse3Id] IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+            WHEN [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
         END IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+            WHEN [l2].[PeriodEnd] IS NOT NULL THEN [l2].[PeriodStart]
         END IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], [l2].[Level3_Name], [l0].[Id], [l0].[OneToMany_Optional_Inverse2Id]
@@ -2280,9 +2280,9 @@ FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT CASE
         WHEN [l2].[Level2_Required_Id] IS NULL OR [l2].[OneToMany_Required_Inverse3Id] IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+            WHEN [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
         END IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+            WHEN [l2].[PeriodEnd] IS NOT NULL THEN [l2].[PeriodStart]
         END IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], [l2].[Level3_Name], [l0].[Id], [l0].[OneToMany_Optional_Inverse2Id]
@@ -3284,7 +3284,7 @@ ORDER BY [l3].[Id], [s].[c]
         Assert.True(exception.InnerException is InvalidCastException);
     }
 
-    [ConditionalTheory(Skip = "issue #26922")]
+    [Theory(Skip = "issue #26922")]
     public override async Task Filtered_include_include_parameter_used_inside_filter_throws(bool async)
     {
         await base.Filtered_include_include_parameter_used_inside_filter_throws(async);
@@ -3292,7 +3292,7 @@ ORDER BY [l3].[Id], [s].[c]
         AssertSql("");
     }
 
-    [ConditionalTheory(Skip = "issue #26922")]
+    [Theory(Skip = "issue #26922")]
     public override async Task Filtered_include_outer_parameter_used_inside_filter(bool async)
     {
         await base.Filtered_include_outer_parameter_used_inside_filter(async);
@@ -3300,7 +3300,7 @@ ORDER BY [l3].[Id], [s].[c]
         AssertSql("");
     }
 
-    [ConditionalTheory(Skip = "issue #26922")]
+    [Theory(Skip = "issue #26922")]
     public override async Task Include_inside_subquery(bool async)
     {
         await base.Include_inside_subquery(async);

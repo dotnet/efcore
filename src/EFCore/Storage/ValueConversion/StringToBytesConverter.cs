@@ -44,10 +44,16 @@ public class StringToBytesConverter : ValueConverter<string?, byte[]?>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static StringToBytesConverter Instance { get; } = new(Encoding.UTF8);
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(byte[]), i => new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
+        = new(typeof(string), typeof(byte[]),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
 
     private static Expression<Func<string?, byte[]?>> FromProvider(Encoding encoding)
     {

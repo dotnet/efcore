@@ -218,7 +218,7 @@ ORDER BY [b].[TimeSpan]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_hour()
     {
         await AssertQueryScalar(
@@ -232,7 +232,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_minute()
     {
         await AssertQueryScalar(
@@ -246,7 +246,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

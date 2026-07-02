@@ -31,6 +31,33 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder>",
+      "Methods": [
+        {
+          "Member": "CosmosAutomaticIndexingBuilder(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder Except(string path);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder EntityTypeBuilder { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder<TEntity> : Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder where TEntity : class",
+      "Methods": [
+        {
+          "Member": "CosmosAutomaticIndexingBuilder(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder<TEntity> Except(string path);"
+        }
+      ]
+    },
+    {
       "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexCollectionBuilderExtensions",
       "Methods": [
         {
@@ -44,6 +71,18 @@
     {
       "Type": "static class Microsoft.EntityFrameworkCore.CosmosComplexCollectionTypePropertyBuilderExtensions",
       "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder EnableFullTextSearch(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder propertyBuilder, string? language = null, bool enabled = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> EnableFullTextSearch<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder, string? language = null, bool enabled = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder IsVectorProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder propertyBuilder, Microsoft.Azure.Cosmos.DistanceFunction distanceFunction, int dimensions);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> IsVectorProperty<TProperty>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder, Microsoft.Azure.Cosmos.DistanceFunction distanceFunction, int dimensions);"
+        },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder ToJsonProperty(this Microsoft.EntityFrameworkCore.Metadata.Builders.ComplexCollectionTypePropertyBuilder propertyBuilder, string name);"
         },
@@ -135,7 +174,7 @@
           "Member": "CosmosDbContextOptionsBuilder(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder optionsBuilder);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder BulkExecutionEnabled(bool enabled = true);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder BulkExecutionAllowed(bool enabled = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Infrastructure.CosmosDbContextOptionsBuilder ConnectionMode(Microsoft.Azure.Cosmos.ConnectionMode connectionMode);"
@@ -306,6 +345,12 @@
           "Member": "static bool CanSetAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? seconds, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "static bool CanSetAutomaticIndexing(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? enabled, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static bool CanSetAutomaticIndexingExceptions(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, System.Collections.Generic.IReadOnlyList<string>? exceptions, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static bool CanSetContainer(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, string? name, bool fromDataAnnotation = false);"
         },
         {
@@ -337,6 +382,15 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder HasAutomaticIndexing(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, bool enabled = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.CosmosAutomaticIndexingBuilder<TEntity> HasAutomaticIndexing<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<TEntity> entityTypeBuilder, bool enabled = true);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder? HasAutomaticIndexing(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, bool? enabled, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder HasAutoscaleThroughput(this Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder entityTypeBuilder, int? throughput);"
@@ -443,6 +497,18 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetAnalyticalStoreTimeToLiveConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
         },
         {
+          "Member": "static bool? GetAutomaticIndexingEnabled(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetAutomaticIndexingEnabledConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<string>? GetAutomaticIndexingExceptions(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetAutomaticIndexingExceptionsConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType);"
+        },
+        {
           "Member": "static string? GetContainer(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType entityType);"
         },
         {
@@ -519,6 +585,18 @@
         },
         {
           "Member": "static int? SetAnalyticalStoreTimeToLive(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, int? seconds, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetAutomaticIndexingEnabled(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, bool? enabled);"
+        },
+        {
+          "Member": "static bool? SetAutomaticIndexingEnabled(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, bool? enabled, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetAutomaticIndexingExceptions(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, System.Collections.Generic.IReadOnlyList<string>? exceptions);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IReadOnlyList<string>? SetAutomaticIndexingExceptions(this Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType entityType, System.Collections.Generic.IReadOnlyList<string>? exceptions, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static void SetContainer(this Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType entityType, string? name);"
@@ -627,10 +705,10 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder? IsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, bool? fullTextIndex, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder IsVectorIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool vectorIndex = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder IsVectorIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType);"
         },
         {
-          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> IsVectorIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool vectorIndex = true);"
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> IsVectorIndex<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<TEntity> indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder? IsVectorIndex(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionIndexBuilder indexBuilder, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool fromDataAnnotation = false);"
@@ -656,13 +734,13 @@
           "Member": "static void SetIsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.IMutableIndex index, bool? fullTextIndex);"
         },
         {
-          "Member": "static string? SetIsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, bool? fullTextIndex, bool fromDataAnnotation = false);"
+          "Member": "static bool? SetIsFullTextIndex(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, bool? fullTextIndex, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "static void SetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IMutableIndex index, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool? vectorIndex);"
+          "Member": "static void SetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IMutableIndex index, Microsoft.Azure.Cosmos.VectorIndexType? indexType);"
         },
         {
-          "Member": "static string? SetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool? vectorIndex, bool fromDataAnnotation = false);"
+          "Member": "static string? SetVectorIndexType(this Microsoft.EntityFrameworkCore.Metadata.IConventionIndex index, Microsoft.Azure.Cosmos.VectorIndexType? indexType, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -1302,6 +1380,22 @@
         },
         {
           "Member": "static Microsoft.Azure.Cosmos.Scripts.TriggerType? SetTriggerType(this Microsoft.EntityFrameworkCore.Metadata.IConventionTrigger trigger, Microsoft.Azure.Cosmos.Scripts.TriggerType? triggerType, bool fromDataAnnotation = false);"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.CosmosUnconstrainedForeignKeyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "CosmosUnconstrainedForeignKeyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
         }
       ]
     },

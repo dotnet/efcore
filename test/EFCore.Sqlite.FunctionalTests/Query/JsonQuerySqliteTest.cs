@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
@@ -186,7 +186,7 @@ WHERE EXISTS (
                 => base.Json_collection_Select_entity_with_initializer_ElementAt(async)))
             .Message);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_on_entity_with_json_with_predicate(bool async)
     {
         var parameter = new SqliteParameter { ParameterName = "prm", Value = 1 };

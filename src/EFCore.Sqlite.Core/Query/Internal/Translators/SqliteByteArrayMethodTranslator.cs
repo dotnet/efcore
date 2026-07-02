@@ -51,6 +51,22 @@ public class SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpression
                 sqlExpressionFactory.Constant(0));
         }
 
+        if (method.IsGenericMethod
+            && method.DeclaringType == typeof(Enumerable)
+            && method.Name == nameof(Enumerable.Any)
+            && arguments is [var anySource]
+            && anySource.Type == typeof(byte[]))
+        {
+            return sqlExpressionFactory.GreaterThan(
+                sqlExpressionFactory.Function(
+                    "length",
+                    [anySource],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    typeof(int)),
+                sqlExpressionFactory.Constant(0));
+        }
+
         return null;
     }
 

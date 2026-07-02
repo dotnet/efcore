@@ -24,6 +24,9 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     private IClrCollectionAccessor? _collectionAccessor;
     private bool _collectionAccessorInitialized;
     private ICollectionLoader? _manyToManyLoader;
+    // An optional compiled-model delegate that creates the loader, letting a compiled model carry the
+    // concrete generic types for native AOT. Null unless set during model build.
+    private Func<IManyToManyLoaderFactory, ISkipNavigation, ICollectionLoader>? _manyToManyLoaderDelegatedFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -138,6 +141,17 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetManyToManyLoaderFactory(
+        Func<IManyToManyLoaderFactory, ISkipNavigation, ICollectionLoader> factory)
+        => _manyToManyLoaderDelegatedFactory = factory;
+
+    /// <summary>
     ///     Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
@@ -204,10 +218,15 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
                 : null);
 
     /// <inheritdoc />
-    ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
+    ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader(IManyToManyLoaderFactory factory)
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _manyToManyLoader, this, static navigation =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? ManyToManyLoaderFactory.Instance.Create(navigation)
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+            ref _manyToManyLoader, this, factory, static (navigation, factory) =>
+            {
+                var generated = navigation._manyToManyLoaderDelegatedFactory;
+                return generated != null
+                    ? generated(factory, navigation)
+                    : RuntimeFeature.IsDynamicCodeSupported
+                        ? factory.Create(navigation)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+            });
 }

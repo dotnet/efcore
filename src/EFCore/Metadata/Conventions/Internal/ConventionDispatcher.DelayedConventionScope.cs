@@ -369,6 +369,13 @@ public partial class ConventionDispatcher
             return relationshipBuilder.Metadata.IsRequired;
         }
 
+        public override bool? OnForeignKeyConstrainednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+        {
+            Add(new OnForeignKeyConstrainednessChangedNode(relationshipBuilder));
+            return relationshipBuilder.Metadata.IsConstrained;
+        }
+
         public override bool? OnForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder)
         {
@@ -449,15 +456,6 @@ public partial class ConventionDispatcher
         {
             Add(new OnPropertyRemovedNode(typeBaseBuilder, property));
             return property;
-        }
-
-        public override IElementType? OnPropertyElementTypeChanged(
-            IConventionPropertyBuilder propertyBuilder,
-            IElementType? newElementType,
-            IElementType? oldElementType)
-        {
-            Add(new OnPropertyElementTypeChangedNode(propertyBuilder, newElementType, oldElementType));
-            return newElementType;
         }
     }
 
@@ -717,6 +715,14 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnForeignKeyRequirednessChanged(RelationshipBuilder);
+    }
+
+    private sealed class OnForeignKeyConstrainednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder) : ConventionNode
+    {
+        public IConventionForeignKeyBuilder RelationshipBuilder { get; } = relationshipBuilder;
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnForeignKeyConstrainednessChanged(RelationshipBuilder);
     }
 
     private sealed class OnForeignKeyDependentRequirednessChangedNode(IConventionForeignKeyBuilder relationshipBuilder) : ConventionNode
@@ -1026,20 +1032,6 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnPropertyFieldChanged(PropertyBuilder, NewFieldInfo, OldFieldInfo);
-    }
-
-    private sealed class OnPropertyElementTypeChangedNode(
-        IConventionPropertyBuilder propertyBuilder,
-        IElementType? newElementType,
-        IElementType? oldElementType)
-        : ConventionNode
-    {
-        public IConventionPropertyBuilder PropertyBuilder { get; } = propertyBuilder;
-        public IElementType? NewElementType { get; } = newElementType;
-        public IElementType? OldElementType { get; } = oldElementType;
-
-        public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnPropertyElementTypeChanged(PropertyBuilder, NewElementType, OldElementType);
     }
 
     private sealed class OnPropertyAnnotationChangedNode(

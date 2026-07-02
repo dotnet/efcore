@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -104,10 +104,11 @@ WHERE (c["ShippingAddress"] = c["BillingAddress"])
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Complex_type_equals_constant(async);
 
         AssertSql(
@@ -119,10 +120,11 @@ WHERE (c["ShippingAddress"] = {"AddressLine1":"804 S. Lakeshore Road","AddressLi
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Complex_type_equals_parameter(async);
 
         AssertSql(
@@ -290,10 +292,11 @@ WHERE (c["ShippingAddress"] = c["BillingAddress"])
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Struct_complex_type_equals_constant(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Struct_complex_type_equals_constant(async);
 
         AssertSql(
@@ -305,10 +308,11 @@ WHERE (c["ShippingAddress"] = {"AddressLine1":"804 S. Lakeshore Road","AddressLi
     });
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override Task Struct_complex_type_equals_parameter(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async (async) =>
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Struct_complex_type_equals_parameter(async);
 
         AssertSql(
@@ -391,12 +395,12 @@ WHERE (c["ShippingAddress"] = @entity_equality_address)
         => AssertTranslationFailed(() => base.Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async));
 
     public override Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
-        => AssertTranslationFailedWithDetails(() => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async), CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+        => AssertTranslationFailed(() => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async));
 
 
     #region GroupBy
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task GroupBy_over_property_in_nested_complex_type(bool async)
     {
         await base.GroupBy_over_property_in_nested_complex_type(async);
@@ -407,7 +411,7 @@ WHERE (c["ShippingAddress"] = @entity_equality_address)
 """);
     }
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task GroupBy_over_complex_type(bool async)
     {
         await base.GroupBy_over_complex_type(async);
@@ -418,7 +422,7 @@ WHERE (c["ShippingAddress"] = @entity_equality_address)
 """);
     }
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task GroupBy_over_nested_complex_type(bool async)
     {
         await base.GroupBy_over_nested_complex_type(async);
@@ -429,7 +433,7 @@ WHERE (c["ShippingAddress"] = @entity_equality_address)
 """);
     }
 
-    [ConditionalTheory(Skip = "#17313 Cosmos: Translate GroupBy")]
+    [Theory(Skip = "#17313 Cosmos: Translate GroupBy")]
     public override async Task Entity_with_complex_type_with_group_by_and_first(bool async)
     {
         await base.Entity_with_complex_type_with_group_by_and_first(async);
@@ -451,7 +455,7 @@ WHERE (c["ShippingAddress"] = @entity_equality_address)
     public override Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
         => AssertTranslationFailedWithDetails(() => base.Project_entity_with_complex_type_pushdown_and_then_left_join(async), CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

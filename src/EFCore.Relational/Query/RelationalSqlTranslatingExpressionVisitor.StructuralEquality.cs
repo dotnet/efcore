@@ -159,7 +159,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                 if (nullComparedEntityType.GetRootType() == nullComparedEntityType
                     && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var table = nullComparedEntityType.GetViewOrTableMappings().ToList() switch
+                    // Scope to actually-projected tables when known (entity-splitting).
+                    var tableMap = (nonNullEntityReference.Parameter?.ValueBufferExpression as StructuralTypeProjectionExpression)?.TableMap;
+                    var table = nullComparedEntityType.GetProjectedQueryMappings(tableMap) switch
                     {
                         [var singleMapping] => singleMapping.Table,
 

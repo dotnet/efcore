@@ -19,7 +19,7 @@ public abstract class OwnedJsonBulkUpdateRelationalTestBase<TFixture> : BulkUpda
     // We just have a couple of tests here to verify that the correct exceptions are thrown, and don't extend
     // the actual AssociationsBulkUpdateTestBase with all the different tests.
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_association()
         => AssertTranslationFailedWithDetails(
             RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteDelete", "RootEntity.RequiredAssociate#AssociateType"),
@@ -27,7 +27,7 @@ public abstract class OwnedJsonBulkUpdateRelationalTestBase<TFixture> : BulkUpda
                 ss => ss.Set<RootEntity>().Select(c => c.RequiredAssociate),
                 rowsAffectedCount: 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Update_property_inside_association()
         => AssertTranslationFailedWithDetails(
             RelationalStrings.ExecuteOperationOnOwnedJsonIsNotSupported("ExecuteUpdate", "RootEntity.RequiredAssociate#AssociateType"),
@@ -37,7 +37,7 @@ public abstract class OwnedJsonBulkUpdateRelationalTestBase<TFixture> : BulkUpda
                 s => s.SetProperty(c => c.RequiredAssociate.String, "foo_updated"),
                 rowsAffectedCount: 0));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Update_association()
     {
         var newNested = new NestedAssociateType

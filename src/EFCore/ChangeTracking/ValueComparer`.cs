@@ -38,6 +38,21 @@ public class ValueComparer
     private Func<T, T>? _snapshot;
 
     /// <summary>
+    ///     The default <see cref="ValueComparer{T}" /> for <typeparamref name="T" />, using a shallow copy for snapshots
+    ///     and not favoring <see cref="IStructuralEquatable" />.
+    /// </summary>
+    public static ValueComparer<T> Default { get; } = new ValueComparer<T>(favorStructuralComparisons: false);
+
+    /// <summary>
+    ///     The default <see cref="ValueComparer{T}" /> for <typeparamref name="T" />, favoring <see cref="IStructuralEquatable" />
+    ///     when the type implements it. This is usually used when byte arrays act as keys.
+    /// </summary>
+    public static ValueComparer<T> DefaultWithStructuralComparisons { get; } =
+        (typeof(IStructuralEquatable).IsAssignableFrom(typeof(T)) || typeof(T).IsArray)
+            ? new ValueComparer<T>(favorStructuralComparisons: true)
+            : Default;
+
+    /// <summary>
     ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
     ///     expression and a shallow copy for the snapshot.
     /// </summary>
@@ -181,11 +196,14 @@ public class ValueComparer
             return v => v;
         }
 
+        // Use Array.Clone() instead of Enumerable.ToArray.MakeGenericMethod to avoid runtime reflection.
+        // Array.Clone() works on any array type and is AOT-safe.
         var sourceParameter = Parameter(typeof(T), "source");
+        var cloneExpression = Call(
+            Convert(sourceParameter, typeof(Array)),
+            typeof(Array).GetMethod(nameof(Array.Clone), System.Type.EmptyTypes)!);
         return Lambda<Func<T, T>>(
-            Call(
-                EnumerableMethods.ToArray.MakeGenericMethod(typeof(T).GetElementType()!),
-                sourceParameter),
+            Convert(cloneExpression, typeof(T)),
             sourceParameter);
     }
 

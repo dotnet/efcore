@@ -60,7 +60,7 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n6].[Id]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM (
         SELECT [a].[Id]
         FROM [AssociateType] AS [a]
@@ -71,7 +71,7 @@ SELECT (
         WHERE [r].[Id] = [a0].[CollectionRootId] AND [a0].[String] = N'foo'
     ) AS [u]
     OUTER APPLY (
-        SELECT COALESCE(SUM([n].[Int]), 0) AS [value]
+        SELECT ISNULL(SUM([n].[Int]), 0) AS [value]
         FROM [NestedAssociateType] AS [n]
         WHERE [u].[Id] = [n].[CollectionAssociateId]
     ) AS [s])
@@ -155,7 +155,7 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n8].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

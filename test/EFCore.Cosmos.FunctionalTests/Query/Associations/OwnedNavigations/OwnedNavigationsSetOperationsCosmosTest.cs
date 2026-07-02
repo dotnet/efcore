@@ -75,7 +75,7 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
     public override Task Over_different_collection_properties()
         => AssertTranslationFailed(base.Over_different_collection_properties);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

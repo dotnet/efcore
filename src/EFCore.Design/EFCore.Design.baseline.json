@@ -271,10 +271,10 @@
           "Member": "virtual void GenerateCheckConstraints(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
         },
         {
-          "Member": "virtual void GenerateComplexProperties(string typeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> properties, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateComplexProperties(string typeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> properties, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
-          "Member": "virtual void GenerateComplexProperty(string builderName, Microsoft.EntityFrameworkCore.Metadata.IComplexProperty complexProperty, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateComplexProperty(string builderName, Microsoft.EntityFrameworkCore.Metadata.IComplexProperty complexProperty, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
           "Member": "virtual void GenerateComplexPropertyAnnotations(string propertyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IComplexProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
@@ -307,25 +307,19 @@
           "Member": "virtual void GenerateForeignKeyAnnotations(string foreignKeyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
         },
         {
-          "Member": "virtual void GenerateForeignKeys(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> foreignKeys, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateForeignKeys(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> foreignKeys, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
-          "Member": "virtual void GenerateIndex(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateIndex(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
-          "Member": "virtual void GenerateIndexAnnotations(string indexBuilderName, Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateIndexes(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IIndex> indexes, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
-          "Member": "virtual void GenerateIndexes(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IIndex> indexes, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateKey(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters, bool primary = false);"
         },
         {
-          "Member": "virtual void GenerateKey(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder, bool primary = false);"
-        },
-        {
-          "Member": "virtual void GenerateKeyAnnotations(string keyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
-        },
-        {
-          "Member": "virtual void GenerateKeys(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IKey> keys, Microsoft.EntityFrameworkCore.Metadata.IKey? primaryKey, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateKeys(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IKey> keys, Microsoft.EntityFrameworkCore.Metadata.IKey? primaryKey, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
           "Member": "virtual void GenerateNavigation(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
@@ -334,7 +328,7 @@
           "Member": "virtual void GenerateNavigationAnnotations(string navigationBuilderName, Microsoft.EntityFrameworkCore.Metadata.INavigation navigation, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
         },
         {
-          "Member": "virtual void GenerateNavigations(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigations, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateNavigations(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.INavigation> navigations, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
           "Member": "virtual void GenerateOwnedType(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IForeignKey ownership, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
@@ -343,13 +337,10 @@
           "Member": "virtual void GenerateOwnedTypes(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> ownerships, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
         },
         {
-          "Member": "virtual void GenerateProperties(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty> properties, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateProperties(string entityTypeBuilderName, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty> properties, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
-          "Member": "virtual void GenerateProperty(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
-        },
-        {
-          "Member": "virtual void GeneratePropertyAnnotations(string propertyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateProperty(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
           "Member": "virtual void GeneratePropertyOverride(string tableBuilderName, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
@@ -361,7 +352,7 @@
           "Member": "virtual void GeneratePropertyOverridesAnnotations(string propertyBuilderName, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyOverrides overrides, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
         },
         {
-          "Member": "virtual void GenerateRelationships(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
+          "Member": "virtual void GenerateRelationships(string entityTypeBuilderName, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters parameters);"
         },
         {
           "Member": "virtual void GenerateSequence(string modelBuilderName, Microsoft.EntityFrameworkCore.Metadata.ISequence sequence, Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder stringBuilder);"
@@ -423,6 +414,40 @@
       ]
     },
     {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters <Clone>$();"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? other);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? left, Microsoft.EntityFrameworkCore.Migrations.Design.CSharpSnapshotGeneratorParameters? right);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Collections.Generic.ICollection<string> Scope { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Infrastructure.IndentedStringBuilder StringBuilder { get; init; }"
+        }
+      ]
+    },
+    {
       "Type": "static class Microsoft.EntityFrameworkCore.Design.DbContextActivator",
       "Methods": [
         {
@@ -440,7 +465,7 @@
           "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddDbContextDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.DbContext context);"
         },
         {
-          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.Design.Internal.IOperationReporter? reporter = null, System.Func<System.IServiceProvider>? applicationServiceProviderAccessor = null);"
+          "Member": "static Microsoft.Extensions.DependencyInjection.IServiceCollection AddEntityFrameworkDesignTimeServices(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, Microsoft.EntityFrameworkCore.Design.IOperationReporter? reporter = null, System.Func<System.IServiceProvider>? applicationServiceProviderAccessor = null);"
         }
       ]
     },

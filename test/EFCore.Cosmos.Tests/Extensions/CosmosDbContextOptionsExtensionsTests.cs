@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosDbContextOptionsExtensionsTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Service_collection_extension_method_can_configure_Cosmos_options()
     {
         var serviceCollection = new ServiceCollection();
@@ -50,7 +50,7 @@ public class CosmosDbContextOptionsExtensionsTests
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_options_with_valid_values()
     {
         Test(o => o.Region(Regions.EastAsia), o => Assert.Equal(Regions.EastAsia, o.Region));
@@ -68,7 +68,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Test(o => o.ContentResponseOnWriteEnabled(), o => Assert.True(o.EnableContentResponseOnWrite));
 #pragma warning restore CS0618 // Type or member is obsolete
         Test(o => o.SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual), o => Assert.Equal(Cosmos.Infrastructure.SessionTokenManagementMode.EnforcedManual, o.SessionTokenManagementMode));
-        Test(o => o.BulkExecutionEnabled(), o => Assert.True(o.EnableBulkExecution));
+        Test(o => o.BulkExecutionAllowed(), o => Assert.True(o.EnableBulkExecution));
 
         var webProxy = new WebProxy();
         Test(o => o.WebProxy(webProxy), o => Assert.Same(webProxy, o.WebProxy));
@@ -89,7 +89,7 @@ public class CosmosDbContextOptionsExtensionsTests
         );
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Endpoint_and_key_overrides_connection_string()
     {
         var options = new DbContextOptionsBuilder()
@@ -109,7 +109,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Connection_string_overrides_endpoint_and_key()
     {
         var options = new DbContextOptionsBuilder()
@@ -129,7 +129,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Endpoint_and_token_overrides_connection_string()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
@@ -152,7 +152,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Connection_string_overrides_endpoint_and_token()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
@@ -175,7 +175,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Assert.Equal("databaseName", extension.DatabaseName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_invalid_values()
         => Throws<ArgumentOutOfRangeException>(o => o.ConnectionMode((ConnectionMode)958410610));
 

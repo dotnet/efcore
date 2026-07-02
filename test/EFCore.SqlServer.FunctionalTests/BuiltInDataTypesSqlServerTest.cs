@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Xml;
 using Microsoft.Data.SqlClient;
 
 // ReSharper disable InconsistentNaming
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.IsNotAzureSql | SqlServerCondition.SupportsUtf8)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
@@ -27,7 +28,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_BuiltInDataTypes()
     {
         using var context = CreateContext();
@@ -163,7 +164,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum8 == param30));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MaxLengthDataTypes()
     {
         using var context = CreateContext();
@@ -198,7 +199,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.ByteArray9000 == longBinary));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_UnicodeDataTypes()
     {
         using var context = CreateContext();
@@ -229,7 +230,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi9000 == longString));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedDataTypesWithIdentity()
     {
         using var context = CreateContext();
@@ -435,7 +436,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedSizedDataTypes()
     {
         using var context = CreateContext();
@@ -526,7 +527,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVarying3 == charAsNationalCharacterVarying3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedScaledDataTypes()
     {
         using var context = CreateContext();
@@ -576,7 +577,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime3 == timeSpanAsTime3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_MappedPrecisionAndScaledDataTypes()
     {
         using var context = CreateContext();
@@ -602,7 +603,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric52 == decimalAsNumeric52));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_debug_string_for_non_integer_values()
     {
         using var context = CreateContext();
@@ -645,7 +646,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         reader.Close();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sql_translation_uses_type_mapper_when_constant()
     {
         using var context = CreateContext();
@@ -665,7 +666,7 @@ WHERE [m].[TimeSpanAsTime] = '00:01:02'
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sql_translation_uses_type_mapper_when_parameter()
     {
         using var context = CreateContext();
@@ -688,7 +689,7 @@ WHERE [m].[TimeSpanAsTime] = @timeSpan
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void String_indexOf_over_varchar_max()
     {
         using (var context = CreateContext())
@@ -718,7 +719,7 @@ WHERE [m].[Int] = 81
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -741,7 +742,7 @@ WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffMinute_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -764,7 +765,7 @@ WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffSecond_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -787,7 +788,7 @@ WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffMillisecond_using_TimeSpan()
     {
         using var context = CreateContext();
@@ -810,11 +811,11 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffMicrosecond_using_TimeSpan()
     {
         using var context = CreateContext();
-        var timeSpan = new TimeSpan(2, 1, 0);
+        var timeSpan = new TimeSpan(11, 15, 13);
 
         var results
             = context.Set<MappedNullableDataTypes>()
@@ -825,7 +826,7 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@timeSpan='02:01:00' (Nullable = true)
+@timeSpan='11:15:13' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
@@ -833,11 +834,11 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_DateDiffNanosecond_using_TimeSpan()
     {
         using var context = CreateContext();
-        var timeSpan = new TimeSpan(2, 1, 0);
+        var timeSpan = new TimeSpan(11, 15, 13);
 
         var results
             = context.Set<MappedNullableDataTypes>()
@@ -848,7 +849,7 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Empty(results);
         AssertSql(
             """
-@timeSpan='02:01:00' (Nullable = true)
+@timeSpan='11:15:13' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
@@ -856,7 +857,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_any_mapped_data_type()
     {
         using (var context = CreateContext())
@@ -1089,7 +1090,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_query_using_any_mapped_data_types_with_nulls()
     {
         using (var context = CreateContext())
@@ -1289,7 +1290,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types()
     {
         var entity = CreateMappedDataTypes(77);
@@ -1499,7 +1500,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_square_brackets()
     {
         var entity = CreateMappedSquareDataTypes(77);
@@ -1667,7 +1668,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types()
     {
         using (var context = CreateContext())
@@ -1869,7 +1870,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null()
     {
         using (var context = CreateContext())
@@ -2007,7 +2008,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.SqlVariantInt);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types()
     {
         using (var context = CreateContext())
@@ -2112,7 +2113,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             CharAsNationalCharacterVarying3 = 'F'
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
     {
         using (var context = CreateContext())
@@ -2187,7 +2188,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.CharAsNationalCharacterVarying3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_sized_separately()
     {
         using (var context = CreateContext())
@@ -2287,7 +2288,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             CharAsNationalCharacterVarying3 = 'F'
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale()
     {
         using (var context = CreateContext())
@@ -2356,7 +2357,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture)
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_separately()
     {
         using (var context = CreateContext())
@@ -2425,7 +2426,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.789", CultureInfo.InvariantCulture)
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_double_types_with_precision()
     {
         using (var context = CreateContext())
@@ -2464,7 +2465,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             Double25 = 83.33f
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
     {
         using (var context = CreateContext())
@@ -2506,7 +2507,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             DecimalAsNumeric52 = 103.3m
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_separately()
     {
         using (var context = CreateContext())
@@ -2549,7 +2550,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             DecimalAsNumeric52 = 103.3m
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -2754,7 +2755,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -2956,7 +2957,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             SqlVariantInt = 887876
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity()
     {
         using (var context = CreateContext())
@@ -3097,7 +3098,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.SqlVariantInt);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -3202,7 +3203,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             CharAsNationalCharacterVarying3 = 'F'
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity()
     {
         using (var context = CreateContext())
@@ -3277,7 +3278,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         Assert.Null(entity.CharAsNationalCharacterVarying3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity()
     {
         using (var context = CreateContext())
@@ -3346,7 +3347,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture)
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity()
     {
         using (var context = CreateContext())
@@ -3392,7 +3393,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
             DecimalAsNumeric52 = 103.3m
         };
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3412,7 +3413,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3432,7 +3433,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_in_batch()
     {
         using (var context = CreateContext())
@@ -3452,7 +3453,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3472,7 +3473,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_in_batch()
     {
         using (var context = CreateContext())
@@ -3492,7 +3493,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_in_batch()
     {
         using (var context = CreateContext())
@@ -3512,7 +3513,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_in_batch()
     {
         using (var context = CreateContext())
@@ -3532,7 +3533,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3552,7 +3553,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_nullable_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3575,7 +3576,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_set_to_null_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3598,7 +3599,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_sized_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3618,7 +3619,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3638,7 +3639,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_scale_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3658,7 +3659,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale_with_identity_in_batch()
     {
         using (var context = CreateContext())
@@ -3681,7 +3682,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @timeSpan) = 0
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_column_types_from_built_model()
     {
         using var context = CreateContext();
@@ -3816,6 +3817,93 @@ FROM INFORMATION_SCHEMA.COLUMNS
         return actual;
     }
 
+    // The grinning-face emoji is outside the BMP (a UTF-16 surrogate pair, four UTF-8 bytes) and the euro sign
+    // is a single UTF-16 code unit but three UTF-8 bytes; both are represented differently in UTF-16 than in
+    // UTF-8 and are lost when an xml value is sent to the server as a non-Unicode string, which makes them good
+    // probes for the SqlDbType.Xml parameter path.
+    private const string XmlEmoji = "\U0001F600";
+    private const string XmlEuro = "\u20AC";
+
+    [Theory]
+    [InlineData(
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>")]
+    // Only the XML declaration is removed; a following stylesheet PI and the rest of the value are sent verbatim.
+    [InlineData(
+        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone='yes' ?> <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        " <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        "<?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?><root>" + XmlEmoji + "</root>")]
+    // The leading whitespace and the declaration are removed when the value is sent.
+    [InlineData(
+        " <?xml version=\"1.1\" encoding=\"utf-16\"?> <root>" + XmlEuro + "</root>",
+        " <root>" + XmlEuro + "</root>",
+        "<root>" + XmlEuro + "</root>")]
+    // Content forms that the 'xml' store type accepts beyond a single well-formed document.
+    [InlineData("", "", "")]
+    [InlineData("text fragment", "text fragment", "text fragment")]
+    // The content is sent verbatim, but the server expands self-closing tags when the xml column is read back.
+    [InlineData("<a/><b/>", "<a/><b/>", "<a /><b />")]
+    public async Task Xml_value_round_trips(string value, string expected, string roundTripped)
+    {
+        await using var context = CreateContext();
+
+        var document = new XmlTestDocument { Content = value };
+        context.Add(document);
+        await context.SaveChangesAsync();
+
+        var id = document.Id;
+        context.ChangeTracker.Clear();
+
+        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key. Coalescing
+        // the column with the original value sends that value as an 'xml' parameter, exercising the prolog-removal
+        // parameter path in a query in addition to the insert above.
+        var query = context.Set<XmlTestDocument>()
+            .Where(d => d.Id == id)
+            .Select(d => d.Content ?? value);
+
+        Assert.Equal(
+            $"""
+DECLARE @value xml = N'{expected}';
+DECLARE @id int = {id};
+
+SELECT COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""",
+            query.ToQueryString(),
+            ignoreLineEndingDifferences: true);
+
+        var actual = await query.SingleAsync();
+        Assert.Equal(roundTripped, actual);
+
+        AssertSql(
+            $"""
+@p0='{expected}' (Size = -1) (DbType = Xml)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [XmlTestDocument] ([Content])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            $"""
+@value='{expected}' (Size = -1) (DbType = Xml)
+@id='{id}'
+
+SELECT TOP(2) COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""");
+    }
+
+    private class XmlTestDocument
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -3896,6 +3984,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 b.Property(e => e.Id).ValueGeneratedNever();
                 b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
             });
+
+            modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
 
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);

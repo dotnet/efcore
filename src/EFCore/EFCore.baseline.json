@@ -413,6 +413,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.BoolToStringConverter Instance { get; }"
         }
       ]
     },
@@ -437,6 +440,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.BoolToZeroOneConverter<TProvider> Instance { get; }"
         }
       ]
     },
@@ -453,6 +459,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.BytesToStringConverter Instance { get; }"
         }
       ]
     },
@@ -553,6 +562,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.CastingConverter<TModel, TProvider> Instance { get; }"
         }
       ]
     },
@@ -715,6 +727,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.CharToStringConverter Instance { get; }"
         }
       ]
     },
@@ -1545,6 +1560,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(System.Linq.Expressions.Expression<System.Func<TComplexProperty, TNestedComplexProperty>> propertyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(System.Linq.Expressions.Expression<System.Func<TComplexProperty, TNestedComplexProperty?>> propertyExpression);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(Microsoft.EntityFrameworkCore.Metadata.IComplexProperty complexProperty);"
@@ -2694,6 +2712,9 @@
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; }"
         },
         {
+          "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyConstrainednessChangedConvention> ForeignKeyConstrainednessChangedConventions { get; }"
+        },
+        {
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyDependentRequirednessChangedConvention> ForeignKeyDependentRequirednessChangedConventions { get; }"
         },
         {
@@ -2773,9 +2794,6 @@
         },
         {
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAutoLoadChangedConvention> PropertyAutoLoadChangedConventions { get; }"
-        },
-        {
-          "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention> PropertyElementTypeChangedConventions { get; }"
         },
         {
           "Member": "virtual System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; }"
@@ -2931,6 +2949,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId DuplicateDependentEntityTypeInstanceWarning"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId EnsureCreatedWithTrackedEntitiesWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ExecutionStrategyRetrying"
         },
         {
@@ -3084,6 +3105,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ShadowPropertyCreated"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId ShadowPropertyNameNotValidIdentifierWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId SkipCollectionChangeDetected"
         },
         {
@@ -3177,6 +3201,9 @@
         },
         {
           "Member": "static void DuplicateDependentEntityTypeInstanceWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Update> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType dependent1, Microsoft.EntityFrameworkCore.Metadata.IEntityType dependent2);"
+        },
+        {
+          "Member": "static void EnsureCreatedWithTrackedEntitiesWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> diagnostics);"
         },
         {
           "Member": "static void ExecutionStrategyRetrying(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Infrastructure> diagnostics, System.Collections.Generic.IReadOnlyList<System.Exception> exceptionsEncountered, System.TimeSpan delay, bool async);"
@@ -3342,6 +3369,9 @@
         },
         {
           "Member": "static void ShadowPropertyCreated(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
+        },
+        {
+          "Member": "static void ShadowPropertyNameNotValidIdentifierWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IProperty property);"
         },
         {
           "Member": "static void SkipCollectionChangeDetected(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.ChangeTracking> diagnostics, Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry internalEntityEntry, Microsoft.EntityFrameworkCore.Metadata.ISkipNavigation navigation, System.Collections.Generic.ISet<object> added, System.Collections.Generic.ISet<object> removed);"
@@ -3845,7 +3875,13 @@
           "Member": "static string ConflictingKeylessAndPrimaryKeyAttributes(object? entity);"
         },
         {
-          "Member": "static string ConflictingPropertyOrNavigation(object? member, object? type, object? conflictingType);"
+          "Member": "static string ConflictingNamedIndex(object? indexName, object? entityType, object? propertyList);"
+        },
+        {
+          "Member": "static string ConflictingPropertyOrNavigationOnBaseType(object? member, object? type, object? conflictingMemberKind, object? conflictingType);"
+        },
+        {
+          "Member": "static string ConflictingPropertyOrNavigationWithKind(object? member, object? type, object? conflictingMemberKind);"
         },
         {
           "Member": "static string ConflictingRelationshipConversions(object? entityType, object? property, object? valueConversion, object? conflictingValueConversion);"
@@ -3956,6 +3992,9 @@
           "Member": "static string DuplicateNamedIndex(object? indexName, object? indexProperties, object? entityType, object? duplicateEntityType);"
         },
         {
+          "Member": "static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? firstOwnerType, object? secondNavigation, object? secondOwnerType);"
+        },
+        {
           "Member": "static string DuplicatePropertiesOnBase(object? entityType, object? baseType, object? derivedPropertyType, object? derivedProperty, object? basePropertyType, object? baseProperty);"
         },
         {
@@ -3975,6 +4014,12 @@
         },
         {
           "Member": "static string EFMethodWithNonEvaluatableArgument(object? methodName);"
+        },
+        {
+          "Member": "static string ElementNotMapped(object? elementType, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string ElementTypeNotCompatible(object? elementType, object? collectionType, object? entityType, object? property);"
         },
         {
           "Member": "static string EmptyComplexType(object? complexType);"
@@ -4122,7 +4167,19 @@
           "Member": "static string IncorrectNumberOfArguments(object? method, object? argumentCount, object? parameterCount);"
         },
         {
+          "Member": "static string IndexOnComplexCollection(object? indexProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string IndexOnComplexProperty(object? indexProperties, object? entityType, object? property);"
+        },
+        {
           "Member": "static string IndexPropertiesWrongEntity(object? indexProperties, object? entityType);"
+        },
+        {
+          "Member": "static string IndexPropertyMustBePropertyOrComplexProperty(object? property, object? entityType);"
+        },
+        {
+          "Member": "static string IndexValueFactoryWithComplexProperty(object? indexProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string IndexWrongType(object? index, object? entityType, object? otherEntityType);"
@@ -4135,6 +4192,9 @@
         },
         {
           "Member": "static string InvalidAlternateKeyValue(object? entityType, object? keyProperty);"
+        },
+        {
+          "Member": "static string InvalidCollectionIndicesEntryLength(object? property, object? indexProperties, object? actualCount, object? expectedCount);"
         },
         {
           "Member": "static string InvalidComplexType(object? type);"
@@ -4152,9 +4212,6 @@
           "Member": "static string InvalidIncludeExpression(object? expression);"
         },
         {
-          "Member": "static string InvalidJsonPathOrdinalCount(object? ordinalsCount, object? arraySegmentCount);"
-        },
-        {
           "Member": "static string InvalidKeyValue(object? entityType, object? keyProperty);"
         },
         {
@@ -4168,6 +4225,9 @@
         },
         {
           "Member": "static string InvalidNavigationWithInverseProperty(object? property, object? entityType, object? referencedProperty, object? referencedEntityType);"
+        },
+        {
+          "Member": "static string InvalidNumberOfIndexCollectionIndices(object? indexProperties, object? numValues, object? numProperties);"
         },
         {
           "Member": "static string InvalidNumberOfIndexSortOrderValues(object? indexProperties, object? numValues, object? numProperties);"
@@ -4195,6 +4255,9 @@
         },
         {
           "Member": "static string InvalidSetTypeOwned(object? typeName, object? ownerType);"
+        },
+        {
+          "Member": "static string InvalidStructuredJsonPathIndexCount(object? indicesCount, object? arraySegmentCount);"
         },
         {
           "Member": "static string InvalidSwitch(object? name, object? value);"
@@ -4237,6 +4300,12 @@
         },
         {
           "Member": "static string KeylessTypeWithKey(object? keyProperties, object? entityType);"
+        },
+        {
+          "Member": "static string KeyOnComplexCollection(object? keyProperties, object? entityType, object? property);"
+        },
+        {
+          "Member": "static string KeyOnNullableComplexProperty(object? keyProperties, object? entityType, object? property);"
         },
         {
           "Member": "static string KeyPropertiesWrongEntity(object? keyProperties, object? entityType);"
@@ -4444,6 +4513,12 @@
         },
         {
           "Member": "static string OwnerlessOwnedType(object? ownedType);"
+        },
+        {
+          "Member": "static string OwnershipNotCascadeDelete(object? principalEntityType, object? dependentEntityType, object? deleteBehavior, object? cascadeBehavior);"
+        },
+        {
+          "Member": "static string OwnershipNotRequired(object? principalEntityType, object? dependentEntityType);"
         },
         {
           "Member": "static string OwnershipToDependent(object? navigation, object? principalEntityType, object? dependentEntityType);"
@@ -4719,6 +4794,9 @@
           "Member": "static string UnhandledNavigationBase(object? type);"
         },
         {
+          "Member": "static string UnionTypeNotSupported(object? type);"
+        },
+        {
           "Member": "static string UnknownEntity(object? entity);"
         },
         {
@@ -4924,7 +5002,10 @@
           "Member": "abstract Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping Clone(Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters parameters);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping Clone(in Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo? mappingInfo = null, System.Type? clrType = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? providerValueComparer = null, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping Clone(in Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo? mappingInfo = null, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? comparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? keyComparer = null, Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer? providerValueComparer = null, Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? elementMapping = null, Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter? jsonValueReaderWriter = null);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer CreateDefaultComparer(bool favorStructuralComparisons);"
         },
         {
           "Member": "virtual System.Linq.Expressions.Expression GenerateCodeLiteral(object value);"
@@ -5015,6 +5096,17 @@
         },
         {
           "Member": "System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.ITypeBase, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>? ValueGeneratorFactory { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "abstract class Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping<[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)] T> : Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
+      "Methods": [
+        {
+          "Member": "CoreTypeMapping(Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping.CoreTypeMappingParameters parameters);"
+        },
+        {
+          "Member": "override Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer CreateDefaultComparer(bool favorStructuralComparisons);"
         }
       ]
     },
@@ -5240,6 +5332,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateOnlyToStringConverter Instance { get; }"
         }
       ]
     },
@@ -5256,6 +5351,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeOffsetToBinaryConverter Instance { get; }"
         }
       ]
     },
@@ -5272,6 +5370,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeOffsetToBytesConverter Instance { get; }"
         }
       ]
     },
@@ -5288,6 +5389,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeOffsetToStringConverter Instance { get; }"
         }
       ]
     },
@@ -5304,6 +5408,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeToBinaryConverter Instance { get; }"
         }
       ]
     },
@@ -5320,6 +5427,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeToStringConverter Instance { get; }"
         }
       ]
     },
@@ -6870,22 +6980,6 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ElementMappingConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IModelFinalizingConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
-      "Methods": [
-        {
-          "Member": "ElementMappingConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "void ProcessModelFinalizing(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder modelBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionModelBuilder> context);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
-        }
-      ]
-    },
-    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Builders.ElementTypeBuilder : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionElementTypeBuilder>",
       "Methods": [
         {
@@ -6943,28 +7037,6 @@
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IMutableElementType Metadata { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ElementTypeChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyPropertiesChangedConvention",
-      "Methods": [
-        {
-          "Member": "ElementTypeChangedConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
-        },
-        {
-          "Member": "void ProcessForeignKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder foreignKeyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder> context);"
-        },
-        {
-          "Member": "void ProcessForeignKeyPropertiesChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> oldDependentProperties, Microsoft.EntityFrameworkCore.Metadata.IConventionKey oldPrincipalKey, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>> context);"
-        },
-        {
-          "Member": "void ProcessPropertyElementTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.IElementType? newElementType, Microsoft.EntityFrameworkCore.Metadata.IElementType? oldElementType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IElementType> context);"
-        }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
         }
       ]
     },
@@ -8422,6 +8494,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.EnumToNumberConverter<TEnum, TNumber> Instance { get; }"
         }
       ]
     },
@@ -8438,6 +8513,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.EnumToStringConverter<TEnum> Instance { get; }"
         }
       ]
     },
@@ -9186,7 +9264,7 @@
           "Member": "ForeignKeyIndexConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
         },
         {
-          "Member": "virtual bool AreIndexedBy(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> coveringIndexProperties, bool coveringIndexUnique);"
+          "Member": "virtual bool AreIndexedBy(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties, bool unique, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> coveringIndexProperties, bool coveringIndexUnique);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? CreateIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool unique, Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder);"
@@ -9347,6 +9425,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.GuidToBytesConverter Instance { get; }"
         }
       ]
     },
@@ -9363,6 +9444,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.GuidToStringConverter Instance { get; }"
         }
       ]
     },
@@ -9968,7 +10052,8 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IConventionElementType : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyElementType, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotatable",
       "Methods": [
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();",
+          "Stage": "Obsolete"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsNullableConfigurationSource();"
@@ -10141,16 +10226,16 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, Microsoft.EntityFrameworkCore.Metadata.IConventionKey principalKey, Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType principalEntityType, bool setComponentConfigurationSource = true, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase property, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, string name, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase property, string name, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> properties, string name, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> properties, string name, bool fromDataAnnotation = false);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionKey? AddKey(Microsoft.EntityFrameworkCore.Metadata.IConventionProperty property, bool fromDataAnnotation = false);"
@@ -10195,10 +10280,10 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? FindIndex(string name);"
@@ -10348,7 +10433,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey? RemoveForeignKey(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionIndex? RemoveIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index);"
@@ -10662,6 +10747,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetDependentToPrincipalConfigurationSource();"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsConstrainedConfigurationSource();"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsOwnershipConfigurationSource();"
         },
         {
@@ -10702,6 +10790,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionNavigation? SetDependentToPrincipal(System.Reflection.MemberInfo? property, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool? SetIsConstrained(bool? constrained, bool fromDataAnnotation = false);"
         },
         {
           "Member": "bool? SetIsOwnership(bool? ownership, bool fromDataAnnotation = false);"
@@ -10763,6 +10854,9 @@
         },
         {
           "Member": "bool CanSetForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>? properties, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool CanSetIsConstrained(bool? constrained, bool fromDataAnnotation = false);"
         },
         {
           "Member": "bool CanSetIsOwnership(bool? ownership, bool fromDataAnnotation = false);"
@@ -10834,6 +10928,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasPrincipalKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty>? properties, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? IsConstrained(bool? constrained, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? IsOwnership(bool? ownership, bool fromDataAnnotation = false);"
         },
         {
@@ -10882,7 +10979,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IConventionPropertyBase> Properties { get; }"
         }
       ]
     },
@@ -11294,7 +11391,8 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionElementType? GetElementType();"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetElementTypeConfigurationSource();"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetElementTypeConfigurationSource();",
+          "Stage": "Obsolete"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsAutoLoadedConfigurationSource();"
@@ -11360,7 +11458,8 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior? SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior? beforeSaveBehavior, bool fromDataAnnotation = false);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionElementType? SetElementType(System.Type? elementType, bool fromDataAnnotation = false);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionElementType? SetElementType(System.Type? elementType, bool fromDataAnnotation = false);",
+          "Stage": "Obsolete"
         },
         {
           "Member": "bool? SetIsAutoLoaded(bool? autoLoaded, bool fromDataAnnotation = false);"
@@ -11815,6 +11914,12 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddIndexerProperty(string name, System.Type propertyType, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddPrimitiveCollection(string name, System.Type propertyType, System.Type elementType, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddPrimitiveCollection(string name, System.Type propertyType, System.Reflection.MemberInfo memberInfo, System.Type elementType, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionProperty? AddProperty(System.Reflection.MemberInfo memberInfo, bool fromDataAnnotation = false);"
         },
         {
@@ -11991,6 +12096,12 @@
           "Member": "bool CanHaveIndexerProperty(System.Type propertyType, string propertyName, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "bool CanHavePrimitiveCollection(System.Type? propertyType, string propertyName, System.Type? elementType = null, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "bool CanHavePrimitiveCollection(System.Reflection.MemberInfo memberInfo, System.Type? elementType = null, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "bool CanHaveProperty(System.Type? propertyType, string propertyName, bool fromDataAnnotation = false);"
         },
         {
@@ -12079,6 +12190,12 @@
           "Member": "bool IsIgnored(string memberName, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? PrimitiveCollection(System.Type propertyType, string propertyName, System.Type? elementType = null, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? PrimitiveCollection(System.Reflection.MemberInfo memberInfo, System.Type? elementType = null, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder? Property(System.Type propertyType, string propertyName, bool setTypeConfigurationSource = true, bool fromDataAnnotation = false);"
         },
         {
@@ -12146,6 +12263,9 @@
         },
         {
           "Member": "string Lambda(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IProperty> properties, string? lambdaIdentifier = null);"
+        },
+        {
+          "Member": "string Lambda(System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase> properties, string? lambdaIdentifier = null);"
         },
         {
           "Member": "string Literal(object?[, ] values);"
@@ -12710,13 +12830,13 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(string name);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IKey? FindKey(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
@@ -13057,6 +13177,14 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyConstrainednessChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "void ProcessForeignKeyConstrainednessChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<bool?> context);"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyDependentRequirednessChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
       "Methods": [
         {
@@ -13154,7 +13282,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IEntityType DeclaringEntityType { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IPropertyBase> Properties { get; }"
         }
       ]
     },
@@ -13372,6 +13500,23 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult InitializingInstance(Microsoft.EntityFrameworkCore.Diagnostics.MaterializationInterceptionData materializationData, object entity, Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult result);"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
         }
       ]
     },
@@ -13649,16 +13794,22 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> properties, Microsoft.EntityFrameworkCore.Metadata.IMutableKey principalKey, Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType principalEntityType);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase property);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property, string name);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> properties, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> properties, string name);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase property, string name);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> properties, string name);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> properties, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices, string name);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableKey AddKey(Microsoft.EntityFrameworkCore.Metadata.IMutableProperty property);"
@@ -13706,10 +13857,10 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? FindIndex(string name);"
@@ -13838,7 +13989,7 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey? RemoveForeignKey(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? RemoveIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableIndex? RemoveIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex index);"
@@ -13928,6 +14079,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableNavigation? DependentToPrincipal { get; }"
         },
         {
+          "Member": "bool IsConstrained { get; set; }"
+        },
+        {
           "Member": "bool IsOwnership { get; set; }"
         },
         {
@@ -13957,6 +14111,9 @@
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMutableIndex : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
       "Properties": [
         {
+          "Member": "System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? CollectionIndices { get; }"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType DeclaringEntityType { get; }"
         },
         {
@@ -13966,7 +14123,7 @@
           "Member": "bool IsUnique { get; set; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutableProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IMutablePropertyBase> Properties { get; }"
         }
       ]
     },
@@ -14166,7 +14323,8 @@
           "Member": "void SetBeforeSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior? beforeSaveBehavior);"
         },
         {
-          "Member": "void SetElementType(System.Type? elementType);"
+          "Member": "void SetElementType(System.Type? elementType);",
+          "Stage": "Obsolete"
         },
         {
           "Member": "void SetIsUnicode(bool? unicode);"
@@ -14321,6 +14479,12 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddIndexerProperty(string name, System.Type propertyType);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddPrimitiveCollection(string name, System.Type propertyType, System.Type elementType);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddPrimitiveCollection(string name, System.Type propertyType, System.Reflection.MemberInfo memberInfo, System.Type elementType);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty AddProperty(System.Reflection.MemberInfo memberInfo);"
@@ -14927,6 +15091,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.IPAddressToBytesConverter Instance { get; }"
         }
       ]
     },
@@ -14943,6 +15110,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.IPAddressToStringConverter Instance { get; }"
         }
       ]
     },
@@ -15099,14 +15269,6 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ITypeBase DeclaringType { get; }"
-        }
-      ]
-    },
-    {
-      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
-      "Methods": [
-        {
-          "Member": "void ProcessPropertyElementTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.IElementType? newElementType, Microsoft.EntityFrameworkCore.Metadata.IElementType? oldElementType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IElementType> context);"
         }
       ]
     },
@@ -15379,13 +15541,13 @@
           "Member": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey> FindForeignKeys(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(string name);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty property);"
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyIndex? FindIndex(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase property);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey? FindKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
@@ -15557,6 +15719,9 @@
           "Member": "bool IsBaseLinking();"
         },
         {
+          "Member": "bool IsEffectivelyRequired();"
+        },
+        {
           "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
         }
       ],
@@ -15569,6 +15734,9 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyNavigation? DependentToPrincipal { get; }"
+        },
+        {
+          "Member": "bool IsConstrained { get; }"
         },
         {
           "Member": "bool IsOwnership { get; }"
@@ -15608,6 +15776,9 @@
       ],
       "Properties": [
         {
+          "Member": "System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? CollectionIndices { get; }"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType DeclaringEntityType { get; }"
         },
         {
@@ -15620,7 +15791,7 @@
           "Member": "string? Name { get; }"
         },
         {
-          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> Properties { get; }"
+          "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> Properties { get; }"
         }
       ]
     },
@@ -16453,7 +16624,11 @@
           "Member": "void CascadeDelete(Microsoft.EntityFrameworkCore.Update.IUpdateEntry entry, System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKey>? foreignKeys = null);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry CreateEntry(System.Collections.Generic.IDictionary<string, object?> values, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
+          "Member": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry CreateEntry(System.Collections.Generic.IDictionary<string, object?> values, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);",
+          "Stage": "Obsolete"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry CreateEntry(System.Collections.Generic.IReadOnlyDictionary<Microsoft.EntityFrameworkCore.Metadata.IProperty, object?> values, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType);"
         },
         {
           "Member": "void DetectChanges();"
@@ -17023,7 +17198,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonSignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
       "Methods": [
         {
           "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
@@ -17156,7 +17331,7 @@
       ]
     },
     {
-      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum> where TEnum : struct, System.Enum",
+      "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.Json.JsonUnsignedEnumReaderWriter<TEnum> : Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter<TEnum>",
       "Methods": [
         {
           "Member": "override TEnum FromJsonTyped(ref Microsoft.EntityFrameworkCore.Storage.Json.Utf8JsonReaderManager manager, object? existingObject = null);"
@@ -17364,6 +17539,25 @@
       "Fields": [
         {
           "Member": "static readonly Microsoft.EntityFrameworkCore.Metadata.KeyComparer Instance"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.KeyComplexPropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyRemovedConvention",
+      "Methods": [
+        {
+          "Member": "KeyComplexPropertyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
+        },
+        {
+          "Member": "virtual void ProcessKeyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder> context);"
+        },
+        {
+          "Member": "virtual void ProcessKeyRemoved(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionEntityTypeBuilder entityTypeBuilder, Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionKey> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
         }
       ]
     },
@@ -18061,6 +18255,68 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.MemberClassifier : Microsoft.EntityFrameworkCore.Metadata.IMemberClassifier",
+      "Methods": [
+        {
+          "Member": "MemberClassifier(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies dependencies);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType? GetConfigurationType(System.Type type, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model);"
+        },
+        {
+          "Member": "virtual bool IsCandidateComplexProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidateNavigationProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out System.Type? elementType, out bool? shouldBeOwned, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? typeMapping, out System.Type? elementType, out bool explicitlyConfigured);"
+        },
+        {
+          "Member": "virtual bool IsCandidateServiceProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionModel model, bool useAttributes, out Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactory? bindingFactory, out bool explicitlyConfigured);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies Dependencies { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "sealed record Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies <Clone>$();"
+        },
+        {
+          "Member": "override bool Equals(object? obj);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? other);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? left, Microsoft.EntityFrameworkCore.Metadata.MemberClassifierDependencies? right);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IParameterBindingFactories ParameterBindingFactories { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Storage.ITypeMappingSource TypeMappingSource { get; init; }"
+        }
+      ]
+    },
+    {
       "Type": "abstract class Microsoft.EntityFrameworkCore.ChangeTracking.MemberEntry : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IInternalEntry>",
       "Methods": [
         {
@@ -18743,6 +18999,12 @@
           "Member": "virtual void ValidateIndex(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
+          "Member": "virtual void ValidateIndexOnComplexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IComplexProperty> complexProperties, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "virtual void ValidateIndexProperty(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Metadata.IPropertyBase property, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
           "Member": "virtual void ValidateInheritanceMapping(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
@@ -19147,7 +19409,7 @@
       ]
     },
     {
-      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableReferencePropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableConventionBase, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyElementTypeChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention",
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableReferencePropertyConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NonNullableConventionBase, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IPropertyFieldChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IComplexPropertyFieldChangedConvention",
       "Methods": [
         {
           "Member": "NonNullableReferencePropertyConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies);"
@@ -19160,9 +19422,6 @@
         },
         {
           "Member": "virtual void ProcessPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder> context);"
-        },
-        {
-          "Member": "virtual void ProcessPropertyElementTypeChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.IElementType? newElementType, Microsoft.EntityFrameworkCore.Metadata.IElementType? oldElementType, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IElementType> context);"
         },
         {
           "Member": "virtual void ProcessPropertyFieldChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionPropertyBuilder propertyBuilder, System.Reflection.FieldInfo? newFieldInfo, System.Reflection.FieldInfo? oldFieldInfo, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<System.Reflection.FieldInfo> context);"
@@ -19237,6 +19496,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.NumberToBytesConverter<TNumber> Instance { get; }"
         }
       ]
     },
@@ -19253,6 +19515,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.NumberToStringConverter<TNumber> Instance { get; }"
         }
       ]
     },
@@ -19803,6 +20068,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.PhysicalAddressToBytesConverter Instance { get; }"
         }
       ]
     },
@@ -19819,6 +20087,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.PhysicalAddressToStringConverter Instance { get; }"
         }
       ]
     },
@@ -20516,7 +20787,7 @@
           "Member": "virtual System.Collections.Generic.IEnumerable<System.Reflection.MemberInfo> GetMembers(Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase structuralType);"
         },
         {
-          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase structuralType, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? mapping);"
+          "Member": "virtual bool IsCandidatePrimitiveProperty(System.Reflection.MemberInfo memberInfo, Microsoft.EntityFrameworkCore.Metadata.IConventionTypeBase structuralType, out Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping? mapping, out System.Type? elementType);"
         },
         {
           "Member": "void ProcessComplexPropertyAdded(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder propertyBuilder, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionComplexPropertyBuilder> context);"
@@ -20772,15 +21043,15 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.ProviderMismatchEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string compiledProviderName, string currentProviderName);"
+          "Member": "ProviderMismatchEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string mismatchedProviderName, string currentProviderName);"
         }
       ],
       "Properties": [
         {
-          "Member": "virtual string CompiledProviderName { get; }"
+          "Member": "virtual string CurrentProviderName { get; }"
         },
         {
-          "Member": "virtual string CurrentProviderName { get; }"
+          "Member": "virtual string MismatchedProviderName { get; }"
         }
       ]
     },
@@ -20869,6 +21140,9 @@
         },
         {
           "Member": "static System.Reflection.MethodInfo FirstWithPredicate { get; }"
+        },
+        {
+          "Member": "static System.Reflection.MethodInfo FullJoin { get; }"
         },
         {
           "Member": "static System.Reflection.MethodInfo GroupByWithKeyElementResultSelector { get; }"
@@ -21060,6 +21334,9 @@
         },
         {
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFirstOrDefault(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression? predicate, System.Type returnType, bool returnDefault);"
+        },
+        {
+          "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateFullJoin(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression outer, Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression inner, System.Linq.Expressions.LambdaExpression outerKeySelector, System.Linq.Expressions.LambdaExpression innerKeySelector, System.Linq.Expressions.LambdaExpression resultSelector);"
         },
         {
           "Member": "abstract Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression? TranslateGroupBy(Microsoft.EntityFrameworkCore.Query.ShapedQueryExpression source, System.Linq.Expressions.LambdaExpression keySelector, System.Linq.Expressions.LambdaExpression? elementSelector, System.Linq.Expressions.LambdaExpression? resultSelector);"
@@ -21798,6 +22075,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder HasPrincipalKey(params string[] keyPropertyNames);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder IsConstrained(bool constrained = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder IsRequired(bool required = true);"
         },
         {
@@ -21822,6 +22102,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(System.Linq.Expressions.Expression<System.Func<TPrincipalEntity, object?>> keyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsConstrained(bool constrained = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsRequired(bool required = true);"
@@ -21934,6 +22217,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasPrincipalKey(System.Type principalEntityType, params string[] keyPropertyNames);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder IsConstrained(bool constrained = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder IsRequired(bool required = true);"
         },
         {
@@ -21970,6 +22256,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(System.Linq.Expressions.Expression<System.Func<TPrincipalEntity, object?>> keyExpression);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsConstrained(bool constrained = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool required = true);"
@@ -22271,6 +22560,82 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "RuntimeConstantExpression(string name, System.Linq.Expressions.Expression initializeExpression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "void Print(Microsoft.EntityFrameworkCore.Query.ExpressionPrinter expressionPrinter);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression Reduce();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression Update(System.Linq.Expressions.Expression initializeExpression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression VisitChildren(System.Linq.Expressions.ExpressionVisitor visitor);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "override bool CanReduce { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression InitializeExpression { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual string Name { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.ExpressionType NodeType { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Type Type { get; }",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual object Value { get; }",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.RuntimeConstantProcessor : System.Linq.Expressions.ExpressionVisitor",
+      "Stage": "Experimental",
+      "Methods": [
+        {
+          "Member": "RuntimeConstantProcessor();",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "virtual System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression expression);",
+          "Stage": "Experimental"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression VisitExtension(System.Linq.Expressions.Expression node);",
+          "Stage": "Experimental"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Query.RuntimeConstantExpression> LastProcessFoundRuntimeConstants { get; }",
+          "Stage": "Experimental"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeElementType : Microsoft.EntityFrameworkCore.Infrastructure.RuntimeAnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IElementType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyElementType, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "Methods": [
         {
@@ -22326,10 +22691,10 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType : Microsoft.EntityFrameworkCore.Metadata.RuntimeTypeBase, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeEntityType, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyTypeBase, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.ITypeBase, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable, Microsoft.EntityFrameworkCore.Metadata.Internal.IRuntimeTypeBase",
       "Methods": [
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey principalKey, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType principalEntityType, Microsoft.EntityFrameworkCore.DeleteBehavior deleteBehavior = Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetNull, bool unique = false, bool required = false, bool requiredDependent = false, bool ownership = false);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey AddForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey principalKey, Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType principalEntityType, Microsoft.EntityFrameworkCore.DeleteBehavior deleteBehavior = Microsoft.EntityFrameworkCore.DeleteBehavior.ClientSetNull, bool unique = false, bool required = false, bool requiredDependent = false, bool ownership = false, bool constrained = true);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties, string? name = null, bool unique = false);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex AddIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> properties, string? name = null, bool unique = false, System.Collections.Generic.IReadOnlyList<System.Collections.Generic.IReadOnlyList<int?>?>? collectionIndices = null);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey AddKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> properties);"
@@ -22359,7 +22724,7 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey? FindForeignKey(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey principalKey, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType principalEntityType);"
         },
         {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyProperty> properties);"
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex? FindIndex(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> properties);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeIndex? FindIndex(string name);"
@@ -22474,7 +22839,7 @@
           "Member": "virtual string? Name { get; }"
         },
         {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimeProperty> Properties { get; }"
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.RuntimePropertyBase> Properties { get; }"
         }
       ]
     },
@@ -23548,6 +23913,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToBoolConverter Instance { get; }"
         }
       ]
     },
@@ -23561,6 +23929,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToBytesConverter Instance { get; }"
         }
       ]
     },
@@ -23577,6 +23948,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToCharConverter Instance { get; }"
         }
       ]
     },
@@ -23609,6 +23983,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToDateTimeConverter Instance { get; }"
         }
       ]
     },
@@ -23625,6 +24002,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToDateTimeOffsetConverter Instance { get; }"
         }
       ]
     },
@@ -23641,6 +24021,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToEnumConverter<TEnum> Instance { get; }"
         }
       ]
     },
@@ -23657,6 +24040,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToGuidConverter Instance { get; }"
         }
       ]
     },
@@ -23673,6 +24059,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToNumberConverter<TNumber> Instance { get; }"
         }
       ]
     },
@@ -23689,6 +24078,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToTimeOnlyConverter Instance { get; }"
         }
       ]
     },
@@ -23705,6 +24097,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToTimeSpanConverter Instance { get; }"
         }
       ]
     },
@@ -23721,6 +24116,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToUriConverter Instance { get; }"
         }
       ]
     },
@@ -23878,6 +24276,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.TimeOnlyToStringConverter Instance { get; }"
         }
       ]
     },
@@ -23894,6 +24295,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.TimeOnlyToTicksConverter Instance { get; }"
         }
       ]
     },
@@ -23910,6 +24314,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.TimeSpanToStringConverter Instance { get; }"
         }
       ]
     },
@@ -23926,6 +24333,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.TimeSpanToTicksConverter Instance { get; }"
         }
       ]
     },
@@ -23956,6 +24366,9 @@
       "Methods": [
         {
           "Member": "static System.Type Create(System.Type outerType, System.Type innerType);"
+        },
+        {
+          "Member": "static bool IsTransparentIdentifierType(System.Type type);"
         }
       ]
     },
@@ -24063,6 +24476,55 @@
       "Fields": [
         {
           "Member": "static readonly Microsoft.EntityFrameworkCore.Metadata.TypeBaseNameComparer Instance"
+        }
+      ]
+    },
+    {
+      "Type": "enum Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType",
+      "Methods": [
+        {
+          "Member": "TypeConfigurationType();"
+        }
+      ],
+      "Fields": [
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType ComplexType",
+          "Value": "4"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType EntityType",
+          "Value": "1"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType Ignored",
+          "Value": "0"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType OwnedEntityType",
+          "Value": "3"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType Property",
+          "Value": "5"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType ServiceProperty",
+          "Value": "6"
+        },
+        {
+          "Member": "const Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType SharedTypeEntityType",
+          "Value": "2"
+        }
+      ]
+    },
+    {
+      "Type": "static class Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationTypeExtensions",
+      "Methods": [
+        {
+          "Member": "static bool? IsEntityType(this Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType? configurationType);"
+        },
+        {
+          "Member": "static bool IsEntityType(this Microsoft.EntityFrameworkCore.Metadata.TypeConfigurationType configurationType);"
         }
       ]
     },
@@ -24481,6 +24943,9 @@
       "Properties": [
         {
           "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo DefaultInfo { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Storage.ValueConversion.UriToStringConverter Instance { get; }"
         }
       ]
     },
@@ -24653,6 +25118,12 @@
       ],
       "Properties": [
         {
+          "Member": "static Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<T> Default { get; }"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<T> DefaultWithStructuralComparisons { get; }"
+        },
+        {
           "Member": "virtual System.Linq.Expressions.Expression<System.Func<T?, T?, bool>> EqualsExpression { get; }"
         },
         {
@@ -24725,12 +25196,18 @@
       "Type": "class Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<TModel, TProvider> : Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter",
       "Methods": [
         {
-          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? mappingHints = null);"
+          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression);"
+        },
+        {
+          "Member": "ValueConverter(System.Linq.Expressions.Expression<System.Func<TModel, TProvider>> convertToProviderExpression, System.Linq.Expressions.Expression<System.Func<TProvider, TModel>> convertFromProviderExpression, Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints? mappingHints);"
         }
       ],
       "Properties": [
         {
           "Member": "override System.Linq.Expressions.Expression ConstructorExpression { get; }"
+        },
+        {
+          "Member": "override System.Linq.Expressions.Expression ConstructorExpressionWithoutMappingHints { get; }"
         },
         {
           "Member": "override System.Func<object?, object?> ConvertFromProvider { get; }"

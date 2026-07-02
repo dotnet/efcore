@@ -9,7 +9,7 @@ public abstract class ComplexPropertiesCollectionTestBase<TFixture>(TFixture fix
 {
     #region 37926
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Project_struct_complex_type_with_entity_collection_navigation()
     {
         var contextFactory = await InitializeNonSharedTest<Context37926>(

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,7 +8,7 @@ public class SharedTypeQueryInMemoryTest(NonSharedFixture fixture) : SharedTypeQ
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_use_shared_type_entity_type_in_ToInMemoryQuery(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContextInMemory24601>(

@@ -138,6 +138,16 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 CreateMappings(entityType, declaringVariable: null, relationalModelParameters);
             }
 
+            // Unique constraints, indexes and triggers are created after all the column mappings have been generated, since they
+            // reference columns that may be mapped by an entity type that is processed after the one that owns the table mapping
+            // (e.g. an owned entity type sharing the table with its owner).
+            foreach (var table in model.Tables)
+            {
+                CreateTableConstraints(table, relationalModelParameters);
+            }
+
+            // Foreign keys are created in a separate pass after all the unique constraints have been generated, since each
+            // foreign key resolves the principal table's unique constraint, which may belong to a table processed later above.
             foreach (var table in model.Tables)
             {
                 foreach (var foreignKey in table.ForeignKeyConstraints)
@@ -1200,7 +1210,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 mainBuilder
                     .AppendLine($"var {keyVariable} = RelationalModel.GetKey(this,").IncrementIndent()
                     .AppendLine($"{code.Literal(mappedKey.DeclaringEntityType.Name)},")
-                    .AppendLine($"{code.Literal(mappedKey.Properties.Select(p => p.Name).ToArray())});")
+                    .AppendLine($"{code.Literal(mappedKey.Properties.Select(GetPropertyPathFromContainingEntity).ToArray())});")
                     .DecrementIndent();
             }
 
@@ -1269,7 +1279,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine($"{code.Literal(mappedIndex.DeclaringEntityType.Name)},")
                     .AppendLine(
                         $"{(mappedIndex.Name == null
-                            ? code.Literal(mappedIndex.Properties.Select(p => p.Name).ToArray())
+                            ? code.Literal(mappedIndex.Properties.Select(GetPropertyPathFromContainingEntity).ToArray())
                             : code.Literal(mappedIndex.Name))});")
                     .DecrementIndent();
             }
@@ -1288,7 +1298,11 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// <param name="index">The unique constraint to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     public virtual void Generate(ITableIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => GenerateSimpleAnnotations(parameters);
+    {
+        var annotations = parameters.Annotations;
+        annotations.Remove(RelationalAnnotationNames.JsonIndex);
+        GenerateSimpleAnnotations(parameters);
+    }
 
     private void Create(
         IForeignKeyConstraint foreignKey,
@@ -1432,7 +1446,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             tableVariable = Create(table, parameters);
         }
 
-        var tableParameters = parameters with { TargetName = tableVariable };
         var tableMappingVariable = code.Identifier(table.Name + "TableMapping", tableMapping, parameters.ScopeObjects, capitalize: false);
 
         GenerateAddMapping(
@@ -1458,28 +1471,36 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
 
         CreateJsonElementMappings(tableMapping, tableMappingVariable, parameters);
+    }
 
-        if (tableMapping == table.EntityTypeMappings.Last())
+    private void CreateTableConstraints(
+        ITable table,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var code = Dependencies.CSharpHelper;
+        var mainBuilder = parameters.MainBuilder;
+        var metadataVariables = parameters.ScopeVariables;
+        var tableVariable = metadataVariables[table];
+        var tableParameters = parameters with { TargetName = tableVariable };
+
+        foreach (var uniqueConstraint in table.UniqueConstraints)
         {
-            foreach (var uniqueConstraint in table.UniqueConstraints)
-            {
-                Create(uniqueConstraint, uniqueConstraint.Columns.Select(c => metadataVariables[c]), tableParameters);
-            }
+            Create(uniqueConstraint, uniqueConstraint.Columns.Select(c => metadataVariables[c]), tableParameters);
+        }
 
-            foreach (var index in table.Indexes)
-            {
-                Create(index, index.Columns.Select(c => metadataVariables[c]), tableParameters);
-            }
+        foreach (var index in table.Indexes)
+        {
+            Create(index, index.Columns.Select(c => metadataVariables[c]), tableParameters);
+        }
 
-            foreach (var trigger in table.Triggers)
-            {
-                var entityTypeVariable = metadataVariables[trigger.EntityType];
+        foreach (var trigger in table.Triggers)
+        {
+            var entityTypeVariable = metadataVariables[trigger.EntityType];
 
-                var triggerName = trigger.GetDatabaseName(StoreObjectIdentifier.Table(table.Name, table.Schema));
-                mainBuilder
-                    .Append($"{tableVariable}.Triggers.Add({code.Literal(triggerName)}, ")
-                    .AppendLine($"{entityTypeVariable}.FindDeclaredTrigger({code.Literal(trigger.ModelName)}));");
-            }
+            var triggerName = trigger.GetDatabaseName(StoreObjectIdentifier.Table(table.Name, table.Schema));
+            mainBuilder
+                .Append($"{tableVariable}.Triggers.Add({code.Literal(triggerName)}, ")
+                .AppendLine($"{entityTypeVariable}.FindDeclaredTrigger({code.Literal(trigger.ModelName)}));");
         }
     }
 
@@ -2449,6 +2470,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             parameters.Annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
         }
+        else
+        {
+            parameters.Annotations.Remove(RelationalAnnotationNames.JsonIndex);
+        }
 
         base.Generate(index, parameters);
     }
@@ -2456,14 +2481,11 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// <inheritdoc />
     public override bool Create(
         CoreTypeMapping typeMapping,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        ValueComparer? valueComparer = null,
-        ValueComparer? keyValueComparer = null,
-        ValueComparer? providerValueComparer = null)
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (typeMapping is not RelationalTypeMapping relationalTypeMapping)
         {
-            return base.Create(typeMapping, parameters, valueComparer, keyValueComparer, providerValueComparer);
+            return base.Create(typeMapping, parameters);
         }
 
         var mainBuilder = parameters.MainBuilder;
@@ -2485,17 +2507,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .AppendLine(".Clone(")
             .IncrementIndent();
 
-        mainBuilder
-            .Append("comparer: ");
-        Create(valueComparer ?? relationalTypeMapping.Comparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("keyComparer: ");
-        Create(keyValueComparer ?? relationalTypeMapping.KeyComparer, parameters, code);
-
-        mainBuilder.AppendLine(",")
-            .Append("providerValueComparer: ");
-        Create(providerValueComparer ?? relationalTypeMapping.ProviderValueComparer, parameters, code);
+        var firstArgument = true;
+        CreateComparers(relationalTypeMapping, parameters, code, ref firstArgument);
 
         var storeTypeDifferent = relationalTypeMapping.StoreType != defaultInstance.StoreType;
         var sizeDifferent = relationalTypeMapping.Size != null
@@ -2517,8 +2530,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             || isFixedLengthDifferent)
         {
             AddNamespace(typeof(RelationalTypeMappingInfo), parameters.Namespaces);
-            mainBuilder.AppendLine(",")
-                .AppendLine("mappingInfo: new RelationalTypeMappingInfo(")
+            AppendArgument("mappingInfo", parameters, ref firstArgument);
+            mainBuilder
+                .AppendLine("new RelationalTypeMappingInfo(")
                 .IncrementIndent();
 
             var firstParameter = true;
@@ -2572,42 +2586,27 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         if (relationalTypeMapping.Converter != null
             && relationalTypeMapping.Converter != defaultInstance.Converter)
         {
-            mainBuilder.AppendLine(",")
-                .Append("converter: ");
-
+            AppendArgument("converter", parameters, ref firstArgument);
             Create(relationalTypeMapping.Converter, parameters, code);
         }
 
-        var typeDifferent = relationalTypeMapping.Converter == null
-            && relationalTypeMapping.ClrType != defaultInstance.ClrType;
-        if (typeDifferent)
+        if (relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix)
         {
-            mainBuilder.AppendLine(",")
-                .Append($"clrType: {code.Literal(relationalTypeMapping.ClrType)}");
-        }
-
-        var storeTypePostfixDifferent = relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix;
-        if (storeTypePostfixDifferent)
-        {
-            mainBuilder.AppendLine(",")
-                .Append($"storeTypePostfix: {code.Literal(relationalTypeMapping.StoreTypePostfix)}");
+            AppendArgument("storeTypePostfix", parameters, ref firstArgument);
+            mainBuilder.Append(code.Literal(relationalTypeMapping.StoreTypePostfix));
         }
 
         if (relationalTypeMapping.JsonValueReaderWriter != null
             && relationalTypeMapping.JsonValueReaderWriter != defaultInstance.JsonValueReaderWriter)
         {
-            mainBuilder.AppendLine(",")
-                .Append("jsonValueReaderWriter: ");
-
+            AppendArgument("jsonValueReaderWriter", parameters, ref firstArgument);
             CreateJsonValueReaderWriter(relationalTypeMapping.JsonValueReaderWriter, parameters, code);
         }
 
         if (relationalTypeMapping.ElementTypeMapping != null
             && relationalTypeMapping.ElementTypeMapping != defaultInstance.ElementTypeMapping)
         {
-            mainBuilder.AppendLine(",")
-                .Append("elementMapping: ");
-
+            AppendArgument("elementMapping", parameters, ref firstArgument);
             Create(relationalTypeMapping.ElementTypeMapping, parameters);
         }
 
@@ -2674,6 +2673,24 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
                 return char.ToUpperInvariant(@string[0]) + @string[1..];
         }
+    }
+
+    private static string GetPropertyPathFromContainingEntity(IPropertyBase property)
+    {
+        if (property.DeclaringType is not IComplexType)
+        {
+            return property.Name;
+        }
+
+        var segments = new List<string> { property.Name };
+        var typeBase = property.DeclaringType;
+        while (typeBase is IComplexType complexType)
+        {
+            segments.Insert(0, complexType.ComplexProperty.Name);
+            typeBase = complexType.ComplexProperty.DeclaringType;
+        }
+
+        return string.Join(".", segments);
     }
 
     private static void AppendLiteral(StoreObjectIdentifier storeObject, IndentedStringBuilder builder, ICSharpHelper code)

@@ -29,7 +29,7 @@ public interface IRelationalJsonElement
     /// <summary>
     ///     Gets the path segments from the root of the JSON document to this element.
     /// </summary>
-    IReadOnlyList<JsonPathSegment> Path { get; }
+    IReadOnlyList<StructuredJsonPathSegment> Path { get; }
 
     /// <summary>
     ///     Gets the parent element, or <see langword="null" /> if this is a root element.

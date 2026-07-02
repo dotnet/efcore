@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -15,7 +15,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
 
     protected CosmosFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         => ConcurrencyTestAsync<DbUpdateException>(ctx =>
         {
@@ -27,7 +27,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             return Task.CompletedTask;
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync<DbUpdateConcurrencyException>(
             ctx =>
@@ -41,7 +41,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             }, async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "2")).Name = "Updated",
             async ctx => ctx.Customers.Remove(await ctx.Customers.SingleAsync(c => c.Id == "2")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync<DbUpdateConcurrencyException>(
             ctx =>
@@ -55,7 +55,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             }, async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "3")).Name = "Updated",
             async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "3")).Name = "Updated");
 
-    [ConditionalTheory, InlineData(null), InlineData(true), InlineData(false)]
+    [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
         var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
@@ -118,7 +118,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         }
     }
 
-    [ConditionalTheory, InlineData(null), InlineData(true), InlineData(false)]
+    [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_derived_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
         var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
@@ -249,8 +249,8 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
     protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
         => new ConcurrencyContext(options);
 
-    public virtual Task InitializeAsync() => Task.CompletedTask;
-    public virtual async Task DisposeAsync() => await ServiceProvider.DisposeAsync();
+    public virtual ValueTask InitializeAsync() => ValueTask.CompletedTask;
+    public virtual async ValueTask DisposeAsync() => await ServiceProvider.DisposeAsync();
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {

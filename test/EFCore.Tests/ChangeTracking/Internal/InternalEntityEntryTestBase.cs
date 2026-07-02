@@ -37,7 +37,7 @@ public abstract class InternalEntityEntryTestBase<
     where TKContext : DbContext, new()
     where TKSnapContext : DbContext, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Store_setting_null_for_non_nullable_store_generated_property_throws()
     {
         using var context = new TKContext();
@@ -51,7 +51,7 @@ public abstract class InternalEntityEntryTestBase<
             Assert.Throws<InvalidOperationException>(() => entry.SetStoreGeneratedValue(keyProperty, null)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Changing_state_from_Unknown_causes_entity_to_start_tracking()
     {
         using var context = new TKContext();
@@ -66,7 +66,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Contains(entry, context.GetService<IStateManager>().Entries);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual void Changing_state_to_Unknown_causes_entity_to_stop_tracking(bool useTempValue)
     {
         using var context = new TKContext();
@@ -98,7 +98,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.DoesNotContain(entry2, context.GetService<IStateManager>().Entries);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Changing_state_to_Unknown_causes_entity_with_temporary_key_to_stop_tracking()
     {
         using var context = new TKContext();
@@ -114,7 +114,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.DoesNotContain(entry, context.GetService<IStateManager>().Entries);
     }
 
-    [ConditionalFact] // GitHub #251, #1247
+    [Fact] // GitHub #251, #1247
     public virtual void Changing_state_from_Added_to_Deleted_does_what_you_ask()
     {
         using var context = new TKContext();
@@ -127,7 +127,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Contains(entry, context.GetService<IStateManager>().Entries);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Changing_state_to_Modified_or_Unchanged_causes_all_properties_to_be_marked_accordingly()
     {
         using var context = new TKContext();
@@ -156,7 +156,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.True(entry.IsModified(nonKeyProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_properties_throw_immediately_if_modified()
     {
         using var context = new TKContext();
@@ -186,7 +186,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.False(entry.IsModified(keyProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Added_entities_can_have_temporary_values()
     {
         using var context = new TKContext();
@@ -249,7 +249,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.False(entry.IsModified(nonKeyProperty));
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Deleted)]
+    [Theory, InlineData(EntityState.Unchanged), InlineData(EntityState.Modified), InlineData(EntityState.Deleted)]
     public virtual void Changing_state_with_temp_value_throws(EntityState targetState)
     {
         using var context = new TKContext();
@@ -264,7 +264,7 @@ public abstract class InternalEntityEntryTestBase<
             Assert.Throws<InvalidOperationException>(() => entry.SetEntityState(targetState)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Detaching_with_temp_values_does_not_throw()
     {
         using var context = new TKContext();
@@ -287,7 +287,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.False(entry.HasTemporaryValue(keyProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_an_explicit_value_marks_property_as_not_temporary()
     {
         using var context = new TKContext();
@@ -306,7 +306,7 @@ public abstract class InternalEntityEntryTestBase<
         entry.SetEntityState(EntityState.Unchanged); // Does not throw
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Key_properties_share_value_generation_space_with_base()
     {
         using var context = new TKContext();
@@ -326,7 +326,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.NotEqual(entry[altKeyProperty], baseEntry[altKeyProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_generation_does_not_happen_if_property_has_non_default_value()
     {
         using var context = new TKContext();
@@ -340,7 +340,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(31143, entry[keyProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Modified_values_are_reset_when_entity_is_changed_to_Added()
     {
         using var context = new TKContext();
@@ -357,7 +357,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.False(entry.HasTemporaryValue(property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Changing_state_to_Added_triggers_value_generation_for_any_property()
     {
         using var context = new TKContext();
@@ -373,7 +373,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.NotEqual(0, entry[property]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Notification_that_an_FK_property_has_changed_updates_the_snapshot()
     {
         using var context = new TKContext();
@@ -395,7 +395,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(79, keyValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_property_to_the_same_value_does_not_update_the_snapshot()
     {
         using var context = new TKContext();
@@ -417,44 +417,86 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(78, keyValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_get_property_value_after_creation_from_value_buffer()
     {
         using var context = new TKContext();
         var stateManager = context.GetService<IStateManager>();
         var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
 
-        var entry = stateManager.CreateEntry(
-            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
-            entityType
-        );
-
         var keyProperty = entityType.FindProperty("Id");
         var property = entityType.FindProperty("Name");
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<IProperty, object> { { keyProperty, 1 }, { property, "Kool" } },
+            entityType
+        );
 
         Assert.Equal(1, entry[keyProperty]);
         Assert.Equal("Kool", entry[property]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_set_property_value_after_creation_from_value_buffer()
     {
         using var context = new TKContext();
         var stateManager = context.GetService<IStateManager>();
         var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
 
+        var keyProperty = entityType.FindProperty("Id");
+        var nameProperty = entityType.FindProperty("Name");
+
         var entry = stateManager.CreateEntry(
-            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
+            new Dictionary<IProperty, object> { { keyProperty, 1 }, { nameProperty, "Kool" } },
             entityType
         );
 
-        var nameProperty = entityType.FindProperty("Name");
         entry[nameProperty] = "Mule";
 
         Assert.Equal("Mule", entry[nameProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
+    [Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
+    public virtual void Can_get_property_value_after_creation_from_value_buffer_using_property_names()
+    {
+        using var context = new TKContext();
+        var stateManager = context.GetService<IStateManager>();
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+
+        var keyProperty = entityType.FindProperty("Id");
+        var property = entityType.FindProperty("Name");
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
+            entityType
+        );
+
+        Assert.Equal(1, entry[keyProperty]);
+        Assert.Equal("Kool", entry[property]);
+    }
+
+    [Fact]
+    [Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
+    public virtual void Can_set_property_value_after_creation_from_value_buffer_using_property_names()
+    {
+        using var context = new TKContext();
+        var stateManager = context.GetService<IStateManager>();
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+
+        var nameProperty = entityType.FindProperty("Name");
+
+        var entry = stateManager.CreateEntry(
+            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
+            entityType
+        );
+
+        entry[nameProperty] = "Mule";
+
+        Assert.Equal("Mule", entry[nameProperty]);
+    }
+
+    [Fact]
     public virtual void Can_get_value_buffer_from_properties()
     {
         using var context = new TKContext();
@@ -504,7 +546,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Beans", entry[nameProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_original_values_can_be_accessed_for_entity_that_does_no_notification()
         => OriginalValuesTest(new TSomeEntity());
 
@@ -531,7 +573,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Beans", entry[nameProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Required_original_values_can_be_accessed_generically_for_entity_that_does_no_notification()
         => GenericOriginalValuesTest(new TSomeEntity());
 
@@ -560,7 +602,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Null_original_values_are_handled_for_entity_that_does_no_notification()
         => NullOriginalValuesTest(new TSomeEntity());
 
@@ -593,7 +635,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Beans", entry[nameProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Null_original_values_are_handled_generically_for_entity_that_does_no_notification()
         => GenericNullOriginalValuesTest(new TSomeEntity());
 
@@ -626,7 +668,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_property_using_state_entry_always_marks_as_modified_no_notifications()
         => SetPropertyInternalEntityEntryTest(new TSomeEntity());
 
@@ -656,7 +698,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(EntityState.Modified, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_get_entity()
     {
         using var context = new TKContext();
@@ -666,7 +708,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Same(entity, entry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_set_and_get_property_value_from_CLR_object()
     {
         using var context = new TKContext();
@@ -690,15 +732,15 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Normal Tree House", entry[nonKeyProperty]);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void All_original_values_can_be_accessed_for_entity_that_does_no_notification()
         => AllOriginalValuesTest(new TSomeEntity());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AcceptChanges_does_nothing_for_unchanged_entities()
         => AcceptChangesNoop(EntityState.Unchanged);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AcceptChanges_does_nothing_for_unknown_entities()
         => AcceptChangesNoop(EntityState.Detached);
 
@@ -719,7 +761,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(entityState, entry.EntityState);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Modified), InlineData(EntityState.Added)]
+    [Theory, InlineData(EntityState.Modified), InlineData(EntityState.Added)]
     public void AcceptChanges_makes_entities_Unchanged(EntityState entityState)
     {
         using var context = new TKContext();
@@ -743,7 +785,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Pickle", entry.GetOriginalValue(nameProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AcceptChanges_makes_Modified_entities_Unchanged_and_effectively_resets_unused_original_values()
     {
         using var context = new TKContext();
@@ -766,7 +808,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Pickle", entry.GetOriginalValue(nameProperty));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AcceptChanges_detaches_Deleted_entities()
     {
         using var context = new TKContext();
@@ -785,7 +827,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(EntityState.Detached, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Unchanged_entity_with_conceptually_null_FK_with_cascade_delete_is_marked_Deleted()
     {
         using var context = new KcContext();
@@ -801,7 +843,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(EntityState.Deleted, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Added_entity_with_conceptually_null_FK_with_cascade_delete_is_detached()
     {
         using var context = new KcContext();
@@ -817,7 +859,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(EntityState.Detached, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entity_with_partially_null_composite_FK_with_cascade_delete_is_marked_Deleted()
     {
         using var context = new KcrContext();
@@ -838,7 +880,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal(EntityState.Deleted, entry.EntityState);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entity_with_partially_null_composite_FK_without_cascade_delete_is_orphaned()
     {
         using var context = new KcContext();

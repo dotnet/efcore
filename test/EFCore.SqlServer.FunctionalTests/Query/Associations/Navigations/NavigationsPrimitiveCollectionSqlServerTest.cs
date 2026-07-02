@@ -163,17 +163,17 @@ ORDER BY [r].[Id], [s].[Id], [s].[Id0], [n6].[Id]
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([i0].[value]), 0)
+    SELECT ISNULL(SUM([i0].[value]), 0)
     FROM OPENJSON([a].[Ints]) WITH ([value] int '$') AS [i0])
 FROM [RootEntity] AS [r]
 INNER JOIN [AssociateType] AS [a] ON [r].[RequiredAssociateId] = [a].[Id]
 WHERE (
-    SELECT COALESCE(SUM([i].[value]), 0)
+    SELECT ISNULL(SUM([i].[value]), 0)
     FROM OPENJSON([a].[Ints]) WITH ([value] int '$') AS [i]) >= 6
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

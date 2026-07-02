@@ -10,7 +10,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
     protected override string NonSharedStoreName
         => "MaterializationInterception";
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Binding_interceptors_are_used_by_queries(bool inject, bool usePooling)
     {
         var interceptors = new[]
@@ -35,7 +35,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         Assert.All(interceptors, i => Assert.Equal(1, i.CalledCount));
     }
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Binding_interceptors_are_used_when_creating_instances(bool inject, bool usePooling)
     {
         var interceptors = new[]
@@ -56,7 +56,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         Assert.All(interceptors, i => Assert.Equal(1, i.CalledCount));
     }
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Intercept_query_materialization_for_empty_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
@@ -162,7 +162,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
 
     private static int _id = 1;
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))] // Issue #30244
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))] // Issue #30244
     public virtual async Task Intercept_query_materialization_with_owned_types(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
@@ -248,7 +248,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         }
     }
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))] // Issue #31365
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))] // Issue #31365
     public virtual async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
@@ -336,7 +336,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         }
     }
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Intercept_query_materialization_for_full_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
@@ -437,7 +437,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
         }
     }
 
-    [ConditionalTheory, ClassData(typeof(DataGenerator<bool, bool>))]
+    [Theory, ClassData(typeof(DataGenerator<bool, bool>))]
     public virtual async Task Multiple_materialization_interceptors_can_be_used(bool inject, bool usePooling)
     {
         var interceptors = new ISingletonInterceptor[]

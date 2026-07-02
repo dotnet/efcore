@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <!-- Usage:
-  For the compiled model and precompiled queries to be generated when publishing with $(PublishAOT) set to true the only action needed is to reference Microsoft.EntityFrameworkCore.Tasks from all projects containing a derived DbContext or a query.
+  For the compiled model and precompiled queries to be generated when publishing with $(PublishAot) set to true the only action needed is to reference Microsoft.EntityFrameworkCore.Tasks from all projects containing a derived DbContext or a query.
   For solutions where specifying the startup project is necessary, IDesignTimeDbContextFactory<> should be implemented.
 $(EFScaffoldModelStage) and $(EFPrecompileQueriesStage) can be set to either publish or build to control at what stage will the code be generated. Any other value will disable the corresponding generation (in case the code is generated manually using `dotnet ef dbcontext optimize`)
 If there's more than one context and $(DbContextType) is not set, then the compiled model will be generated for all of them.
@@ -35,12 +35,12 @@ $(EFTargetNamespace) and $(EFOutputDir) can be used to further fine-tune the gen
 
 For Publish:
 
-1. If PublishAOT is true _EFPrepareDependenciesForPublishAOT in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
+1. If PublishAot is true _EFPrepareDependenciesForPublishAot in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
 2. _EFGenerateFilesBeforePublish calls _EFGenerateFiles and the rest is similar to the Build flow.
   -->
 
   <Target Name="_EFGenerateFilesAfterBuild"
-          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
+          Condition="'$(_EFGenerationStage)'=='' And '$(DesignTimeBuild)' != 'True' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -51,7 +51,7 @@ For Publish:
   <Target Name="_EFGenerateFilesBeforePublish"
           AfterTargets="GetCopyToPublishDirectoryItems"
           BeforeTargets="GeneratePublishDependencyFile"
-          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish' Or '$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')">
+          Condition="'$(_EFGenerationStage)'=='' And '$(DesignTimeBuild)' != 'True' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish' Or '$(_EFPublishAot)'=='true' Or '$(PublishAot)'=='true')">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -61,19 +61,27 @@ For Publish:
 
   <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
   <Target Name="_EFGenerateFiles">
-    <!-- The assembly used for file generation should be compiled without using AOT mode -->
+    <PropertyGroup>
+      <!-- Inner builds disable AOT; for AOT publish they also clear RID/SelfContained to use reflection-friendly output. -->
+      <_EFInnerBuildProperties>Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)</_EFInnerBuildProperties>
+      <_EFInnerBuildProperties Condition="'$(PublishAot)'=='true' Or '$(_EFPublishAot)'=='true'">$(_EFInnerBuildProperties);RuntimeIdentifier=;SelfContained=false</_EFInnerBuildProperties>
+    </PropertyGroup>
+
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Build"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Condition="'$(PublishAot)'=='true'"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)" />
+             Condition="'$(PublishAot)'=='true' Or '$(_EFPublishAot)'=='true'"
+             Properties="$(_EFInnerBuildProperties)" />
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="OptimizeDbContext"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);_EFGenerationStage=$(_EFGenerationStage)" />
+             Properties="$(_EFInnerBuildProperties)" />
+
+    <!-- Refresh the RID-specific assembly so it includes the generated sources using the current invocation properties. -->
+    <CallTarget Targets="Build" />
   </Target>
 
   <Target Name="OptimizeDbContext" DependsOnTargets="ResolvePackageAssets">
@@ -126,8 +134,6 @@ For Publish:
     <WriteLinesToFile File="$(EFGeneratedSourcesPublishFile)"
                       Lines="$(_EFGeneratedFiles)"
                       Condition="'$(_EFGenerationStage)'=='publish'" />
-
-    <CallTarget Targets="Build" />
   </Target>
 
   <Target Name="_EFValidateProperties"
@@ -167,7 +173,7 @@ For Publish:
        This target has the same Inputs and Outputs as CoreCompile to run only if CoreCompile isn't going to be skipped -->
   <Target Name="_EFPrepareForCompile"
           DependsOnTargets="_EFProcessGeneratedFiles"
-          Condition="'$(_EFGenerationStage)'==''"
+          Condition="'$(_EFGenerationStage)'=='' And '$(DesignTimeBuild)' != 'True'"
           Inputs="$(MSBuildAllProjects);
                   @(Compile);
                   @(_CoreCompileResourceInputs);
@@ -204,14 +210,14 @@ For Publish:
   </Target>
 
   <!-- Go through the dependencies to check whether they need code generated for Native AOT -->
-  <Target Name="_EFPrepareDependenciesForPublishAOT"
+  <Target Name="_EFPrepareDependenciesForPublishAot"
           BeforeTargets="GetCopyToPublishDirectoryItems"
-          Condition="'$(PublishAOT)'=='true' And '$(_EFGenerationStage)'=='' and '@(_MSBuildProjectReferenceExistent)' != ''">
+          Condition="'$(PublishAot)'=='true' And '$(_EFGenerationStage)'=='' and '@(_MSBuildProjectReferenceExistent)' != ''">
     <MSBuild
       Projects="@(_MSBuildProjectReferenceExistent)"
       Targets="_EFGenerateFilesBeforePublish"
       BuildInParallel="$(BuildInParallel)"
-      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework);_EFPublishAOT=true"
+      Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework);_EFPublishAot=true"
       Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' "
       ContinueOnError="$(ContinueOnError)"
       SkipNonexistentTargets="true"

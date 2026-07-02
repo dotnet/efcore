@@ -219,7 +219,7 @@ WHERE DATETIME2FROMPARTS(1990, 11, 10, DATEPART(hour, [b].[TimeOnly]), DATEPART(
         AssertSql();
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_year()
     {
         await AssertQueryScalar(
@@ -233,7 +233,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
     public virtual async Task DateTrunc_month()
     {
         await AssertQueryScalar(
@@ -247,7 +247,7 @@ FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

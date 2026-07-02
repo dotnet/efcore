@@ -17,7 +17,7 @@ public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<Gears
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -559,9 +559,7 @@ FROM "Factions" AS "f"
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-END = 5
+WHERE length("g"."LeaderNickname") = 5
 """);
     }
 
@@ -2536,9 +2534,7 @@ FROM "Squads" AS "s"
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "c"."Name" IS NOT NULL THEN "c"."Name"
-END
+SELECT "c"."Name"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 LEFT JOIN "Tags" AS "t0" ON ("g"."Nickname" = "t0"."GearNickName" OR ("g"."Nickname" IS NULL AND "t0"."GearNickName" IS NULL)) AND ("g"."SquadId" = "t0"."GearSquadId" OR ("g"."SquadId" IS NULL AND "t0"."GearSquadId" IS NULL))
@@ -2709,7 +2705,7 @@ LEFT JOIN (
         FROM "Gears" AS "g0"
     ) AS "g1"
     WHERE "g1"."row" <= 50
-) AS "g2" ON ("g"."Nickname" = "g2"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "g2"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "g2"."LeaderSquadId"
+) AS "g2" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "g2"."LeaderNickname" AND "g"."SquadId" = "g2"."LeaderSquadId"
 WHERE "g"."Discriminator" = 'Officer'
 ORDER BY "t"."Id", "g2"."Nickname"
 """);
@@ -3927,7 +3923,7 @@ LEFT JOIN (
     SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank", "c"."Name", "c"."Location", "c"."Nation"
     FROM "Gears" AS "g0"
     INNER JOIN "Cities" AS "c" ON "g0"."CityOfBirthName" = "c"."Name"
-) AS "s" ON ("g"."Nickname" = "s"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "s"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "s"."LeaderSquadId"
+) AS "s" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "s"."LeaderNickname" AND "g"."SquadId" = "s"."LeaderSquadId"
 ORDER BY "l"."Name", "s"."Nickname"
 """);
     }
@@ -4828,7 +4824,7 @@ ORDER BY "g0"."Nickname", "g0"."SquadId"
 SELECT "t"."Id", "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
-LEFT JOIN "Gears" AS "g0" ON ("g"."Nickname" = "g0"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "g0"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "g0"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId"
 WHERE "g"."Discriminator" = 'Officer'
 ORDER BY "t"."Id", "g0"."Nickname"
 """);
@@ -4853,7 +4849,7 @@ FROM "Gears" AS "g"
             """
 SELECT "t"."Id", "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Tags" AS "t"
-LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId" AND "t"."Note" IS NOT NULL
+LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" IS NOT NULL AND "t"."GearSquadId" = "g"."SquadId" AND "t"."GearNickName" IS NOT NULL AND "t"."Note" IS NOT NULL
 ORDER BY "t"."Id", "g"."Nickname"
 """);
     }
@@ -4921,9 +4917,7 @@ WHERE "g"."Nickname" = "g0"."Nickname" AND "g"."SquadId" = "g0"."SquadId"
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN "g"."LeaderNickname" || "g"."LeaderNickname"
-END
+SELECT "g"."LeaderNickname" || "g"."LeaderNickname"
 FROM "Gears" AS "g"
 """);
     }
@@ -5572,9 +5566,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "f"."CommanderName" IS NOT NULL THEN "f"."CommanderName"
-END
+SELECT "f"."CommanderName"
 FROM "Factions" AS "f"
 """);
     }
@@ -6038,7 +6030,7 @@ LEFT JOIN (
     WHERE "l"."Discriminator" = 'LocustCommander'
 ) AS "l0" ON "f"."CommanderName" = "l0"."Name"
 LEFT JOIN "Gears" AS "g" ON "l0"."DefeatedByNickname" = "g"."Nickname" AND "l0"."DefeatedBySquadId" = "g"."SquadId"
-LEFT JOIN "Gears" AS "g0" ON ("g"."Nickname" = "g0"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "g0"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "g0"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId"
 ORDER BY "f"."Id", "g0"."Nickname"
 """);
     }
@@ -6445,7 +6437,7 @@ LEFT JOIN (
     FROM "Gears" AS "g"
     WHERE "g"."Discriminator" = 'Officer'
 ) AS "g0" ON "t"."GearNickName" = "g0"."Nickname"
-LEFT JOIN "Gears" AS "g1" ON ("g0"."Nickname" = "g1"."LeaderNickname" OR ("g0"."Nickname" IS NULL AND "g1"."LeaderNickname" IS NULL)) AND "g0"."SquadId" = "g1"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g1" ON "g0"."Nickname" IS NOT NULL AND "g0"."SquadId" IS NOT NULL AND "g0"."Nickname" = "g1"."LeaderNickname" AND "g0"."SquadId" = "g1"."LeaderSquadId"
 ORDER BY "t"."Id", "g0"."Nickname", "g0"."SquadId", "g1"."Nickname"
 """);
     }
@@ -6631,9 +6623,7 @@ ORDER BY "g0"."Nickname"
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-END = 5
+WHERE length("g"."LeaderNickname") = 5
 """);
     }
 
@@ -6739,7 +6729,7 @@ LEFT JOIN (
     WHERE "l"."Discriminator" = 'LocustCommander'
 ) AS "l0" ON "f"."CommanderName" = "l0"."Name"
 LEFT JOIN "Gears" AS "g" ON "l0"."DefeatedByNickname" = "g"."Nickname" AND "l0"."DefeatedBySquadId" = "g"."SquadId"
-LEFT JOIN "Gears" AS "g0" ON ("g"."Nickname" = "g0"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "g0"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "g0"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId"
 ORDER BY "f"."Id", "g0"."Nickname"
 """);
     }
@@ -7376,10 +7366,7 @@ ORDER BY "g"."Nickname", "g"."SquadId"
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE CASE
-    WHEN "g"."LeaderNickname" IS NULL THEN NULL
-    ELSE length("g"."LeaderNickname")
-END = 5
+WHERE length("g"."LeaderNickname") = 5
 """);
     }
 
@@ -7468,7 +7455,7 @@ LEFT JOIN (
     WHERE "l"."Discriminator" = 'LocustCommander'
 ) AS "l0" ON "f"."CommanderName" = "l0"."Name"
 LEFT JOIN "Gears" AS "g" ON "l0"."DefeatedByNickname" = "g"."Nickname" AND "l0"."DefeatedBySquadId" = "g"."SquadId"
-LEFT JOIN "Gears" AS "g0" ON ("g"."Nickname" = "g0"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "g0"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "g0"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId"
 ORDER BY "f"."Id", "g0"."Nickname"
 """);
     }
@@ -7589,7 +7576,7 @@ LEFT JOIN (
     WHERE "l"."Discriminator" = 'LocustCommander'
 ) AS "l0" ON "f"."CommanderName" = "l0"."Name"
 LEFT JOIN "Gears" AS "g" ON "l0"."DefeatedByNickname" = "g"."Nickname" AND "l0"."DefeatedBySquadId" = "g"."SquadId"
-LEFT JOIN "Gears" AS "g0" ON ("g"."Nickname" = "g0"."LeaderNickname" OR ("g"."Nickname" IS NULL AND "g0"."LeaderNickname" IS NULL)) AND "g"."SquadId" = "g0"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" IS NOT NULL AND "g"."SquadId" IS NOT NULL AND "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId"
 ORDER BY "f"."Id", "g0"."Nickname"
 """);
     }

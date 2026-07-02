@@ -19,8 +19,8 @@ public class CosmosModelAsserter : ModelAsserter
         bool assertOrder = false,
         bool compareAnnotations = false)
     {
-        expectedProperties = expectedProperties.Where(p => p.Name != "__id" && p.Name != "$type");
-        actualProperties = actualProperties.Where(p => p.Name != "__id" && p.Name != "$type");
+        expectedProperties = expectedProperties.Where(p => p.Name != "__id" && p.Name != "Discriminator");
+        actualProperties = actualProperties.Where(p => p.Name != "__id" && p.Name != "Discriminator");
 
         base.AssertEqual(expectedProperties, actualProperties, assertOrder, compareAnnotations);
     }

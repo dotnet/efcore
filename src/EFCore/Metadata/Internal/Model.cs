@@ -103,6 +103,20 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     }
 
     /// <summary>
+    ///     Gets a value indicating whether this model originated from a migration snapshot.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public virtual bool IsInModelSnapshot
+        => ScopedModelDependencies == null
+            && _modelFinalizedConventions is { Count: 0 }
+            && FindAnnotation(CoreAnnotationNames.ProductVersion) != null;
+
+    /// <summary>
     ///     Indicates whether the model is read-only.
     /// </summary>
     public override bool IsReadOnly

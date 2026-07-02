@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Detect changed baseline files and add label
         id: detect
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
           script: |
             const owner = context.repo.owner;
@@ -49,6 +49,29 @@ jobs:
               pull_number: prNumber
             });
 
+            let baseSha = pullRequest.base.sha;
+            const targetSha = pullRequest.merge_commit_sha ?? pullRequest.head.sha;
+
+            // pull_request_target's `base.sha` is the original base from when the PR was opened, so it
+            // includes anything pushed to the target branch while the PR was open. The merge commit's
+            // first parent is the target tip immediately before the merge — that gives a diff that
+            // reflects only what the PR introduced.
+            if (pullRequest.merged && pullRequest.merge_commit_sha) {
+              try {
+                const { data: mergeCommit } = await github.rest.git.getCommit({
+                  owner,
+                  repo,
+                  commit_sha: pullRequest.merge_commit_sha
+                });
+                if (mergeCommit.parents.length > 0) {
+                  baseSha = mergeCommit.parents[0].sha;
+                  console.log(`Using merge commit's first parent ${baseSha} as base.`);
+                }
+              } catch (err) {
+                console.log(`Failed to fetch merge commit; falling back to PR base.sha: ${err.message}`);
+              }
+            }
+
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner,
               repo,
@@ -65,8 +88,8 @@ jobs:
               }));
 
             core.setOutput('pr_number', String(prNumber));
-            core.setOutput('base_sha', pullRequest.base.sha);
-            core.setOutput('target_sha', pullRequest.merge_commit_sha ?? pullRequest.head.sha);
+            core.setOutput('base_sha', baseSha);
+            core.setOutput('target_sha', targetSha);
             core.setOutput('has_baselines', String(baselineFiles.length > 0));
             core.setOutput('files_json', JSON.stringify(baselineFiles));
 
@@ -90,7 +113,7 @@ jobs:
 
       - name: Check out selected commit
         if: steps.detect.outputs.has_baselines == 'true'
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           ref: ${{ steps.detect.outputs.target_sha }}
           fetch-depth: 1
@@ -246,7 +269,7 @@ jobs:
 
       - name: Create PR comment with diffs
         if: steps.detect.outputs.has_baselines == 'true'
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         env:
           COMMENTS_DIR: ${{ steps.delta.outputs.comments_dir }}
           PR_NUMBER: ${{ steps.detect.outputs.pr_number }}

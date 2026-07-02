@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Newtonsoft.Json.Linq;
@@ -23,7 +23,7 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
         ClearLog();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Entity_reference_can_be_reloaded()
     {
         using var context = CreateContext();

@@ -86,6 +86,18 @@ public static class RelationalPropertyExtensions
                         }
                     }
                 }
+                else
+                {
+                    var containingEntityType = property.DeclaringType.ContainingEntityType;
+                    foreach (var containingType in containingEntityType.GetDerivedTypesInclusive())
+                    {
+                        if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+                }
 
                 if (!tableFound)
                 {
@@ -218,7 +230,10 @@ public static class RelationalPropertyExtensions
         }
         else if (StoreObjectIdentifier.Create(property.DeclaringType, currentStoreObject.StoreObjectType) == currentStoreObject
                  || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
-                     .Any(f => f.StoreObject == currentStoreObject))
+                     .Any(f => f.StoreObject == currentStoreObject)
+                 || (property.IsPrimaryKey()
+                     && property.DeclaringType.ContainingEntityType.GetDerivedTypes()
+                         .Any(e => StoreObjectIdentifier.Create(e, currentStoreObject.StoreObjectType) == currentStoreObject)))
         {
             builder = CreateComplexPrefix((IReadOnlyComplexType)property.DeclaringType, storeObject, builder);
         }
@@ -2056,7 +2071,7 @@ public static class RelationalPropertyExtensions
             ?? (property.IsKey() || !property.DeclaringType.IsMappedToJson()
                 ? null
                 : property == property.DeclaringType.FindDiscriminatorProperty()
-                    ? "$type"
+                    ? property.DeclaringType.Model.GetEmbeddedDiscriminatorName()
                     : property.Name);
 
     /// <summary>

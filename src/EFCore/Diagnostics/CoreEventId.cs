@@ -91,6 +91,7 @@ public static class CoreEventId
         RedundantAddServicesCallWarning = CoreBaseId + 410,
         OldModelVersionWarning = CoreBaseId + 411,
         CompiledModelProviderMismatchWarning = CoreBaseId + 412,
+        EnsureCreatedWithTrackedEntitiesWarning = CoreBaseId + 413,
 
         // Model and ModelValidation events
         ShadowPropertyCreated = CoreBaseId + 600,
@@ -128,6 +129,7 @@ public static class CoreEventId
         NoEntityTypeConfigurationsWarning = CoreBaseId + 632,
         AccidentalEntityType = CoreBaseId + 633,
         AccidentalComplexPropertyCollection = CoreBaseId + 634,
+        ShadowPropertyNameNotValidIdentifierWarning = CoreBaseId + 635,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -505,6 +507,20 @@ public static class CoreEventId
     /// </remarks>
     public static readonly EventId CompiledModelProviderMismatchWarning = MakeInfraId(Id.CompiledModelProviderMismatchWarning);
 
+    /// <summary>
+    ///     <para>
+    ///         <see cref="IDatabaseCreator.EnsureCreatedAsync" /> was called on a context that is already tracking
+    ///         added, modified, or deleted entities. These changes would be lost if a retry occurs due to a transient failure.
+    ///     </para>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </summary>
+    public static readonly EventId EnsureCreatedWithTrackedEntitiesWarning = MakeInfraId(Id.EnsureCreatedWithTrackedEntitiesWarning);
+
     private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
 
     private static EventId MakeModelId(Id id)
@@ -734,6 +750,20 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AccidentalComplexPropertyCollection = MakeModelValidationId(Id.AccidentalComplexPropertyCollection);
+
+    /// <summary>
+    ///     A shadow property has a name that is not a valid identifier, which can cause issues in generated code.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ShadowPropertyNameNotValidIdentifierWarning =
+        MakeModelValidationId(Id.ShadowPropertyNameNotValidIdentifierWarning);
 
     /// <summary>
     ///     The <see cref="RequiredAttribute" /> on the collection navigation property was ignored.

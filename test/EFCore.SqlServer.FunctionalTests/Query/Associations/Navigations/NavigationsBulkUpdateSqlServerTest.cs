@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.Navigations;
 public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
     : NavigationsBulkUpdateRelationalTestBase<NavigationsSqlServerFixture>(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -111,6 +111,7 @@ public class NavigationsBulkUpdateSqlServerTest(NavigationsSqlServerFixture fixt
             """
 @p='foo_updated' (Size = 4000)
 
+SET NOCOUNT OFF;
 UPDATE [n]
 SET [n].[String] = @p
 FROM [RootEntity] AS [r]
@@ -141,6 +142,7 @@ INNER JOIN [NestedAssociateType] AS [n] ON [a].[RequiredNestedAssociateId] = [n]
             """
 @p='99'
 
+SET NOCOUNT OFF;
 UPDATE [a0]
 SET [a0].[Ints] = JSON_MODIFY([a0].[Ints], '$[1]', @p)
 FROM [RootEntity] AS [r]

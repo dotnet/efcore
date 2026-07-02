@@ -1317,7 +1317,7 @@ SELECT (
     LEFT JOIN [Planet] AS [p] ON [o1].[PersonAddress_Country_PlanetId] = [p].[Id]
     LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
     WHERE [o0].[Key] = [o1].[Key]) AS [p1], (
-    SELECT COALESCE(SUM([s0].[Id]), 0)
+    SELECT ISNULL(SUM([s0].[Id]), 0)
     FROM (
         SELECT 1 AS [Key], [o4].[PersonAddress_Country_PlanetId]
         FROM [OwnedPerson] AS [o4]
@@ -1477,7 +1477,7 @@ ORDER BY [p].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId],
 SELECT [p].[Id], [p].[Name], [p].[StarId], [s].[Id], [s].[Name], [s].[StarId], [s].[Id0], [s].[Discriminator], [s].[Name0], [s0].[ClientId], [s0].[Id], [s0].[OrderDate], [s0].[OrderClientId], [s0].[OrderId], [s0].[Id0], [s0].[Detail], [s].[PersonAddress_AddressLine], [s].[PersonAddress_PlaceType], [s].[PersonAddress_ZipCode], [s].[PersonAddress_Country_Name], [s].[PersonAddress_Country_PlanetId], [s].[BranchAddress_BranchName], [s].[BranchAddress_PlaceType], [s].[BranchAddress_Country_Name], [s].[BranchAddress_Country_PlanetId], [s].[LeafBAddress_LeafBType], [s].[LeafBAddress_PlaceType], [s].[LeafBAddress_Country_Name], [s].[LeafBAddress_Country_PlanetId], [s].[LeafAAddress_LeafType], [s].[LeafAAddress_PlaceType], [s].[LeafAAddress_Country_Name], [s].[LeafAAddress_Country_PlanetId]
 FROM [Planet] AS [p]
 LEFT JOIN (
-    SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+    SELECT DISTINCT [p0].[Id], [p0].[Name], [p0].[StarId], [o].[Id] AS [Id0], [o].[Discriminator], [o].[Name] AS [Name0], 1 AS [marker], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
     FROM [Planet] AS [p0]
     LEFT JOIN [OwnedPerson] AS [o] ON [p0].[Id] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[Id0]
@@ -1497,7 +1497,7 @@ ORDER BY [p].[Id], [s].[Id], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [
         AssertSql(
             """
 SELECT [o].[Id] AS [Key], (
-    SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
+    SELECT ISNULL(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
     FROM [OwnedPerson] AS [o0]
     WHERE [o].[Id] = [o0].[Id]) AS [Sum]
 FROM [OwnedPerson] AS [o]

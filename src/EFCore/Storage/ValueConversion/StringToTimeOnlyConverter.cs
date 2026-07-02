@@ -43,8 +43,15 @@ public class StringToTimeOnlyConverter : StringTimeOnlyConverter<string, TimeOnl
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static StringToTimeOnlyConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(TimeOnly), i => new StringToTimeOnlyConverter(i.MappingHints), DefaultHints);
+        = new(typeof(string), typeof(TimeOnly),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToTimeOnlyConverter(i.MappingHints),
+            DefaultHints);
 }

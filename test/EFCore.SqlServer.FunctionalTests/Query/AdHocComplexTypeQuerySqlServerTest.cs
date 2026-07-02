@@ -69,7 +69,7 @@ FROM [BlogsView] AS [b]
 
     #endregion 34706
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_type_equality_with_non_default_type_mapping()
     {
         var contextFactory = await InitializeNonSharedTest<Context36837>(

@@ -6,5 +6,5 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public class CosmosBulkEndToEndTest(NonSharedFixture fixture) : EndToEndCosmosTest(fixture), IClassFixture<NonSharedFixture>
 {
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
-        => base.AddNonSharedOptions(builder).UseCosmos(x => x.BulkExecutionEnabled()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch));
+        => base.AddNonSharedOptions(builder).UseCosmos(x => x.BulkExecutionAllowed()).ConfigureWarnings(x => x.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch));
 }

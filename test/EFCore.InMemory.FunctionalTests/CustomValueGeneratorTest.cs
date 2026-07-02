@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CustomValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generators()
     {
         using var context = new CustomValueGeneratorContext();
@@ -55,7 +55,7 @@ public class CustomValueGeneratorTest
                 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generator_from_annotated_type()
     {
         using var context = new CustomValueGeneratorContextAnnotateType();
@@ -96,7 +96,7 @@ public class CustomValueGeneratorTest
                 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_custom_value_generator_from_annotated_factory()
     {
         using var context = new CustomValueGeneratorContextAnnotateFactory();

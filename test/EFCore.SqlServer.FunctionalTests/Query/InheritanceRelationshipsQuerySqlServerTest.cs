@@ -15,7 +15,7 @@ public class InheritanceRelationshipsQuerySqlServerTest
         : base(fixture)
         => fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

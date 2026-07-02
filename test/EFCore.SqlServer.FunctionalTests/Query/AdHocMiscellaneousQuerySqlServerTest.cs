@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -19,6 +19,10 @@ public class AdHocMiscellaneousQuerySqlServerTest(NonSharedFixture fixture) : Ad
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
+
     protected override DbContextOptionsBuilder SetParameterizedCollectionMode(
         DbContextOptionsBuilder optionsBuilder,
         ParameterTranslationMode parameterizedCollectionMode)
@@ -35,9 +39,24 @@ CREATE TABLE ZeroKey (Id int);
 INSERT ZeroKey VALUES (NULL)
 """);
 
+    protected override async Task Seed30915(Context30915 context)
+    {
+        context.Statuses.AddRange(
+            new Context30915.PickupStatus30915 { PickupStatusId = 1, Name = "Active" },
+            new Context30915.PickupStatus30915 { PickupStatusId = 2, Name = "NoRequests" },
+            new Context30915.PickupStatus30915 { PickupStatusId = 3, Name = "Busy" });
+
+        context.Requests.AddRange(
+            new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = 5 },
+            new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = null },
+            new Context30915.PickupRequest30915 { PickupStatusId = 3, Priority = 7 });
+
+        await context.SaveChangesAsync();
+    }
+
     #region 5456
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_group_join_is_per_query_context()
     {
         var contextFactory = await InitializeNonSharedTest<Context5456>(
@@ -72,7 +91,7 @@ INSERT ZeroKey VALUES (NULL)
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Include_group_join_is_per_query_context_async()
     {
         var contextFactory = await InitializeNonSharedTest<Context5456>(
@@ -159,7 +178,7 @@ INSERT ZeroKey VALUES (NULL)
 
     #region 8864
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_nested_projection()
     {
         var contextFactory = await InitializeNonSharedTest<Context8864>(seed: c => c.SeedAsync());
@@ -229,7 +248,7 @@ WHERE [c].[Id] = @id
 
     #region 9214
 
-    [ConditionalFact]
+    [Fact]
     public async Task Default_schema_applied_when_no_function_schema()
     {
         var contextFactory = await InitializeNonSharedTest<Context9214>(seed: c => c.SeedAsync());
@@ -328,7 +347,7 @@ END
 
     #region 9277
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task From_sql_gets_value_of_out_parameter_in_stored_procedure()
     {
         var contextFactory = await InitializeNonSharedTest<Context9277>(seed: c => c.SeedAsync());
@@ -400,7 +419,7 @@ BEGIN
 
     #region 12482
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Batch_insert_with_sqlvariant_different_types()
     {
         var contextFactory = await InitializeNonSharedTest<Context12482>();
@@ -458,7 +477,7 @@ OUTPUT INSERTED.[Id], i._Position;
 
     #region 12518
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_entity_with_value_converter_and_include_works()
     {
         var contextFactory = await InitializeNonSharedTest<Context12518>(seed: c => c.SeedAsync());
@@ -474,7 +493,7 @@ ORDER BY [p].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_column_with_value_converter_of_ulong_byte_array()
     {
         var contextFactory = await InitializeNonSharedTest<Context12518>(seed: c => c.SeedAsync());
@@ -536,7 +555,7 @@ ORDER BY [p].[Id]
 
     #region 13118
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task DateTime_Contains_with_smalldatetime_generates_correct_literal()
     {
         var contextFactory = await InitializeNonSharedTest<Context13118>(seed: c => c.SeedAsync());
@@ -586,7 +605,7 @@ WHERE [r].[MyTime] = @testDateList1
 
     #region 14095
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_equals_DateTime_Now(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context14095>(seed: c => c.SeedAsync());
@@ -611,7 +630,7 @@ WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[Dat
 """);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_not_equals_DateTime_Now(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context14095>(seed: c => c.SeedAsync());
@@ -636,7 +655,7 @@ WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].
 """);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_equals_new_DateTime(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context14095>(seed: c => c.SeedAsync());
@@ -668,7 +687,7 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
 """);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Where_contains_DateTime_literals(bool async)
     {
         var dateTimes = new[]
@@ -1003,7 +1022,7 @@ WHERE [d].[SmallDateTime] IN (@dateTimes1, @dateTimes2, @dateTimes3, @dateTimes4
 
     #region 15518
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Nested_queries_does_not_cause_concurrency_exception_sync(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<Context15518>(seed: c => c.SeedAsync());
@@ -1103,7 +1122,7 @@ ORDER BY [r].[Id]
 
     #region 19206
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task From_sql_expression_compares_correctly()
     {
         var contextFactory = await InitializeNonSharedTest<Context19206>(seed: c => c.SeedAsync());
@@ -1171,7 +1190,7 @@ CROSS JOIN (
 
     #region 21666
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Thread_safety_in_relational_command_cache()
     {
         var contextFactory = await InitializeNonSharedTest<Context21666>(
@@ -1211,7 +1230,7 @@ CROSS JOIN (
 
     #region 23282
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
     public virtual async Task Can_query_point_with_buffered_data_reader()
     {
         var contextFactory = await InitializeNonSharedTest<Context23282>(
@@ -1282,7 +1301,7 @@ WHERE [l].[Name] = N'My Location'
 
     #region 24216
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Subquery_take_SelectMany_with_TVF()
     {
         var contextFactory = await InitializeNonSharedTest<Context24216>();
@@ -1390,7 +1409,7 @@ ORDER BY [m0].[Id]
 
     #region 27427
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context27427>();
@@ -1443,7 +1462,7 @@ GROUP BY [d].[Id]
 
     #region 30478
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_with_json_basic_query(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1465,7 +1484,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAll_with_json_basic_query(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1487,7 +1506,7 @@ FROM [Entities] FOR SYSTEM_TIME ALL AS [e]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_project_json_entity_reference(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1508,7 +1527,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TemporalAsOf_project_json_entity_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context30478>(seed: x => x.SeedAsync());
@@ -1533,7 +1552,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
     {
         public DbSet<Entity30478> Entities { get; set; }
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Entity30478>().Property(x => x.Id).ValueGeneratedNever();
@@ -1552,7 +1570,6 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     nb.OwnsOne(x => x.Nested);
                 });
         }
-#pragma warning restore EF8001
 
         public async Task SeedAsync()
         {
@@ -2358,7 +2375,7 @@ ORDER BY [o].[OrderId]
 @orderItemType='MyType1' (Nullable = false) (Size = 4000)
 @p='1'
 
-SELECT [o1].[Id], COALESCE((
+SELECT [o1].[Id], ISNULL((
     SELECT TOP(1) [o3].[Price]
     FROM [OrderItems] AS [o3]
     WHERE [o1].[Id] = [o3].[OrderId] AND [o3].[Type] = @orderItemType), 0.0E0) AS [SpecialSum]
@@ -2440,8 +2457,8 @@ GROUP BY [t].[Value]
 
         AssertSql(
             """
-SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
-    SELECT TOP(1) COALESCE(SUM([t].[Id]), 0) + COALESCE(SUM([t0].[Id]), 0)
+SELECT [t].[Value] AS [A], ISNULL(SUM([t].[Id]), 0) AS [B], ISNULL((
+    SELECT TOP(1) ISNULL(SUM([t].[Id]), 0) + ISNULL(SUM([t0].[Id]), 0)
     FROM [Tables] AS [t0]
     GROUP BY [t0].[Value]
     ORDER BY (SELECT 1)), 0) AS [C]
@@ -2625,7 +2642,7 @@ WHERE 1 = [t].[Id]
 
     #region 37327
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SqlFragment_within_GroupBy_subquery_pushdown()
     {
         var contextFactory = await InitializeNonSharedTest<Context37327>();
@@ -2682,4 +2699,429 @@ FROM [Users] AS [u]
 WHERE [u].[Name] LIKE N'Name%'
 """);
     }
+
+    #region 30915
+
+    public override async Task Anon_whole_object_GroupJoin_DefaultIfEmpty()
+    {
+        await base.Anon_whole_object_GroupJoin_DefaultIfEmpty();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_whole_object_LeftJoin_operator()
+    {
+        await base.Anon_whole_object_LeftJoin_operator();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_client_null_check_GroupJoin()
+    {
+        await base.Anon_client_null_check_GroupJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_client_null_check_LeftJoin_operator()
+    {
+        await base.Anon_client_null_check_LeftJoin_operator();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_member_only_nullable_cast()
+    {
+        await base.Anon_member_only_nullable_cast();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[Count]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Dto_memberinit_whole_object_LeftJoin()
+    {
+        await base.Dto_memberinit_whole_object_LeftJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Nested_anon_whole_object()
+    {
+        await base.Nested_anon_whole_object();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Distinct_after_join_member()
+    {
+        await base.Distinct_after_join_member();
+
+        AssertSql(
+            """
+SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+""");
+    }
+
+    public override async Task Take_after_join_whole_object()
+    {
+        await base.Take_after_join_whole_object();
+
+        AssertSql(
+            """
+@p='10'
+
+SELECT TOP(@p) [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_with_nullable_member()
+    {
+        await base.Projected_object_with_nullable_member();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[MaxPriority], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], MAX([r].[Priority]) AS [MaxPriority], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_with_string_member()
+    {
+        await base.Projected_object_with_string_member();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[Name], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], N'cat' AS [Name], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_all_nullable_members()
+    {
+        await base.Projected_object_all_nullable_members();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[MaxPriority], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], MAX([r].[Priority]) AS [MaxPriority], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Matched_row_with_null_aggregate_keeps_object_non_null()
+    {
+        await base.Matched_row_with_null_aggregate_keeps_object_non_null();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[MaxPriority], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], MAX([r].[Priority]) AS [MaxPriority], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Bare_whole_object_projection_is_null_on_no_match()
+    {
+        await base.Bare_whole_object_projection_is_null_on_no_match();
+
+        AssertSql(
+            """
+SELECT [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task User_member_named_marker_does_not_collide_with_synthetic_marker()
+    {
+        await base.User_member_named_marker_does_not_collide_with_synthetic_marker();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[marker], [r0].[marker0] AS [marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [marker], 1 AS [marker0]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Anon_whole_object_GroupJoin_DefaultIfEmpty_sync()
+    {
+        await base.Anon_whole_object_GroupJoin_DefaultIfEmpty_sync();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Projected_object_with_decimal_member()
+    {
+        await base.Projected_object_with_decimal_member();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Total], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COALESCE(SUM(CAST([r].[PickupStatusId] AS decimal(18,2))), 0.0) AS [Total], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    // PROVIDER DIVERGENCE: SQL Server supports OUTER APPLY, so unlike SQLite (which throws because it
+    // has no APPLY) the correlated whole-object DefaultIfEmpty actually translates and materializes
+    // correctly here. Override the base (SQLite-shaped) assert-throws with the real-results assertion.
+    public override async Task Correlated_SelectMany_DefaultIfEmpty_whole_object()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+        using var context = contextFactory.CreateDbContext();
+
+        var query = from s in context.Statuses
+                    from countInfo in context.Requests
+                        .Where(r => r.PickupStatusId == s.PickupStatusId)
+                        .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() })
+                        .DefaultIfEmpty()
+                    orderby s.PickupStatusId
+                    select new { s.PickupStatusId, countInfo };
+
+        var result = await query.ToListAsync();
+
+        Assert.Equal(3, result.Count);
+
+        // status 1 -> matched, Count 2
+        Assert.Equal(1, result[0].PickupStatusId);
+        Assert.NotNull(result[0].countInfo);
+        Assert.Equal(1, result[0].countInfo.pickupStatusId);
+        Assert.Equal(2, result[0].countInfo.Count);
+
+        // status 2 -> no match: whole non-entity object is null
+        Assert.Equal(2, result[1].PickupStatusId);
+        Assert.Null(result[1].countInfo);
+
+        // status 3 -> matched, Count 1
+        Assert.Equal(3, result[2].PickupStatusId);
+        Assert.NotNull(result[2].countInfo);
+        Assert.Equal(3, result[2].countInfo.pickupStatusId);
+        Assert.Equal(1, result[2].countInfo.Count);
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count], [r0].[marker]
+FROM [Statuses] AS [s]
+OUTER APPLY (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+    FROM [Requests] AS [r]
+    WHERE [r].[PickupStatusId] = [s].[PickupStatusId]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Composed_user_marker_projection_into_subquery_self_heals()
+    {
+        await base.Composed_user_marker_projection_into_subquery_self_heals();
+
+        AssertSql(
+            """
+SELECT [s0].[PickupStatusId], [s0].[pickupStatusId0] AS [pickupStatusId], [s0].[marker], [s0].[marker0] AS [marker]
+FROM (
+    SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[marker], [r0].[marker0]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [marker], 1 AS [marker0]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+) AS [s0]
+ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
+    public override async Task Nested_transparent_identifier_of_entities_as_leftjoin_inner()
+    {
+        await base.Nested_transparent_identifier_of_entities_as_leftjoin_inner();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [s1].[Id], [s1].[PickupStatusId], [s1].[Priority], [s1].[PickupStatusId0], [s1].[Name]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[Id], [r].[PickupStatusId], [r].[Priority], [s0].[PickupStatusId] AS [PickupStatusId0], [s0].[Name]
+    FROM [Requests] AS [r]
+    INNER JOIN [Statuses] AS [s0] ON [r].[PickupStatusId] = [s0].[PickupStatusId]
+) AS [s1] ON [s].[PickupStatusId] = [s1].[PickupStatusId0]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
+
+    public override async Task Distinct_with_unconsumed_marker_is_benign()
+    {
+        await base.Distinct_with_unconsumed_marker_is_benign();
+
+        AssertSql(
+            """
+SELECT [s0].[PickupStatusId], [s0].[pickupStatusId0], [s0].[Count], [s0].[marker]
+FROM (
+    SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+) AS [s0]
+ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
+    public override async Task Member_only_access_nested_two_joins_deep()
+    {
+        await base.Member_only_access_nested_two_joins_deep();
+
+        AssertSql(
+            """
+SELECT [s0].[PickupStatusId], [s0].[Name], CASE
+    WHEN [s1].[marker] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [s1].[pickupStatusId0], [s1].[Count]
+FROM (
+    SELECT DISTINCT [s].[PickupStatusId], [r0].[pickupStatusId] AS [pickupStatusId0], [r0].[Count], [r0].[marker]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count], 1 AS [marker]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+) AS [s1]
+INNER JOIN [Statuses] AS [s0] ON [s1].[PickupStatusId] = [s0].[PickupStatusId]
+ORDER BY [s0].[PickupStatusId]
+""");
+    }
+
+    #endregion
 }

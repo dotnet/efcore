@@ -6,10 +6,13 @@ namespace Microsoft.EntityFrameworkCore.Types.Temporal;
 public class CosmosDateTimeTypeTest(CosmosDateTimeTypeTest.DateTimeTypeFixture fixture)
     : TypeTestBase<DateTime, CosmosDateTimeTypeTest.DateTimeTypeFixture>(fixture)
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
-    public override Task Primitive_collection_in_query()
-        => base.Primitive_collection_in_query();
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
 
     public class DateTimeTypeFixture : CosmosTypeFixtureBase<DateTime>
     {
@@ -23,10 +26,13 @@ public class CosmosDateTimeTypeTest(CosmosDateTimeTypeTest.DateTimeTypeFixture f
 public class CosmosDateTimeOffsetTypeTest(CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture fixture)
     : TypeTestBase<DateTimeOffset, CosmosDateTimeOffsetTypeTest.DateTimeOffsetTypeFixture>(fixture)
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
-    public override Task Primitive_collection_in_query()
-        => base.Primitive_collection_in_query();
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
 
     public class DateTimeOffsetTypeFixture : CosmosTypeFixtureBase<DateTimeOffset>
     {
@@ -39,10 +45,13 @@ public class CosmosDateTimeOffsetTypeTest(CosmosDateTimeOffsetTypeTest.DateTimeO
 
 public class CosmosDateOnlyTypeTest(CosmosDateOnlyTypeTest.DateOnlyTypeFixture fixture) : TypeTestBase<DateOnly, CosmosDateOnlyTypeTest.DateOnlyTypeFixture>(fixture)
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
-    public override Task Primitive_collection_in_query()
-        => base.Primitive_collection_in_query();
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
 
     public class DateOnlyTypeFixture : CosmosTypeFixtureBase<DateOnly>
     {
@@ -56,10 +65,13 @@ public class CosmosDateOnlyTypeTest(CosmosDateOnlyTypeTest.DateOnlyTypeFixture f
 public class CosmosTimeOnlyTypeTest(CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture fixture)
     : TypeTestBase<TimeOnly, CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture>(fixture)
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
-    public override Task Primitive_collection_in_query()
-        => base.Primitive_collection_in_query();
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
 
     public class TimeOnlyTypeFixture : CosmosTypeFixtureBase<TimeOnly>
     {
@@ -72,10 +84,13 @@ public class CosmosTimeOnlyTypeTest(CosmosTimeOnlyTypeTest.TimeOnlyTypeFixture f
 
 public class CosmosTimeSpanTypeTest(CosmosTimeSpanTypeTest.TimeSpanTypeFixture fixture) : TypeTestBase<TimeSpan, CosmosTimeSpanTypeTest.TimeSpanTypeFixture>(fixture)
 {
-    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/287 (Aggregates over subqueries return null result set)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
-    public override Task Primitive_collection_in_query()
-        => base.Primitive_collection_in_query();
+    // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
+    public override async Task Primitive_collection_in_query()
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Primitive_collection_in_query();
+    }
 
     public class TimeSpanTypeFixture : CosmosTypeFixtureBase<TimeSpan>
     {

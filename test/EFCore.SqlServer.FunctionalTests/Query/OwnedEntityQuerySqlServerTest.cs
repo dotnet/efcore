@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
@@ -16,7 +16,7 @@ public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEnti
 
     #region 22054
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Optional_dependent_is_null_when_sharing_required_column_with_principal()
     {
         var contextFactory = await InitializeNonSharedTest<Context22054>(seed: c => c.SeedAsync());
@@ -139,7 +139,7 @@ ORDER BY [u].[Id] DESC
 
     #region 22340
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Owned_entity_mapped_to_separate_table()
     {
         var contextFactory = await InitializeNonSharedTest<Context22340>(seed: c => c.SeedAsync());
@@ -235,7 +235,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
 
     #region 23211
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Collection_include_on_owner_with_owned_type_mapped_to_different_table()
     {
         var contextFactory = await InitializeNonSharedTest<Context23211>(seed: c => c.SeedAsync());
@@ -549,7 +549,7 @@ ORDER BY [s].[Id], [s].[Id0], [s].[Id1]
         AssertSql(
             """
 SELECT [b].[Id], (
-    SELECT COALESCE(SUM([p].[CommentsCount]), 0)
+    SELECT ISNULL(SUM([p].[CommentsCount]), 0)
     FROM [Post] AS [p]
     WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
 FROM [Blog] AS [b]

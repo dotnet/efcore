@@ -71,7 +71,9 @@ public class OriginalPropertyValues : EntryPropertyValues
 
             // The stored original collection contains references to the current CLR elements
             // (see SnapshotComplexCollection), so we must reconstruct each element from the
-            // per-entry original value snapshots to get true original values.
+            // per-entry original value snapshots to get true original values. For added entries,
+            // original values fall back to current values, so elements do not have original ordinals.
+            var useCurrentValues = entry.EntityState == EntityState.Added;
             var reconstructed = (IList)((IRuntimePropertyBase)complexProperty).GetIndexedCollectionAccessor()
                 .Create(originalCollection.Count);
             for (var i = 0; i < originalCollection.Count; i++)
@@ -83,14 +85,21 @@ public class OriginalPropertyValues : EntryPropertyValues
                     continue;
                 }
 
-                var complexEntry = entry.GetComplexCollectionOriginalEntry(complexProperty, i);
-                if (!complexEntry.HasOriginalValuesSnapshot)
+                var complexEntry = useCurrentValues
+                    ? entry.GetComplexCollectionEntry(complexProperty, i)
+                    : entry.GetComplexCollectionOriginalEntry(complexProperty, i);
+                if (!useCurrentValues
+                    && !complexEntry.HasOriginalValuesSnapshot)
                 {
                     complexEntry.EnsureOriginalValues();
                     SetValuesFromInstance(complexEntry, (IRuntimeTypeBase)complexProperty.ComplexType, element, skipChangeDetection: true);
                 }
 
-                reconstructed.Add(new OriginalPropertyValues(complexEntry).Clone().ToObject());
+                PropertyValues propertyValues = useCurrentValues
+                    ? new CurrentPropertyValues(complexEntry)
+                    : new OriginalPropertyValues(complexEntry);
+
+                reconstructed.Add(propertyValues.Clone().ToObject());
             }
 
             return reconstructed;

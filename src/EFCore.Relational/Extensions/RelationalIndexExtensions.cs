@@ -63,14 +63,19 @@ public static class RelationalIndexExtensions
             return null;
         }
 
+        var columnNames = index.GetColumnNames();
+        if (columnNames == null)
+        {
+            return null;
+        }
+
         var baseName = new StringBuilder()
             .Append("IX_")
             .Append(tableName)
-            .Append('_')
-            .AppendJoin(index.Properties.Select(p => p.GetColumnName()), "_")
-            .ToString();
+            .Append('_');
+        AppendProperties(index, columnNames, baseName);
 
-        return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        return Uniquifier.Truncate(baseName.ToString(), index.DeclaringEntityType.Model.GetMaxIdentifierLength());
     }
 
     /// <summary>
@@ -86,7 +91,7 @@ public static class RelationalIndexExtensions
             return null;
         }
 
-        var columnNames = index.Properties.GetColumnNames(storeObject);
+        var columnNames = index.GetColumnNames(storeObject);
         if (columnNames == null)
         {
             return null;
@@ -103,7 +108,7 @@ public static class RelationalIndexExtensions
                          .FindRowInternalForeignKeys(storeObject)
                          .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
             {
-                var otherColumnNames = otherIndex.Properties.GetColumnNames(storeObject);
+                var otherColumnNames = otherIndex.GetColumnNames(storeObject);
                 if ((otherColumnNames != null)
                     && otherColumnNames.SequenceEqual(columnNames))
                 {
@@ -128,11 +133,61 @@ public static class RelationalIndexExtensions
         var baseName = new StringBuilder()
             .Append("IX_")
             .Append(storeObject.Name)
-            .Append('_')
-            .AppendJoin(columnNames, "_")
-            .ToString();
+            .Append('_');
+        AppendProperties(index, columnNames, baseName);
 
-        return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        return Uniquifier.Truncate(baseName.ToString(), index.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    }
+
+    private static void AppendProperties(IReadOnlyIndex index, IReadOnlyList<string> columnNames, StringBuilder builder)
+    {
+        // For an index on properties contained inside a JSON-mapped complex type, the index covers
+        // a single JSON container column, so naming purely by column would produce ambiguous default
+        // names when multiple JSON-path indexes share a column. Use the property path through the
+        // complex-type chain (e.g. "Items_Value") instead so each path gets a distinct default name.
+        var startLength = builder.Length;
+        var first = true;
+        foreach (var property in index.Properties)
+        {
+            IReadOnlyTypeBase current;
+            string leafName;
+            switch (property)
+            {
+                case IReadOnlyProperty scalar
+                    when scalar.DeclaringType is IReadOnlyComplexType complexType && complexType.IsMappedToJson():
+                    leafName = scalar.Name;
+                    current = scalar.DeclaringType;
+                    break;
+
+                case IReadOnlyComplexProperty { ComplexType: var ct } complexProperty when ct.IsMappedToJson():
+                    leafName = complexProperty.Name;
+                    current = complexProperty.DeclaringType;
+                    break;
+
+                default:
+                    // If any property in the index isn't inside a JSON-mapped complex type, fall back to the
+                    // column names provided by the caller.
+                    builder.Length = startLength;
+                    builder.AppendJoin(columnNames, "_");
+                    return;
+            }
+
+            if (!first)
+            {
+                builder.Append('_');
+            }
+
+            first = false;
+
+            var pathStart = builder.Length;
+            builder.Append(leafName);
+            while (current is IReadOnlyComplexType parent)
+            {
+                builder.Insert(pathStart, '_');
+                builder.Insert(pathStart, parent.ComplexProperty.Name);
+                current = parent.ComplexProperty.DeclaringType;
+            }
+        }
     }
 
     /// <summary>

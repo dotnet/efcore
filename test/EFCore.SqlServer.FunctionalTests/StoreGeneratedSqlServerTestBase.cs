@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -244,7 +244,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
         public LongToDecimalPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Insert_update_and_delete_with_long_to_decimal_conversion()
     {
         var id1 = 0L;
@@ -345,7 +345,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Insert_update_and_delete_with_wrapped_int_key_using_hi_lo()
     {
         var id1 = 0;
@@ -633,7 +633,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture>(TFixture fixture
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Exception_in_SaveChanges_causes_store_values_to_be_reverted()
     {
         var entities = new List<Darwin>();

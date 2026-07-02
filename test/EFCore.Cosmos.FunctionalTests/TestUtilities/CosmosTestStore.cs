@@ -1,8 +1,10 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -23,6 +25,41 @@ public class CosmosTestStore : TestStore
 
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
+
+    // The Northwind database is shared across multiple test fixtures and is deleted at process exit
+    // to avoid one fixture's disposal racing with another fixture's queries.
+    private const string DeferredDeletionStoreName = "Northwind";
+    private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
+
+    static CosmosTestStore()
+    {
+        AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            try
+            {
+                Task.WhenAll(_deferredStores.Select(
+                    async entry =>
+                    {
+                        var store = entry.Value;
+                        try
+                        {
+                            store.GetTestStoreIndex(store.ServiceProvider)
+                                .RemoveShared(store.GetType().Name + store.Name);
+                            await store.EnsureDeletedAsync(store._storeContext, cts.Token).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                        }
+
+                        store._storeContext.Dispose();
+                    })).GetAwaiter().GetResult();
+            }
+            catch
+            {
+            }
+        };
+    }
 
     public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -45,10 +82,10 @@ public class CosmosTestStore : TestStore
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         : base(CreateName(name), shared)
     {
-        ConnectionUri = TestEnvironment.DefaultConnection;
-        AuthToken = TestEnvironment.AuthToken;
-        ConnectionString = TestEnvironment.ConnectionString;
-        TokenCredential = TestEnvironment.TokenCredential;
+        ConnectionUri = CosmosTestEnvironment.DefaultConnection;
+        AuthToken = CosmosTestEnvironment.AuthToken;
+        ConnectionString = CosmosTestEnvironment.ConnectionString;
+        TokenCredential = CosmosTestEnvironment.TokenCredential;
         _configureCosmos = extensionConfiguration == null
             ? b => b.ApplyConfiguration()
             : b =>
@@ -58,10 +95,22 @@ public class CosmosTestStore : TestStore
             };
 
         _storeContext = new TestStoreContext(this);
+
+        if (shared && name == DeferredDeletionStoreName)
+        {
+            _deferredStores.TryAdd(Name, this);
+        }
+        else if (shared)
+        {
+            Check.DebugAssert(
+                !_deferredStores.ContainsKey(Name) && !_deferredStores.Values.Any(s => s.Name == Name),
+                $"Cosmos database '{name}' is shared across multiple fixture types. "
+                + "Add it to the deferred deletion list or give each fixture a unique StoreName.");
+        }
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator
+        => CosmosTestEnvironment.IsEmulator
             ? name
             : name + _runId;
 
@@ -75,23 +124,22 @@ public class CosmosTestStore : TestStore
     protected override DbContext CreateDefaultContext()
         => new TestStoreContext(this);
 
+    // Cosmos has no multi-document transactions, so a partially-completed seed must be cleaned before retrying.
+    public override bool SupportsTransactions
+        => false;
+
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
     {
-        var result = TestEnvironment.UseTokenCredential
+        var result = CosmosTestEnvironment.UseTokenCredential
             ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
             : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
-
-        if (TestEnvironment.IsLinuxEmulator)
-        {
-            result.AddInterceptors(LinuxEmulatorSaveChangesInterceptor.Instance);
-        }
 
         return result;
     }
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
-        if (TestEnvironment.SkipConnectionCheck)
+        if (CosmosTestEnvironment.SkipConnectionCheck)
         {
             return true;
         }
@@ -161,11 +209,11 @@ public class CosmosTestStore : TestStore
 
     protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        await TestEnvironment.InitializeAsync().ConfigureAwait(false);
+        await CosmosTestEnvironment.InitializeAsync().ConfigureAwait(false);
 
         // Update connection details in case InitializeAsync changed them (e.g., testcontainer started).
-        ConnectionUri = TestEnvironment.DefaultConnection;
-        ConnectionString = TestEnvironment.ConnectionString;
+        ConnectionUri = CosmosTestEnvironment.DefaultConnection;
+        ConnectionString = CosmosTestEnvironment.ConnectionString;
 
         _initialized = true;
 
@@ -177,11 +225,11 @@ public class CosmosTestStore : TestStore
         await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
     }
 
-    private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
+    private static readonly ArmClient _armClient = new(CosmosTestEnvironment.TokenCredential);
 
     public async Task<bool> EnsureCreatedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
             return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
@@ -190,7 +238,7 @@ public class CosmosTestStore : TestStore
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
         var sqlDatabaseCreateUpdateContent = new CosmosDBSqlDatabaseCreateOrUpdateContent(
-            TestEnvironment.AzureLocation,
+            CosmosTestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
         if (await collection.ExistsAsync(Name, cancellationToken))
         {
@@ -222,7 +270,7 @@ public class CosmosTestStore : TestStore
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -245,17 +293,26 @@ public class CosmosTestStore : TestStore
     {
         var accountName = new Uri(ConnectionUri).Host.Split('.').First();
         var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
-            TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
+            CosmosTestEnvironment.SubscriptionId, CosmosTestEnvironment.ResourceGroup, accountName);
         return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
     public override Task CleanAsync(DbContext context, bool createTables = true)
-        => new TestCosmosExecutionStrategy().ExecuteAsync(
-            (context, createTables), async (_, state, ct) =>
+    {
+        context.ChangeTracker.Clear();
+        return new TestCosmosExecutionStrategy().ExecuteAsync(
+            (context, createTables, Retrying: new StrongBox<bool>(false)), async (_, state, ct) =>
             {
+                if (state.Retrying.Value)
+                {
+                    state.context.ChangeTracker.Clear();
+                }
+
+                state.Retrying.Value = true;
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
             }, null, default);
+    }
 
     private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
@@ -272,7 +329,7 @@ public class CosmosTestStore : TestStore
                 return;
             }
 
-            if (!TestEnvironment.UseTokenCredential)
+            if (!CosmosTestEnvironment.UseTokenCredential)
             {
                 created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
                 if (!created)
@@ -326,7 +383,7 @@ public class CosmosTestStore : TestStore
                 resource.PartitionKey.Paths.Add("/" + partitionKey);
             }
 
-            var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
+            var content = new CosmosDBSqlContainerCreateOrUpdateContent(CosmosTestEnvironment.AzureLocation, resource);
             if (container.Throughput != null)
             {
                 content.Options = new CosmosDBCreateUpdateConfig
@@ -397,7 +454,9 @@ public class CosmosTestStore : TestStore
                 indexes,
                 vectors,
                 fullTextDefaultLanguage ?? "en-US",
-                fullTextProperties);
+                fullTextProperties,
+                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions()).FirstOrDefault(e => e is not null),
+                AutomaticIndexingEnabled: mappedTypes.Select(et => et.GetAutomaticIndexingEnabled()).FirstOrDefault(e => e is not null));
         }
 
         static void ProcessEntityType(
@@ -440,7 +499,7 @@ public class CosmosTestStore : TestStore
 
     private async Task DeleteContainersAsync(DbContext context)
     {
-        if (!TestEnvironment.UseTokenCredential)
+        if (!CosmosTestEnvironment.UseTokenCredential)
         {
             var cosmosClient = context.Database.GetCosmosClient();
             var database = cosmosClient.GetDatabase(Name);
@@ -481,21 +540,27 @@ public class CosmosTestStore : TestStore
 
     public override async ValueTask DisposeAsync()
     {
-        if (_initialized)
+        if (!_initialized || _connectionAvailable == false)
         {
-            if (_connectionAvailable == false)
-            {
-                return;
-            }
-
-            if (Shared)
-            {
-                GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
-            }
-
-            await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
+            return;
         }
 
+        if (_deferredStores.TryGetValue(Name, out var canonical))
+        {
+            if (!ReferenceEquals(this, canonical))
+            {
+                _storeContext.Dispose();
+            }
+
+            return;
+        }
+
+        if (Shared)
+        {
+            GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
+        }
+
+        await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
         _storeContext.Dispose();
     }
 
@@ -505,7 +570,7 @@ public class CosmosTestStore : TestStore
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (TestEnvironment.UseTokenCredential)
+            if (CosmosTestEnvironment.UseTokenCredential)
             {
                 optionsBuilder.UseCosmos(
                     _testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);

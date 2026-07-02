@@ -84,9 +84,10 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = null)
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Nested_associate_with_inline()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Nested_associate_with_inline();
 
         AssertSql(
@@ -98,9 +99,10 @@ WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = {"Id":1000,"Int":8,"I
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Nested_associate_with_parameter()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Nested_associate_with_parameter();
 
         AssertSql(
@@ -113,7 +115,7 @@ WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = @entity_equality_nest
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nested_associate_with_parameter_null()
     {
         NestedAssociateType? nested = null;
@@ -130,7 +132,7 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = @entity_equality_nest
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Nested_associate_with_parameter_not_null()
     {
         NestedAssociateType? nested = null;
@@ -160,9 +162,10 @@ WHERE (c["RequiredAssociate"]["NestedCollection"] = c["OptionalAssociate"]["Nest
 }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Nested_collection_with_inline()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Nested_collection_with_inline();
 
         AssertSql(
@@ -174,9 +177,10 @@ WHERE (c["RequiredAssociate"]["NestedCollection"] = [{"Id":1002,"Int":8,"Ints":[
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Nested_collection_with_parameter()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Nested_collection_with_parameter();
 
         AssertSql(
@@ -189,7 +193,7 @@ WHERE (c["RequiredAssociate"]["NestedCollection"] = @entity_equality_nestedColle
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Nullable_value_type_with_null()
     {
         await base.Nullable_value_type_with_null();
@@ -205,9 +209,10 @@ WHERE (c["OptionalAssociate"] = null)
     #region Contains
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Contains_with_inline()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Contains_with_inline();
 
         AssertSql(
@@ -222,9 +227,10 @@ WHERE EXISTS (
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Contains_with_parameter()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Contains_with_parameter();
 
         AssertSql(
@@ -241,9 +247,10 @@ WHERE EXISTS (
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Contains_with_operators_composed_on_the_collection()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Contains_with_operators_composed_on_the_collection();
 
         AssertSql(
@@ -261,9 +268,10 @@ WHERE EXISTS (
     }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
-    [CosmosCondition(CosmosCondition.IsNotLinuxEmulator)]
     public override async Task Contains_with_nested_and_composed_operators()
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Contains_with_nested_and_composed_operators();
 
         AssertSql(
@@ -282,7 +290,7 @@ WHERE EXISTS (
 
     #endregion Contains
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

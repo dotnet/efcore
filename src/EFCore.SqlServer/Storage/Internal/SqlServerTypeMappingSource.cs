@@ -120,7 +120,7 @@ public class SqlServerTypeMappingSource(
         = new("uniqueidentifier");
 
     private static readonly SqlServerStringTypeMapping Xml
-        = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+        = new("xml", unicode: true, sqlDbType: SqlDbType.Xml, storeTypePostfix: StoreTypePostfix.None);
 
     private static readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 

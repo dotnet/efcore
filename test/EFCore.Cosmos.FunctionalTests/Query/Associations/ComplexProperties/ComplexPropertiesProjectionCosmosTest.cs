@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
@@ -83,7 +83,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Select_scalar_on_distinct_required_associate()
         => AssertTranslationFailed(() => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct().Select(x => x.String),
@@ -98,6 +98,7 @@ FROM root c
     {
         await base.Select_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]
@@ -105,7 +106,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Select_distinct_associate()
     {
         await AssertQuery(
@@ -119,7 +120,7 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Select_distinct_nested_associate()
     {
         await AssertQuery(
@@ -137,6 +138,7 @@ FROM root c
     {
         await base.Select_optional_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]
@@ -148,6 +150,7 @@ FROM root c
     {
         await base.Select_required_nested_on_required_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
@@ -159,6 +162,7 @@ FROM root c
     {
         await base.Select_optional_nested_on_required_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]["OptionalNestedAssociate"]
@@ -175,6 +179,7 @@ FROM root c
             ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]
@@ -191,6 +196,7 @@ FROM root c
             ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]["RequiredNestedAssociate"]
@@ -206,6 +212,7 @@ FROM root c
     {
         await base.Select_unmapped_associate_scalar_property(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]
@@ -232,6 +239,7 @@ FROM root c
     {
         await base.Select_associate_collection(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["AssociateCollection"]
@@ -244,6 +252,7 @@ ORDER BY c["Id"]
     {
         await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]["NestedCollection"]
@@ -263,6 +272,7 @@ ORDER BY c["Id"]
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
+        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]["NestedCollection"]
@@ -441,7 +451,7 @@ ORDER BY c["Id"]
 
     #endregion Value types
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

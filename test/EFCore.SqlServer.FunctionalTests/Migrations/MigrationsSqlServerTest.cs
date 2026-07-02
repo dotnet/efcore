@@ -3,13 +3,12 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using Microsoft.Data.SqlClient;
 using Microsoft.Data.SqlTypes;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
 // ReSharper disable StringLiteralTypo
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -175,7 +174,7 @@ CREATE TABLE [Entity] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_sparse_column()
     {
         await Test(
@@ -196,7 +195,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_identity_column_value_converter()
     {
         await Test(
@@ -218,7 +217,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
     public virtual async Task Create_memory_optimized_table()
     {
         await Test(
@@ -283,10 +282,7 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_memory_optimized_temporal_table()
     {
         await Test(
@@ -358,7 +354,7 @@ EXEC(N'CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_fill_factor()
     {
         await Test(
@@ -526,7 +522,7 @@ ALTER SCHEMA [TestTableSchema] TRANSFER [TestTable];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Move_table_into_default_schema()
     {
         await Test(
@@ -566,7 +562,7 @@ CREATE TABLE [SomeOtherSchema].[People] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_schema_dbo_is_ignored()
     {
         await Test(
@@ -605,7 +601,7 @@ ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05
 """);
     }
 
-    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+    [Theory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
      InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
      InlineData(7, ".1234567", 1234567), InlineData(7, ".1200000", 1200000)]
     //should this really output trailing zeros?
@@ -630,7 +626,7 @@ ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '201
 """);
     }
 
-    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+    [Theory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
      InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
      InlineData(7, ".1234567", 1234567), InlineData(7, ".1200000", 1200000)]
     //should this really output trailing zeros?
@@ -658,7 +654,7 @@ ALTER TABLE [People] ADD [Birthday] datetimeoffset({precision}) NOT NULL DEFAULT
 """);
     }
 
-    [ConditionalTheory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
+    [Theory, InlineData(0, "", 1234567), InlineData(1, ".1", 1234567), InlineData(2, ".12", 1234567),
      InlineData(3, ".123", 1234567), InlineData(4, ".1234", 1234567), InlineData(5, ".12345", 1234567), InlineData(6, ".123456", 1234567),
      InlineData(7, ".1234567", 1234567), InlineData(7, ".12", 1200000)]
     public async Task Add_column_with_defaultValue_time_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
@@ -683,7 +679,7 @@ ALTER TABLE [People] ADD [Age] time({precision}) NOT NULL DEFAULT '12:34:56{frac
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_defaultValue_datetime_store_type()
     {
         await Test(
@@ -705,7 +701,7 @@ ALTER TABLE [People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_defaultValue_smalldatetime_store_type()
     {
         await Test(
@@ -727,7 +723,7 @@ ALTER TABLE [People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T0
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_rowversion()
     {
         await Test(
@@ -748,7 +744,7 @@ ALTER TABLE [People] ADD [RowVersion] rowversion NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_with_rowversion_and_value_conversion()
     {
         await Test(
@@ -811,7 +807,7 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_generates_exec_when_computed_and_idempotent()
     {
         await Test(
@@ -831,6 +827,71 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
             """
 EXEC(N'ALTER TABLE [People] ADD [IdPlusOne] AS [Id] + 1');
 """);
+    }
+
+    [Fact]
+    public virtual async Task Alter_computed_column_clr_type_only_change_is_noop()
+    {
+        // Regression test for #33425: when only the CLR type of a property mapped to a computed
+        // column changes (the expression and IsStored are unchanged), SQL Server has nothing to
+        // alter — the column's type is derived from the expression. The migration must complete
+        // without emitting `ALTER TABLE ... ALTER COLUMN`, which would fail with
+        // "Cannot alter column ... because it is 'COMPUTED'".
+        await Test(
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<int>("Calc").HasComputedColumnSql("[Id] * 2");
+                }),
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<long>("Calc").HasComputedColumnSql("[Id] * 2");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Calc");
+                Assert.Equal("([Id]*(2))", column.ComputedColumnSql);
+            });
+
+        AssertSql();
+    }
+
+    [Fact]
+    public virtual async Task Alter_computed_column_clr_type_only_change_does_not_rebuild_indexes()
+    {
+        // Regression guard for #33425 / Copilot review: a CLR-type-only change on a computed
+        // column must be a TRUE no-op. The "narrowed" code path can otherwise treat the type
+        // change as a column-narrowing and drop+recreate every index on the column, even though
+        // no ALTER COLUMN is emitted. That's needlessly expensive on large tables. Verify no
+        // DROP/CREATE INDEX SQL appears.
+        await Test(
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<int>("Calc").HasComputedColumnSql("[Id] * 2");
+                    x.HasIndex("Calc");
+                }),
+            builder => builder.Entity(
+                "People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<long>("Calc").HasComputedColumnSql("[Id] * 2");
+                    x.HasIndex("Calc");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Calc");
+                Assert.Equal("([Id]*(2))", column.ComputedColumnSql);
+                Assert.Single(table.Indexes);
+            });
+
+        AssertSql();
     }
 
     public override async Task Add_column_with_required()
@@ -936,7 +997,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_identity()
     {
         await Test(
@@ -956,7 +1017,7 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_identity_seed_increment()
     {
         await Test(
@@ -979,7 +1040,7 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY(100, 5);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_identity_seed_increment_for_TPC()
     {
         await Test(
@@ -1041,7 +1102,7 @@ ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_sequence()
     {
         await Test(
@@ -1067,7 +1128,7 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_column_hilo()
     {
         await Test(
@@ -1096,10 +1157,9 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT 0;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] bigint NOT NULL;
 """);
@@ -1112,10 +1172,9 @@ ALTER TABLE [People] ALTER COLUMN [SomeColumn] bigint NOT NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(max) NOT NULL;
@@ -1130,10 +1189,9 @@ ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(max) NOT NULL;
@@ -1141,7 +1199,7 @@ ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_make_required_with_index()
     {
         await base.Alter_column_make_required_with_index();
@@ -1150,10 +1208,9 @@ ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
             """
 DROP INDEX [IX_People_SomeColumn] ON [People];
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NOT NULL;
@@ -1162,7 +1219,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_make_required_with_composite_index()
     {
         await base.Alter_column_make_required_with_composite_index();
@@ -1171,10 +1228,9 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);
             """
 DROP INDEX [IX_People_FirstName_LastName] ON [People];
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 UPDATE [People] SET [FirstName] = N'' WHERE [FirstName] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;
@@ -1192,10 +1248,9 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         AssertSql(
             $"""
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
@@ -1209,10 +1264,9 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] - [Y];
@@ -1227,10 +1281,9 @@ ALTER TABLE [People] ADD [Sum] AS [X] - [Y];
             """
 DROP INDEX [IX_People_Sum] ON [People];
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] - [Y];
@@ -1248,10 +1301,9 @@ CREATE INDEX [IX_People_Sum] ON [People] ([Sum]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;
@@ -1265,17 +1317,16 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] int NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_add_comment()
     {
         await base.Alter_column_add_comment();
@@ -1290,7 +1341,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_computed_column_add_comment()
     {
         await base.Alter_computed_column_add_comment();
@@ -1305,7 +1356,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_change_comment()
     {
         await base.Alter_column_change_comment();
@@ -1321,7 +1372,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_remove_comment()
     {
         await base.Alter_column_remove_comment();
@@ -1335,7 +1386,7 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema1, 'TABLE
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_set_collation()
     {
         await base.Alter_column_set_collation();
@@ -1343,16 +1394,15 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema1, 'TABLE
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_set_collation_with_index()
     {
         await Test(
@@ -1375,17 +1425,16 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_
             """
 DROP INDEX [IX_People_Name] ON [People];
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) COLLATE German_PhoneBook_CI_AS NULL;
 CREATE INDEX [IX_People_Name] ON [People] ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Alter_column_reset_collation()
     {
         await base.Alter_column_reset_collation();
@@ -1393,12 +1442,21 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;
+""");
+    }
+
+    public override async Task Convert_owned_entity_with_no_schema_to_regular_entity()
+    {
+        await base.Convert_owned_entity_with_no_schema_to_regular_entity();
+
+        AssertSql(
+            """
+ALTER TABLE [Owned] DROP CONSTRAINT [FK_Owned_Entity_EntityId];
 """);
     }
 
@@ -1409,20 +1467,18 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedCollection');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedCollection';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] DROP COLUMN [OwnedCollection];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference];
 """,
@@ -1487,20 +1543,18 @@ DROP TABLE [Entity_OwnedCollection];
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference_Date');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference_Date';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference_Date];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference_NestedReference_Number');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference_NestedReference_Number';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference_NestedReference_Number];
 """,
@@ -1528,10 +1582,9 @@ ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 UPDATE [Entity] SET [Name] = N'{}' WHERE [Name] IS NULL;
 ALTER TABLE [Entity] ALTER COLUMN [Name] nvarchar(max) NOT NULL;
@@ -1546,7 +1599,75 @@ ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
         AssertSql();
     }
 
-    [ConditionalFact]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Convert_json_column_back_to_string_column()
+    {
+        // Use explicit operation rather than model diffing: the snapshot round-trip of a source model
+        // with HasColumnType("json") does not reliably preserve identity annotations, causing the
+        // model differ to emit a spurious AlterColumnOperation for the PK that hits the identity check.
+        await Test(
+            builder =>
+            {
+                builder.Entity(
+                    "Entity", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedNever();
+                        e.HasKey("Id");
+                        e.Property<string>("Name").HasColumnType("json");
+                    });
+            },
+            new MigrationOperation[]
+            {
+                new AlterColumnOperation
+                {
+                    Table = "Entity",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    ColumnType = "nvarchar(450)",
+                    IsNullable = true,
+                    OldColumn = new AddColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        ColumnType = "json",
+                        IsNullable = true
+                    }
+                },
+                new CreateIndexOperation
+                {
+                    Table = "Entity",
+                    Name = "IX_Entity_Name",
+                    Columns = new[] { "Name" }
+                }
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Name");
+                Assert.Equal("nvarchar(450)", column.StoreType);
+                Assert.True(column.IsNullable);
+                var index = Assert.Single(table.Indexes);
+                Assert.Contains(column, index.Columns);
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
+EXEC sp_rename N'[Entity].[Name]', N'ef_temp_Name', 'COLUMN';
+ALTER TABLE [Entity] ADD [Name] nvarchar(450) NULL;
+EXEC(N'UPDATE [Entity] SET [Name] = CONVERT(nvarchar(450), [ef_temp_Name])');
+ALTER TABLE [Entity] DROP COLUMN [ef_temp_Name];
+""",
+            //
+            """
+CREATE INDEX [IX_Entity_Name] ON [Entity] ([Name]);
+""");
+    }
+
+    [Fact]
     public virtual async Task Alter_column_make_required_with_index_with_included_properties()
     {
         await Test(
@@ -1576,10 +1697,9 @@ ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
             """
 DROP INDEX [IX_People_SomeColumn] ON [People];
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 UPDATE [People] SET [SomeColumn] = N'' WHERE [SomeColumn] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeColumn] nvarchar(450) NOT NULL;
@@ -1588,10 +1708,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Alter_column_memoryOptimized_with_index()
     {
         await Test(
@@ -1617,17 +1734,16 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
             """
 ALTER TABLE [People] DROP INDEX [IX_People_Name];
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(30) NULL;
 ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_with_index_no_narrowing()
     {
         await Test(
@@ -1650,16 +1766,15 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_with_index_included_column()
     {
         await Test(
@@ -1689,17 +1804,16 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
             """
 DROP INDEX [IX_People_FirstName_LastName] ON [People];
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(30) NULL;
 CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]) INCLUDE ([Name]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_add_identity()
     {
         var ex = await TestThrows<InvalidOperationException>(
@@ -1709,7 +1823,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_remove_identity()
     {
         var ex = await TestThrows<InvalidOperationException>(
@@ -1719,7 +1833,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_type_with_identity()
     {
         await Test(
@@ -1746,16 +1860,15 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'IdentityColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'IdentityColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [IdentityColumn] bigint NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_identity_seed()
     {
         await Test(
@@ -1774,7 +1887,7 @@ DBCC CHECKIDENT(N'[People]', RESEED, 100);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_default()
     {
         await Test(
@@ -1791,16 +1904,15 @@ DBCC CHECKIDENT(N'[People]', RESEED, 100);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ADD DEFAULT N'Doe' FOR [Name];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_change_comment_with_default()
     {
         await Test(
@@ -1825,7 +1937,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_make_sparse()
     {
         await Test(
@@ -1842,10 +1954,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeProperty');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeProperty';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(max) SPARSE NULL;
 """);
@@ -1858,10 +1969,9 @@ ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(max) SPARSE NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [SomeColumn];
 """);
@@ -1878,10 +1988,9 @@ ALTER TABLE [People] DROP CONSTRAINT [PK_People];
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Id];
 """);
@@ -1894,20 +2003,18 @@ ALTER TABLE [People] DROP COLUMN [Id];
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Y');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Y';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [Y];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'X');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'X';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [People] DROP COLUMN [X];
 """);
@@ -1920,20 +2027,18 @@ ALTER TABLE [People] DROP COLUMN [X];
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedCollection');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedCollection';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [Entity] DROP COLUMN [OwnedCollection];
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'OwnedReference';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference];
 """);
@@ -1970,10 +2075,9 @@ EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', 'COLUMN';
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
@@ -1990,20 +2094,18 @@ CREATE INDEX [IX_People_FirstName] ON [People] ([FirstName]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LastName');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LastName';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [LastName] nvarchar(450) NULL;
 """,
             //
             """
 DECLARE @var1 nvarchar(max);
-SELECT @var1 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
+SELECT @var1 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName';
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var1 + ';');
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
@@ -2039,11 +2141,7 @@ CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
 
         AssertSql(
             """
-DROP INDEX [IX_People_X] ON [People];
-""",
-            //
-            """
-CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);
+CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]) WITH (DROP_EXISTING = ON);
 """);
     }
 
@@ -2053,12 +2151,112 @@ CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);
 
         AssertSql(
             """
-DROP INDEX [IX_People_X_Y_Z] ON [People];
-""",
-            //
-            """
-CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
+CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]) WITH (DROP_EXISTING = ON);
 """);
+    }
+
+    [Fact]
+    public virtual async Task Alter_index_fill_factor_uses_drop_existing()
+    {
+        // Regression test for #35067: when only an index facet (fill factor here) changes, the
+        // migration must collapse the differ's Drop+Create pair into a single CREATE INDEX
+        // ... WITH (DROP_EXISTING = ON), which lets queries continue using the old index while the
+        // new one is being built.
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name").IsRequired();
+                    e.HasIndex("Name").HasFillFactor(80);
+                }),
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name").IsRequired();
+                    e.HasIndex("Name").HasFillFactor(90);
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal(90, index[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+CREATE INDEX [IX_People_Name] ON [People] ([Name]) WITH (FILLFACTOR = 90, DROP_EXISTING = ON);
+""");
+    }
+
+    [Fact]
+    public virtual async Task Alter_index_filter_uses_drop_existing()
+    {
+        // Changing the index filter must also collapse to CREATE INDEX ... WITH (DROP_EXISTING = ON).
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasIndex("Name").HasFilter("[Name] IS NOT NULL");
+                }),
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasIndex("Name").HasFilter("[Name] IS NOT NULL AND [Name] <> N''");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("([Name] IS NOT NULL AND [Name]<>N'')", index.Filter);
+            });
+
+        AssertSql(
+            """
+CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND [Name] <> N'' WITH (DROP_EXISTING = ON);
+""");
+    }
+
+    [Fact]
+    public virtual async Task Alter_index_with_non_adjacent_drop_and_create_keeps_separate()
+    {
+        // Regression guard for #38271 review: when an indexed column also needs to be altered, the
+        // differ emits DropIndex + AlterColumn + CreateIndex. The DROP_EXISTING rewrite must NOT
+        // collapse the pair across the intervening ALTER COLUMN, because SQL Server requires the
+        // index to be absent before the column type can be changed. The drop must stay.
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name").HasMaxLength(450);
+                    e.HasIndex("Name");
+                }),
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name").HasMaxLength(450).IsRequired();
+                    e.HasIndex("Name");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Name");
+                Assert.False(column.IsNullable);
+            });
+
+        // The drop must stay separate — collapsing across the ALTER COLUMN would break the migration.
+        var sql = Fixture.TestSqlLoggerFactory.Sql;
+        Assert.Contains("DROP INDEX [IX_People_Name]", sql);
+        Assert.Contains("ALTER TABLE [People] ALTER COLUMN [Name]", sql);
+        Assert.Contains("CREATE INDEX [IX_People_Name]", sql);
+        Assert.DoesNotContain("DROP_EXISTING", sql);
     }
 
     public override async Task Create_index_with_filter()
@@ -2068,10 +2266,9 @@ CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2081,7 +2278,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CreateIndex_generates_exec_when_filter_and_idempotent()
     {
         await Test(
@@ -2105,10 +2302,9 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2125,10 +2321,9 @@ EXEC(N'CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NU
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2138,7 +2333,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NU
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_clustered()
     {
         await Test(
@@ -2156,10 +2351,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NU
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
@@ -2169,7 +2363,7 @@ CREATE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_clustered()
     {
         await Test(
@@ -2189,10 +2383,9 @@ CREATE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstName';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
@@ -2202,7 +2395,7 @@ CREATE UNIQUE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_with_include()
     {
         await Test(
@@ -2230,10 +2423,9 @@ CREATE UNIQUE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2243,7 +2435,50 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Create_index_with_include_on_complex_property()
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ComplexProperty<JsonIndexItem>(
+                        "Details", cb =>
+                        {
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("People").HasIndex("Name")
+                .IncludeProperties("Details.Value"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal(1, index.Columns.Count);
+                Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
+""",
+            //
+            """
+CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([Details_Value]);
+""");
+    }
+
+    [Fact]
     public virtual async Task Create_index_with_include_and_filter()
     {
         await Test(
@@ -2273,10 +2508,9 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2286,7 +2520,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include()
     {
         await Test(
@@ -2316,10 +2550,9 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2329,7 +2562,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include_and_filter()
     {
         await Test(
@@ -2361,10 +2594,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2374,8 +2606,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server"),
-     SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsOnlineIndexingSupported))]
     public virtual async Task Create_index_unique_with_include_and_filter_online()
     {
         await Test(
@@ -2409,10 +2640,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2422,8 +2652,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact(Skip = "#19668, Online index operations can only be performed in Enterprise edition of SQL Server"),
-     SqlServerCondition(SqlServerCondition.SupportsOnlineIndexes)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsOnlineIndexingSupported))]
     public virtual async Task Create_index_unique_with_include_filter_online_and_fillfactor()
     {
         await Test(
@@ -2458,10 +2687,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2471,7 +2699,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include_filter_and_fillfactor()
     {
         await Test(
@@ -2505,10 +2733,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2518,7 +2745,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_index_unique_with_include_fillfactor_and_sortintempdb()
     {
         await Test(
@@ -2553,10 +2780,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2566,7 +2792,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalTheory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
+    [Theory, InlineData(DataCompressionType.None, "NONE"), InlineData(DataCompressionType.Row, "ROW"),
      InlineData(DataCompressionType.Page, "PAGE")]
     public virtual async Task Create_index_unique_with_include_sortintempdb_and_datacompression(
         DataCompressionType dataCompression,
@@ -2604,10 +2830,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
@@ -2617,10 +2842,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
         await Test(
@@ -2645,10 +2867,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
         AssertSql(
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2658,7 +2879,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
     public virtual async Task Create_index_memoryOptimized_unique_nullable_with_filter()
     {
         await Test(
@@ -2684,10 +2905,9 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
         AssertSql(
             """
 DECLARE @var2 nvarchar(max);
-SELECT @var2 = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+SELECT @var2 = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var2 + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
@@ -2697,10 +2917,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
-    [PlatformSkipCondition(
-        TestUtilities.Xunit.TestPlatform.Mac,
-        SkipReason = "SQL Server crashes under Rosetta on macOS; see #37647")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_index_memoryOptimized_unique_nonclustered_not_nullable()
     {
         await Test(
@@ -2748,7 +2965,7 @@ EXEC sp_rename N'[People].[Foo]', N'foo', 'INDEX';
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
     [Experimental("EF9105")]
     public virtual async Task Create_vector_index()
     {
@@ -2778,7 +2995,7 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
     [Experimental("EF9105")]
     public virtual async Task Create_vector_index_with_type()
     {
@@ -2808,7 +3025,7 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsVectorType)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsVectorTypeSupported))]
     [Experimental("EF9105")]
     public virtual async Task Drop_vector_index()
     {
@@ -2830,9 +3047,367 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
         AssertSql("DROP INDEX [IX_VectorEntities_Vector] ON [VectorEntities];");
     }
 
+    #region JSON path indexes
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual Task Create_json_index_over_complex_collection_all_elements()
+    {
+        // SQL Server doesn't support indexes over all elements of JSON arrays
+        return Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                            "Items", cb =>
+                            {
+                                cb.ToJson("ItemsJson").HasColumnType("json");
+                                cb.Property(i => i.Value);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonIndexEntities").HasIndex("Items[].Value"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+                }));
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_complex_collection_specific_element()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items[0].Value"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Value');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Rename_json_index_over_complex_collection()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_OldName"),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_NewName"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_NewName", index.Name);
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+EXEC sp_rename N'[JsonIndexEntities].[IX_OldName]', N'IX_NewName', 'INDEX';
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Change_json_index_path_index()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Other"], "IX_Items"),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[1].Other"], "IX_Items"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_Items", index.Name);
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[1].Other') WITH (DROP_EXISTING = ON);
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Change_json_index_path()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_Items"),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Other"], "IX_Items"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Equal("IX_Items", index.Name);
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Other') WITH (DROP_EXISTING = ON);
+""");
+    }
+
+    private class JsonIndexItem
+    {
+        public string Value { get; set; } = null!;
+        public string Other { get; set; } = null!;
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_whole_complex_collection()
+    {
+        // generates `FOR (N'$[*]')` but rejects indexes that span all array elements at execution time,
+        // so we assert the resulting SqlException and the SQL we produced.
+        await Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                            "Items", cb =>
+                            {
+                                cb.ToJson("ItemsJson").HasColumnType("json");
+                                cb.Property(i => i.Value);
+                                cb.Property(i => i.Other);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonIndexEntities").HasIndex("Items"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+                }));
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[*]');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_multiple_paths_in_same_column()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items[0].Value", "Items[0].Other"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                // Both properties map to the same JSON column — only one column entry
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Value', N'$[0].Other');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_regular_index_on_json_column_and_regular_column()
+    {
+        // SQL Server does not allow an nvarchar(max) column to participate in a regular index.
+        await Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonRegularIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.ComplexProperty<JsonIndexItem>(
+                            "Details", cb =>
+                            {
+                                cb.ToJson("DetailsJson").HasColumnType("nvarchar(max)");
+                                cb.Property(i => i.Value);
+                                cb.Property(i => i.Other);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonRegularIndexEntities").HasIndex("Name", "Details"),
+                model => { }));
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Drop_json_index_over_complex_collection()
+    {
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                        });
+                }),
+            builder => builder.Entity("JsonIndexEntities").HasIndex(["Items[0].Value"], "IX_ItemsValue"),
+            builder => { },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Empty(table.Indexes);
+            });
+
+        AssertSql(
+            """
+DROP INDEX [IX_ItemsValue] ON [JsonIndexEntities];
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Create_json_index_over_multiple_paths_with_different_collection_indices()
+    {
+        // Two paths into the same JSON column but pointing at different array elements ([0] and [1]).
+        await Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
+                {
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items[0].Value", "Items[1].Other"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            });
+
+        AssertSql(
+            """
+CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Value', N'$[1].Other');
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual Task Create_json_index_over_multiple_paths_with_wildcard_and_indexer()
+    {
+        // Mix of "all elements" (Items[].Value) and a specific element (Items[0].Other) in one FOR clause.
+        // SQL Server rejects mixing [*] and [N] in the same JSON index FOR list.
+        return Assert.ThrowsAsync<SqlException>(
+            () => Test(
+                builder => builder.Entity(
+                    "JsonIndexEntities", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.HasKey("Id");
+                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                            "Items", cb =>
+                            {
+                                cb.ToJson("ItemsJson").HasColumnType("json");
+                                cb.Property(i => i.Value);
+                                cb.Property(i => i.Other);
+                            });
+                    }),
+                builder => { },
+                builder => builder.Entity("JsonIndexEntities").HasIndex("Items[].Value", "Items[0].Other"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var index = Assert.Single(table.Indexes);
+                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+                }));
+    }
+
+    #endregion
+
     #region Full-text search
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_index()
     {
         await Test(
@@ -2869,7 +3444,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_index_with_all_options()
     {
         await Test(
@@ -2911,7 +3486,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [English], [Body] L
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_index_with_change_tracking_off()
     {
         await Test(
@@ -2948,7 +3523,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Drop_full_text_index()
     {
         await Test(
@@ -2981,7 +3556,7 @@ DROP FULLTEXT INDEX ON [FullTextEntities];
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_catalog()
     {
         await Test(
@@ -2995,7 +3570,7 @@ CREATE FULLTEXT CATALOG [MyCatalog];
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_catalog_as_default_accent_insensitive()
     {
         await Test(
@@ -3009,7 +3584,7 @@ CREATE FULLTEXT CATALOG [MyCatalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT;
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Drop_full_text_catalog()
     {
         await Test(
@@ -3023,7 +3598,7 @@ DROP FULLTEXT CATALOG [MyCatalog];
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Alter_full_text_catalog_accent_sensitivity()
     {
         await Test(
@@ -3037,7 +3612,7 @@ ALTER FULLTEXT CATALOG [MyCatalog] REBUILD WITH ACCENT_SENSITIVITY = OFF;
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Alter_full_text_catalog_set_as_default()
     {
         await Test(
@@ -3051,7 +3626,7 @@ ALTER FULLTEXT CATALOG [MyCatalog] AS DEFAULT;
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_index_with_change_tracking_off_no_population()
     {
         await Test(
@@ -3089,7 +3664,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Add_column_to_full_text_index()
     {
         await Test(
@@ -3133,7 +3708,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title], [Body]) KEY INDEX [PK_FullT
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Remove_column_from_full_text_index()
     {
         await Test(
@@ -3177,7 +3752,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Change_full_text_index_change_tracking_mode()
     {
         await Test(
@@ -3222,7 +3797,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Change_full_text_index_catalog()
     {
         await Test(
@@ -3266,7 +3841,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Change_full_text_index_language()
     {
         await Test(
@@ -3310,7 +3885,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title] LANGUAGE [French]) KEY INDEX
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Create_full_text_catalog_and_index_together()
     {
         await Test(
@@ -3349,7 +3924,7 @@ CREATE FULLTEXT INDEX ON [FullTextEntities]([Title]) KEY INDEX [PK_FullTextEntit
 """);
     }
 
-    [ConditionalFact, SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFullTextSearchSupported))]
     public virtual async Task Drop_full_text_index_and_catalog_together()
     {
         await Test(
@@ -3402,10 +3977,9 @@ DROP FULLTEXT CATALOG [MyCatalog];
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;
 """,
@@ -3422,10 +3996,9 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]);
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 UPDATE [People] SET [SomeField] = N'' WHERE [SomeField] IS NULL;
 ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;
@@ -3447,7 +4020,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField1], [SomeFie
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_primary_key_nonclustered()
     {
         await Test(
@@ -3468,7 +4041,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeF
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_primary_key_with_fill_factor()
     {
         await Test(
@@ -3489,7 +4062,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]) WITH (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_alternate_key_with_fill_factor()
     {
         await Test(
@@ -3532,10 +4105,9 @@ ALTER TABLE [People] DROP CONSTRAINT [PK_People];
             //
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;
 """);
@@ -3638,7 +4210,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Add_check_constraint_generates_exec_when_idempotent()
     {
         await Test(
@@ -3696,7 +4268,7 @@ CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Create_sequence_byte()
     {
         await Test(
@@ -3713,7 +4285,7 @@ CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Create_sequence_decimal()
     {
         await Test(
@@ -3831,7 +4403,7 @@ ALTER SCHEMA [TestSequenceSchema] TRANSFER [TestSequence];
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Move_sequence_into_default_schema()
     {
         await Test(
@@ -3851,7 +4423,7 @@ EXEC(N'ALTER SCHEMA ' + @defaultSchema + N' TRANSFER [TestSequenceSchema].[TestS
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Create_sequence_and_dependent_column()
     {
         await Test(
@@ -3878,7 +4450,7 @@ ALTER TABLE [People] ADD [SeqProp] int NOT NULL DEFAULT (NEXT VALUE FOR TestSequ
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Drop_sequence_and_dependent_column()
     {
         await Test(
@@ -3894,10 +4466,9 @@ ALTER TABLE [People] ADD [SeqProp] int NOT NULL DEFAULT (NEXT VALUE FOR TestSequ
         AssertSql(
             """
 DECLARE @var nvarchar(max);
-SELECT @var = QUOTENAME([d].[name])
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SeqProp');
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SeqProp';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] DROP COLUMN [SeqProp];
 """,
@@ -3991,7 +4562,7 @@ SELECT @@ROWCOUNT;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task InsertDataOperation_generates_exec_when_idempotent()
     {
         await Test(
@@ -4028,7 +4599,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task DeleteDataOperation_generates_exec_when_idempotent()
     {
         await Test(
@@ -4053,7 +4624,7 @@ SELECT @@ROWCOUNT');
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task UpdateDataOperation_generates_exec_when_idempotent()
     {
         await Test(
@@ -4162,7 +4733,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_to_existing_table()
     {
         await base.Add_required_primitive_collection_to_existing_table();
@@ -4173,7 +4744,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
@@ -4184,7 +4755,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
@@ -4195,7 +4766,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
@@ -4206,7 +4777,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -4217,7 +4788,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numb
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_optional_primitive_collection_to_existing_table()
     {
         await base.Add_optional_primitive_collection_to_existing_table();
@@ -4228,7 +4799,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_required_primitive_collection()
     {
         await base.Create_table_with_required_primitive_collection();
@@ -4244,7 +4815,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_optional_primitive_collection()
     {
         await base.Create_table_with_optional_primitive_collection();
@@ -4260,7 +4831,7 @@ CREATE TABLE [Customers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
     {
         await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
@@ -4303,7 +4874,7 @@ CREATE TABLE [Suppliers] (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
         await base.Add_required_primitve_collection_to_existing_table();
@@ -4314,7 +4885,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
@@ -4325,7 +4896,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
@@ -4336,7 +4907,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
@@ -4347,7 +4918,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -4400,11 +4971,11 @@ WHERE name = '{connection.Database}';";
             => base.AddServices(serviceCollection)
                 .AddScoped<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
 
-        public override async Task InitializeAsync()
+        public override async ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
 
-            if (TestEnvironment.IsVectorTypeSupported)
+            if (SqlServerTestEnvironment.IsVectorTypeSupported)
             {
                 await ((SqlServerTestStore)TestStore).ExecuteNonQueryAsync(
                     "ALTER DATABASE SCOPED CONFIGURATION SET PREVIEW_FEATURES = ON");

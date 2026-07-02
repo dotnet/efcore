@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class InMemoryValueGeneratorSelectorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Returns_built_in_generators_for_types_setup_for_value_generation_using_Try_method()
     {
         var model = BuildModel();
@@ -59,7 +59,7 @@ public class InMemoryValueGeneratorSelectorTest
             selector.TrySelect(entityType.FindProperty("Binary")!, entityType, out generator) ? generator : null);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Can_create_factories_for_all_integer_types(bool useTry)
     {
         var model = BuildModel();
@@ -94,7 +94,7 @@ public class InMemoryValueGeneratorSelectorTest
         return generator!.Next(null!);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Returns_null_for_unsupported_combinations()
     {
         var model = BuildModel();

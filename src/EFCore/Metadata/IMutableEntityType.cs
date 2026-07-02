@@ -575,7 +575,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <param name="property">The property to be indexed.</param>
     /// <returns>The newly created index.</returns>
-    IMutableIndex AddIndex(IMutableProperty property)
+    IMutableIndex AddIndex(IMutablePropertyBase property)
         => AddIndex([property]);
 
     /// <summary>
@@ -583,7 +583,22 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <param name="properties">The properties that are to be indexed.</param>
     /// <returns>The newly created index.</returns>
-    IMutableIndex AddIndex(IReadOnlyList<IMutableProperty> properties);
+    IMutableIndex AddIndex(IReadOnlyList<IMutablePropertyBase> properties)
+        => AddIndex(properties, (IReadOnlyList<IReadOnlyList<int?>?>?)null);
+
+    /// <summary>
+    ///     Adds an unnamed index to this entity type, optionally specifying complex-collection indices
+    ///     that are part of the index identity. See <see cref="IReadOnlyIndex.CollectionIndices" />.
+    /// </summary>
+    /// <param name="properties">The properties that are to be indexed.</param>
+    /// <param name="collectionIndices">
+    ///     The complex-collection indices traversed to reach each indexed property, or <see langword="null" />
+    ///     if the index does not traverse any complex collection.
+    /// </param>
+    /// <returns>The newly created index.</returns>
+    IMutableIndex AddIndex(
+        IReadOnlyList<IMutablePropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices);
 
     /// <summary>
     ///     Adds a named index to this entity type.
@@ -591,7 +606,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to be indexed.</param>
     /// <param name="name">The name of the index.</param>
     /// <returns>The newly created index.</returns>
-    IMutableIndex AddIndex(IMutableProperty property, string name)
+    IMutableIndex AddIndex(IMutablePropertyBase property, string name)
         => AddIndex([property], name);
 
     /// <summary>
@@ -600,14 +615,31 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="properties">The properties that are to be indexed.</param>
     /// <param name="name">The name of the index.</param>
     /// <returns>The newly created index.</returns>
-    IMutableIndex AddIndex(IReadOnlyList<IMutableProperty> properties, string name);
+    IMutableIndex AddIndex(IReadOnlyList<IMutablePropertyBase> properties, string name)
+        => AddIndex(properties, null, name);
+
+    /// <summary>
+    ///     Adds a named index to this entity type, optionally specifying complex-collection indices
+    ///     that are part of the index identity. See <see cref="IReadOnlyIndex.CollectionIndices" />.
+    /// </summary>
+    /// <param name="properties">The properties that are to be indexed.</param>
+    /// <param name="collectionIndices">
+    ///     The complex-collection indices traversed to reach each indexed property, or <see langword="null" />
+    ///     if the index does not traverse any complex collection.
+    /// </param>
+    /// <param name="name">The name of the index.</param>
+    /// <returns>The newly created index.</returns>
+    IMutableIndex AddIndex(
+        IReadOnlyList<IMutablePropertyBase> properties,
+        IReadOnlyList<IReadOnlyList<int?>?>? collectionIndices,
+        string name);
 
     /// <summary>
     ///     Gets the index defined on the given property. Returns <see langword="null" /> if no index is defined.
     /// </summary>
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    new IMutableIndex? FindIndex(IReadOnlyProperty property)
+    new IMutableIndex? FindIndex(IReadOnlyPropertyBase property)
         => FindIndex([property]);
 
     /// <summary>
@@ -618,7 +650,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </remarks>
     /// <param name="properties">The properties to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    new IMutableIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    new IMutableIndex? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
@@ -657,7 +689,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <param name="properties">The properties that make up the index.</param>
     /// <returns>The removed index, or <see langword="null" /> if the index was not found.</returns>
-    IMutableIndex? RemoveIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    IMutableIndex? RemoveIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Removes an index from this entity type.

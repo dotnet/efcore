@@ -82,7 +82,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual KeyBuilder HasKey(Expression<Func<TEntity, object?>> keyExpression)
         => new KeyBuilder<TEntity>(
             Builder.PrimaryKey(
-                Check.NotNull(keyExpression).GetMemberAccessList(),
+                Check.NotNull(keyExpression).GetMemberAccessChainList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -114,7 +114,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual KeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object?>> keyExpression)
         => new(
             Builder.HasKey(
-                Check.NotNull(keyExpression).GetMemberAccessList(),
+                Check.NotNull(keyExpression).GetMemberAccessChainList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -868,13 +868,25 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     ///         If the index is made up of multiple properties then specify an anonymous type including the
     ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
     ///     </para>
+    ///     <para>
+    ///         Properties of complex types are also supported by chaining member accesses (e.g.
+    ///         <c>order => order.ShippingAddress.City</c>). For properties reached through a complex
+    ///         collection, use <c>Select</c> projection over the whole collection
+    ///         (<c>blog => blog.Posts.Select(p => p.Title)</c>) or a constant indexer to target a single
+    ///         element (<c>blog => blog.Posts[0].Title</c>).
+    ///     </para>
     /// </param>
     /// <returns>An object that can be used to configure the index.</returns>
     public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
-        => new(
-            Builder.HasIndex(
-                Check.NotNull(indexExpression).GetMemberAccessList(),
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(indexExpression);
+
+        var (members, isCollection, collectionIndices) = indexExpression.MatchComplexMemberAccessList(nameof(indexExpression));
+        var properties = Builder.GetOrCreateProperties(members, isCollection, ConfigurationSource.Explicit)!;
+
+        return new IndexBuilder<TEntity>(
+            Builder.HasIndex(properties, collectionIndices, name: null, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures an index on the specified properties with the given name.
@@ -890,17 +902,29 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     ///         If the index is made up of multiple properties then specify an anonymous type including the
     ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
     ///     </para>
+    ///     <para>
+    ///         Properties of complex types are also supported by chaining member accesses (e.g.
+    ///         <c>order => order.ShippingAddress.City</c>). For properties reached through a complex
+    ///         collection, use <c>Select</c> projection over the whole collection
+    ///         (<c>blog => blog.Posts.Select(p => p.Title)</c>) or a constant indexer to target a single
+    ///         element (<c>blog => blog.Posts[0].Title</c>).
+    ///     </para>
     /// </param>
     /// <param name="name">The name to assign to the index.</param>
     /// <returns>An object that can be used to configure the index.</returns>
     public virtual IndexBuilder<TEntity> HasIndex(
         Expression<Func<TEntity, object?>> indexExpression,
         string name)
-        => new(
-            Builder.HasIndex(
-                Check.NotNull(indexExpression).GetMemberAccessList(),
-                name,
-                ConfigurationSource.Explicit)!.Metadata);
+    {
+        Check.NotNull(indexExpression);
+        Check.NotEmpty(name);
+
+        var (members, isCollection, collectionIndices) = indexExpression.MatchComplexMemberAccessList(nameof(indexExpression));
+        var properties = Builder.GetOrCreateProperties(members, isCollection, ConfigurationSource.Explicit)!;
+
+        return new IndexBuilder<TEntity>(
+            Builder.HasIndex(properties, collectionIndices, name, ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Configures an unnamed index on the specified properties.

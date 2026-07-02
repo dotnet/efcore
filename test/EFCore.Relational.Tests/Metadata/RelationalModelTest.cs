@@ -4,7 +4,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using NameSpace1;
 
 // ReSharper disable InconsistentNaming
@@ -12,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalModelTest
     {
-        [ConditionalFact]
+        [Fact]
         public void GetRelationalModel_throws_if_convention_has_not_run()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Throws<InvalidOperationException>(() => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
-        [ConditionalTheory]
+        [Theory]
         [InlineData(DeleteBehavior.Cascade, ReferentialAction.Cascade)]
         [InlineData(DeleteBehavior.SetNull, ReferentialAction.SetNull)]
         [InlineData(DeleteBehavior.SetDefault, ReferentialAction.SetDefault)]
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Both_design_and_runtime_RelationalModels_are_built_for_external_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(((Table)runtimeRelationalModel.Tables.Single()).CheckConstraints);
         }
 
-        [ConditionalTheory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
+        [Theory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
          InlineData(false, Mapping.TPH), InlineData(false, Mapping.TPT), InlineData(false, Mapping.TPC)]
         public void Can_use_relational_model_with_tables(bool useExplicitMapping, Mapping mapping)
         {
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertTables(model, mapping);
         }
 
-        [ConditionalTheory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
+        [Theory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: false, mapToViews: true, mapping: mapping);
@@ -105,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertViews(model, mapping);
         }
 
-        [ConditionalTheory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
+        [Theory, InlineData(true, Mapping.TPH), InlineData(true, Mapping.TPT), InlineData(true, Mapping.TPC),
          InlineData(false, Mapping.TPH), InlineData(false, Mapping.TPT), InlineData(false, Mapping.TPC)]
         public void Can_use_relational_model_with_sprocs(bool mapToTables, Mapping mapping)
         {
@@ -136,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping, mappedToTables: true);
         }
 
-        [ConditionalTheory(Skip = "#28703"), InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
+        [Theory(Skip = "#28703"), InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_sprocs_and_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToViews: true, mapToSprocs: true, mapping: mapping);
@@ -164,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             AssertSprocs(model, mapping);
         }
 
-        [ConditionalTheory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
+        [Theory, InlineData(Mapping.TPH), InlineData(Mapping.TPT), InlineData(Mapping.TPC)]
         public void Can_use_relational_model_with_tables_and_views(Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: true, mapToViews: true, mapping: mapping);
@@ -325,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var orderType = model.Model.FindEntityType(typeof(Order))!;
             var orderMapping = orderType.GetViewMappings().Single();
-            Assert.Equal(orderType.GetViewMappings(), orderType.GetViewOrTableMappings());
+            Assert.Equal(orderType.GetViewMappings(), orderType.GetQueryMappings());
             Assert.Null(orderMapping.IncludesDerivedTypes);
             Assert.Equal(
                 [nameof(Order.Id), nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate)],
@@ -2414,7 +2413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return Finalize(modelBuilder);
         }
 
-        [ConditionalTheory, InlineData(true), InlineData(false)]
+        [Theory, InlineData(true), InlineData(false)]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_both_fragments(bool mapToViews)
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2603,7 +2602,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_main_fragments()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2723,7 +2722,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(specialtyFk.IsRequiredDependent);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_entity_splitting_and_table_splitting_on_leaf_and_main_fragments()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2856,7 +2855,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(detailsType, detailsFk.DeclaringEntityType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_keyless_TPH()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2902,7 +2901,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(specialtyColumn.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_tables_in_different_schemas()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -2926,7 +2925,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(3, orderDetailsTable.ReferencingForeignKeyConstraints.Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_SQL_queries()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3000,7 +2999,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private static IQueryable<Order> GetOrdersForCustomer(string name)
             => throw new NotImplementedException();
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_property_container_column_type_is_used_in_relational_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3028,7 +3027,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_collection_container_column_type_is_used_in_relational_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3056,7 +3055,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_property_gets_default_container_column_type_when_not_set_explicitly()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3083,7 +3082,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_collection_gets_default_container_column_type_when_not_set_explicitly()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3110,7 +3109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("some_json_mapping", column.StoreType);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_functions()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3229,7 +3228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(tvfDbFunction2.Parameters.Single().Name, tvfFunction2.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Default_mappings_does_not_share_tableBase()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3256,7 +3255,67 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
+        public void GetQueryMappings_returns_in_priority_order_sql_query_function_view_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<Order>(cb =>
+            {
+                cb.Ignore(c => c.Customer);
+                cb.Ignore(c => c.Details);
+                cb.Ignore(c => c.DateDetails);
+                cb.Ignore(c => c.Addresses);
+                cb.HasNoKey();
+            });
+
+            var sqlQueryOnly = (IEntityType)modelBuilder.Model.AddEntityType(typeof(NameSpace1.SameEntityType));
+            modelBuilder.Entity(sqlQueryOnly.ClrType).HasNoKey().ToSqlQuery("SELECT 1 AS Id");
+
+            // Table + view: view wins (table mappings are not returned).
+            var viewAndTable = modelBuilder.Entity<NameSpace2.SameEntityType>(b => b.HasNoKey().ToView("V").ToTable("T"));
+
+            // Function + view + table: function wins.
+            modelBuilder.Ignore<Tag>();
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.Ignore(c => c.Orders);
+                b.HasNoKey();
+                b.ToFunction("GetCustomers");
+                b.ToView("CustomersView");
+                b.ToTable("Customers");
+            });
+
+            // Table-only.
+            modelBuilder.Entity<Order>(b => b.ToTable("Orders"));
+
+            var model = Finalize(modelBuilder);
+
+            // Table-only -> table mappings.
+            var orderType = model.Model.FindEntityType(typeof(Order));
+            var orderMappings = orderType.GetQueryMappings().ToList();
+            Assert.Single(orderMappings);
+            Assert.IsAssignableFrom<ITableMapping>(orderMappings[0]);
+
+            // SqlQuery-only -> SQL query mappings.
+            var sqlQueryEntity = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var sqlQueryMappings = sqlQueryEntity.GetQueryMappings().ToList();
+            Assert.Single(sqlQueryMappings);
+            Assert.IsAssignableFrom<ISqlQueryMapping>(sqlQueryMappings[0]);
+
+            // Table + view -> view mappings win (lower-priority table mappings are not returned).
+            var viewAndTableEntity = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
+            var viewAndTableMappings = viewAndTableEntity.GetQueryMappings().ToList();
+            Assert.Single(viewAndTableMappings);
+            Assert.IsAssignableFrom<IViewMapping>(viewAndTableMappings[0]);
+
+            // Function + view + table -> function mappings win (lower-priority view/table mappings are not returned).
+            var customerType = model.Model.FindEntityType(typeof(Customer));
+            var customerMappings = customerType.GetQueryMappings().ToList();
+            Assert.Single(customerMappings);
+            Assert.IsAssignableFrom<IFunctionMapping>(customerMappings[0]);
+        }
+
+        [Fact]
         public void Container_column_type_is_used_for_complex_property_json_column()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3279,7 +3338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Container_column_type_is_used_for_complex_collection_json_column()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3302,7 +3361,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Complex_property_json_column_is_nullable_in_TPH_hierarchy()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3322,7 +3381,184 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsType<JsonColumn>(jsonColumn);
         }
 
-        [ConditionalFact]
+        [Fact]
+        public void Complex_property_json_column_is_not_duplicated_in_TPT_child_tables()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty, b => b.ToJson());
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseEntityWithComplexProperty));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedEntityWithoutComplexProperty));
+
+            // The JSON column for the base complex property must appear only in the base table
+            Assert.Contains(baseTable.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [Fact]
+        public void Complex_property_columns_are_not_duplicated_in_TPT_child_tables()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty);
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseEntityWithComplexProperty));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedEntityWithoutComplexProperty));
+
+            // Non-JSON complex property columns appear only on the base table.
+            var valueColumnName = nameof(TptBaseEntityWithComplexProperty.ComplexProperty) + "_" + nameof(ComplexData.Value);
+            var numberColumnName = nameof(TptBaseEntityWithComplexProperty.ComplexProperty) + "_" + nameof(ComplexData.Number);
+            Assert.Contains(baseTable.Columns, c => c.Name == valueColumnName);
+            Assert.Contains(baseTable.Columns, c => c.Name == numberColumnName);
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == valueColumnName);
+            Assert.DoesNotContain(childTable.Columns, c => c.Name == numberColumnName);
+        }
+
+        [Fact]
+        public void Complex_property_json_column_is_created_in_every_TPC_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TpcBaseEntityWithComplexProperty>(b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            });
+            modelBuilder.Entity<TpcDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TpcBaseEntityWithComplexProperty));
+            var derivedTable = relationalModel.Tables.Single(t => t.Name == nameof(TpcDerivedEntityWithoutComplexProperty));
+
+            // In TPC the JSON container column appears on every concrete table.
+            Assert.Contains(baseTable.Columns, c => c.Name == nameof(TpcBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.Contains(derivedTable.Columns, c => c.Name == nameof(TpcBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [Fact]
+        public void GetContainerColumnName_with_StoreObjectIdentifier_resolves_per_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>()
+                .UseTptMappingStrategy()
+                .ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var baseEntity = model.FindEntityType(typeof(TptBaseEntityWithComplexProperty))!;
+            var complexProperty = baseEntity.FindComplexProperty(nameof(TptBaseEntityWithComplexProperty.ComplexProperty))!;
+            var complexType = complexProperty.ComplexType;
+
+            var baseTable = StoreObjectIdentifier.Table(nameof(TptBaseEntityWithComplexProperty));
+            var childTable = StoreObjectIdentifier.Table(nameof(TptDerivedEntityWithoutComplexProperty));
+            var unrelatedTable = StoreObjectIdentifier.Table("SomeOtherTable");
+
+            Assert.Equal(nameof(TptBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(baseTable));
+            Assert.Null(complexType.GetContainerColumnName(childTable));
+            Assert.Null(complexType.GetContainerColumnName(unrelatedTable));
+        }
+
+        [Fact]
+        public void GetContainerColumnName_with_StoreObjectIdentifier_returns_column_for_every_TPC_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TpcBaseEntityWithComplexProperty>(b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            });
+            modelBuilder.Entity<TpcDerivedEntityWithoutComplexProperty>();
+
+            var model = modelBuilder.FinalizeModel();
+            var baseEntity = model.FindEntityType(typeof(TpcBaseEntityWithComplexProperty))!;
+            var complexProperty = baseEntity.FindComplexProperty(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty))!;
+            var complexType = complexProperty.ComplexType;
+
+            var baseTable = StoreObjectIdentifier.Table(nameof(TpcBaseEntityWithComplexProperty));
+            var derivedTable = StoreObjectIdentifier.Table(nameof(TpcDerivedEntityWithoutComplexProperty));
+            var unrelatedTable = StoreObjectIdentifier.Table("SomeOtherTable");
+
+            Assert.Equal(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(baseTable));
+            Assert.Equal(nameof(TpcBaseEntityWithComplexProperty.ComplexProperty), complexType.GetContainerColumnName(derivedTable));
+            Assert.Null(complexType.GetContainerColumnName(unrelatedTable));
+        }
+
+        [Fact]
+        public void Complex_type_with_PK_property_creates_column_mapping_in_TPT_child_table()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseWithComplexTypePK>(b =>
+            {
+                b.UseTptMappingStrategy();
+                b.ComplexProperty(e => e.Key);
+                b.HasKey(e => e.Key.Id);
+                b.Property(e => e.Key.Id).ValueGeneratedNever();
+            });
+            modelBuilder.Entity<TptDerivedWithComplexTypePK>();
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseTable = relationalModel.Tables.Single(t => t.Name == nameof(TptBaseWithComplexTypePK));
+            var childTable = relationalModel.Tables.Single(t => t.Name == nameof(TptDerivedWithComplexTypePK));
+
+            // The PK column for the complex-typed key must appear in both the base table and the child table.
+            Assert.Contains(baseTable.Columns, c => c.Name == "Key_Id");
+            Assert.Contains(childTable.Columns, c => c.Name == "Key_Id");
+
+            // Non-key properties of the derived entity stay on the child table.
+            Assert.Contains(childTable.Columns, c => c.Name == nameof(TptDerivedWithComplexTypePK.Extra));
+            Assert.DoesNotContain(baseTable.Columns, c => c.Name == nameof(TptDerivedWithComplexTypePK.Extra));
+        }
+
+        [Fact]
+        public void Complex_property_json_column_is_not_duplicated_in_TPT_child_views()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Entity<TptBaseEntityWithComplexProperty>(b =>
+            {
+                b.UseTptMappingStrategy();
+                b.ToTable(nameof(TptBaseEntityWithComplexProperty));
+                b.ToView(nameof(TptBaseEntityWithComplexProperty) + "View");
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+            });
+            modelBuilder.Entity<TptDerivedEntityWithoutComplexProperty>(b =>
+            {
+                b.ToTable(nameof(TptDerivedEntityWithoutComplexProperty));
+                b.ToView(nameof(TptDerivedEntityWithoutComplexProperty) + "View");
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var relationalModel = model.GetRelationalModel();
+
+            var baseView = relationalModel.Views.Single(v => v.Name == nameof(TptBaseEntityWithComplexProperty) + "View");
+            var childView = relationalModel.Views.Single(v => v.Name == nameof(TptDerivedEntityWithoutComplexProperty) + "View");
+
+            // The JSON column for the base complex property must appear only in the base view.
+            Assert.Contains(baseView.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+            Assert.DoesNotContain(childView.Columns, c => c.Name == nameof(TptBaseEntityWithComplexProperty.ComplexProperty));
+        }
+
+        [Fact]
         public void Json_element_tree_is_built_for_owned_entity_json_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3333,10 +3569,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.ComplexProperty);
                 cb.Ignore(c => c.Details);
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                 cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
                 cb.OwnsMany(c => c.Addresses, o => o.ToJson("addresses"));
-#pragma warning restore EF8001
             });
 
             var model = Finalize(modelBuilder);
@@ -3430,7 +3664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.All(datePropertyMappings, m => Assert.Equal("Date", m.Element.PropertyName));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_merged_for_existing_json_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3461,7 +3695,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.All(numberMappings, m => Assert.Equal("Number", m.Element.PropertyName));
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_built_for_complex_property_json_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3525,14 +3759,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same((RelationalTypeMapping)valueProperty.GetTypeMapping(), valueMappings[0].Element.StoreTypeMapping);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Json_element_tree_is_built_for_primitive_collection_columns()
         {
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.Entity<EntityWithJsonOwnedWithCollection>(eb =>
             {
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                 eb.OwnsOne(
                     e => e.OwnedWithTags,
                     b =>
@@ -3542,17 +3775,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         var tags = b.PrimitiveCollection(e => e.Tags);
                         tags.Metadata.SetTypeMapping(
                             (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
-                                clrType: typeof(List<string>),
+                                converter: new ValueConverter<List<string>, string>(v => null!, v => null!),
                                 elementMapping: new StringTypeMapping("nvarchar(max)", null)));
 
                         var enumValues = b.PrimitiveCollection(e => e.EnumValues);
                         enumValues.Metadata.SetTypeMapping(
                             (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
-                                clrType: typeof(List<PrimitiveCollectionEnum>),
+                                converter: new ValueConverter<List<PrimitiveCollectionEnum>, string>(v => null!, v => null!),
                                 elementMapping: new IntTypeMapping("int")));
                         enumValues.ElementType(b => b.HasConversion<int>());
                     });
-#pragma warning restore EF8001
             });
 
             var model = Finalize(modelBuilder);
@@ -3603,7 +3835,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Can_use_relational_model_with_functions_and_json_owned_types()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -3614,10 +3846,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.Details);
                 cb.Ignore(c => c.ComplexProperty);
 
-#pragma warning disable EF8001 // Owned JSON entities are obsolete
                 cb.OwnsOne(c => c.DateDetails, o => o.ToJson("date_details"));
                 cb.OwnsMany(c => c.Addresses, o => o.ToJson("addresses"));
-#pragma warning restore EF8001
             });
 
             modelBuilder.HasDbFunction(
@@ -3639,6 +3869,157 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(storeFunction.FindColumn("addresses"));
         }
 
+        [Fact]
+        public void Alternate_key_on_complex_property_is_mapped_to_unique_constraint()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.HasAlternateKey("ComplexProperty.Value");
+            });
+
+            var model = Finalize(modelBuilder);
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var table = orderType.GetTableMappings().Single().Table;
+            var expectedColumnName = nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value);
+
+            var alternateKey = orderType.GetKeys().Single(k => !k.IsPrimaryKey());
+            var uniqueConstraints = (SortedSet<Microsoft.EntityFrameworkCore.Metadata.Internal.UniqueConstraint>)alternateKey
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.UniqueConstraintMappings)!;
+            var uniqueConstraint = Assert.Single(uniqueConstraints);
+            var column = Assert.Single(uniqueConstraint.Columns);
+            Assert.Equal(expectedColumnName, column.Name);
+            Assert.Same(table, column.Table);
+        }
+
+        [Fact]
+        public void Index_on_complex_property_is_mapped_to_table_index()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.HasIndex("ComplexProperty.Number").IsUnique();
+            });
+
+            var model = Finalize(modelBuilder);
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var table = orderType.GetTableMappings().Single().Table;
+            var expectedColumnName = nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number);
+
+            var index = orderType.GetIndexes().Single();
+            var tableIndexes = (SortedSet<TableIndex>)index
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var tableIndex = Assert.Single(tableIndexes);
+            Assert.True(tableIndex.IsUnique);
+            var column = Assert.Single(tableIndex.Columns);
+            Assert.Equal(expectedColumnName, column.Name);
+            Assert.Same(table, column.Table);
+        }
+
+        [Fact]
+        public void GetIndex_resolves_index_on_json_mapped_complex_property()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Address>();
+            modelBuilder.Entity<Order>(b =>
+            {
+                b.ComplexProperty(e => e.ComplexProperty, cb => cb.ToJson());
+                b.HasIndex(e => e.ComplexProperty);
+            });
+
+            var model = Finalize(modelBuilder);
+            var orderType = model.Model.FindEntityType(typeof(Order))!;
+            var index = orderType.GetIndexes().Single();
+            var complexProperty = orderType.FindComplexProperty(nameof(Order.ComplexProperty))!;
+
+            Assert.Same(complexProperty, Assert.Single(index.Properties));
+
+            var table = orderType.GetTableMappings().Single().Table;
+            var jsonColumn = table.FindColumn(complexProperty)!;
+            var tableIndexes = (SortedSet<TableIndex>)index
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var tableIndex = Assert.Single(tableIndexes);
+            Assert.Same(index, tableIndex.MappedIndexes.Single());
+            var jsonIndex = Assert.IsType<RelationalJsonIndex>(tableIndex[RelationalAnnotationNames.JsonIndex]);
+            var element = Assert.Single(jsonIndex.Elements);
+            Assert.Same(jsonColumn, element.ContainingColumn);
+            Assert.Null(element.PropertyName);
+            Assert.Empty(element.Path);
+            Assert.Null(jsonIndex.CollectionIndices);
+
+            // Simulates the lookup performed by compiled-model code generation, which uses property paths.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var resolved = Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalModel.GetIndex(
+                model.Model, orderType.Name, [nameof(Order.ComplexProperty)]);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            Assert.Same(index, resolved);
+        }
+
+        [Fact]
+        public void Json_index_paths_traverse_nested_complex_properties()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<EntityWithNestedComplexProperty>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.ComplexProperty, cb =>
+                    {
+                        cb.ToJson();
+                        cb.ComplexProperty(c => c.Nested, nb =>
+                        {
+                            nb.HasJsonPropertyName("nested_json");
+                            nb.Property(n => n.Number).HasJsonPropertyName("number_json");
+                        });
+                    });
+                b.HasIndex("ComplexProperty.Nested.Number");
+                b.HasIndex("ComplexProperty.Nested");
+            });
+
+            var model = Finalize(modelBuilder);
+            var entityType = model.Model.FindEntityType(typeof(EntityWithNestedComplexProperty))!;
+            var table = entityType.GetTableMappings().Single().Table;
+            var complexProperty = entityType.FindComplexProperty(nameof(EntityWithNestedComplexProperty.ComplexProperty))!;
+            var jsonColumn = table.FindColumn(complexProperty)!;
+
+            var scalarIndex = entityType.GetIndexes().Single(i => i.Properties is [IProperty]);
+            var scalarTableIndexes = (SortedSet<TableIndex>)scalarIndex
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var scalarTableIndex = Assert.Single(scalarTableIndexes);
+            var scalarJsonIndex = Assert.IsType<RelationalJsonIndex>(scalarTableIndex[RelationalAnnotationNames.JsonIndex]);
+            var scalarElement = Assert.Single(scalarJsonIndex.Elements);
+            Assert.Same(jsonColumn, scalarElement.ContainingColumn);
+            Assert.Equal("number_json", scalarElement.PropertyName);
+            Assert.Equal(
+                ["nested_json", "number_json"],
+                scalarElement.Path.Select(s => s.PropertyName));
+            Assert.All(scalarElement.Path, s => Assert.False(s.IsArray));
+            Assert.Null(scalarJsonIndex.CollectionIndices);
+
+            var nestedComplexIndex = entityType.GetIndexes().Single(i => i.Properties is [IComplexProperty]);
+            var nestedTableIndexes = (SortedSet<TableIndex>)nestedComplexIndex
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)!;
+            var nestedTableIndex = Assert.Single(nestedTableIndexes);
+            var nestedJsonIndex = Assert.IsType<RelationalJsonIndex>(nestedTableIndex[RelationalAnnotationNames.JsonIndex]);
+            var nestedElement = Assert.Single(nestedJsonIndex.Elements);
+            Assert.Same(jsonColumn, nestedElement.ContainingColumn);
+            Assert.Equal("nested_json", nestedElement.PropertyName);
+            Assert.Equal(
+                ["nested_json"],
+                nestedElement.Path.Select(s => s.PropertyName));
+            Assert.Null(nestedJsonIndex.CollectionIndices);
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -3647,7 +4028,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 configureContext: b =>
                     b.ConfigureWarnings(w => w.Default(WarningBehavior.Throw)
                         .Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning)
-                        .Ignore(RelationalEventId.AllIndexPropertiesNotMappedToAnyTable)));
+                        .Ignore(RelationalEventId.AllIndexPropertiesNotMappedToAnyTable)
+                        .Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning)));
 
         public static void AssertEqual(IRelationalModel expectedModel, IRelationalModel actualModel)
             => RelationalModelAsserter.Instance.AssertEqual(expectedModel, actualModel);
@@ -3782,6 +4164,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private class TphEntityWithComplexProperty : TphBaseEntity
         {
             public ComplexData ComplexProperty { get; set; }
+        }
+
+        private abstract class TptBaseEntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class TptDerivedEntityWithoutComplexProperty : TptBaseEntityWithComplexProperty;
+
+        private class TpcBaseEntityWithComplexProperty
+        {
+            public int Id { get; set; }
+            public ComplexData ComplexProperty { get; set; }
+        }
+
+        private class TpcDerivedEntityWithoutComplexProperty : TpcBaseEntityWithComplexProperty;
+
+        private abstract class TptBaseWithComplexTypePK
+        {
+            public TptComplexKey Key { get; set; } = null!;
+        }
+
+        private class TptComplexKey
+        {
+            public int Id { get; set; }
+        }
+
+        private class TptDerivedWithComplexTypePK : TptBaseWithComplexTypePK
+        {
+            public int Extra { get; set; }
         }
 
         private class EntityWithJsonOwnedWithCollection

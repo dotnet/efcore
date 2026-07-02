@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class PropertyValuesTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_safely_get_originalvalue_and_currentvalue_with_TryGetValue()
     {
         var stateManager = CreateStateManager(mb => mb.Entity<SimpleEntity>());
@@ -36,7 +36,7 @@ public class PropertyValuesTest
         Assert.Equal(NewNameValue, currentName);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TryGetValue_should_not_throw_error_when_property_does_not_exist()
     {
         var stateManager = CreateStateManager(mb => mb.Entity<SimpleEntity>());
@@ -69,7 +69,7 @@ public class PropertyValuesTest
         PropertyValues
     }
 
-    [ConditionalTheory]
+    [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property(bool? useOriginalValues, SetValues? useSetValues)
     {
@@ -81,7 +81,7 @@ public class PropertyValuesTest
         Assert.Null(result.Error);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_all_nested_complex_properties_populated(bool? useOriginalValues, SetValues? useSetValues)
     {
@@ -117,7 +117,7 @@ public class PropertyValuesTest
         Assert.Equal("502", result.Error.InnerError.InnerError!.Code);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_nested_complex_property(bool? useOriginalValues, SetValues? useSetValues)
     {
@@ -140,7 +140,7 @@ public class PropertyValuesTest
         Assert.Null(result.Error.InnerError);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_complex_collection_containing_nested_nullable_complex_properties(
         bool? useOriginalValues,
@@ -197,7 +197,54 @@ public class PropertyValuesTest
         Assert.Equal("505", result.Errors[2].InnerError!.InnerError!.Code);
     }
 
-    [ConditionalTheory]
+    [Fact]
+    public void OriginalValues_ToObject_with_complex_collection_for_added_entity()
+    {
+        var job = new Job
+        {
+            Id = 1,
+            Name = "Added Job",
+            Errors =
+            [
+                new RootJobError
+                {
+                    Code = "500",
+                    Message = "Server Error",
+                    InnerErrors =
+                    [
+                        new JobError { Code = "501", Message = "Not Implemented" }
+                    ]
+                }
+            ]
+        };
+
+        var stateManager = CreateStateManager(BuildJobModel);
+        var internalEntry = stateManager.GetOrCreateEntry(job);
+        internalEntry.SetEntityState(EntityState.Added);
+        var entry = new EntityEntry<Job>(internalEntry);
+
+        var result = (Job)entry.OriginalValues.ToObject();
+
+        Assert.NotSame(job, result);
+        Assert.Equal("Added Job", result.Name);
+        Assert.Single(result.Errors);
+
+        var error = result.Errors[0];
+        Assert.NotSame(job.Errors[0], error);
+        Assert.Equal("500", error.Code);
+        Assert.Equal("Server Error", error.Message);
+        Assert.Single(error.InnerErrors);
+        Assert.NotSame(job.Errors[0].InnerErrors[0], error.InnerErrors[0]);
+        Assert.Equal("501", error.InnerErrors[0].Code);
+
+        error.Code = "Changed";
+        error.InnerErrors[0].Code = "Changed";
+
+        Assert.Equal("500", job.Errors[0].Code);
+        Assert.Equal("501", job.Errors[0].InnerErrors[0].Code);
+    }
+
+    [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property_in_complex_collection_in_complex_collection(
         bool? useOriginalValues,
@@ -248,7 +295,7 @@ public class PropertyValuesTest
         Assert.Equal("403", error.InnerErrors[1].InnerError!.Code);
     }
 
-    [ConditionalTheory]
+    [Theory]
     [ClassData(typeof(DataGenerator<bool?, SetValues?>))]
     public void ToObject_with_null_complex_property_in_complex_collection_element_in_complex_property(
         bool? useOriginalValues,
@@ -307,7 +354,7 @@ public class PropertyValuesTest
         Assert.Equal("503", result.Error.InnerErrors[1].InnerError!.Code);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detailed_errors_for_complex_collection_not_initialized()
     {
         var job = new Job
@@ -341,7 +388,7 @@ public class PropertyValuesTest
                 () => codeProperty.GetGetter().GetClrValueUsingContainingEntity(job, new[] { 0 })).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Detailed_errors_for_complex_collection_ordinal_out_of_range()
     {
         var job = new Job

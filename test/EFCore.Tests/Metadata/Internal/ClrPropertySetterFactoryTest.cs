@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertySetterFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Property_is_returned_if_it_implements_IClrPropertySetter()
     {
         var property = new FakeProperty();
@@ -136,7 +136,7 @@ public class ClrPropertySetterFactoryTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_is_returned_for_IProperty_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -149,7 +149,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(77, customer.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_is_returned_for_property_type_and_name()
     {
         var customer = new Customer { Id = 7 };
@@ -159,7 +159,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(77, customer.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_value_type_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -172,7 +172,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(1, customer.Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_reference_type_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -185,7 +185,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal("MyString", customer.Content);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_nullable_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -198,7 +198,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(3, customer.OptionalInt);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_nullable_property_with_null_value()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -211,7 +211,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Null(customer.OptionalInt);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_enum_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -224,7 +224,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(Flag.One, customer.Flag);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_nullable_enum_property()
     {
         var entityType = CreateModel().AddEntityType(typeof(Customer));
@@ -237,7 +237,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(Flag.Two, customer.OptionalFlag);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_on_virtual_privatesetter_property_override_singlebasetype()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
@@ -249,7 +249,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(100, entity.VirtualPrivateProperty_Override);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_on_virtual_privatesetter_property_override_multiplebasetypes()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
@@ -261,7 +261,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(100, entity.VirtualPrivateProperty_Override);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_on_virtual_privatesetter_property_no_override_singlebasetype()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
@@ -273,7 +273,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(100, entity.VirtualPrivateProperty_NoOverride);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_on_virtual_privatesetter_property_no_override_multiplebasetypes()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
@@ -285,7 +285,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(100, entity.VirtualPrivateProperty_NoOverride);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_on_privatesetter_property_singlebasetype()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
@@ -296,7 +296,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(100, entity.PrivateProperty);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_on_privatesetter_property_multiplebasetypes()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
@@ -307,7 +307,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Equal(100, entity.PrivateProperty);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_throws_if_no_setter_found()
     {
         var entityType = CreateModel().AddEntityType(typeof(ConcreteEntity1));
@@ -321,7 +321,7 @@ public class ClrPropertySetterFactoryTest
         Assert.Throws<InvalidOperationException>(() => ClrPropertySetterFactory.Instance.Create((IProperty)property));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Delegate_setter_can_set_index_properties()
     {
         var entityType = CreateModel().AddEntityType(typeof(IndexedClass));

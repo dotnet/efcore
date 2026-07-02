@@ -149,6 +149,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         out JsonValueReaderWriter? collectionReaderWriter)
     {
         if ((providerClrType == null || providerClrType == typeof(string))
+            && modelClrType != typeof(string)
             && modelClrType.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
             && elementType != modelClrType
             && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())

@@ -200,6 +200,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType, property);
 
         /// <summary>
+        ///     Full-text index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on full-text indexes.
+        /// </summary>
+        public static string FullTextIndexUnsupportedOption(object? index, object? entityType, object? option)
+            => string.Format(
+                GetString("FullTextIndexUnsupportedOption", nameof(index), nameof(entityType), nameof(option)),
+                index, entityType, option);
+
+        /// <summary>
         ///     Multiple full-text catalogs are marked as default. Only one full-text catalog can be the default.
         /// </summary>
         public static string FullTextMultipleDefaultCatalogs
@@ -238,6 +246,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, index, entityType);
 
         /// <summary>
+        ///     The include property '{property}' specified on the index {index} on entity type '{entityType}' is contained within a JSON-mapped type. Properties contained within JSON-mapped types cannot be included in an index.
+        /// </summary>
+        public static string IncludePropertyInJsonMappedType(object? property, object? index, object? entityType)
+            => string.Format(
+                GetString("IncludePropertyInJsonMappedType", nameof(property), nameof(index), nameof(entityType)),
+                property, index, entityType);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.
         /// </summary>
         public static string IncompatibleSqlOutputClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlOutputClause, object? entityTypeWithoutSqlOutputClause)
@@ -268,18 +284,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 collation);
 
         /// <summary>
+        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
+        /// </summary>
+        public static string InvalidColumnNameForFreeText
+            => GetString("InvalidColumnNameForFreeText");
+
+        /// <summary>
         ///     The datepart '{datepart}' is invalid for the {function} function; datepart values may only contain letters and underscores.
         /// </summary>
         public static string InvalidDatePart(object? datepart, object? function)
             => string.Format(
                 GetString("InvalidDatePart", nameof(datepart), nameof(function)),
                 datepart, function);
-
-        /// <summary>
-        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
-        /// </summary>
-        public static string InvalidColumnNameForFreeText
-            => GetString("InvalidColumnNameForFreeText");
 
         /// <summary>
         ///     Engine type was not configured. Use one of {methods} to configure it.
@@ -478,18 +494,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType);
 
         /// <summary>
-        ///     SQL Server time zone offsets must be specified in whole minutes. The provided TimeSpan value contains sub-minute precision (seconds, milliseconds, or smaller), which is not supported.
-        /// </summary>
-        public static string TimeSpanOffsetPrecisionNotSupported
-            => GetString("TimeSpanOffsetPrecisionNotSupported");
-
-        /// <summary>
         ///     The provided time zone offset '{offset}' is outside the valid range for SQL Server. Time zone offsets must be between -14:00 and +14:00.
         /// </summary>
         public static string TimeSpanOffsetOutOfRange(object? offset)
             => string.Format(
                 GetString("TimeSpanOffsetOutOfRange", nameof(offset)),
                 offset);
+
+        /// <summary>
+        ///     SQL Server time zone offsets must be specified in whole minutes. The provided TimeSpan value contains sub-minute precision (seconds, milliseconds, or smaller), which is not supported.
+        /// </summary>
+        public static string TimeSpanOffsetPrecisionNotSupported
+            => GetString("TimeSpanOffsetPrecisionNotSupported");
 
         /// <summary>
         ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
@@ -544,6 +560,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index, entityType);
 
         /// <summary>
+        ///     Vector index '{index}' on entity type '{entityType}' was configured with the '{option}' option, which is not supported on vector indexes.
+        /// </summary>
+        public static string VectorIndexUnsupportedOption(object? index, object? entityType, object? option)
+            => string.Format(
+                GetString("VectorIndexUnsupportedOption", nameof(index), nameof(entityType), nameof(option)),
+                index, entityType, option);
+
+        /// <summary>
         ///     Vector property '{propertyName}' is on '{structuralType}' which is mapped to JSON. Vector properties are not supported within JSON documents.
         /// </summary>
         public static string VectorPropertiesNotSupportedInJson(object? propertyName, object? structuralType)
@@ -558,16 +582,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("VectorSearchRequiresColumn");
 
         /// <summary>
-        ///     WithApproximate() must be called after Take() to specify the number of results.
-        /// </summary>
-        public static string WithApproximateRequiresTake
-            => GetString("WithApproximateRequiresTake");
-
-        /// <summary>
         ///     WithApproximate() after Skip().Take() is not supported. Use Take().WithApproximate().Skip() instead, or remove Skip().
         /// </summary>
         public static string WithApproximateNotSupportedWithSkipAndTake
             => GetString("WithApproximateNotSupportedWithSkipAndTake");
+
+        /// <summary>
+        ///     WithApproximate() must be called after Take() to specify the number of results.
+        /// </summary>
+        public static string WithApproximateRequiresTake
+            => GetString("WithApproximateRequiresTake");
 
         private static string GetString(string name, params string[] formatterNames)
         {
@@ -1190,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateWarning))'.
+        ///     The query uses 'VectorSearch' on property '{property}' of entity type '{entityType}', but 'WithApproximate()' was not specified. The query will perform an exact brute-force search instead of using a vector index. Call 'WithApproximate()' after 'Take()' to use the vector index for better performance. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.VectorSearchWithoutApproximateIndexWarning))'.
         /// </summary>
         public static EventDefinition<string, string> LogVectorSearchWithoutApproximate(IDiagnosticsLogger logger)
         {
@@ -1202,12 +1226,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     logger,
                     static logger => new EventDefinition<string, string>(
                         logger.Options,
-                        SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                        SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
                         LogLevel.Warning,
-                        "SqlServerEventId.VectorSearchWithoutApproximateWarning",
+                        "SqlServerEventId.VectorSearchWithoutApproximateIndexWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            SqlServerEventId.VectorSearchWithoutApproximateWarning,
+                            SqlServerEventId.VectorSearchWithoutApproximateIndexWarning,
                             _resourceManager.GetString("LogVectorSearchWithoutApproximate")!)));
             }
 

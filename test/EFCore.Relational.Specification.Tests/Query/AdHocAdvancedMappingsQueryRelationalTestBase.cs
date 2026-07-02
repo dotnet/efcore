@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -18,7 +18,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     #region 32911
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Two_similar_complex_properties_projected_with_split_query1()
     {
         var contextFactory = await InitializeNonSharedTest<Context32911>(seed: c => c.SeedAsync());
@@ -38,7 +38,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Two_similar_complex_properties_projected_with_split_query2()
     {
         var contextFactory = await InitializeNonSharedTest<Context32911>(seed: c => c.SeedAsync());
@@ -57,7 +57,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_one_of_two_similar_complex_types_picks_the_correct_one()
     {
         var contextFactory = await InitializeNonSharedTest<Context32911_2>(seed: c => c.SeedAsync());
@@ -229,7 +229,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     #endregion
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling_TPC(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(
             async,
@@ -242,7 +242,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
                 mb.Entity<Context28196.FarmAnimal>().ToTable("FarmAnimals");
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling_TPT(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(
             async,
@@ -257,7 +257,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     #region 35727
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TPC_query_with_generic_derived_types_returns_correct_types(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context35727>(seed: c => c.SeedAsync());
@@ -274,7 +274,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         Assert.IsType<Context35727.ReproEntity<string>>(entities[3]);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task TPC_query_with_generic_derived_types_OfType_returns_correct_types(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<Context35727>(seed: c => c.SeedAsync());

@@ -15,7 +15,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Added, true)]
     public virtual void Attached_references_to_principal_are_marked_as_loaded(EntityState state, bool lazy)
@@ -56,7 +56,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.True(context.Entry(parent).Reference(e => e.SingleCompositeKey).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Added, true)]
     public virtual void Attached_references_to_dependents_are_marked_as_loaded(EntityState state, bool lazy)
@@ -99,7 +99,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
+    [Theory, InlineData(EntityState.Unchanged, false), InlineData(EntityState.Modified, false),
      InlineData(EntityState.Added, false), InlineData(EntityState.Unchanged, true), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Added, true)]
     public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state, bool lazy)
@@ -140,7 +140,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.False(context.Entry(parent).Collection(e => e.ChildrenCompositeKey).IsLoaded);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
+    [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
      InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, false),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, true),
      InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll, false),
@@ -205,7 +205,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -259,7 +259,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -313,7 +313,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -369,7 +369,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -412,7 +412,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -461,7 +461,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -502,7 +502,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -544,7 +544,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -588,7 +588,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -632,7 +632,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -668,7 +668,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -712,7 +712,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -748,7 +748,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -782,7 +782,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -817,7 +817,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -848,7 +848,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -879,7 +879,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -913,7 +913,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -947,7 +947,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -982,7 +982,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1017,7 +1017,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1048,7 +1048,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1079,7 +1079,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1110,7 +1110,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1141,7 +1141,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -1192,7 +1192,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1234,7 +1234,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -1289,7 +1289,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -1344,7 +1344,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1386,7 +1386,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1428,7 +1428,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -1489,7 +1489,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1529,7 +1529,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1569,7 +1569,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -1620,7 +1620,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1657,7 +1657,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1694,7 +1694,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection_untyped(EntityState state, bool async)
@@ -1726,10 +1726,16 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(2, parent.Children.Count());
         Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
 
+        var expectedChildState = state == EntityState.Detached ? EntityState.Detached : EntityState.Unchanged;
+        foreach (var child in parent.Children)
+        {
+            Assert.Equal(expectedChildState, context.Entry(child).State);
+        }
+
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1783,7 +1789,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1832,7 +1838,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1868,12 +1874,17 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
             var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
+            Assert.Equal(EntityState.Unchanged, context.Entry(single).State);
             Assert.Same(single, parent.Single);
             Assert.Same(parent, single.Parent);
         }
+        else
+        {
+            Assert.Equal(EntityState.Detached, navigationEntry.EntityEntry.State);
+        }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1916,7 +1927,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -1961,7 +1972,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2006,7 +2017,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2043,7 +2054,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2077,7 +2088,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2111,7 +2122,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2146,7 +2157,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2181,7 +2192,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(parent.Single);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2213,7 +2224,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2245,7 +2256,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2277,7 +2288,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2309,7 +2320,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -2360,7 +2371,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2402,7 +2413,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2444,7 +2455,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -2499,7 +2510,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -2561,7 +2572,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2602,7 +2613,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2643,7 +2654,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
+    [Theory, InlineData(EntityState.Unchanged, true, CascadeTiming.Immediate),
      InlineData(EntityState.Unchanged, false, CascadeTiming.Immediate), InlineData(EntityState.Modified, true, CascadeTiming.Immediate),
      InlineData(EntityState.Modified, false, CascadeTiming.Immediate), InlineData(EntityState.Deleted, true, CascadeTiming.Immediate),
      InlineData(EntityState.Deleted, false, CascadeTiming.Immediate), InlineData(EntityState.Detached, true, CascadeTiming.Immediate),
@@ -2700,7 +2711,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2736,7 +2747,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2785,7 +2796,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2834,7 +2845,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2875,7 +2886,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2917,7 +2928,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -2961,7 +2972,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3005,7 +3016,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3041,7 +3052,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3075,7 +3086,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3110,7 +3121,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3141,7 +3152,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3172,7 +3183,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3208,7 +3219,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3272,7 +3283,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3337,7 +3348,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3378,7 +3389,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3420,7 +3431,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3475,7 +3486,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3530,7 +3541,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3566,7 +3577,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3619,7 +3630,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3674,7 +3685,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3720,7 +3731,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3766,7 +3777,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3802,7 +3813,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3851,7 +3862,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3900,7 +3911,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3941,7 +3952,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -3983,7 +3994,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4027,7 +4038,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4071,7 +4082,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4107,7 +4118,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         }
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4141,7 +4152,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(child.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4176,7 +4187,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Null(single.Parent);
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4207,7 +4218,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalTheory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
+    [Theory, InlineData(EntityState.Unchanged, true), InlineData(EntityState.Unchanged, false),
      InlineData(EntityState.Added, true), InlineData(EntityState.Added, false), InlineData(EntityState.Modified, true),
      InlineData(EntityState.Modified, false), InlineData(EntityState.Deleted, true), InlineData(EntityState.Deleted, false),
      InlineData(EntityState.Detached, true), InlineData(EntityState.Detached, false)]
@@ -4238,7 +4249,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_change_IsLoaded_flag_for_collection()
     {
         using var context = CreateContext();
@@ -4272,7 +4283,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.True(collectionEntry.IsLoaded);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_change_IsLoaded_flag_for_reference_only_if_null()
     {
         using var context = CreateContext();
@@ -4307,7 +4318,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
             Assert.Throws<InvalidOperationException>(() => referenceEntry.IsLoaded = false).Message);
     }
 
-    [ConditionalFact] // Issue #27497
+    [Fact] // Issue #27497
     public virtual void Fixup_reference_after_FK_change_without_DetectChanges()
     {
         using var context = CreateContext();
@@ -4323,7 +4334,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(497, child.ParentId);
     }
 
-    [ConditionalFact] // Issue #27497
+    [Fact] // Issue #27497
     public virtual void Fixup_one_to_one_reference_after_FK_change_without_DetectChanges()
     {
         using var context = CreateContext();
@@ -4339,7 +4350,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(497, child.ParentId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Setting_navigation_to_null_is_detected_by_local_DetectChanges() // Issue #26937
     {
         using var context = CreateContext();
@@ -4363,7 +4374,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(EntityState.Deleted, childEntry.State);
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #35528
+    [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)] // Issue #35528
     public virtual async Task Lazy_loading_is_thread_safe(bool noTracking, bool async)
     {
         using var context = CreateContext(lazyLoadingEnabled: true);

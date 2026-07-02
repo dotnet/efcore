@@ -467,7 +467,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting synthetic keys
         foreach (var property in structuralType.GetPropertiesInHierarchy())
         {
-            if (property.GetJsonPropertyName() is { } jsonPropertyName)
+            if (jsonQueryExpression.FindJsonElement(property) is { PropertyName: { } jsonPropertyName } element)
             {
                 // HACK: currently the only way to project multiple values from a SelectExpression is to simulate a Select out to an anonymous
                 // type; this requires the MethodInfos of the anonymous type properties, from which the projection alias gets taken.
@@ -476,9 +476,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
                 propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
                     jsonColumn,
-                    [new PathSegment(property.GetJsonPropertyName()!)],
+                    [new PathSegment(jsonPropertyName)],
                     property.ClrType.UnwrapNullableType(),
-                    property.GetRelationalTypeMapping(),
+                    element.StoreTypeMapping!,
                     property.IsNullable);
             }
         }
@@ -490,7 +490,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                              && n.TargetEntityType.IsMappedToJson()
                              && n.ForeignKey.PrincipalToDependent == n))
             {
-                var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
+                var jsonNavigationName = jsonQueryExpression.GetJsonElement(navigation).PropertyName;
                 Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
 
                 var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));
@@ -506,7 +506,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         foreach (var complexProperty in structuralType.GetComplexProperties())
         {
-            var jsonNavigationName = complexProperty.ComplexType.GetJsonPropertyName();
+            var jsonNavigationName = jsonQueryExpression.GetJsonElement(complexProperty).PropertyName;
             Check.DebugAssert(jsonNavigationName is not null, "Invalid complex property found on JSON-mapped structural type");
 
             var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));

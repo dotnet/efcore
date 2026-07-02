@@ -11,7 +11,7 @@ public class SqliteMigrationAnnotationProviderTest
     private readonly SqliteAnnotationProvider _provider = new(new RelationalAnnotationProviderDependencies());
     private readonly Annotation _autoincrement = new(SqliteAnnotationNames.Autoincrement, true);
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_Autoincrement_for_OnAdd_integer_property_non_key()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
@@ -22,7 +22,7 @@ public class SqliteMigrationAnnotationProviderTest
             a => a.Name == _autoincrement.Name && (bool)a.Value!);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adds_Autoincrement_for_OnAdd_integer_property_primary_key()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
@@ -34,7 +34,7 @@ public class SqliteMigrationAnnotationProviderTest
             a => a.Name == _autoincrement.Name && (bool)a.Value!);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_Autoincrement_for_OnAddOrUpdate_integer_property()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAddOrUpdate().Metadata;
@@ -45,7 +45,7 @@ public class SqliteMigrationAnnotationProviderTest
             a => a.Name == _autoincrement.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_Autoincrement_for_OnUpdate_integer_property()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnUpdate().Metadata;
@@ -56,7 +56,7 @@ public class SqliteMigrationAnnotationProviderTest
             a => a.Name == _autoincrement.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_Autoincrement_for_Never_value_generated_integer_property()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;
@@ -67,7 +67,7 @@ public class SqliteMigrationAnnotationProviderTest
             a => a.Name == _autoincrement.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_Autoincrement_for_default_integer_property()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).Metadata;
@@ -78,7 +78,7 @@ public class SqliteMigrationAnnotationProviderTest
             a => a.Name == _autoincrement.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_Autoincrement_for_non_integer_OnAdd_property()
     {
         var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.StringProp).ValueGeneratedOnAdd().Metadata;

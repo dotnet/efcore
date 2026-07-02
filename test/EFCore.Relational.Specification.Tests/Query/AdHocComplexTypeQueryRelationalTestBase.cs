@@ -7,7 +7,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
 {
     #region 37205
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_json_collection_inside_left_join_subquery()
     {
         var contextFactory = await InitializeNonSharedTest<Context37205>();
@@ -54,7 +54,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
 
     #region 35025
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_TPC_base_with_ComplexType()
     {
         var contextFactory = await InitializeNonSharedTest<Context35025>();
@@ -117,7 +117,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
 
     #region 34706
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Complex_type_on_an_entity_mapped_to_view_and_table()
     {
         var contextFactory = await InitializeNonSharedTest<Context34706>(
