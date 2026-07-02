@@ -1005,40 +1005,43 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     MakeMemberAccess(ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true)).Assign(variable));
             }
 
-            // @TODO: Non tracking owner parent fixup? OwnedQueryCosmosTest
-            if (!_queryStateManager && structuralType is IEntityType et2)
+            if (structuralType is IEntityType et2)
             {
-                foreach (var navigation in et2.GetNavigations().Where(n => n.ForeignKey.IsOwnership
+                if (!_queryStateManager)
+                {
+                    // Non tracking dependent to principal fixup
+                    foreach (var navigation in et2.GetNavigations().Where(n => n.ForeignKey.IsOwnership
                                                                         && n == n.ForeignKey.PrincipalToDependent
                                                                         && n.ForeignKey.DependentToPrincipal != null))
-                {
-                    var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
-                    var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal!.GetMemberInfo(true, true);
+                    {
+                        var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
+                        var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal!.GetMemberInfo(true, true);
 
-                    if (navigation.IsCollection)
-                    {
-                        finalBlockExpressions.Add(
-                            EnumerableForEach(instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
-                                dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
+                        if (navigation.IsCollection)
+                        {
+                            finalBlockExpressions.Add(
+                                EnumerableForEach(instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
+                                    dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
+                                        .Assign(
+                                            ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType()))));
+                        }
+                        else
+                        {
+                            finalBlockExpressions.Add(
+                                instanceVariable.MakeMemberAccess(principalToDependentMember).MakeMemberAccess(dependentToPrincipalMember)
                                     .Assign(
-                                        ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType()))));
-                    }
-                    else
-                    {
-                        finalBlockExpressions.Add(
-                            instanceVariable.MakeMemberAccess(principalToDependentMember).MakeMemberAccess(dependentToPrincipalMember)
-                                .Assign(
-                                    ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                                        ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                        }
                     }
                 }
-            }
-
-            // Empty collections have not been initialized, so we double check all collection properties here
-            if (!structuralType.ClrType.IsValueType) // @TODO: How does this work for value types...?
-            {
-                foreach (var collectionProperty in nestedStructuralProperties.Where(x => x.IsCollection))
+                else
                 {
-                    finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+                    // In tracking, undefined or empty collections will not be initialized because the state manager isn't invoked
+                    // We make sure we initialize them to empty collections here.
+                    foreach (var collectionProperty in nestedStructuralProperties.Where(x => x.IsCollection))
+                    {
+                        finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+                    }
                 }
             }
 
@@ -1252,11 +1255,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         navigationVariableMap[nestedStructuralProperty] = propertyVariable;
                         if (!nestedStructuralProperty.IsCollection)
                         {
+                            // property = nestedMaterializer
                             nestedReadExpressions.Add(Assign(propertyVariable, nestedMaterializer));
                         }
                         else
                         {
-                            nestedCollectionReadExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
+                            // property = nestedStructuralProperty.GetCollectionAccessor().Create() // Adds this before the property read loop, so the collection is always initialized
+                            finalBlockExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
+                            // collectionAccessor.AddStandalone(property, nestedMaterializer)
                             nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
                         }
                     }
