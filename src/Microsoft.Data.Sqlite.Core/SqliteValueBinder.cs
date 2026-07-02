@@ -119,7 +119,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
                 BindText(value);
             }
         }
-#if NET6_0_OR_GREATER
         else if (type == typeof(DateOnly))
         {
             var dateOnly = (DateOnly)value;
@@ -150,7 +149,6 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
                 BindText(value);
             }
         }
-#endif
         else if (type == typeof(DBNull))
         {
             BindNull();
@@ -170,13 +168,11 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             var value1 = (double)(float)value;
             BindDouble(value1);
         }
-#if NET6_0_OR_GREATER
         else if (type == typeof(Half))
         {
             var value1 = (double)(Half)value;
             BindDouble(value1);
         }
-#endif
         else if (type == typeof(Guid))
         {
             var guid = (Guid)value;
@@ -245,12 +241,10 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             var value1 = (long)(ushort)value;
             BindInt64(value1);
         }
-#if NET7_0_OR_GREATER
         else if (type == typeof(UInt128))
         {
             BindText(((UInt128)value).ToString("D39", CultureInfo.InvariantCulture));
         }
-#endif
         else
         {
             throw new InvalidOperationException(Resources.UnknownDataType(type));
@@ -268,21 +262,14 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
             { typeof(char), SqliteType.Text },
             { typeof(DateTime), SqliteType.Text },
             { typeof(DateTimeOffset), SqliteType.Text },
-#if NET6_0_OR_GREATER
             { typeof(DateOnly), SqliteType.Text },
             { typeof(TimeOnly), SqliteType.Text },
-#endif
-
             { typeof(DBNull), SqliteType.Text },
-#if NET7_0_OR_GREATER
             { typeof(UInt128), SqliteType.Text },
-#endif
             { typeof(decimal), SqliteType.Text },
             { typeof(double), SqliteType.Real },
             { typeof(float), SqliteType.Real },
-#if NET6_0_OR_GREATER
             { typeof(Half), SqliteType.Real },
-#endif
             { typeof(Guid), SqliteType.Text },
             { typeof(int), SqliteType.Integer },
             { typeof(long), SqliteType.Integer },
