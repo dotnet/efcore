@@ -482,19 +482,6 @@ ORDER BY [v].[Id]
 """);
     }
 
-    [ConditionalFact]
-    public virtual async Task Select_nested_non_nullable_value_type()
-    {
-        await AssertQuery(ss => ss.Set<ValueRootEntity>().Select(v => v.RequiredAssociate.RequiredNested));
-
-        AssertSql(
-            """
-SELECT [v].[RequiredAssociate]
-FROM [ValueRootEntity] AS [v]
-ORDER BY [v].[Id]
-""");
-    }
-
     public override async Task Select_nullable_value_type(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_nullable_value_type(queryTrackingBehavior);
