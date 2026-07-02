@@ -3054,7 +3054,36 @@ public sealed partial class SelectExpression : TableExpressionBase
                     projectionMapping[remappedProjectionMember] = MakeNullable(expression, outerNullable);
                 }
 
-                outerShaper = new ProjectionMemberRemappingExpressionVisitor(this, mapping).Visit(outerShaper);
+                var outerRemapper = new ProjectionMemberRemappingExpressionVisitor(this, mapping);
+                outerShaper = outerRemapper.Visit(outerShaper);
+
+                // #30915: the outer remap above rebuilds any New/MemberInit node whose projection bindings changed; a
+                // node previously recorded as a nullability-marker key is now a stale instance. Re-key each such marker
+                // onto its rebuilt node, re-binding the marker value through the same remap so it still resolves.
+                // Only this (outer client-eval == false) branch is covered; the other AddJoin branches that remap the
+                // outer shaper are intentionally not re-keyed (no reachable repro). If one is ever hit with a live prior
+                // marker, the fail-safe holds: the gate simply does not fire and behavior falls back to the prior throw
+                // rather than producing an incorrect result. Tracked with the #30915 follow-ups.
+                if (_nonEntityNullabilityMarkers is not null)
+                {
+                    foreach (var oldNode in _nonEntityNullabilityMarkers.Keys.ToList())
+                    {
+                        // Re-key only when the key node was rebuilt AND the marker binding still resolves through this
+                        // remap. The marker column is not referenced by the shaper tree, so its projection member could in
+                        // principle have been pruned from _projectionMapping while the key node survived; in that case
+                        // skip the re-key rather than letting outerRemapper.Visit hit the throwing indexer
+                        // (ProjectionMemberRemappingExpressionVisitor.VisitExtension). Skipping preserves the fail-safe:
+                        // the gate does not fire and behavior degrades to the prior throw, never a KeyNotFoundException.
+                        if (outerRemapper.RebuiltNodes.TryGetValue(oldNode, out var newNode)
+                            && _nonEntityNullabilityMarkers[oldNode] is ProjectionBindingExpression { ProjectionMember: { } markerMember }
+                            && mapping.ContainsKey(markerMember))
+                        {
+                            var reboundBinding = outerRemapper.Visit(_nonEntityNullabilityMarkers[oldNode]);
+                            RemapNonEntityNullabilityMarker(oldNode, newNode, reboundBinding);
+                        }
+                    }
+                }
+
                 mapping.Clear();
 
                 foreach (var (projectionMember, expression) in innerSelect._projectionMapping)
