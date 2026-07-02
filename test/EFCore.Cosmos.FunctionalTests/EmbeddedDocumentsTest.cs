@@ -453,8 +453,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                         {
                             Street = "Second",
                             City = "Village",
-                            Notes = new List<Note> { new() { Content = "First note" } },
-                            IdNotes = new List<NoteWithId> { new() { Id = 3, Content = "Second note" } }
+                            Notes = [new() { Content = "First note" }, new() { Content = "Second note" }],
+                            IdNotes = [new() { Id = 3, Content = "Third note" }, new() { Id = 4, Content = "Fourth note" }]
                         }
                     }
                 });
@@ -467,11 +467,16 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var people = await context.Set<Person>().ToListAsync();
             var address = people.Single().Addresses.Single();
 
-            Assert.Equal("First note", address.Notes.Single().Content);
+            Assert.Equal("First note", address.Notes.First().Content);
+            Assert.Equal("Second note", address.Notes.Skip(1).First().Content);
 
-            var idNote = address.IdNotes.Single();
-            Assert.Equal(3, idNote.Id);
-            Assert.Equal("Second note", idNote.Content);
+            var idNote1 = address.IdNotes.First();
+            Assert.Equal(3, idNote1.Id);
+            Assert.Equal("Third note", idNote1.Content);
+
+            var idNote2 = address.IdNotes.Skip(1).First();
+            Assert.Equal(4, idNote2.Id);
+            Assert.Equal("Fourth note", idNote2.Content);
         }
 
         using (var context = new EmbeddedTransportationContext(swappedOptions))
@@ -479,8 +484,15 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var people = await context.Set<Person>().ToListAsync();
             var address = people.Single().Addresses.Single();
 
-            Assert.Equal("Second note", address.Notes.Single().Content);
-            Assert.Equal("First note", address.IdNotes.Single().Content);
+            Assert.Equal("Third note", address.Notes.First().Content);
+            Assert.Equal("Fourth note", address.Notes.Skip(1).First().Content);
+
+            var idNote1 = address.IdNotes.First();
+            Assert.Equal(1, idNote1.Id);
+            Assert.Equal("First note", idNote1.Content);
+            var idNote2 = address.IdNotes.Skip(1).First();
+            Assert.Equal(2, idNote2.Id);
+            Assert.Equal("Second note", idNote2.Content);
         }
     }
 

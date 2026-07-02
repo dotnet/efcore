@@ -968,6 +968,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 finalBlockVariables,
                 valueBufferTryReadValueMethodsToProcess);
 
+            // Workaround for old databases that didn't store the primary key property (for owned collection entities)
+            if (structuralType is IEntityType workaroundEntityType
+             && !workaroundEntityType.IsDocumentRoot())
+            {
+                foreach (var possiblyMissingProperty in workaroundEntityType.GetProperties().Where(property =>
+                    property.ClrType == typeof(int)
+                 && !property.IsForeignKey()
+                 && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
+                 && property.GetJsonPropertyName().Length != 0
+                 && !property.IsShadowProperty()))
+                {
+                    finalBlockExpressions.Add(Assign(propertyAssignmentMap[possiblyMissingProperty], _ordinalParameter));
+                }
+            }
+
             finalBlockExpressions.Add(loop);
 
             var finalCaptureState = Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod);
@@ -986,7 +1001,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             // Add undefined and null checks for pk on root document
+            // This only throws for root document entity types now, see Old_still_works
+            // TODO: discuss?
             if (structuralType is IEntityType pkEt
+             && pkEt.IsDocumentRoot()
              && pkEt.FindPrimaryKey() is { } pk
              && pk.Properties.Where(propertyAssignmentMap.ContainsKey).ToArray() is { Length: > 0 } pkProperties)
             {
@@ -997,7 +1015,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             p.Type.IsNullableValueType()
                                 ? Not(Property(p, typeof(Nullable<>).MakeGenericType(p.Type.UnwrapNullableType()).GetProperty(nameof(Nullable<>.HasValue))!))
                                 : (Expression)Equal(p, Default(p.Type))).Aggregate(OrElse),
-                        // @TODO: This always throws now, but for owned entities the try get entry call's throwOnNullKey is false? So it wouldn't throw in the base materializer?
                         Throw(
                             Call(
                                 CreateNullKeyValueInNoTrackingQueryMethod,
@@ -1099,10 +1116,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                     var propertyVariableType = property.ClrType;
-                    if (property.IsPrimaryKey()
-                     || (property.DeclaringType is IEntityType propertyEntityType && propertyEntityType.FindDiscriminatorProperty() == property))
+                    // For discriminator property and root document entity primary key properties, we want to throw if the value is not present or null, so we make the variable nullable to allow for that check later
+                    if (structuralType.FindDiscriminatorProperty() == property
+                     || (property.IsPrimaryKey() && property.DeclaringType is IEntityType propertyEntityType && propertyEntityType.IsDocumentRoot()))
                     {
-                        // For PK and discriminator, we want to throw if not present or null, so we make nullable
                         propertyVariableType = propertyVariableType.MakeNullable();
                     }
 
@@ -1159,7 +1176,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     };
                     var nestedCollectionReadExpressions = new List<Expression>()
                     {
-                        Assign(_ordinalParameter, Constant(-1)),
+                        Assign(_ordinalParameter, Constant(0)),
                     };
 
                     var nestedMaterializer = Invoke(nestedMaterializerLambda, GetParametersForLambda(nestedStructuralType));
@@ -1188,7 +1205,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //{
                         //  trackingActions.Add(() =>
                         //  {
-                        //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
+                        //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _); // @TODO: is this correct order? Or should we do nested tracking actions first?
                         //      if (entry == default)
                         //      {
                         //          nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
