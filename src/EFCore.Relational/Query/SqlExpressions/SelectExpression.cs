@@ -3074,11 +3074,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                         // skip the re-key rather than letting outerRemapper.Visit hit the throwing indexer
                         // (ProjectionMemberRemappingExpressionVisitor.VisitExtension). Skipping preserves the fail-safe:
                         // the gate does not fire and behavior degrades to the prior throw, never a KeyNotFoundException.
+                        var existingMarkerBinding = _nonEntityNullabilityMarkers[oldNode];
                         if (outerRemapper.RebuiltNodes.TryGetValue(oldNode, out var newNode)
-                            && _nonEntityNullabilityMarkers[oldNode] is ProjectionBindingExpression { ProjectionMember: { } markerMember }
+                            && existingMarkerBinding is ProjectionBindingExpression { ProjectionMember: { } markerMember }
                             && mapping.ContainsKey(markerMember))
                         {
-                            var reboundBinding = outerRemapper.Visit(_nonEntityNullabilityMarkers[oldNode]);
+                            var reboundBinding = outerRemapper.Visit(existingMarkerBinding);
                             RemapNonEntityNullabilityMarker(oldNode, newNode, reboundBinding);
                         }
                     }
