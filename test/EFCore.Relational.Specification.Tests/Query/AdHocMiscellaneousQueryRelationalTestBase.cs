@@ -411,17 +411,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         // ------------------------------------
         // COVERED (these tests assert correct results): direct whole-object projection of a left-joined
         //   non-entity, via both GroupJoin+DefaultIfEmpty and the LeftJoin operator -- including
-        //   member-init DTO, nested anonymous wrapper, client-side null-checks of the projection,
-        //   Distinct and Take after the join, and projections with nullable/string members. The whole
-        //   non-entity object correctly materializes as null on a no-match (a synthetic "marker" column
-        //   is added inside the LEFT JOIN subquery so the shaper can distinguish a no-match row from a
-        //   matched row whose members happen to be null).
+        //   member-init DTO, mutable struct / record struct (MemberInit-bound), nested anonymous wrapper,
+        //   client-side null-checks of the projection, Distinct and Take after the join, and projections
+        //   with nullable/string members. The whole non-entity object correctly materializes as null (or,
+        //   for a MemberInit-bound value type, a zeroed default(T) -- matching LINQ-to-Objects
+        //   DefaultIfEmpty semantics for a value-type sequence, which never yields a true null) on a
+        //   no-match (a synthetic "marker" column is added inside the LEFT JOIN subquery so the shaper can
+        //   distinguish a no-match row from a matched row whose members happen to be null).
         // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
-        //   translation failure): constructor-bound DTO and positional record struct (fail to
-        //   translate); mutable struct whole-object (fails during materialization); GroupBy-after-join
-        //   and a second join after the DefaultIfEmpty (the shaper rebuild loses the marker); plain
-        //   inner with no aggregate / no pushdown; Union and other set operations over the projection;
-        //   and server-side OrderBy/Where null-checks against the whole non-entity projection.
+        //   translation failure): constructor-bound DTO and positional record struct / ValueTuple (fail to
+        //   translate -- a distinct code path from MemberInit); GroupBy-after-join and a second join after
+        //   the DefaultIfEmpty (the shaper rebuild loses the marker); plain inner with no aggregate / no
+        //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
+        //   null-checks against the whole non-entity projection.
 
         #region Category A: whole non-entity object projected from the nullable side
 
@@ -633,9 +635,63 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.Equal(1, result[0].countInfo.PickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match, whole struct defaults to zeroed fields (mirrors LINQ-to-Objects
+            // DefaultIfEmpty semantics for a value-type sequence: default(CountStruct30915))
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.Count);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.Equal(3, result[2].countInfo.PickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
+        }
+
+        [Fact]
+        public virtual async Task Struct_whole_object_GroupJoin_DefaultIfEmpty()
+        {
+            // Same struct whole-object shape as Struct_whole_object_LeftJoin, but lowered via the classic
+            // GroupJoin + DefaultIfEmpty query syntax rather than the LeftJoin operator -- these go through
+            // different AddJoin call sites, so exercise both.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountStruct30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.PickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby s.PickupStatusId
+                        select new { s.PickupStatusId, countInfo };
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.Equal(1, result[0].countInfo.PickupStatusId);
+            Assert.Equal(2, result[0].countInfo.Count);
+
+            // status 2 -> no match, whole struct defaults to zeroed fields
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.Count);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.Equal(3, result[2].countInfo.PickupStatusId);
+            Assert.Equal(1, result[2].countInfo.Count);
         }
 
         [Fact]
@@ -1095,6 +1151,47 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
+        public virtual async Task Matched_struct_row_with_zero_aggregate_keeps_real_key()
+        {
+            // Struct analog of Matched_row_with_null_aggregate_keeps_object_non_null: a struct is gated
+            // SOLELY on the synthetic marker column, never on its own member values, so a matched group
+            // whose aggregate happens to equal the CLR default (0) must still surface the real matched key
+            // -- not the (0, 0) shape a genuine no-match would produce via Expression.Default(objectType).
+            // Status 4 matches (one request) but the filtered Count aggregate is 0.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915MatchedZeroAggregate);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(
+                    r => r.PickupStatusId,
+                    (k, els) => new Context30915.CountStruct30915 { PickupStatusId = k, Count = els.Count(x => x.Priority > 100) });
+
+            var query = context.Statuses
+                .LeftJoin(categories, s => s.PickupStatusId, c => c.PickupStatusId, (s, countInfo) => new { s.PickupStatusId, countInfo })
+                .OrderBy(e => e.PickupStatusId);
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, filtered Count = 1
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.Equal(1, result[0].countInfo.PickupStatusId);
+            Assert.Equal(1, result[0].countInfo.Count);
+
+            // status 2 -> genuine no-match: default(CountStruct30915), i.e. (0, 0)
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.Count);
+
+            // status 4 -> MATCHED but filtered Count is 0: the struct MUST keep the real matched key (4),
+            // not the CLR-default key (0) a genuine no-match would produce.
+            Assert.Equal(4, result[2].PickupStatusId);
+            Assert.Equal(4, result[2].countInfo.PickupStatusId);
+            Assert.Equal(0, result[2].countInfo.Count);
+        }
+
+        [Fact]
         public virtual async Task Bare_whole_object_projection_is_null_on_no_match()
         {
             // The non-entity object is the ROOT of the projection (not nested in an anon wrapper).
@@ -1460,6 +1557,49 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[2].countInfo.marker);
         }
 
+        [Fact]
+        public virtual async Task Struct_composed_user_marker_projection_into_subquery_self_heals()
+        {
+            // Struct analog of Composed_user_marker_projection_into_subquery_self_heals: this fix enables
+            // marker-column injection for value-type (MemberInit) inners too, so the same cosmetic
+            // duplicate-alias risk (a user struct member named "marker" colliding with the synthetic
+            // marker) now applies there as well. Pins that composing the projection into a subquery (forced
+            // via Distinct) still self-heals with no ambiguous-column error.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(
+                    r => r.PickupStatusId,
+                    (k, els) => new Context30915.CountStructWithMarker30915 { pickupStatusId = k, marker = els.Count() });
+
+            var query =
+                (from s in context.Statuses
+                 join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                 from countInfo in g.DefaultIfEmpty()
+                 select new { s.PickupStatusId, countInfo })
+                .Distinct();
+
+            var result = await query.OrderBy(x => x.PickupStatusId).ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, user marker = 2
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.Equal(1, result[0].countInfo.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo.marker);
+
+            // status 2 -> no match -> default(CountStructWithMarker30915), i.e. (0, 0)
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.Equal(0, result[1].countInfo.pickupStatusId);
+            Assert.Equal(0, result[1].countInfo.marker);
+
+            // status 3 -> matched, user marker = 1
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.Equal(3, result[2].countInfo.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo.marker);
+        }
+
         #endregion
 
         #region Category F: hardening characterization (reachable structural edges of the marker mechanism)
@@ -1537,10 +1677,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual async Task Nullable_struct_whole_object_from_nullable_side()
         {
-            // Pins the Nullable<T> case: project a CountStruct30915? whole-object from the nullable side.
-            // Per the gate doc, Nullable<T> arrives via a Convert node (not New/MemberInit), so the marker
-            // is never recorded and the gate never fires -- the shaper materializes from all-NULL columns
-            // on a no-match and throws, identical to the non-nullable struct case.
+            // Pins the Nullable<T> case: project a CountStruct30915? whole-object from the nullable side. The inner shaper
+            // (CountStruct30915 via MemberInit) is what the marker mechanism records against and gates; the Nullable<T> wrapping
+            // is a separate Convert applied afterward. A no-match row now gates the inner struct to default(CountStruct30915)
+            // (zeroed fields) and THEN wraps it in Nullable<T> -- which correctly produces HasValue=true, not null: casting a
+            // real (if zeroed) struct value to Nullable<T> can never itself yield null. This matches LINQ-to-Objects semantics
+            // for DefaultIfEmpty() over a value-type sequence, which likewise never produces a true null for a struct.
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
             using var context = contextFactory.CreateDbContext();
 
@@ -1553,10 +1695,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (s, countInfo) => new { s.PickupStatusId, countInfo = (Context30915.CountStruct30915?)countInfo })
                 .OrderBy(e => e.PickupStatusId);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: Nullable<T> whole-object from the nullable side is a deferred gap (unreachable
-            // by the marker mechanism, which only records for New/MemberInit, not Convert).
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            Assert.Equal(1, result[0].PickupStatusId);
+            Assert.True(result[0].countInfo.HasValue);
+            Assert.Equal(1, result[0].countInfo!.Value.PickupStatusId);
+            Assert.Equal(2, result[0].countInfo!.Value.Count);
+
+            // status 2 -> no match; HasValue is true with zeroed fields (see comment above), not null.
+            Assert.Equal(2, result[1].PickupStatusId);
+            Assert.True(result[1].countInfo.HasValue);
+            Assert.Equal(0, result[1].countInfo!.Value.PickupStatusId);
+            Assert.Equal(0, result[1].countInfo!.Value.Count);
+
+            Assert.Equal(3, result[2].PickupStatusId);
+            Assert.True(result[2].countInfo.HasValue);
+            Assert.Equal(3, result[2].countInfo!.Value.PickupStatusId);
+            Assert.Equal(1, result[2].countInfo!.Value.Count);
         }
 
         [Fact]
@@ -1637,6 +1794,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             await context.SaveChangesAsync();
         }
 
+        // Provider-agnostic seed for the matched-zero-aggregate invariant (Matched_struct_row_with_zero_aggregate_keeps_real_key):
+        // status 4 MATCHES (one request) but the filtered Count(x => x.Priority > 100) aggregate is 0; status 2 is a genuine
+        // no-match.
+        private static async Task Seed30915MatchedZeroAggregate(Context30915 context)
+        {
+            context.Statuses.AddRange(
+                new Context30915.PickupStatus30915 { PickupStatusId = 1, Name = "HighPriority" },
+                new Context30915.PickupStatus30915 { PickupStatusId = 2, Name = "NoRequests" },
+                new Context30915.PickupStatus30915 { PickupStatusId = 4, Name = "ZeroFilteredCount" });
+
+            context.Requests.AddRange(
+                new Context30915.PickupRequest30915 { PickupStatusId = 1, Priority = 200 },
+                new Context30915.PickupRequest30915 { PickupStatusId = 4, Priority = 5 });
+
+            await context.SaveChangesAsync();
+        }
+
         protected class Context30915(DbContextOptions options) : DbContext(options)
         {
             public DbSet<PickupStatus30915> Statuses { get; set; }
@@ -1679,6 +1853,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 public int PickupStatusId { get; set; }
                 public int Count { get; set; }
+            }
+
+            public struct CountStructWithMarker30915
+            {
+                public int pickupStatusId { get; set; }
+                public int marker { get; set; }
             }
 
             public record struct CountRecordStruct30915(int PickupStatusId, int Count);
