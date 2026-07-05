@@ -21,16 +21,23 @@ public static class CosmosResponseStreamHelper
     /// </summary>
     public static ReadOnlyMemory<byte> ExtractContentAsMemory(Stream content)
     {
-        if (content is MemoryStream memoryStream)
+        if (content is MemoryStream memoryStream
+            && memoryStream.TryGetBuffer(out var segment))
         {
-            return memoryStream.GetBuffer().AsMemory().Slice(0, (int)content.Length);
+            return segment.AsMemory();
         }
 
         // SDK returns a memory stream in most cases, but sometimes it returns its own internal wrapper of a MemoryStream.
-        // In that case, we will use CopyTo to get the internal buffer
-        memoryStream = new MemoryStream(capacity: (int)content.Length);
-        content.CopyTo(memoryStream);
+        // In that case, copy to a single, exactly-sized buffer.
+        var length = checked((int)(content.Length - content.Position));
+        if (length == 0)
+        {
+            return ReadOnlyMemory<byte>.Empty;
+        }
 
-        return memoryStream.GetBuffer().AsMemory().Slice(0, (int)content.Length);
+        var buffer = GC.AllocateUninitializedArray<byte>(length);
+        content.ReadExactly(buffer);
+
+        return buffer;
     }
 }
