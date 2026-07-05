@@ -213,7 +213,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
 
         // TODO: Remove check once __jObject is translated to the access root in a better fashion.
         // See issue #17670 and related issue #14121.
-        // @TODO: Can this be removed now?
         if (scalarAccessExpression.PropertyName.Length > 0)
         {
             _sqlBuilder
