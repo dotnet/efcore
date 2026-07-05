@@ -276,6 +276,30 @@ WHERE (c["$type"] = "CustomNaming")
             message);
     }
 
+    public override async Task Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(async))).Message;
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: EntityBasic.JsonEntityBasics (List<JsonEntityBasic>) Collection ToDependent JsonEntityBasic"),
+            message);
+    }
+
+    public override async Task Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(
+        bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(async)))
+            .Message;
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: EntityBasic.JsonEntityBasics (List<JsonEntityBasic>) Collection ToDependent JsonEntityBasic"),
+            message);
+    }
+
     [Theory(Skip = "issue #17313")]
     public override Task Group_by_FirstOrDefault_on_json_scalar(bool async)
         => base.Group_by_FirstOrDefault_on_json_scalar(async);

@@ -457,6 +457,15 @@ FROM "JsonEntitiesCustomNaming" AS "j"
     public override Task Json_projection_using_queryable_methods_on_top_of_JSON_collection_AsNoTrackingWithIdentityResolution(bool async)
         => Task.CompletedTask;
 
+    // The uncorrelated FirstOrDefault subquery translates via APPLY, which SQLite doesn't support.
+    public override async Task
+        Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(async)))
+            .Message);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
