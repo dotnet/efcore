@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Azure.Core.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -86,7 +87,26 @@ public class DocumentSource
     {
         writer.WriteStartObject();
 
-        foreach (var property in structuralType.GetProperties())
+        // TODO: Get a better way to order the discriminator property first, without having to special case it here.
+        IProperty? discriminatorProperty = null;
+        if ((discriminatorProperty = structuralType.FindDiscriminatorProperty()) is not null)
+        {
+            var discriminatorValue = entry.GetCurrentValue(discriminatorProperty);
+            writer.WritePropertyName(discriminatorProperty.GetJsonPropertyName());
+
+            var jsonValueReaderWriter = discriminatorProperty.GetJsonValueReaderWriter() ?? discriminatorProperty.GetTypeMapping().JsonValueReaderWriter;
+            if (discriminatorValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
+            {
+                Check.DebugAssert(jsonValueReaderWriter is not null, $"Missing JsonValueReaderWriter for property: {discriminatorProperty}");
+                jsonValueReaderWriter.ToJson(writer, discriminatorValue!);
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
+        }
+
+        foreach (var property in structuralType.GetProperties().Where(x => x != discriminatorProperty))
         {
             if (!property.IsPersisted())
             {
