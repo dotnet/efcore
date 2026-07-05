@@ -1029,7 +1029,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var newShaper = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
 
         if (selectExpression.IsDistinct
-            && selector.Body is not IncludeExpression) // Allow distinct over select include for owned types (the select doesn't actually change the shaper / what is selected // @TODO: Is this safe? Could the entity expression be something else than a structural type shaper?
+            && selector.Body is not IncludeExpression) // Allow distinct over select include for owned types (the select doesn't actually change the shaper / what is selected
         {
             // TODO: The base TranslateSelect does not allow returning null (presumably because client eval should always be possible)
             return null!;
