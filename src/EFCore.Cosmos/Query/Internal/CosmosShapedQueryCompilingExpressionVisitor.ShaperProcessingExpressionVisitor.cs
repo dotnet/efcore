@@ -1332,8 +1332,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                 Switch(tokenTypeVariable,
                                                     // default: materializer
                                                     nestedReadBlock,
-                                                    // case Null: throw new InvalidOperationException("Null item in collection.")
-                                                    SwitchCase(Throw(New(typeof(InvalidOperationException))), Constant(JsonTokenType.Null)), // @TODO: message? Null item in collection.
+                                                    // case Null: throw new InvalidOperationException
+                                                    SwitchCase(Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)), Constant(JsonTokenType.Null)),
                                                     // case EndArray: goto collectionBreakLabel
                                                     SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)))),
                                                 collectionBreakLabel)]),
