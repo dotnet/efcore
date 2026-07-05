@@ -745,7 +745,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
         {
-            // @TODO: Change serializer to put discriminator first
             // Generate a read loop to get the discriminator
             // string discriminatorValue = null;
             // while (true)
@@ -1201,7 +1200,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         //{
                         //  trackingActions.Add(() =>
                         //  {
-                        //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _); // @TODO: is this correct order? Or should we do nested tracking actions first?
+                        //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
                         //      if (entry == default)
                         //      {
                         //          nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
