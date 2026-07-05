@@ -141,6 +141,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
+
                     if (_enumerator == null)
                     {
                         var sqlQuery = _queryingEnumerable.GenerateQuery();
@@ -196,8 +198,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         _data = _data.Value.Slice((int)documentsReader.BytesConsumed);
                     }
-
-                    using var _ = _concurrencyDetector?.EnterCriticalSection(); // @TODO: This should be fine right? Tracking is done in shaper, and that is the critical part right?
 
                     if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
                             _cosmosQueryContext, _data.Value,

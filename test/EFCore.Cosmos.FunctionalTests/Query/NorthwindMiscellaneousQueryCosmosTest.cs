@@ -4010,17 +4010,6 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
         if (async)
         {
             await base.Throws_on_concurrent_query_first(async);
-            AssertSql(
-                """
-SELECT VALUE c
-FROM root c
-""",
-                //
-                """
-SELECT VALUE c
-FROM root c
-OFFSET 0 LIMIT 1
-""");
         }
     }
 
@@ -4355,16 +4344,6 @@ WHERE (c["Title"] = "Sales Representative")
         if (async)
         {
             await base.Throws_on_concurrent_query_list(async);
-            AssertSql(
-                """
-SELECT VALUE c
-FROM root c
-""",
-                //
-                """
-SELECT VALUE c
-FROM root c
-""");
         }
     }
 
