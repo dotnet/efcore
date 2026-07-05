@@ -419,8 +419,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   no-match (a synthetic "marker" column is added inside the LEFT JOIN subquery so the shaper can
         //   distinguish a no-match row from a matched row whose members happen to be null).
         // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
-        //   translation failure): constructor-bound DTO and positional record struct / ValueTuple (fail to
-        //   translate -- a distinct code path from MemberInit); GroupBy-after-join and a second join after
+        //   translation failure): constructor-bound (read-only) reference-type DTO and positional record
+        //   struct (fail to translate: ReplacingExpressionVisitor's constructor-parameter fold is
+        //   deliberately restricted to ValueTuple/Tuple -- see ValueTuple_whole_object_from_nullable_side --
+        //   since only those BCL types have a closed, guaranteed constructor-to-property contract; an
+        //   arbitrary named type's "matching name" convention can't be verified and could silently fold to
+        //   the wrong value for a transforming constructor); mutable struct whole-object (a MemberInit, not
+        //   constructor-bound, shape -- already translates via the unrelated, pre-existing MemberInit
+        //   member-fold, but still fails at MATERIALIZATION on a no-match row since the marker gate doesn't
+        //   yet cover value-type inners) and ValueTuple (now also translates, via the ValueTuple/Tuple fold,
+        //   but hits the same value-type materialization gap); GroupBy-after-join and a second join after
         //   the DefaultIfEmpty (the shaper rebuild loses the marker); plain inner with no aggregate / no
         //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
         //   null-checks against the whole non-entity projection.
@@ -1721,10 +1729,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // Pins that IsTransparentIdentifierType does NOT false-positive on a ValueTuple (it is not the
             // TransparentIdentifier<,> generic type) and that a ValueTuple constructed in a GroupBy projection is a
-            // value type so the marker gate never applies. Actual behavior: the constructor-bound ValueTuple
-            // projection fails to TRANSLATE (like the ctor-bound DTO in Dto_constructor_whole_object_LeftJoin / record struct in
-            // RecordStruct_whole_object_LeftJoin),
-            // rather than failing during materialization with "Nullable object must have a value".
+            // value type so the marker gate never applies. The constructor-bound ValueTuple projection now
+            // TRANSLATES: ReplacingExpressionVisitor folds c.Item1 back to its constructor argument, but ONLY because
+            // ValueTuple is one of the two BCL types (with Tuple) where the constructor-parameter-to-property mapping
+            // is a closed, guaranteed contract rather than a mere convention -- this fold does NOT generalize to
+            // arbitrary constructor-bound types (see Dto_constructor_whole_object_LeftJoin /
+            // RecordStruct_whole_object_LeftJoin, which remain translation failures). It still fails at
+            // MATERIALIZATION on a no-match row here: the #30915 nullability-marker gate doesn't yet cover
+            // value-type inners -- a separate, deferred item on the #22517 follow-up list.
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
             using var context = contextFactory.CreateDbContext();
 
@@ -1738,9 +1750,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         select new { s.PickupStatusId, tuple = countInfo };
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("could not be translated", ex.Message);
-            // #30915 TODO: value-type whole-object (ValueTuple) from the nullable side is a deferred gap; the
-            // constructor-bound ValueTuple GroupBy projection currently fails to translate.
+            Assert.Contains("Nullable object must have a value", ex.Message);
+            // #30915 TODO: currently throws on base; flip to assert results once the value-type marker gate lands.
         }
 
         [Fact]
