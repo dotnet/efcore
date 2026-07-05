@@ -39,9 +39,7 @@ public class CosmosTestHelpers : TestHelpers
     {
         if (!async)
         {
-            throw SkipException.ForSkip("Azure Cosmos DB does not support synchronous query execution."); // @TODO: Discuss, feel this makes more sense.
-            // Tests that override and assert base throws works better with this approach. And we don't really need to run the same test twice.
-            // @TODO: Maybe add a separate NoSyncTest test that assert all non async methods on DbContext, DbSet etc. throw
+            throw SkipException.ForSkip("Azure Cosmos DB does not support synchronous query execution.");
         }
 
         await testCode(async);
