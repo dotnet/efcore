@@ -29,9 +29,7 @@ public static class CosmosResponseStreamHelper
         // SDK returns a memory stream in most cases, but sometimes it returns its own internal wrapper of a MemoryStream.
         // In that case, we will use CopyTo to get the internal buffer
         memoryStream = new MemoryStream(capacity: (int)content.Length);
-        content.CopyTo(memoryStream); // @TODO: Could actually implement a custom stream that stores the buffer retreived from Write from CopyTo, so we don't iterate the data unnecessarily,
-                                      // Then we are grabbing the buffer directly from the underlying memory stream in the wrapper
-                                      // but that could cause issues if the implementation changed.
+        content.CopyTo(memoryStream);
 
         return memoryStream.GetBuffer().AsMemory().Slice(0, (int)content.Length);
     }
