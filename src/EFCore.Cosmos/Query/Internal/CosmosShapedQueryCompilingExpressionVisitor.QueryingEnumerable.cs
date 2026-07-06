@@ -201,13 +201,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
                             _cosmosQueryContext, _data.Value,
-                            _shaper, _ordinal++,
+                            _shaper, _ordinal,
                             out var bytesConsumed, out _current))
                     {
                         _data = null;
                         return await MoveNextAsync().ConfigureAwait(false);
                     }
 
+                    _ordinal++;
                     _data = _data.Value.Slice(bytesConsumed);
 
                     return true;

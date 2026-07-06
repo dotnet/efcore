@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Azure;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 
 /// <summary>
@@ -24,7 +22,9 @@ public static class CosmosResponseStreamHelper
         if (content is MemoryStream memoryStream
             && memoryStream.TryGetBuffer(out var segment))
         {
-            return segment.AsMemory();
+            return segment.AsMemory(
+                checked((int)memoryStream.Position),
+                checked((int)(memoryStream.Length - memoryStream.Position)));
         }
 
         // SDK returns a memory stream in most cases, but sometimes it returns its own internal wrapper of a MemoryStream.

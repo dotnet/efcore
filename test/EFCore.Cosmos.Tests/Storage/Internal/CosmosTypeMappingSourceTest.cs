@@ -170,6 +170,27 @@ public class CosmosTypeMappingSourceTest
     public void Can_map_nullable_string()
         => Can_map_scalar_by_clr_type<string?, JsonStringReaderWriter>("Hello", JTokenType.String, "\"Hello\"");
 
+    [Fact]
+    public void Can_roundtrip_dictionary_with_null_reference_collection_value()
+    {
+        var mapping = (CosmosTypeMapping)GetTypeMapping(typeof(Dictionary<string, string[]>));
+        var readerWriter = Assert.IsType<
+            CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<string[], string>>(
+                mapping.JsonValueReaderWriter);
+
+        var value = new Dictionary<string, string[]>
+        {
+            { "1", ["1"] },
+            { "2", null! }
+        };
+
+        var json = readerWriter.ToJsonString(value);
+        var result = Assert.IsType<Dictionary<string, string[]>>(readerWriter.FromJsonString(json));
+
+        Assert.Equal(["1"], result["1"]);
+        Assert.Null(result["2"]);
+    }
+
     private void Can_map_scalar_by_clr_type<T, TReader>(T value, JTokenType tokenType, string jsonValue, string? comparerType = null)
     {
         var unwrappedType = UnwrapNullableType(typeof(T));

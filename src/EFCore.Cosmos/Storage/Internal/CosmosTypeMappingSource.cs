@@ -637,7 +637,14 @@ public class CosmosTypeMappingSource : TypeMappingSource
                             var key = manager.CurrentReader.GetString()!;
                             manager.MoveNext();
 
-                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
+                            if (manager.CurrentReader.TokenType == JsonTokenType.Null)
+                            {
+                                dictionary.Add(key, default!);
+                            }
+                            else
+                            {
+                                dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
+                            }
 
                             break;
                         case JsonTokenType.EndObject:
