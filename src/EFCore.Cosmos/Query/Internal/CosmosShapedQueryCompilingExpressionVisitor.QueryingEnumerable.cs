@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Text;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -164,39 +163,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         _data = _enumerator.Current;
 
-                        var documentsReader = new Utf8JsonReader(_data.Value.Span);
-                        documentsReader.Read();
-
-                        var tokenType = documentsReader.TokenType;
-                        Debug.Assert(tokenType == JsonTokenType.StartObject);
-                        while (tokenType != JsonTokenType.EndObject)
-                        {
-                            switch (tokenType)
-                            {
-                                case JsonTokenType.StartObject:
-                                    documentsReader.Read();
-                                    tokenType = documentsReader.TokenType;
-                                    break;
-                                case JsonTokenType.PropertyName
-                                    when documentsReader.ValueTextEquals("Documents"):
-                                    goto Done;
-                                default:
-                                    documentsReader.Skip();
-                                    documentsReader.Read();
-                                    tokenType = documentsReader.TokenType;
-                                    break;
-                            }
-                        }
-
-                        Done:
-                        documentsReader.Read();
-                        var token = documentsReader.TokenType;
-                        if (token != JsonTokenType.StartArray)
-                        {
-                            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-                        }
-
-                        _data = _data.Value.Slice((int)documentsReader.BytesConsumed);
+                        _data = ShaperProcessingExpressionVisitor.ExtractDocuments(_data.Value);
                     }
 
                     if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(

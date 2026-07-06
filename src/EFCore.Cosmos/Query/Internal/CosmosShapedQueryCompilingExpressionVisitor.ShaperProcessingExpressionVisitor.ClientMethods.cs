@@ -22,6 +22,35 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly byte EndArrayByte = Encoding.UTF8.GetBytes("]")[0];
         private static readonly byte NextItemByte = Encoding.UTF8.GetBytes(",")[0];
 
+        public static ReadOnlyMemory<byte> ExtractDocuments(ReadOnlyMemory<byte> data)
+        {
+            var documentsReader = new Utf8JsonReader(data.Span);
+
+            documentsReader.Read();
+            Debug.Assert(documentsReader.TokenType == JsonTokenType.StartObject);
+
+            documentsReader.Read();
+            while (documentsReader.TokenType == JsonTokenType.PropertyName)
+            {
+                if (documentsReader.ValueTextEquals("Documents"))
+                {
+                    documentsReader.Read();
+                    var token = documentsReader.TokenType;
+                    if (token != JsonTokenType.StartArray)
+                    {
+                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(token));
+                    }
+
+                    return data.Slice((int)documentsReader.BytesConsumed);
+                }
+
+                documentsReader.Skip();
+                documentsReader.Read();
+            }
+
+            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(documentsReader.TokenType));
+        }
+
         public static bool TryMaterializeNextJsonCollectionItem<T>(
             QueryContext queryContext,
             ReadOnlyMemory<byte> data,
