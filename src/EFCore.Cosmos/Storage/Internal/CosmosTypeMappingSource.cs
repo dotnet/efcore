@@ -335,7 +335,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped( // @TODO: Is every FromJsonTyped covered in tests here?
+        public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
         {
