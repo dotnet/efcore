@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]// https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
 public class NumberProjectionCosmosTest : QueryTestBase<NumberProjectionCosmosTest.NumberTypesQueryCosmosFixture>
 {
     public NumberProjectionCosmosTest(NumberTypesQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper) : base(fixture)

@@ -321,7 +321,11 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
     [Theory]
     public override Task SelectMany_with_result_selector(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
             {
                 await base.SelectMany_with_result_selector(a);
@@ -338,6 +342,7 @@ JOIN o IN c["Orders"]
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
+    }
 
     // Address.Planet is a non-owned navigation, cross-document join
     public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)

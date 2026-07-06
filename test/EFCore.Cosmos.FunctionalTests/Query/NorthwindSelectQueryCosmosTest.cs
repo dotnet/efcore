@@ -62,7 +62,11 @@ WHERE (c["$type"] = "Order")
             });
 
     public override Task Projection_when_arithmetic_expressions(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Projection_when_arithmetic_expressions(a);
@@ -83,6 +87,7 @@ FROM root c
 WHERE (c["$type"] = "Order")
 """);
             });
+    }
 
     public override async Task Projection_when_arithmetic_mixed(bool async)
     {
@@ -122,7 +127,11 @@ FROM root c
     }
 
     public override Task Project_to_object_array(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Project_to_object_array(a);
@@ -134,6 +143,7 @@ FROM root c
 WHERE (c["EmployeeID"] = 1)
 """);
             });
+    }
 
     public override Task Projection_of_entity_type_into_object_array(bool async)
         => Fixture.NoSyncTest(
@@ -313,7 +323,11 @@ WHERE (c["$type"] = "Product")
             });
 
     public override Task Select_anonymous_with_object(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Select_anonymous_with_object(a);
@@ -324,6 +338,7 @@ SELECT c["City"], c
 FROM root c
 """);
             });
+    }
 
     public override Task Select_constant_int(bool async)
         => Fixture.NoSyncTest(
@@ -1532,7 +1547,11 @@ OFFSET 0 LIMIT @p
     }
 
     public override Task Ternary_in_client_eval_assigns_correct_types(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Ternary_in_client_eval_assigns_correct_types(a);
@@ -1552,6 +1571,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
 ORDER BY c["OrderID"]
 """);
             });
+    }
 
     public override async Task Collection_include_over_result_of_single_non_scalar(bool async)
     {
@@ -1814,7 +1834,11 @@ WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
     }
 
     public override Task Projecting_nullable_struct(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Projecting_nullable_struct(a);
@@ -1826,6 +1850,7 @@ FROM root c
 WHERE (c["$type"] = "Order")
 """);
             });
+    }
 
     public override Task Select_customer_identity(bool async)
         => Fixture.NoSyncTest(

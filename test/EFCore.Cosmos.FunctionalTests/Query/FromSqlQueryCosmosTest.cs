@@ -667,7 +667,11 @@ WHERE (s["ContactName"] = s["CompanyName"])
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_simple_projection_not_composed(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 using var context = CreateContext();
@@ -697,6 +701,7 @@ FROM (
 ) s
 """);
             });
+    }
 
     [Fact]
     public async Task FromSqlRaw_queryable_simple_with_missing_discriminator_throws()

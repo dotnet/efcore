@@ -3060,7 +3060,11 @@ FROM root c
             });
 
     public override Task Return_type_of_singular_operator_is_preserved(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Return_type_of_singular_operator_is_preserved(a);
@@ -3110,6 +3114,7 @@ ORDER BY c["id"] DESC
 OFFSET 0 LIMIT 1
 """);
             });
+    }
 
     public override Task Type_casting_inside_sum(bool async)
         => Fixture.NoSyncTest(

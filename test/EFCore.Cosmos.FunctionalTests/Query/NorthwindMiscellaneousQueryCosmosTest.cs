@@ -1601,7 +1601,11 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
             });
 
     public override Task Select_DTO_with_member_init_distinct_translated_to_server(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Select_DTO_with_member_init_distinct_translated_to_server(a);
@@ -1617,6 +1621,7 @@ FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
 """);
             });
+    }
 
     public override async Task Select_nested_collection_count_using_DTO(bool async)
     {
@@ -1785,7 +1790,11 @@ ORDER BY (c["Region"] = "ASK")
     }
 
     public override Task Projection_null_coalesce_operator(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Projection_null_coalesce_operator(a);
@@ -1800,6 +1809,7 @@ SELECT VALUE
 FROM root c
 """);
             });
+    }
 
     public override Task Filter_coalesce_operator(bool async)
         => Fixture.NoSyncTest(
@@ -4154,7 +4164,11 @@ FROM root c
             });
 
     public override Task Ternary_should_not_evaluate_both_sides(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Ternary_should_not_evaluate_both_sides(a);
@@ -4169,6 +4183,7 @@ SELECT VALUE
 FROM root c
 """);
             });
+    }
 
     public override Task Entity_equality_orderby(bool async)
         => Fixture.NoSyncTest(

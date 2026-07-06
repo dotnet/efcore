@@ -1005,6 +1005,14 @@ WHERE (c["Id"] = 4)
 
     #region ArrayOfPrimitives
 
+    public override async Task Project_element_of_json_array_of_primitives()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Project_element_of_json_array_of_primitives();
+    }
+
     protected override void OnModelCreatingArrayOfPrimitives(ModelBuilder modelBuilder)
         => base.OnModelCreatingArrayOfPrimitives(modelBuilder);
 
@@ -1263,6 +1271,14 @@ WHERE (c["Id"] = 4)
     #endregion
 
     #region ShadowProperties
+
+    public override async Task Project_shadow_properties_from_json_entity()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Project_shadow_properties_from_json_entity();
+    }
 
     protected override void OnModelCreatingShadowProperties(ModelBuilder modelBuilder)
     {

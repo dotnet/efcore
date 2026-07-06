@@ -403,6 +403,9 @@ FROM root c
 
     public override async Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
     {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Select_optional_associate_and_ints(queryTrackingBehavior);
 
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)

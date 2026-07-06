@@ -2234,6 +2234,9 @@ ORDER BY c["Id"]
 
     public override async Task Project_primitive_collections_element()
     {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Project_primitive_collections_element();
 
         AssertSql(

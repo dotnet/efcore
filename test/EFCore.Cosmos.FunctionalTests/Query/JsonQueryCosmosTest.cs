@@ -122,7 +122,11 @@ WHERE (c["$type"] = "Basic")
             });
 
     public override Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async asyncQuery =>
             {
                 await AssertQuery(
@@ -160,6 +164,7 @@ WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
+    }
 
     public override Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
@@ -431,7 +436,11 @@ WHERE (c["$type"] = "AllTypes")
             });
 
     public override Task Json_all_types_projection_individual_properties(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Json_all_types_projection_individual_properties(a);
@@ -443,6 +452,7 @@ FROM root c
 WHERE (c["$type"] = "AllTypes")
 """);
             });
+    }
 
     [SkipOnCI("Test does not run on CI")]
     public override Task Json_boolean_predicate(bool async)
@@ -1933,7 +1943,11 @@ WHERE (c["$type"] = "Basic")
     }
 
     public override Task Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(a);
@@ -1949,6 +1963,7 @@ FROM root c
 WHERE (c["$type"] = "Basic")
 """);
             });
+    }
 
     public override Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(bool async)
         => AssertTranslationFailedWithDetails(

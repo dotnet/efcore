@@ -30,12 +30,69 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
     public override Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
         => Task.CompletedTask;
 
+    public override Task Simple_concurrency_exception_can_be_resolved_with_client_values()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Simple_concurrency_exception_can_be_resolved_with_client_values();
+    }
+
+    public override Task Simple_concurrency_exception_can_be_resolved_with_store_values()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Simple_concurrency_exception_can_be_resolved_with_store_values();
+    }
+
+    public override Task Simple_concurrency_exception_can_be_resolved_with_new_values()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Simple_concurrency_exception_can_be_resolved_with_new_values();
+    }
+
+    public override Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes();
+    }
+
+    public override Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload();
+    }
+
     public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         => Task.CompletedTask;
 
     public override Task
         Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => Task.CompletedTask;
+
+    public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException();
+    }
+
+    public override Task
+        Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values();
+    }
 
     public override Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         => Task.CompletedTask;
@@ -78,20 +135,45 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
             async, base.Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it);
 
     public override Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged);
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged);
+    }
 
     public override Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged);
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged);
+    }
 
     public override Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged);
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged);
+    }
 
     public override Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(
             async, base.Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged);
+    }
 
     public override Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged);
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(async, base.Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged);
+    }
 
     private class FakeDbContextTransaction : IDbContextTransaction
     {

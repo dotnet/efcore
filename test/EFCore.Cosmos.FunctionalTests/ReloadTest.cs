@@ -26,6 +26,9 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
     [Fact]
     public async Task Entity_reference_can_be_reloaded()
     {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         using var context = CreateContext();
 
         var entry = await context.AddAsync(new Item { Id = 1337, PartitionKey = "Foo" });
