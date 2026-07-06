@@ -22,47 +22,47 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
-                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
+                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()]) ?? throw new UnreachableException();
 
         private static readonly MethodInfo CollectionAccessorCreateMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create))!;
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create)) ?? throw new UnreachableException();
 
         private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
-            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))!;
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate)) ?? throw new UnreachableException();
 
         private static readonly MethodInfo CollectionAccessorAddStandaloneMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.AddStandalone)) ?? throw new UnreachableException();
 
         private static readonly ConstructorInfo JsonReaderDataConstructor
-            = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)])!;
+            = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)]) ?? throw new UnreachableException();
 
         private static readonly PropertyInfo JsonReaderDataBytesConsumedProperty
             = typeof(JsonReaderData).GetProperty(nameof(JsonReaderData.BytesConsumed)) ?? throw new UnreachableException();
 
         private static readonly ConstructorInfo JsonReaderManagerConstructor
             = typeof(Utf8JsonReaderManager).GetConstructor(
-                [typeof(JsonReaderData), typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)])!;
+                [typeof(JsonReaderData), typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)]) ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderManagerMoveNextMethod
-            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.MoveNext), [])!;
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.MoveNext), []) ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderManagerCaptureStateMethod
-            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.CaptureState), [])!;
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.CaptureState), []) ?? throw new UnreachableException();
 
         private static readonly FieldInfo Utf8JsonReaderManagerCurrentReaderField
-            = typeof(Utf8JsonReaderManager).GetField(nameof(Utf8JsonReaderManager.CurrentReader))!;
+            = typeof(Utf8JsonReaderManager).GetField(nameof(Utf8JsonReaderManager.CurrentReader)) ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderManagerSkipMethod
-            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.Skip), [])!;
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.Skip), []) ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
-            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)])!;
+            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)]) ?? throw new UnreachableException();
 
         private static readonly ConstructorInfo Utf8JsonReaderConstructor
             = typeof(Utf8JsonReader).GetConstructor([typeof(ReadOnlySpan<byte>), typeof(bool), typeof(JsonReaderState)]) ?? throw new UnreachableException();
 
         private static readonly MethodInfo Utf8JsonReaderReadMethod
-            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.Read), [])!;
+            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.Read), []) ?? throw new UnreachableException();
 
         private static readonly PropertyInfo Utf8JsonReaderBytesConsumedProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.BytesConsumed)) ?? throw new UnreachableException();
@@ -76,33 +76,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo ReadOnlyMemorySliceMethod
             = typeof(ReadOnlyMemory<byte>).GetMethod(nameof(ReadOnlyMemory<>.Slice), [typeof(int)]) ?? throw new UnreachableException();
 
-        private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item1))!;
-        private static FieldInfo MaterializerTupleInstanceField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item2))!;
-        private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item3))!;
-        private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType) => tupleType.GetField(nameof(ValueTuple<,,,>.Item4))!;
-
-        private static readonly ConstructorInfo InvalidOperationExceptionConstructor
-            = typeof(InvalidOperationException).GetConstructor([typeof(string)]) ?? throw new UnreachableException();
-
-        private static readonly MethodInfo ByteArrayAsSpanMethod = typeof(MemoryExtensions).GetMethods()
-            .Where(x => x.Name == nameof(MemoryExtensions.AsSpan) && x.GetGenericArguments().Count() == 1)
-            .Select(x => new { x, prms = x.GetParameters() })
-            .Single(x => x.prms.Count() == 1 && x.prms[0].ParameterType.IsArray).x.MakeGenericMethod(typeof(byte));
+        private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item1)) ?? throw new UnreachableException();
+        private static FieldInfo MaterializerTupleInstanceField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item2)) ?? throw new UnreachableException();
+        private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item3)) ?? throw new UnreachableException();
+        private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item4)) ?? throw new UnreachableException();
 
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
-            = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
-
-        private static readonly MethodInfo PropertyGetJsonValueReaderWriterMethod =
-            typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetJsonValueReaderWriter), [])!;
-
-        private static readonly MethodInfo PropertyGetTypeMappingMethod =
-            typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetTypeMapping), [])!;
+            = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType)) ?? throw new UnreachableException();
 
         private static readonly PropertyInfo QueryContextQueryLoggerProperty =
-            typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger))!;
-
-        private static readonly MethodInfo TryGetEntryMethod =
-            typeof(QueryContext).GetMethod(nameof(QueryContext.TryGetEntry)) ?? throw new UnreachableException();
+            typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger)) ?? throw new UnreachableException();
 
         private readonly Dictionary<ITypeBase, LambdaExpression>
             _structuralTypeJsonShaperLambdaMapping = [];
@@ -132,7 +119,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly ParameterExpression _dataParameter;
         private readonly ParameterExpression _bytesConsumedParameter;
 
-        private readonly bool _isTracking;
         private readonly bool _queryStateManager;
 
         public ShaperProcessingExpressionVisitor(
@@ -146,7 +132,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _dataParameter = dataParameter;
             _bytesConsumedParameter = bytesConsumedParameter;
 
-            _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
                 or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             _ownerKeyProperties = ((CosmosQueryCompilationContext)parentVisitor.QueryCompilationContext).RootEntityType?.FindPrimaryKey()?.Properties.ToArray() ?? [];
@@ -173,14 +158,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             else
             {
                 // We read the projections in the order they are defined in from the document and pass the sub data to the shaper
-                var tokenTypeVariable = Parameter(typeof(JsonTokenType), "tokenType");
                 var jsonReaderVariable = Parameter(typeof(Utf8JsonReader), "jsonReader");
                 var afterStartObjectReaderStateVariable = Parameter(typeof(JsonReaderState), "afterStartObjectReaderState");
 
                 var shaperBlockVariables = new List<ParameterExpression>(_deferredProjectionBindings.Values.Select(x => x.Variable))
                 {
                     _jsonReaderDataParameter,
-                    tokenTypeVariable,
                     jsonReaderVariable,
                     afterStartObjectReaderStateVariable,
                     _innerShaperBytesConsumedVariable,
@@ -198,7 +181,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     // if (jsonReader.TokenType != JsonTokenType.StartObject) throw new InvalidOperationException(InvalidTokenType);
                     IfThen(
                         NotEqual(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty), Constant(JsonTokenType.StartObject)),
-                        Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)))
+                        ThrowInvalidToken(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty))
                     ),
                     // afterStartObjectReaderState = jsonReader.CurrentState // Store the state of after start object to be able to continue reading properties later on
                     Assign(afterStartObjectReaderStateVariable, Property(jsonReaderVariable, Utf8JsonReaderStateProperty))
@@ -259,8 +242,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         projectionReadExpressions.Add(Assign(_ownerKeySnapshotParameter,
                             New(
-                                Snapshot.CreateSnapshotType([.. _ownerKeyProjectionVariables.Select(x => x.Key.ClrType)]).GetConstructors().Single(),
-                                _ownerKeyProjectionVariables.Select(x => ConvertIfNotMatch(x.Value, x.Key.ClrType)))));
+                                Snapshot.CreateSnapshotType([.. _ownerKeyProperties.Select(x => x.ClrType)]).GetConstructors().Single(),
+                                _ownerKeyProperties.Select(x => ConvertIfNotMatch(_ownerKeyProjectionVariables[x], x.ClrType)))));
                         ownerKeySnapshotInitialized = true;
                     }
 
@@ -291,17 +274,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 AddAssignChecked(_bytesConsumedParameter, bytesConsumedExpression),
                 Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
             ];
-
-            if (_parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.NoTrackingWithIdentityResolution)
-            {
-                // Cosmos can't have 2 document root entities in separate shapers, because there is no join or concat on document root level.
-                // So we can use a separate state manager for each materialization.
-                // This is to be able to track owned entities in the query result without setting their non persited key properties for NoTrackingWithIdentityResolution
-                processedShaperExpression = Block(
-                    QueryCompilationContext.QueryContextParameter.MakeMemberAccess(typeof(QueryContext).GetField("_stateManager", BindingFlags.Instance | BindingFlags.NonPublic)!).Assign(Constant(null, typeof(IStateManager))),
-                    Call(QueryCompilationContext.QueryContextParameter, typeof(QueryContext).GetMethod(nameof(QueryContext.InitializeStateManager), BindingFlags.Instance | BindingFlags.Public)!, Constant(true)),
-                    processedShaperExpression);
-            }
 
             var shaperLambda = Lambda(
                 typeof(Shaper<>).MakeGenericType(shaperExpression.Type),
@@ -446,13 +418,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (binaryExpression is { NodeType: ExpressionType.Assign } && binaryExpression.Left.Type == typeof(MaterializationContext))
+            switch (binaryExpression)
             {
-                var newExpression = (NewExpression)binaryExpression.Right;
+                case { NodeType: ExpressionType.Assign }
+                    when binaryExpression.Left.Type == typeof(MaterializationContext):
+                {
+                    var newExpression = (NewExpression)binaryExpression.Right;
 
-                return binaryExpression.Update(binaryExpression.Left, binaryExpression.Conversion, newExpression.Update([Constant(ValueBuffer.Empty), ..newExpression.Arguments.Skip(1)]));
+                    return binaryExpression.Update(binaryExpression.Left, binaryExpression.Conversion, newExpression.Update([Constant(ValueBuffer.Empty), .. newExpression.Arguments.Skip(1)]));
+                }
+
+                default:
+                    return base.VisitBinary(binaryExpression);
             }
-            return base.VisitBinary(binaryExpression);
         }
 
         private LambdaExpression StructuralTypeJsonShaperLambda(StructuralTypeShaperExpression shaper)
@@ -605,7 +583,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var discriminatorProperty = structuralType.FindDiscriminatorProperty();
             if (discriminatorProperty != null
-             && structuralType is IEntityType) // Complex type discriminators don't follow the rules, See: 38119 
+             && structuralType is IEntityType) // Complex type discriminators don't have to be determined for materialization, since inheritance hiarchies are not supported. See #38119 and #31250
             {
                 if (structuralType.GetDerivedTypesInclusive().Count() == 1)
                 {
@@ -722,7 +700,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 Switch(
                     tokenTypeVariable,
                     // default: throw new InvalidOperationException(InvalidTokenType)
-                    Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable), resultType),
+                    ThrowInvalidToken(tokenTypeVariable, resultType),
                     // case JsonTokenType.Null: return default
                     SwitchCase(
                         Block(
@@ -767,10 +745,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //          throw invalid json
             // EndRead:
 
-
-            var variables = new List<ParameterExpression>();
-            var expressions = new List<Expression>();
-
             var breakLabel = Label("EndRead");
 
             Expression noMatch;
@@ -813,7 +787,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         // switch (tokenType)
                         Switch(tokenTypeVariable,
                             // default: throw
-                            Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)),
+                            ThrowInvalidToken(tokenTypeVariable),
                             [
                                 // case Null: goto EndRead
                                 SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
@@ -834,8 +808,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                     ReadJsonPropertyValue(discriminatorProperty))),
                                             // goto EndRead
                                             Break(breakLabel, typeof(void))),
-                                        noMatch
-                                        ),
+                                        noMatch),
                                     Constant(JsonTokenType.PropertyName))])]),
                     breakLabel));
         }
@@ -852,10 +825,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
         {
-            // keep track which variable corresponds to which navigation - we need that info for fixup
-            // which happens at the end (after we read everything to guarantee that we can instantiate the entity
-            var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
-
             // Set any non persisted properties to their default values, also replace ordinals with the ordinal parameter.
             // If the property has a principal (i.e. foreign key), it will be fixed up later when we have fully deserialized the parent.
             var nonPersistedPropertyDefaultReplacements = structuralType.GetProperties()
@@ -863,75 +832,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .ToDictionary(x => x, p => p.IsOrdinalKeyProperty() ? _ordinalParameter : (Expression)Default(p.ClrType));
             body = new ValueBufferTryReadValueMethodsReplacer(nonPersistedPropertyDefaultReplacements).Rewrite(body);
 
+            // keep track which variable corresponds to which navigation - we need that info for fixup
+            // which happens at the end (after we read everything to guarantee that we can instantiate the entity
+            var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
+
             var valueBufferTryReadValueMethodsToProcess =
                 new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
 
-            BlockExpression jsonEntityTypeInitializerBlock;
-            // sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
-            switch (body.Expressions[^1])
-            {
-                case UnaryExpression
-                {
-                    Operand: BlockExpression innerBlock,
-                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
-                } jsonEntityTypeInitializerUnary:
-                {
-                    // in case of proxies, the entity initializer block is wrapped around Convert node
-                    // that converts from the proxy type to the actual entity type.
-                    // We normalize that into a block by pushing the convert inside the inner block. Rather than:
-                    //
-                    // return (MyEntity)
-                    // {
-                    //     ProxyEntity instance;
-                    //     (...)
-                    //     return instance;
-                    // }
-                    //
-                    // we produce:
-                    // return
-                    // {
-                    //     ProxyEntity instance;
-                    //     MyEntity actualInstance;
-                    //     (...)
-                    //     actualInstance = (MyEntity)instance;
-                    //     return actualInstance;
-                    // }
-                    var newVariables = innerBlock.Variables.ToList();
-                    var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
-                    newVariables.Add(proxyConversionVariable);
-                    var newExpressions = innerBlock.Expressions.ToList()[..^1];
-                    newExpressions.Add(
-                        Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
-                    newExpressions.Add(proxyConversionVariable);
-                    jsonEntityTypeInitializerBlock = Block(newVariables, newExpressions);
-                    break;
-                }
-
-                case BlockExpression b:
-                    jsonEntityTypeInitializerBlock = b;
-                    break;
-                // case where we don't use block but rather return construction directly, as in:
-                // return new MyEntity(...)
-                //
-                // rather than:
-                // return
-                // {
-                //    MyEntity instance;
-                //    instance = new MyEntity(...)
-                //    (...)
-                // }
-                // we normalize this into block, since we are going to be adding extra statements (i.e. loop extracting JSON
-                // property values) there anyway
-                case NewExpression jsonEntityTypeInitializerCtor:
-                    var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
-                    jsonEntityTypeInitializerBlock = Block(
-                        [newInstanceVariable],
-                        Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
-                        newInstanceVariable);
-                    break;
-                default:
-                    throw new UnreachableException();
-            }
+            var jsonEntityTypeInitializerBlock = NormalizeStructuralTypeInitializerBlock(body.Expressions[^1]);
 
             var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
             var instanceVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
@@ -955,10 +863,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
 
-            if (structuralType is IEntityType spEt)
+            if (structuralType is IEntityType entityType)
             {
                 nestedStructuralProperties = nestedStructuralProperties.Concat(
-                    spEt.GetNavigations()
+                    entityType.GetNavigations()
                         .Where(n => n.ForeignKey.IsOwnership
                                  && n == n.ForeignKey.PrincipalToDependent));
             }
@@ -1002,7 +910,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             // Add undefined and null checks for pk on root document
             // This only throws for root document entity types now, see Old_still_works
-            // TODO: discuss?
+            // @TODO: discuss?
             if (structuralType is IEntityType pkEt
              && pkEt.IsDocumentRoot()
              && pkEt.FindPrimaryKey() is { } pk
@@ -1040,8 +948,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     // Non tracking dependent to principal fixup
                     foreach (var navigation in fixupEntityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership
-                                                                        && n == n.ForeignKey.PrincipalToDependent
-                                                                        && n.ForeignKey.DependentToPrincipal != null))
+                                                                                        && n == n.ForeignKey.PrincipalToDependent
+                                                                                        && n.ForeignKey.DependentToPrincipal != null))
                     {
                         var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
                         var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal!.GetMemberInfo(true, true);
@@ -1067,7 +975,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     // In tracking, undefined or empty collections will not be initialized because the state manager isn't invoked
                     // We make sure we initialize them to empty collections here.
-                    foreach (var collectionProperty in nestedStructuralProperties.Where(x => x.IsCollection))
+                    foreach (var collectionProperty in nestedStructuralProperties.Where(x => x is INavigation && x.IsCollection))
                     {
                         finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
                     }
@@ -1096,19 +1004,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 foreach (var valueBufferTryReadValueMethodToProcess in valueBufferTryReadValueMethodsToProcess)
                 {
                     var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
-                    var jsonPropertyName = property.GetJsonPropertyName();
-
-                    testExpressions.Add(
-                        Call(
-                            Field(
-                                _jsonReaderManagerVariable,
-                                Utf8JsonReaderManagerCurrentReaderField),
-                            Utf8JsonReaderValueTextEqualsMethod,
-                            Convert(
-                                Call(
-                                    ByteArrayAsSpanMethod,
-                                    Constant(Encoding.UTF8.GetBytes(jsonPropertyName))),
-                                typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
+                    testExpressions.Add(JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, property.GetJsonPropertyName()));
 
                     var propertyVariableType = property.ClrType;
                     // For discriminator property and root document entity primary key properties, we want to throw if the value is not present or null, so we make the variable nullable to allow for that check later
@@ -1122,17 +1018,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     finalBlockVariables.Add(propertyVariable);
 
-                    var moveNext = Call(
-                        _jsonReaderManagerVariable,
-                        Utf8JsonReaderManagerMoveNextMethod);
-
                     var assignment = Assign(
                         propertyVariable,
                         ConvertIfNotMatch(Visit(valueBufferTryReadValueMethodToProcess), propertyVariableType));
 
                     readExpressions.Add(
                         Block(
-                            moveNext,
+                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
                             assignment,
                             Empty()));
 
@@ -1314,7 +1206,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 // switch (tokenType)
                                 Switch(tokenTypeVariable,
                                     // default: throw new InvalidOperationException(InvalidTokenType)
-                                    Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)),
+                                    ThrowInvalidToken(tokenTypeVariable),
                                     // case Null: jsonReaderManager.CaptureState()
                                     SwitchCase(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod), Constant(JsonTokenType.Null)),
                                     // case StartArray
@@ -1332,7 +1224,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                                     // default: materializer
                                                     nestedReadBlock,
                                                     // case Null: throw new InvalidOperationException
-                                                    SwitchCase(Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)), Constant(JsonTokenType.Null)),
+                                                    SwitchCase(ThrowInvalidToken(tokenTypeVariable), Constant(JsonTokenType.Null)),
                                                     // case EndArray: goto collectionBreakLabel
                                                     SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)))),
                                                 collectionBreakLabel)]),
@@ -1381,11 +1273,52 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Switch(
                         tokenTypeVariable,
                         Block(
-                            Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenTypeVariable)),
+                            ThrowInvalidToken(tokenTypeVariable),
                             Default(typeof(void))),
                         switchCases.ToArray()));
 
                 return (Loop(loopBody, breakLabel), propertyAssignmentMap);
+            }
+        }
+
+        private static BlockExpression NormalizeStructuralTypeInitializerBlock(Expression initializerExpression)
+        {
+            // Sometimes we have shadow snapshot and sometimes not, but type initializer always comes last.
+            switch (initializerExpression)
+            {
+                case UnaryExpression
+                {
+                    Operand: BlockExpression innerBlock,
+                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+                } jsonEntityTypeInitializerUnary:
+                {
+                    // In case of proxies, the entity initializer block is wrapped around a Convert node.
+                    // Normalize that by pushing the convert inside the block.
+                    var newVariables = innerBlock.Variables.ToList();
+                    var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
+                    newVariables.Add(proxyConversionVariable);
+
+                    var newExpressions = innerBlock.Expressions.ToList()[..^1];
+                    newExpressions.Add(
+                        Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
+                    newExpressions.Add(proxyConversionVariable);
+
+                    return Block(newVariables, newExpressions);
+                }
+
+                case BlockExpression block:
+                    return block;
+
+                case NewExpression jsonEntityTypeInitializerCtor:
+                    var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
+
+                    return Block(
+                        [newInstanceVariable],
+                        Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
+                        newInstanceVariable);
+
+                default:
+                    throw new UnreachableException();
             }
         }
 
@@ -1418,6 +1351,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private NewExpression NewJsonReaderManager()
             => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
+
+        private static UnaryExpression ThrowInvalidToken(Expression tokenType, Type? type = null)
+            => Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenType), type ?? typeof(void));
 
         private ParameterExpression[] GetParametersForLambda(ITypeBase structuralType)
             => structuralType.TryGetOrdinalKey(out _)
@@ -1736,7 +1672,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor // @TODO: Can we simply bring back instance?
+        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor
         {
             private readonly Dictionary<IProperty, Expression> _propertyInstanceMap = [];
 
