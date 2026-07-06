@@ -10,7 +10,6 @@
     <PackageTags>$(PackageTags);CosmosDb;SQL API</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
-    <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
     <NoWarn>$(NoWarn);EF9102</NoWarn> <!-- Paging is experimental -->
   </PropertyGroup>
 
