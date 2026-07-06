@@ -57,7 +57,7 @@ ORDER BY LENGTH(c["id"]), c["id"]
     public override async Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
     {
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
-        Assert.Equal(ex.Message, CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"));
+        Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"), ex.Message);
 
         AssertSql();
     }
