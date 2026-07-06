@@ -1054,7 +1054,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                     return false;
                 }
 
-                var responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
+                using var responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
                     (_query, _cosmosClientWrapper),
                     static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
                     null,
