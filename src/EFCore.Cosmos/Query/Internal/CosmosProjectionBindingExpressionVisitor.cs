@@ -438,13 +438,12 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             _projectionMembers.Push(projectionMember);
 
             visitedExpression = Visit(memberAssignment.Expression);
+            if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
+            }
 
             _projectionMembers.Pop();
-        }
-
-        if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
-        {
-            return memberAssignment.Update(Expression.Convert(visitedExpression, expression.Type));
         }
 
         visitedExpression = MatchTypes(visitedExpression, expression.Type);
@@ -650,15 +649,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             && unaryExpression.Type == operand.Type
                 ? operand
                 : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
-    }
-
-    // TODO: Debugging
-    private void VerifySelectExpression(ProjectionBindingExpression projectionBindingExpression)
-    {
-        if (projectionBindingExpression.QueryExpression != _selectExpression)
-        {
-            throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
-        }
     }
 
     private static Expression MatchTypes(Expression expression, Type targetType)
