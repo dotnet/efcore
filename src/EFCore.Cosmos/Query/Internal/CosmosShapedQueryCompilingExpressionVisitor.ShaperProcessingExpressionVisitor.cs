@@ -158,7 +158,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                // We read the projections in the order they are defined in from the document and pass the sub data to the shaper
+                // We read the projections in the order they are defined in from the data and pass the sub data to the shaper
                 var jsonReaderVariable = Parameter(typeof(Utf8JsonReader), "jsonReader");
                 var afterStartObjectReaderStateVariable = Parameter(typeof(JsonReaderState), "afterStartObjectReaderState");
 
@@ -234,17 +234,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             AddAssignChecked(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
                     ]);
 
-
                     // After we have read all the primary key properties of the root document entity type (always come first: see CosmosQueryTranslationPostprocessor),
                     // We initialize the snapshot variable so it can be used in the structural type shapers that need it.
+                    // We need this for owned entity projections that use AsNoTrackingWithIdentityResolution
                     if (!ownerKeySnapshotInitialized
                         && _ownerKeyProperties.Count > 0
                         && _ownerKeyProjectionVariables.Count == _ownerKeyProperties.Count)
                     {
-                        projectionReadExpressions.Add(Assign(_ownerKeySnapshotParameter,
-                            New(
-                                Snapshot.CreateSnapshotType([.. _ownerKeyProperties.Select(x => x.ClrType)]).GetConstructors().Single(),
-                                _ownerKeyProperties.Select(x => ConvertIfNotMatch(_ownerKeyProjectionVariables[x], x.ClrType)))));
+                        projectionReadExpressions.Add(
+                            // ownerKeySnapshot = new Snapshot(ownerKeyProjectionVariables.Select(x => x.Value))
+                            Assign(
+                                _ownerKeySnapshotParameter,
+                                New(
+                                    Snapshot.CreateSnapshotType([.. _ownerKeyProperties.Select(x => x.ClrType)]).GetConstructors().Single(),
+                                    _ownerKeyProperties.Select(x => ConvertIfNotMatch(_ownerKeyProjectionVariables[x], x.ClrType)))));
                         ownerKeySnapshotInitialized = true;
                     }
 
@@ -254,7 +257,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     shaperBlockExpressions.AddRange(
                         // jsonReader.Read()
                         Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                        // switch (jsonReader.TokenType)
                         Switch(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty),
+                            // default: throw new InvalidOperationException(InvalidTokenType)
                             ThrowInvalidToken(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)),
                             // case PropertyName
                             SwitchCase(
@@ -268,6 +273,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             SwitchCase(throwProjectionContainsUndefined, Constant(JsonTokenType.EndObject))),
                         // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: afterStartObjectReaderState) // Create a new json reader to continue reading the document,
                         // using the state from when we started reading the first property
+                        // The data is sliced to the end of the last json value that was deserialized, so we can continue reading the next property
                         AssignJsonReaderVariableExpression(afterStartObjectReaderStateVariable));
                 }
 
@@ -456,6 +462,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 shaper.StructuralType,
                 shaper.IsNullable);
 
+            // For non tracking scenario's, we can use the materializer as the shaper, since we don't need additional tracking logic generated below.
             if (!IsTracking(shaper.StructuralType, out var entityType))
             {
                 return materializer;
@@ -469,6 +476,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var shaperExpressions = new List<Expression>()
             {
+                // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
                 Assign(
                     tupleVariable,
                     Invoke(
@@ -476,7 +484,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         GetParametersForLambda(entityType)))
             };
 
-            // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
             var entityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(materializer.Body.Type));
             var instanceVariable = Field(tupleVariable, MaterializerTupleInstanceField(materializer.Body.Type));
             var shadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(materializer.Body.Type));
@@ -510,10 +517,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     shaperExpressions.Add(
                         property.IsShadowProperty()
-                        ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
-                            Constant(property.GetShadowIndex()),
-                            propertyValueExpression)
-                        : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression));
+                            ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
+                                Constant(property.GetShadowIndex()),
+                                propertyValueExpression)
+                            : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression));
                 }
             }
 
@@ -606,7 +613,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 else
                 {
                     // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
-                    var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue"); // Not a local variable, but defined by the parent block.
+                    var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue");
                     materializerVariables.Add(discriminatorValueVariable);
                     var discriminatorRead = ReadDiscriminator(structuralType, discriminatorProperty, discriminatorValueVariable);
                     materializerExpressions.Add(discriminatorRead);
@@ -634,7 +641,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
 
                 // We can't do tracking till after the entity is materialized
-                // So we remove the tracking code from the materializer block and store it for later use
+                // So we remove the generated tracking expressions from the materializer block and store it for later use
                 var entryVariable = materializerBlock.Variables.Single(x => x.Type == typeof(InternalEntityEntry));
                 var hasNullKeyVariable = materializerBlock.Variables.Single(x => x.Type == typeof(bool));
 
@@ -655,11 +662,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     trackingActions,
                     entryAssignment);
 
-                // Remove the start tracking call...
                 var startTrackingAssignment = readValuesBlock.Expressions.OfType<BinaryExpression>()
                     .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
                 readValuesBlock = readValuesBlock.Update(readValuesBlock.Variables, readValuesBlock.Expressions.Where(x => x != startTrackingAssignment));
 
+                // Rewrite the materialization block to a json deserializer
                 materializerBlock = (BlockExpression)Visit(readValuesBlock);
 
                 materializerVariables.AddRange(materializerBlock.Variables);
@@ -678,6 +685,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
             else
             {
+                // For non tracking, we simply find the materialization block and rewrite it to a json deserializer.
                 if (structuralType is IEntityType et && et.FindPrimaryKey() != null)
                 {
                     var nullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>().Single();
@@ -702,6 +710,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
 
             // Check if there is an object to materialize before we start.
+            // If so invoke the rewritten json materializer
+            // Else return default for the result type
             materializerBlock = Block(
                 [_jsonReaderManagerVariable, tokenTypeVariable],
                 // jsonReaderManager = new Utf8JsonReaderManager(data.Span)
@@ -736,7 +746,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
         {
             // Generate a read loop to get the discriminator
-            // string discriminatorValue = null;
+            // string? discriminatorValue = null;
             // while (true)
             //  tokenType = jsonReaderManager.MoveNext();
             //  switch($tokenType) {
@@ -744,15 +754,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //      case(JsonTokenType.EndObject):
             //          goto EndRead;
             //      case(JsonTokenType.PropertyName):
-            //          if (jsonReaderManager.CurrentReader.ValueTextEquals("$type"u8))
+            //          if (jsonReaderManager.CurrentReader.ValueTextEquals("Discriminator"u8))
             //              jsonReaderManager.MoveNext();
             //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
             //              goto EndRead;
-            //          else if (jsonReaderManager.CurrentReader.ValueTextEquals("Id"u8))
-            //              jsonReaderManager.Skip();
-            //              jsonReaderManager.Skip();
             //          else
-            //              throw new InvalidOperationException("Discriminator was not early in the document.");
+            //              jsonReaderManager.Skip();
+            //              jsonReaderManager.Skip();
             //      default:
             //          throw invalid json
             // EndRead:
@@ -807,7 +815,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)),
                                 // case PropertyName:
                                 SwitchCase(
-                                    // if (jsonReaderManager.CurrentReader.ValueTextEquals(("$type"u8).Span))
+                                    // if (jsonReaderManager.CurrentReader.ValueTextEquals(("Discriminator"u8).Span))
                                     IfThenElse(
                                         JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, discriminatorProperty.GetJsonPropertyName()),
                                         Block(
@@ -987,6 +995,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     // In tracking, undefined or empty collections will not be initialized because the state manager isn't invoked
                     // We make sure we initialize them to empty collections here.
+                    // This isn't needed for non-tracking, because the materializer will always create a new instance of the collection and set it by reference
                     foreach (var collectionProperty in nestedStructuralProperties.Where(x => x is INavigation && x.IsCollection))
                     {
                         finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
@@ -1043,8 +1052,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     propertyAssignmentMap[property] = propertyVariable;
                 }
 
-                // Go over all structural properties (complex properties and navigations - if we're an (owned) entity), which represent JSON
-                // nested types; generate materializers and fixup to wire the materialized related instance into the parent's property.
+                // Go over all structural properties (complex properties and navigations - if we're an (owned) entity)
+                // Generate materializers and fixup to wire the materialized related instance into the parent's property.
                 // Note that we need to build entity materializers and tracking fixup separately; we don't know the order in which data comes, so
                 // we need to read through everything before we can do tracking fixup safely
                 foreach (var nestedStructuralProperty in nestedStructuralProperties)
@@ -1095,9 +1104,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     if (IsTracking(nestedStructuralType, out var nestedEntityType))
                     {
-                        // Change tracker will do reference fixup
-                        // However, we do need to do non persisted fixup: set any non persisted principal properties on the nested entity to the values from the parent entity
-                        // We can only do this once the parent entity is fully materialized
+                        // Change tracker will do reference fixup, but we have to generate tracking actions that have to be executed after the parent entity is fully materialized.
+                        // We also need to do non persisted fixup: set any non persisted principal properties on the nested entity to the values from the parent entity
 
                         //var (nestedEntityType, nestedInstance, nestedShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
                         //if (nestedInstance != default)
@@ -1185,7 +1193,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                     else
                     {
-                        // We have to do manual fixup for this structural property
+                        // We have to do manual reference fixup for this structural property
                         var propertyVariable = Variable(nestedStructuralProperty.ClrType, nestedStructuralProperty.Name);
                         finalBlockVariables.Add(propertyVariable);
                         navigationVariableMap[nestedStructuralProperty] = propertyVariable;
@@ -1597,6 +1605,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static MemberExpression InstancePropertyValue(Expression instanceVariable, ITypeBase structuralType, IPropertyBase property)
         {
+            // Keys might be defined on embedded complex types, so we need to traverse the complex type hierarchy to get the correct instance variable for the property.
             if (property.DeclaringType != structuralType && property.DeclaringType is IComplexType complexParent)
             {
                 instanceVariable = ConvertIfNotMatch(InstancePropertyValue(instanceVariable, property.DeclaringType, complexParent.ComplexProperty), property.DeclaringType.ClrType);
@@ -1627,6 +1636,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     TestValues: [ConstantExpression { Value: ITypeBase testValue }]
                 } => testValue == structuralType
                         ? switchCase.Update(switchCase.TestValues, body.Update(body.Variables, [
+                            // if (ValueBuffer.TryReadValue(discriminatorProperty.ClrType, ValueBuffer.Empty, discriminatorProperty.GetIndex(), discriminatorProperty) != structuralType.GetDiscriminatorValue())
                             IfThen(
                                 NotEqual(
                                     Call(
@@ -1635,6 +1645,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         Constant(discriminatorProperty.GetIndex()),
                                         Constant(discriminatorProperty)),
                                     Constant(structuralType.GetDiscriminatorValue(), discriminatorProperty.ClrType)),
+                                // throw new InvalidOperationException(UnableToDiscriminateStructuralType)
                                 Throw(
                                     Call(
                                         CreateUnableToDiscriminateExceptionMethod,
