@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
@@ -262,6 +264,110 @@ public class CosmosMaterializerTest(NonSharedFixture fixture) : NonSharedModelTe
                 e.HasKey(x => x.Id);
                 e.HasPartitionKey(x => x.Id);
                 e.Property(x => x.Id).HasConversion(x => x.ToString(), x => int.Parse(x));
+            });
+        }
+    }
+
+    #endregion
+
+    #region UndefinedNestedProperty
+
+    [Fact]
+    public async Task Materialize_all_undefined_anon_projection_throws()
+    {
+        // See: https://github.com/dotnet/efcore/issues/38298#issuecomment-4726236589
+        var factory = await InitializeNonSharedTest<UndefinedNestedPropertyContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new UndefinedNestedPropertyEntity());
+            context.Add(new UndefinedNestedPropertyEntity
+            {
+                Nested = new UndefinedNestedPropertyNestedEntity
+                {
+                    Name = "Name"
+                }
+            });
+            context.Add(new UndefinedNestedPropertyEntity
+            {
+                Nested = new UndefinedNestedPropertyNestedEntity()
+            });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+            // Coalesce can be used to avoid the exception when the nested property is null
+            var results = await context.Entities.Select(x => new { Name = x.Nested!.Name ?? "", Name2 = (x.Nested!.Name ?? "") + "2" }).ToListAsync();
+            Assert.Equal(3, results.Count);
+            Assert.Equivalent(new[] { "", "Name", "" }.OrderBy(x => x), results.Select(x => x.Name).OrderBy(x => x));
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Entities.Select(x => new { Name = x.Nested!.Name, Name2 = x.Nested!.Name + "2" }).ToListAsync());
+            Assert.Equal(CosmosStrings.ProjectionUndefined, ex.Message);
+        }
+    }
+
+    [Fact]
+    public async Task Materialize_last_undefined_anon_projection_throws()
+    {
+        var factory = await InitializeNonSharedTest<UndefinedNestedPropertyContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new UndefinedNestedPropertyEntity());
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Entities.Select(x => new { x.AlwaysHere, x.Nested!.Name }).ToListAsync());
+            Assert.Equal(CosmosStrings.ProjectionUndefined, ex.Message);
+        }
+    }
+
+    [Fact]
+    public async Task Materialize_first_undefined_anon_projection_throws()
+    {
+        var factory = await InitializeNonSharedTest<UndefinedNestedPropertyContext>();
+
+        using (var context = factory.CreateDbContext())
+        {
+            context.Add(new UndefinedNestedPropertyEntity());
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = factory.CreateDbContext())
+        {
+
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Entities.Select(x => new { x.Nested!.Name, x.AlwaysHere }).ToListAsync());
+            Assert.Equal(CosmosStrings.ProjectionUndefined, ex.Message);
+        }
+    }
+
+    public class UndefinedNestedPropertyEntity
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+        public string AlwaysHere { get; set; } = "AlwaysHere";
+        public UndefinedNestedPropertyNestedEntity? Nested { get; set; }
+    }
+
+    public class UndefinedNestedPropertyNestedEntity
+    {
+        public string? Name { get; set; }
+    }
+
+    public class UndefinedNestedPropertyContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<UndefinedNestedPropertyEntity> Entities { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<UndefinedNestedPropertyEntity>(e =>
+            {
+                e.HasPartitionKey(x => x.Id);
+                e.ComplexProperty(x => x.Nested, b => b.IsRequired(false));
             });
         }
     }

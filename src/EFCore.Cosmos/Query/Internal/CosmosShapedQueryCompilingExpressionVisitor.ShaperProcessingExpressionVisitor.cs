@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -247,13 +248,24 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         ownerKeySnapshotInitialized = true;
                     }
 
-                    // Only read the property if the property name matches the alias of the projection, otherwise the property is undefined and we will continue to the next property.
+                    var throwProjectionContainsUndefined = Throw(New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!, Constant(CosmosStrings.ProjectionUndefined)));
+
+                    // Only read the property if the property name matches the alias of the projection, otherwise the projection is undefined and we will throw an exception.
                     shaperBlockExpressions.AddRange(
-                            // jsonReader.Read()
-                            Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
-                            // if (jsonReader.TokenType == JsonTokenType.PropertyName)
-                            IfThen(AndAlso(Equal(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty), Constant(JsonTokenType.PropertyName)), JsonReaderValueTextEquals(jsonReaderVariable, alias)),
-                                Block(projectionReadExpressions)),
+                        // jsonReader.Read()
+                        Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                        Switch(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty),
+                            ThrowInvalidToken(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)),
+                            // case PropertyName
+                            SwitchCase(
+                                // if (jsonReader.ValueTextEquals(alias))
+                                IfThenElse(JsonReaderValueTextEquals(jsonReaderVariable, alias),
+                                    Block(projectionReadExpressions),
+                                // else throw new InvalidOperationException(ProjectionContainsUndefinedValue)
+                                    throwProjectionContainsUndefined), // The next projection should have been this one, but it isn't. This means the projection was undefined.
+                                Constant(JsonTokenType.PropertyName)),
+                            // case: JsonTokenType.EndObject throw new InvalidOperationException(ProjectionContainsUndefinedValue) // There should have been more projection values, but there arent. We are missing the last.
+                            SwitchCase(throwProjectionContainsUndefined, Constant(JsonTokenType.EndObject))),
                         // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: afterStartObjectReaderState) // Create a new json reader to continue reading the document,
                         // using the state from when we started reading the first property
                         AssignJsonReaderVariableExpression(afterStartObjectReaderStateVariable));

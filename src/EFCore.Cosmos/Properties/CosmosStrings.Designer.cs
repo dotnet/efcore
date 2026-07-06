@@ -362,14 +362,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType);
 
         /// <summary>
-        ///     The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.
-        /// </summary>
-        public static string NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey(object? properties, object? entityType)
-            => string.Format(
-                GetString("NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey", nameof(properties), nameof(entityType)),
-                properties, entityType);
-
-        /// <summary>
         ///     Cosmos subqueries must be correlated, referencing values from the outer query.
         /// </summary>
         public static string NonCorrelatedSubqueriesNotSupported
@@ -412,6 +404,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string NoSubqueryPushdown
             => GetString("NoSubqueryPushdown");
+
+        /// <summary>
+        ///     The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.
+        /// </summary>
+        public static string NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey(object? properties, object? entityType)
+            => string.Format(
+                GetString("NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey", nameof(properties), nameof(entityType)),
+                properties, entityType);
 
         /// <summary>
         ///     The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
@@ -534,6 +534,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyStoreNameMismatch", nameof(property1), nameof(entityType1), nameof(storeName1), nameof(property2), nameof(entityType2), nameof(storeName2)),
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
+
+        /// <summary>
+        ///     A part of the projection was undefined, use the coalesce operator to handle possible undefined values.
+        /// </summary>
+        public static string ProjectionUndefined
+            => GetString("ProjectionUndefined");
 
         /// <summary>
         ///     Unable to execute a 'ReadItem' query since the 'id' value is missing and cannot be generated.

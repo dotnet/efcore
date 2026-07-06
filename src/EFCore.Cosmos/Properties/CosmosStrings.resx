@@ -298,9 +298,6 @@
   <data name="NoIdProperty" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
   </data>
-  <data name="NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey" xml:space="preserve">
-    <value>The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.</value>
-  </data>
   <data name="NonCorrelatedSubqueriesNotSupported" xml:space="preserve">
     <value>Cosmos subqueries must be correlated, referencing values from the outer query.</value>
   </data>
@@ -318,6 +315,9 @@
   </data>
   <data name="NoSubqueryPushdown" xml:space="preserve">
     <value>Azure Cosmos DB does not have an appropriate subquery for this translation.</value>
+  </data>
+  <data name="NoTrackingIdentityResolutionOwnedEntityProjectionMissingOwnerKey" xml:space="preserve">
+    <value>The query uses 'AsNoTrackingWithIdentityResolution' and projects owned entities, but the projection does not include the primary key properties '{properties}' of the root document entity type '{entityType}'. Include all primary key properties of the root document entity in the projection.</value>
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
@@ -366,6 +366,9 @@
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.</value>
+  </data>
+  <data name="ProjectionUndefined" xml:space="preserve">
+    <value>A part of the projection was undefined, use the coalesce operator to handle possible undefined values.</value>
   </data>
   <data name="ResourceIdMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the 'id' value is missing and cannot be generated.</value>

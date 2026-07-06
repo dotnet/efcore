@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -102,7 +103,10 @@ WHERE (c["Id"] = 6)
     public override Task Project_missing_required_scalar(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        await base.Project_missing_required_scalar(async);
+        // https://github.com/dotnet/efcore/issues/38298#issuecomment-4726236589
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_scalar(async));
+
+        Assert.Equal(CosmosStrings.ProjectionUndefined, exception.Message);
 
         AssertSql(
             """
