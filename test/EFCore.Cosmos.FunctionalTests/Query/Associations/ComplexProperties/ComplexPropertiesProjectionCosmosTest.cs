@@ -98,7 +98,6 @@ FROM root c
     {
         await base.Select_associate(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]
@@ -138,7 +137,6 @@ FROM root c
     {
         await base.Select_optional_associate(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]
@@ -150,7 +148,6 @@ FROM root c
     {
         await base.Select_required_nested_on_required_associate(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
@@ -162,7 +159,6 @@ FROM root c
     {
         await base.Select_optional_nested_on_required_associate(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]["OptionalNestedAssociate"]
@@ -179,7 +175,6 @@ FROM root c
             ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]
@@ -196,7 +191,6 @@ FROM root c
             ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]["RequiredNestedAssociate"]
@@ -212,7 +206,6 @@ FROM root c
     {
         await base.Select_unmapped_associate_scalar_property(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]
@@ -239,7 +232,6 @@ FROM root c
     {
         await base.Select_associate_collection(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["AssociateCollection"]
@@ -252,7 +244,6 @@ ORDER BY c["Id"]
     {
         await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["RequiredAssociate"]["NestedCollection"]
@@ -272,7 +263,6 @@ ORDER BY c["Id"]
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
 
-        // TODO: Don't retrieve the entire document. Issue #34067
         AssertSql(
             """
 SELECT VALUE c["OptionalAssociate"]["NestedCollection"]
