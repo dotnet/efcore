@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Azure.Core.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;

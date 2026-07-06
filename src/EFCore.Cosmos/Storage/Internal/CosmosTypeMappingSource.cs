@@ -621,36 +621,34 @@ public class CosmosTypeMappingSource : TypeMappingSource
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
         {
+            if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
             {
-                if (manager.CurrentReader.TokenType != JsonTokenType.StartObject)
+                throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
+            }
+
+            var dictionary = new Dictionary<string, TConcreteCollection>();
+            while (true)
+            {
+                switch (manager.MoveNext())
                 {
-                    throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
-                }
+                    case JsonTokenType.PropertyName:
+                        var key = manager.CurrentReader.GetString()!;
+                        manager.MoveNext();
 
-                var dictionary = new Dictionary<string, TConcreteCollection>();
-                while (true)
-                {
-                    switch (manager.MoveNext())
-                    {
-                        case JsonTokenType.PropertyName:
-                            var key = manager.CurrentReader.GetString()!;
-                            manager.MoveNext();
+                        if (manager.CurrentReader.TokenType == JsonTokenType.Null)
+                        {
+                            dictionary.Add(key, default!);
+                        }
+                        else
+                        {
+                            dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
+                        }
 
-                            if (manager.CurrentReader.TokenType == JsonTokenType.Null)
-                            {
-                                dictionary.Add(key, default!);
-                            }
-                            else
-                            {
-                                dictionary.Add(key, (TConcreteCollection)_elementReaderWriter.FromJsonTyped(ref manager));
-                            }
-
-                            break;
-                        case JsonTokenType.EndObject:
-                            return dictionary;
-                        default:
-                            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
-                    }
+                        break;
+                    case JsonTokenType.EndObject:
+                        return dictionary;
+                    default:
+                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(manager.CurrentReader.TokenType));
                 }
             }
         }
