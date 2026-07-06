@@ -35,6 +35,8 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
 
     public override async Task Over_assocate_collection_Select_nested_with_aggregates_projected(QueryTrackingBehavior queryTrackingBehavior)
     {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Over_assocate_collection_Select_nested_with_aggregates_projected(queryTrackingBehavior);
 
         AssertSql(
