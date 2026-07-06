@@ -3,6 +3,8 @@
 
 // ReSharper disable once CheckNamespace
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
@@ -129,6 +131,7 @@ public class CollectionShaperExpression(
             expressionPrinter.Visit(Projection);
             expressionPrinter.Append(", ");
             expressionPrinter.Visit(InnerShaper);
+            expressionPrinter.AppendLine(")");
         }
     }
 }
