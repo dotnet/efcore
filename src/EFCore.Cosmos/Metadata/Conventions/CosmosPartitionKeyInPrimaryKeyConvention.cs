@@ -8,8 +8,7 @@ using Newtonsoft.Json.Linq;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that adds partition key properties to the EF primary key and adds the '__jObject' containing the JSON
-///     object returned by the store.
+///     A convention that adds partition key properties to the EF primary key.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
