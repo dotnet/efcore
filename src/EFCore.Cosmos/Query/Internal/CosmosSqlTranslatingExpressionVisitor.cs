@@ -121,7 +121,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 // so we need to apply a special projection type mapping to ensure it gets read back as a double and converted to the correct type.
                 // Nullable operations on a number will never return a nullable number, so we don't check for null here.
                 translation = isProjection && translation is not SqlConstantExpression && translation is not ScalarAccessExpression
-                 && (CosmosNumberProjectionTypeMapping.IsRequiredForProjection(translation.Type))
+                 && CosmosNumberProjectionTypeMapping.IsRequiredForProjection(translation.Type)
                     ? sqlExpressionFactory.ApplyTypeMapping(translation, CosmosNumberProjectionTypeMapping.CreateFromType(translation.Type))
                     : sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
