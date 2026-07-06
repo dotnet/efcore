@@ -536,7 +536,6 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 {
                     case JsonTokenType.PropertyName:
                         var key = manager.CurrentReader.GetString()!;
-                        ;
 
                         if (manager.MoveNext() == JsonTokenType.Null)
                         {
