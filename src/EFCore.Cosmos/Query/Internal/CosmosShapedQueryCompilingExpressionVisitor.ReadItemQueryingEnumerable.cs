@@ -113,7 +113,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
             private readonly CancellationToken _cancellationToken;
 
-            private ReadOnlyMemory<byte>? _repsonse;
+            private ReadOnlyMemory<byte>? _response;
             private bool _hasExecuted;
 
             public AsyncEnumerator(ReadItemQueryingEnumerable<T> readItemEnumerable, CancellationToken cancellationToken = default)
@@ -154,7 +154,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                    _repsonse = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
+                    _response = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
                             _cosmosContainer,
                             _cosmosPartitionKey,
                             resourceId,
@@ -181,7 +181,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             public ValueTask DisposeAsync()
             {
-                _repsonse = null;
+                _response = null;
                 _hasExecuted = false;
 
                 return default;
@@ -192,13 +192,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private bool ShapeResult()
             {
-                var hasNext = _repsonse is not null;
+                var hasNext = _response is not null;
 
                 _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 
                 Current
                     = hasNext
-                        ? _shaper(_cosmosQueryContext, _repsonse.Value, ordinal: 0, out var _)
+                        ? _shaper(_cosmosQueryContext, _response.Value, ordinal: 0, out var _)
                         : default;
 
                 _hasExecuted = true;
