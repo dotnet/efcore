@@ -1293,6 +1293,17 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_ValueTuple_projection_joined_on_tuple_member(bool async)
+        // A GroupBy projecting a ValueTuple, then joined on a member of that tuple (t.Item1). The join key
+        // selector's member access is folded back to the tuple's constructor argument. Issue #22517.
+        => AssertQuery(
+            async,
+            ss => from t in ss.Set<Order>().GroupBy(o => o.CustomerID, (k, es) => new ValueTuple<string, int>(k, es.Count()))
+                  join c in ss.Set<Customer>() on t.Item1 equals c.CustomerID
+                  select new { c.CustomerID, Count = t.Item2 },
+            e => e.CustomerID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_multi_navigation_members_Aggregate(bool async)
         => AssertQuery(
             async,

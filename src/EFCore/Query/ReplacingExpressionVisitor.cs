@@ -170,8 +170,9 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
 
             // EF.Property<T>'s instance parameter is object, so a value-type entity expression (e.g. a ValueTuple)
             // arrives here boxed via a Convert node; unwrap it once up front for both checks below, same as the
-            // single unwrap VisitMember does. (A reference-type New -- anonymous type, Tuple -- never needs boxing,
-            // so it reaches here unwrapped either way; this only changes behavior for value types.)
+            // single unwrap VisitMember does. UnwrapTypeConversion also strips any redundant Convert/TypeAs on a
+            // reference-type expression, so this can newly expose a New/MemberInit that a boxing-only unwrap would
+            // have missed -- the effect isn't limited to value types.
             var unwrappedEntityExpression = newEntityExpression.UnwrapTypeConversion(out _);
 
             if (unwrappedEntityExpression is NewExpression newExpression)
