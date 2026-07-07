@@ -459,4 +459,20 @@ FROM [Entity38132] AS [e]
 WHERE [e].[TenantId] = @ef_filter__tenantId
 """);
     }
+
+    public override async Task Named_query_filters_caching()
+        => await base.Named_query_filters_caching();
+
+    public override async Task Named_query_filters_combined()
+        => await base.Named_query_filters_combined();
+
+    public override async Task Query_filter_with_EF_Constant_throws()
+        => await base.Query_filter_with_EF_Constant_throws();
+
+    public override async Task Query_filter_with_EF_Parameter_throws()
+        => await base.Query_filter_with_EF_Parameter_throws();
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

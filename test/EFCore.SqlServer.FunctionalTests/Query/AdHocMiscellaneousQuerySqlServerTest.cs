@@ -3200,5 +3200,51 @@ ORDER BY [s0].[PickupStatusId]
 """);
     }
 
+    public override async Task Query_when_null_key_in_database_should_throw()
+        => await base.Query_when_null_key_in_database_should_throw();
+
+    public override async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
+        => await base.Mapping_JsonElement_property_throws_a_meaningful_exception();
+
+    public override async Task Dto_constructor_whole_object_LeftJoin()
+        => await base.Dto_constructor_whole_object_LeftJoin();
+
+    public override async Task Struct_whole_object_LeftJoin()
+        => await base.Struct_whole_object_LeftJoin();
+
+    public override async Task RecordStruct_whole_object_LeftJoin()
+        => await base.RecordStruct_whole_object_LeftJoin();
+
+    public override async Task GroupBy_after_join_then_whole_object()
+        => await base.GroupBy_after_join_then_whole_object();
+
+    public override async Task Plain_inner_no_aggregate_LeftJoin_whole_object()
+        => await base.Plain_inner_no_aggregate_LeftJoin_whole_object();
+
+    public override async Task Union_of_two_leftjoin_nonentity()
+        => await base.Union_of_two_leftjoin_nonentity();
+
+    public override async Task OrderBy_member_of_nullable_projection()
+        => await base.OrderBy_member_of_nullable_projection();
+
+    public override async Task Where_nonentity_projection_not_null_serverside()
+        => await base.Where_nonentity_projection_not_null_serverside();
+
+    public override async Task Where_nonentity_projection_null_serverside()
+        => await base.Where_nonentity_projection_null_serverside();
+
+    public override async Task RightJoin_whole_object_outer_nullable()
+        => await base.RightJoin_whole_object_outer_nullable();
+
+    public override async Task Nullable_struct_whole_object_from_nullable_side()
+        => await base.Nullable_struct_whole_object_from_nullable_side();
+
+    public override async Task ValueTuple_whole_object_from_nullable_side()
+        => await base.ValueTuple_whole_object_from_nullable_side();
+
     #endregion
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

@@ -313,4 +313,14 @@ FROM [Tests] AS [t]
 ORDER BY [t].[Id]
 """);
     }
+
+    public override async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async()
+        => await base.Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async();
+
+    public override async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
+        => await base.Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync();
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

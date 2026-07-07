@@ -343,4 +343,8 @@ FROM [Books] AS [b]
 GROUP BY [b].[Id]
 """);
     }
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }
