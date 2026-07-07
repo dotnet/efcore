@@ -54,6 +54,18 @@ public sealed partial class SelectExpression
         Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
         : ExpressionVisitor
     {
+        // #30915: tracks New/MemberInit nodes rebuilt by this visitor (old instance → new instance). Used by the caller
+        // to re-key any _nonEntityNullabilityMarkers entries whose key was one of the rebuilt nodes, so that a previously-
+        // recorded marker key does not go stale when an outer-shaper remap creates a fresh node instance. Lazily
+        // allocated since most remaps rebuild nothing and most callers never read it.
+        private static readonly IReadOnlyDictionary<Expression, Expression> EmptyRebuiltNodes
+            = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
+
+        private Dictionary<Expression, Expression>? _rebuiltNodes;
+
+        public IReadOnlyDictionary<Expression, Expression> RebuiltNodes
+            => _rebuiltNodes ?? EmptyRebuiltNodes;
+
         protected override Expression VisitExtension(Expression expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -69,6 +81,28 @@ public sealed partial class SelectExpression
             }
 
             return base.VisitExtension(expression);
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var visited = (NewExpression)base.VisitNew(node);
+            if (!ReferenceEquals(visited, node))
+            {
+                (_rebuiltNodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[node] = visited;
+            }
+
+            return visited;
+        }
+
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+        {
+            var visited = (MemberInitExpression)base.VisitMemberInit(node);
+            if (!ReferenceEquals(visited, node))
+            {
+                (_rebuiltNodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[node] = visited;
+            }
+
+            return visited;
         }
     }
 
