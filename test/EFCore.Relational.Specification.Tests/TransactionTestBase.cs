@@ -336,39 +336,82 @@ public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFi
             return;
         }
 
-        DbConnection connection;
-        using (var context = CreateContextWithConnectionString())
+        DbConnection connection = null;
+
+        await RetryOnDistributedTransactionNotSupportedAsync(async () =>
         {
-            using (TestUtilities.TestStore.CreateTransactionScope())
+            using (var context = CreateContextWithConnectionString())
             {
-                context.Database.AutoTransactionBehavior = autoTransactionBehavior;
-
-                connection = context.Database.GetDbConnection();
-                Assert.Equal(ConnectionState.Closed, connection.State);
-
-                await context.AddAsync(
-                    new TransactionCustomer { Id = 77, Name = "Bobble" });
-
-                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
-
-                if (async)
+                using (TestUtilities.TestStore.CreateTransactionScope())
                 {
-                    await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
-                }
-                else
-                {
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
-                }
+                    context.Database.AutoTransactionBehavior = autoTransactionBehavior;
 
-                Assert.Equal(ConnectionState.Closed, connection.State);
+                    connection = context.Database.GetDbConnection();
+                    Assert.Equal(ConnectionState.Closed, connection.State);
 
-                context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
+                    await context.AddAsync(
+                        new TransactionCustomer { Id = 77, Name = "Bobble" });
+
+                    context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+
+                    // SaveChanges is expected to fail with DbUpdateException (duplicate key).
+                    try
+                    {
+                        if (async)
+                        {
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                        }
+
+                        Assert.Fail("Expected a DbUpdateException to be thrown.");
+                    }
+                    catch (PlatformNotSupportedException)
+                    {
+                        // When the ambient transaction is promoted to a distributed one and throws PlatformNotSupportedException, let it
+                        // propagate so the whole operation is retried.
+                        throw;
+                    }
+                    catch (DbUpdateException)
+                    {
+                    }
+
+                    Assert.Equal(ConnectionState.Closed, connection.State);
+
+                    context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
+                }
             }
-        }
+        });
 
         Assert.Equal(ConnectionState.Closed, connection.State);
 
         AssertStoreInitialState();
+    }
+
+    // Sometimes an ambient/enlisted transaction ends up spanning more than one physical connection due to concurrency issues
+    // and is promoted to a distributed transaction, which throws PlatformNotSupportedException.
+    // Retry the operation a few times (with exponential back-off) so a run that keeps to a single connection (and
+    // therefore reaches the behavior under test) is used.
+    private static async Task RetryOnDistributedTransactionNotSupportedAsync(Func<Task> test)
+    {
+        const int maxAttempts = 3;
+        var delay = TimeSpan.FromSeconds(1);
+
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                await test();
+                return;
+            }
+            catch (PlatformNotSupportedException) when (attempt < maxAttempts)
+            {
+                await Task.Delay(delay);
+                delay *= 2;
+            }
+        }
     }
 
     [Theory, InlineData(true), InlineData(false)]

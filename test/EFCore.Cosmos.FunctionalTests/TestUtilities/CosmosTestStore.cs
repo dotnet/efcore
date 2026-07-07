@@ -317,6 +317,10 @@ public class CosmosTestStore : TestStore
     private async Task CleanAsyncImpl(DbContext context, bool createTables)
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
+
+        // Containers are deleted and recreated below only when the database already existed. A freshly-created
+        // database has brand-new containers whose metadata cannot be stale.
+        var containersRecreated = !created;
         try
         {
             if (!created)
@@ -334,12 +338,23 @@ public class CosmosTestStore : TestStore
                 created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
                 if (!created)
                 {
+                    if (containersRecreated)
+                    {
+                        await RefreshContainerMetadataAsync(context).ConfigureAwait(false);
+                    }
+
                     await SeedAsync(context).ConfigureAwait(false);
                 }
             }
             else
             {
                 await CreateContainersAsync(context).ConfigureAwait(false);
+
+                if (containersRecreated)
+                {
+                    await RefreshContainerMetadataAsync(context).ConfigureAwait(false);
+                }
+
                 await SeedAsync(context).ConfigureAwait(false);
             }
         }
@@ -354,6 +369,63 @@ public class CosmosTestStore : TestStore
             }
 
             throw;
+        }
+    }
+
+    // Deleting and recreating a container gives it a new resource id (_rid), but the shared CosmosClient caches each
+    // container's _rid (and the partition key ranges keyed by it) by container name. The first operation on the
+    // recreated container - whether it is the reseed below or the next test's first query - can then fail with
+    // "NotFound (404) ... GetTargetPartitionKeyRanges ... failed due to stale cache", and the query pipeline does not
+    // transparently refresh and retry. Prime the client's caches here, right after recreating the containers and before
+    // any test touches them. Each attempt re-reads the container by name (refreshing the collection cache with the new
+    // _rid) and then runs a query - the exact path that otherwise fails. Because the recreate can take a moment to
+    // become consistent on the emulator gateway, retry with a short delay until a query succeeds. This is the single
+    // place that handles the stale-metadata problem; it is fully best-effort and must never fail the clean, so all
+    // errors are ultimately swallowed.
+    private async Task RefreshContainerMetadataAsync(DbContext context)
+    {
+        const int maxAttempts = 10;
+
+        try
+        {
+            var cosmosClient = context.Database.GetCosmosClient();
+            var database = cosmosClient.GetDatabase(Name);
+            var model = context.GetService<IDesignTimeModel>().Model;
+            var countQuery = new QueryDefinition("SELECT VALUE COUNT(1) FROM c");
+
+            foreach (var containerProperties in GetContainersToCreate(model))
+            {
+                var container = database.GetContainer(containerProperties.Id);
+
+                for (var attempt = 1; attempt <= maxAttempts; attempt++)
+                {
+                    try
+                    {
+                        await container.ReadContainerAsync().ConfigureAwait(false);
+
+                        using var iterator = container.GetItemQueryIterator<int>(countQuery);
+                        while (iterator.HasMoreResults)
+                        {
+                            await iterator.ReadNextAsync().ConfigureAwait(false);
+                        }
+
+                        break;
+                    }
+                    catch when (attempt < maxAttempts)
+                    {
+                        // The recreate has not become consistent yet; wait for the gateway to catch up and retry.
+                        await Task.Delay(200).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // Best-effort priming; never let it fail the clean.
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Never let cache priming fail the clean.
         }
     }
 
