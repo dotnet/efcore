@@ -2297,6 +2297,19 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[Name], [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [EntitiesBasic] AS [e]
+LEFT JOIN [JsonEntitiesBasic] AS [j] ON [e].[Id] = [j].[EntityBasicId]
+ORDER BY [e].[Id]
+""");
+    }
+
     public override async Task Json_with_include_on_entity_collection_and_reference(bool async)
     {
         await base.Json_with_include_on_entity_collection_and_reference(async);

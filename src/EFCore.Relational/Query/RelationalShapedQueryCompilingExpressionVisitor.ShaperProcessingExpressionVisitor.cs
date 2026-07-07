@@ -3613,6 +3613,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     _insideInclude = true;
                     Visit(includeExpression.NavigationExpression);
                     _insideInclude = insideInclude;
+                    // Visit EntityExpression explicitly here, rather than falling through to base.VisitExtension,
+                    // so we avoid re-visiting NavigationExpression a second time with _insideInclude incorrectly reset to false.
+                    Visit(includeExpression.EntityExpression);
+                    return extensionExpression;
                 }
 
                 if (extensionExpression is StructuralTypeShaperExpression
@@ -3625,7 +3629,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     switch (entityProjection)
                     {
                         case QueryableJsonProjectionInfo:
-                        case JsonProjectionInfo when _insideCollection:
+                        case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
                                 RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
                                     nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
@@ -3664,7 +3668,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     switch (collectionProjection)
                     {
                         case QueryableJsonProjectionInfo:
-                        case JsonProjectionInfo when _insideCollection:
+                        case JsonProjectionInfo when _insideCollection && !_insideInclude:
                             throw new InvalidOperationException(
                                 RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
                                     nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
