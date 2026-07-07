@@ -715,17 +715,26 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     // uses for every other projected sub-expression, so it survives to the reader as a readable nullable scalar projection.
     private Expression GateNonEntityOnNullabilityMarker(Expression visited, Expression markerBinding, Type objectType)
     {
-        // Intermediate (TransparentIdentifier-rooted) projections are suppressed: there the recorded object is composed
-        // further and must stay a bare New for downstream member-folding.
+        // objectType is always the shaper node's own CLR type: the reference type for a reference-type New/MemberInit, or the
+        // (non-nullable) struct for a value-type MemberInit. It is never Nullable<T> here -- see the Nullable<T> note below.
         //
-        // For a value-type objectType (mutable struct / record struct projected via MemberInit), Expression.Default(objectType)
-        // is a zeroed struct rather than null -- which is exactly right here: it mirrors LINQ-to-Objects DefaultIfEmpty
-        // semantics for a value-type sequence (a no-match row yields default(T), not an exception). Constructor-bound structs
-        // (positional record structs, read-only DTOs, ValueTuple) ARE NewExpressions, so SelectExpression.AddJoin's recording
-        // condition still matches them and a markerBinding IS produced; they simply fail to TRANSLATE at a different, deferred
-        // point before the query ever reaches this gate (tracked separately), so the marker is injected but never consumed.
-        // Nullable<T> whole-object is unreachable here too: LINQ produces it via a Convert node, not a New/MemberInit node, so
-        // it never satisfies the SelectExpression.AddJoin recording condition that produces markerBinding.
+        // Reference type: Expression.Default(objectType) is null, gating the whole object to null on a no-match row (the #30915
+        // case). Value type (mutable struct / record struct projected via MemberInit): Expression.Default(objectType) is a zeroed
+        // struct rather than null -- which is exactly right, mirroring LINQ-to-Objects DefaultIfEmpty semantics for a value-type
+        // sequence (a no-match row yields default(T), not an exception). Both are gated here.
+        //
+        // Two shapes reach SelectExpression.AddJoin's New/MemberInit recording condition (so a markerBinding is produced) but are
+        // NOT meaningfully gated here:
+        //  - Constructor-bound structs (positional record structs, read-only DTOs, ValueTuple) are NewExpressions, so a marker is
+        //    injected, but they fail to TRANSLATE at an earlier, deferred point before the query ever reaches this gate (tracked
+        //    separately); the injected marker is simply never consumed.
+        //  - A user-visible Nullable<T> whole-object arrives as Convert(MemberInit, T?): the marker is recorded against the inner
+        //    MemberInit, so this gate DOES fire -- but with objectType = the underlying struct, producing a zeroed struct that the
+        //    outer Convert then lifts to a non-null T? (HasValue == true). That is correct: casting a real (if zeroed) struct to
+        //    Nullable<T> can never itself yield null, matching DefaultIfEmpty over a value-type sequence.
+        //
+        // Intermediate (TransparentIdentifier-rooted) projections are suppressed: there the recorded object is composed further
+        // and must stay a bare New for downstream member-folding.
         if (_rootIsTransparentIdentifier)
         {
             return visited;
