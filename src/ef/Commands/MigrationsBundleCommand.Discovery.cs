@@ -92,17 +92,47 @@ internal partial class MigrationsBundleCommand
 
     // Builds the failure for a non-zero discovery child. Under --prefix-output the child writes its
     // prefixed error lines to STDOUT (Reporter.WriteError -> WriteStdErr -> WriteLine -> stdout), so
-    // the actionable text is in the captured stdout, not stderr; scan stdout first and fall back to
-    // the raw stderr capture for unprefixed failures. See https://github.com/dotnet/efcore/issues/25555.
+    // the actionable text is in the captured stdout, not stderr; scan stdout first, then stderr for
+    // prefixed lines, and finally fall back to the raw stderr capture for unprefixed failures.
+    // See https://github.com/dotnet/efcore/issues/25555.
     internal static CommandException CreateDiscoveryFailure(string output, IEnumerable<string?> errorOutput)
     {
+        var errorLines = errorOutput as IReadOnlyCollection<string?> ?? errorOutput.ToList();
+
+        // Prefer prefixed error lines (actionable EF guidance like the multi-context "--context" hint):
+        // scan the child's stdout first (where --prefix-output routes its error: lines), then its stderr.
+        // As a last resort fall back to the raw stderr text, so host-level failures that carry no
+        // Reporter.ErrorPrefix (framework roll-forward, missing runtime, an unhandled exception) still
+        // reach the user instead of collapsing into the generic message.
         var detail = ExtractErrorMessage(output.Split('\n').Select(l => l.TrimEnd('\r')))
-            ?? ExtractErrorMessage(errorOutput);
+            ?? ExtractErrorMessage(errorLines)
+            ?? JoinRawErrorLines(errorLines);
 
         return new CommandException(
             detail != null
                 ? Resources.BundleContextDiscoveryFailedWithError(detail)
                 : Resources.BundleContextDiscoveryFailed);
+    }
+
+    // Joins the raw captured stderr lines verbatim, used as a last-resort fallback when the child
+    // produced no Reporter.ErrorPrefix-prefixed error text.
+    internal static string? JoinRawErrorLines(IEnumerable<string?> errorLines)
+    {
+        var builder = new StringBuilder();
+        foreach (var line in errorLines)
+        {
+            if (!string.IsNullOrEmpty(line))
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append(Environment.NewLine);
+                }
+
+                builder.Append(line);
+            }
+        }
+
+        return builder.Length > 0 ? builder.ToString() : null;
     }
 
     // Pulls the human-readable error text out of prefixed output lines (those beginning with
