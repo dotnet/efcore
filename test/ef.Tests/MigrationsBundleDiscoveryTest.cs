@@ -205,4 +205,29 @@ public class MigrationsBundleDiscoveryTest
 
         Assert.Equal(Properties.Resources.BundleContextDiscoveryFailed, ex.Message);
     }
+
+    [Fact]
+    public void CreateDiscoveryFailure_falls_back_to_raw_stderr_when_unprefixed()
+    {
+        // Host-level failures (framework roll-forward, missing runtime, unhandled exceptions) write
+        // unprefixed text to stderr. It must still reach the user rather than collapsing into the
+        // generic message.
+        var ex = MigrationsBundleCommand.CreateDiscoveryFailure(
+            Reporter.InfoPrefix + "no error here",
+            new[] { "A fatal error was encountered.", "The required framework was not found." });
+
+        Assert.Contains("A fatal error was encountered.", ex.Message);
+        Assert.Contains("The required framework was not found.", ex.Message);
+    }
+
+    [Fact]
+    public void CreateDiscoveryFailure_prefers_prefixed_stderr_over_raw()
+    {
+        var ex = MigrationsBundleCommand.CreateDiscoveryFailure(
+            Reporter.InfoPrefix + "no error here",
+            new[] { "noise line", Reporter.ErrorPrefix + "Actionable error." });
+
+        Assert.Contains("Actionable error.", ex.Message);
+        Assert.DoesNotContain("noise line", ex.Message);
+    }
 }
