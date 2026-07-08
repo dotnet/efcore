@@ -1500,6 +1500,26 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         Assert.NotSame(context1, context2);
     }
 
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Setting_lease_on_fully_torn_down_context_throws(bool async)
+    {
+        var serviceProvider = BuildServiceProvider<PooledContext>();
+
+        var pool = serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>();
+        var lease = new DbContextLease(pool, standalone: true);
+        var context = (PooledContext)lease.Context;
+        ((IDbContextPoolable)context).SetLease(lease);
+
+        // Fully tear the context down the same way the pool does for a context that overflows it: ClearLease followed by
+        // Dispose clears the captured configuration snapshot.
+        ((IDbContextPoolable)context).ClearLease();
+        await Dispose(context, async);
+
+        // A context that has been fully torn down cannot be resurrected via a new lease; it must throw rather than
+        // dereferencing the now-null configuration snapshot.
+        Assert.Throws<ObjectDisposedException>(() => ((IDbContextPoolable)context).SetLease(lease));
+    }
+
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]
     public async Task Can_double_dispose_with_factory(bool async, bool withDependencyInjection)
     {

@@ -65,6 +65,7 @@ public class DbContext :
     private List<IResettableService>? _cachedResettableServices;
     private bool _initializing;
     private bool _disposed;
+    private bool _leaseCleared;
 
     private readonly Guid _contextId = Guid.NewGuid();
     private int _leaseCount;
@@ -868,7 +869,15 @@ public class DbContext :
     /// </summary>
     [EntityFrameworkInternal]
     void IDbContextPoolable.ClearLease()
-        => _lease = DbContextLease.InactiveLease;
+    {
+        _lease = DbContextLease.InactiveLease;
+
+        // ClearLease is only called by the pool when a pooled instance is being torn down (it overflowed the pool or the
+        // pool is being disposed), as opposed to being returned to the pool for reuse. This flag lets the subsequent
+        // Dispose run the teardown that decrements the active DbContexts count even though the instance was already
+        // marked as disposed when it was returned to the pool.
+        _leaseCleared = true;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -896,11 +905,16 @@ public class DbContext :
 
     private void SetLeaseInternal(DbContextLease lease)
     {
+        // The configuration snapshot is null if the context was already fully torn down (e.g. it overflowed the pool and
+        // was disposed). Such a context cannot be resurrected via a new lease, so treat this as use of a disposed context.
+        if (_configurationSnapshot is null)
+        {
+            throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
+        }
+
         _lease = lease;
         _disposed = false;
         ++_leaseCount;
-
-        Check.DebugAssert(_configurationSnapshot != null, "configurationSnapshot is null");
 
         if (_changeTracker != null
             || _configurationSnapshot.HasChangeTrackerConfiguration)
@@ -1124,8 +1138,12 @@ public class DbContext :
                 _lease = DbContextLease.InactiveLease;
             }
         }
-        else if (!_disposed)
+        else if (!_disposed || _leaseCleared)
         {
+            // Reset the flag before unsubscribing: unsubscribing can dispose injected service properties, which may
+            // re-enter Dispose on this context.
+            _leaseCleared = false;
+
             EntityFrameworkMetricsData.ReportDbContextDisposing();
 
             _dbContextDependencies?.InfrastructureLogger.ContextDisposed(this);
