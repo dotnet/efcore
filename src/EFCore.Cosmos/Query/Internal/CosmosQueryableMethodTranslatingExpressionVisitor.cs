@@ -1024,8 +1024,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         var selectExpression = (SelectExpression)source.QueryExpression;
 
-        if (selectExpression.IsDistinct
-            && selector.Body is not IncludeExpression) // Allow distinct over select include for owned types (the select doesn't actually change the shaper / what is selected
+        // We currently don't allow selects over a distinct query, because it would require subquery pushdown (#33968)
+        // We do allow select include over a distinct query that doesn't change the shaper. This is for owned types, as the query pipeline will generate a select include after the user's distinct
+        var isIncludeThatDoesNotChangeShaper = selector.Body is IncludeExpression includeExpression
+            && !UnwrapInclude(includeExpression).Equals(source.ShaperExpression);
+        if (selectExpression.IsDistinct && !isIncludeThatDoesNotChangeShaper)
         {
             // TODO: The base TranslateSelect does not allow returning null (presumably because client eval should always be possible)
             return null!;
@@ -1036,6 +1039,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         return source.UpdateShaperExpression(newShaper);
     }
+
+    private static Expression UnwrapInclude(IncludeExpression includeExpression)
+        => includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
+            ? UnwrapInclude(innerIncludeExpression)
+            : includeExpression.EntityExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
