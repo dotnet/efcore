@@ -1427,7 +1427,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var typeMapping = property.GetTypeMapping();
             var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
             Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-            return ReadJsonValue(_jsonReaderManagerVariable, jsonValueReaderWriter, typeMapping, property.ClrType, property.IsNullable);
+            return ReadJsonValue(
+                _jsonReaderManagerVariable,
+                jsonValueReaderWriter,
+                typeMapping,
+                property.ClrType,
+                true); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
         }
 
         private static Expression ReadJsonValue(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)
@@ -1460,8 +1465,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var nullConverter = typeMapping.Converter is { ConvertsNulls: true } converter ? converter : null;
             if (nullable || nullConverter != null)
             {
-                // When the value is allowed to be null, we can't just use the JsonReader method
-                // Check for JsonTokenType.Null
+                // When the value is allowed to be null, we can't just use the JsonReader method, so we check for JsonTokenType.Null
                 // If there is a converter that accepts nulls, we need to call it, otherwise we just return default value of the CLR type
                 resultExpression = Condition(
                     Equal(
@@ -1520,9 +1524,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 MakeIndex(
                                     listVar,
                                     indexerProperty,
-                                    [i]
-                                )
-                            ),
+                                    [i])),
 
                             body,
 

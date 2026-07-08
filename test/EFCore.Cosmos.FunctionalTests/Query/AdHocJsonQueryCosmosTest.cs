@@ -44,16 +44,49 @@ WHERE (c["Id"] < 4)
         }
     }
 
-    public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
+    public override Task Project_top_level_entity_with_null_value_required_scalars(bool async)
+    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
     {
-        // Throws sync not supported exception for sync
-        if (async)
-        {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
-                => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
+        await base.Project_top_level_entity_with_null_value_required_scalars(async);
 
-            Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
-        }
+        AssertSql(
+            """
+SELECT c["Id"], c["RequiredReference"]
+FROM root c
+WHERE (c["Id"] = 4)
+""");
+    });
+
+    [Fact]
+    public virtual async Task Project_entity_with_null_value_required_scalars()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context21006>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: OnModelCreating21006,
+            seed: Seed21006);
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context21006.Entity>().Where(x => x.Id == 4).AsNoTracking().ToListAsync();
+
+        var nullScalars = result.Single();
+
+        Assert.Equal(default, nullScalars.RequiredReference.Number);
+    }
+
+    [Fact]
+    public virtual async Task Project_null_value_required_scalar()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context21006>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: OnModelCreating21006,
+            seed: Seed21006);
+
+        await using var context = contextFactory.CreateDbContext();
+
+        // Same as in 10.0
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Context21006.Entity>().Where(x => x.Id == 4).Select(x => x.RequiredReference.Number).ToListAsync());
+        Assert.Equal("Nullable object must have a value.", ex.Message);
     }
 
     public override Task Project_root_entity_with_missing_required_navigation(bool async)
