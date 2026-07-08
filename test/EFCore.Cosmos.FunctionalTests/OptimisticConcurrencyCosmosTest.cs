@@ -85,8 +85,7 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
         return base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException();
     }
 
-    public override Task
-        Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
     {
         // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
         CosmosTestEnvironment.SkipOnLinuxEmulator();
@@ -102,15 +101,25 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
 
     // Uses lazy-loader, which is always sync
     public override Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
-        => CosmosTestHelpers.Instance.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(
             false,
             _ => base.Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first());
+    }
 
     // Uses lazy-loader, which is always sync
     public override Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
-        => CosmosTestHelpers.Instance.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return CosmosTestHelpers.Instance.NoSyncTest(
             false,
             _ => base.Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first());
+    }
 
     protected override IDbContextTransaction BeginTransaction(DatabaseFacade facade)
         => new FakeDbContextTransaction();
