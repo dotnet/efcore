@@ -333,12 +333,11 @@ public abstract class TestHelpers
         foreach (var method in methods)
         {
             var parameters = method.GetParameters();
-            var paramList = parameters.Length > 0
-                ? string.Join(", ", parameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))
-                : "";
-            var argList = parameters.Length > 0
-                ? string.Join(", ", parameters.Select(p => p.Name))
-                : "";
+            var hasAsyncParameter = parameters.Length == 1
+                && parameters[0].ParameterType == typeof(bool)
+                && parameters[0].Name == "async";
+            var paramList = hasAsyncParameter ? "bool async" : "";
+            var argList = hasAsyncParameter ? "async" : "";
 
             if (method.ReturnType == typeof(Task))
             {

@@ -2700,6 +2700,22 @@ WHERE [u].[Name] LIKE N'Name%'
 """);
     }
 
+    public override async Task Entity_equality_with_Contains_and_Parameter(bool async)
+    {
+        await base.Entity_equality_with_Contains_and_Parameter(async);
+
+        AssertSql(
+            """
+@entity_equality_details_Id1='1'
+@entity_equality_details_Id2='2'
+
+SELECT [b].[Id], [b].[DetailsId], [b].[Name]
+FROM [Blogs] AS [b]
+LEFT JOIN [BlogDetails] AS [b0] ON [b].[DetailsId] = [b0].[Id]
+WHERE [b0].[Id] IN (@entity_equality_details_Id1, @entity_equality_details_Id2)
+""");
+    }
+
     #region 30915
 
     public override async Task Anon_whole_object_GroupJoin_DefaultIfEmpty()
@@ -3201,46 +3217,169 @@ ORDER BY [s0].[PickupStatusId]
     }
 
     public override async Task Query_when_null_key_in_database_should_throw()
-        => await base.Query_when_null_key_in_database_should_throw();
+    {
+        await base.Query_when_null_key_in_database_should_throw();
+
+        AssertSql(
+            """
+SELECT [z].[Id]
+FROM [ZeroKey] AS [z]
+""");
+    }
 
     public override async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
-        => await base.Mapping_JsonElement_property_throws_a_meaningful_exception();
+    {
+        await base.Mapping_JsonElement_property_throws_a_meaningful_exception();
+
+        AssertSql();
+    }
 
     public override async Task Dto_constructor_whole_object_LeftJoin()
-        => await base.Dto_constructor_whole_object_LeftJoin();
+    {
+        await base.Dto_constructor_whole_object_LeftJoin();
+
+        AssertSql();
+    }
 
     public override async Task Struct_whole_object_LeftJoin()
-        => await base.Struct_whole_object_LeftJoin();
+    {
+        await base.Struct_whole_object_LeftJoin();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
 
     public override async Task RecordStruct_whole_object_LeftJoin()
-        => await base.RecordStruct_whole_object_LeftJoin();
+    {
+        await base.RecordStruct_whole_object_LeftJoin();
+
+        AssertSql();
+    }
 
     public override async Task GroupBy_after_join_then_whole_object()
-        => await base.GroupBy_after_join_then_whole_object();
+    {
+        await base.GroupBy_after_join_then_whole_object();
+
+        AssertSql(
+            """
+SELECT [s1].[PickupStatusId], [s3].[pickupStatusId], [s3].[Count], [s3].[c]
+FROM (
+    SELECT [s].[PickupStatusId]
+    FROM [Statuses] AS [s]
+    LEFT JOIN (
+        SELECT [r].[PickupStatusId] AS [pickupStatusId]
+        FROM [Requests] AS [r]
+        GROUP BY [r].[PickupStatusId]
+    ) AS [r0] ON [s].[PickupStatusId] = [r0].[pickupStatusId]
+    GROUP BY [s].[PickupStatusId]
+) AS [s1]
+LEFT JOIN (
+    SELECT [s2].[pickupStatusId], [s2].[Count], [s2].[c], [s2].[PickupStatusId0]
+    FROM (
+        SELECT [r1].[pickupStatusId], [r1].[Count], 1 AS [c], [s0].[PickupStatusId] AS [PickupStatusId0], ROW_NUMBER() OVER(PARTITION BY [s0].[PickupStatusId] ORDER BY [s0].[PickupStatusId], [r1].[pickupStatusId]) AS [row]
+        FROM [Statuses] AS [s0]
+        LEFT JOIN (
+            SELECT [r2].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+            FROM [Requests] AS [r2]
+            GROUP BY [r2].[PickupStatusId]
+        ) AS [r1] ON [s0].[PickupStatusId] = [r1].[pickupStatusId]
+    ) AS [s2]
+    WHERE [s2].[row] <= 1
+) AS [s3] ON [s1].[PickupStatusId] = [s3].[PickupStatusId0]
+ORDER BY [s1].[PickupStatusId]
+""");
+    }
 
     public override async Task Plain_inner_no_aggregate_LeftJoin_whole_object()
-        => await base.Plain_inner_no_aggregate_LeftJoin_whole_object();
+    {
+        await base.Plain_inner_no_aggregate_LeftJoin_whole_object();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r].[PickupStatusId], 1 AS [Count]
+FROM [Statuses] AS [s]
+LEFT JOIN [Requests] AS [r] ON [s].[PickupStatusId] = [r].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
 
     public override async Task Union_of_two_leftjoin_nonentity()
-        => await base.Union_of_two_leftjoin_nonentity();
+    {
+        await base.Union_of_two_leftjoin_nonentity();
+
+        AssertSql();
+    }
 
     public override async Task OrderBy_member_of_nullable_projection()
-        => await base.OrderBy_member_of_nullable_projection();
+    {
+        await base.OrderBy_member_of_nullable_projection();
+
+        AssertSql();
+    }
 
     public override async Task Where_nonentity_projection_not_null_serverside()
-        => await base.Where_nonentity_projection_not_null_serverside();
+    {
+        await base.Where_nonentity_projection_not_null_serverside();
+
+        AssertSql();
+    }
 
     public override async Task Where_nonentity_projection_null_serverside()
-        => await base.Where_nonentity_projection_null_serverside();
+    {
+        await base.Where_nonentity_projection_null_serverside();
+
+        AssertSql();
+    }
 
     public override async Task RightJoin_whole_object_outer_nullable()
-        => await base.RightJoin_whole_object_outer_nullable();
+    {
+        await base.RightJoin_whole_object_outer_nullable();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[pickupStatusId], [r0].[Count]
+FROM (
+    SELECT [r].[PickupStatusId] AS [pickupStatusId], COUNT(*) AS [Count]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0]
+RIGHT JOIN [Statuses] AS [s] ON [r0].[pickupStatusId] = [s].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
 
     public override async Task Nullable_struct_whole_object_from_nullable_side()
-        => await base.Nullable_struct_whole_object_from_nullable_side();
+    {
+        await base.Nullable_struct_whole_object_from_nullable_side();
+
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[Count]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [Count]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
+    }
 
     public override async Task ValueTuple_whole_object_from_nullable_side()
-        => await base.ValueTuple_whole_object_from_nullable_side();
+    {
+        await base.ValueTuple_whole_object_from_nullable_side();
+
+        AssertSql();
+    }
 
     #endregion
 
