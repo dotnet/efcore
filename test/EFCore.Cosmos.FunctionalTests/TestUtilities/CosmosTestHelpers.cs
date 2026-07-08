@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Xunit.Sdk;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.TestUtilities;

@@ -1024,18 +1024,18 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         var selectExpression = (SelectExpression)source.QueryExpression;
 
+        var newSelectorBody = RemapLambdaBody(source, selector);
+        var newShaper = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
+
         // We currently don't allow selects over a distinct query, because it would require subquery pushdown (#33968)
         // We do allow select include over a distinct query that doesn't change the shaper. This is for owned types, as the query pipeline will generate a select include after the user's distinct
-        var isIncludeThatDoesNotChangeShaper = selector.Body is IncludeExpression includeExpression
-            && !UnwrapInclude(includeExpression).Equals(source.ShaperExpression);
-        if (selectExpression.IsDistinct && !isIncludeThatDoesNotChangeShaper)
+        var isIncludeThatDoesntChangeShaper = newSelectorBody is IncludeExpression includeExpression
+            && UnwrapInclude(includeExpression) == source.ShaperExpression;
+        if (selectExpression.IsDistinct && !isIncludeThatDoesntChangeShaper)
         {
             // TODO: The base TranslateSelect does not allow returning null (presumably because client eval should always be possible)
             return null!;
         }
-
-        var newSelectorBody = RemapLambdaBody(source, selector);
-        var newShaper = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
 
         return source.UpdateShaperExpression(newShaper);
     }
