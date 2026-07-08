@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -7,16 +7,16 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
 {
     #region 19708
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GroupJoin_SelectMany_gets_flattened()
     {
-        var contextFactory = await InitializeAsync<Context19708>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context19708>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.CustomerFilters.ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Set<Context19708.CustomerView19708>().ToList();
 
@@ -128,6 +128,6 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
 
     #endregion
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 }

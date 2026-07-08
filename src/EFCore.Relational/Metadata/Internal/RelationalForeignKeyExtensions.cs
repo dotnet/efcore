@@ -161,6 +161,23 @@ public static class RelationalForeignKeyExtensions
             return false;
         }
 
+        if (foreignKey.IsExcludedFromMigrations() != duplicateForeignKey.IsExcludedFromMigrations())
+        {
+            if (shouldThrow)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateForeignKeyExcludedFromMigrationsMismatch(
+                        foreignKey.Properties.Format(),
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        duplicateForeignKey.Properties.Format(),
+                        duplicateForeignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        foreignKey.GetConstraintName(storeObject, principalTable.Value)));
+            }
+
+            return false;
+        }
+
         return true;
     }
 
@@ -176,6 +193,11 @@ public static class RelationalForeignKeyExtensions
         in StoreObjectIdentifier principalStoreObject,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? logger)
     {
+        if (!foreignKey.IsConstrained)
+        {
+            return null;
+        }
+
         if (storeObject.StoreObjectType != StoreObjectType.Table
             || principalStoreObject.StoreObjectType != StoreObjectType.Table)
         {

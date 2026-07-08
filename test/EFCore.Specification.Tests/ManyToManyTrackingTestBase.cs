@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_with_navs(bool async)
     {
         List<int> keys = null;
@@ -134,7 +134,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_with_navs()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -301,7 +301,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_with_navs()
     {
         var key1 = 0;
@@ -459,7 +459,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_shared_with_navs(bool async)
     {
         List<int> keys = null;
@@ -568,7 +568,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_shared_with_navs()
     {
         List<int> rootKeys = null;
@@ -731,7 +731,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_shared_with_navs()
     {
         var key1 = 0;
@@ -839,7 +839,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_additional_pk_with_navs(bool async)
     {
         List<string> keys = null;
@@ -979,7 +979,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_composite_additional_pk_with_navs()
     {
         List<int> threeIds = null;
@@ -1160,7 +1160,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_composite_additional_pk_with_navs()
     {
         var threeId = 0;
@@ -1306,7 +1306,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_shared(bool async)
     {
         List<int> leftKeys = null;
@@ -1410,7 +1410,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_self()
     {
         List<int> ids = null;
@@ -1562,7 +1562,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_navs(bool async)
     {
         List<int> keys = null;
@@ -1663,7 +1663,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_navs()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -1818,7 +1818,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_inheritance(bool async)
     {
         List<int> keys = null;
@@ -1909,7 +1909,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_inheritance()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2053,7 +2053,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_with_payload(bool async)
     {
         List<int> leftKeys = null;
@@ -2177,7 +2177,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_self_with_payload()
     {
         List<int> keys = null;
@@ -2366,7 +2366,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_with_payload(bool async)
     {
         List<int> keys = null;
@@ -2467,7 +2467,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_shared_with_payload()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2660,7 +2660,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared(bool async)
     {
         List<int> keys = null;
@@ -2751,7 +2751,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_shared()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -2903,7 +2903,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_payload(bool async)
     {
         List<int> keys = null;
@@ -3009,7 +3009,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many_with_payload()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -3205,7 +3205,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many_with_navs()
     {
         return ExecuteWithStrategyInTransactionAsync(
@@ -3329,7 +3329,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many(bool async)
     {
         List<int> keys = null;
@@ -3420,7 +3420,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_suspected_dangling_join(
@@ -3594,7 +3594,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Can_insert_many_to_many_with_dangling_join(bool async, bool useTrackGraph, bool useDetectChanges)
@@ -3723,7 +3723,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_update_many_to_many()
     {
         List<int> oneIds = null;
@@ -3884,7 +3884,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_delete_with_many_to_many()
     {
         var oneId = 0;
@@ -3975,7 +3975,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_fully_by_convention(bool async)
     {
         List<int> keys = null;
@@ -4075,7 +4075,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_fully_by_convention_generated_keys(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(
@@ -4171,7 +4171,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
+    [Theory, InlineData(true, false), InlineData(false, false), InlineData(true, true), InlineData(false, true)]
     public virtual async Task Can_Attach_or_Update_a_many_to_many_with_mixed_set_and_unset_keys(bool useUpdate, bool async)
     {
         var existingLeftId = -1;
@@ -4322,7 +4322,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Initial_tracking_uses_skip_navigations(bool async)
     {
         List<int> keys = null;
@@ -4405,7 +4405,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(new[] { 1, 2, 3 }), InlineData(new[] { 2, 1, 3 }), InlineData(new[] { 3, 1, 2 }),
+    [Theory, InlineData(new[] { 1, 2, 3 }), InlineData(new[] { 2, 1, 3 }), InlineData(new[] { 3, 1, 2 }),
      InlineData(new[] { 3, 2, 1 }), InlineData(new[] { 1, 3, 2 }), InlineData(new[] { 2, 3, 1 })]
     public virtual void Can_load_entities_in_any_order(int[] order)
     {
@@ -4454,7 +4454,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         Assert.Equal(112, (joinCount / 2) + deleted);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_insert_update_delete_shared_type_entity_type()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -4496,7 +4496,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
                         .AnyAsync(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Can_insert_update_delete_proxyable_shared_type_entity_type()
     {
         var id = 0;
@@ -4543,7 +4543,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_navs_by_join_entity(bool async)
     {
         await ExecuteWithStrategyInTransactionAsync(
@@ -4678,7 +4678,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -4781,7 +4781,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_self(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -4864,7 +4864,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -5005,7 +5005,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -5146,7 +5146,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_with_inheritance(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -5235,7 +5235,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_shared_with_payload(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -5322,7 +5322,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public virtual Task Can_add_and_remove_a_new_relationship_shared(bool modifyLeft, bool modifyRight, bool useJoin)
@@ -5405,7 +5405,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(false, true, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(false, true, false, false),
      InlineData(true, false, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(false, true, true, false), InlineData(true, false, true, false), InlineData(true, true, true, false),
      InlineData(false, false, true, true), InlineData(false, true, true, true), InlineData(true, false, true, true),
@@ -5516,7 +5516,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixt
             });
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public virtual async Task Can_replace_dependent_with_many_to_many(bool createNewCollection, bool async)
     {
         var principalKey = 0;

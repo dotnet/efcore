@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -12,7 +12,7 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_non_existing_navigation(bool async)
         => Assert.Contains(
             CoreStrings.InvalidIncludeExpression("Property(o, \"ArcticMonkeys\")"),

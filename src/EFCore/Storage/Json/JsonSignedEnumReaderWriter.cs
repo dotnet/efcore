@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 ///     Reads and writes JSON for <see langword="enum" /> values backed by a signed integer.
 /// </summary>
 public sealed class JsonSignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<TEnum>
-    where TEnum : struct, Enum
 {
     private static readonly PropertyInfo InstanceProperty = typeof(JsonSignedEnumReaderWriter<TEnum>).GetProperty(nameof(Instance))!;
 

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ServicePropertyDiscoveryConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Finds_service_properties_in_hierarchy()
     {
         using (var context = new ServicePropertiesContext())
@@ -104,7 +104,7 @@ public class ServicePropertyDiscoveryConventionTest
         Assert.Equal(typeof(TService), binding.ServiceType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Finds_one_service_property()
     {
         var entityType = RunConvention<BlogOneService>();
@@ -116,7 +116,7 @@ public class ServicePropertyDiscoveryConventionTest
         Assert.Equal(typeof(ILazyLoader), binding.ServiceType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_find_service_property_configured_as_property()
     {
         var entityType = new Model().AddEntityType(typeof(BlogOneService), owned: false, ConfigurationSource.Explicit);
@@ -129,7 +129,7 @@ public class ServicePropertyDiscoveryConventionTest
         Assert.Null(entityType.FindServiceProperty(nameof(BlogOneService.Loader)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_find_service_property_configured_as_navigation()
     {
         var model = new Model();
@@ -144,7 +144,7 @@ public class ServicePropertyDiscoveryConventionTest
         Assert.Null(entityType.FindServiceProperty(nameof(BlogOneService.Loader)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Finds_service_property_duplicate_ignored()
     {
         var entityType = RunConvention<BlogDuplicateService>();
@@ -192,8 +192,10 @@ public class ServicePropertyDiscoveryConventionTest
 
     private class ServicePropertiesContext : DbContext
     {
+        private static readonly InMemoryDatabaseRoot _databaseRoot = new();
+
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase(GetType().Name);
+            => optionsBuilder.UseInMemoryDatabase(GetType().Name, _databaseRoot);
 
         public DbSet<PrivateUnmappedBaseSuper> PrivateUnmappedBaseSupers
             => Set<PrivateUnmappedBaseSuper>();

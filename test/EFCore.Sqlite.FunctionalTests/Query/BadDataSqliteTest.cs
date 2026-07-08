@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -15,7 +15,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
 {
     public BadDataSqliteFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_invalid_cast_key()
     {
         using var context = CreateContext("bad int");
@@ -25,7 +25,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                 context.Set<Product>().Where(p => p.ProductID != 1).ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_null_key()
     {
         using var context = CreateContext(null, true);
@@ -35,7 +35,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                 context.Set<Product>().Where(p => p.ProductID != 2).ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_invalid_cast()
     {
         using var context = CreateContext(1, true, 1);
@@ -45,7 +45,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                 context.Set<Product>().Where(p => p.ProductID != 3).ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_invalid_cast_projection()
     {
         using var context = CreateContext(1);
@@ -57,7 +57,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                     .ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_invalid_cast_no_tracking()
     {
         using var context = CreateContext("bad int");
@@ -70,7 +70,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                     .ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_null()
     {
         using var context = CreateContext(1, null);
@@ -80,7 +80,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                 context.Set<Product>().Where(p => p.ProductID != 6).ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_null_projection()
     {
         using var context = CreateContext([null]);
@@ -93,7 +93,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
                     .ToList()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Bad_data_error_handling_null_no_tracking()
     {
         using var context = CreateContext(null, true);

@@ -7,15 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsOfWarContext>, IQueryFixtureBase
+public abstract class GearsOfWarQueryFixtureBase : QueryFixtureBase<GearsOfWarContext>
 {
     protected override string StoreName
         => "GearsOfWarQueryTest";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => GearsOfWarData.Instance;
 
     public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
@@ -28,7 +25,7 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
             },
         };
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(City), e => ((City)e)?.Name },
         { typeof(CogTag), e => ((CogTag)e)?.Id },
@@ -45,7 +42,7 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
         { typeof(LocustHighCommand), e => ((LocustHighCommand)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(City), (e, a) =>

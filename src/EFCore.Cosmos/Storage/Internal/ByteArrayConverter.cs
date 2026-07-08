@@ -56,7 +56,7 @@ public class ByteArrayConverter : JsonConverter
     {
         if (reader.TokenType != JsonToken.StartArray)
         {
-            throw new Exception(reader.TokenType.ToString());
+            throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(reader.TokenType));
         }
 
         var byteList = new List<byte>();

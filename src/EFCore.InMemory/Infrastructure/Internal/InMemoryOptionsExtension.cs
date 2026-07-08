@@ -176,7 +176,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
                         builder.Append("DatabaseRoot=").Append(root.GetHashCode()).Append(' ');
                     }
 
-                    if (!Extension._nullabilityCheckEnabled)
+                    if (Extension._nullabilityCheckEnabled)
                     {
                         builder.Append("NullabilityChecksEnabled ");
                     }

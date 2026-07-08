@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
@@ -6,21 +6,21 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocVectorSearchTests";
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
     #region CompositeVectorIndex
 
-    [ConditionalFact]
+    [Fact]
     public async Task Validate_composite_vector_index_throws()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<ContextCompositeVectorIndex>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextCompositeVectorIndex>())).Message;
 
         Assert.Equal(
             CosmosStrings.CompositeVectorIndex(
@@ -56,11 +56,11 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
 
     #region VectorPropertyOnCollectionNavigation
 
-    [ConditionalFact]
+    [Fact]
     public async Task Validate_vector_property_on_collection_navigation_container_creation()
     {
         var message =
-            (await Assert.ThrowsAsync<NotSupportedException>(() => InitializeAsync<ContextVectorPropertyOnCollectionNavigation>())).Message;
+            (await Assert.ThrowsAsync<NotSupportedException>(() => InitializeNonSharedTest<ContextVectorPropertyOnCollectionNavigation>())).Message;
 
         Assert.Equal(
             CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported("/Collection"),

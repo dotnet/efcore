@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -32,7 +32,7 @@ public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : Northwi
             RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => base.Delete_non_entity_projection_3(async));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_FromSql_converted_to_subquery(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -76,7 +76,7 @@ WHERE [OrderID] < 10300"));
             RelationalStrings.InvalidPropertyInSetProperty("c => c.IsLondon"),
             () => base.Update_unmapped_property_throws(async));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_FromSql_set_constant(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -99,7 +99,7 @@ WHERE [CustomerID] LIKE 'A%'"));
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37771
+    [Theory, MemberData(nameof(IsAsyncData))] // #37771
     public virtual Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -118,7 +118,7 @@ WHERE [CustomerID] LIKE 'A%'"));
                 }
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // #37771
+    [Theory, MemberData(nameof(IsAsyncData))] // #37771
     public virtual Task Update_with_select_scalar_anonymous_projection(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
@@ -138,9 +138,12 @@ WHERE [CustomerID] LIKE 'A%'"));
             });
 
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
-        => Assert.Contains(
-            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal(details, innerException.Message);
+    }
 
     protected string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);

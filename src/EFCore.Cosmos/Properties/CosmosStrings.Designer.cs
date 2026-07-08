@@ -32,6 +32,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
+        ///     The property '{property}' on type '{type}' cannot be configured as not auto-loaded. The Cosmos provider doesn't support partial property loading.
+        /// </summary>
+        public static string AutoLoadedCosmosProperty(object? property, object? type)
+            => string.Format(
+                GetString("AutoLoadedCosmosProperty", nameof(property), nameof(type)),
+                property, type);
+
+        /// <summary>
+        ///     'Except' cannot be called on the builder returned by 'HasAutomaticIndexing(false)' because exceptions only apply when automatic indexing is enabled.
+        /// </summary>
+        public static string AutomaticIndexingExceptionWhileDisabled
+            => GetString("AutomaticIndexingExceptionWhileDisabled");
+
+        /// <summary>
+        ///     Cosmos automatic-indexing configuration was set on entity type '{entityType}', but it must be configured on the document-root entity type '{rootEntityType}' instead. Automatic-indexing settings apply to the container as a whole and are inherited by derived types.
+        /// </summary>
+        public static string AutomaticIndexingNotOnRoot(object? entityType, object? rootEntityType)
+            => string.Format(
+                GetString("AutomaticIndexingNotOnRoot", nameof(entityType), nameof(rootEntityType)),
+                entityType, rootEntityType);
+
+        /// <summary>
         ///     The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.
         /// </summary>
         public static string BadDictionaryType(object? givenType, object? dictionaryType)
@@ -98,6 +120,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container, property);
 
         /// <summary>
+        ///     The container with the name '{containerName}' does not exist.
+        /// </summary>
+        public static string ContainerNameDoesNotExist(object? containerName)
+            => string.Format(
+                GetString("ContainerNameDoesNotExist", nameof(containerName)),
+                containerName);
+
+        /// <summary>
         ///     An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.
         /// </summary>
         public static string ContainerNotOnRoot(object? entityType, object? baseEntityType)
@@ -158,6 +188,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, structuralType, property, elementType);
 
         /// <summary>
+        ///     Disable automatic session token management using 'options.SessionTokenManagementMode' to use this method.
+        /// </summary>
+        public static string EnableManualSessionTokenManagement
+            => GetString("EnableManualSessionTokenManagement");
+
+        /// <summary>
         ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.
         /// </summary>
         public static string ETagNonStringStoreType(object? property, object? entityType, object? propertyType)
@@ -204,12 +240,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 idProperty, entityType, propertyType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.
+        ///     The exception list configured for Cosmos automatic indexing on container '{container}' differs between entity types '{entityType1}' and '{entityType2}'. All entity types mapped to the same container must agree on the automatic-indexing exception list.
         /// </summary>
-        public static string IndexesExist(object? entityType, object? properties)
+        public static string InconsistentAutomaticIndexing(object? container, object? entityType1, object? entityType2)
             => string.Format(
-                GetString("IndexesExist", nameof(entityType), nameof(properties)),
-                entityType, properties);
+                GetString("InconsistentAutomaticIndexing", nameof(container), nameof(entityType1), nameof(entityType2)),
+                container, entityType1, entityType2);
+
+        /// <summary>
+        ///     Cosmos automatic indexing is enabled for some entity types but disabled for others on container '{container}'; entity types '{entityType1}' and '{entityType2}' disagree. All entity types mapped to the same container must agree on whether automatic indexing is enabled.
+        /// </summary>
+        public static string InconsistentAutomaticIndexingEnabled(object? container, object? entityType1, object? entityType2)
+            => string.Format(
+                GetString("InconsistentAutomaticIndexingEnabled", nameof(container), nameof(entityType1), nameof(entityType2)),
+                container, entityType1, entityType2);
+
+        /// <summary>
+        ///     The index over properties '{properties}' is declared on owned type '{ownedEntityType}', which is mapped to container '{containerEntityType}'. Indexes that traverse owned types are not currently supported.
+        /// </summary>
+        public static string IndexOnOwnedType(object? properties, object? ownedEntityType, object? containerEntityType)
+            => string.Format(
+                GetString("IndexOnOwnedType", nameof(properties), nameof(ownedEntityType), nameof(containerEntityType)),
+                properties, ownedEntityType, containerEntityType);
 
         /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
@@ -260,6 +312,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string MissingOrderingInSelectExpression
             => GetString("MissingOrderingInSelectExpression");
+
+        /// <summary>
+        ///     No session token has been set for container: '{container}'. While using 'EnforceManual' mode you must always set a session token for any container used on every context instance.
+        /// </summary>
+        public static string MissingSessionTokenEnforceManual(object? container)
+            => string.Format(
+                GetString("MissingSessionTokenEnforceManual", nameof(container)),
+                container);
 
         /// <summary>
         ///     Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.
@@ -480,10 +540,28 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("ReverseAfterSkipTakeNotSupported");
 
         /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, all changed entities in a SaveChanges call must be in the same collection and partition and not exceed 100 entities to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysAtomicity");
+
+        /// <summary>
+        ///     When using AutoTransactionBehavior.Always with the Cosmos DB provider, only 1 entity can be saved at a time when using pre- or post- triggers to ensure atomicity.
+        /// </summary>
+        public static string SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity
+            => GetString("SaveChangesAutoTransactionBehaviorAlwaysTriggerAtomicity");
+
+        /// <summary>
         ///     SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.
         /// </summary>
         public static string SingleFirstOrDefaultNotSupportedOnNonNullableQueries
             => GetString("SingleFirstOrDefaultNotSupportedOnNonNullableQueries");
+
+        /// <summary>
+        ///     Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB.
+        /// </summary>
+        public static string SyncNotSupported
+            => GetString("SyncNotSupported");
 
         /// <summary>
         ///     The provisioned throughput was configured to '{throughput1}' on '{entityType1}', but on '{entityType2}' it was configured to '{throughput2}'. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput.
@@ -544,6 +622,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
                 memberType, member, entityType);
+
+        /// <summary>
+        ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
+        /// </summary>
+        public static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor)
+            => string.Format(
+                GetString("UnhandledExpressionInVisitor", nameof(expression), nameof(expressionType), nameof(visitor)),
+                expression, expressionType, visitor);
 
         /// <summary>
         ///     Unsupported operator '{nodeType}' specified for expression of type '{expressionType}'.
@@ -632,6 +718,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosResources).Assembly);
+
+        /// <summary>
+        ///     Transactional batches will skip bulk execution. Use DatabaseFacade.AutoTransactionBehavior = AutoTransactionBehavior.Never to leverage bulk execution. If batching was intended, ignore this warning using DbContextOptionsBuilder.ConfigureWarnings(w =&gt; w.Ignore(CosmosEventId.BulkExecutionWithTransactionalBatch)).
+        /// </summary>
+        public static EventDefinition LogBulkExecutionWithTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogBulkExecutionWithTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogBulkExecutionWithTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CosmosEventId.BulkExecutionWithTransactionalBatch,
+                        LogLevel.Warning,
+                        "CosmosEventId.BulkExecutionWithTransactionalBatch",
+                        level => LoggerMessage.Define(
+                            level,
+                            CosmosEventId.BulkExecutionWithTransactionalBatch,
+                            _resourceManager.GetString("LogBulkExecutionWithTransactionalBatch")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'
@@ -756,6 +867,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         }
 
         /// <summary>
+        ///     Executed TransactionalBatch ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', DocumentIds='{documentIds}'
+        /// </summary>
+        public static EventDefinition<string, string, string, string, string, string?> LogExecutedTransactionalBatch(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutedTransactionalBatch,
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string, string, string?>(
+                        logger.Options,
+                        CosmosEventId.ExecutedTransactionalBatch,
+                        LogLevel.Information,
+                        "CosmosEventId.ExecutedTransactionalBatch",
+                        level => LoggerMessage.Define<string, string, string, string, string, string?>(
+                            level,
+                            CosmosEventId.ExecutedTransactionalBatch,
+                            _resourceManager.GetString("LogExecutedTransactionalBatch")!)));
+            }
+
+            return (EventDefinition<string, string, string, string, string, string?>)definition;
+        }
+
+        /// <summary>
         ///     Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.
         /// </summary>
         public static EventDefinition<string, string, string?> LogExecutingReadItem(IDiagnosticsLogger logger)
@@ -853,31 +989,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             }
 
             return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.
-        /// </summary>
-        public static EventDefinition LogSyncNotSupported(IDiagnosticsLogger logger)
-        {
-            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogSyncNotSupported;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogSyncNotSupported,
-                    logger,
-                    static logger => new EventDefinition(
-                        logger.Options,
-                        CosmosEventId.SyncNotSupported,
-                        LogLevel.Error,
-                        "CosmosEventId.SyncNotSupported",
-                        level => LoggerMessage.Define(
-                            level,
-                            CosmosEventId.SyncNotSupported,
-                            _resourceManager.GetString("LogSyncNotSupported")!)));
-            }
-
-            return (EventDefinition)definition;
         }
     }
 }

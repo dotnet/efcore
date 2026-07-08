@@ -14,7 +14,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
 {
     protected MappingQueryFixtureBase Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_customers()
     {
         using var context = CreateContext();
@@ -25,7 +25,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
         Assert.Equal(91, customers.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_employees()
     {
         using var context = CreateContext();
@@ -36,7 +36,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
         Assert.Equal(9, employees.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void All_orders()
     {
         using var context = CreateContext();
@@ -47,7 +47,7 @@ public abstract class MappingQueryTestBase<TFixture>(MappingQueryTestBase<TFixtu
         Assert.Equal(830, orders.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Project_nullable_enum()
     {
         using var context = CreateContext();

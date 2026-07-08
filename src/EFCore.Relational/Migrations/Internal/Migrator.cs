@@ -192,7 +192,11 @@ public class Migrator : IMigrator
             var seed = coreOptionsExtension.Seeder;
             if (seed != null)
             {
-                seed(context, state.AnyOperationPerformed);
+                if (!state.SeedingCompleted)
+                {
+                    seed(context, state.AnyOperationPerformed);
+                    state.SeedingCompleted = true;
+                }
             }
             else if (coreOptionsExtension.AsyncSeeder != null)
             {
@@ -328,7 +332,11 @@ public class Migrator : IMigrator
             var seedAsync = coreOptionsExtension.AsyncSeeder;
             if (seedAsync != null)
             {
-                await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
+                if (!state.SeedingCompleted)
+                {
+                    await seedAsync(context, state.AnyOperationPerformed, cancellationToken).ConfigureAwait(false);
+                    state.SeedingCompleted = true;
+                }
             }
             else if (coreOptionsExtension.Seeder != null)
             {
@@ -377,8 +385,8 @@ public class Migrator : IMigrator
             _logger.ModelSnapshotNotFound(this, _migrationsAssembly);
         }
         else if (targetMigration == null
-                 && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
-                 && HasPendingModelChanges())
+            && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
+            && HasPendingModelChanges())
         {
             var modelSource = (ModelSource)_currentContext.Context.GetService<IModelSource>();
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -391,7 +399,24 @@ public class Migrator : IMigrator
             }
             else
             {
-                _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
+                var snapshotVersion = _migrationsAssembly.ModelSnapshot.Model.GetProductVersion();
+                var currentVersion = ProductInfo.GetVersion();
+
+                // When the snapshot was generated with an older major version, emit
+                // OldMigrationVersionWarning instead of PendingModelChangesWarning because
+                // the detected changes may be caused by snapshot-generation improvements
+                // in the newer EF Core version rather than actual model changes.
+                if (snapshotVersion != null
+                    && TryGetMajorVersion(currentVersion, out var currentMajorVersion)
+                    && TryGetMajorVersion(snapshotVersion, out var snapshotMajorVersion)
+                    && snapshotMajorVersion < currentMajorVersion)
+                {
+                    _logger.OldMigrationVersionWarning(_currentContext.Context.GetType(), snapshotVersion);
+                }
+                else
+                {
+                    _logger.PendingModelChangesWarning(_currentContext.Context.GetType());
+                }
             }
         }
 
@@ -401,6 +426,19 @@ public class Migrator : IMigrator
         }
 
         _logger.MigrateUsingConnection(this, _connection);
+
+        static bool TryGetMajorVersion(string? version, out int majorVersion)
+        {
+            majorVersion = default;
+            if (string.IsNullOrEmpty(version))
+            {
+                return false;
+            }
+
+            var separatorIndex = version.IndexOf('.');
+            return separatorIndex > 0
+                && int.TryParse(version.AsSpan(0, separatorIndex), out majorVersion);
+        }
     }
 
     private IEnumerable<(string, Func<IReadOnlyList<MigrationCommand>>)> GetMigrationCommandLists(MigratorData parameters)

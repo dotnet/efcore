@@ -149,12 +149,12 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
         string name,
         string? schema)
     {
-        if (columnModification.JsonPath is not (null or "$"))
+        if (columnModification.JsonPath is { IsRoot: false })
         {
             stringBuilder.Append("json_set(");
             updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
             stringBuilder.Append(", '");
-            stringBuilder.Append(columnModification.JsonPath);
+            columnModification.JsonPath.AppendTo(stringBuilder);
             stringBuilder.Append("', ");
 
             if (columnModification.Property is { IsPrimitiveCollection: false })

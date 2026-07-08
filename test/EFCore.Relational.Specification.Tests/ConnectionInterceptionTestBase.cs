@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_passively(bool async)
     {
         var (context, interceptor) = await CreateContextAsync<ConnectionInterceptor>();
@@ -57,7 +57,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_to_override_opening(bool async)
     {
         var (context, interceptor) = await CreateContextAsync<ConnectionOverridingInterceptor>();
@@ -107,7 +107,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_with_multiple_interceptors(bool async)
     {
         var interceptor1 = new ConnectionInterceptor();
@@ -169,7 +169,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_that_throws_on_open(bool async)
     {
         var interceptor = new ConnectionInterceptor();
@@ -196,7 +196,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         AssertErrorOnOpen(context, interceptor, async);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_creation_passively(bool async)
     {
         var interceptor = new ConnectionCreationInterceptor();
@@ -238,7 +238,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         Assert.True(connectionDisposed);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_to_override_creation(bool async)
     {
         using var tempContext = new ConnectionStringContext(ConfigureProvider);
@@ -284,7 +284,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         Assert.True(connectionDisposed);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_to_override_connection_after_creation(bool async)
     {
         using var tempContext = new ConnectionStringContext(ConfigureProvider);
@@ -330,7 +330,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         Assert.True(connectionDisposed);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_to_suppress_dispose(bool async)
     {
         var interceptor = new ConnectionCreationNoDisposeInterceptor();
@@ -372,7 +372,7 @@ public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.Interc
         Assert.False(connectionDisposed);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Intercept_connection_creation_with_multiple_interceptors(bool async)
     {
         using var tempContext1 = new ConnectionStringContext(ConfigureProvider);

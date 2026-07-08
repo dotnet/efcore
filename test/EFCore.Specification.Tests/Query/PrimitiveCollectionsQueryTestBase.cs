@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -8,59 +10,66 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
+    // List<T> is a regular class
+    protected static readonly List<int> StaticReadonlyList = [10, 999];
+    // FrozenSet<T> is an abstract class
+    protected static readonly FrozenSet<int> StaticReadonlyFrozenSet = [10, 999];
+    // ImmutableArray<T> is a struct
+    protected static readonly ImmutableArray<int> StaticReadonlyImmutableArray = [10, 999];
+
     public virtual int? NumberOfValuesForHugeParameterCollectionTests { get; } = null;
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_of_ints_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 10, 999 }.Contains(c.Int)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_of_nullable_ints_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { 10, 999 }.Contains(c.NullableInt)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_of_nullable_ints_Contains_null()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int?[] { null, 999 }.Contains(c.NullableInt)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Count_with_zero_values()
         => AssertQuery(
             // ReSharper disable once UseArrayEmptyMethod
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int[0].Count(i => i > c.Id) == 1),
             assertEmpty: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Count_with_one_value()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2 }.Count(i => i > c.Id) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Count_with_two_values()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999 }.Count(i => i > c.Id) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Count_with_three_values()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Count(i => i > c.Id) == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_zero_values()
         => AssertQuery(
             // ReSharper disable once UseArrayEmptyMethod
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int[0].Contains(c.Id)),
             assertEmpty: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_one_value()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2 }.Contains(c.Id)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_two_values()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999 }.Contains(c.Id)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_three_values()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Contains(c.Id)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_all_parameters()
     {
         var (i, j) = (2, 999);
@@ -68,7 +77,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i, j }.Contains(c.Id)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_constant_and_parameter()
     {
         var j = 999;
@@ -76,7 +85,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, j }.Contains(c.Id)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_Contains_with_mixed_value_types()
     {
         // Note: see many nullability-related variations on this in NullSemanticsQueryTestBase
@@ -86,7 +95,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 999, i, c.Id, c.Id + c.Int }.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_List_Contains_with_mixed_value_types()
     {
         var i = 11;
@@ -100,31 +109,31 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         }.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_as_Any_with_predicate()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999 }.Any(i => i == c.Id)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_negated_Contains_as_All()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999 }.All(i => i != c.Id)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_Min_with_two_values()
         => await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int }.Min() == 30));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_List_Min_with_two_values()
         => await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int> { 30, c.Int }.Min() == 30));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_Max_with_two_values()
         => await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int }.Max() == 30));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_List_Max_with_two_values()
         => await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int> { 30, c.Int }.Max() == 30));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_Min_with_three_values()
     {
         var i = 25;
@@ -132,7 +141,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int, i }.Min() == 25));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_List_Min_with_three_values()
     {
         var i = 25;
@@ -146,7 +155,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             == 25));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_Max_with_three_values()
     {
         var i = 35;
@@ -154,7 +163,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int, i }.Max() == 35));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_List_Max_with_three_values()
     {
         var i = 35;
@@ -168,7 +177,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             == 35));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_of_nullable_value_type_Min()
     {
         int? i = 25;
@@ -176,7 +185,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int, i }.Min() == 25));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_of_nullable_value_type_Max()
     {
         int? i = 35;
@@ -184,7 +193,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int, i }.Max() == 35));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_of_nullable_value_type_with_null_Min()
     {
         int? i = null;
@@ -192,7 +201,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.NullableInt, i }.Min() == 30));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inline_collection_of_nullable_value_type_with_null_Max()
     {
         int? i = null;
@@ -200,7 +209,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.NullableInt, i }.Max() == 30));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_with_single_parameter_element_Contains()
     {
         var i = 2;
@@ -210,7 +219,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i }.Contains(c.Id)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_with_single_parameter_element_Count()
     {
         var i = 2;
@@ -220,13 +229,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i }.Count(i => i > c.Id) == 1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_EF_Parameter()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Contains(c.Id)),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Contains(c.Id)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Contains_with_IEnumerable_EF_Parameter()
     {
         List<string?> data = ["10", "a", "aa",];
@@ -236,13 +245,37 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => data.Select(x => x).Contains(c.NullableString)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Count_with_column_predicate_with_EF_Parameter()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Count(i => i > c.Id) == 2),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Count(i => i > c.Id) == 2));
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Inline_collection_in_query_filter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>().HasQueryFilter(t => new[] { 1, 2, 3 }.Count(i => i > t.Id) == 1),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1 },
+                    new TestEntity { Id = 2 });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<TestEntity>().SingleAsync();
+        Assert.Equal(2, result.Id);
+    }
+
+    [Fact] // #38285
+    public virtual Task Inline_collection_SelectMany_with_unreferenced_collection_value()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(e => new[] { "a", "b" }.Select(k => e)));
+
+    [Fact]
     public virtual Task Parameter_collection_Count()
     {
         var ids = new[] { 2, 999 };
@@ -250,7 +283,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) == 1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int()
     {
         var ints = new[] { 10, 999 };
@@ -259,7 +292,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_HashSet_of_ints_Contains_int()
     {
         var ints = new HashSet<int> { 10, 999 };
@@ -268,16 +301,44 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
+    [Fact]
+    public virtual async Task Parameter_collection_FrozenSet_of_ints_Contains_int()
     {
-        var ints = ImmutableArray.Create([10, 999]);
+        var ints = FrozenSet.Create(10, 999);
 
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Parameter_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        var ints = ImmutableArray.Create(10, 999);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [Fact]
+    public virtual async Task Parameter_collection_IReadOnlySet_of_ints_Contains_int()
+    {
+        // IReadOnlySet<T> has Contains defined directly on itself
+        IReadOnlySet<int> ints = new HashSet<int> { 10, 999 };
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [Fact]
+    public virtual async Task Parameter_collection_ReadOnlyCollectionWithContains_of_ints_Contains_int()
+    {
+        var ints = new ReadOnlyCollectionWithContains<int>(10, 999);
+
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_nullable_int()
     {
         var ints = new[] { 10, 999 };
@@ -290,7 +351,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInt == null || !ints.Contains(c.NullableInt!.Value)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_ints_Contains_int()
     {
         var nullableInts = new int?[] { 10, 999 };
@@ -299,7 +360,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int()
     {
         var nullableInts = new int?[] { null, 999 };
@@ -308,7 +369,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
     }
 
-    [ConditionalFact] // #37605
+    [Fact] // #37605
     public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
     {
         var nullableInts = new int?[] { null, 999 };
@@ -318,7 +379,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_structs_Contains_struct()
     {
         var values = new List<WrappedId> { new(22), new(33) };
@@ -330,7 +391,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.WrappedId)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_structs_Contains_nullable_struct()
     {
         var values = new List<WrappedId> { new(22), new(33) };
@@ -348,7 +409,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 .Where(c => c.NullableWrappedId == null || !values.Contains(c.NullableWrappedId!.Value)));
     }
 
-    [ConditionalFact] // Issue #35117
+    [Fact] // Issue #35117
     public virtual async Task Parameter_collection_of_structs_Contains_nullable_struct_with_nullable_comparer()
     {
         var values = new List<WrappedId> { new(22), new(33) };
@@ -366,7 +427,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 => c.NullableWrappedIdWithNullableComparer == null || !values.Contains(c.NullableWrappedIdWithNullableComparer!.Value)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_structs_Contains_struct()
     {
         var values = new List<WrappedId?> { null, new WrappedId(22) };
@@ -378,7 +439,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.WrappedId)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct()
     {
         var values = new List<WrappedId?> { null, new WrappedId(22) };
@@ -390,7 +451,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.NullableWrappedId)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_structs_Contains_nullable_struct_with_nullable_comparer()
     {
         var values = new List<WrappedId?> { null, new WrappedId(22) };
@@ -402,7 +463,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !values.Contains(c.NullableWrappedIdWithNullableComparer)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_strings_Contains_string()
     {
         var strings = new[] { "10", "999" };
@@ -411,7 +472,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_strings_Contains_nullable_string()
     {
         string?[] strings = ["10", "999"];
@@ -420,7 +481,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.NullableString)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_strings_Contains_string()
     {
         var strings = new[] { "10", null };
@@ -429,7 +490,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.String)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_nullable_strings_Contains_nullable_string()
     {
         var strings = new[] { "999", null };
@@ -440,7 +501,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     // See more nullability-related tests in NullSemanticsQueryTestBase
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_of_DateTimes_Contains()
     {
         var dateTimes = new[]
@@ -451,7 +512,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => dateTimes.Contains(c.DateTime)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_of_bools_Contains()
     {
         var bools = new[] { true };
@@ -459,7 +520,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => bools.Contains(c.Bool)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_of_enums_Contains()
     {
         var enums = new[] { MyEnum.Value1, MyEnum.Value4 };
@@ -467,7 +528,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => enums.Contains(c.Enum)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_null_Contains()
     {
         int[]? ints = null;
@@ -478,7 +539,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             assertEmpty: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_empty_Contains()
     {
         int[] ints = [];
@@ -488,7 +549,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             assertEmpty: true);
     }
 
-    [ConditionalFact] // #37216
+    [Fact] // #37216
     public virtual async Task Parameter_collection_empty_Join()
     {
         int[] ints = [];
@@ -498,7 +559,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             assertEmpty: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Contains_with_EF_Constant()
     {
         var ids = new[] { 2, 999, 1000 };
@@ -508,7 +569,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Contains(c.Id)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Where_with_EF_Constant_Where_Any()
     {
         var ids = new[] { 2, 999, 1000 };
@@ -518,7 +579,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Where(x => x > 0).Any()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Count_with_column_predicate_with_EF_Constant()
     {
         var ids = new[] { 2, 999, 1000 };
@@ -528,7 +589,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) == 2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -542,7 +603,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) > 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -567,7 +628,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => extra5.Count(i => i > c.Id) > 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_same_parameter()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -588,8 +649,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => extra.Count(i => i > c.Id) > 0));
     }
 
-    [ConditionalFact]
-    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    [Fact]
+    public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
         {
@@ -599,16 +660,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 3);
         var ids = new[] { 2, 999 };
 
-        // Id will have a different type mapping here.
-        // Very specific, kind of fragile, but at least something.
-        // More info efcore#37185.
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ids.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Id) > 0)
             .Where(c => extra.Count(i => i > c.Int) > 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_forced_constants()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -641,7 +699,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 .Where(c => extra5.Count(i => i > c.Id) > 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Count_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -690,7 +748,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 .Where(c => extra5.Count(i => i > c.Id) > 0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -705,7 +763,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -736,7 +794,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => !extra5.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -763,8 +821,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => !extra.Contains(c.Int)));
     }
 
-    [ConditionalFact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_type_mapping()
+    [Fact]
+    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
         {
@@ -774,9 +832,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra = Enumerable.Range(10, (int)NumberOfValuesForHugeParameterCollectionTests / 3).Append(1);
         var ints = new[] { 10, 999 };
 
-        // Id will have a different type mapping here.
-        // Very specific, kind of fragile, but at least something.
-        // More info efcore#37185.
+        // Reusing the same large collection across predicates summed over occurrences triggers fallback; see #37185.
         await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ints.Contains(c.Int))
             .Where(c => extra.Contains(c.Int))
@@ -787,7 +843,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => !extra.Contains(c.Id)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_forced_constants()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -834,7 +890,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 .Where(c => !extra5.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
@@ -907,35 +963,148 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 .Where(c => !extra5.Contains(c.Int)));
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Static_readonly_collection_List_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyList.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticReadonlyList.Contains(c.Int)));
+    }
+
+    [Fact]
+    public virtual async Task Static_readonly_collection_FrozenSet_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyFrozenSet.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticReadonlyFrozenSet.Contains(c.Int)));
+    }
+
+    [Fact]
+    public virtual async Task Static_readonly_collection_ImmutableArray_of_ints_Contains_int()
+    {
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => StaticReadonlyImmutableArray.Contains(c.Int)));
+        await AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !StaticReadonlyImmutableArray.Contains(c.Int)));
+    }
+
+    [Fact]
     public virtual Task Column_collection_of_ints_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Contains(10)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_of_nullable_ints_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(10)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_of_nullable_ints_Contains_null()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)));
 
-    [ConditionalFact]
-    public virtual Task Column_collection_of_strings_contains_null()
+    [Fact]
+    public virtual Task Column_collection_of_strings_Contains()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains("10")));
+
+    [Fact]
+    public virtual Task Column_collection_of_strings_Contains_null()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((string?[])c.Strings).Contains(null)),
             assertEmpty: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_of_nullable_strings_contains_null()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableStrings.Contains(null)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_of_bools_Contains()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Bools.Contains(true)));
 
+    [Fact]
+    public virtual async Task Column_with_custom_converter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>()
+                .Property(m => m.Ints)
+                .HasConversion(
+                    i => string.Join(",", i!),
+                    s => s.Split(",", StringSplitOptions.None).Select(int.Parse).ToArray(),
+                    new ValueComparer<int[]>(favorStructuralComparisons: true)),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntity { Id = 1, Ints = [1, 2, 3] },
+                    new TestEntity { Id = 2, Ints = [1, 2, 4] });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new[] { 1, 2, 3 };
+        var result = await context.Set<TestEntity>().SingleAsync(m => m.Ints == ints);
+        Assert.Equal(1, result.Id);
+
+        // Custom converters allow reading/writing, but not querying, as we have no idea about the internal representation
+        await AssertTranslationFailed(() => context.Set<TestEntity>().SingleAsync(m => m.Ints!.Length == 2));
+    }
+
+    [Fact(
+        Skip =
+            "Currently fails because we don't use the element mapping when serializing to JSON, but just do JsonSerializer.Serialize, #30677")]
+    public virtual async Task Parameter_with_inferred_value_converter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb
+                .Entity<TestEntity>()
+                .Property<IntWrapper>("PropertyWithValueConverter")
+                .HasConversion(w => w.Value, i => new IntWrapper(i)),
+            seed: context =>
+            {
+                var entry1 = context.Add(new TestEntity { Id = 1 });
+                entry1.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(8);
+                var entry2 = context.Add(new TestEntity { Id = 2 });
+                entry2.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(9);
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var ints = new IntWrapper[] { new(1), new(8) };
+        var result = await context.Set<TestEntity>()
+            .SingleAsync(m => ints.Count(i => i == EF.Property<IntWrapper>(m, "PropertyWithValueConverter")) == 1);
+        Assert.Equal(1, result.Id);
+    }
+
+    [Fact]
+    public virtual async Task Constant_with_inferred_value_converter()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb
+                .Entity<TestEntity>()
+                .Property<IntWrapper>("PropertyWithValueConverter")
+                .HasConversion(w => w.Value, i => new IntWrapper(i)),
+            seed: context =>
+            {
+                var entry1 = context.Add(new TestEntity { Id = 1 });
+                entry1.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(8);
+                var entry2 = context.Add(new TestEntity { Id = 2 });
+                entry2.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(9);
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<TestEntity>()
+            .SingleAsync(m
+                => new IntWrapper[] { new(1), new(8) }.Count(i => i == EF.Property<IntWrapper>(m, "PropertyWithValueConverter")) == 1);
+        Assert.Equal(1, result.Id);
+    }
+
+    [Fact]
+    public virtual async Task Multidimensional_array_is_not_supported()
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>().Property(typeof(int[,]), "MultidimensionalArray")));
+        Assert.Equal(CoreStrings.PropertyNotMapped("int[,]", "TestEntity", "MultidimensionalArray"), exception.Message);
+    }
+
     // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
     // The following tests that the various overloads are all supported.
-    [ConditionalFact]
+    [Fact]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_on_Enumerable()
         => AssertQuery(
@@ -943,56 +1112,56 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
     // The following tests that the various overloads are all supported.
-    [ConditionalFact]
+    [Fact]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_on_MemoryExtensions()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int)));
 
-    [ConditionalFact]
+    [Fact]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_MemoryExtensions_with_null_comparer()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Count_method()
         => AssertQuery(
             // ReSharper disable once UseCollectionCountProperty
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Length()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Length == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Count_with_predicate()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Count(i => i > 1) == 2));
 
-    [ConditionalFact] // #33932
+    [Fact] // #33932
     public virtual Task Column_collection_Where_Count()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i > 1).Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_index_int()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints[1] == 10),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Ints.Length >= 2 ? c.Ints[1] : -1) == 10));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_index_string()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings[1] == "10"),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Strings.Length >= 2 ? c.Strings[1] : "-1") == "10"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_index_datetime()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.DateTimes[1] == new DateTime(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c
                 => (c.DateTimes.Length >= 2 ? c.DateTimes[1] : default) == new DateTime(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_index_beyond_end()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints[999] == 10),
@@ -1000,7 +1169,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             assertEmpty: true);
 
     // TODO: This test is incorrect, see #33784
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_reference_column_collection_index_equals_nullable_column()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -1008,7 +1177,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>()
                 .Where(c => (c.NullableStrings.Length > 2 ? c.NullableStrings[2] : default) == c.NullableString));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Non_nullable_reference_column_collection_index_equals_nullable_column()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -1016,13 +1185,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>()
                 .Where(c => c.Strings.Any() && (c.Strings.Length > 1 ? c.Strings[1] : default) == c.NullableString));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_index_Column()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 1, 2, 3 }[c.Int] == 1),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new[] { 1, 2, 3 }[c.Int] : -1) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_index_Column_with_EF_Constant()
     {
         int[] ints = [1, 2, 3];
@@ -1032,13 +1201,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? ints[c.Int] : -1) == 1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_value_index_Column()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 1, c.Int, 3 }[c.Int] == 1),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new[] { 1, c.Int, 3 }[c.Int] : -1) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_List_value_index_Column()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>
@@ -1060,7 +1229,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     // The JsonScalarExpression (ints[c.Int]) should get inferred from the column on the other side (c.Int), and that should propagate to
     // ints
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_index_Column_equal_Column()
     {
         var ints = new[] { 0, 2, 3 };
@@ -1072,7 +1241,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     // Since the JsonScalarExpression (ints[c.Int]) is being compared to a constant, there's nothing to infer the type mapping from.
     // ints should get the default type mapping for based on its CLR type.
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_index_Column_equal_constant()
     {
         var ints = new[] { 1, 2, 3 };
@@ -1082,63 +1251,63 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? ints[c.Int] : -1) == 1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_ElementAt()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.ElementAt(1) == 10),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Ints.Length >= 2 ? c.Ints.ElementAt(1) : -1) == 10));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_First()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.First() == 1),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Ints.Length >= 1 ? c.Ints.First() : -1) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_FirstOrDefault()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.FirstOrDefault() == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Single()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Single() == 1),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Ints.Length >= 1 ? c.Ints.First() : -1) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_SingleOrDefault()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SingleOrDefault() == 1),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Ints.Length >= 1 ? c.Ints[0] : -1) == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Skip()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Skip(1).Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Take()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Take(2).Contains(11)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Skip_Take()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Skip(1).Take(2).Contains(11)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Where_Skip()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i > 1).Skip(1).Count() == 3));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Where_Take()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i > 1).Take(2).Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Where_Skip_Take()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i > 1).Skip(1).Take(2).Count() == 1));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Contains_over_subquery()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i > 1).Contains(11)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_OrderByDescending_ElementAt()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -1146,7 +1315,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>()
                 .Where(c => c.Ints.Length > 0 && c.Ints.OrderByDescending(i => i).ElementAt(0) == 111));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Where_ElementAt()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -1154,7 +1323,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>()
                 .Where(c => c.Ints.Where(i => i > 1).FirstOrDefault(0) == 11));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Any()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Any()));
 
@@ -1163,31 +1332,31 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     // ordering has been added by the provider as part of the collection translation.
     // Consider overriding RelationalQueryableMethodTranslatingExpressionVisitor.IsNaturallyOrdered() to identify such naturally-ordered
     // collections, exempting them from the warning.
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Distinct()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Distinct().Count() == 3));
 
-    [ConditionalFact] // #32505
+    [Fact] // #32505
     public virtual Task Column_collection_SelectMany()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(c => c.Ints));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_SelectMany_with_filter()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(c => c.Ints.Where(i => i > 1)));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_SelectMany_with_Select_to_anonymous_type()
         => AssertQuery(ss
             => ss.Set<PrimitiveCollectionsEntity>().SelectMany(c => c.Ints.Select(i => new { Original = i, Incremented = i + 1 })));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_projection_from_top_level()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(c => c.Id).Select(c => c.Ints),
             elementAsserter: (a, b) => Assert.Equivalent(a, b),
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Join_parameter_collection()
     {
         var ints = new[] { 11, 111 };
@@ -1196,12 +1365,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             .Where(c => c.Ints.Join(ints, i => i, j => j, (i, j) => new { I = i, J = j }).Count() == 2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Join_ordered_column_collection()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => new[] { 11, 111 }.Join(c.Ints, i => i, j => j, (i, j) => new { I = i, J = j }).Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_Concat_column_collection()
     {
         int[] ints = [11, 111];
@@ -1209,7 +1378,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ((IEnumerable<int>)ints).Concat(c.Ints).Count() == 2));
     }
 
-    [ConditionalFact] // #33582
+    [Fact] // #33582
     public virtual Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
         string[] values = ["one", "two"];
@@ -1217,7 +1386,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Select(c => c.Id != 0 ? values[c.Int % 2] : "foo"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Union_parameter_collection()
     {
         var ints = new[] { 11, 111 };
@@ -1225,21 +1394,21 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Union(ints).Count() == 2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Intersect_inline_collection()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Intersect(new[] { 11, 111 }).Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Inline_collection_Except_column_collection()
         // Note that in relational, since the VALUES is on the left side of the set operation, it must assign column names, otherwise the
         // column coming out of the set operation has undetermined naming.
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 11, 111 }.Except(c.Ints).Count(i => i % 2 == 1) == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Where_Union()
         => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i > 100).Union(new[] { 50 }).Count() == 2));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_equality_parameter_collection()
     {
         var ints = new[] { 1, 10 };
@@ -1249,7 +1418,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SequenceEqual(ints)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Column_collection_Concat_parameter_collection_equality_inline_collection()
     {
         var ints = new[] { 1, 10 };
@@ -1259,13 +1428,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Concat(ints).SequenceEqual(new[] { 1, 11, 111, 1, 10 })));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_equality_inline_collection()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { 1, 10 }),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SequenceEqual(new[] { 1, 10 })));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Column_collection_equality_inline_collection_with_parameters()
     {
         var (i, j) = (1, 10);
@@ -1275,13 +1444,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SequenceEqual(new[] { i, j })));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Column_collection_Where_equality_inline_collection()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i != 11) == new[] { 1, 111 }),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Where(i => i != 11).SequenceEqual(new[] { 1, 111 })));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_in_subquery_Count_as_compiled_query()
     {
         // The Skip causes a pushdown into a subquery before the Union, and so the projection on the left side of the union points to the
@@ -1298,7 +1467,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var results = compiledQuery(context, ints);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query()
     {
         // The Skip causes a pushdown into a subquery before the Union, and so the projection on the left side of the union points to the
@@ -1315,7 +1484,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var results = compiledQuery(context, ints).ToList();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_in_subquery_Union_column_collection()
     {
         var ints = new[] { 10, 111 };
@@ -1323,7 +1492,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(p => ints.Skip(1).Union(p.Ints).Count() == 3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Parameter_collection_in_subquery_Union_column_collection_nested()
     {
         var ints = new[] { 10, 111 };
@@ -1332,7 +1501,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             => ints.Skip(1).Union(p.Ints.OrderBy(x => x).Skip(1).Distinct().OrderByDescending(x => x).Take(20)).Count() == 3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
         var query = EF.CompileQuery((PrimitiveCollectionsContext context, object[] parameters)
@@ -1343,7 +1512,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         _ = query(context, ["foo"]).ToList();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query()
     {
         var compiledQuery = EF.CompileQuery((PrimitiveCollectionsContext context, int[] ints1, int[] ints2)
@@ -1356,7 +1525,17 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         _ = compiledQuery(context, ints1, ints2).ToList();
     }
 
-    [ConditionalFact]
+    [Fact] // #37370
+    public virtual async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
+    {
+        var func = EF.CompileAsyncQuery(
+            (PrimitiveCollectionsContext context, int[] ids) => context.Set<PrimitiveCollectionsEntity>().Where(e => ids.Any()));
+
+        await using var context = Fixture.CreateContext();
+        _ = await func(context, []).ToListAsync();
+    }
+
+    [Fact]
     public virtual Task Column_collection_in_subquery_Union_parameter_collection()
     {
         var ints = new[] { 10, 111 };
@@ -1366,69 +1545,69 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Skip(1).Union(ints).Count() == 3));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_ints_simple()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.Ints),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_ints_ordered()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.Ints.OrderByDescending(xx => xx).ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_datetimes_filtered()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.DateTimes.Where(xx => xx.Day != 1).ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_nullable_ints_with_paging()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.Take(20).ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_nullable_ints_with_paging2()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.OrderBy(x => x).Skip(1).ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_nullable_ints_with_paging3()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.Skip(2).ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_ints_with_distinct()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.Ints.Distinct().ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact(Skip = "issue #31277")]
+    [Fact(Skip = "issue #31277")]
     public virtual Task Project_collection_of_nullable_ints_with_distinct()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.Distinct().ToList()),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_collection_of_ints_with_ToList_and_FirstOrDefault()
         => AssertFirstOrDefault(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.Ints.ToList()),
             asserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => new
@@ -1442,7 +1621,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 AssertCollection(e.OnlyNull, a.OnlyNull, ordered: true);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_multiple_collections()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => new
@@ -1461,7 +1640,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             },
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_primitive_collections_element()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => x.Id < 4).OrderBy(x => x.Id).Select(x
@@ -1479,14 +1658,14 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             },
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_inline_collection()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Select(x => new[] { x.String, "foo" }),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true),
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_inline_collection_with_Union()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -1504,7 +1683,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             },
             assertOrder: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Project_inline_collection_with_Concat()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -1522,7 +1701,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             },
             assertOrder: true);
 
-    [ConditionalFact] // #32208, #32215
+    [Fact] // #32208, #32215
     public virtual Task Nested_contains_with_Lists_and_no_inferred_type_mapping()
     {
         var ints = new List<int>
@@ -1543,7 +1722,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => strings.Contains(ints.Contains(e.Int) ? "one" : "two")));
     }
 
-    [ConditionalFact] // #32208, #32215
+    [Fact] // #32208, #32215
     public virtual Task Nested_contains_with_arrays_and_no_inferred_type_mapping()
     {
         var ints = new[] { 1, 2, 3 };
@@ -1554,20 +1733,68 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => strings.Contains(ints.Contains(e.Int) ? "one" : "two")));
     }
 
-    [ConditionalFact]
+    [Fact]
+    public virtual async Task Project_collection_from_entity_type_with_owned()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithOwned>(b =>
+            {
+                b.Property(b => b.Id).ValueGeneratedNever();
+                b.OwnsOne(b => b.Owned);
+            }),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntityWithOwned
+                    {
+                        Id = 1,
+                        Ints = [1, 2],
+                        Owned = new Owned { Foo = 0 }
+                    },
+                    new TestEntityWithOwned
+                    {
+                        Id = 2,
+                        Ints = [3, 4],
+                        Owned = new Owned { Foo = 1 }
+                    });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var results = await context.Set<TestEntityWithOwned>().Select(t => t.Ints).ToListAsync();
+        Assert.Contains(results, r => r?.SequenceEqual([1, 2]) ?? false);
+        Assert.Contains(results, r => r?.SequenceEqual([3, 4]) ?? false);
+    }
+
+    [Fact] // #37478
+    public virtual async Task Subquery_over_primitive_collection_on_inheritance_derived_type()
+    {
+        var contextFactory = await InitializeNonSharedTest<TestContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<BaseType>();
+                mb.Entity<SubType>();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        _ = await context.Set<BaseType>()
+            .Where(x => ((SubType)x).Ints.Any())
+            .ToListAsync();
+    }
+
+    [Fact]
     public virtual Task Values_of_enum_casted_to_underlying_value()
         => AssertQuery(ss
             => ss.Set<PrimitiveCollectionsEntity>().Where(x => Enum.GetValues<MyEnum>().Cast<int>().Count(y => y == x.Int) > 0));
 
-    public abstract class PrimitiveCollectionsQueryFixtureBase : SharedStoreFixtureBase<PrimitiveCollectionsContext>, IQueryFixtureBase
+    public abstract class PrimitiveCollectionsQueryFixtureBase : QueryFixtureBase<PrimitiveCollectionsContext>
     {
         private PrimitiveCollectionsData? _expectedData;
 
         protected override string StoreName
             => "PrimitiveCollectionsTest";
-
-        public Func<DbContext> GetContextCreator()
-            => () => CreateContext();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<PrimitiveCollectionsEntity>(b =>
@@ -1591,15 +1818,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             return context.SaveChangesAsync();
         }
 
-        public virtual ISetSource GetExpectedData()
+        public override ISetSource GetExpectedData()
             => _expectedData ??= new PrimitiveCollectionsData();
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
         {
             { typeof(PrimitiveCollectionsEntity), e => ((PrimitiveCollectionsEntity?)e)?.Id }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
         {
             {
                 typeof(PrimitiveCollectionsEntity), (e, a) =>
@@ -1806,4 +2033,58 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                 }
             };
     }
+
+    #region Non-shared test resources
+
+    protected class TestContext(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<TestEntity>().Property(e => e.Id).ValueGeneratedNever();
+    }
+
+    protected class TestEntity
+    {
+        public int Id { get; set; }
+        public int[]? Ints { get; set; }
+    }
+
+    private class IntWrapper(int value)
+    {
+        public int Value { get; } = value;
+    }
+
+    private class TestEntityWithOwned
+    {
+        public int Id { get; set; }
+        public int[]? Ints { get; set; }
+        public Owned Owned { get; set; } = default!;
+    }
+
+    private class Owned
+    {
+        public int Foo { get; set; }
+    }
+
+    public abstract class BaseType
+    {
+        public int Id { get; set; }
+    }
+
+    public class SubType : BaseType
+    {
+        public required int[] Ints { get; set; }
+    }
+
+    #endregion
+}
+
+// Keep it outside so it does not inherit the TFixture.
+internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
+{
+    public int Count => items.Length;
+
+    public bool Contains(T item) => items.Contains(item);
+
+    public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

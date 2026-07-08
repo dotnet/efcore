@@ -252,7 +252,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var alias = _aliasManager.GenerateSourceAlias(fromSql);
                 var selectExpression = new SelectExpression(
                     new SourceExpression(fromSql, alias),
-                    new EntityProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
+                    new StructuralTypeProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
                 return CreateShapedQueryExpression(entityType, selectExpression) ?? QueryCompilationContext.NotTranslatedExpression;
 
             default:
@@ -300,7 +300,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var alias = _aliasManager.GenerateSourceAlias("c");
         var selectExpression = new SelectExpression(
             new SourceExpression(new ObjectReferenceExpression(entityType, "root"), alias),
-            new EntityProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
+            new StructuralTypeProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
 
         // Add discriminator predicate
         var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
@@ -323,7 +323,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 "Missing discriminator property in hierarchy");
             if (discriminatorProperty is not null)
             {
-                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
+                var discriminatorColumn = ((StructuralTypeProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .BindProperty(discriminatorProperty, clientEval: false);
 
                 var success = TryApplyPredicate(
@@ -340,9 +340,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         return CreateShapedQueryExpression(entityType, selectExpression);
     }
 
-    private ShapedQueryExpression? CreateShapedQueryExpression(IEntityType entityType, SelectExpression queryExpression)
+    private ShapedQueryExpression? CreateShapedQueryExpression(ITypeBase structuralType, SelectExpression queryExpression)
     {
-        if (!entityType.IsOwned())
+        if (structuralType is IEntityType entityType && !entityType.IsOwned())
         {
             var existingEntityType = _queryCompilationContext.RootEntityType;
             if (existingEntityType is not null && existingEntityType != entityType)
@@ -358,7 +358,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         return new ShapedQueryExpression(
             queryExpression,
             new StructuralTypeShaperExpression(
-                entityType,
+                structuralType,
                 new ProjectionBindingExpression(queryExpression, new ProjectionMember(), typeof(ValueBuffer)),
                 nullable: false));
     }
@@ -428,12 +428,48 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             subquery.ClearOrdering();
         }
 
-        var translation = _sqlExpressionFactory.Exists(subquery);
-        var selectExpression = new SelectExpression(translation);
+        // For subqueries, Cosmos supports EXISTS over correlated subqueries (e.g. within a WHERE clause).
+        if (_subquery)
+        {
+            var translation = _sqlExpressionFactory.Exists(subquery);
+            var selectExpression = new SelectExpression(translation);
 
-        return source.Update(
-            selectExpression,
-            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+            return source.Update(
+                selectExpression,
+                Expression.Convert(
+                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+        }
+
+        // For top-level Any(), Cosmos doesn't support EXISTS over uncorrelated subqueries. Instead, we project a constant 'true'
+        // with LIMIT 1:
+        //   SELECT VALUE true FROM root c WHERE <predicate> OFFSET 0 LIMIT 1
+        // If at least one document matches, we get back 'true'; if no documents match, the result set is empty.
+        // We override the result cardinality to SingleOrDefault so that an empty result returns default(bool) = false
+        // (the caller sets ResultCardinality.Single which would throw on empty results).
+
+        // TODO: Subquery pushdown, #33968
+        if (subquery.IsDistinct)
+        {
+            return null;
+        }
+
+        subquery.ClearOrdering();
+
+        var topLevelTranslation = _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true));
+        var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), topLevelTranslation } };
+        subquery.ReplaceProjectionMapping(projectionMapping);
+
+        if (!TryApplyLimit(subquery, TranslateExpression(Expression.Constant(1))!))
+        {
+            return null;
+        }
+
+        return source
+            .UpdateShaperExpression(
+                Expression.Convert(
+                    new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
+                    typeof(bool)))
+            .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
     }
 
     /// <summary>
@@ -473,6 +509,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
+        // Strip convert to object. Other converts should be fine as they will have a type mapping found but object won't
+
+        if (item is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression && unaryExpression.Type == typeof(object))
+        {
+            item = unaryExpression.Operand;
+        }
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
@@ -528,6 +570,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if ((select.Limit is not null || select.Offset is not null)
             && !TryPushdownIntoSubquery(select))
+        {
+            return null;
+        }
+
+        // We can not apply distinct because SQL DISTINCT operates on the full
+        // structural type, but the shaper extracts only a subset of that data.
+        // Cosmos: Projecting out nested documents retrieves the entire document #34067
+        if (select.UsesClientProjection)
         {
             return null;
         }
@@ -607,7 +657,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                 var translatedSelect =
                     new SelectExpression(
-                        new EntityProjectionExpression(translation, (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                        new StructuralTypeProjectionExpression(translation, projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
                     new StructuralTypeShaperExpression(
@@ -628,7 +678,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -830,6 +880,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateFullJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        AddTranslationErrorDetails(CosmosStrings.CrossDocumentJoinNotSupported);
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
         => TranslateCountLongCount(source, predicate, typeof(long));
 
@@ -859,14 +926,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
-        if (source.ShaperExpression is not StructuralTypeShaperExpression entityShaperExpression)
+        if (source.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType } shaper)
         {
             return null;
-        }
-
-        if (entityShaperExpression.StructuralType is not IEntityType entityType)
-        {
-            throw new UnreachableException("Complex types not supported in Cosmos");
         }
 
         if (entityType.ClrType == resultType)
@@ -876,7 +938,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         var select = (SelectExpression)source.QueryExpression;
 
-        var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+        var parameterExpression = Expression.Parameter(shaper.Type);
         var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
 
         if (!TryApplyPredicate(source, predicate))
@@ -887,23 +949,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
         if (baseType != null)
         {
-            return source.UpdateShaperExpression(entityShaperExpression.WithType(baseType));
+            return source.UpdateShaperExpression(shaper.WithType(baseType));
         }
 
         var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
-        var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+        var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
 
         var projectionMember = projectionBindingExpression.ProjectionMember;
         Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
 
-        var entityProjectionExpression = (EntityProjectionExpression)select.GetMappedProjection(projectionMember);
+        var structuralTypeProjectionExpression = (StructuralTypeProjectionExpression)select.GetMappedProjection(projectionMember);
         select.ReplaceProjectionMapping(
             new Dictionary<ProjectionMember, Expression>
             {
-                { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+                    { projectionMember, structuralTypeProjectionExpression.UpdateEntityType(derivedType) }
             });
 
-        return source.UpdateShaperExpression(entityShaperExpression.WithType(derivedType));
+        return source.UpdateShaperExpression(shaper.WithType(derivedType));
     }
 
     /// <summary>
@@ -1131,9 +1193,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
                     alias,
-                    new EntityProjectionExpression(
-                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, alias),
-                        (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                    new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(projectedStructuralTypeShaper.StructuralType, alias),
+                        projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
                     new StructuralTypeShaperExpression(
@@ -1159,7 +1221,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1270,9 +1332,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
                     alias,
-                    new EntityProjectionExpression(
-                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, alias),
-                        (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                    new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(projectedStructuralTypeShaper.StructuralType, alias),
+                        projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
                     new StructuralTypeShaperExpression(
@@ -1298,7 +1360,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
         // warn or not.
-        if (select.Orderings.Count == 0 && !_subquery)
+        if (select.Orderings.Count == 0)
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
@@ -1361,7 +1423,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
     {
-        // Attempt to translate access into a primitive collection property
+        // Attempt to translate access into a primitive, complex or embedded owned navigation collection property
         if (_sqlTranslator.TryBindMember(
                 _sqlTranslator.Visit(source),
                 member,
@@ -1378,19 +1440,18 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
             switch (translatedExpression)
             {
-                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }:
+                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }
+                                                                         or IComplexProperty { IsCollection: true }:
                 {
-                    var targetEntityType = (IEntityType)shaper.StructuralType;
-                    var projection = new EntityProjectionExpression(
-                        new ObjectReferenceExpression(targetEntityType, sourceAlias), targetEntityType);
+                    var targetStructuralType = shaper.StructuralType;
+                    var projection = new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);
                     var select = SelectExpression.CreateForCollection(
                         shaper.ValueBufferExpression,
                         sourceAlias,
                         projection);
-                    return CreateShapedQueryExpression(targetEntityType, select);
+                    return CreateShapedQueryExpression(targetStructuralType, select);
                 }
-
-                // TODO: Collection of complex type (#31253)
 
                 // Note that non-collection navigations/complex types are handled in CosmosSqlTranslatingExpressionVisitor
                 // (no collection -> no queryable operators)
@@ -1631,6 +1692,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         string functionName,
         bool ignoreOrderings = false)
     {
+        // Cosmos set operations (Concat, Union, Intersect) can only be performed over arrays, not over root entity queries.
+        // Detect if either source is a root entity query and throw an appropriate error.
+        if (IsRootEntityQuery(source1) || IsRootEntityQuery(source2))
+        {
+            AddTranslationErrorDetails(CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+            return null;
+        }
+
         if (source1.TryConvertToArray(_typeMappingSource, out var array1, out var projection1, ignoreOrderings)
             && source2.TryConvertToArray(_typeMappingSource, out var array2, out var projection2, ignoreOrderings)
             && projection1.Type == projection2.Type)
@@ -1658,12 +1727,15 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translation = new ObjectFunctionExpression(functionName, [array1, array2], arrayType);
                 var alias = _aliasManager.GenerateSourceAlias(translation);
                 var select = SelectExpression.CreateForCollection(
-                    translation, alias, new ObjectReferenceExpression((IEntityType)structuralType1, alias));
+                    translation, alias, new ObjectReferenceExpression(structuralType1, alias));
                 return CreateShapedQueryExpression(select, structuralType1.ClrType);
             }
         }
 
         return null;
+
+        static bool IsRootEntityQuery(ShapedQueryExpression source)
+            => source.QueryExpression is SelectExpression { Sources: [{ WithIn: false }, ..] };
     }
 
     private SqlExpression? TranslateExpression(Expression expression)

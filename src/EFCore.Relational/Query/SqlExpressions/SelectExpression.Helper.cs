@@ -54,6 +54,18 @@ public sealed partial class SelectExpression
         Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
         : ExpressionVisitor
     {
+        // #30915: tracks New/MemberInit nodes rebuilt by this visitor (old instance → new instance). Used by the caller
+        // to re-key any _nonEntityNullabilityMarkers entries whose key was one of the rebuilt nodes, so that a previously-
+        // recorded marker key does not go stale when an outer-shaper remap creates a fresh node instance. Lazily
+        // allocated since most remaps rebuild nothing and most callers never read it.
+        private static readonly IReadOnlyDictionary<Expression, Expression> EmptyRebuiltNodes
+            = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
+
+        private Dictionary<Expression, Expression>? _rebuiltNodes;
+
+        public IReadOnlyDictionary<Expression, Expression> RebuiltNodes
+            => _rebuiltNodes ?? EmptyRebuiltNodes;
+
         protected override Expression VisitExtension(Expression expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -69,6 +81,28 @@ public sealed partial class SelectExpression
             }
 
             return base.VisitExtension(expression);
+        }
+
+        protected override Expression VisitNew(NewExpression node)
+        {
+            var visited = (NewExpression)base.VisitNew(node);
+            if (!ReferenceEquals(visited, node))
+            {
+                (_rebuiltNodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[node] = visited;
+            }
+
+            return visited;
+        }
+
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+        {
+            var visited = (MemberInitExpression)base.VisitMemberInit(node);
+            if (!ReferenceEquals(visited, node))
+            {
+                (_rebuiltNodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[node] = visited;
+            }
+
+            return visited;
         }
     }
 
@@ -190,7 +224,7 @@ public sealed partial class SelectExpression
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
-                if (expression is SqlExpression sqlExpression)
+                if (expression is SqlExpression sqlExpression and not SqlFragmentExpression)
                 {
                     if (correlatedTerms.Contains(sqlExpression)
                         || sqlExpression is SqlConstantExpression or SqlParameterExpression)
@@ -360,27 +394,7 @@ public sealed partial class SelectExpression
                 }
 
                 case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):
-                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
-
-                case StructuralTypeProjectionExpression:
-                    var result = (StructuralTypeProjectionExpression)base.Visit(expression);
-
-                    // TableMap aliases are not stored in form of expression so we need to update them manually
-                    var tableMapChanged = false;
-                    var newTableMap = result.TableMap.ToDictionary(x => x.Key, x => x.Value);
-                    foreach (var (oldAlias, newAlias) in _tableAliasMap)
-                    {
-                        var match = newTableMap.FirstOrDefault(x => x.Value == oldAlias).Key;
-                        if (match != null)
-                        {
-                            newTableMap[match] = newAlias;
-                            tableMapChanged = true;
-                        }
-                    }
-
-                    return tableMapChanged
-                        ? result.UpdateTableMap(newTableMap)
-                        : result;
+                    return new ColumnExpression(column.Name, newTableAlias, column.Column, column.Type, column.TypeMapping, column.IsNullable);
 
                 default:
                     return base.Visit(expression);

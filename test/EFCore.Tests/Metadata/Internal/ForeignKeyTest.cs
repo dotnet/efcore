@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ForeignKeyTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_model_is_readonly()
     {
         var model = CreateModel();
@@ -54,7 +54,7 @@ public class ForeignKeyTest
             Assert.Throws<InvalidOperationException>(() => foreignKey.SetProperties([principalProp], key)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_foreign_key()
     {
         var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
@@ -78,7 +78,7 @@ public class ForeignKeyTest
         Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Constructor_throws_when_referenced_key_not_on_referenced_entity()
     {
         var model = CreateModel();
@@ -95,7 +95,7 @@ public class ForeignKeyTest
                 [fk], principalKey, principalEntityType)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Constructor_throws_when_principal_and_dependent_property_count_do_not_match()
     {
         var model = CreateModel();
@@ -116,7 +116,7 @@ public class ForeignKeyTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Constructor_throws_when_principal_and_dependent_property_types_do_not_match()
     {
         var dependentEntityType = CreateModel().AddEntityType("D");
@@ -139,7 +139,7 @@ public class ForeignKeyTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_foreign_key_with_non_pk_principal()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -159,7 +159,7 @@ public class ForeignKeyTest
         Assert.Same(principalKey, foreignKey.PrincipalKey);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsRequired_and_IsUnique_false_when_dependent_property_not_nullable()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -174,7 +174,7 @@ public class ForeignKeyTest
         Assert.False(foreignKey.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsRequired_and_IsUnique_false_when_dependent_property_nullable()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -189,7 +189,7 @@ public class ForeignKeyTest
         Assert.False(foreignKey.IsUnique);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsRequired_false_when_no_part_of_composite_FK_is_nullable()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -211,7 +211,7 @@ public class ForeignKeyTest
         Assert.False(foreignKey.IsRequired);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_IsRequired_to_true_does_not_configure_FK_properties_as_non_nullable()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -232,7 +232,7 @@ public class ForeignKeyTest
         Assert.True(dependentProp2.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_IsRequired_to_false_will_not_configure_FK_properties_as_nullable()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -255,7 +255,7 @@ public class ForeignKeyTest
         Assert.False(dependentProp2.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsRequiredDependent_throws_for_incompatible_uniqueness()
     {
         var foreignKey = CreateOneToManyFK();
@@ -346,7 +346,7 @@ public class ForeignKeyTest
 
     public class DerivedOneToManyDependent : OneToManyDependent;
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_setting_navigation_to_principal_on_wrong_FK()
     {
         var foreignKey1 = CreateOneToManyFK();
@@ -368,7 +368,7 @@ public class ForeignKeyTest
                 => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_setting_navigation_to_dependent_on_wrong_FK()
     {
         var foreignKey1 = CreateOneToManyFK();
@@ -390,7 +390,7 @@ public class ForeignKeyTest
                 => foreignKey2.SetDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsUnique_throws_for_incompatible_navigation()
     {
         var foreignKey = CreateOneToManyFK();
@@ -404,7 +404,7 @@ public class ForeignKeyTest
             Assert.Throws<InvalidOperationException>(() => foreignKey.IsUnique = true).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsUnique_throws_for_incompatible_required_dependent()
     {
         var foreignKey = CreateOneToManyFK();
@@ -449,7 +449,7 @@ public class ForeignKeyTest
         public int? SelfRefId { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSelfReferencing_returns_true_for_self_ref_foreign_keys()
     {
         var fk = CreateSelfRefFK();
@@ -457,7 +457,7 @@ public class ForeignKeyTest
         Assert.True(fk.IsSelfReferencing());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSelfReferencing_returns_true_for_non_pk_self_ref_foreign_keys()
     {
         var fk = CreateSelfRefFK(useAltKey: true);
@@ -465,7 +465,7 @@ public class ForeignKeyTest
         Assert.True(fk.IsSelfReferencing());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSelfReferencing_returns_false_for_same_hierarchy_foreign_keys()
     {
         var fk = CreateOneToManySameHierarchyFK();
@@ -473,7 +473,7 @@ public class ForeignKeyTest
         Assert.False(fk.IsSelfReferencing());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSelfReferencing_returns_false_for_same_base_foreign_keys()
     {
         var fk = CreateOneToManySameBaseFK();
@@ -481,7 +481,7 @@ public class ForeignKeyTest
         Assert.False(fk.IsSelfReferencing());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSelfReferencing_returns_false_for_non_hierarchical_foreign_keys()
     {
         var fk = CreateOneToManyFK();
@@ -489,7 +489,7 @@ public class ForeignKeyTest
         Assert.False(fk.IsSelfReferencing());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsBaseLinking_returns_true_for_self_ref_foreign_keys()
     {
         var fk = CreateSelfRefFK();
@@ -497,7 +497,7 @@ public class ForeignKeyTest
         Assert.True(fk.IsBaseLinking());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsBaseLinking_returns_false_for_non_pk_self_ref_foreign_keys()
     {
         var fk = CreateSelfRefFK(useAltKey: true);
@@ -505,7 +505,7 @@ public class ForeignKeyTest
         Assert.False(fk.IsBaseLinking());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsBaseLinking_returns_true_for_same_hierarchy_foreign_keys()
     {
         var fk = CreateOneToManySameHierarchyFK();
@@ -513,7 +513,7 @@ public class ForeignKeyTest
         Assert.True(fk.IsBaseLinking());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsBaseLinking_returns_true_for_same_base_foreign_keys()
     {
         var fk = CreateOneToManySameBaseFK();
@@ -521,7 +521,7 @@ public class ForeignKeyTest
         Assert.True(fk.IsBaseLinking());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSelfPrimaryKeyReferencing_returns_false_for_non_hierarchical_foreign_keys()
     {
         var fk = CreateOneToManyFK();
@@ -529,7 +529,7 @@ public class ForeignKeyTest
         Assert.False(fk.IsBaseLinking());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_cascade_delete_flag()
     {
         var entityType = CreateModel().AddEntityType("E");
@@ -560,7 +560,7 @@ public class ForeignKeyTest
         Assert.Equal(DeleteBehavior.ClientSetNull, foreignKey.DeleteBehavior);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_change_cascade_ownership()
     {
         var entityType = CreateModel().AddOwnedEntityType("E");
@@ -587,7 +587,7 @@ public class ForeignKeyTest
             Assert.Throws<InvalidOperationException>(() => foreignKey.SetPrincipalToDependent((string)null)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsOwnership_throws_when_no_navigation()
     {
         var entityType = CreateModel().AddOwnedEntityType("E");
@@ -608,7 +608,7 @@ public class ForeignKeyTest
             Assert.Throws<InvalidOperationException>(() => foreignKey.IsOwnership = true).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_find_targets_for_non_hierarchical_foreign_keys()
     {
         var fk = CreateOneToManyFK();
@@ -626,7 +626,7 @@ public class ForeignKeyTest
         Assert.Equal([fk.PrincipalToDependent], fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_find_targets_for_same_base_foreign_keys()
     {
         var fk = CreateOneToManySameBaseFK();
@@ -681,7 +681,7 @@ public class ForeignKeyTest
         Assert.Equal(new[] { fk.PrincipalToDependent }.Where(n => n != null), fk.FindNavigationsToInHierarchy(derivedDependent));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_find_targets_for_self_ref_foreign_keys()
     {
         var fk = CreateSelfRefFK();
@@ -716,7 +716,7 @@ public class ForeignKeyTest
             fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_finding_targets_for_same_hierarchy_foreign_keys()
     {
         var fk = CreateOneToManySameHierarchyFK();
@@ -742,7 +742,7 @@ public class ForeignKeyTest
             fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Finding_targets_throws_for_entity_types_not_in_the_relationship()
     {
         var fk = CreateOneToManyFK();
@@ -792,6 +792,67 @@ public class ForeignKeyTest
             CoreStrings.EntityTypeNotInRelationship(
                 unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
             Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsToInHierarchy(unrelatedType)).Message);
+    }
+
+    [Fact]
+    public void IsConstrained_defaults_to_true()
+    {
+        var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
+        var dependentProp = entityType.AddProperty("P", typeof(int));
+        var principalProp = entityType.AddProperty("Id", typeof(int));
+        entityType.SetPrimaryKey(principalProp);
+        var foreignKey = entityType.AddForeignKey([dependentProp], entityType.FindPrimaryKey(), entityType);
+
+        Assert.True(foreignKey.IsConstrained);
+        Assert.Null(foreignKey.GetIsConstrainedConfigurationSource());
+    }
+
+    [Fact]
+    public void Can_set_and_reset_IsConstrained()
+    {
+        var entityType = (IConventionEntityType)CreateModel().AddEntityType("E");
+        var dependentProp = entityType.AddProperty("P", typeof(int));
+        var principalProp = entityType.AddProperty("Id", typeof(int));
+        entityType.SetPrimaryKey(principalProp);
+        var foreignKey = entityType.AddForeignKey([dependentProp], entityType.FindPrimaryKey(), entityType);
+
+        foreignKey.SetIsConstrained(false);
+
+        Assert.False(foreignKey.IsConstrained);
+        Assert.Equal(ConfigurationSource.Convention, foreignKey.GetIsConstrainedConfigurationSource());
+
+        foreignKey.SetIsConstrained(null);
+
+        Assert.True(foreignKey.IsConstrained);
+        Assert.Null(foreignKey.GetIsConstrainedConfigurationSource());
+    }
+
+    [Fact]
+    public void Fluent_IsConstrained_configures_metadata()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<FluentTestPrincipal>().HasKey(e => e.Id);
+        modelBuilder.Entity<FluentTestDependent>(
+            b =>
+            {
+                b.HasKey(e => e.Id);
+                b.HasOne<FluentTestPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId).IsConstrained(false);
+            });
+
+        var fk = modelBuilder.Model.FindEntityType(typeof(FluentTestDependent))!.GetForeignKeys().Single();
+        Assert.False(fk.IsConstrained);
+    }
+
+    private class FluentTestPrincipal
+    {
+        public int Id { get; set; }
+    }
+
+    private class FluentTestDependent
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
     }
 
     private static IMutableModel CreateModel()

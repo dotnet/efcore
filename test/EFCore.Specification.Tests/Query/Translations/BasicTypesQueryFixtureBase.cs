@@ -5,15 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public abstract class BasicTypesQueryFixtureBase : SharedStoreFixtureBase<BasicTypesContext>, IQueryFixtureBase
+public abstract class BasicTypesQueryFixtureBase : QueryFixtureBase<BasicTypesContext>
 {
     private BasicTypesData? _expectedData;
 
     protected override string StoreName
         => "BasicTypesTest";
-
-    public Func<DbContext> GetContextCreator()
-        => CreateContext;
 
     protected override Task SeedAsync(BasicTypesContext context)
     {
@@ -23,16 +20,16 @@ public abstract class BasicTypesQueryFixtureBase : SharedStoreFixtureBase<BasicT
         return context.SaveChangesAsync();
     }
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new BasicTypesData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
         { typeof(BasicTypesEntity), e => ((BasicTypesEntity?)e)?.Id },
         { typeof(NullableBasicTypesEntity), e => ((NullableBasicTypesEntity?)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(BasicTypesEntity), (e, a) =>

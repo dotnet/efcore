@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.FSharp.FunctionalTests
@@ -9,6 +9,7 @@ open Microsoft.EntityFrameworkCore.TestModels.Northwind
 open Microsoft.EntityFrameworkCore.TestUtilities
 open global.Xunit
 
+[<ConditionalClass(typeof<SqlServerTestEnvironment>, "SqlServerAvailable")>]
 type NorthwindQueryFSharpTest(fixture) as self =
     inherit QueryTestBase<NorthwindFSharpQuerySqlServerFixture<NoopModelCustomizer>>(fixture)
 
@@ -17,7 +18,7 @@ type NorthwindQueryFSharpTest(fixture) as self =
     let assertSql (sql: string) =
         fixture.TestSqlLoggerFactory.AssertBaseline([|sql|])
 
-    [<ConditionalTheory>]
+    [<Theory>]
     [<MemberData(nameof NorthwindQueryFSharpTest.IsAsyncData)>]
     let ListLiteral_Contains (isAsync: bool) =
         task {
@@ -27,12 +28,6 @@ type NorthwindQueryFSharpTest(fixture) as self =
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ALFKI', N'ALFKI2')")
         }
-        
+
     member private self.RewriteExpectedQueryExpressionRedirect expression = base.RewriteExpectedQueryExpression expression
     member private self.RewriteServerQueryExpressionRedirect expression = base.RewriteServerQueryExpression expression
-
-    override self.CreateQueryAsserter fixture =
-        new RelationalQueryAsserter(
-            fixture,
-            (fun e -> self.RewriteExpectedQueryExpressionRedirect(e)),
-            (fun e -> self.RewriteServerQueryExpressionRedirect(e)))

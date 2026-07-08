@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalDataReaderTest
 {
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Does_not_hold_reference_to_DbDataReader_after_dispose(bool async)
     {
         var fakeConnection = CreateConnection();

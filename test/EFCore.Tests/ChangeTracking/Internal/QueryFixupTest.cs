@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class QueryFixupTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal()
     {
         Seed();
@@ -27,7 +27,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent()
     {
         Seed();
@@ -46,7 +46,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_unidirectional()
     {
         Seed();
@@ -64,7 +64,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_unidirectional()
     {
         Seed();
@@ -82,7 +82,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_one_to_one()
     {
         Seed();
@@ -101,7 +101,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_one_to_one()
     {
         Seed();
@@ -120,7 +120,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_unidirectional_one_to_one()
     {
         Seed();
@@ -138,7 +138,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_unidirectional_one_to_one()
     {
         Seed();
@@ -156,7 +156,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_self_ref()
     {
         Seed();
@@ -176,7 +176,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_self_ref()
     {
         Seed();
@@ -196,7 +196,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_self_ref()
     {
         Seed();
@@ -216,7 +216,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_self_ref_prinipal_nav_only()
     {
         Seed();
@@ -235,7 +235,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_self_ref_dependent_nav_only()
     {
         Seed();
@@ -254,7 +254,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_self_ref_unidirectional()
     {
         Seed();
@@ -273,7 +273,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_self_ref_unidirectional()
     {
         Seed();
@@ -292,7 +292,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_self_ref_one_to_one()
     {
         Seed();
@@ -312,7 +312,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_self_ref_one_to_one()
     {
         Seed();
@@ -332,7 +332,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_self_ref_one_to_one()
     {
         Seed();
@@ -352,7 +352,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_self_ref_one_to_one_principal_nav_only()
     {
         Seed();
@@ -371,7 +371,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_self_ref_one_to_one_dependent_nav_only()
     {
         Seed();
@@ -390,7 +390,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_self_ref_one_to_one_unidirectional()
     {
         Seed();
@@ -409,7 +409,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_self_ref_one_to_one_unidirectional()
     {
         Seed();
@@ -428,7 +428,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_dependent_include_principal_multiple_relationships()
     {
         Seed();
@@ -450,7 +450,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_principal_include_dependent_multiple_relationships()
     {
         Seed();
@@ -472,7 +472,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_dependent_include_principal_with_existing(EntityState existingState)
     {
         Seed();
@@ -498,7 +498,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_principal_include_dependent_with_existing(EntityState existingState)
     {
         Seed();
@@ -524,7 +524,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_dependent_include_principal_unidirectional_with_existing(EntityState existingState)
     {
         Seed();
@@ -548,7 +548,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_principal_include_dependent_unidirectional_with_existing(EntityState existingState)
     {
         Seed();
@@ -572,7 +572,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_self_ref_with_existing(EntityState existingState)
     {
         Seed();
@@ -599,7 +599,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_dependent_include_principal_self_ref_with_existing(EntityState existingState)
     {
         Seed();
@@ -626,7 +626,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_principal_include_dependent_self_ref_with_existing(EntityState existingState)
     {
         Seed();
@@ -653,7 +653,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_self_ref_prinipal_nav_only_with_existing(EntityState existingState)
     {
         Seed();
@@ -678,7 +678,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_self_ref_dependent_nav_only_with_existing(EntityState existingState)
     {
         Seed();
@@ -703,7 +703,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_dependent_include_principal_self_ref_unidirectional_with_existing(EntityState existingState)
     {
         Seed();
@@ -728,7 +728,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalTheory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
+    [Theory, InlineData(EntityState.Added), InlineData(EntityState.Modified), InlineData(EntityState.Unchanged)]
     public void Query_principal_include_dependent_self_ref_unidirectional_with_existing(EntityState existingState)
     {
         Seed();
@@ -753,7 +753,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_ownership_navigations()
     {
         Seed();
@@ -808,7 +808,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_owned_foreign_key()
     {
         Seed();
@@ -823,7 +823,7 @@ public class QueryFixupTest
             () => Assert.Equal(principal.Id, foreignKeyValue));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_subowned_foreign_key()
     {
         Seed();
@@ -838,7 +838,7 @@ public class QueryFixupTest
             () => Assert.Equal(principal.Id, foreignKeyValue));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_owned()
     {
         Seed();
@@ -857,7 +857,7 @@ public class QueryFixupTest
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Query_subowned()
     {
         Seed();

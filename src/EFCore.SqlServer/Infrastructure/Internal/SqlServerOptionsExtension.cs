@@ -21,9 +21,8 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     private int? _azureSynapseCompatibilityLevel;
     private bool _useRetryingStrategyByDefault;
 
-    // For the SQL Server/Azure SQL compatibility levels, see
     // https://learn.microsoft.com/sql/t-sql/statements/alter-database-transact-sql-compatibility-level
-    // SQL Server 2025 (17.x): compatibility level 170 (default for Azure SQL, currently preview for on-prem)
+    // SQL Server 2025 (17.x): compatibility level 170, start date 2025-11-18, mainstream end date 2031-01-06, extended end date 2036-01-06
     // SQL Server 2022 (16.x): compatibility level 160, start date 2022-11-16, mainstream end date 2028-01-11, extended end date 2033-01-11
     // SQL Server 2019 (15.x): compatibility level 150, start date 2019-11-04, mainstream end date 2025-02-28, extended end date 2030-01-08
     // SQL Server 2017 (14.x): compatibility level 140, start date 2017-09-29, mainstream end date 2022-10-11, extended end date 2027-10-12
@@ -36,7 +35,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly int SqlServerDefaultCompatibilityLevel = 150;
+    public static readonly int SqlServerDefaultCompatibilityLevel = 160;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

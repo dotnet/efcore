@@ -7,8 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 using Verify = CSharpCodeFixVerifier<StringsUsageInRawQueriesDiagnosticAnalyzer, InterpolatedStringUsageInRawQueriesCodeFixProvider>;
 
-//Issue #37106
-internal class StringInterpolationInRawQueriesAnalyzerTests
+public class StringInterpolationInRawQueriesAnalyzerTests
 {
     public static readonly TheoryData<string> DoNotReportData =
     [

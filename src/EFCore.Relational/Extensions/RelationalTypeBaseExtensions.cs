@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -349,7 +350,14 @@ public static class RelationalTypeBaseExtensions
     ///     Gets the mapping strategy for the derived types.
     /// </summary>
     /// <param name="typeBase">The type.</param>
-    /// <returns>The mapping strategy for the derived types.</returns>
+    /// <returns>
+    ///     The mapping strategy for the derived types, or <see langword="null" /> if no strategy is configured
+    ///     and the entity type has no derived types. Well-known values are
+    ///     <see cref="RelationalAnnotationNames.TphMappingStrategy" />,
+    ///     <see cref="RelationalAnnotationNames.TptMappingStrategy" />, and
+    ///     <see cref="RelationalAnnotationNames.TpcMappingStrategy" />, but other values may be returned
+    ///     if a different mapping strategy has been configured.
+    /// </returns>
     public static string? GetMappingStrategy(this IReadOnlyTypeBase typeBase)
         => typeBase.ContainingEntityType.GetMappingStrategy();
 
@@ -378,6 +386,78 @@ public static class RelationalTypeBaseExtensions
             : typeBase is IReadOnlyEntityType entityType
                 ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName()
                 : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
+    }
+
+    /// <summary>
+    ///     Gets the container column name to which the type is mapped for a particular table-like store object.
+    /// </summary>
+    /// <param name="typeBase">The type to get the container column name for.</param>
+    /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
+    /// <returns>
+    ///     The container column name to which the type is mapped, or <see langword="null" /> if the type is not mapped
+    ///     to a container column in the given store object.
+    /// </returns>
+    public static string? GetContainerColumnName(this IReadOnlyTypeBase typeBase, in StoreObjectIdentifier storeObject)
+    {
+        var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName);
+        if (annotation != null)
+        {
+            var containerColumnName = (string?)annotation.Value;
+            if (string.IsNullOrEmpty(containerColumnName))
+            {
+                return containerColumnName;
+            }
+
+            if (storeObject.StoreObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
+            {
+                return containerColumnName;
+            }
+
+            var containingEntityType = typeBase.ContainingEntityType;
+            if (containingEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+            {
+                var localStoreObject = storeObject;
+                return StoreObjectIdentifier.Create(containingEntityType, localStoreObject.StoreObjectType) == localStoreObject
+                    || containingEntityType.GetDerivedTypes().Any(e => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject)
+                        ? containerColumnName
+                        : null;
+            }
+
+            // TODO: Support entity splitting with JSON columns. Issue #36172
+            var declaringStoreObject = StoreObjectIdentifier.Create(typeBase, storeObject.StoreObjectType);
+            if (declaringStoreObject == null)
+            {
+                var tableFound = false;
+                var queue = new Queue<IReadOnlyEntityType>();
+                queue.Enqueue(containingEntityType);
+                while (queue.Count > 0 && !tableFound)
+                {
+                    foreach (var derivedType in queue.Dequeue().GetDirectlyDerivedTypes())
+                    {
+                        var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObject.StoreObjectType);
+                        if (derivedStoreObject == null)
+                        {
+                            queue.Enqueue(derivedType);
+                            continue;
+                        }
+
+                        if (derivedStoreObject == storeObject)
+                        {
+                            tableFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                return tableFound ? containerColumnName : null;
+            }
+
+            return declaringStoreObject == storeObject ? containerColumnName : null;
+        }
+
+        return typeBase is IReadOnlyEntityType entityType
+            ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName(storeObject)
+            : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName(storeObject);
     }
 
     /// <summary>
@@ -416,11 +496,32 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyTypeBase typeBase)
-        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnName
-            ? columnName
-            : typeBase is IReadOnlyEntityType entityType
-                ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
-                : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
+    {
+        if (typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnType)
+        {
+            return columnType;
+        }
+
+        var parentType = typeBase is IReadOnlyEntityType entityType
+            ? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType()
+            : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnType();
+
+        if (parentType != null)
+        {
+            return parentType;
+        }
+
+        if (typeBase.IsMappedToJson()
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            && (typeBase.Model is not Model model || model.IsReadOnly))
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        {
+            return ((IRelationalTypeMappingSource)((IModel)typeBase.Model).GetModelDependencies().TypeMappingSource)
+                .FindMapping(typeof(JsonTypePlaceholder))?.StoreType;
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     Sets the type of the container column to which the type is mapped.
@@ -477,6 +578,40 @@ public static class RelationalTypeBaseExtensions
                 ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
                 : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name;
     }
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given type mapped to a JSON column.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <param name="name">The name to be used.</param>
+    public static void SetJsonPropertyName(this IMutableTypeBase typeBase, string? name)
+        => typeBase.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name));
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given type mapped to a JSON column.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <param name="name">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetJsonPropertyName(
+        this IConventionTypeBase typeBase,
+        string? name,
+        bool fromDataAnnotation = false)
+        => (string?)typeBase.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name),
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given type.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given type.</returns>
+    public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionTypeBase typeBase)
+        => typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 
     #endregion
 }

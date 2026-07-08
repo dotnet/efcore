@@ -184,6 +184,19 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
         => base.Can_read_write_collection_of_nullable_GUID_JSON_values(
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""");
 
+    [Theory]
+    [InlineData(-65504f, """{"Prop":-65504}""")]
+    [InlineData(65504f, """{"Prop":65504}""")]
+    [InlineData(0f, """{"Prop":0}""")]
+    [InlineData(1.5f, """{"Prop":1.5}""")]
+    public virtual Task Can_read_write_Half_JSON_values(float value, string json)
+        => Can_read_and_write_JSON_value<HalfType, Half>(nameof(HalfType.Half), (Half)value, json);
+
+    protected class HalfType
+    {
+        public Half Half { get; set; }
+    }
+
     public override Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
         => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);
 
@@ -219,12 +232,12 @@ public class JsonTypesSqliteTest(NonSharedFixture fixture) : JsonTypesRelational
             """{"Prop":[0,null,18446744073709551615,0,1,8]}""",
             mappedCollection: true);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder)
+        builder = base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w
                 .Ignore(SqliteEventId.SchemaConfiguredWarning)
                 .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));

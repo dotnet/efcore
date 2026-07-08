@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalComplexPropertyExtensions
 {
-    private static readonly bool UseOldBehavior37009 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37009", out var enabled37009) && enabled37009;
-
     /// <summary>
     ///     Gets the value of JSON property name used for the given complex property of an entity mapped to a JSON column.
     /// </summary>
@@ -26,15 +23,7 @@ public static class RelationalComplexPropertyExtensions
     ///     <see langword="null" /> is returned for complex properties of entities that are not mapped to a JSON column.
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyComplexProperty complexProperty)
-    {
-        if (UseOldBehavior37009)
-        {
-            return (string?)complexProperty.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-                ?? (complexProperty.DeclaringType.IsMappedToJson() ? complexProperty.Name : null);
-        }
-
-        return complexProperty.ComplexType.GetJsonPropertyName();
-    }
+        => complexProperty.ComplexType.GetJsonPropertyName();
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given complex property of an entity mapped to a JSON column.
@@ -42,20 +31,7 @@ public static class RelationalComplexPropertyExtensions
     /// <param name="complexProperty">The complex property.</param>
     /// <param name="name">The name to be used.</param>
     public static void SetJsonPropertyName(this IMutableComplexProperty complexProperty, string? name)
-    {
-        if (UseOldBehavior37009)
-        {
-            complexProperty.SetOrRemoveAnnotation(
-                RelationalAnnotationNames.JsonPropertyName,
-                Check.NullButNotEmpty(name));
-        }
-        else
-        {
-            complexProperty.ComplexType.SetOrRemoveAnnotation(
-                RelationalAnnotationNames.JsonPropertyName,
-                Check.NullButNotEmpty(name));
-        }
-    }
+        => complexProperty.ComplexType.SetJsonPropertyName(name);
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given complex property of an entity mapped to a JSON column.
@@ -68,20 +44,7 @@ public static class RelationalComplexPropertyExtensions
         this IConventionComplexProperty complexProperty,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        if (UseOldBehavior37009)
-        {
-            return (string?)complexProperty.SetOrRemoveAnnotation(
-                RelationalAnnotationNames.JsonPropertyName,
-                Check.NullButNotEmpty(name),
-                fromDataAnnotation)?.Value;
-        }
-
-        return (string?)complexProperty.ComplexType.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name),
-            fromDataAnnotation)?.Value;
-    }
+        => complexProperty.ComplexType.SetJsonPropertyName(name, fromDataAnnotation);
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given complex property.
@@ -89,12 +52,65 @@ public static class RelationalComplexPropertyExtensions
     /// <param name="complexProperty">The complex property.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given complex property.</returns>
     public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionComplexProperty complexProperty)
+        => complexProperty.ComplexType.GetJsonPropertyNameConfigurationSource();
+
+    /// <summary>
+    ///     <para>
+    ///         Returns the table-like store objects to which this complex property is mapped if it's mapped to a JSON column.
+    ///     </para>
+    ///     <para>
+    ///         This method is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <param name="property">The complex property.</param>
+    /// <param name="storeObjectType">The type of the store object.</param>
+    /// <returns>The table-like store objects to which this property is mapped.</returns>
+    public static IEnumerable<StoreObjectIdentifier> GetMappedStoreObjects(
+        this IReadOnlyComplexProperty property,
+        StoreObjectType storeObjectType)
     {
-        if (UseOldBehavior37009)
+        var declaringType = property.DeclaringType;
+        var declaringStoreObject = StoreObjectIdentifier.Create(declaringType, storeObjectType);
+
+        // TODO: Support different JSON column names for different store objects. Issue #28584
+        if (declaringStoreObject != null
+            && property.ComplexType.GetContainerColumnName() != null)
         {
-            return complexProperty.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
+            yield return declaringStoreObject.Value;
         }
 
-        return complexProperty.ComplexType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
+        if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
+        {
+            yield break;
+        }
+
+        // TODO: Support entity splitting with JSON columns. Issue #36172
+        // foreach (var fragment in declaringType.GetMappingFragments(storeObjectType))
+        // {
+        //     if (property.ComplexType.GetContainerColumnName(fragment.StoreObject) != null)
+        //     {
+        //         yield return fragment.StoreObject;
+        //     }
+        // }
+
+        if (declaringType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+        {
+            yield break;
+        }
+
+        if (declaringType is IReadOnlyEntityType entityType)
+        {
+            foreach (var derivedType in entityType.GetDerivedTypes())
+            {
+                // TODO: Support different JSON column names in derived types. Issue #38214
+                var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
+                if (derivedStoreObject != null
+                    && property.ComplexType.GetContainerColumnName() != null)
+                {
+                    yield return derivedStoreObject.Value;
+                }
+            }
+        }
     }
 }

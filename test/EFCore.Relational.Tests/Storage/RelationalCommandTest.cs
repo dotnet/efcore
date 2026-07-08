@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
@@ -25,7 +25,7 @@ public class RelationalCommandTest
 {
     private static readonly string _eol = Environment.NewLine;
 
-    [ConditionalFact]
+    [Fact]
     public void Configures_DbCommand()
     {
         var fakeConnection = CreateConnection();
@@ -44,7 +44,7 @@ public class RelationalCommandTest
         Assert.Equal(FakeDbCommand.DefaultCommandTimeout, command.CommandTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Configures_DbCommand_with_transaction()
     {
         var fakeConnection = CreateConnection();
@@ -64,7 +64,7 @@ public class RelationalCommandTest
         Assert.Same(relationalTransaction.GetDbTransaction(), command.Transaction);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Configures_DbCommand_with_timeout()
     {
         var optionsExtension = new FakeRelationalOptionsExtension()
@@ -86,7 +86,7 @@ public class RelationalCommandTest
         Assert.Equal(42, command.CommandTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ExecuteNonQuery()
     {
         var executeNonQueryCount = 0;
@@ -126,7 +126,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_ExecuteNonQueryAsync()
     {
         var executeNonQueryCount = 0;
@@ -166,7 +166,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ExecuteScalar()
     {
         var executeScalarCount = 0;
@@ -206,7 +206,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_ExecuteScalarAsync()
     {
         var executeScalarCount = 0;
@@ -246,7 +246,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_ExecuteReader()
     {
         var executeReaderCount = 0;
@@ -295,7 +295,7 @@ public class RelationalCommandTest
         Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_ExecuteReaderAsync()
     {
         var executeReaderCount = 0;
@@ -346,7 +346,7 @@ public class RelationalCommandTest
         Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public async Task Can_ExecuteReader_multiple_times(bool async)
     {
         var diagnosticEvents = new List<Tuple<string, object>>();
@@ -475,7 +475,7 @@ public class RelationalCommandTest
             }
         };
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_parameter_values_is_null(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -509,7 +509,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -545,7 +545,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_type_mapped_parameters(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -607,7 +607,7 @@ public class RelationalCommandTest
         Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_composite_parameters(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -669,7 +669,7 @@ public class RelationalCommandTest
         Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -710,7 +710,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_not_object_array(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -748,7 +748,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Disposes_command_on_exception(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -788,7 +788,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Disposes_command_on_exception_in_reader(bool async)
     {
         var fakeDbConnection = new FakeDbConnection(
@@ -850,7 +850,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Closes_managed_connections_on_exception(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -894,7 +894,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Does_not_close_unmanaged_connections_on_exception(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -938,7 +938,7 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.CloseCount);
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Logs_commands_without_parameter_values(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -994,7 +994,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Logs_commands_parameter_values(
         Delegate commandDelegate,
         DbCommandMethod _,
@@ -1056,7 +1056,7 @@ public class RelationalCommandTest
         }
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Reports_command_diagnostic(
         Delegate commandDelegate,
         DbCommandMethod diagnosticName,
@@ -1114,7 +1114,7 @@ public class RelationalCommandTest
         Assert.Equal(async, afterData.IsAsync);
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Reports_command_diagnostic_on_exception(
         Delegate commandDelegate,
         DbCommandMethod diagnosticName,
@@ -1190,7 +1190,7 @@ public class RelationalCommandTest
         Assert.Equal(exception, afterData.Exception);
     }
 
-    [ConditionalTheory, MemberData(nameof(CommandActions))]
+    [Theory, MemberData(nameof(CommandActions))]
     public async Task Reports_command_diagnostic_on_cancellation(
         Delegate commandDelegate,
         DbCommandMethod diagnosticName,
