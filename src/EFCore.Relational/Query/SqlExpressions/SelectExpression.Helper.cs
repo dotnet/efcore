@@ -49,22 +49,42 @@ public sealed partial class SelectExpression
         }
     }
 
+    // #30915: shared state for a remapping visitor that needs to track which New/MemberInit shaper nodes it rebuilt
+    // (old instance → new instance). Callers re-key any _nonEntityNullabilityMarkers entry whose key was one of the
+    // rebuilt nodes, so a previously-recorded marker key does not go stale when a remap creates a fresh node instance.
+    // Composed into visitors (rather than shared via a base class) because they derive from different bases. Lazily
+    // allocated since most remaps rebuild nothing and most callers never read it.
+    private sealed class RebuiltNodeTracker
+    {
+        private static readonly IReadOnlyDictionary<Expression, Expression> Empty
+            = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
+
+        private Dictionary<Expression, Expression>? _nodes;
+
+        public IReadOnlyDictionary<Expression, Expression> Nodes
+            => _nodes ?? Empty;
+
+        public T Record<T>(T original, T visited)
+            where T : Expression
+        {
+            if (!ReferenceEquals(visited, original))
+            {
+                (_nodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[original] = visited;
+            }
+
+            return visited;
+        }
+    }
+
     private sealed class ProjectionMemberRemappingExpressionVisitor(
         SelectExpression queryExpression,
         Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
         : ExpressionVisitor
     {
-        // #30915: tracks New/MemberInit nodes rebuilt by this visitor (old instance → new instance). Used by the caller
-        // to re-key any _nonEntityNullabilityMarkers entries whose key was one of the rebuilt nodes, so that a previously-
-        // recorded marker key does not go stale when an outer-shaper remap creates a fresh node instance. Lazily
-        // allocated since most remaps rebuild nothing and most callers never read it.
-        private static readonly IReadOnlyDictionary<Expression, Expression> EmptyRebuiltNodes
-            = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
-
-        private Dictionary<Expression, Expression>? _rebuiltNodes;
+        private readonly RebuiltNodeTracker _tracker = new();
 
         public IReadOnlyDictionary<Expression, Expression> RebuiltNodes
-            => _rebuiltNodes ?? EmptyRebuiltNodes;
+            => _tracker.Nodes;
 
         protected override Expression VisitExtension(Expression expression)
         {
@@ -84,26 +104,28 @@ public sealed partial class SelectExpression
         }
 
         protected override Expression VisitNew(NewExpression node)
-        {
-            var visited = (NewExpression)base.VisitNew(node);
-            if (!ReferenceEquals(visited, node))
-            {
-                (_rebuiltNodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[node] = visited;
-            }
-
-            return visited;
-        }
+            => _tracker.Record(node, (NewExpression)base.VisitNew(node));
 
         protected override Expression VisitMemberInit(MemberInitExpression node)
-        {
-            var visited = (MemberInitExpression)base.VisitMemberInit(node);
-            if (!ReferenceEquals(visited, node))
-            {
-                (_rebuiltNodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[node] = visited;
-            }
+            => _tracker.Record(node, (MemberInitExpression)base.VisitMemberInit(node));
+    }
 
-            return visited;
-        }
+    // #22517/#30915: rebuilds a grouping element's shaper against a correlated-subquery clone, tracking any
+    // New/MemberInit nodes it rebuilds (old instance -> new instance) via RebuiltNodes. Used only through
+    // SelectExpression.RemapGroupingElementShaper, which owns the propagate/visit/re-key protocol.
+    private sealed class GroupingElementShaperRemappingExpressionVisitor(SelectExpression oldQuery, SelectExpression newQuery)
+        : QueryExpressionReplacingExpressionVisitor(oldQuery, newQuery)
+    {
+        private readonly RebuiltNodeTracker _tracker = new();
+
+        public IReadOnlyDictionary<Expression, Expression> RebuiltNodes
+            => _tracker.Nodes;
+
+        protected override Expression VisitNew(NewExpression node)
+            => _tracker.Record(node, (NewExpression)base.VisitNew(node));
+
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+            => _tracker.Record(node, (MemberInitExpression)base.VisitMemberInit(node));
     }
 
     private sealed class ProjectionMemberToIndexConvertingExpressionVisitor(

@@ -174,12 +174,21 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
-                var groupClonedSelectExpression = ((SelectExpression)groupShapedQueryExpression.QueryExpression).Clone();
-                return new ShapedQueryExpression(
-                    groupClonedSelectExpression,
-                    new QueryExpressionReplacingExpressionVisitor(
-                            groupShapedQueryExpression.QueryExpression, groupClonedSelectExpression)
-                        .Visit(groupShapedQueryExpression.ShaperExpression));
+                var groupSourceSelectExpression = (SelectExpression)groupShapedQueryExpression.QueryExpression;
+                var groupClonedSelectExpression = groupSourceSelectExpression.Clone();
+
+                // #22517/#30915: this clone is (re)translating a grouping-element subquery (e.g.
+                // `els.Select(...).FirstOrDefault()`), so any non-entity nullability marker recorded on the source
+                // grouping SelectExpression must be carried over the same way ApplyGrouping does it -- otherwise the
+                // marker is stranded on groupSourceSelectExpression, which nothing consults once this clone is the
+                // one actually translated, and the whole-object null gate never fires for this subquery.
+                // RemapGroupingElementShaper rebuilds the shaper and owns that transfer (fail-safe; see its comments).
+                // Note: groupSourceSelectExpression here is the clone ApplyGrouping already populated -- this is the
+                // second hop of the propagation, not the origin, so the marker binding resolves against it.
+                var groupRebuiltShaperExpression = groupSourceSelectExpression.RemapGroupingElementShaper(
+                    groupClonedSelectExpression, groupShapedQueryExpression.ShaperExpression);
+
+                return new ShapedQueryExpression(groupClonedSelectExpression, groupRebuiltShaperExpression);
 
             case ShapedQueryExpression shapedQueryExpression:
                 var clonedSelectExpression = ((SelectExpression)shapedQueryExpression.QueryExpression).Clone();

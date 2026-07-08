@@ -1892,12 +1892,15 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
+        // #22517/#30915: the per-group correlated subquery shaper is bound against clonedSelectExpression, not
+        // against this SelectExpression, so any non-entity nullability marker recorded here must be carried over
+        // onto the clone; RemapGroupingElementShaper rebuilds the shaper and owns that transfer.
+        var rebuiltShaperExpression = RemapGroupingElementShaper(clonedSelectExpression, shaperExpression);
+
         return new RelationalGroupByShaperExpression(
             keySelector,
             shaperExpression,
-            new ShapedQueryExpression(
-                clonedSelectExpression,
-                new QueryExpressionReplacingExpressionVisitor(this, clonedSelectExpression).Visit(shaperExpression)));
+            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
     }
 
     private static void PopulateGroupByTerms(
@@ -3187,6 +3190,95 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         innerSelect._projectionMapping[NullabilityMarkerProjectionMember] = marker;
         return new ProjectionBindingExpression(innerSelect, NullabilityMarkerProjectionMember, typeof(int?));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public Expression RemapGroupingElementShaper(SelectExpression clone, Expression shaperExpression)
+    {
+        // #22517/#30915: rebuilds a grouping element's shaper against `clone` (a correlated-subquery clone of this
+        // SelectExpression) while carrying any recorded non-entity nullability marker across. Owns the whole
+        // protocol -- construct the remapper, propagate markers before visiting, visit, re-key after visiting -- so
+        // callers cannot get the ordering wrong. Used by ApplyGrouping and by the grouping-element subquery
+        // translation in RelationalQueryableMethodTranslatingExpressionVisitor.
+        var remapper = new GroupingElementShaperRemappingExpressionVisitor(this, clone);
+        PropagateNonEntityNullabilityMarkersTo(clone, remapper);
+        var rebuiltShaperExpression = remapper.Visit(shaperExpression);
+        clone.RekeyPropagatedNonEntityNullabilityMarkers(remapper);
+        return rebuiltShaperExpression;
+    }
+
+    private void PropagateNonEntityNullabilityMarkersTo(
+        SelectExpression clone,
+        GroupingElementShaperRemappingExpressionVisitor remapper)
+    {
+        // #22517/#30915: a grouping element's per-group correlated subquery is (re)bound against a clone of this
+        // SelectExpression -- once by ApplyGrouping (the clone captured in the RelationalGroupByShaperExpression's
+        // GroupingEnumerable), and again by RelationalQueryableMethodTranslatingExpressionVisitor when that clone is
+        // itself cloned to translate a grouping-element subquery (e.g. `els.Select(...).FirstOrDefault()`). Any
+        // non-entity nullability marker recorded on this SelectExpression (see _nonEntityNullabilityMarkers) needs
+        // to be propagated onto the clone -- with its marker binding rebound through the same visitor used to
+        // rebind the shaper's other ProjectionBindingExpressions -- otherwise the marker is stranded on an instance
+        // nothing consults after the clone is made, and the whole-object null gate never fires.
+        //
+        // This method only copies the entry onto the clone (still keyed by the original shaper node) with a rebound
+        // binding; re-keying onto the node the remapper rebuilds is done by the companion
+        // RekeyPropagatedNonEntityNullabilityMarkers, called after the shaper has been visited.
+        //
+        // Fail-safe: only propagate an entry whose marker binding is a ProjectionBindingExpression that actually
+        // resolves against this SelectExpression. If that check fails, skip the entry rather than copying a binding
+        // that would resolve incorrectly (or not at all) against the clone; the gate then simply does not fire for
+        // that entry and behavior degrades to the prior throw, never an incorrect result.
+        //
+        // This copies onto the clone and deliberately leaves this._nonEntityNullabilityMarkers intact (matching the
+        // AddJoin design): the source's stale keys are shaper nodes it no longer projects, so a lookup against the
+        // source cannot match them. Safe unless a future change re-visits the source's shaper against a rebuilt node.
+        if (_nonEntityNullabilityMarkers is null)
+        {
+            return;
+        }
+
+        foreach (var (oldNode, markerBinding) in _nonEntityNullabilityMarkers)
+        {
+            if (markerBinding is ProjectionBindingExpression { QueryExpression: var markerQuery }
+                && ReferenceEquals(markerQuery, this))
+            {
+                var reboundBinding = remapper.Visit(markerBinding);
+                (clone._nonEntityNullabilityMarkers ??=
+                    new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[oldNode] = reboundBinding;
+            }
+        }
+    }
+
+    private void RekeyPropagatedNonEntityNullabilityMarkers(GroupingElementShaperRemappingExpressionVisitor remapper)
+    {
+        // Re-key any marker just propagated by PropagateNonEntityNullabilityMarkersTo (called on this
+        // SelectExpression, the target of the propagation) whose shaper node was itself rebuilt by the element
+        // remap -- this happens when the marker-bearing New/MemberInit node is nested inside the shaper root, e.g.
+        // as a constructor argument of an outer projection -- so TryGetNonEntityNullabilityMarker still finds it
+        // against its rebuilt identity.
+        //
+        // Unlike the AddJoin-branch re-key (see the loop guarded by mapping.ContainsKey in AddJoin), this needs no
+        // binding-resolution guard: the marker binding stored on the clone was already validated and rebound by
+        // PropagateNonEntityNullabilityMarkersTo, so RemapNonEntityNullabilityMarker reuses it as-is. Do not add an
+        // AddJoin-style guard here -- it would be redundant, and its absence is intentional, not an oversight.
+        if (_nonEntityNullabilityMarkers is null)
+        {
+            return;
+        }
+
+        foreach (var oldNode in _nonEntityNullabilityMarkers.Keys.ToList())
+        {
+            if (remapper.RebuiltNodes.TryGetValue(oldNode, out var newNode))
+            {
+                RemapNonEntityNullabilityMarker(oldNode, newNode, _nonEntityNullabilityMarkers[oldNode]);
+            }
+        }
     }
 
     /// <summary>
