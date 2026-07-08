@@ -232,38 +232,39 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dot
 
     #endregion Brute force and options
 
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotEmulator))]
-    public virtual async Task Vector_index_through_complex_collection_roundtrips()
-    {
-        await using var context = CreateContext();
-        var books = await context.Set<Book>().ToListAsync();
+    // issue #35898: vector indexes on collection wildcard paths are not supported
+    //[ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotEmulator))]
+    //public virtual async Task Vector_index_through_complex_collection_roundtrips()
+    //{
+    //    await using var context = CreateContext();
+    //    var books = await context.Set<Book>().ToListAsync();
 
-        Assert.Equal(3, books.Count);
-        Assert.All(books, b => Assert.Single(b.ComplexNestedCollection));
+    //    Assert.Equal(3, books.Count);
+    //    Assert.All(books, b => Assert.Single(b.ComplexNestedCollection));
 
-        // Verify that VectorDistance can be queried over the property inside the complex collection,
-        // exercising the vector index created for "ComplexNestedCollection[].NestedSingles".
-        Fixture.TestSqlLoggerFactory.Clear();
+    //    // Verify that VectorDistance can be queried over the property inside the complex collection,
+    //    // exercising the vector index created for "ComplexNestedCollection[].NestedSingles".
+    //    Fixture.TestSqlLoggerFactory.Clear();
 
-        var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
-        var distances = await context
-            .Set<Book>()
-            .SelectMany(b => b.ComplexNestedCollection)
-            .Select(c => EF.Functions.VectorDistance(c.NestedSingles, inputVector))
-            .ToListAsync();
+    //    var inputVector = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]);
+    //    var distances = await context
+    //        .Set<Book>()
+    //        .SelectMany(b => b.ComplexNestedCollection)
+    //        .Select(c => EF.Functions.VectorDistance(c.NestedSingles, inputVector))
+    //        .ToListAsync();
 
-        Assert.Equal(3, distances.Count);
-        Assert.All(distances, d => Assert.NotEqual(0.0, d));
+    //    Assert.Equal(3, distances.Count);
+    //    Assert.All(distances, d => Assert.NotEqual(0.0, d));
 
-        AssertSql(
-            """
-@inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
+    //    AssertSql(
+    //        """
+    //@inputVector='[0.33,-0.52,0.45,-0.67,0.89,-0.34,0.86,-0.78,0.86,-0.78]'
 
-SELECT VALUE VectorDistance(c0["NestedSingles"], @inputVector)
-FROM root c
-JOIN c0 IN c["ComplexNestedCollection"]
-""");
-    }
+    //SELECT VALUE VectorDistance(c0["NestedSingles"], @inputVector)
+    //FROM root c
+    //JOIN c0 IN c["ComplexNestedCollection"]
+    //""");
+    //}
 
     [Fact]
     public virtual async Task Select_VectorDistance()
@@ -462,13 +463,10 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                         bb.OwnsMany(x => x.NestedOwnedCollection, bbb => bbb.Ignore(x => x.NestedSingles));
                     });
 
-                if (!CosmosTestEnvironment.IsEmulator)
-                {
-                    b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10));
-                    b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.NestedSingles)).IsVectorIndex(VectorIndexType.Flat);
-                } else {
-                    b.Ignore(x => x.ComplexNestedCollection);
-                }
+                // issue #35898: vector indexes on collection wildcard paths are not supported
+                //b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10));
+                //b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.NestedSingles)).IsVectorIndex(VectorIndexType.Flat);
+                b.Ignore(x => x.ComplexNestedCollection);
             });
 
         protected override Task SeedAsync(PoolableDbContext context)
