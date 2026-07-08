@@ -485,18 +485,19 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 
     #endregion ORDER BY RANK
 
-    [Fact]
-    public virtual async Task Full_text_index_through_complex_collection_roundtrips()
-    {
-        // The fixture configures a full-text index on a property inside a complex collection
-        // ("ComplexNestedCollection[].AnotherDescription"). Loading the seeded data verifies that
-        // the container was created with that indexing-policy entry and the documents roundtrip.
-        await using var context = CreateContext();
-        var animals = await context.Set<FullTextSearchAnimals>().ToListAsync();
+    // issue #35898: full-text indexes on collection wildcard paths are not supported
+    //[Fact]
+    //public virtual async Task Full_text_index_through_complex_collection_roundtrips()
+    //{
+    //    // The fixture configures a full-text index on a property inside a complex collection
+    //    // ("ComplexNestedCollection[].AnotherDescription"). Loading the seeded data verifies that
+    //    // the container was created with that indexing-policy entry and the documents roundtrip.
+    //    await using var context = CreateContext();
+    //    var animals = await context.Set<FullTextSearchAnimals>().ToListAsync();
 
-        Assert.Equal(5, animals.Count);
-        Assert.All(animals, a => Assert.Single(a.ComplexNestedCollection));
-    }
+    //    Assert.Equal(5, animals.Count);
+    //    Assert.All(animals, a => Assert.Single(a.ComplexNestedCollection));
+    //}
 
     private class FullTextSearchAnimals
     {
