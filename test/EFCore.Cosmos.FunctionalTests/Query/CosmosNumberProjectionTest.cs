@@ -85,6 +85,42 @@ WHERE (c["Long"] != null)
     }
 
     [Fact]
+    public async Task Byte_devided()
+    {
+        await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Byte / (e.Byte - 1) }),
+            x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Value" : (c["Byte"] / (c["Byte"] - 1))
+}
+FROM root c
+""");
+    }
+
+    [Fact]
+    public async Task Nullable_byte_devided()
+    {
+        await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Byte != null).Select(e => new { e.Id, Value = e.Byte / (e.Byte - 1) }),
+            ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Byte != null).Select(e => new { e.Id, Value = e.Byte / (e.Byte - 1) }),
+            x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Value" : (c["Byte"] / (c["Byte"] - 1))
+}
+FROM root c
+WHERE (c["Byte"] != null)
+""");
+    }
+
+    [Fact]
     public async Task Short_devided()
     {
         await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Short / (e.Short - 1) }),
@@ -153,6 +189,42 @@ SELECT VALUE
 }
 FROM root c
 WHERE (c["Float"] != null)
+""");
+    }
+
+    [Fact]
+    public async Task SByte_devided()
+    {
+        await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.SByte / (e.SByte - 1) }),
+            x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Value" : (c["SByte"] / (c["SByte"] - 1))
+}
+FROM root c
+""");
+    }
+
+    [Fact]
+    public async Task Nullable_sbyte_devided()
+    {
+        await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.SByte != null).Select(e => new { e.Id, Value = e.SByte / (e.SByte - 1) }),
+            ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.SByte != null).Select(e => new { e.Id, Value = e.SByte / (e.SByte - 1) }),
+            x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
+
+        AssertSql(
+            """
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Value" : (c["SByte"] / (c["SByte"] - 1))
+}
+FROM root c
+WHERE (c["SByte"] != null)
 """);
     }
 
@@ -394,12 +466,14 @@ FROM root c
     public class NumberTypesEntity
     {
         public required int Id { get; set; }
+        public byte Byte { get; set; }
         public short Short { get; set; }
         public int Int { get; set; }
         public long Long { get; set; }
         public float Float { get; set; }
         public double Double { get; set; }
         public decimal Decimal { get; set; }
+        public sbyte SByte { get; set; }
         public ushort UShort { get; set; }
         public uint UInt { get; set; }
         public ulong ULong { get; set; }
@@ -408,12 +482,14 @@ FROM root c
     public class NullableNumberTypesEntity
     {
         public required int Id { get; set; }
+        public byte? Byte { get; set; }
         public short? Short { get; set; }
         public int? Int { get; set; }
         public long? Long { get; set; }
         public float? Float { get; set; }
         public double? Double { get; set; }
         public decimal? Decimal { get; set; }
+        public sbyte? SByte { get; set; }
         public ushort? UShort { get; set; }
         public uint? UInt { get; set; }
         public ulong? ULong { get; set; }
@@ -458,37 +534,37 @@ FROM root c
                 new()
                 {
                     Id = 1,
-                    Short = 0, Int = 0, Long = 0,
+                    Byte = 0, Short = 0, Int = 0, Long = 0,
                     Float = 0, Double = 0, Decimal = 0,
-                    UShort = 0, UInt = 0, ULong = 0,
+                    SByte = 0, UShort = 0, UInt = 0, ULong = 0,
                 },
                 new()
                 {
                     Id = 2,
-                    Short = 8, Int = 8, Long = 8,
+                    Byte = 8, Short = 8, Int = 8, Long = 8,
                     Float = 8.6f, Double = 8.6, Decimal = 8.6m,
-                    UShort = 8, UInt = 8, ULong = 8,
+                    SByte = 8, UShort = 8, UInt = 8, ULong = 8,
                 },
                 new()
                 {
                     Id = 3,
-                    Short = 255, Int = 255, Long = 255,
+                    Byte = 255, Short = 255, Int = 255, Long = 255,
                     Float = 255.12f, Double = 255.12, Decimal = 255.12m,
-                    UShort = 255, UInt = 255, ULong = 255,
+                    SByte = 127, UShort = 255, UInt = 255, ULong = 255,
                 },
                 new()
                 {
                     Id = 4,
-                    Short = -9, Int = -9, Long = -9,
+                    Byte = 9, Short = -9, Int = -9, Long = -9,
                     Float = -9.5f, Double = -9.5, Decimal = -9.5m,
-                    UShort = 9, UInt = 9, ULong = 9,
+                    SByte = -9, UShort = 9, UInt = 9, ULong = 9,
                 },
                 new()
                 {
                     Id = 5,
-                    Short = 12, Int = 12, Long = 12,
+                    Byte = 12, Short = 12, Int = 12, Long = 12,
                     Float = 12, Double = 12, Decimal = 12,
-                    UShort = 12, UInt = 12, ULong = 12,
+                    SByte = 12, UShort = 12, UInt = 12, ULong = 12,
                 },
             ];
 
@@ -496,12 +572,14 @@ FROM root c
                 .Select(n => new NullableNumberTypesEntity
                 {
                     Id = n.Id,
+                    Byte = n.Byte,
                     Short = n.Short,
                     Int = n.Int,
                     Long = n.Long,
                     Float = n.Float,
                     Double = n.Double,
                     Decimal = n.Decimal,
+                    SByte = n.SByte,
                     UShort = n.UShort,
                     UInt = n.UInt,
                     ULong = n.ULong,
@@ -510,12 +588,14 @@ FROM root c
                     new NullableNumberTypesEntity
                     {
                         Id = -1,
+                        Byte = null,
                         Short = null,
                         Int = null,
                         Long = null,
                         Float = null,
                         Double = null,
                         Decimal = null,
+                        SByte = null,
                         UShort = null,
                         UInt = null,
                         ULong = null,

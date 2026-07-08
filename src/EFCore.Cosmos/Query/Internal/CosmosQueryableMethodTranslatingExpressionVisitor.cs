@@ -1567,7 +1567,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             functionName,
             [translatedSelector],
             serverOutputType,
-            CosmosNumberProjectionTypeMapping.IsRequiredForProjection(serverOutputType)
+            CosmosNumberProjectionTypeMapping.IsRequiredForType(serverOutputType)
                 ? CosmosNumberProjectionTypeMapping.CreateFromType(serverOutputType)
                 : _typeMappingSource.FindMapping(resultType));
 
