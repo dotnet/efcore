@@ -152,7 +152,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
                     }
 
-                    // @TODO: Ask if there is a better way for this..
                     // We need to update projection bindings in the subquery shaper to relate to a query expression that can actually provide the correct binding information.
                     // Then we are able to use the projection binding's query expression directly in ShaperProcessingVisitor, instead of storing the select expression separately there
                     // This is needed because cosmos can have projections which are subqueries, and those subqueries can have their own projections
