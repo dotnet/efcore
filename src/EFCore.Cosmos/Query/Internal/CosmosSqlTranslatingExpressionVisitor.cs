@@ -127,11 +127,11 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
 
                 // If this is a projection of a non-constant non-direct member access -number, cosmos could return it as a double,
                 // so we need to overwrite the type mapping with CosmosNumberProjectionTypeMapping to ensure it gets deserialized as a double and converted to the correct type.
-                // Nullable operations on a number will never return a nullable number, so we don't check for null here.
                 if (isProjection && translation is not SqlConstantExpression && translation is not ScalarAccessExpression
-                 && CosmosNumberProjectionTypeMapping.IsRequiredForType(translation.Type))
+                 && CosmosNumberProjectionTypeMapping.IsRequiredForType(translation.Type.UnwrapNullableType()))
                 {
-                    translation = sqlExpressionFactory.SetTypeMapping(translation, CosmosNumberProjectionTypeMapping.CreateFromType(translation.Type));
+                    var typeMapping = CosmosNumberProjectionTypeMapping.CreateFromType(translation.Type.UnwrapNullableType());
+                    translation = sqlExpressionFactory.SetTypeMapping(translation, typeMapping);
                 }
 
                 _sqlVerifyingExpressionVisitor.Visit(translation);
