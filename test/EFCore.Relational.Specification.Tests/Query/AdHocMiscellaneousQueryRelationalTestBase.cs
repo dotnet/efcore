@@ -411,7 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         // ------------------------------------
         // COVERED (these tests assert correct results): direct whole-object projection of a left-joined
         //   non-entity, via both GroupJoin+DefaultIfEmpty and the LeftJoin operator -- including
-        //   member-init DTO, mutable struct / record struct (MemberInit-bound), nested anonymous wrapper,
+        //   member-init DTO, mutable struct / record struct (MemberInit-bound), constructor-bound
+        //   ValueTuple/Tuple (folded via the closed ValueTuple/Tuple contract), nested anonymous wrapper,
         //   client-side null-checks of the projection, Distinct and Take after the join, and projections
         //   with nullable/string members. The whole non-entity object correctly materializes as null (or,
         //   for a MemberInit-bound value type, a zeroed default(T) -- matching LINQ-to-Objects
@@ -424,11 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   deliberately restricted to ValueTuple/Tuple -- see ValueTuple_whole_object_from_nullable_side --
         //   since only those BCL types have a closed, guaranteed constructor-to-property contract; an
         //   arbitrary named type's "matching name" convention can't be verified and could silently fold to
-        //   the wrong value for a transforming constructor); mutable struct whole-object (a MemberInit, not
-        //   constructor-bound, shape -- already translates via the unrelated, pre-existing MemberInit
-        //   member-fold, but still fails at MATERIALIZATION on a no-match row since the marker gate doesn't
-        //   yet cover value-type inners) and ValueTuple (now also translates, via the ValueTuple/Tuple fold,
-        //   but hits the same value-type materialization gap); GroupBy-after-join and a second join after
+        //   the wrong value for a transforming constructor); GroupBy-after-join and a second join after
         //   the DefaultIfEmpty (the shaper rebuild loses the marker); plain inner with no aggregate / no
         //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
         //   null-checks against the whole non-entity projection.
@@ -1734,9 +1731,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             // ValueTuple is one of the two BCL types (with Tuple) where the constructor-parameter-to-property mapping
             // is a closed, guaranteed contract rather than a mere convention -- this fold does NOT generalize to
             // arbitrary constructor-bound types (see Dto_constructor_whole_object_LeftJoin /
-            // RecordStruct_whole_object_LeftJoin, which remain translation failures). It still fails at
-            // MATERIALIZATION on a no-match row here: the #30915 nullability-marker gate doesn't yet cover
-            // value-type inners -- a separate, deferred item on the #22517 follow-up list.
+            // RecordStruct_whole_object_LeftJoin, which remain translation failures). On a no-match row the
+            // value-type inner now correctly materializes as default(T) ((0, 0) here) -- matching LINQ-to-Objects
+            // DefaultIfEmpty semantics for a value-type sequence -- via the value-type default gate (#38555).
             var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
             using var context = contextFactory.CreateDbContext();
 
@@ -1749,9 +1746,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         orderby s.PickupStatusId
                         select new { s.PickupStatusId, tuple = countInfo };
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results once the value-type marker gate lands.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+            Assert.Equal((1, (1, 2)), (result[0].PickupStatusId, result[0].tuple));
+            Assert.Equal((2, (0, 0)), (result[1].PickupStatusId, result[1].tuple));
+            Assert.Equal((3, (3, 1)), (result[2].PickupStatusId, result[2].tuple));
         }
 
         [Fact]
