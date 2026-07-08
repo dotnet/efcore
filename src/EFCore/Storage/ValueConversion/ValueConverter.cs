@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
@@ -16,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public abstract class ValueConverter
 {
+    internal static readonly ConstructorInfo MappingHintsCtor
+        = typeof(ConverterMappingHints).GetConstructor(
+            [typeof(int?), typeof(int?), typeof(int?), typeof(bool?), typeof(Func<IProperty, IEntityType, ValueGenerator>)])!;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter" /> class.
     /// </summary>
@@ -83,8 +86,8 @@ public abstract class ValueConverter
         bool convertsNulls,
         ConverterMappingHints? mappingHints = null)
     {
-        Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression));
-        Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression));
+        Check.NotNull(convertToProviderExpression);
+        Check.NotNull(convertFromProviderExpression);
 
         ConvertToProviderExpression = convertToProviderExpression;
         ConvertFromProviderExpression = convertFromProviderExpression;
@@ -182,9 +185,9 @@ public abstract class ValueConverter
         Type converterType,
         params Type[] supportedTypes)
     {
-        Check.NotNull(type, nameof(type));
-        Check.NotNull(converterType, nameof(converterType));
-        Check.NotEmpty(supportedTypes, nameof(supportedTypes));
+        Check.NotNull(type);
+        Check.NotNull(converterType);
+        Check.NotEmpty(supportedTypes);
 
         if (!supportedTypes.Contains(type))
         {

@@ -123,10 +123,9 @@ public abstract class QueryNoClientEvalTestBase<TFixture>(TFixture fixture) : IC
             .GroupBy(c => c.CustomerID)
             .ToList();
 
-        AssertTranslationFailed(
-            () => context.Customers
-                .GroupBy(c => c.CustomerID)
-                .ToList());
+        AssertTranslationFailed(() => context.Customers
+            .GroupBy(c => c.CustomerID)
+            .ToList());
     }
 
     [ConditionalFact]

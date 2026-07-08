@@ -55,8 +55,7 @@ WHERE (c["City"] = "London")
         if (async)
         {
             // Views are not supported.
-            await Assert.ThrowsAsync<EqualException>(
-                () => base.KeylessEntity_by_database_view(async));
+            await Assert.ThrowsAsync<EqualException>(() => base.KeylessEntity_by_database_view(async));
 
             AssertSql(
                 """
@@ -80,8 +79,7 @@ WHERE (c["$type"] = "ProductView")
         if (async)
         {
             // Defining queries are not supported.
-            await Assert.ThrowsAsync<EqualException>(
-                () => base.KeylessEntity_with_nav_defining_query(async));
+            await Assert.ThrowsAsync<EqualException>(() => base.KeylessEntity_with_nav_defining_query(async));
 
             AssertSql(
                 """

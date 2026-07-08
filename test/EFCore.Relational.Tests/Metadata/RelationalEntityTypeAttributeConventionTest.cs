@@ -114,8 +114,7 @@ public class RelationalEntityTypeAttributeConventionTest
     protected virtual ModelBuilder CreateConventionalModelBuilder()
         => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
-    [Table("MyTable", Schema = "MySchema")]
-    [Comment("Test table comment")]
+    [Table("MyTable", Schema = "MySchema"), Comment("Test table comment")]
     private class A
     {
         public int Id { get; set; }

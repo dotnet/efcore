@@ -79,7 +79,7 @@ public interface IDatabaseCreator
     Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Determines whether or not the database is available and can be connected to.
+    ///     Determines whether the database is available and can be connected to.
     /// </summary>
     /// <remarks>
     ///     Note that being able to connect to the database does not mean that it is
@@ -89,7 +89,7 @@ public interface IDatabaseCreator
     bool CanConnect();
 
     /// <summary>
-    ///     Determines whether or not the database is available and can be connected to.
+    ///     Determines whether the database is available and can be connected to.
     /// </summary>
     /// <remarks>
     ///     Note that being able to connect to the database does not mean that it is

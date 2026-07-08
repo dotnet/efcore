@@ -44,7 +44,7 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         {
             SqlServerOpenJsonExpression openJsonExpression
                 when TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var typeMapping)
-                => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression, new[] { typeMapping }),
+                => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression, [typeMapping]),
 
             _ => base.VisitExtension(expression)
         };
@@ -59,7 +59,7 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         SqlServerOpenJsonExpression openJsonExpression,
         IReadOnlyList<RelationalTypeMapping> typeMappings)
     {
-        Check.DebugAssert(typeMappings.Count == 1, "typeMappings.Count == 1");
+        Check.DebugAssert(typeMappings.Count == 1);
         var elementTypeMapping = typeMappings[0];
 
         // Constant queryables are translated to VALUES, no need for JSON.
@@ -93,6 +93,6 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         return openJsonExpression.Update(
             parameterExpression.ApplyTypeMapping(parameterTypeMapping),
             path: null,
-            new[] { new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, []) });
+            [new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, [])]);
     }
 }

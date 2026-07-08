@@ -58,6 +58,13 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
+    /// <param name="elementType">The element type to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Generate(IElementType elementType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
     /// <param name="key">The key to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IKey key, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);

@@ -3144,18 +3144,17 @@ public static class RelationalLoggerExtensions
     {
         var d = (FallbackEventDefinition)definition;
         var p = (IndexWithPropertiesEventData)payload;
-        return d.GenerateMessage(
-            l => l.Log(
-                d.Level,
-                d.EventId,
-                d.MessageFormat,
-                p.Name,
-                p.EntityType.DisplayName(),
-                p.PropertyNames.Format(),
-                p.Property1Name,
-                p.TablesMappedToProperty1.FormatTables(),
-                p.Property2Name,
-                p.TablesMappedToProperty2.FormatTables()));
+        return d.GenerateMessage(l => l.Log(
+            d.Level,
+            d.EventId,
+            d.MessageFormat,
+            p.Name,
+            p.EntityType.DisplayName(),
+            p.PropertyNames.Format(),
+            p.Property1Name,
+            p.TablesMappedToProperty1.FormatTables(),
+            p.Property2Name,
+            p.TablesMappedToProperty2.FormatTables()));
     }
 
     /// <summary>
@@ -3242,18 +3241,17 @@ public static class RelationalLoggerExtensions
     {
         var d = (FallbackEventDefinition)definition;
         var p = (ForeignKeyEventData)payload;
-        return d.GenerateMessage(
-            l => l.Log(
-                d.Level,
-                d.EventId,
-                d.MessageFormat,
-                p.ForeignKey.Properties.Format(),
-                p.ForeignKey.DeclaringEntityType.DisplayName(),
-                p.ForeignKey.PrincipalEntityType.DisplayName(),
-                p.ForeignKey.Properties.Format(),
-                p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                p.ForeignKey.PrincipalKey.Properties.Format(),
-                p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+        return d.GenerateMessage(l => l.Log(
+            d.Level,
+            d.EventId,
+            d.MessageFormat,
+            p.ForeignKey.Properties.Format(),
+            p.ForeignKey.DeclaringEntityType.DisplayName(),
+            p.ForeignKey.PrincipalEntityType.DisplayName(),
+            p.ForeignKey.Properties.Format(),
+            p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+            p.ForeignKey.PrincipalKey.Properties.Format(),
+            p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
     }
 
     /// <summary>
@@ -3299,18 +3297,17 @@ public static class RelationalLoggerExtensions
     {
         var d = (FallbackEventDefinition)definition;
         var p = (ForeignKeyEventData)payload;
-        return d.GenerateMessage(
-            l => l.Log(
-                d.Level,
-                d.EventId,
-                d.MessageFormat,
-                p.ForeignKey.Properties.Format(),
-                p.ForeignKey.DeclaringEntityType.DisplayName(),
-                p.ForeignKey.PrincipalEntityType.DisplayName(),
-                p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()!,
-                p.ForeignKey.PrincipalEntityType.DisplayName(),
-                p.ForeignKey.DeclaringEntityType.DisplayName(),
-                p.ForeignKey.PrincipalEntityType.DisplayName()));
+        return d.GenerateMessage(l => l.Log(
+            d.Level,
+            d.EventId,
+            d.MessageFormat,
+            p.ForeignKey.Properties.Format(),
+            p.ForeignKey.DeclaringEntityType.DisplayName(),
+            p.ForeignKey.PrincipalEntityType.DisplayName(),
+            p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()!,
+            p.ForeignKey.PrincipalEntityType.DisplayName(),
+            p.ForeignKey.DeclaringEntityType.DisplayName(),
+            p.ForeignKey.PrincipalEntityType.DisplayName()));
     }
 
     /// <summary>

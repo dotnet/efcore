@@ -17,6 +17,43 @@ public class ReadItemPartitionKeyQueryNoDiscriminatorInIdTest
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Key_with_special_characters_1()
+    {
+        await base.Key_with_special_characters_1();
+
+        AssertSql("""ReadItem(["Cat|1"], Cat|1)""");
+    }
+
+    public override async Task Key_with_special_characters_2()
+    {
+        await base.Key_with_special_characters_2();
+
+        AssertSql(
+            """
+ReadItem(["Cat2||"], Cat2||)
+""");
+    }
+
+    public override async Task Key_with_special_characters_3()
+    {
+        await base.Key_with_special_characters_3();
+
+        AssertSql(
+            """
+ReadItem(["Cat|3|$|5"], Cat|3|$|5)
+""");
+    }
+
+    public override async Task Key_with_special_characters_4()
+    {
+        await base.Key_with_special_characters_4();
+
+        AssertSql(
+            """
+ReadItem(["|Cat|"], |Cat|)
+""");
+    }
+
     public override async Task Predicate_with_hierarchical_partition_key()
     {
         await base.Predicate_with_hierarchical_partition_key();
@@ -343,11 +380,11 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1a'
+@partitionKey='PK1a'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0)))
+WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1a") AND (c["id"] = @partitionKey)))
 """);
     }
 
@@ -725,11 +762,11 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["id"] = "188d325
         // Not ReadItem because conflicting primary key values
         AssertSql(
             """
-@__partitionKey_0='PK1c'
+@partitionKey='PK1c'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1c") AND (c["id"] = @__partitionKey_0)))
+WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1c") AND (c["id"] = @partitionKey)))
 """);
     }
 
@@ -798,11 +835,11 @@ WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEnti
 
         AssertSql(
             """
-@__discriminator_0='SinglePartitionKeyEntity'
+@discriminator='SinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @__discriminator_0)))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["id"] = "b29bced8-e1e5-420e-82d7-1c7a51703d34") AND (c["$type"] = @discriminator)))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -834,11 +871,11 @@ WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["id"] = "188d325
         // No ReadItem because discriminator check is parameterized
         AssertSql(
             """
-@__discriminator_0='DerivedSinglePartitionKeyEntity'
+@discriminator='DerivedSinglePartitionKeyEntity'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["$type"] = @__discriminator_0)))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["id"] = "188d3253-81be-4a87-b58f-a2bd07e6b98c") AND (c["$type"] = @discriminator)))
 OFFSET 0 LIMIT 2
 """);
     }

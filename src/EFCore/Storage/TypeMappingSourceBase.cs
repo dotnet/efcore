@@ -179,7 +179,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                         : elementType.IsValueType
                             ? typeof(ListOfValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType)
                             : typeof(ListOfReferenceTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType),
-                    elementMapping.Comparer.ToNullableComparer(elementType)!);
+                    elementMapping.Comparer.ComposeConversion(elementType)!);
 
                 return true;
 

@@ -83,14 +83,13 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
         public virtual DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Product>(
-                eb =>
-                {
-                    eb.Property(e => e.StoreUpdated)
-                        .HasDefaultValue(0)
-                        .ValueGeneratedOnAddOrUpdate();
-                    eb.ToTable("UpdatedProducts", tb => tb.HasTrigger("TRG_InsertUpdateProduct"));
-                });
+            => modelBuilder.Entity<Product>(eb =>
+            {
+                eb.Property(e => e.StoreUpdated)
+                    .HasDefaultValue(0)
+                    .ValueGeneratedOnAddOrUpdate();
+                eb.ToTable("UpdatedProducts", tb => tb.HasTrigger("TRG_InsertUpdateProduct"));
+            });
     }
 
     protected class Product

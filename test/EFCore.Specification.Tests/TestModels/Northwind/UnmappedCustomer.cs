@@ -12,12 +12,10 @@ public class UnmappedCustomer(string customerID)
     [MaxLength(5)]
     public string CustomerID { get; init; } = customerID;
 
-    [MaxLength(40)]
-    [Required]
+    [MaxLength(40), Required]
     public string? CompanyName { get; set; }
 
-    [MaxLength(30)]
-    [Required]
+    [MaxLength(30), Required]
     public string? ContactName { get; set; }
 
     [MaxLength(30)]
@@ -32,8 +30,7 @@ public class UnmappedCustomer(string customerID)
     [MaxLength(15)]
     public string? Region { get; set; }
 
-    [MaxLength(10)]
-    [Column("PostalCode")]
+    [MaxLength(10), Column("PostalCode")]
     public string? Zip { get; set; }
 
     [MaxLength(15)]

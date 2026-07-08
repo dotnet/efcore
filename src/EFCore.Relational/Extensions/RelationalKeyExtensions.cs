@@ -78,7 +78,7 @@ public static class RelationalKeyExtensions
     public static void SetName(this IMutableKey key, string? name)
         => key.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the key constraint name for this key.
@@ -90,7 +90,7 @@ public static class RelationalKeyExtensions
     public static string? SetName(this IConventionKey key, string? name, bool fromDataAnnotation = false)
         => (string?)key.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -111,7 +111,7 @@ public static class RelationalKeyExtensions
         key.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.UniqueConstraintMappings)
-            ?? Enumerable.Empty<IUniqueConstraint>();
+            ?? [];
     }
 
     /// <summary>

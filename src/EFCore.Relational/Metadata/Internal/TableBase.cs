@@ -126,11 +126,13 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AddTypeMapping(ITableMappingBase tableMapping, bool optional)
+    public virtual void AddTypeMapping(ITableMappingBase tableMapping, bool? optional)
     {
-        OptionalTypes ??= new Dictionary<ITypeBase, bool>();
-
-        OptionalTypes.Add(tableMapping.TypeBase, optional);
+        if (optional.HasValue)
+        {
+            OptionalTypes ??= [];
+            OptionalTypes.Add(tableMapping.TypeBase, optional.Value);
+        }
 
         if (tableMapping.TypeBase is IEntityType)
         {
@@ -253,7 +255,7 @@ public class TableBase : Annotatable, ITableBase
         }
 
         CheckMappedType(entityType);
-        return Enumerable.Empty<IForeignKey>();
+        return [];
     }
 
     /// <inheritdoc />
@@ -266,6 +268,6 @@ public class TableBase : Annotatable, ITableBase
         }
 
         CheckMappedType(entityType);
-        return Enumerable.Empty<IForeignKey>();
+        return [];
     }
 }

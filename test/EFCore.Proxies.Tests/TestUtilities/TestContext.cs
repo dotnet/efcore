@@ -24,14 +24,13 @@ internal abstract class TestContext<TEntity>(
     {
         if (useLazyLoading)
         {
-            optionsBuilder.UseLazyLoadingProxies(
-                b =>
+            optionsBuilder.UseLazyLoadingProxies(b =>
+            {
+                if (ignoreNonVirtualNavigations)
                 {
-                    if (ignoreNonVirtualNavigations)
-                    {
-                        b.IgnoreNonVirtualNavigations();
-                    }
-                });
+                    b.IgnoreNonVirtualNavigations();
+                }
+            });
         }
 
         if (useChangeDetection)
