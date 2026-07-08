@@ -3,7 +3,6 @@
 
 // ReSharper disable once CheckNamespace
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
