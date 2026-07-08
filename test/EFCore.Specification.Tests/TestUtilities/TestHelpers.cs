@@ -334,8 +334,7 @@ public abstract class TestHelpers
         {
             var parameters = method.GetParameters();
             var hasAsyncParameter = parameters.Length == 1
-                && parameters[0].ParameterType == typeof(bool)
-                && parameters[0].Name == "async";
+                && parameters[0].ParameterType == typeof(bool);
 
             if (parameters.Length > 0
                 && !hasAsyncParameter)
@@ -345,7 +344,6 @@ public abstract class TestHelpers
 
             var paramList = hasAsyncParameter ? "bool async" : "";
             var argList = hasAsyncParameter ? "async" : "";
-
             if (method.ReturnType == typeof(Task))
             {
                 methodCalls.Append(
