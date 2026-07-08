@@ -179,9 +179,18 @@ internal class SqliteConnectionInternal
 
     public void Deactivate()
     {
-        if (_outerConnection.TryGetTarget(out var outerConnection))
+        // The underlying handle can already be disposed (e.g. the connection is being torn down). In that case there is
+        // nothing to reset and the connection must not be returned to the pool with a dead handle.
+        if (_db is { IsClosed: false, IsInvalid: false })
         {
-            outerConnection!.Deactivate();
+            if (_outerConnection.TryGetTarget(out var outerConnection))
+            {
+                outerConnection!.Deactivate();
+            }
+        }
+        else
+        {
+            _canBePooled = false;
         }
 
         _outerConnection.SetTarget(null);

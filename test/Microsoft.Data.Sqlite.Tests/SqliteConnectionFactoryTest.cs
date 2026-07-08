@@ -256,6 +256,20 @@ public class SqliteConnectionFactoryTest : IDisposable
     }
 
     [Fact]
+    public void Deactivate_does_not_touch_disposed_handle_on_return()
+    {
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.CreateCollation("MY_COLLATION", string.CompareOrdinal);
+        connection.Open();
+
+        // Simulate the underlying handle being disposed before the connection is returned to the pool. Deactivate()
+        // must not call into the native handle (sqlite3_create_collation) to reset custom collations in this case.
+        connection.Handle!.Dispose();
+
+        connection.Close();
+    }
+
+    [Fact]
     public void Clear_works_when_connection_leaked()
     {
         using var connection = new SqliteConnection(ConnectionString);
