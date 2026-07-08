@@ -767,11 +767,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var breakLabel = Label("EndRead");
 
-            Expression noMatch;
-            //if (_throwOnLateDiscriminator) // @TODO
+            var noMatch = Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod)));
+            //if (_throwOnLateDiscriminator) // TODO: #38576
             //{
-            //    var ifNotPropertyMatchThrow = Throw(New(InvalidOperationExceptionConstructor, Constant("Discriminator was not early in the document."))); // @TODO: message: Discriminator was not early in the document.
-            //    noMatch = structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility.
+            //    var ifNotPropertyMatchThrow = Throw(New(InvalidOperationExceptionConstructor, Constant("Discriminator was not early in the document.")));
+            //    noMatch = structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility this is how most documents were serialized by older versions of EF
             //                                                                                                        // else if (jsonReaderManager.CurrentReader.ValueTextEquals(("Id"u8).Span))
             //            ? IfThenElse(
             //                primaryKey.Properties
@@ -785,11 +785,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //                ifNotPropertyMatchThrow)
             //            : ifNotPropertyMatchThrow;
             //}
-            //else
-            {
-                // jsonReaderManager.Skip() x2
-                noMatch = Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod)));
-            }
 
             var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
 
