@@ -33,22 +33,28 @@ WHERE (c["Id"] < 4)
         AssertSql();
     });
 
-    public override Task Project_nested_json_entity_with_missing_scalars(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
+    public override async Task Project_nested_json_entity_with_missing_scalars(bool async)
     {
-        await AssertTranslationFailed(() => base.Project_nested_json_entity_with_missing_scalars(async));
+        // Throws sync not supported exception for sync
+        if (async)
+        {
+            await AssertTranslationFailed(() => base.Project_nested_json_entity_with_missing_scalars(async));
 
-        AssertSql();
-    });
+            AssertSql();
+        }
+    }
 
-    public override Task Project_top_level_entity_with_null_value_required_scalars(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
+    public override async Task Project_top_level_entity_with_null_value_required_scalars(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
-            => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
+        // Throws sync not supported exception for sync
+        if (async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Project_top_level_entity_with_null_value_required_scalars(async))).Message;
 
-        Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
-    });
+            Assert.Equal("Cannot get the value of a token type 'Null' as a number.", message);
+        }
+    }
 
     public override Task Project_root_entity_with_missing_required_navigation(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
@@ -61,20 +67,23 @@ ReadItem(?, ?)
 """);
     });
 
-    public override Task Project_missing_required_navigation(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
+    public override async Task Project_missing_required_navigation(bool async)
     {
-        // Cosmos will filter out undefined result
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_navigation(async));
-        Assert.Equal("Sequence contains no elements", ex.Message);
+        // Throws sync not supported exception for sync
+        if (async)
+        {
+            // Cosmos will filter out undefined result
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_navigation(async));
+            Assert.Equal("Sequence contains no elements", ex.Message);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
 SELECT VALUE c["RequiredReference"]["NestedRequiredReference"]
 FROM root c
 WHERE (c["Id"] = 5)
 """);
-    });
+        }
+    }
 
     public override Task Project_root_entity_with_null_required_navigation(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
@@ -100,21 +109,24 @@ WHERE (c["Id"] = 6)
 """);
     });
 
-    public override Task Project_missing_required_scalar(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
+    public override async Task Project_missing_required_scalar(bool async)
     {
-        // https://github.com/dotnet/efcore/issues/38298#issuecomment-4726236589
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_scalar(async));
+        // Throws sync not supported exception for sync
+        if (async)
+        {
+            // https://github.com/dotnet/efcore/issues/38298#issuecomment-4726236589
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_missing_required_scalar(async));
 
-        Assert.Equal(CosmosStrings.ProjectionUndefined, exception.Message);
+            Assert.Equal(CosmosStrings.ProjectionUndefined, exception.Message);
 
-        AssertSql(
-            """
+            AssertSql(
+                """
 SELECT c["Id"], c["RequiredReference"]["Number"]
 FROM root c
 WHERE (c["Id"] = 2)
 """);
-    });
+        }
+    }
 
     public override Task Project_null_required_scalar(bool async)
     => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>

@@ -37,12 +37,29 @@ public class CosmosTestHelpers : TestHelpers
 
     public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
     {
-        if (!async)
+        try
         {
-            throw SkipException.ForSkip("Azure Cosmos DB does not support synchronous query execution.");
+            await testCode(async);
+            Assert.True(async);
         }
+        catch (InvalidOperationException e)
+        {
+            if (e.Message != CosmosStrings.SyncNotSupported)
+            {
+                throw;
+            }
 
-        await testCode(async);
+            Assert.False(async);
+        }
+        catch (DbUpdateException e)
+        {
+            if (e.InnerException?.Message != CosmosStrings.SyncNotSupported)
+            {
+                throw;
+            }
+
+            Assert.False(async);
+        }
     }
 
     public void NoSyncTest(Action testCode)

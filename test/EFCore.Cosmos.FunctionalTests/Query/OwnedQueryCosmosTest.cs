@@ -1060,35 +1060,36 @@ WHERE (c["Terminator"] = "Barton")
         }
     }
 
-    public override Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                using var context = CreateContext();
-                var query = context.Set<OwnedPerson>().Select(e => new { e.Id, e.PersonAddress });
+    public override async Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
+    {
+        if (async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().Select(e => new { e.Id, e.PersonAddress });
 
-                query = useAsTracking
-                    ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
-                    : query.AsNoTrackingWithIdentityResolution();
+            query = useAsTracking
+                ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                : query.AsNoTrackingWithIdentityResolution();
 
-                var result = await query.ToListAsync();
+            var result = await query.ToListAsync();
 
-                Assert.Equal(4, result.Count);
-                Assert.Collection(
-                    result.OrderBy(e => e.Id),
-                    element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress),
-                    element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress),
-                    element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress),
-                    element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress));
-                Assert.Empty(context.ChangeTracker.Entries());
+            Assert.Equal(4, result.Count);
+            Assert.Collection(
+                result.OrderBy(e => e.Id),
+                element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress),
+                element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress),
+                element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress),
+                element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress));
+            Assert.Empty(context.ChangeTracker.Entries());
 
-                AssertSql(
-                    """
+            AssertSql(
+                """
 SELECT c["Id"], c["PersonAddress"]
 FROM root c
 WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+        }
+    }
 
     private static void AssertProjectedPersonAddress(int expectedId, int id, OwnedAddress personAddress)
     {
