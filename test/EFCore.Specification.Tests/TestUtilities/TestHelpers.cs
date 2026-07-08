@@ -336,6 +336,13 @@ public abstract class TestHelpers
             var hasAsyncParameter = parameters.Length == 1
                 && parameters[0].ParameterType == typeof(bool)
                 && parameters[0].Name == "async";
+
+            if (parameters.Length > 0
+                && !hasAsyncParameter)
+            {
+                continue;
+            }
+
             var paramList = hasAsyncParameter ? "bool async" : "";
             var argList = hasAsyncParameter ? "async" : "";
 
