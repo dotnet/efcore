@@ -787,6 +787,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             //}
 
             var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+            var typeMapping = discriminatorProperty.GetTypeMapping();
 
             return Block(
                 [_jsonReaderManagerVariable, tokenTypeVariable],
@@ -819,8 +820,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             // discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
                                             Assign(
                                                 discriminatorValueVariable,
-                                                CheckMakeNullableValueType(
-                                                    ReadJsonPropertyValue(discriminatorProperty))),
+                                                ReadJsonValue(_jsonReaderManagerVariable, discriminatorProperty.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter!, typeMapping, discriminatorProperty.ClrType.MakeNullable(), true)),
                                             // goto EndRead
                                             Break(breakLabel, typeof(void))),
                                         noMatch),
