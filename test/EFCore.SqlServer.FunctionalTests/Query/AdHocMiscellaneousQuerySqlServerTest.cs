@@ -3192,7 +3192,17 @@ ORDER BY [s].[PickupStatusId]
     {
         await base.ValueTuple_whole_object_from_nullable_side();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [s].[PickupStatusId], [r0].[PickupStatusId], [r0].[c], [r0].[marker]
+FROM [Statuses] AS [s]
+LEFT JOIN (
+    SELECT [r].[PickupStatusId], COUNT(*) AS [c], 1 AS [marker]
+    FROM [Requests] AS [r]
+    GROUP BY [r].[PickupStatusId]
+) AS [r0] ON [s].[PickupStatusId] = [r0].[PickupStatusId]
+ORDER BY [s].[PickupStatusId]
+""");
     }
 
     public override async Task GroupBy_after_join_then_whole_object()

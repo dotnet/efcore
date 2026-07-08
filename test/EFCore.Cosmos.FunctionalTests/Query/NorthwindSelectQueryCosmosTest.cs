@@ -1174,7 +1174,7 @@ WHERE STARTSWITH(c["id"], "A")
     public override async Task Filtered_collection_projection_is_tracked(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
+        await AssertTranslationFailed(() => base.Filtered_collection_projection_is_tracked(async));
 
         AssertSql();
     }
