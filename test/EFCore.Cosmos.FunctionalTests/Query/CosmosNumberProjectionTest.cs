@@ -87,7 +87,7 @@ WHERE (c["Long"] != null)
     [Fact]
     public async Task Byte_devided()
     {
-        await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.Byte / (e.Byte - 1) }),
+        await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = (byte)(e.Byte / (e.Byte - 1)) }),
             x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
 
         AssertSql(
@@ -104,8 +104,8 @@ FROM root c
     [Fact]
     public async Task Nullable_byte_devided()
     {
-        await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Byte != null).Select(e => new { e.Id, Value = e.Byte / (e.Byte - 1) }),
-            ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Byte != null).Select(e => new { e.Id, Value = e.Byte / (e.Byte - 1) }),
+        await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Byte != null).Select(e => new { e.Id, Value = (byte?)(e.Byte / (e.Byte - 1)) }),
+            ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.Byte != null).Select(e => new { e.Id, Value = (byte?)(e.Byte / (e.Byte - 1)) }),
             x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
 
         AssertSql(
@@ -195,7 +195,7 @@ WHERE (c["Float"] != null)
     [Fact]
     public async Task SByte_devided()
     {
-        await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = e.SByte / (e.SByte - 1) }),
+        await AssertQuery(ss => ss.Set<NumberTypesEntity>().Select(e => new { e.Id, Value = (byte)(e.SByte / (e.SByte - 1)) }),
             x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
 
         AssertSql(
@@ -212,8 +212,8 @@ FROM root c
     [Fact]
     public async Task Nullable_sbyte_devided()
     {
-        await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.SByte != null).Select(e => new { e.Id, Value = e.SByte / (e.SByte - 1) }),
-            ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.SByte != null).Select(e => new { e.Id, Value = e.SByte / (e.SByte - 1) }),
+        await AssertQuery(ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.SByte != null).Select(e => new { e.Id, Value = (byte?)(e.SByte / (e.SByte - 1)) }),
+            ss => ss.Set<NullableNumberTypesEntity>().Where(e => e.SByte != null).Select(e => new { e.Id, Value = (byte?)(e.SByte / (e.SByte - 1)) }),
             x => x.Id, (e, a) => Assert.Equal(e.Value, a.Value));
 
         AssertSql(
@@ -424,7 +424,7 @@ FROM root c
 """);
     }
 
-    [Fact(Skip = "Convert not supported")] // Not a regression from 10.0
+    [Fact]
     public async Task Int_as_double_devided_aggregated()
     {
         await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => (double)e.Int / (e.Int - 1)));
@@ -448,14 +448,14 @@ FROM root c
 """);
     }
 
-    [Fact(Skip = "Convert not supported")] // Not a regression from 10.0
+    [Fact]
     public async Task Float_devided_int_aggregated()
     {
-        await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Float / (int)(e.Float - 1)));
+        await AssertSum(true, ss => ss.Set<NumberTypesEntity>().Select(e => e.Float / 2));
 
         AssertSql(
             """
-SELECT VALUE SUM((c["Float"] / (c["Float"] - 1.0)))
+SELECT VALUE SUM((c["Float"] / 2.0))
 FROM root c
 """);
     }
