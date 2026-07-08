@@ -154,6 +154,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
+ReadNext:
                     if (!_data.HasValue)
                     {
                         var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
@@ -172,7 +173,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             out var bytesConsumed, out _current))
                     {
                         _data = null;
-                        return await MoveNextAsync().ConfigureAwait(false);
+                        goto ReadNext;
                     }
 
                     _ordinal++;
