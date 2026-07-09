@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosClientWrapperTest
 {
+    private const string CosmosEmulatorKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+
     [Fact]
     public async Task ExecuteSqlQueryAsync_retries_when_response_status_is_transient_failure()
     {
@@ -20,7 +22,7 @@ public class CosmosClientWrapperTest
             new DbContextOptionsBuilder()
                 .UseCosmos(
                     "https://localhost:8081",
-                    "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+                    CosmosEmulatorKey,
                     "_")
                 .Options);
 
@@ -43,7 +45,10 @@ public class CosmosClientWrapperTest
             .ExecuteSqlQueryAsync("container", PartitionKey.None, query, sessionTokenStorage)
             .GetAsyncEnumerator();
 
-        Assert.False(await enumerator.MoveNextAsync());
+        var movedNext = false;
+        var exception = await Record.ExceptionAsync(async () => movedNext = await enumerator.MoveNextAsync());
+        Assert.Null(exception);
+        Assert.False(movedNext);
         Assert.Equal(2, feedIterator.ReadCount);
     }
 
@@ -231,7 +236,11 @@ public class CosmosClientWrapperTest
             => "";
     }
 
-    private sealed class TestDbContext(DbContextOptions options) : DbContext(options);
+    private sealed class TestDbContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Root> Roots
+            => Set<Root>();
+    }
 
     private class Root
     {
