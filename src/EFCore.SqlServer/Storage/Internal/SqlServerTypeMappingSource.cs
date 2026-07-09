@@ -410,15 +410,20 @@ public class SqlServerTypeMappingSource(
                 // Note that the converter info is only used temporarily here and never creates an instance.
                 .WithConverter(new ValueConverterInfo(modelType, typeof(string), _ => null!));
 
-            return (RelationalTypeMapping)FindMapping(jsonTypeMappingInfo)!
-                .WithComposedConverter(
-                    (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
-                    comparer,
-                    comparer,
-                    elementMapping,
-                    collectionReaderWriter);
+            var mapping = FindMapping(jsonTypeMappingInfo);
+            if (mapping is null)
+            {
+                return null;
+            }
+
+            return (RelationalTypeMapping)mapping.WithComposedConverter(
+                (ValueConverter)Activator.CreateInstance(
+                    typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                        modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+                comparer,
+                comparer,
+                elementMapping,
+                collectionReaderWriter);
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
