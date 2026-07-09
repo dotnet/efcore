@@ -32,11 +32,11 @@ public class CosmosClientWrapperTest
             CreateResponseMessage(HttpStatusCode.OK));
 
         var wrapper = new TestCosmosClientWrapper(
-            feedIterator,
+            context.GetService<IDbContextOptions>(),
             context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
-            context.GetService<IDbContextOptions>());
+            feedIterator);
 
-        var query = new CosmosSqlQuery("SELECT VALUE r FROM Roots r", Array.Empty<SqlParameter>());
+        var query = new CosmosSqlQuery("SELECT VALUE r FROM Roots r", []);
         var sessionTokenStorage = new SessionTokenStorage(
             TestContainerName,
             [TestContainerName],
@@ -182,9 +182,9 @@ public class CosmosClientWrapperTest
     }
 
     private sealed class TestCosmosClientWrapper(
-        FeedIterator feedIterator,
+        IDbContextOptions dbContextOptions,
         IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-        IDbContextOptions dbContextOptions)
+        FeedIterator feedIterator)
         : CosmosClientWrapper(new TestSingletonCosmosClientWrapper(), dbContextOptions, new RetryingExecutionStrategy(), commandLogger)
     {
         public override FeedIterator CreateQuery(
