@@ -925,10 +925,10 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     [Fact]
     public void RemoveMigration_preserves_valid_snapshot_with_owned_one_to_one()
     {
-        var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationOwnedOneToOne_" + Guid.NewGuid().ToString("N"));
+        var testMigrationDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationOwnedOneToOne_" + Guid.NewGuid().ToString("N"));
         try
         {
-            Directory.CreateDirectory(tempDirectory);
+            Directory.CreateDirectory(testMigrationDirectory);
 
             using var context = new OwnedOneToOneRuntimeMigrationDbContext(
                 Fixture.TestStore.AddProviderOptions(new DbContextOptionsBuilder<OwnedOneToOneRuntimeMigrationDbContext>()).Options);
@@ -945,7 +945,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
                 subNamespace: null,
                 language: "C#",
                 dryRun: true);
-            scaffolder.Save(tempDirectory, initialMigration, outputDir: null, dryRun: false);
+            scaffolder.Save(testMigrationDirectory, initialMigration, outputDir: null, dryRun: false);
             migrationsAssembly.AddMigrations(compiler.CompileMigration(initialMigration, context.GetType()));
 
             var dummyMigration = scaffolder.ScaffoldMigration(
@@ -954,12 +954,12 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
                 subNamespace: null,
                 language: "C#",
                 dryRun: true);
-            scaffolder.Save(tempDirectory, dummyMigration, outputDir: null, dryRun: false);
+            scaffolder.Save(testMigrationDirectory, dummyMigration, outputDir: null, dryRun: false);
             migrationsAssembly.AddMigrations(compiler.CompileMigration(dummyMigration, context.GetType()));
 
-            scaffolder.RemoveMigration(tempDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false, offline: true);
+            scaffolder.RemoveMigration(testMigrationDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false, offline: true);
 
-            var snapshotPath = Directory.EnumerateFiles(tempDirectory, "*ModelSnapshot.cs", SearchOption.AllDirectories).Single();
+            var snapshotPath = Directory.EnumerateFiles(testMigrationDirectory, "*ModelSnapshot.cs", SearchOption.AllDirectories).Single();
             var snapshotCode = string.Join(
                 Environment.NewLine,
                 File.ReadAllLines(snapshotPath).Where(line => !line.Contains("[DbContext(", StringComparison.Ordinal)));
@@ -983,9 +983,9 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
         finally
         {
-            if (Directory.Exists(tempDirectory))
+            if (Directory.Exists(testMigrationDirectory))
             {
-                try { Directory.Delete(tempDirectory, recursive: true); }
+                try { Directory.Delete(testMigrationDirectory, recursive: true); }
                 catch { /* Ignore cleanup errors */ }
             }
         }

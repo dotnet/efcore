@@ -2230,6 +2230,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             + entityTypeName;
     }
 
+    /// <summary>
+    ///     Normalizes duplicated ownership prefixes in owned type names (e.g. Owner.Nav#Owner.Nav#Owned -> Owner.Nav#Owned).
+    /// </summary>
     private static string NormalizeOwnedEntityTypeName(string entityTypeName)
     {
         var separatorIndex = entityTypeName.IndexOf('#');
