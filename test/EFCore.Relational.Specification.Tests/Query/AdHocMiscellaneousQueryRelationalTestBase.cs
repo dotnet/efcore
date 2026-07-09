@@ -418,15 +418,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   for a MemberInit-bound value type, a zeroed default(T) -- matching LINQ-to-Objects
         //   DefaultIfEmpty semantics for a value-type sequence, which never yields a true null) on a
         //   no-match (a synthetic "marker" column is added inside the LEFT JOIN subquery so the shaper can
-        //   distinguish a no-match row from a matched row whose members happen to be null).
+        //   distinguish a no-match row from a matched row whose members happen to be null). A second join
+        //   after the DefaultIfEmpty, and GroupBy applied after the left join then reduced via a to-one
+        //   subquery / FirstOrDefault, also correctly materialize the whole non-entity object as null on a
+        //   no-match (the marker survives the shaper rebuild across the subsequent join / grouping).
         // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
         //   translation failure): constructor-bound (read-only) reference-type DTO and positional record
         //   struct (fail to translate: ReplacingExpressionVisitor's constructor-parameter fold is
         //   deliberately restricted to ValueTuple/Tuple -- see ValueTuple_whole_object_from_nullable_side --
         //   since only those BCL types have a closed, guaranteed constructor-to-property contract; an
         //   arbitrary named type's "matching name" convention can't be verified and could silently fold to
-        //   the wrong value for a transforming constructor); GroupBy-after-join and a second join after
-        //   the DefaultIfEmpty (the shaper rebuild loses the marker); plain inner with no aggregate / no
+        //   the wrong value for a transforming constructor); plain inner with no aggregate / no
         //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
         //   null-checks against the whole non-entity projection.
 
@@ -778,9 +780,143 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .GroupBy(e => e.s.PickupStatusId, (key, els) => new { key, anyInfo = els.Select(e => e.countInfo).FirstOrDefault() })
                 .OrderBy(e => e.key);
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].key);
+            Assert.NotNull(result[0].anyInfo);
+            Assert.Equal(1, result[0].anyInfo.pickupStatusId);
+            Assert.Equal(2, result[0].anyInfo.Count);
+
+            // status 2 -> no match on the left join; whole non-entity object is null after grouping
+            Assert.Equal(2, result[1].key);
+            Assert.Null(result[1].anyInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].key);
+            Assert.NotNull(result[2].anyInfo);
+            Assert.Equal(3, result[2].anyInfo.pickupStatusId);
+            Assert.Equal(1, result[2].anyInfo.Count);
+        }
+
+        [Fact]
+        public virtual async Task GroupBy_after_join_then_whole_object_nested_in_wrapper()
+        {
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s, countInfo })
+                .GroupBy(
+                    e => e.s.PickupStatusId,
+                    (key, els) => new { key, wrapper = new { anyInfo = els.Select(e => e.countInfo).FirstOrDefault() } })
+                .OrderBy(e => e.key);
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            Assert.Equal(1, result[0].key);
+            Assert.NotNull(result[0].wrapper);
+            Assert.NotNull(result[0].wrapper.anyInfo);
+            Assert.Equal(2, result[0].wrapper.anyInfo.Count);
+
+            Assert.Equal(2, result[1].key);
+            Assert.NotNull(result[1].wrapper);
+            Assert.Null(result[1].wrapper.anyInfo);
+
+            Assert.Equal(3, result[2].key);
+            Assert.NotNull(result[2].wrapper);
+            Assert.NotNull(result[2].wrapper.anyInfo);
+            Assert.Equal(1, result[2].wrapper.anyInfo.Count);
+        }
+
+        [Fact]
+        public virtual async Task GroupBy_after_join_then_whole_object_dto_memberinit()
+        {
+            // Same GroupBy-after-join to-one lowering as GroupBy_after_join_then_whole_object, but the whole
+            // object is a MemberInit-bound DTO (CountDto30915) rather than an anonymous New -- this exercises
+            // the VisitMemberInit re-key path in GroupingElementShaperRemappingExpressionVisitor, which the
+            // anonymous-type tests never reach (they are New-only).
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountDto30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.PickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s, countInfo })
+                .GroupBy(e => e.s.PickupStatusId, (key, els) => new { key, anyInfo = els.Select(e => e.countInfo).FirstOrDefault() })
+                .OrderBy(e => e.key);
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].key);
+            Assert.NotNull(result[0].anyInfo);
+            Assert.Equal(1, result[0].anyInfo.PickupStatusId);
+            Assert.Equal(2, result[0].anyInfo.Count);
+
+            // status 2 -> no match on the left join; whole DTO object is null after grouping
+            Assert.Equal(2, result[1].key);
+            Assert.Null(result[1].anyInfo);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].key);
+            Assert.NotNull(result[2].anyInfo);
+            Assert.Equal(3, result[2].anyInfo.PickupStatusId);
+            Assert.Equal(1, result[2].anyInfo.Count);
+        }
+
+        [Fact]
+        public virtual async Task GroupBy_after_join_then_whole_object_struct()
+        {
+            // MemberInit-bound value type (CountStruct30915) reduced through the GroupBy-after-join to-one
+            // lowering. A value-type sequence's FirstOrDefault never yields a true null, so the no-match group
+            // yields default(CountStruct30915) (zeroed fields), mirroring LINQ-to-Objects DefaultIfEmpty
+            // semantics -- same as the direct Struct_whole_object_LeftJoin case.
+            var contextFactory = await InitializeNonSharedTest<Context30915>(seed: Seed30915);
+            using var context = contextFactory.CreateDbContext();
+
+            var categories = context.Requests
+                .GroupBy(r => r.PickupStatusId, (k, els) => new Context30915.CountStruct30915 { PickupStatusId = k, Count = els.Count() });
+
+            var query = (from s in context.Statuses
+                         join c in categories on s.PickupStatusId equals c.PickupStatusId into g
+                         from countInfo in g.DefaultIfEmpty()
+                         select new { s, countInfo })
+                .GroupBy(e => e.s.PickupStatusId, (key, els) => new { key, anyInfo = els.Select(e => e.countInfo).FirstOrDefault() })
+                .OrderBy(e => e.key);
+
+            var result = await query.ToListAsync();
+
+            Assert.Equal(3, result.Count);
+
+            // status 1 -> matched, Count 2
+            Assert.Equal(1, result[0].key);
+            Assert.Equal(1, result[0].anyInfo.PickupStatusId);
+            Assert.Equal(2, result[0].anyInfo.Count);
+
+            // status 2 -> no match; whole struct defaults to zeroed fields (value-type DefaultIfEmpty semantics)
+            Assert.Equal(2, result[1].key);
+            Assert.Equal(0, result[1].anyInfo.PickupStatusId);
+            Assert.Equal(0, result[1].anyInfo.Count);
+
+            // status 3 -> matched, Count 1
+            Assert.Equal(3, result[2].key);
+            Assert.Equal(3, result[2].anyInfo.PickupStatusId);
+            Assert.Equal(1, result[2].anyInfo.Count);
         }
 
         [Fact]
