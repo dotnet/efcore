@@ -638,7 +638,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 await c.SaveChangesAsync();
 
                 await c.Database.ExecuteSqlRawAsync(
-                    "UPDATE RootEntity SET Outer_RequiredProperty = NULL WHERE Id = '" + rootEntity.Id.ToString().ToUpperInvariant() + "'");
+                    "UPDATE RootEntity SET Outer_RequiredProperty = NULL WHERE Id = {0}", rootEntity.Id);
             });
 
         using var context = contextFactory.CreateDbContext();
