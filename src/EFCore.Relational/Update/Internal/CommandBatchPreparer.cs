@@ -1141,7 +1141,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var (value, _) = ((TableIndex)index).GetRowIndexValueFactory()
+                    var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+
+                    if (command.EntityState == EntityState.Modified)
+                    {
+                        var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
+                        var (currentValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command);
+                        if (Equals(originalValue, currentValue))
+                        {
+                            continue;
+                        }
+                    }
+
+                    var (value, _) = rowIndexValueFactory
                         .CreateEquatableIndexValue(command, fromOriginalValues: true);
                     if (value != null)
                     {
@@ -1223,7 +1235,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var (value, hasNullValue) = ((TableIndex)index).GetRowIndexValueFactory()
+                    var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+
+                    if (command.EntityState == EntityState.Modified)
+                    {
+                        var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
+                        var (currentValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command);
+                        if (Equals(originalValue, currentValue))
+                        {
+                            continue;
+                        }
+                    }
+
+                    var (value, hasNullValue) = rowIndexValueFactory
                         .CreateEquatableIndexValue(command);
                     if (value != null)
                     {
