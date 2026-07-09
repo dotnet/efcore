@@ -242,7 +242,7 @@ public class CosmosClientWrapperTest
             => TimeSpan.Zero;
 
         public override IReadOnlyList<(string regionName, Uri uri)> GetContactedRegions()
-            => Array.Empty<(string regionName, Uri uri)>();
+            => [];
 
         public override string ToString()
             => "";
