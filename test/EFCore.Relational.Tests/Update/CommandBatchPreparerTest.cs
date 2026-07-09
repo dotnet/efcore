@@ -1234,7 +1234,7 @@ FakeEntity [Deleted]"
     {
         public Guid TestId { get; set; }
         public CompositeCategory Category { get; set; }
-        public int ClusteringKey { get; }
+        public int ClusteringKey { get; set; }
         public string Payload { get; set; }
     }
 
