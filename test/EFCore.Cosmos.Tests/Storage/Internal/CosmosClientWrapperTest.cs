@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosClientWrapperTest
 {
+    private const string CosmosDatabaseName = "_";
     private const string CosmosEmulatorKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
     [Fact]
@@ -23,12 +24,12 @@ public class CosmosClientWrapperTest
                 .UseCosmos(
                     "https://localhost:8081",
                     CosmosEmulatorKey,
-                    "_")
+                    CosmosDatabaseName)
                 .Options);
 
         var feedIterator = new TestFeedIterator(
             CreateResponseMessage(HttpStatusCode.Gone),
-            CreateResponseMessage(HttpStatusCode.OK, """{"id":"1"}"""));
+            CreateResponseMessage(HttpStatusCode.OK));
 
         var wrapper = new TestCosmosClientWrapper(
             feedIterator,
@@ -45,9 +46,7 @@ public class CosmosClientWrapperTest
             .ExecuteSqlQueryAsync("container", PartitionKey.None, query, sessionTokenStorage)
             .GetAsyncEnumerator();
 
-        var movedNext = false;
-        var exception = await Record.ExceptionAsync(async () => movedNext = await enumerator.MoveNextAsync());
-        Assert.Null(exception);
+        var movedNext = await enumerator.MoveNextAsync();
         Assert.False(movedNext);
         Assert.Equal(2, feedIterator.ReadCount);
     }
