@@ -1423,8 +1423,7 @@ public class NavigationFixer : INavigationFixer
             var dependentValue = dependentEntry[dependentProperty];
 
             if (!PrincipalValueEqualsDependentValue(principalProperty, dependentValue, principalValue)
-                || (principalProperty.ClrType == typeof(string)
-                    && StringValuesAreNotOrdinallyEqual(dependentValue, principalValue))
+                || StringValuesAreNotOrdinallyEqual(dependentValue, principalValue)
                 || (dependentEntry.IsConceptualNull(dependentProperty)
                     && principalValue != null))
             {
