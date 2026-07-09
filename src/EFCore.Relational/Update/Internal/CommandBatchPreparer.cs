@@ -397,7 +397,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             var firstEdge = edges.FirstOrDefault();
             Check.DebugAssert(
                 firstEdge is not null || (command1.Entries.Count == 0 && command2.Entries.Count == 0),
-                "Edge metadata may be null only when both commands have no entries, which occurs during predecessor traversal of migration data commands.");
+                "Cycle edge sequence may be empty only when both commands have no entries, which occurs during predecessor traversal of migration data commands.");
             switch (firstEdge?.Metadata)
             {
                 case IForeignKey foreignKey:
@@ -439,8 +439,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         if (command.Entries.Count == 0)
         {
             Check.DebugAssert(
-                command.Table is not null || command.StoreStoredProcedure is not null,
-                "Commands without entries must have table or stored procedure metadata because cycle errors need to identify the store object.");
+                !string.IsNullOrEmpty(command.TableName),
+                "Commands without entries must have a table name because cycle errors need to identify the store object.");
 
             if (command.Schema == null)
             {
