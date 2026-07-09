@@ -162,6 +162,12 @@ public sealed class ProjectTest(ITestOutputHelper output)
             Path.Combine("target", "MyApp.deps.json"),
             RootCommand.ResolveFilePath("target", null, "MyApp.deps.json"));
 
+    [Fact]
+    public void Resolve_file_path_uses_fallback_file_name_when_empty()
+        => Assert.Equal(
+            Path.Combine("target", "MyApp.deps.json"),
+            RootCommand.ResolveFilePath("target", "", "MyApp.deps.json"));
+
     private string WithCapturedOutput(Action action)
     {
         var captured = new StringBuilder();
