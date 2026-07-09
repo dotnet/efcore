@@ -4656,9 +4656,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             operations =>
             {
-                static int IndexOf(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
-                    => operations.Select((o, i) => (Operation: o, Index: i)).Single(t => ReferenceEquals(t.Operation, operation)).Index;
-
                 var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
                 Assert.Equal("AnimalSequence", createSequenceOperation.Name);
 
@@ -4670,10 +4667,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Contains(dropSequenceOperations, o => o.Name == "DogSequence");
                 Assert.Contains(dropSequenceOperations, o => o.Name == "CatSequence");
 
-                var createSequenceIndex = IndexOf(operations, createSequenceOperation);
-                Assert.All(alterColumnOperations, o => Assert.True(IndexOf(operations, o) > createSequenceIndex));
-                Assert.All(dropSequenceOperations, o => Assert.True(IndexOf(operations, o) > IndexOf(operations, alterColumnOperations[0])));
-                Assert.All(dropSequenceOperations, o => Assert.True(IndexOf(operations, o) > IndexOf(operations, alterColumnOperations[1])));
+                var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
+                Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
+                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > FindOperationIndex(operations, alterColumnOperations[0])));
+                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > FindOperationIndex(operations, alterColumnOperations[1])));
             });
 
     [Fact]
@@ -4717,9 +4714,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             operations =>
             {
-                static int IndexOf(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
-                    => operations.Select((o, i) => (Operation: o, Index: i)).Single(t => ReferenceEquals(t.Operation, operation)).Index;
-
                 var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
                 Assert.Equal("PetSequence", createSequenceOperation.Name);
 
@@ -4729,11 +4723,14 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 var dropSequenceOperation = Assert.IsType<DropSequenceOperation>(operations.Single(o => o is DropSequenceOperation));
                 Assert.Equal("AnimalSequence", dropSequenceOperation.Name);
 
-                var createSequenceIndex = IndexOf(operations, createSequenceOperation);
-                Assert.All(alterColumnOperations, o => Assert.True(IndexOf(operations, o) > createSequenceIndex));
-                Assert.True(IndexOf(operations, dropSequenceOperation) > IndexOf(operations, alterColumnOperations[0]));
-                Assert.True(IndexOf(operations, dropSequenceOperation) > IndexOf(operations, alterColumnOperations[1]));
+                var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
+                Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
+                Assert.True(FindOperationIndex(operations, dropSequenceOperation) > FindOperationIndex(operations, alterColumnOperations[0]));
+                Assert.True(FindOperationIndex(operations, dropSequenceOperation) > FindOperationIndex(operations, alterColumnOperations[1]));
             });
+
+    private static int FindOperationIndex(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
+        => operations.Select((o, i) => (Operation: o, Index: i)).Single(t => ReferenceEquals(t.Operation, operation)).Index;
 
     [Fact]
     public void Restart_altered_sequence()
