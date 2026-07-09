@@ -1142,19 +1142,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     }
 
                     var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+                    var (value, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
 
                     if (command.EntityState == EntityState.Modified)
                     {
-                        var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
                         var (currentValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command);
-                        if (Equals(originalValue, currentValue))
+                        if (Equals(value, currentValue))
                         {
                             continue;
                         }
                     }
 
-                    var (value, _) = rowIndexValueFactory
-                        .CreateEquatableIndexValue(command, fromOriginalValues: true);
                     if (value != null)
                     {
                         indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
@@ -1236,19 +1234,16 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     }
 
                     var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+                    var (value, hasNullValue) = rowIndexValueFactory.CreateEquatableIndexValue(command);
 
                     if (command.EntityState == EntityState.Modified)
                     {
                         var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
-                        var (currentValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command);
-                        if (Equals(originalValue, currentValue))
+                        if (Equals(originalValue, value))
                         {
                             continue;
                         }
                     }
-
-                    var (value, hasNullValue) = rowIndexValueFactory
-                        .CreateEquatableIndexValue(command);
                     if (value != null)
                     {
                         AddMatchingPredecessorEdge(
