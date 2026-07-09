@@ -428,7 +428,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
                     foreach (var complexProperty in entityType.GetComplexProperties())
                     {
-                        var table = complexProperty.ComplexType.GetQueryMappings().Single().Table;
+                        var table = FindTable(complexProperty, mappings);
                         complexPropertyMap[complexProperty] = ProcessComplexProperty(complexProperty, table, tableMap[table], containerNullable: false);
                     }
 
@@ -444,6 +444,48 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
             static ITableBase GetTableBaseFiltered(IEntityType entityType, Dictionary<ITableBase, string> existingTables)
                 => entityType.GetQueryMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
+
+            static ITableBase FindTable(IComplexProperty complexProperty, IEnumerable<ITableMappingBase> mappings)
+                => TryFindTable(complexProperty, mappings)
+                    ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
+
+            static ITableBase? TryFindTable(IComplexProperty complexProperty, IEnumerable<ITableMappingBase> mappings)
+            {
+                if (complexProperty.ComplexType.IsMappedToJson())
+                {
+                    var containerColumn = mappings
+                        .Select(m => m.Table.FindColumn(complexProperty))
+                        .FirstOrDefault(c => c is not null);
+
+                    if (containerColumn is not null)
+                    {
+                        return containerColumn.Table;
+                    }
+                }
+
+                foreach (var property in complexProperty.ComplexType.GetProperties())
+                {
+                    var column = mappings
+                        .Select(m => m.Table.FindColumn(property))
+                        .FirstOrDefault(c => c is not null);
+
+                    if (column is not null)
+                    {
+                        return column.Table;
+                    }
+                }
+
+                foreach (var nestedComplexProperty in complexProperty.ComplexType.GetComplexProperties())
+                {
+                    var nestedTable = TryFindTable(nestedComplexProperty, mappings);
+                    if (nestedTable is not null)
+                    {
+                        return nestedTable;
+                    }
+                }
+
+                return null;
+            }
         }
     }
 

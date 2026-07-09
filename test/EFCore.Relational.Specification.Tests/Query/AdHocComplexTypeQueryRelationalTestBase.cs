@@ -170,6 +170,71 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
 
     #endregion 34706
 
+    #region 38077
+
+    [Fact]
+    public virtual async Task Complex_property_on_split_entity()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38077>(
+            seed: async context =>
+            {
+                context.Set<Context38077.Hook>().Add(
+                    new Context38077.Hook
+                    {
+                        Number = new Context38077.HookNumber
+                        {
+                            Raw = "123",
+                            Parsed = 123
+                        },
+                        Weight = 1.25m,
+                        IsTestHook = false
+                    });
+
+                await context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateDbContext();
+
+        var hooks = await context.Set<Context38077.Hook>().ToListAsync();
+
+        Assert.Single(hooks);
+    }
+
+    private class Context38077(DbContextOptions options) : DbContext(options)
+    {
+        public class Hook
+        {
+            public int Id { get; set; }
+            public DateTime CreatedOn { get; set; }
+            public required HookNumber Number { get; set; }
+            public decimal? Weight { get; set; }
+            public bool? IsTestHook { get; set; }
+        }
+
+        public class HookNumber
+        {
+            public required string Raw { get; set; }
+            public long Parsed { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Hook>(
+                b =>
+                {
+                    b.ComplexProperty(h => h.Number);
+                    b.SplitToTable(
+                        "HookMetadata",
+                        tb =>
+                        {
+                            tb.Property(h => h.Id).HasColumnName("HookId");
+                            tb.Property(h => h.Weight);
+                            tb.Property(h => h.IsTestHook);
+                        });
+                });
+    }
+
+    #endregion 38077
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
