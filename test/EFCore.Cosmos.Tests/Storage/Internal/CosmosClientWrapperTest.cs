@@ -3,6 +3,9 @@
 
 #nullable enable
 
+using System.Net;
+using Microsoft.Azure.Cosmos;
+
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable CollectionNeverUpdated.Local
@@ -10,6 +13,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosClientWrapperTest
 {
+    [Fact]
+    public async Task ExecuteSqlQueryAsync_retries_when_response_status_is_transient_failure()
+    {
+        using var context = new TestDbContext(
+            new DbContextOptionsBuilder()
+                .UseCosmos(
+                    "https://localhost:8081",
+                    "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+                    "_")
+                .Options);
+
+        var feedIterator = new TestFeedIterator(
+            CreateResponseMessage(HttpStatusCode.Gone),
+            CreateResponseMessage(HttpStatusCode.OK, """{"id":"1"}"""));
+
+        var wrapper = new TestCosmosClientWrapper(
+            feedIterator,
+            context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
+            context.GetService<IDbContextOptions>());
+
+        var query = new CosmosSqlQuery("SELECT VALUE c", Array.Empty<SqlParameter>());
+        var sessionTokenStorage = new SessionTokenStorage(
+            "container",
+            ["container"],
+            Infrastructure.SessionTokenManagementMode.FullyAutomatic);
+
+        await using var enumerator = wrapper
+            .ExecuteSqlQueryAsync("container", PartitionKey.None, query, sessionTokenStorage)
+            .GetAsyncEnumerator();
+
+        Assert.False(await enumerator.MoveNextAsync());
+        Assert.Equal(2, feedIterator.ReadCount);
+    }
+
     [Fact]
     public void GetJsonPropertyPathFromRoot_returns_simple_path_for_scalar_property()
     {
@@ -103,6 +140,98 @@ public class CosmosClientWrapperTest
         });
         return modelBuilder.FinalizeModel();
     }
+
+    private static ResponseMessage CreateResponseMessage(HttpStatusCode statusCode, string content = "{}")
+        => new(statusCode)
+        {
+            Content = new MemoryStream(Encoding.UTF8.GetBytes(content)),
+            Diagnostics = new TestCosmosDiagnostics()
+        };
+
+    private sealed class TestFeedIterator(params ResponseMessage[] responses) : FeedIterator
+    {
+        private readonly Queue<ResponseMessage> _responses = new(responses);
+
+        public int ReadCount { get; private set; }
+
+        public override bool HasMoreResults
+            => _responses.Count > 0;
+
+        public override Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)
+        {
+            ReadCount++;
+            return Task.FromResult(_responses.Dequeue());
+        }
+    }
+
+    private sealed class TestCosmosClientWrapper(
+        FeedIterator feedIterator,
+        IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+        IDbContextOptions dbContextOptions)
+        : CosmosClientWrapper(new TestSingletonCosmosClientWrapper(), dbContextOptions, new RetryingExecutionStrategy(), commandLogger)
+    {
+        public override FeedIterator CreateQuery(
+            string containerId,
+            CosmosSqlQuery query,
+            ISessionTokenStorage sessionTokenStorage,
+            string? continuationToken = null,
+            QueryRequestOptions? queryRequestOptions = null)
+            => feedIterator;
+    }
+
+    private sealed class TestSingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
+    {
+        public CosmosClient Client
+            => null!;
+
+        public void Dispose()
+        {
+        }
+    }
+
+    private sealed class RetryingExecutionStrategy : IExecutionStrategy
+    {
+        public bool RetriesOnFailure
+            => true;
+
+        public TResult Execute<TState, TResult>(
+            TState state,
+            Func<DbContext, TState, TResult> operation,
+            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
+            => throw new NotSupportedException();
+
+        public async Task<TResult> ExecuteAsync<TState, TResult>(
+            TState state,
+            Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
+            CancellationToken cancellationToken = default)
+        {
+            for (var retry = 0; ; retry++)
+            {
+                try
+                {
+                    return await operation(null!, state, cancellationToken).ConfigureAwait(false);
+                }
+                catch (CosmosException e) when (e.StatusCode == HttpStatusCode.Gone && retry == 0)
+                {
+                }
+            }
+        }
+    }
+
+    private sealed class TestCosmosDiagnostics : CosmosDiagnostics
+    {
+        public override TimeSpan GetClientElapsedTime()
+            => TimeSpan.Zero;
+
+        public override IReadOnlyList<(string regionName, Uri uri)> GetContactedRegions()
+            => Array.Empty<(string regionName, Uri uri)>();
+
+        public override string ToString()
+            => "";
+    }
+
+    private sealed class TestDbContext(DbContextOptions options) : DbContext(options);
 
     private class Root
     {

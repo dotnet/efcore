@@ -169,7 +169,17 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         using var feedIterator = cosmosClient.CreateQuery(
                             _cosmosContainer, sqlQuery, _cosmosQueryContext.SessionTokenStorage, continuationToken, queryRequestOptions);
 
-                        using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
+                        using var responseMessage = await _cosmosQueryContext.ExecutionStrategy.ExecuteAsync(
+                                feedIterator,
+                                static async (_, feedIterator, cancellationToken) =>
+                                {
+                                    var responseMessage = await feedIterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                                    responseMessage.EnsureSuccessStatusCode();
+                                    return responseMessage;
+                                },
+                                null,
+                                _cancellationToken)
+                            .ConfigureAwait(false);
 
                         _commandLogger.ExecutedReadNext(
                             responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -178,8 +188,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             _cosmosContainer,
                             _cosmosPartitionKey,
                             sqlQuery);
-
-                        responseMessage.EnsureSuccessStatusCode();
 
                         var responseMessageEnumerable = cosmosClient.GetResponseMessageEnumerable(responseMessage);
                         foreach (var resultObject in responseMessageEnumerable)

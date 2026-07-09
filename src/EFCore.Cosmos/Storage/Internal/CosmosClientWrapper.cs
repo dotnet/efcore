@@ -1069,8 +1069,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                     }
 
                     _responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
-                        (_query, _cosmosClientWrapper),
-                        static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
+                        _query,
+                        static async (_, query, cancellationToken) =>
+                        {
+                            var responseMessage = await query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                            responseMessage.EnsureSuccessStatusCode();
+                            return responseMessage;
+                        },
                         null,
                         cancellationToken).ConfigureAwait(false);
 
@@ -1081,8 +1086,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         _containerId,
                         _partitionKeyValue,
                         _cosmosSqlQuery);
-
-                    _responseMessage.EnsureSuccessStatusCode();
 
                     _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetAsyncEnumerator(cancellationToken);
                 }
