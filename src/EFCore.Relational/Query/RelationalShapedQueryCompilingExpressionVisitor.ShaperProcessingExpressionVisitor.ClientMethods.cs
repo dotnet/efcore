@@ -1433,6 +1433,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 catch (ArgumentException)
                 {
+                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
                 }
             }
 
@@ -1444,6 +1445,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 catch (ArgumentException)
                 {
+                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
                 }
             }
 
