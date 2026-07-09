@@ -4656,6 +4656,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             operations =>
             {
+                var operationIndexes = operations
+                    .Select((o, i) => (Operation: o, Index: i))
+                    .ToDictionary(p => p.Operation, p => p.Index, ReferenceEqualityComparer.Instance);
+
                 var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
                 Assert.Equal("AnimalSequence", createSequenceOperation.Name);
 
@@ -4667,10 +4671,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Contains(dropSequenceOperations, o => o.Name == "DogSequence");
                 Assert.Contains(dropSequenceOperations, o => o.Name == "CatSequence");
 
-                var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
-                Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
-                var lastAlterColumnIndex = alterColumnOperations.Max(o => FindOperationIndex(operations, o));
-                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > lastAlterColumnIndex));
+                var createSequenceIndex = operationIndexes[createSequenceOperation];
+                Assert.All(alterColumnOperations, o => Assert.True(operationIndexes[o] > createSequenceIndex));
+                var lastAlterColumnIndex = alterColumnOperations.Max(o => operationIndexes[o]);
+                Assert.All(dropSequenceOperations, o => Assert.True(operationIndexes[o] > lastAlterColumnIndex));
             });
 
     [Fact]
@@ -4714,6 +4718,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             operations =>
             {
+                var operationIndexes = operations
+                    .Select((o, i) => (Operation: o, Index: i))
+                    .ToDictionary(p => p.Operation, p => p.Index, ReferenceEqualityComparer.Instance);
+
                 var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
                 Assert.Equal("PetSequence", createSequenceOperation.Name);
 
@@ -4723,24 +4731,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 var dropSequenceOperation = Assert.IsType<DropSequenceOperation>(operations.Single(o => o is DropSequenceOperation));
                 Assert.Equal("AnimalSequence", dropSequenceOperation.Name);
 
-                var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
-                var dropSequenceIndex = FindOperationIndex(operations, dropSequenceOperation);
-                Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
-                Assert.All(alterColumnOperations, o => Assert.True(dropSequenceIndex > FindOperationIndex(operations, o)));
+                var createSequenceIndex = operationIndexes[createSequenceOperation];
+                var dropSequenceIndex = operationIndexes[dropSequenceOperation];
+                Assert.All(alterColumnOperations, o => Assert.True(operationIndexes[o] > createSequenceIndex));
+                Assert.All(alterColumnOperations, o => Assert.True(dropSequenceIndex > operationIndexes[o]));
             });
-
-    private static int FindOperationIndex(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
-    {
-        for (var i = 0; i < operations.Count; i++)
-        {
-            if (ReferenceEquals(operations[i], operation))
-            {
-                return i;
-            }
-        }
-
-        throw new InvalidOperationException("Operation was not found in the operations list.");
-    }
 
     [Fact]
     public void Restart_altered_sequence()
