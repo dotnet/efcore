@@ -394,8 +394,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             var (command1, command2, edges) = data[i];
             Format(command1, builder);
 
-            var edge = edges.FirstOrDefault();
-            switch (edge?.Metadata)
+            var firstEdge = edges.FirstOrDefault();
+            Check.DebugAssert(
+                firstEdge is not null || (command1.Entries.Count == 0 && command2.Entries.Count == 0),
+                "Edge metadata may be null only when both commands have no entries, which occurs during predecessor traversal of migration data commands.");
+            switch (firstEdge?.Metadata)
             {
                 case IForeignKey foreignKey:
                     Format(foreignKey, command1, command2, builder);
@@ -435,6 +438,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     {
         if (command.Entries.Count == 0)
         {
+            Check.DebugAssert(
+                command.Table is not null || command.StoreStoredProcedure is not null,
+                "Commands without entries must have table or stored procedure metadata because cycle errors need to identify the store object.");
+
             if (command.Schema == null)
             {
                 builder.Append(command.TableName);

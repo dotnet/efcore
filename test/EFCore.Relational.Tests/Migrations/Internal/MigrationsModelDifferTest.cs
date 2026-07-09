@@ -1943,8 +1943,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         x =>
                         {
                             x.ToTable("WorkflowType");
-                            x.Property<string>("Code");
-                            x.Property<string>("FirstStepCode");
+                            x.Property<string>("Code").IsRequired();
+                            x.Property<string>("FirstStepCode").IsRequired();
                             x.HasKey("Code");
                         });
 
@@ -1953,8 +1953,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         x =>
                         {
                             x.ToTable("WorkflowStep");
-                            x.Property<string>("Code");
-                            x.Property<string>("WorkflowTypeCode");
+                            x.Property<string>("Code").IsRequired();
+                            x.Property<string>("WorkflowTypeCode").IsRequired();
                             x.HasKey("Code");
                         });
 
