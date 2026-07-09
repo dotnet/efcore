@@ -1739,7 +1739,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             stringBuilder
                 .AppendLine(")")
                 .Append(".HasForeignKey(")
-                .Append(Code.Literal(GetFullName(foreignKey.DeclaringEntityType)))
+                .Append(Code.Literal(NormalizeOwnedEntityTypeName(GetFullName(foreignKey.DeclaringEntityType))))
                 .Append(", ")
                 .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
@@ -2228,5 +2228,21 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             + ownership.PrincipalToDependent!.Name
             + "#"
             + entityTypeName;
+    }
+
+    private static string NormalizeOwnedEntityTypeName(string entityTypeName)
+    {
+        var separatorIndex = entityTypeName.IndexOf('#');
+        if (separatorIndex < 0)
+        {
+            return entityTypeName;
+        }
+
+        var ownershipPrefix = entityTypeName[..(separatorIndex + 1)];
+        var remaining = entityTypeName[(separatorIndex + 1)..];
+
+        return remaining.StartsWith(ownershipPrefix, StringComparison.Ordinal)
+            ? ownershipPrefix + remaining[ownershipPrefix.Length..]
+            : entityTypeName;
     }
 }

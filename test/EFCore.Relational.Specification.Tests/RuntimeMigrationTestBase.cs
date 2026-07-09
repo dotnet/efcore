@@ -64,6 +64,49 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         }
     }
 
+    public class OwnedOneToOneRuntimeMigrationDbContext(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Cart> Carts { get; set; } = null!;
+        public DbSet<Product> Products { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Cart>().HasKey(e => e.Id);
+
+            modelBuilder.Entity<Cart>().OwnsMany(
+                e => e.CartProducts,
+                ownedBuilder =>
+                {
+                    ownedBuilder.WithOwner().HasForeignKey(nameof(CartProduct.CartId));
+                    ownedBuilder.HasKey(nameof(CartProduct.CartId), nameof(CartProduct.ProductId));
+
+                    ownedBuilder.HasOne(e => e.Product)
+                        .WithOne()
+                        .HasForeignKey<CartProduct>(e => e.ProductId);
+                });
+
+            modelBuilder.Entity<Product>();
+        }
+    }
+
+    public class Cart
+    {
+        public int Id { get; set; }
+        public List<CartProduct> CartProducts { get; set; } = [];
+    }
+
+    public class CartProduct
+    {
+        public int CartId { get; set; }
+        public int ProductId { get; set; }
+        public Product Product { get; set; } = null!;
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+    }
+
     #endregion
 
     #region Test Infrastructure
@@ -71,7 +114,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     protected RuntimeMigrationDbContext CreateContext()
         => Fixture.CreateContext();
 
-    protected IServiceScope CreateDesignTimeServices(RuntimeMigrationDbContext context)
+    protected IServiceScope CreateDesignTimeServices(DbContext context)
     {
         var serviceCollection = new ServiceCollection()
             .AddEntityFrameworkDesignTimeServices()
@@ -370,6 +413,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
         var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
         var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+        var databaseProvider = services.ServiceProvider.GetRequiredService<IDatabaseProvider>();
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
 
         var migration = scaffolder.ScaffoldMigration(
@@ -867,6 +911,75 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             Assert.NotNull(removedFiles.MigrationFile);
             Assert.False(File.Exists(removedFiles.MigrationFile));
             Assert.False(File.Exists(removedFiles.MetadataFile));
+        }
+        finally
+        {
+            if (Directory.Exists(tempDirectory))
+            {
+                try { Directory.Delete(tempDirectory, recursive: true); }
+                catch { /* Ignore cleanup errors */ }
+            }
+        }
+    }
+
+    [Fact]
+    public void RemoveMigration_preserves_valid_snapshot_with_owned_one_to_one()
+    {
+        var tempDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationOwnedOneToOne_" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(tempDirectory);
+
+            using var context = new OwnedOneToOneRuntimeMigrationDbContext(
+                Fixture.TestStore.AddProviderOptions(new DbContextOptionsBuilder<OwnedOneToOneRuntimeMigrationDbContext>()).Options);
+            using var services = CreateDesignTimeServices(context);
+
+            var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
+            var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
+            var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
+            var databaseProvider = services.ServiceProvider.GetRequiredService<IDatabaseProvider>();
+
+            var initialMigration = scaffolder.ScaffoldMigration(
+                "InitialMigration",
+                rootNamespace: "TestNamespace",
+                subNamespace: null,
+                language: "C#",
+                dryRun: true);
+            scaffolder.Save(tempDirectory, initialMigration, outputDir: null, dryRun: false);
+            migrationsAssembly.AddMigrations(compiler.CompileMigration(initialMigration, context.GetType()));
+
+            var dummyMigration = scaffolder.ScaffoldMigration(
+                "Dummy",
+                rootNamespace: "TestNamespace",
+                subNamespace: null,
+                language: "C#",
+                dryRun: true);
+            scaffolder.Save(tempDirectory, dummyMigration, outputDir: null, dryRun: false);
+            migrationsAssembly.AddMigrations(compiler.CompileMigration(dummyMigration, context.GetType()));
+
+            scaffolder.RemoveMigration(tempDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false, offline: true);
+
+            var snapshotPath = Directory.EnumerateFiles(tempDirectory, "*ModelSnapshot.cs", SearchOption.AllDirectories).Single();
+            var snapshotCode = string.Join(
+                Environment.NewLine,
+                File.ReadAllLines(snapshotPath).Where(line => !line.Contains("[DbContext(", StringComparison.Ordinal)));
+            var assembly = new BuildSource
+            {
+                Sources = { { "Snapshot.cs", snapshotCode } },
+                References =
+                {
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
+                    BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+                    BuildReference.ByName(databaseProvider.Name),
+                    BuildReference.ByPath(context.GetType().Assembly.Location)
+                }
+            }.BuildInMemory();
+
+            var modelSnapshotType = assembly.GetTypes().Single(t => typeof(ModelSnapshot).IsAssignableFrom(t));
+            var modelSnapshot = (ModelSnapshot)Activator.CreateInstance(modelSnapshotType)!;
+
+            Assert.Null(Record.Exception(() => modelSnapshot.Model));
         }
         finally
         {
