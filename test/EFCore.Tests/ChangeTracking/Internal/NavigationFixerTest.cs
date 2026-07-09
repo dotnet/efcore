@@ -116,6 +116,40 @@ public class NavigationFixerTest
     }
 
     [Fact]
+    public void Propagates_principal_key_value_when_case_changes_and_key_comparer_is_case_insensitive()
+    {
+        var model = BuildModel();
+        var contextServices = CreateContextServices(model);
+        model = contextServices.GetRequiredService<IModel>();
+        var manager = contextServices.GetRequiredService<IStateManager>();
+
+        var principal = new CaseInsensitiveCategory { Id = "test" };
+        var dependent = new CaseInsensitiveProduct { Id = 21, CategoryId = "test" };
+
+        var principalEntry = manager.StartTracking(manager.GetOrCreateEntry(principal));
+        var dependentEntry = manager.StartTracking(manager.GetOrCreateEntry(dependent));
+
+        var fixer = CreateNavigationFixer(contextServices);
+        principalEntry.SetEntityState(EntityState.Added);
+        dependentEntry.SetEntityState(EntityState.Added);
+
+        principal.Id = "TEST";
+
+        var principalType = model.FindEntityType(typeof(CaseInsensitiveCategory));
+        var idProperty = principalType.FindProperty(nameof(CaseInsensitiveCategory.Id));
+
+        fixer.KeyPropertyChanged(
+            principalEntry,
+            idProperty,
+            principalType.GetKeys().Where(k => k.Properties.Contains(idProperty)).ToList(),
+            [],
+            "test",
+            "TEST");
+
+        Assert.Equal("TEST", dependent.CategoryId);
+    }
+
+    [Fact]
     public void Does_fixup_of_one_to_one_relationship()
     {
         var contextServices = CreateContextServices();
@@ -1243,6 +1277,21 @@ public class NavigationFixerTest
         public ICollection<Product> Products { get; } = new List<Product>();
     }
 
+    private class CaseInsensitiveCategory
+    {
+        public string Id { get; set; }
+
+        public ICollection<CaseInsensitiveProduct> Products { get; } = new List<CaseInsensitiveProduct>();
+    }
+
+    private class CaseInsensitiveProduct
+    {
+        public int Id { get; set; }
+
+        public string CategoryId { get; set; }
+        public CaseInsensitiveCategory Category { get; set; }
+    }
+
     private class Product
     {
         public int Id { get; set; }
@@ -1298,6 +1347,39 @@ public class NavigationFixerTest
         public ProductReview Review { get; set; }
     }
 
+    private sealed class CaseInsensitiveKeyStringTypeMapping : CoreTypeMapping
+    {
+        public static readonly CaseInsensitiveKeyStringTypeMapping Default = new();
+
+        private static readonly ValueComparer<string> CaseInsensitiveKeyComparer = new(
+            (left, right) => StringComparer.OrdinalIgnoreCase.Equals(left, right),
+            value => value == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(value),
+            value => value);
+
+        private CaseInsensitiveKeyStringTypeMapping(CoreTypeMappingParameters parameters)
+            : base(parameters)
+        {
+        }
+
+        public CaseInsensitiveKeyStringTypeMapping()
+            : base(new CoreTypeMappingParameters(typeof(string), keyComparer: CaseInsensitiveKeyComparer))
+        {
+        }
+
+        public override CoreTypeMapping WithComposedConverter(
+            ValueConverter converter,
+            ValueComparer comparer = null,
+            ValueComparer keyComparer = null,
+            CoreTypeMapping elementMapping = null,
+            Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter jsonValueReaderWriter = null)
+            => new CaseInsensitiveKeyStringTypeMapping(
+                Parameters.WithComposedConverter(
+                    converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
+
+        protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
+            => new CaseInsensitiveKeyStringTypeMapping(parameters);
+    }
+
     private static IModel BuildModel()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -1314,6 +1396,12 @@ public class NavigationFixerTest
         builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
         builder.Entity<ProductDetail>();
+
+        builder.Entity<CaseInsensitiveCategory>(b =>
+        {
+            b.Property(e => e.Id).Metadata.SetTypeMapping(CaseInsensitiveKeyStringTypeMapping.Default);
+            b.HasMany(e => e.Products).WithOne(e => e.Category).HasForeignKey(e => e.CategoryId);
+        });
 
         builder.Entity<ProductPhoto>(b =>
         {
