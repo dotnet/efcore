@@ -986,8 +986,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             if (Directory.Exists(testMigrationDirectory))
             {
                 try { Directory.Delete(testMigrationDirectory, recursive: true); }
-                catch (IOException) { }
-                catch (UnauthorizedAccessException) { }
+                catch (IOException) { /* Ignore cleanup errors on temporary test folders. */ }
+                catch (UnauthorizedAccessException) { /* Ignore cleanup errors on temporary test folders. */ }
             }
         }
     }
