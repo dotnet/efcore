@@ -322,11 +322,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var dropReplacedSequenceOperations = new List<DropSequenceOperation>();
         var dropObsoleteSequenceOperations = new List<DropSequenceOperation>();
 
+        var createdSequenceIds = new HashSet<(string Name, string? Schema)>(
+            createSequenceOperations.Select(o => (o.Name, o.Schema)));
+
         foreach (var dropSequenceOperation in dropSequenceOperations)
         {
-            if (createSequenceOperations.Any(
-                    createSequenceOperation => createSequenceOperation.Name == dropSequenceOperation.Name
-                        && createSequenceOperation.Schema == dropSequenceOperation.Schema))
+            if (createdSequenceIds.Contains((dropSequenceOperation.Name, dropSequenceOperation.Schema)))
             {
                 dropReplacedSequenceOperations.Add(dropSequenceOperation);
             }
