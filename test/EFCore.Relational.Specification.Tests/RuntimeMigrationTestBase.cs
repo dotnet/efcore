@@ -925,7 +925,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     [Fact]
     public void RemoveMigration_preserves_valid_snapshot_with_owned_one_to_one()
     {
-        var testMigrationDirectory = Path.Combine(Path.GetTempPath(), "EFCoreRemoveMigrationOwnedOneToOne_" + Guid.NewGuid().ToString("N"));
+        var testMigrationDirectory = Path.Combine(Path.GetTempPath(), $"EFCoreRemoveMigrationOwnedOneToOne_{Guid.NewGuid():N}");
         try
         {
             Directory.CreateDirectory(testMigrationDirectory);
@@ -960,6 +960,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             scaffolder.RemoveMigration(testMigrationDirectory, rootNamespace: "TestNamespace", force: false, language: "C#", dryRun: false, offline: true);
 
             var snapshotPath = Directory.EnumerateFiles(testMigrationDirectory, "*ModelSnapshot.cs", SearchOption.AllDirectories).Single();
+            // Strip the generated [DbContext(typeof(...))] attribute to avoid compiling a test-provider-specific context type reference.
             var snapshotCode = string.Join(
                 Environment.NewLine,
                 File.ReadAllLines(snapshotPath).Where(line => !line.Contains("[DbContext(", StringComparison.Ordinal)));
