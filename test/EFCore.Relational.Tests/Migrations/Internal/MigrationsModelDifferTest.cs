@@ -4615,6 +4615,127 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             skipSourceConventions: true);
 
     [Fact]
+    public void Create_sequence_and_alter_columns_before_dropping_old_sequences()
+        => Execute(
+            source =>
+            {
+                source.HasSequence("DogSequence");
+                source.HasSequence("CatSequence");
+
+                source.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR DogSequence");
+                        b.HasKey("Id");
+                    });
+
+                source.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR CatSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.HasSequence("AnimalSequence");
+
+                target.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+
+                target.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            operations =>
+            {
+                static int IndexOf(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
+                    => operations.Select((o, i) => (Operation: o, Index: i)).Single(t => ReferenceEquals(t.Operation, operation)).Index;
+
+                var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
+                Assert.Equal("AnimalSequence", createSequenceOperation.Name);
+
+                var alterColumnOperations = operations.Where(o => o is AlterColumnOperation).ToList();
+                Assert.Equal(2, alterColumnOperations.Count);
+
+                var dropSequenceOperations = operations.OfType<DropSequenceOperation>().ToList();
+                Assert.Equal(2, dropSequenceOperations.Count);
+                Assert.Contains(dropSequenceOperations, o => o.Name == "DogSequence");
+                Assert.Contains(dropSequenceOperations, o => o.Name == "CatSequence");
+
+                var createSequenceIndex = IndexOf(operations, createSequenceOperation);
+                Assert.All(alterColumnOperations, o => Assert.True(IndexOf(operations, o) > createSequenceIndex));
+                Assert.All(dropSequenceOperations, o => Assert.True(IndexOf(operations, o) > IndexOf(operations, alterColumnOperations[0])));
+                Assert.All(dropSequenceOperations, o => Assert.True(IndexOf(operations, o) > IndexOf(operations, alterColumnOperations[1])));
+            });
+
+    [Fact]
+    public void Create_sequence_and_alter_columns_before_dropping_renamed_sequence()
+        => Execute(
+            source =>
+            {
+                source.HasSequence("AnimalSequence");
+
+                source.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+
+                source.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.HasSequence("PetSequence");
+
+                target.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR PetSequence");
+                        b.HasKey("Id");
+                    });
+
+                target.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR PetSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            operations =>
+            {
+                static int IndexOf(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
+                    => operations.Select((o, i) => (Operation: o, Index: i)).Single(t => ReferenceEquals(t.Operation, operation)).Index;
+
+                var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
+                Assert.Equal("PetSequence", createSequenceOperation.Name);
+
+                var alterColumnOperations = operations.Where(o => o is AlterColumnOperation).ToList();
+                Assert.Equal(2, alterColumnOperations.Count);
+
+                var dropSequenceOperation = Assert.IsType<DropSequenceOperation>(operations.Single(o => o is DropSequenceOperation));
+                Assert.Equal("AnimalSequence", dropSequenceOperation.Name);
+
+                var createSequenceIndex = IndexOf(operations, createSequenceOperation);
+                Assert.All(alterColumnOperations, o => Assert.True(IndexOf(operations, o) > createSequenceIndex));
+                Assert.True(IndexOf(operations, dropSequenceOperation) > IndexOf(operations, alterColumnOperations[0]));
+                Assert.True(IndexOf(operations, dropSequenceOperation) > IndexOf(operations, alterColumnOperations[1]));
+            });
+
+    [Fact]
     public void Restart_altered_sequence()
         => Execute(
             source => source.HasSequence<int>("Golf", "dbo")
