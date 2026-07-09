@@ -4668,9 +4668,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Contains(dropSequenceOperations, o => o.Name == "CatSequence");
 
                 var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
+                var firstAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations[0]);
+                var secondAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations[1]);
                 Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
-                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > FindOperationIndex(operations, alterColumnOperations[0])));
-                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > FindOperationIndex(operations, alterColumnOperations[1])));
+                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > firstAlterColumnIndex));
+                Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > secondAlterColumnIndex));
             });
 
     [Fact]
@@ -4724,13 +4726,26 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("AnimalSequence", dropSequenceOperation.Name);
 
                 var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
+                var firstAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations[0]);
+                var secondAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations[1]);
+                var dropSequenceIndex = FindOperationIndex(operations, dropSequenceOperation);
                 Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
-                Assert.True(FindOperationIndex(operations, dropSequenceOperation) > FindOperationIndex(operations, alterColumnOperations[0]));
-                Assert.True(FindOperationIndex(operations, dropSequenceOperation) > FindOperationIndex(operations, alterColumnOperations[1]));
+                Assert.True(dropSequenceIndex > firstAlterColumnIndex);
+                Assert.True(dropSequenceIndex > secondAlterColumnIndex);
             });
 
     private static int FindOperationIndex(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
-        => operations.Select((o, i) => (Operation: o, Index: i)).Single(t => ReferenceEquals(t.Operation, operation)).Index;
+    {
+        for (var i = 0; i < operations.Count; i++)
+        {
+            if (ReferenceEquals(operations[i], operation))
+            {
+                return i;
+            }
+        }
+
+        throw new InvalidOperationException("Operation was not found in the operations list.");
+    }
 
     [Fact]
     public void Restart_altered_sequence()
