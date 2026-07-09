@@ -2296,6 +2296,24 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.DbQueryConcurrencyException : System.Exception",
+      "Methods": [
+        {
+          "Member": "DbQueryConcurrencyException();"
+        },
+        {
+          "Member": "DbQueryConcurrencyException(string message);"
+        },
+        {
+          "Member": "DbQueryConcurrencyException(string message, System.Exception? innerException);"
+        },
+        {
+          "Member": "DbQueryConcurrencyException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);",
+          "Stage": "Obsolete"
+        }
+      ]
+    },
+    {
       "Type": "abstract class Microsoft.EntityFrameworkCore.Diagnostics.DbTransactionInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.IDbTransactionInterceptor, Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor",
       "Methods": [
         {
@@ -17191,6 +17209,9 @@
         },
         {
           "Member": "static string SetOperationsNotAllowedAfterClientEvaluation { get; }"
+        },
+        {
+          "Member": "static string SplitQueryConcurrentModification { get; }"
         },
         {
           "Member": "static string SplitQueryString { get; }"
