@@ -2253,11 +2253,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             return entityTypeName;
         }
 
-        remaining = remaining[ownershipPrefix.Length..];
-        if (remaining.StartsWith(ownershipPrefix, StringComparison.Ordinal))
+        do
         {
             remaining = remaining[ownershipPrefix.Length..];
         }
+        while (remaining.StartsWith(ownershipPrefix, StringComparison.Ordinal));
 
         return string.Concat(ownershipPrefix, remaining);
     }
