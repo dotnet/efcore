@@ -4298,6 +4298,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.
+        /// </summary>
+        public static EventDefinition<string, string> LogInconsistentOwnedData(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.InconsistentOwnedDataWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.InconsistentOwnedDataWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.InconsistentOwnedDataWarning,
+                            _resourceManager.GetString("LogInconsistentOwnedData")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance(IDiagnosticsLogger logger)

@@ -187,6 +187,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
                 }
             }
+            else if (trackingQuery
+                && relatedEntity != null
+                && navigation is INavigation { ForeignKey.IsOwnership: true })
+            {
+                // The owner entity is null (e.g. due to a null required property), but the owned entity was
+                // materialized and tracked. Detach it and log a warning about inconsistent data.
+                queryContext.IgnoreOrphanedOwnedEntity(navigation, relatedEntity);
+            }
         }
 
         /// <summary>

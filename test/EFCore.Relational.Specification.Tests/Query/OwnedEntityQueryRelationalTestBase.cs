@@ -613,6 +613,86 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
+    #region 38223
+
+    [Fact]
+    public virtual async Task Inconsistent_owned_entity_data_logs_warning_and_does_not_cause_identity_conflict()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38223>(
+            shouldLogCategory: c => c == DbLoggerCategory.Query.Name,
+            onConfiguring: b => b.ConfigureWarnings(c => c.Log(CoreEventId.InconsistentOwnedDataWarning)),
+            seed: async c =>
+            {
+                // Insert a valid entity via EF Core, then corrupt Outer's required property to NULL to
+                // create inconsistent data: Inner appears present but Outer's required property is null.
+                var rootEntity = new Context38223.RootEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Outer = new Context38223.Outer
+                    {
+                        RequiredProperty = 1,
+                        Inner = new Context38223.Inner { InnerProperty = 42 }
+                    }
+                };
+                c.Add(rootEntity);
+                await c.SaveChangesAsync();
+
+                await c.Database.ExecuteSqlRawAsync(
+                    "UPDATE RootEntity SET Outer_RequiredProperty = NULL WHERE Id = '" + rootEntity.Id.ToString().ToUpperInvariant() + "'");
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        ListLoggerFactory.Clear();
+
+        var root = await context.Set<Context38223.RootEntity>().SingleAsync();
+
+        Assert.NotNull(root);
+        Assert.Null(root.Outer);
+
+        Assert.Contains(
+            ListLoggerFactory.Log,
+            l => l.Id == CoreEventId.InconsistentOwnedDataWarning && l.Level == LogLevel.Warning);
+
+        // Replacing the owned entity should not throw an identity conflict exception
+        root.Outer = new Context38223.Outer
+        {
+            RequiredProperty = 1,
+            Inner = new Context38223.Inner { InnerProperty = 2 }
+        };
+
+        await context.SaveChangesAsync();
+    }
+
+    protected class Context38223(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<RootEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.OwnsOne(e => e.Outer, outer => outer.OwnsOne(o => o.Inner));
+            });
+
+        public class RootEntity
+        {
+            public Guid Id { get; set; }
+            public Outer Outer { get; set; }
+        }
+
+        public class Outer
+        {
+            public required int RequiredProperty { get; set; }
+            public required Inner Inner { get; set; }
+        }
+
+        public class Inner
+        {
+            public required int InnerProperty { get; set; }
+        }
+    }
+
+    #endregion
+
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)

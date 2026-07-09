@@ -2932,6 +2932,45 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.InconsistentOwnedDataWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="navigation">The ownership navigation.</param>
+    public static void InconsistentOwnedData(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        INavigationBase navigation)
+    {
+        var definition = CoreResources.LogInconsistentOwnedData(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                navigation.TargetEntityType.DisplayName(),
+                navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new NavigationBaseEventData(
+                definition,
+                InconsistentOwnedData,
+                navigation);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string InconsistentOwnedData(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (NavigationBaseEventData)payload;
+        return d.GenerateMessage(
+            p.NavigationBase.TargetEntityType.DisplayName(),
+            p.NavigationBase.DeclaringEntityType.ShortName() + "." + p.NavigationBase.Name);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.StartedTracking" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

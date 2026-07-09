@@ -146,4 +146,22 @@ public abstract class QueryContext
             in ISnapshot snapshot)
         // InitializeStateManager will populate the field before calling here
         => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+
+    /// <summary>
+    ///     Discards a tracked owned entity that has no owner (i.e. the owner was null when loaded from
+    ///     the database), and logs a warning about potentially inconsistent data in the database.
+    /// </summary>
+    /// <param name="navigation">The ownership navigation that was being included.</param>
+    /// <param name="entity">The owned entity instance to discard.</param>
+    public virtual void IgnoreOrphanedOwnedEntity(INavigationBase navigation, object entity)
+    {
+        // InitializeStateManager will populate the field before calling here
+        var entry = _stateManager!.TryGetEntry(entity);
+        if (entry != null)
+        {
+            entry.SetEntityState(EntityState.Detached);
+        }
+
+        Dependencies.QueryLogger.InconsistentOwnedData(navigation);
+    }
 }

@@ -2970,6 +2970,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId IncompatibleMatchingForeignKeyProperties"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId InconsistentOwnedDataWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId InvalidIncludePathError"
         },
         {
@@ -3225,6 +3228,9 @@
         },
         {
           "Member": "static void IncompatibleMatchingForeignKeyProperties(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model> diagnostics, string dependentToPrincipalNavigationSpecification, string principalToDependentNavigationSpecification, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> foreignKeyProperties, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> principalKeyProperties);"
+        },
+        {
+          "Member": "static void InconsistentOwnedData(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
         },
         {
           "Member": "static void InvalidIncludePathError(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, string navigationChain, string navigationName);"
@@ -21669,6 +21675,9 @@
         },
         {
           "Member": "virtual void InitializeStateManager(bool standAlone = false);"
+        },
+        {
+          "Member": "virtual void IgnoreOrphanedOwnedEntity(Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation, object entity);"
         },
         {
           "Member": "virtual void SetNavigationIsLoaded(object entity, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
