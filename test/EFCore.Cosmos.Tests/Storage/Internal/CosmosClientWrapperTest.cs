@@ -36,11 +36,11 @@ public class CosmosClientWrapperTest
             context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
             context.GetService<IDbContextOptions>());
 
-        var query = new CosmosSqlQuery("SELECT VALUE c", Array.Empty<SqlParameter>());
+        var query = new CosmosSqlQuery("SELECT VALUE r FROM Roots r", Array.Empty<SqlParameter>());
         var sessionTokenStorage = new SessionTokenStorage(
             TestContainerName,
             [TestContainerName],
-            Infrastructure.SessionTokenManagementMode.FullyAutomatic);
+            Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.FullyAutomatic);
 
         await using var enumerator = wrapper
             .ExecuteSqlQueryAsync(TestContainerName, PartitionKey.None, query, sessionTokenStorage)
