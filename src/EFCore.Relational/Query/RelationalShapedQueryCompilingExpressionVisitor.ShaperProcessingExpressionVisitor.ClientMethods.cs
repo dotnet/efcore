@@ -22,6 +22,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     [EntityFrameworkInternal]
     public sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
+        private const int AscendingSortOrder = 1;
+        private const int DescendingSortOrder = -1;
+
         private static readonly MethodInfo ThrowReadValueExceptionMethod =
             typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
@@ -1378,7 +1381,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             object[] parentIdentifier,
             object[] childIdentifier)
         {
-            if (dataReaderContext.ParentIdentifierSortOrder is not (1 or -1))
+            if (dataReaderContext.ParentIdentifierSortOrder is not (AscendingSortOrder or DescendingSortOrder))
             {
                 return false;
             }
@@ -1389,7 +1392,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return false;
             }
 
-            return dataReaderContext.ParentIdentifierSortOrder == 1
+            return dataReaderContext.ParentIdentifierSortOrder == AscendingSortOrder
                 ? childToParentComparison < 0
                 : childToParentComparison > 0;
         }

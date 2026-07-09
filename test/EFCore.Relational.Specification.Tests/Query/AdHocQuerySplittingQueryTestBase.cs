@@ -456,23 +456,14 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             Id = id;
 
             if (id == 20
-                && InsertConcurrentEntity)
+                && Context33826.InsertConcurrentEntity)
             {
-                InsertConcurrentEntity = false;
+                Context33826.InsertConcurrentEntity = false;
 
-                using var context = ConcurrentContextFactory();
+                using var context = Context33826.ConcurrentContextFactory();
                 context.Blogs.Add(new Blog33826(15, [new Post33826(5, "Concurrent")]));
                 context.SaveChanges();
             }
-        }
-
-        public static Func<Context33826> ConcurrentContextFactory
-            => Context33826.ConcurrentContextFactory;
-
-        public static bool InsertConcurrentEntity
-        {
-            get => Context33826.InsertConcurrentEntity;
-            set => Context33826.InsertConcurrentEntity = value;
         }
 
         public int Id { get; private init; }
