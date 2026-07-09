@@ -4668,10 +4668,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Contains(dropSequenceOperations, o => o.Name == "CatSequence");
 
                 var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
-                var firstAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations.First());
-                var secondAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations.Last());
                 Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
-                var lastAlterColumnIndex = Math.Max(firstAlterColumnIndex, secondAlterColumnIndex);
+                var lastAlterColumnIndex = alterColumnOperations.Max(o => FindOperationIndex(operations, o));
                 Assert.All(dropSequenceOperations, o => Assert.True(FindOperationIndex(operations, o) > lastAlterColumnIndex));
             });
 
@@ -4726,12 +4724,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("AnimalSequence", dropSequenceOperation.Name);
 
                 var createSequenceIndex = FindOperationIndex(operations, createSequenceOperation);
-                var firstAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations.First());
-                var secondAlterColumnIndex = FindOperationIndex(operations, alterColumnOperations.Last());
                 var dropSequenceIndex = FindOperationIndex(operations, dropSequenceOperation);
                 Assert.All(alterColumnOperations, o => Assert.True(FindOperationIndex(operations, o) > createSequenceIndex));
-                Assert.True(dropSequenceIndex > firstAlterColumnIndex);
-                Assert.True(dropSequenceIndex > secondAlterColumnIndex);
+                Assert.All(alterColumnOperations, o => Assert.True(dropSequenceIndex > FindOperationIndex(operations, o)));
             });
 
     private static int FindOperationIndex(IReadOnlyList<MigrationOperation> operations, MigrationOperation operation)
