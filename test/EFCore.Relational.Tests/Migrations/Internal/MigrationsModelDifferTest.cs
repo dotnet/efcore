@@ -12625,6 +12625,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [Fact]
+    public void Add_table_with_same_name_but_different_schema_does_not_drop_existing_foreign_key_in_down()
+        => Execute(
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "BaseReference",
+                    x =>
+                    {
+                        x.ToTable("BaseReference");
+                        x.Property<int>("Id");
+                    });
+
+                modelBuilder.Entity(
+                    "First.OtherEntity",
+                    x =>
+                    {
+                        x.ToTable("OtherEntity", "first");
+                        x.Property<int>("Id");
+                        x.Property<int>("BaseReferenceId");
+                        x.HasOne("BaseReference").WithMany().HasForeignKey("BaseReferenceId");
+                    });
+            },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Second.OtherEntity",
+                    x =>
+                    {
+                        x.ToTable("OtherEntity", "second");
+                        x.Property<int>("Id");
+                        x.Property<int>("BaseReferenceId");
+                        x.HasOne("BaseReference").WithMany().HasForeignKey("BaseReferenceId");
+                    });
+            },
+            upOperations =>
+            {
+                var createTableOperation = Assert.IsType<CreateTableOperation>(
+                    Assert.Single(upOperations, o => o is CreateTableOperation));
+                var foreignKey = Assert.Single(createTableOperation.ForeignKeys);
+
+                Assert.Equal("OtherEntity", createTableOperation.Name);
+                Assert.Equal("second", createTableOperation.Schema);
+                Assert.Equal("FK_OtherEntity_BaseReference_BaseReferenceId", foreignKey.Name);
+            },
+            downOperations =>
+            {
+                var dropTableOperation = Assert.IsType<DropTableOperation>(
+                    Assert.Single(downOperations, o => o is DropTableOperation));
+
+                Assert.Equal("OtherEntity", dropTableOperation.Name);
+                Assert.Equal("second", dropTableOperation.Schema);
+                Assert.DoesNotContain(downOperations, o => o is DropForeignKeyOperation);
+            });
+
+    [Fact]
     public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_1()
         => Execute(
             modelBuilder => modelBuilder

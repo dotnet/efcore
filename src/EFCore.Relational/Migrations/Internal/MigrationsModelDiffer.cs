@@ -1399,6 +1399,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Add,
             Remove,
             (s, t, context) => s.Name == t.Name
+                && s.Table == context.FindSource(t.Table)
                 && s.IsExcludedFromMigrations == t.IsExcludedFromMigrations
                 && s.Columns.Select(c => c.Name).SequenceEqual(
                     t.Columns.Select(c => context.FindSource(c)?.Name))
