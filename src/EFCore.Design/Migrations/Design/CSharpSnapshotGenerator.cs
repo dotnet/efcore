@@ -2238,6 +2238,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             return entityTypeName;
         }
 
+        // Normalize an accidentally repeated ownership prefix (for example Owner.Nav#Owner.Nav#Owned -> Owner.Nav#Owned)
+        // so generated HasForeignKey calls point to the same owned entity type name as the surrounding OwnsOne/OwnsMany block.
         var ownershipPrefix = entityTypeName[..(separatorIndex + 1)];
         var remaining = entityTypeName[(separatorIndex + 1)..];
 
