@@ -413,7 +413,6 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
         var scaffolder = services.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
         var compiler = services.ServiceProvider.GetRequiredService<IMigrationCompiler>();
         var migrationsAssembly = services.ServiceProvider.GetRequiredService<IMigrationsAssembly>();
-        var databaseProvider = services.ServiceProvider.GetRequiredService<IDatabaseProvider>();
         var migrator = services.ServiceProvider.GetRequiredService<IMigrator>();
 
         var migration = scaffolder.ScaffoldMigration(
@@ -987,7 +986,8 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             if (Directory.Exists(testMigrationDirectory))
             {
                 try { Directory.Delete(testMigrationDirectory, recursive: true); }
-                catch { /* Ignore cleanup errors */ }
+                catch (IOException) { }
+                catch (UnauthorizedAccessException) { }
             }
         }
     }
