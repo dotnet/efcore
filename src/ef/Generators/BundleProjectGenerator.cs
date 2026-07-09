@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Generators
   <ItemGroup>
     <PackageReference Include=""Microsoft.EntityFrameworkCore.Design"" Version=""");
             this.Write(this.ToStringHelper.ToStringWithCulture(EFCoreVersion));
-            this.Write("\" />\r\n  </ItemGroup>\r\n\r\n  <ItemGroup>\r\n    <ProjectReference Include=\"");
+            this.Write("\" Condition=\"'$(ManagePackageVersionsCentrally)' != 'true'\" />\r\n    <PackageReference Include=\"Microsoft.EntityFrameworkCore.Design\" Condition=\"'$(ManagePackageVersionsCentrally)' == 'true'\" />\r\n  </ItemGroup>\r\n\r\n  <ItemGroup>\r\n    <ProjectReference Include=\"");
             this.Write(this.ToStringHelper.ToStringWithCulture(StartupProject));
             this.Write("\">\r\n      <!-- HACK: Work around dotnet/sdk#10566 -->\r\n      <GlobalPropertiesToR" +
                     "emove>SelfContained</GlobalPropertiesToRemove>\r\n    </ProjectReference>\r\n    ");
