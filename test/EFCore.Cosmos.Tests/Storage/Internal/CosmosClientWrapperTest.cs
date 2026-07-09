@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 public class CosmosClientWrapperTest
 {
-    private const string CosmosDatabaseName = "_";
+    private const string PlaceholderDatabaseName = "_";
+    private const string TestContainerName = "container";
 
     [Fact]
     public async Task ExecuteSqlQueryAsync_retries_when_response_status_is_transient_failure()
@@ -23,7 +24,7 @@ public class CosmosClientWrapperTest
                 .UseCosmos(
                     CosmosTestEnvironment.DefaultConnection,
                     CosmosTestEnvironment.AuthToken,
-                    CosmosDatabaseName)
+                    PlaceholderDatabaseName)
                 .Options);
 
         using var feedIterator = new TestFeedIterator(
@@ -37,12 +38,12 @@ public class CosmosClientWrapperTest
 
         var query = new CosmosSqlQuery("SELECT VALUE c", Array.Empty<SqlParameter>());
         var sessionTokenStorage = new SessionTokenStorage(
-            "container",
-            ["container"],
+            TestContainerName,
+            [TestContainerName],
             Infrastructure.SessionTokenManagementMode.FullyAutomatic);
 
         await using var enumerator = wrapper
-            .ExecuteSqlQueryAsync("container", PartitionKey.None, query, sessionTokenStorage)
+            .ExecuteSqlQueryAsync(TestContainerName, PartitionKey.None, query, sessionTokenStorage)
             .GetAsyncEnumerator();
 
         var movedNext = await enumerator.MoveNextAsync();
@@ -144,10 +145,10 @@ public class CosmosClientWrapperTest
         return modelBuilder.FinalizeModel();
     }
 
-    private static ResponseMessage CreateResponseMessage(HttpStatusCode statusCode, string content = "{}")
+    private static ResponseMessage CreateResponseMessage(HttpStatusCode statusCode)
         => new(statusCode)
         {
-            Content = new MemoryStream(Encoding.UTF8.GetBytes(content)),
+            Content = Stream.Null,
             Diagnostics = new TestCosmosDiagnostics()
         };
 
