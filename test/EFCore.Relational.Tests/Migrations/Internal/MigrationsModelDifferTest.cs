@@ -1438,6 +1438,80 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [Fact]
+    public void Foreign_key_to_entity_split_principal_points_to_main_table()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                        x.SplitToTable(
+                            "Address", t =>
+                            {
+                                t.Property<string>("City");
+                            });
+                    });
+
+                modelBuilder.Entity(
+                    "Management",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("CompanyId");
+                        x.HasOne("Company").WithMany().HasForeignKey("CompanyId");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Company", m.Name);
+                    Assert.Empty(m.ForeignKeys);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Management", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                },
+                o =>
+                {
+                    Assert.IsType<CreateIndexOperation>(o);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Management", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Company", m.Name);
+                }));
+
+    [Fact]
     public void Add_owned_types()
         => Execute(
             _ => { },

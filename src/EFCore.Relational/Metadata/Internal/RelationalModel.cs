@@ -2078,7 +2078,9 @@ public class RelationalModel : Annotatable, IRelationalModel
             var includeInherited = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
             foreach (var foreignKey in includeInherited ? entityType.GetForeignKeys() : entityType.GetDeclaredForeignKeys())
             {
-                foreach (var principalMapping in GetTableMappings(foreignKey.PrincipalEntityType).Reverse())
+                foreach (var principalMapping in GetTableMappings(foreignKey.PrincipalEntityType)
+                    .Where(m => m.IsSplitEntityTypePrincipal != false)
+                    .Reverse())
                 {
                     var principalTable = (Table)principalMapping.Table;
                     var principalStoreObject = StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema);
