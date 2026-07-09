@@ -4656,9 +4656,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             operations =>
             {
-                var operationIndexes = operations
-                    .Select((o, i) => (Operation: o, Index: i))
-                    .ToDictionary(p => p.Operation, p => p.Index, ReferenceEqualityComparer.Instance);
+                var operationIndexes = CreateOperationIndexes(operations);
 
                 var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
                 Assert.Equal("AnimalSequence", createSequenceOperation.Name);
@@ -4718,9 +4716,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             },
             operations =>
             {
-                var operationIndexes = operations
-                    .Select((o, i) => (Operation: o, Index: i))
-                    .ToDictionary(p => p.Operation, p => p.Index, ReferenceEqualityComparer.Instance);
+                var operationIndexes = CreateOperationIndexes(operations);
 
                 var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
                 Assert.Equal("PetSequence", createSequenceOperation.Name);
@@ -4736,6 +4732,11 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.All(alterColumnOperations, o => Assert.True(operationIndexes[o] > createSequenceIndex));
                 Assert.All(alterColumnOperations, o => Assert.True(dropSequenceIndex > operationIndexes[o]));
             });
+
+    private static Dictionary<MigrationOperation, int> CreateOperationIndexes(IReadOnlyList<MigrationOperation> operations)
+        => operations
+            .Select((o, i) => (Operation: o, Index: i))
+            .ToDictionary(p => p.Operation, p => p.Index);
 
     [Fact]
     public void Restart_altered_sequence()
