@@ -469,12 +469,24 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
+                UpdateParentIdentifierSortOrder(dataReaderContext, splitQueryCollectionContext.ParentIdentifier);
+
                 while (dataReaderContext.HasNext ?? dbDataReader.Read())
                 {
+                    var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
                     if (!CompareIdentifiers(
                             identifierValueComparers,
-                            splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
+                            splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                     {
+                        if (ShouldSkipOutOfOrderChild(
+                                dataReaderContext,
+                                splitQueryCollectionContext.ParentIdentifier,
+                                currentChildIdentifier))
+                        {
+                            dataReaderContext.HasNext = null;
+                            continue;
+                        }
+
                         dataReaderContext.HasNext = true;
 
                         return;
@@ -568,12 +580,24 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
+                UpdateParentIdentifierSortOrder(dataReaderContext, splitQueryCollectionContext.ParentIdentifier);
+
                 while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                 {
+                    var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
                     if (!CompareIdentifiers(
                             identifierValueComparers,
-                            splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
+                            splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                     {
+                        if (ShouldSkipOutOfOrderChild(
+                                dataReaderContext,
+                                splitQueryCollectionContext.ParentIdentifier,
+                                currentChildIdentifier))
+                        {
+                            dataReaderContext.HasNext = null;
+                            continue;
+                        }
+
                         dataReaderContext.HasNext = true;
 
                         return;
@@ -1334,6 +1358,96 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             return true;
+        }
+
+        private static void UpdateParentIdentifierSortOrder(SplitQueryDataReaderContext dataReaderContext, object[] parentIdentifier)
+        {
+            if (dataReaderContext.ParentIdentifierSortOrder is null
+                && dataReaderContext.PreviousParentIdentifier != null)
+            {
+                dataReaderContext.ParentIdentifierSortOrder = TryCompareIdentifiers(
+                    parentIdentifier,
+                    dataReaderContext.PreviousParentIdentifier);
+            }
+
+            dataReaderContext.PreviousParentIdentifier = parentIdentifier;
+        }
+
+        private static bool ShouldSkipOutOfOrderChild(
+            SplitQueryDataReaderContext dataReaderContext,
+            object[] parentIdentifier,
+            object[] childIdentifier)
+        {
+            if (dataReaderContext.ParentIdentifierSortOrder is not (1 or -1))
+            {
+                return false;
+            }
+
+            var childToParentComparison = TryCompareIdentifiers(childIdentifier, parentIdentifier);
+            if (childToParentComparison is not (< 0 or > 0))
+            {
+                return false;
+            }
+
+            return dataReaderContext.ParentIdentifierSortOrder == 1
+                ? childToParentComparison < 0
+                : childToParentComparison > 0;
+        }
+
+        private static int? TryCompareIdentifiers(object[] left, object[] right)
+        {
+            for (var i = 0; i < left.Length; i++)
+            {
+                var valueComparison = TryCompareIdentifierValues(left[i], right[i]);
+                if (valueComparison == null)
+                {
+                    return null;
+                }
+
+                if (valueComparison != 0)
+                {
+                    return valueComparison;
+                }
+            }
+
+            return 0;
+        }
+
+        private static int? TryCompareIdentifierValues(object? left, object? right)
+        {
+            if (left == null)
+            {
+                return right == null ? 0 : -1;
+            }
+
+            if (right == null)
+            {
+                return 1;
+            }
+
+            if (left is IComparable leftComparable)
+            {
+                try
+                {
+                    return leftComparable.CompareTo(right);
+                }
+                catch (ArgumentException)
+                {
+                }
+            }
+
+            if (right is IComparable rightComparable)
+            {
+                try
+                {
+                    return -rightComparable.CompareTo(left);
+                }
+                catch (ArgumentException)
+                {
+                }
+            }
+
+            return null;
         }
     }
 }

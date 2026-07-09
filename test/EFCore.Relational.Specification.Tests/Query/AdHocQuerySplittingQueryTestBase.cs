@@ -363,6 +363,131 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
     #endregion
 
+    #region 33826
+
+    [Theory, InlineData(true), InlineData(false)]
+    public virtual async Task Split_include_collection_is_not_dropped_when_concurrent_unrelated_entity_is_inserted(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33826>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
+            createTestStore: CreateTestStore33826);
+
+        Context33826.ConcurrentContextFactory = contextFactory.CreateDbContext;
+        Context33826.InsertConcurrentEntity = true;
+
+        try
+        {
+            using var context = contextFactory.CreateDbContext();
+            var query = context.Blogs
+                .Include(b => b.Posts)
+                .AsSplitQuery()
+                .OrderByDescending(b => b.Id);
+
+            var blogs = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Collection(
+                blogs,
+                blog =>
+                {
+                    Assert.Equal(20, blog.Id);
+                    Assert.Equal(["C", "D"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                },
+                blog =>
+                {
+                    Assert.Equal(10, blog.Id);
+                    Assert.Equal(["A", "B"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                });
+        }
+        finally
+        {
+            Context33826.InsertConcurrentEntity = false;
+            Context33826.ConcurrentContextFactory = null;
+        }
+    }
+
+    protected virtual TestStore CreateTestStore33826()
+    {
+        var testStore = (RelationalTestStore)CreateTestStore();
+        testStore.UseConnectionString = true;
+        return testStore;
+    }
+
+    protected class Context33826(DbContextOptions options) : DbContext(options)
+    {
+        public static Func<Context33826> ConcurrentContextFactory { get; set; }
+        public static bool InsertConcurrentEntity { get; set; }
+
+        public DbSet<Blog33826> Blogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blog33826>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.HasMany(e => e.Posts).WithOne().HasForeignKey(e => e.BlogId);
+                });
+            modelBuilder.Entity<Post33826>().Property(e => e.Id).ValueGeneratedNever();
+        }
+
+        public Task SeedAsync()
+        {
+            Blogs.AddRange(
+                new Blog33826(10, [new Post33826(1, "A"), new Post33826(2, "B")]),
+                new Blog33826(20, [new Post33826(3, "C"), new Post33826(4, "D")]));
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected sealed class Blog33826
+    {
+        public Blog33826(int id, IEnumerable<Post33826> posts)
+        {
+            Id = id;
+            Posts = posts.ToList();
+        }
+
+        private Blog33826(int id)
+        {
+            Id = id;
+
+            if (id == 20
+                && InsertConcurrentEntity)
+            {
+                InsertConcurrentEntity = false;
+
+                using var context = ConcurrentContextFactory();
+                context.Blogs.Add(new Blog33826(15, [new Post33826(5, "Concurrent")]));
+                context.SaveChanges();
+            }
+        }
+
+        public static Func<Context33826> ConcurrentContextFactory
+            => Context33826.ConcurrentContextFactory;
+
+        public static bool InsertConcurrentEntity
+        {
+            get => Context33826.InsertConcurrentEntity;
+            set => Context33826.InsertConcurrentEntity = value;
+        }
+
+        public int Id { get; private init; }
+        public List<Post33826> Posts { get; private init; } = [];
+    }
+
+    protected sealed class Post33826(int id, string name)
+    {
+        public int Id { get; private init; } = id;
+        public string Name { get; private init; } = name;
+        public int BlogId { get; private set; }
+    }
+
+    #endregion
+
     #region 34728
 
     [Theory, InlineData(true), InlineData(false)]
