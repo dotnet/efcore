@@ -274,7 +274,19 @@ public sealed partial class InternalEntityEntry : InternalEntryBase, IUpdateEntr
 
         if (EntityState == EntityState.Detached)
         {
-            StateManager.StartTracking(this);
+            try
+            {
+                StateManager.StartTracking(this);
+            }
+            catch
+            {
+                // StartTracking failed (e.g. identity conflict). FireStateChanging already moved this entry
+                // from the detached bucket to the newState bucket in the reference map. Roll that back so
+                // the entry is not left as a "ghost" in the wrong bucket, which would corrupt SaveChanges
+                // return values and leak memory.
+                StateManager.RevertStartTracking(this, newState);
+                throw;
+            }
         }
     }
 

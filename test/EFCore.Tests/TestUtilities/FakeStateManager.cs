@@ -172,6 +172,9 @@ public class FakeStateManager : IStateManager
     public InternalEntityEntry StartTracking(InternalEntityEntry entry)
         => throw new NotImplementedException();
 
+    public void RevertStartTracking(InternalEntityEntry entry, EntityState requestedState)
+        => throw new NotImplementedException();
+
     public void StopTracking(InternalEntityEntry entry, EntityState oldState)
         => throw new NotImplementedException();
 
