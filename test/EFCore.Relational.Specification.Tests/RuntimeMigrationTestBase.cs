@@ -963,7 +963,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
             // Strip the generated [DbContext(typeof(...))] attribute to avoid compiling a test-provider-specific context type reference.
             var snapshotCode = Regex.Replace(
                 File.ReadAllText(snapshotPath),
-                @"^\s*\[DbContext\(.*\)\]\s*\r?\n",
+                @"^\s*\[DbContext\(.*\)\]\s*\R?",
                 string.Empty,
                 RegexOptions.Multiline);
             var assembly = new BuildSource
