@@ -1423,6 +1423,8 @@ public class NavigationFixer : INavigationFixer
             var dependentValue = dependentEntry[dependentProperty];
 
             if (!PrincipalValueEqualsDependentValue(principalProperty, dependentValue, principalValue)
+                || (principalProperty.ClrType == typeof(string)
+                    && StringValuesAreNotOrdinallyEqual(dependentValue, principalValue))
                 || (dependentEntry.IsConceptualNull(dependentProperty)
                     && principalValue != null))
             {
@@ -1450,6 +1452,11 @@ public class NavigationFixer : INavigationFixer
         object? dependentValue,
         object? principalValue)
         => principalProperty.GetKeyValueComparer().Equals(dependentValue, principalValue);
+
+    private static bool StringValuesAreNotOrdinallyEqual(object? dependentValue, object? principalValue)
+        => dependentValue is string dependentString
+            && principalValue is string principalString
+            && !string.Equals(dependentString, principalString, StringComparison.Ordinal);
 
     private void ConditionallyNullForeignKeyProperties(
         InternalEntityEntry dependentEntry,
