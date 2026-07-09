@@ -925,7 +925,7 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     [Fact]
     public void RemoveMigration_preserves_valid_snapshot_with_owned_one_to_one()
     {
-        var testMigrationDirectory = Path.Combine(Path.GetTempPath(), $"EFCoreRemoveMigrationOwnedOneToOne_{Guid.NewGuid():N}");
+        var testMigrationDirectory = Path.Combine(Path.GetTempPath(), $"EFMigOwnedOneToOne_{Guid.NewGuid():N}");
         try
         {
             Directory.CreateDirectory(testMigrationDirectory);
