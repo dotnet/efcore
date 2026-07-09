@@ -567,27 +567,30 @@ FakeEntity [Deleted]"
 
         var testId = Guid.NewGuid();
 
-        var addedBasic = stateManager.GetOrCreateEntry(
+        var modifiedBasic = stateManager.GetOrCreateEntry(
             new CompositeKeyEntity
             {
                 TestId = testId,
                 Category = CompositeCategory.Basic,
                 Payload = "new-basic"
             });
-        addedBasic.SetEntityState(EntityState.Modified);
-        addedBasic.SetOriginalValue(addedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-basic");
+        modifiedBasic.SetEntityState(EntityState.Modified);
+        modifiedBasic.SetOriginalValue(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-basic");
 
-        var addedPro = stateManager.GetOrCreateEntry(
+        var modifiedPro = stateManager.GetOrCreateEntry(
             new CompositeKeyEntity
             {
                 TestId = testId,
                 Category = CompositeCategory.Pro,
                 Payload = "new-pro"
             });
-        addedPro.SetEntityState(EntityState.Modified);
-        addedPro.SetOriginalValue(addedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-pro");
+        modifiedPro.SetEntityState(EntityState.Modified);
+        modifiedPro.SetOriginalValue(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-pro");
 
-        var batches = CreateBatches([addedBasic, addedPro], new UpdateAdapter(stateManager));
+        Assert.Equal(0, modifiedBasic.GetCurrentValue<int>(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey))));
+        Assert.Equal(0, modifiedPro.GetCurrentValue<int>(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey))));
+
+        var batches = CreateBatches([modifiedBasic, modifiedPro], new UpdateAdapter(stateManager));
         var batch = Assert.Single(batches);
 
         Assert.Equal(2, batch.ModificationCommands.Count);
