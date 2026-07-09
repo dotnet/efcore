@@ -1353,7 +1353,7 @@ public class NavigationFixerTest
 
         private static readonly ValueComparer<string> CaseInsensitiveKeyComparer = new(
             (left, right) => StringComparer.OrdinalIgnoreCase.Equals(left, right),
-            value => StringComparer.OrdinalIgnoreCase.GetHashCode(value),
+            value => value == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(value),
             value => value);
 
         private CaseInsensitiveKeyStringTypeMapping(CoreTypeMappingParameters parameters)
