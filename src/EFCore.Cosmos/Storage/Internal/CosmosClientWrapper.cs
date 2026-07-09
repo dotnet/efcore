@@ -713,17 +713,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync((batch, sessionTokenStorage, this), ExecuteTransactionalBatchOnceAsync, null, cancellationToken);
-
-    private static async Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchOnceAsync(DbContext _,
-        (ICosmosTransactionalBatchWrapper Batch, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+    public virtual async Task ExecuteTransactionalBatchAsync(
+        ICosmosTransactionalBatchWrapper batch,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default)
     {
-        var batch = parameters.Batch;
         var transactionalBatch = batch.GetTransactionalBatch();
-        var wrapper = parameters.Wrapper;
-        var sessionTokenStorage = parameters.SessionTokenStorage;
 
         var options = new TransactionalBatchRequestOptions
         {
@@ -732,7 +727,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         using var response = await transactionalBatch.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
-        wrapper._commandLogger.ExecutedTransactionalBatch(
+        _commandLogger.ExecutedTransactionalBatch(
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
@@ -740,7 +735,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             batch.PartitionKeyValue,
             "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
 
-        return ProcessBatchResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
+        ProcessBatchResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
     }
 
     private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, string? sessionToken)
@@ -821,7 +816,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         }
     }
 
-    private static CosmosTransactionalBatchResult ProcessBatchResponse(string containerId, TransactionalBatchResponse response, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
+    private static void ProcessBatchResponse(string containerId, TransactionalBatchResponse response, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
     {
         if (!response.IsSuccessStatusCode)
         {
@@ -835,7 +830,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 .ToList();
 
             var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
-            return new CosmosTransactionalBatchResult(errorEntries, exception);
+            throw new CosmosTransactionalBatchException(errorEntries, exception);
         }
 
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
@@ -847,8 +842,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             ProcessWriteResponse(entry.Entry, item.ETag, item.ResourceStream);
         }
-
-        return CosmosTransactionalBatchResult.Success;
     }
 
     private static void ProcessWriteResponse(IUpdateEntry entry, string eTag, Stream? content)
