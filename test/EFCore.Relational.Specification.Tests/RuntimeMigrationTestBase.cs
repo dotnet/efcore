@@ -115,6 +115,9 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
     protected RuntimeMigrationDbContext CreateContext()
         => Fixture.CreateContext();
 
+    protected IServiceScope CreateDesignTimeServices(RuntimeMigrationDbContext context)
+        => CreateDesignTimeServices((DbContext)context);
+
     protected IServiceScope CreateDesignTimeServices(DbContext context)
     {
         var serviceCollection = new ServiceCollection()
