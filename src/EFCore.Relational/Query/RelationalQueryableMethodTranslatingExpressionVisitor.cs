@@ -191,7 +191,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 return new ShapedQueryExpression(groupClonedSelectExpression, groupRebuiltShaperExpression);
 
             case ShapedQueryExpression shapedQueryExpression:
-                var clonedSelectExpression = ((SelectExpression)shapedQueryExpression.QueryExpression).Clone();
+                var subquerySourceSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+
+                // #22517/#30915: unlike the GroupByShaperExpression case above, this non-grouping subquery clone does NOT
+                // carry non-entity nullability markers across. It is safe today because a non-grouping subquery is bound to
+                // completion -- its markers created and consumed by the projection binder in the same window -- before it is
+                // embedded, so no live marker ever reaches this clone (verified: this case is never hit with a live marker
+                // across the whole #30915 suite, whereas the grouping sibling is). Clone() deliberately drops markers (see the
+                // _nonEntityNullabilityMarkers field comment), so if a future change ever routed a live marker here it would be
+                // silently stranded and the whole-object null gate would regress to a throw. Assert the invariant so that
+                // regression surfaces loudly in Debug; the fix would be to route through the same marker-aware remap the
+                // grouping case uses (SelectExpression.RemapGroupingElementShaper).
+                Check.DebugAssert(
+                    !subquerySourceSelectExpression.HasNonEntityNullabilityMarkers,
+                    "Non-grouping subquery clone carries a live non-entity nullability marker; it would be stranded by Clone(). "
+                    + "Route it through a marker-aware remap as the GroupByShaperExpression case does.");
+
+                var clonedSelectExpression = subquerySourceSelectExpression.Clone();
                 return new ShapedQueryExpression(
                     clonedSelectExpression,
                     new QueryExpressionReplacingExpressionVisitor(shapedQueryExpression.QueryExpression, clonedSelectExpression)
