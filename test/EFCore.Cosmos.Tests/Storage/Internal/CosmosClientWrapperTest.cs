@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public class CosmosClientWrapperTest
 {
     private const string CosmosDatabaseName = "_";
-    private const string CosmosEmulatorKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
     [Fact]
     public async Task ExecuteSqlQueryAsync_retries_when_response_status_is_transient_failure()
@@ -22,12 +21,12 @@ public class CosmosClientWrapperTest
         using var context = new TestDbContext(
             new DbContextOptionsBuilder()
                 .UseCosmos(
-                    "https://localhost:8081",
-                    CosmosEmulatorKey,
+                    CosmosTestEnvironment.DefaultConnection,
+                    CosmosTestEnvironment.AuthToken,
                     CosmosDatabaseName)
                 .Options);
 
-        var feedIterator = new TestFeedIterator(
+        using var feedIterator = new TestFeedIterator(
             CreateResponseMessage(HttpStatusCode.Gone),
             CreateResponseMessage(HttpStatusCode.OK));
 
@@ -165,6 +164,19 @@ public class CosmosClientWrapperTest
         {
             ReadCount++;
             return Task.FromResult(_responses.Dequeue());
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                while (_responses.Count > 0)
+                {
+                    _responses.Dequeue().Dispose();
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 
