@@ -79,6 +79,9 @@ public sealed class ProjectTest(ITestOutputHelper output)
                 <Project Sdk="Microsoft.NET.Sdk">
                   <PropertyGroup>
                     <TargetFramework>{TargetFramework}</TargetFramework>
+                    <TargetName>service</TargetName>
+                    <ProjectDepsFileName>$(TargetName).deps.json</ProjectDepsFileName>
+                    <ProjectRuntimeConfigFileName>$(TargetName).runtimeconfig.json</ProjectRuntimeConfigFileName>
                   </PropertyGroup>
                 </Project>
                 """);
@@ -92,7 +95,9 @@ public sealed class ProjectTest(ITestOutputHelper output)
             Assert.Equal(TargetFramework, project.TargetFramework);
             Assert.NotNull(project.OutputPath);
             Assert.NotNull(project.ProjectDir);
-            Assert.Equal("MyApp.dll", project.TargetFileName);
+            Assert.Equal("service.dll", project.TargetFileName);
+            Assert.Equal("service.deps.json", project.ProjectDepsFileName);
+            Assert.Equal("service.runtimeconfig.json", project.ProjectRuntimeConfigFileName);
         });
 
         Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
@@ -144,6 +149,18 @@ public sealed class ProjectTest(ITestOutputHelper output)
 
         Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
     }
+
+    [Fact]
+    public void Resolve_file_path_uses_specified_file_name()
+        => Assert.Equal(
+            Path.Combine("target", "service.deps.json"),
+            RootCommand.ResolveFilePath("target", "service.deps.json", "MyApp.deps.json"));
+
+    [Fact]
+    public void Resolve_file_path_uses_fallback_file_name_when_unspecified()
+        => Assert.Equal(
+            Path.Combine("target", "MyApp.deps.json"),
+            RootCommand.ResolveFilePath("target", null, "MyApp.deps.json"));
 
     private string WithCapturedOutput(Action action)
     {

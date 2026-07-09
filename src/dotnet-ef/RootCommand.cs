@@ -123,11 +123,13 @@ internal class RootCommand : CommandBase
         var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
         var targetPath = Path.Combine(targetDir, project.TargetFileName!);
         var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
-        var depsFile = Path.Combine(
+        var depsFile = ResolveFilePath(
             targetDir,
+            startupProject.ProjectDepsFileName,
             startupProject.AssemblyName + ".deps.json");
-        var runtimeConfig = Path.Combine(
+        var runtimeConfig = ResolveFilePath(
             targetDir,
+            startupProject.ProjectRuntimeConfigFileName,
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
@@ -408,6 +410,13 @@ internal class RootCommand : CommandBase
             && args[0] == "dbcontext"
             && args[1] == "optimize"
             && !args.Any(a => a == "--no-scaffold");
+
+    internal static string ResolveFilePath(string directory, string? fileName, string fallbackFileName)
+        => Path.Combine(
+            directory,
+            string.IsNullOrEmpty(fileName)
+                ? fallbackFileName
+                : fileName);
 
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
