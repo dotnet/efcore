@@ -2237,27 +2237,28 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <returns>The normalized owned entity type name.</returns>
     private static string NormalizeOwnedEntityTypeName(string entityTypeName)
     {
-        var normalizedName = entityTypeName;
-
-        while (true)
+        var separatorIndex = entityTypeName.IndexOf('#');
+        if (separatorIndex < 0)
         {
-            var separatorIndex = normalizedName.IndexOf('#');
-            if (separatorIndex < 0)
-            {
-                return normalizedName;
-            }
-
-            // Normalize an accidentally repeated ownership prefix (for example Owner.Nav#Owner.Nav#Owned -> Owner.Nav#Owned)
-            // so generated HasForeignKey calls point to the same owned entity type name as the surrounding OwnsOne/OwnsMany block.
-            var ownershipPrefix = normalizedName[..(separatorIndex + 1)];
-            var remaining = normalizedName[(separatorIndex + 1)..];
-
-            if (!remaining.StartsWith(ownershipPrefix, StringComparison.Ordinal))
-            {
-                return normalizedName;
-            }
-
-            normalizedName = string.Concat(ownershipPrefix, remaining[ownershipPrefix.Length..]);
+            return entityTypeName;
         }
+
+        // Normalize an accidentally repeated ownership prefix (for example Owner.Nav#Owner.Nav#Owned -> Owner.Nav#Owned)
+        // so generated HasForeignKey calls point to the same owned entity type name as the surrounding OwnsOne/OwnsMany block.
+        var ownershipPrefix = entityTypeName[..(separatorIndex + 1)];
+        var remaining = entityTypeName[(separatorIndex + 1)..];
+
+        if (!remaining.StartsWith(ownershipPrefix, StringComparison.Ordinal))
+        {
+            return entityTypeName;
+        }
+
+        remaining = remaining[ownershipPrefix.Length..];
+        if (remaining.StartsWith(ownershipPrefix, StringComparison.Ordinal))
+        {
+            remaining = remaining[ownershipPrefix.Length..];
+        }
+
+        return string.Concat(ownershipPrefix, remaining);
     }
 }

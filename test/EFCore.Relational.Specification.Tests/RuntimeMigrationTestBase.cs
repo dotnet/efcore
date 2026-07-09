@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -960,9 +961,11 @@ public abstract class RuntimeMigrationTestBase<TFixture>(TFixture fixture) : ICl
 
             var snapshotPath = Directory.EnumerateFiles(testMigrationDirectory, "*ModelSnapshot.cs", SearchOption.AllDirectories).Single();
             // Strip the generated [DbContext(typeof(...))] attribute to avoid compiling a test-provider-specific context type reference.
-            var snapshotCode = string.Join(
-                Environment.NewLine,
-                File.ReadAllLines(snapshotPath).Where(line => !line.Contains("[DbContext(", StringComparison.Ordinal)));
+            var snapshotCode = Regex.Replace(
+                File.ReadAllText(snapshotPath),
+                @"^\s*\[DbContext\(.*\)\]\s*\r?\n",
+                string.Empty,
+                RegexOptions.Multiline);
             var assembly = new BuildSource
             {
                 Sources = { { "Snapshot.cs", snapshotCode } },
