@@ -1546,6 +1546,22 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
     }
 
     [Fact]
+    public void String_with_vector_store_type_returns_null_mapping()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity<MyType>();
+        entityTypeBuilder.Property(e => e.Id);
+        var property = entityTypeBuilder.Property<string>("MyProp").Metadata;
+        property.SetColumnType("vector(3)");
+
+        var model = modelBuilder.Model.FinalizeModel();
+        var typeMappingSource = CreateRelationalTypeMappingSource(model);
+        var mappedProperty = model.FindEntityType(typeof(MyType))!.FindProperty(property.Name)!;
+
+        Assert.Null(typeMappingSource.FindMapping(mappedProperty));
+    }
+
+    [Fact]
     public void Vector_requires_positive_dimensions()
     {
         var exception = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(SqlVector<float>), maxLength: 0));
