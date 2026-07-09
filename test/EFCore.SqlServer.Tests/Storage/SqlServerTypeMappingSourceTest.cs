@@ -1132,6 +1132,29 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
             Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource(model).GetMapping("object")).Message);
     }
 
+    [Fact] // Issue #38096
+    public void Returns_null_for_string_property_with_tinyint_store_type()
+    {
+        var property = CreateModelBuilder()
+            .Entity<StringCheese>()
+            .Property<string>("Discriminator")
+            .HasColumnType("tinyint")
+            .Metadata;
+        var model = property.DeclaringType.Model.FinalizeModel();
+        var typeMappingSource = CreateRelationalTypeMappingSource(model);
+        var runtimeProperty = model.FindEntityType(typeof(StringCheese))!.FindProperty("Discriminator")!;
+
+        Assert.Null(typeMappingSource.FindMapping(runtimeProperty));
+
+        var exception = Assert.Throws<InvalidOperationException>(() => typeMappingSource.GetMapping(runtimeProperty));
+        Assert.Equal(
+            RelationalStrings.UnsupportedPropertyType(
+                runtimeProperty.DeclaringType.DisplayName(),
+                runtimeProperty.Name,
+                runtimeProperty.ClrType.ShortDisplayName()),
+            exception.Message);
+    }
+
     [Theory, InlineData("bigint", typeof(long), null, false, false),
      InlineData("binary varying(333)", typeof(byte[]), 333, false, false),
      InlineData("binary varying(max)", typeof(byte[]), -1, false, false), InlineData("binary(333)", typeof(byte[]), 333, false, true),

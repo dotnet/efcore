@@ -30,6 +30,30 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             sensitiveDataLoggingEnabled: false);
     }
 
+    [Fact] // Issue #38096
+    public virtual void Throws_for_non_string_discriminator_value_with_tinyint_store_type_on_string_discriminator()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Blog38096>()
+            .HasDiscriminator()
+            .HasValue<Blog38096>(BlogType38096.Blog);
+        modelBuilder.Entity<Blog38096>().Property("Discriminator").HasColumnType("tinyint");
+
+        var exception = Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder));
+        Assert.Contains("Discriminator", exception.Message);
+    }
+
+    protected enum BlogType38096 : byte
+    {
+        Blog = 0
+    }
+
+    protected class Blog38096
+    {
+        public int Id { get; set; }
+    }
+
     protected class WithNestedCollection
     {
         public int Id { get; set; }
