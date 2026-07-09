@@ -37,10 +37,16 @@ public class BundleProjectGeneratorTest
         Assert.Contains(
             packageReferences,
             e => (string?)e.Attribute("Version") == "11.0.0"
-                && ((string?)e.Attribute("Condition"))?.Contains("ManagePackageVersionsCentrally", StringComparison.Ordinal) == true);
+                && string.Equals(
+                    (string?)e.Attribute("Condition"),
+                    "'$(ManagePackageVersionsCentrally)' != 'true'",
+                    StringComparison.Ordinal));
         Assert.Contains(
             packageReferences,
             e => e.Attribute("Version") == null
-                && ((string?)e.Attribute("Condition"))?.Contains("ManagePackageVersionsCentrally", StringComparison.Ordinal) == true);
+                && string.Equals(
+                    (string?)e.Attribute("Condition"),
+                    "'$(ManagePackageVersionsCentrally)' == 'true'",
+                    StringComparison.Ordinal));
     }
 }
