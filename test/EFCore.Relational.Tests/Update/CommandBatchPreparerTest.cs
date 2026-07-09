@@ -559,7 +559,7 @@ FakeEntity [Deleted]"
     }
 
     [Fact]
-    public void BatchCommands_handles_replacing_rows_with_store_generated_unique_index_values()
+    public void BatchCommands_skips_unique_index_edges_for_unchanged_store_generated_values()
     {
         var model = CreateCompositeKeyModelWithGeneratedUniqueIndex();
         var configuration = CreateContextServices(model);
@@ -587,9 +587,12 @@ FakeEntity [Deleted]"
         modifiedPro.SetEntityState(EntityState.Modified);
         modifiedPro.SetOriginalValue(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-pro");
 
-        Assert.Equal(0, modifiedBasic.GetCurrentValue<int>(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey))));
-        Assert.Equal(0, modifiedPro.GetCurrentValue<int>(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey))));
+        var clusteringKeyProperty = modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey));
+        modifiedBasic.SetOriginalValue(clusteringKeyProperty, 0);
+        modifiedPro.SetOriginalValue(clusteringKeyProperty, 0);
 
+        Assert.Equal(0, modifiedBasic.GetCurrentValue<int>(clusteringKeyProperty));
+        Assert.Equal(0, modifiedPro.GetCurrentValue<int>(clusteringKeyProperty));
         var batches = CreateBatches([modifiedBasic, modifiedPro], new UpdateAdapter(stateManager));
         var batch = Assert.Single(batches);
 
