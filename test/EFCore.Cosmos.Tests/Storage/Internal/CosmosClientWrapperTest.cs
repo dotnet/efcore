@@ -182,7 +182,7 @@ public class CosmosClientWrapperTest
     private sealed class TestSingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     {
         public CosmosClient Client
-            => null!;
+            => throw new NotSupportedException();
 
         public void Dispose()
         {

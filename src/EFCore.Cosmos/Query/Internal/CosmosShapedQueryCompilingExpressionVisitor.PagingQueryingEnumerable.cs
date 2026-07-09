@@ -174,7 +174,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 static async (_, feedIterator, cancellationToken) =>
                                 {
                                     var responseMessage = await feedIterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
-                                    responseMessage.EnsureSuccessStatusCode();
+                                    try
+                                    {
+                                        responseMessage.EnsureSuccessStatusCode();
+                                    }
+                                    catch
+                                    {
+                                        responseMessage.Dispose();
+                                        throw;
+                                    }
+
                                     return responseMessage;
                                 },
                                 null,

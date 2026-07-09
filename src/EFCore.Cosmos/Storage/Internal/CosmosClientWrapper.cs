@@ -1073,7 +1073,16 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         static async (_, query, cancellationToken) =>
                         {
                             var responseMessage = await query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
-                            responseMessage.EnsureSuccessStatusCode();
+                            try
+                            {
+                                responseMessage.EnsureSuccessStatusCode();
+                            }
+                            catch
+                            {
+                                responseMessage.Dispose();
+                                throw;
+                            }
+
                             return responseMessage;
                         },
                         null,
