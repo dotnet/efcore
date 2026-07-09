@@ -495,6 +495,108 @@ public class StateManagerTest
                 })).Message);
     }
 
+    [Fact]
+    public void HasChanges_returns_true_after_identity_conflict_and_detach()
+    {
+        using var context = new IdentityConflictContext();
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+        context.SaveChanges();
+
+        var duplicate = new SingleKey { Id = 77, AlternateId = 67 };
+        try
+        {
+            context.Add(duplicate);
+        }
+        catch (InvalidOperationException)
+        {
+            context.Entry(duplicate).State = EntityState.Detached;
+        }
+
+        var another = new SingleKey { Id = 88, AlternateId = 88 };
+        context.Add(another);
+
+        Assert.True(context.ChangeTracker.HasChanges());
+    }
+
+    [Fact]
+    public void ChangeCount_is_correct_after_identity_conflict_and_detach()
+    {
+        using var context = new IdentityConflictContext();
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+        context.SaveChanges();
+
+        var sm = context.GetService<IStateManager>();
+
+        Assert.Equal(0, sm.ChangedCount);
+
+        var duplicate = new SingleKey { Id = 77, AlternateId = 67 };
+        try
+        {
+            context.Add(duplicate);
+        }
+        catch (InvalidOperationException)
+        {
+            // After Add throws due to identity conflict, the entry is in an inconsistent
+            // state in the reference map. Setting to Detached must not corrupt ChangedCount.
+            context.Entry(duplicate).State = EntityState.Detached;
+        }
+
+        Assert.Equal(0, sm.ChangedCount);
+
+        context.Add(new SingleKey { Id = 88, AlternateId = 88 });
+
+        Assert.Equal(1, sm.ChangedCount);
+        Assert.True(context.ChangeTracker.HasChanges());
+    }
+
+    [Fact]
+    public void Entries_does_not_include_ghost_entry_after_identity_conflict()
+    {
+        using var context = new IdentityConflictContext();
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+        context.SaveChanges();
+
+        var duplicate = new SingleKey { Id = 77, AlternateId = 67 };
+        try
+        {
+            context.Add(duplicate);
+        }
+        catch (InvalidOperationException)
+        {
+            context.Entry(duplicate).State = EntityState.Detached;
+        }
+
+        // The failed Add should leave no "ghost" entry in the change tracker.
+        // After detaching the duplicate, no Added/Modified/Deleted entries should be visible.
+        var entries = context.ChangeTracker.Entries().ToList();
+        Assert.DoesNotContain(entries, e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
+    }
+
+    [Fact]
+    public void SaveChanges_row_count_is_correct_after_identity_conflict()
+    {
+        using var context = new IdentityConflictContext();
+        context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
+        context.SaveChanges();
+
+        var duplicate = new SingleKey { Id = 77, AlternateId = 67 };
+        try
+        {
+            context.Add(duplicate);
+        }
+        catch (InvalidOperationException)
+        {
+            context.Entry(duplicate).State = EntityState.Detached;
+        }
+
+        var another = new SingleKey { Id = 88, AlternateId = 88 };
+        context.Add(another);
+
+        // SaveChanges should only save the 'another' entity (1 row), not the failed duplicate.
+        var rowsAffected = context.SaveChanges();
+        Assert.Equal(1, rowsAffected);
+    }
+
     private class SensitiveIdentityConflictContext : IdentityConflictContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
