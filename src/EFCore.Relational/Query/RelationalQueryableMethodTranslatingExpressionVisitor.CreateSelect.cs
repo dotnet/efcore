@@ -445,33 +445,31 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             static ITableBase GetTableBaseFiltered(IEntityType entityType, Dictionary<ITableBase, string> existingTables)
                 => entityType.GetQueryMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
 
-            static ITableBase FindTable(IComplexProperty complexProperty, IEnumerable<ITableMappingBase> mappings)
+            static ITableBase FindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
                 => TryFindTable(complexProperty, mappings)
                     ?? complexProperty.ComplexType.GetQueryMappings().Single().Table;
 
-            static ITableBase? TryFindTable(IComplexProperty complexProperty, IEnumerable<ITableMappingBase> mappings)
+            static ITableBase? TryFindTable(IComplexProperty complexProperty, IReadOnlyList<ITableMappingBase> mappings)
             {
                 if (complexProperty.ComplexType.IsMappedToJson())
                 {
-                    var containerColumn = mappings
-                        .Select(m => m.Table.FindColumn(complexProperty))
-                        .FirstOrDefault(c => c is not null);
-
-                    if (containerColumn is not null)
+                    foreach (var mapping in mappings)
                     {
-                        return containerColumn.Table;
+                        if (mapping.Table.FindColumn(complexProperty) is { } containerColumn)
+                        {
+                            return containerColumn.Table;
+                        }
                     }
                 }
 
                 foreach (var property in complexProperty.ComplexType.GetProperties())
                 {
-                    var column = mappings
-                        .Select(m => m.Table.FindColumn(property))
-                        .FirstOrDefault(c => c is not null);
-
-                    if (column is not null)
+                    foreach (var mapping in mappings)
                     {
-                        return column.Table;
+                        if (mapping.Table.FindColumn(property) is { } column)
+                        {
+                            return column.Table;
+                        }
                     }
                 }
 

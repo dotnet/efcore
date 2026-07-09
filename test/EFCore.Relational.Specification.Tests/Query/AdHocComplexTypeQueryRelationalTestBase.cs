@@ -181,6 +181,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
                 context.Set<Context38077.Hook>().Add(
                     new Context38077.Hook
                     {
+                        CreatedOn = new DateTime(2024, 1, 2, 3, 4, 5, DateTimeKind.Utc),
                         Number = new Context38077.HookNumber
                         {
                             Raw = "123",
@@ -198,6 +199,11 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
         var hooks = await context.Set<Context38077.Hook>().ToListAsync();
 
         Assert.Single(hooks);
+        Assert.Equal(new DateTime(2024, 1, 2, 3, 4, 5, DateTimeKind.Utc), hooks[0].CreatedOn);
+        Assert.Equal("123", hooks[0].Number.Raw);
+        Assert.Equal(123, hooks[0].Number.Parsed);
+        Assert.Equal(1.25m, hooks[0].Weight);
+        Assert.False(hooks[0].IsTestHook);
     }
 
     private class Context38077(DbContextOptions options) : DbContext(options)
