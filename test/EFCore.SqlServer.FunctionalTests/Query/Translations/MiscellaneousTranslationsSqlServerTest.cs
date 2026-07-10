@@ -604,9 +604,9 @@ WHERE CONVERT(nvarchar(max), [b].[DateTime]) LIKE N'%1998%'
 
     #region Parse
 
-    public override async Task Byte_Parse(bool async)
+    public override async Task Byte_Parse()
     {
-        await base.Byte_Parse(async);
+        await base.Byte_Parse();
 
         AssertSql(
             """
@@ -616,9 +616,9 @@ WHERE [b].[Int] >= 0 AND [b].[Int] <= 255 AND CAST(CONVERT(nvarchar(max), [b].[I
 """);
     }
 
-    public override async Task Decimal_Parse(bool async)
+    public override async Task Decimal_Parse()
     {
-        await base.Decimal_Parse(async);
+        await base.Decimal_Parse();
 
         AssertSql(
             """
@@ -628,9 +628,9 @@ WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS decimal(18,2)) = 8.0
 """);
     }
 
-    public override async Task Double_Parse(bool async)
+    public override async Task Double_Parse()
     {
-        await base.Double_Parse(async);
+        await base.Double_Parse();
 
         AssertSql(
             """
@@ -640,9 +640,9 @@ WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS float) = 8.0E0
 """);
     }
 
-    public override async Task Short_Parse(bool async)
+    public override async Task Short_Parse()
     {
-        await base.Short_Parse(async);
+        await base.Short_Parse();
 
         AssertSql(
             """
@@ -652,9 +652,9 @@ WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS smallint) = CAST(12 AS smallint)
 """);
     }
 
-    public override async Task Int_Parse(bool async)
+    public override async Task Int_Parse()
     {
-        await base.Int_Parse(async);
+        await base.Int_Parse();
 
         AssertSql(
             """
@@ -664,9 +664,9 @@ WHERE CAST(CONVERT(nvarchar(max), [b].[Int]) AS int) = 12
 """);
     }
 
-    public override async Task Long_Parse(bool async)
+    public override async Task Long_Parse()
     {
-        await base.Long_Parse(async);
+        await base.Long_Parse();
 
         AssertSql(
             """
