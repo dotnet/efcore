@@ -3230,10 +3230,10 @@
           "Member": "static void IncompatibleMatchingForeignKeyProperties(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model> diagnostics, string dependentToPrincipalNavigationSpecification, string principalToDependentNavigationSpecification, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> foreignKeyProperties, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> principalKeyProperties);"
         },
         {
-          "Member": "static void InconsistentOwnedData(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
+          "Member": "static void InconsistentOwnedDataSensitive(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation, Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry? entry);"
         },
         {
-          "Member": "static void InconsistentOwnedDataSensitive(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation, Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry? entry);"
+          "Member": "static void InconsistentOwnedDataWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
         },
         {
           "Member": "static void InvalidIncludePathError(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, string navigationChain, string navigationName);"

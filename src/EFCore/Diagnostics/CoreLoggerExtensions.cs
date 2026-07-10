@@ -2936,7 +2936,7 @@ public static class CoreLoggerExtensions
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="navigation">The ownership navigation.</param>
-    public static void InconsistentOwnedData(
+    public static void InconsistentOwnedDataWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
         INavigationBase navigation)
     {
@@ -2954,14 +2954,14 @@ public static class CoreLoggerExtensions
         {
             var eventData = new NavigationBaseEventData(
                 definition,
-                InconsistentOwnedData,
+                InconsistentOwnedDataWarning,
                 navigation);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
     }
 
-    private static string InconsistentOwnedData(EventDefinitionBase definition, EventData payload)
+    private static string InconsistentOwnedDataWarning(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (NavigationBaseEventData)payload;

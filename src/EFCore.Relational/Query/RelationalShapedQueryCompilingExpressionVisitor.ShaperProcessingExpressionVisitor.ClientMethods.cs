@@ -208,7 +208,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
                 else
                 {
-                    queryContext.QueryLogger.InconsistentOwnedData(navigation);
+                    queryContext.QueryLogger.InconsistentOwnedDataWarning(navigation);
                 }
             }
         }
