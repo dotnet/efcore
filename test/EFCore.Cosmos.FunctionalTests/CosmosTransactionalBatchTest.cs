@@ -83,6 +83,58 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         Assert.Equal(1, customersCount);
     }
 
+    [Fact]
+    public virtual async Task SaveChanges_suppressed_concurrency_exception_in_transactional_batch_reports_zero_rows_affected()
+    {
+        using (var arrangeContext = Fixture.CreateContext())
+        {
+            arrangeContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1", Name = "Original" });
+            await arrangeContext.SaveChangesAsync();
+        }
+
+        var options = new DbContextOptionsBuilder<TransactionalBatchContext>()
+            .UseCosmos(
+                ((CosmosTestStore)Fixture.TestStore).ConnectionUri,
+                ((CosmosTestStore)Fixture.TestStore).AuthToken,
+                Fixture.TestStore.Name,
+                cfg => cfg.ApplyConfiguration())
+            .AddInterceptors(new ConcurrencySuppressingInterceptor())
+            .Options;
+
+        using var staleContext = new TransactionalBatchContext(options);
+        staleContext.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        var customer = await staleContext.Customers.SingleAsync(c => c.Id == "1");
+
+        // Change the ETag in the database so the stale context will conflict
+        using (var updateContext = Fixture.CreateContext())
+        {
+            var current = await updateContext.Customers.SingleAsync(c => c.Id == "1");
+            current.Name = "Updated by other";
+            await updateContext.SaveChangesAsync();
+        }
+
+        // Update from the stale context — PreconditionFailed → DbUpdateConcurrencyException, then suppressed
+        customer.Name = "Updated by stale";
+        var rowsAffected = await staleContext.SaveChangesAsync();
+
+        // The suppressed exception means the batch was not committed, so rows affected should be 0
+        Assert.Equal(0, rowsAffected);
+
+        using var assertContext = Fixture.CreateContext();
+        var customerInStore = await assertContext.Customers.SingleAsync(c => c.Id == "1");
+        Assert.Equal("Updated by other", customerInStore.Name);
+    }
+
+    private sealed class ConcurrencySuppressingInterceptor : SaveChangesInterceptor
+    {
+        public override ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+            ConcurrencyExceptionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+            => new(InterceptionResult.Suppress());
+    }
+
     private sealed class RecordingExecutionStrategy(ExecutionStrategyDependencies dependencies, List<Exception> recordedExceptions)
         : CosmosExecutionStrategy(dependencies, maxRetryCount: 2, maxRetryDelay: TimeSpan.FromMilliseconds(1))
     {

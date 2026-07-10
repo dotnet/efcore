@@ -166,6 +166,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                     continue;
                 }
 
+                var suppressed = false;
                 try
                 {
                     await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
@@ -181,13 +182,19 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                     {
                         throw exception;
                     }
+
+                    suppressed = true;
                 }
                 catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
                 {
                     throw WrapUpdateException(ex, transaction.Entries.Select(x => x.Entry).ToArray());
                 }
 
-                state.RowsAffected += transaction.Entries.Count;
+                if (!suppressed)
+                {
+                    state.RowsAffected += transaction.Entries.Count;
+                }
+
                 state.CommittedOperations++;
                 operationIndex++;
             }
