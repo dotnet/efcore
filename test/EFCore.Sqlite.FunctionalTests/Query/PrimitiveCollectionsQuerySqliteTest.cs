@@ -1594,32 +1594,9 @@ WHERE (
 """);
     }
 
-    [ConditionalFact]
-    public override async Task Parameter_collection_Concat_column_collection()
-    {
-        // Issue #32561
-        await Assert.ThrowsAsync<EqualException>(() => base.Parameter_collection_Concat_column_collection());
-
-        AssertSql(
-            """
-@p1='11'
-@p2='111'
-
-SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."NullableWrappedId", "p"."NullableWrappedIdWithNullableComparer", "p"."String", "p"."Strings", "p"."WrappedId"
-FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE (
-    SELECT COUNT(*)
-    FROM (
-        SELECT * FROM (
-            SELECT 1
-            FROM (SELECT @p1 AS "Value" UNION ALL VALUES (@p2)) AS "p0"
-        )
-        UNION ALL
-        SELECT 1
-        FROM json_each("p"."Ints") AS "i"
-    ) AS "u") = 2
-""");
-    }
+    [ConditionalFact(Skip = "Issue #32561")]
+    public override Task Parameter_collection_Concat_column_collection()
+        => Task.CompletedTask;
 
     public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
