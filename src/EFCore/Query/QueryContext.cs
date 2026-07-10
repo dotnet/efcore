@@ -148,20 +148,13 @@ public abstract class QueryContext
         => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
 
     /// <summary>
-    ///     Discards a tracked owned entity that has no owner (i.e. the owner was null when loaded from
-    ///     the database), and logs a warning about potentially inconsistent data in the database.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="navigation">The ownership navigation that was being included.</param>
-    /// <param name="entity">The owned entity instance to discard.</param>
-    public virtual void IgnoreOrphanedOwnedEntity(INavigationBase navigation, object entity)
-    {
+    [EntityFrameworkInternal]
+    public virtual InternalEntityEntry? TryGetEntry(object entity)
         // InitializeStateManager will populate the field before calling here
-        var entry = _stateManager!.TryGetEntry(entity);
-        if (entry != null)
-        {
-            entry.SetEntityState(EntityState.Detached);
-        }
-
-        Dependencies.QueryLogger.InconsistentOwnedData(navigation);
-    }
+        => _stateManager!.TryGetEntry(entity);
 }

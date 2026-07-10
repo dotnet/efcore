@@ -2971,6 +2971,52 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.InconsistentOwnedDataWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="navigation">The ownership navigation.</param>
+    /// <param name="entry">The tracked owned entity entry, or <see langword="null" /> if not tracked.</param>
+    public static void InconsistentOwnedDataSensitive(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        INavigationBase navigation,
+        InternalEntityEntry? entry)
+    {
+        var definition = CoreResources.LogInconsistentOwnedDataSensitive(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                navigation.TargetEntityType.DisplayName(),
+                entry?.BuildCurrentValuesString(navigation.TargetEntityType.FindPrimaryKey()!.Properties) ?? "<unknown>",
+                navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+        }
+
+        if (entry != null
+            && diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityEntryEventData(
+                definition,
+                InconsistentOwnedDataSensitive,
+                new EntityEntry(entry));
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string InconsistentOwnedDataSensitive(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var p = (EntityEntryEventData)payload;
+        var internalEntry = p.EntityEntry.GetInfrastructure();
+        var ownership = internalEntry.EntityType.GetForeignKeys().First(fk => fk.IsOwnership);
+        return d.GenerateMessage(
+            internalEntry.EntityType.DisplayName(),
+            internalEntry.BuildCurrentValuesString(internalEntry.EntityType.FindPrimaryKey()!.Properties),
+            ownership.PrincipalEntityType.ShortName() + "." + ownership.PrincipalToDependent!.Name);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.StartedTracking" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

@@ -3233,6 +3233,9 @@
           "Member": "static void InconsistentOwnedData(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
         },
         {
+          "Member": "static void InconsistentOwnedDataSensitive(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation, Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry? entry);"
+        },
+        {
           "Member": "static void InvalidIncludePathError(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, string navigationChain, string navigationName);"
         },
         {
@@ -21675,9 +21678,6 @@
         },
         {
           "Member": "virtual void InitializeStateManager(bool standAlone = false);"
-        },
-        {
-          "Member": "virtual void IgnoreOrphanedOwnedEntity(Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation, object entity);"
         },
         {
           "Member": "virtual void SetNavigationIsLoaded(object entity, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"

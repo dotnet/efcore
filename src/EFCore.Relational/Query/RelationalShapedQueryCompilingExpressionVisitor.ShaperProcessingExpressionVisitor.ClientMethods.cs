@@ -5,6 +5,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -193,7 +194,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 // The owner entity is null (e.g. due to a null required property), but the owned entity was
                 // materialized and tracked. Detach it and log a warning about inconsistent data.
-                queryContext.IgnoreOrphanedOwnedEntity(navigation, relatedEntity);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var entry = queryContext.TryGetEntry(relatedEntity);
+                if (entry != null)
+                {
+                    entry.SetEntityState(EntityState.Detached);
+                }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                if (queryContext.QueryLogger.ShouldLogSensitiveData())
+                {
+                    queryContext.QueryLogger.InconsistentOwnedDataSensitive(navigation, entry);
+                }
+                else
+                {
+                    queryContext.QueryLogger.InconsistentOwnedData(navigation);
+                }
             }
         }
 

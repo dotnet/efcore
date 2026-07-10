@@ -1032,8 +1032,12 @@
     <comment>Warning CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning</comment>
   </data>
   <data name="LogInconsistentOwnedData" xml:space="preserve">
-    <value>An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.</value>
+    <value>An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
     <comment>Warning CoreEventId.InconsistentOwnedDataWarning string string</comment>
+  </data>
+  <data name="LogInconsistentOwnedDataSensitive" xml:space="preserve">
+    <value>An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.</value>
+    <comment>Warning CoreEventId.InconsistentOwnedDataWarning string string string</comment>
   </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>

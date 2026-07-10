@@ -4298,7 +4298,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.
+        ///     An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static EventDefinition<string, string> LogInconsistentOwnedData(IDiagnosticsLogger logger)
         {
@@ -4320,6 +4320,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogInconsistentOwnedDataSensitive(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.InconsistentOwnedDataWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.InconsistentOwnedDataWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.InconsistentOwnedDataWarning,
+                            _resourceManager.GetString("LogInconsistentOwnedDataSensitive")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
         }
 
         /// <summary>
