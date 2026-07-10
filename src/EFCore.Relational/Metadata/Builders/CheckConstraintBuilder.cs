@@ -22,9 +22,7 @@ public class CheckConstraintBuilder : IInfrastructure<IConventionCheckConstraint
     /// </summary>
     [EntityFrameworkInternal]
     public CheckConstraintBuilder(IMutableCheckConstraint checkConstraint)
-    {
-        Builder = ((CheckConstraint)checkConstraint).Builder;
-    }
+        => Builder = ((CheckConstraint)checkConstraint).Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

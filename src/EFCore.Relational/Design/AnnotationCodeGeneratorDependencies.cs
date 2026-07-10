@@ -39,9 +39,7 @@ public sealed record AnnotationCodeGeneratorDependencies
     [EntityFrameworkInternal]
     public AnnotationCodeGeneratorDependencies(
         IRelationalTypeMappingSource relationalTypeMappingSource)
-    {
-        RelationalTypeMappingSource = relationalTypeMappingSource;
-    }
+        => RelationalTypeMappingSource = relationalTypeMappingSource;
 
     /// <summary>
     ///     The type mapper.

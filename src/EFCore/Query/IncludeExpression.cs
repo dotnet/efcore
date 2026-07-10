@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
 public class IncludeExpression : Expression, IPrintableExpression
 {
     /// <summary>
@@ -108,15 +109,17 @@ public class IncludeExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.AppendLine("IncludeExpression(");
+        expressionPrinter.AppendLine("Include(");
         using (expressionPrinter.Indent())
         {
-            expressionPrinter.AppendLine("EntityExpression:");
+            expressionPrinter.Append("Entity: ");
             expressionPrinter.Visit(EntityExpression);
             expressionPrinter.AppendLine(", ");
-            expressionPrinter.AppendLine("NavigationExpression:");
+            expressionPrinter
+                .Append("Navigation: ")
+                .Append(Navigation.Name)
+                .Append(", ");
             expressionPrinter.Visit(NavigationExpression);
-            expressionPrinter.AppendLine($", {Navigation.Name})");
         }
     }
 }

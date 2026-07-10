@@ -33,9 +33,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected UpdateSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
@@ -179,7 +177,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         requiresTransaction = false;
 
         AppendDeleteCommand(
-            commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations, appendReturningOneClause: true);
+            commandStringBuilder, name, schema, [], conditionOperations, appendReturningOneClause: true);
 
         return ResultSetMapping.LastInResultSet | ResultSetMapping.ResultSetWithRowsAffectedOnly;
     }
@@ -519,7 +517,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     commandStringBuilder.Append(", ");
                 }
 
-                commandStringBuilder.Append("1");
+                commandStringBuilder.Append('1');
             }
         }
     }

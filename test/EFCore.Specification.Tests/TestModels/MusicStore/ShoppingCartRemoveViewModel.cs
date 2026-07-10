@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
+#nullable disable
+
 public class ShoppingCartRemoveViewModel
 {
     public string Message { get; set; }

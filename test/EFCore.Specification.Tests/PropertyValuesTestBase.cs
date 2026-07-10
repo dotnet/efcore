@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 
@@ -10,15 +8,10 @@ using System.Globalization;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : PropertyValuesTestBase<TFixture>.PropertyValuesFixtureBase, new()
 {
-    protected PropertyValuesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()
@@ -1284,6 +1277,53 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Contains(office, building.Offices);
     }
 
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, true)]
+    [InlineData(EntityState.Unchanged, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Modified, false)]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Deleted, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Detached, true)]
+    [InlineData(EntityState.Detached, false)]
+    public virtual async Task Values_can_be_reloaded_from_database_for_entity_in_any_state_with_inheritance(EntityState state, bool async)
+    {
+        using var context = CreateContext();
+        var supplier = context.Set<Supplier33307>().Single();
+        var customer = context.Set<Customer33307>().Single();
+
+        supplier.Name = "X";
+        supplier.Foo = "Z";
+        customer.Name = "Y";
+        customer.Bar = 77;
+        customer.Address.Street = "New Road";
+        supplier.Address.Street = "New Lane";
+
+        context.Entry(supplier).State = state;
+        context.Entry(customer).State = state;
+
+        if (async)
+        {
+            await context.Entry(supplier).ReloadAsync();
+            await context.Entry(customer).ReloadAsync();
+        }
+        else
+        {
+            context.Entry(supplier).Reload();
+            context.Entry(customer).Reload();
+        }
+
+        Assert.Equal("Bar", customer.Name);
+        Assert.Equal(11, customer.Bar);
+        Assert.Equal("Two", customer.Address.Street);
+
+        Assert.Equal("Foo", supplier.Name);
+        Assert.Equal("F", supplier.Foo);
+        Assert.Equal("One", supplier.Address.Street);
+    }
+
     [ConditionalFact]
     public virtual void Current_values_can_be_set_from_an_object_using_generic_dictionary()
         => TestGenericObjectSetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue!);
@@ -2303,6 +2343,31 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public required Milk Milk { get; set; }
     }
 
+    [ComplexType]
+    public class Address33307
+    {
+        public required string Street { get; set; }
+        public double? Altitude { get; set; }
+        public int? Number { get; set; }
+    }
+
+    public abstract class Contact33307
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public required Address33307 Address { get; set; }
+    }
+
+    public class Supplier33307 : Contact33307
+    {
+        public string? Foo { get; set; }
+    }
+
+    public class Customer33307 : Contact33307
+    {
+        public int Bar { get; set; }
+    }
+
     protected struct Culture
     {
         public string Species { get; set; }
@@ -2434,9 +2499,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public string? LastName { get; set; }
     }
 
-    protected class UnMappedOffice : Office
-    {
-    }
+    protected class UnMappedOffice : Office;
 
     protected class CurrentEmployee : Employee
     {
@@ -2559,9 +2622,13 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                                 });
                         });
                 });
+
+            modelBuilder.Entity<Contact33307>();
+            modelBuilder.Entity<Supplier33307>();
+            modelBuilder.Entity<Customer33307>();
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             var buildings = new List<Building>
             {
@@ -2651,19 +2718,19 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 new()
                 {
                     AssetTag = "WB1973",
-                    iD = new byte[] { 1, 9, 7, 3 },
+                    iD = [1, 9, 7, 3],
                     Office = offices[0]
                 },
                 new()
                 {
                     AssetTag = "WB1977",
-                    iD = new byte[] { 1, 9, 7, 7 },
+                    iD = [1, 9, 7, 7],
                     Office = offices[0]
                 },
                 new()
                 {
                     AssetTag = "WB1970",
-                    iD = new byte[] { 1, 9, 7, 0 },
+                    iD = [1, 9, 7, 0],
                     Office = offices[2]
                 }
             };
@@ -2682,7 +2749,33 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.True((bool)joinEntry.Entity["InitializedCalled"]);
             }
 
-            context.SaveChanges();
+            context.Add(
+                new Supplier33307
+                {
+                    Name = "Foo",
+                    Address = new Address33307
+                    {
+                        Street = "One",
+                        Altitude = Math.PI,
+                        Number = 42,
+                    },
+                    Foo = "F"
+                });
+
+            context.Add(
+                new Customer33307
+                {
+                    Name = "Bar",
+                    Address = new Address33307
+                    {
+                        Street = "Two",
+                        Altitude = Math.E,
+                        Number = 42,
+                    },
+                    Bar = 11
+                });
+
+            return context.SaveChangesAsync();
         }
     }
 
@@ -2699,9 +2792,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 joinEntity["CreatedCalled"] = true;
             }
-            else
+            else if (entity is PropertyValuesBase propertyValuesBase)
             {
-                ((PropertyValuesBase)entity).CreatedCalled = true;
+                propertyValuesBase.CreatedCalled = true;
             }
 
             return entity;
@@ -2716,9 +2809,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 joinEntity["InitializingCalled"] = true;
             }
-            else
+            else if (entity is PropertyValuesBase propertyValuesBase)
             {
-                ((PropertyValuesBase)entity).InitializingCalled = true;
+                propertyValuesBase.InitializingCalled = true;
             }
 
             return result;
@@ -2730,9 +2823,9 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 joinEntity["InitializedCalled"] = true;
             }
-            else
+            else if (entity is PropertyValuesBase propertyValuesBase)
             {
-                ((PropertyValuesBase)entity).InitializedCalled = true;
+                propertyValuesBase.InitializedCalled = true;
             }
 
             return entity;

@@ -11,15 +11,12 @@ using IdentityServer4.Stores.Serialization;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class PersistedGrantDbContextTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class PersistedGrantDbContextTestBase<TFixture>(
+    PersistedGrantDbContextTestBase<TFixture>.PersistedGrantDbContextFixtureBase fixture)
+    : IClassFixture<TFixture>
     where TFixture : PersistedGrantDbContextTestBase<TFixture>.PersistedGrantDbContextFixtureBase
 {
-    protected PersistedGrantDbContextTestBase(PersistedGrantDbContextFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected PersistedGrantDbContextFixtureBase Fixture { get; }
+    protected PersistedGrantDbContextFixtureBase Fixture { get; } = fixture;
 
     [ConditionalFact]
     public async Task Can_call_PersistedGrantStore_GetAllAsync()
@@ -258,8 +255,8 @@ public abstract class PersistedGrantDbContextTestBase<TFixture> : IClassFixture<
     }
 
     protected virtual List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "IdentityServer4.EntityFramework.Entities.DeviceFlowCodes",
@@ -306,8 +303,8 @@ public abstract class PersistedGrantDbContextTestBase<TFixture> : IClassFixture<
                     "{'SubjectId', 'ClientId', 'Type'} ",
                     "{'SubjectId', 'SessionId', 'Type'} ",
                 },
-            },
-        };
+            }
+        ];
 
     protected PersistedGrantDbContext CreateContext()
         => Fixture.CreateContext();

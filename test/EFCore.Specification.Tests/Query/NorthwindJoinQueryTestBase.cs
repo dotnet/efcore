@@ -6,14 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindJoinQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -230,7 +227,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID);
 
-        ids = new uint[] { 3 };
+        ids = [3];
         await AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>()
@@ -272,7 +269,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                       join id in ids on e.EmployeeID equals id
                       select e.EmployeeID));
 
-        ids = new byte[] { 3 };
+        ids = [3];
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,
@@ -659,6 +656,24 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_on_true_equal_true(bool async)
+    => AssertQuery(
+        async,
+        ss => ss.Set<Customer>().GroupJoin(
+            ss.Set<Order>(),
+            x => true,
+            x => true,
+            (c, g) => new { c, g })
+        .Select(x => new { x.c.CustomerID, Orders = x.g }),
+        elementSorter: e => e.CustomerID,
+        elementAsserter: (e, a) =>
+        {
+            Assert.Equal(e.CustomerID, a.CustomerID);
+            AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.OrderID);
+        });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
         => AssertQuery(
             async,
@@ -754,18 +769,11 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     a.Views.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID));
             });
 
-    private class CustomerViewModel
+    private class CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
     {
-        public string CustomerID { get; }
-        public string City { get; }
-        public OrderDetailViewModel[] Views { get; }
-
-        public CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
-        {
-            CustomerID = customerID;
-            City = city;
-            Views = views;
-        }
+        public string CustomerID { get; } = customerID;
+        public string City { get; } = city;
+        public OrderDetailViewModel[] Views { get; } = views;
 
         public override bool Equals(object obj)
         {
@@ -788,16 +796,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             => HashCode.Combine(CustomerID, City);
     }
 
-    private class OrderDetailViewModel
+    private class OrderDetailViewModel(int orderID, int productID)
     {
-        public int OrderID { get; }
-        public int ProductID { get; }
-
-        public OrderDetailViewModel(int orderID, int productID)
-        {
-            OrderID = orderID;
-            ProductID = productID;
-        }
+        public int OrderID { get; } = orderID;
+        public int ProductID { get; } = productID;
 
         public override bool Equals(object obj)
         {

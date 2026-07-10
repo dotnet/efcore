@@ -137,7 +137,7 @@ public class SqliteParameterTest
     [Fact]
     public void ResetSqliteType_works_when_value()
     {
-        var parameter = new SqliteParameter { Value = new byte[0], SqliteType = SqliteType.Text };
+        var parameter = new SqliteParameter { Value = Array.Empty<byte>(), SqliteType = SqliteType.Text };
 
         parameter.ResetSqliteType();
 
@@ -600,7 +600,7 @@ public class SqliteParameterTest
             new object[] { (ushort)0, SqliteType.Integer },
             new object[] { 0.0, SqliteType.Real },
             new object[] { 0f, SqliteType.Real },
-            new object[] { new byte[0], SqliteType.Blob },
+            new object[] { Array.Empty<byte>(), SqliteType.Blob },
         };
 
     private enum MyEnum

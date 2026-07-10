@@ -61,7 +61,7 @@ public interface IDiagnosticsLogger
     IInterceptors? Interceptors { get; }
 
     /// <summary>
-    ///     Checks whether or not the message should be sent to the <see cref="ILogger" />.
+    ///     Checks whether the message should be sent to the <see cref="ILogger" />.
     /// </summary>
     /// <param name="definition">The definition of the event to log.</param>
     /// <returns>
@@ -104,7 +104,7 @@ public interface IDiagnosticsLogger
     }
 
     /// <summary>
-    ///     Determines whether or not an <see cref="EventData" /> instance is needed based on whether or
+    ///     Determines whether an <see cref="EventData" /> instance is needed based on whether or
     ///     not there is a <see cref="DiagnosticSource" /> or an <see cref="IDbContextLogger" /> enabled for
     ///     the given event.
     /// </summary>
@@ -136,7 +136,7 @@ public interface IDiagnosticsLogger
     }
 
     /// <summary>
-    ///     Determines whether or not an <see cref="EventData" /> instance is needed based on whether or
+    ///     Determines whether an <see cref="EventData" /> instance is needed based on whether or
     ///     not there is a <see cref="DiagnosticSource" />, an <see cref="IDbContextLogger" />, or an <see cref="IInterceptor" /> enabled for
     ///     the given event.
     /// </summary>

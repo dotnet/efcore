@@ -7,6 +7,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ModelBuilding101TestBase
 {
     [ConditionalFact]
@@ -1303,32 +1305,47 @@ public abstract partial class ModelBuilding101TestBase
                 => Set<Post>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>()
+            {
+                modelBuilder.Entity<Blog>()
                     .HasMany(e => e.Posts)
                     .WithOne(e => e.Blog)
                     .HasPrincipalKey(e => e.AlternateId);
+
+                modelBuilder.Entity<Post>()
+                    .HasIndex(e => e.BlogId);
+            }
         }
 
         public class Context1 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>()
+            {
+                modelBuilder.Entity<Blog>()
                     .HasMany(e => e.Posts)
                     .WithOne(e => e.Blog)
                     .HasPrincipalKey(e => e.AlternateId)
                     .HasForeignKey(e => e.BlogId)
                     .IsRequired();
+
+                modelBuilder.Entity<Post>()
+                    .HasIndex(e => e.BlogId);
+            }
         }
 
         public class Context2 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Post>()
+            {
+                modelBuilder.Entity<Post>()
                     .HasOne(e => e.Blog)
                     .WithMany(e => e.Posts)
                     .HasPrincipalKey(e => e.AlternateId)
                     .HasForeignKey(e => e.BlogId)
                     .IsRequired();
+
+                modelBuilder.Entity<Post>()
+                    .HasIndex(e => e.BlogId);
+            }
         }
 
         public class ContextAnnotated0 : Context101
@@ -1342,6 +1359,7 @@ public abstract partial class ModelBuilding101TestBase
                 public ICollection<Post> Posts { get; } = new List<Post>();
             }
 
+            [Index(nameof(BlogId))]
             public class Post
             {
                 public int Id { get; set; }
@@ -1366,6 +1384,19 @@ public abstract partial class ModelBuilding101TestBase
                     .HasMany(e => e.Posts)
                     .WithOne(e => e.Blog)
                     .HasPrincipalKey(e => e.AlternateId);
+        }
+
+        public class ContextAnnotated1 : ContextAnnotated0
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Post>().HasIndex(p => p.BlogId);
+            }
+
+            protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+                => configurationBuilder.Conventions.Remove<ForeignKeyIndexConvention>();
         }
     }
 

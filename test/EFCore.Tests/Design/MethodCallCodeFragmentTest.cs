@@ -21,10 +21,10 @@ public class MethodCallCodeFragmentTest
 
     private static readonly MethodInfo _extensionFuncMethodInfo
         = typeof(MethodCallCodeFragmentTestExtensions).GetRuntimeMethod(
-            nameof(MethodCallCodeFragmentTestExtensions.ExtensionFunc), new[] { typeof(MethodCallCodeFragmentTest), typeof(int) })!;
+            nameof(MethodCallCodeFragmentTestExtensions.ExtensionFunc), [typeof(MethodCallCodeFragmentTest), typeof(int)])!;
 
     private static readonly MethodInfo _instanceFuncMethodInfo
-        = typeof(MethodCallCodeFragmentTest).GetRuntimeMethod(nameof(InstanceFunc), new[] { typeof(int) })!;
+        = typeof(MethodCallCodeFragmentTest).GetRuntimeMethod(nameof(InstanceFunc), [typeof(int)])!;
 
     public void InstanceFunc(int p)
         => throw new NotSupportedException();

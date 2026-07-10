@@ -16,6 +16,9 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     private bool _isSearchCondition;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+    private static readonly bool UseOldBehavior35093 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue35093", out var enabled35093) && enabled35093;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -24,9 +27,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     public SearchConditionConvertingExpressionVisitor(
         ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
+        => _sqlExpressionFactory = sqlExpressionFactory;
 
     private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool condition)
         => _isSearchCondition
@@ -67,7 +68,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             && sqlUnaryExpression.Type == typeof(bool)
             && sqlUnaryExpression.Operand is SqlBinaryExpression
             {
-                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual
+                OperatorType: ExpressionType.Equal
             } sqlBinaryOperand)
         {
             if (sqlBinaryOperand.Left.Type == typeof(bool)
@@ -132,7 +133,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentSearchCondition;
 
-        return ApplyConversion(caseExpression.Update(operand, whenClauses, elseResult), condition: false);
+        return ApplyConversion(_sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression), condition: false);
     }
 
     /// <summary>
@@ -167,7 +168,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
-        => deleteExpression.Update((SelectExpression)Visit(deleteExpression.SelectExpression));
+        => deleteExpression.Update(deleteExpression.Table, (SelectExpression)Visit(deleteExpression.SelectExpression));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -281,64 +282,25 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     protected override Expression VisitSelect(SelectExpression selectExpression)
     {
-        var changed = false;
         var parentSearchCondition = _isSearchCondition;
 
-        var projections = new List<ProjectionExpression>();
         _isSearchCondition = false;
-        foreach (var item in selectExpression.Projection)
-        {
-            var updatedProjection = (ProjectionExpression)Visit(item);
-            projections.Add(updatedProjection);
-            changed |= updatedProjection != item;
-        }
 
-        var tables = new List<TableExpressionBase>();
-        foreach (var table in selectExpression.Tables)
-        {
-            var newTable = (TableExpressionBase)Visit(table);
-            changed |= newTable != table;
-            tables.Add(newTable);
-        }
-
-        _isSearchCondition = true;
-        var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
-        changed |= predicate != selectExpression.Predicate;
-
-        var groupBy = new List<SqlExpression>();
-        _isSearchCondition = false;
-        foreach (var groupingKey in selectExpression.GroupBy)
-        {
-            var newGroupingKey = (SqlExpression)Visit(groupingKey);
-            changed |= newGroupingKey != groupingKey;
-            groupBy.Add(newGroupingKey);
-        }
-
-        _isSearchCondition = true;
-        var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
-        changed |= havingExpression != selectExpression.Having;
-
-        var orderings = new List<OrderingExpression>();
-        _isSearchCondition = false;
-        foreach (var ordering in selectExpression.Orderings)
-        {
-            var orderingExpression = (SqlExpression)Visit(ordering.Expression);
-            changed |= orderingExpression != ordering.Expression;
-            orderings.Add(ordering.Update(orderingExpression));
-        }
-
+        var projections = this.VisitAndConvert(selectExpression.Projection);
+        var tables = this.VisitAndConvert(selectExpression.Tables);
+        var groupBy = this.VisitAndConvert(selectExpression.GroupBy);
+        var orderings = this.VisitAndConvert(selectExpression.Orderings);
         var offset = (SqlExpression?)Visit(selectExpression.Offset);
-        changed |= offset != selectExpression.Offset;
-
         var limit = (SqlExpression?)Visit(selectExpression.Limit);
-        changed |= limit != selectExpression.Limit;
+
+        _isSearchCondition = true;
+
+        var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
+        var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
 
         _isSearchCondition = parentSearchCondition;
 
-        return changed
-            ? selectExpression.Update(
-                projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset)
-            : selectExpression;
+        return selectExpression.Update(tables, predicate, groupBy, havingExpression, projections, orderings, offset, limit);
     }
 
     /// <summary>
@@ -385,6 +347,49 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentIsSearchCondition;
 
+        var leftType = UseOldBehavior35093 ? newLeft.Type : newLeft.TypeMapping?.Converter?.ProviderClrType ?? newLeft.Type;
+        var rightType = UseOldBehavior35093 ? newRight.Type : newRight.TypeMapping?.Converter?.ProviderClrType ?? newRight.Type;
+
+        if (!parentIsSearchCondition
+            && (leftType == typeof(bool) || leftType.IsEnum || leftType.IsInteger())
+            && (rightType == typeof(bool) || rightType.IsEnum || rightType.IsInteger())
+            && sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
+        {
+            // "lhs != rhs" is the same as "CAST(lhs ^ rhs AS BIT)", except that
+            // the first is a boolean, the second is a BIT
+            var result = _sqlExpressionFactory.MakeBinary(
+                ExpressionType.ExclusiveOr,
+                newLeft,
+                newRight,
+                null)!;
+
+            if (result.Type != typeof(bool))
+            {
+                result = _sqlExpressionFactory.Convert(result, typeof(bool), sqlBinaryExpression.TypeMapping);
+            }
+
+            // "lhs == rhs" is the same as "NOT(lhs != rhs)" aka "~(lhs ^ rhs)"
+            if (sqlBinaryExpression.OperatorType is ExpressionType.Equal)
+            {
+                result = _sqlExpressionFactory.MakeUnary(
+                    ExpressionType.OnesComplement,
+                    result,
+                    result.Type,
+                    result.TypeMapping
+                )!;
+            }
+
+            return result;
+        }
+
+        if (sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal
+            && newLeft is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } negatedLeft
+            && newRight is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } negatedRight)
+        {
+            newLeft = negatedLeft.Operand;
+            newRight = negatedRight.Operand;
+        }
+
         sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
         var condition = sqlBinaryExpression.OperatorType is ExpressionType.AndAlso
             or ExpressionType.OrElse
@@ -411,8 +416,29 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         switch (sqlUnaryExpression.OperatorType)
         {
             case ExpressionType.Not
-                when sqlUnaryExpression.Type == typeof(bool):
+                when (UseOldBehavior35093
+                    ? sqlUnaryExpression.Type
+                    : (sqlUnaryExpression.TypeMapping?.Converter?.ProviderClrType ?? sqlUnaryExpression.Type))
+                == typeof(bool):
             {
+                // when possible, avoid converting to/from predicate form
+                if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
+                {
+                    var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
+
+                    if (negatedOperand is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } unary)
+                    {
+                        return unary.Operand;
+                    }
+
+                    return _sqlExpressionFactory.MakeUnary(
+                        ExpressionType.OnesComplement,
+                        negatedOperand,
+                        negatedOperand.Type,
+                        negatedOperand.TypeMapping
+                    )!;
+                }
+
                 _isSearchCondition = true;
                 resultCondition = true;
                 break;
@@ -790,7 +816,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new List<ColumnValueSetter>();
+                columnValueSetters = [];
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
@@ -823,14 +849,25 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     {
         var parentSearchCondition = _isSearchCondition;
         _isSearchCondition = false;
-
-        var rowValues = new RowValueExpression[valuesExpression.RowValues.Count];
-        for (var i = 0; i < rowValues.Length; i++)
+        switch (valuesExpression)
         {
-            rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
-        }
+            case { RowValues: not null }:
+                var rowValues = new RowValueExpression[valuesExpression.RowValues!.Count];
+                for (var i = 0; i < rowValues.Length; i++)
+                {
+                    rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
+                }
 
-        _isSearchCondition = parentSearchCondition;
-        return valuesExpression.Update(rowValues);
+                _isSearchCondition = parentSearchCondition;
+                return valuesExpression.Update(rowValues);
+
+            case { ValuesParameter: not null }:
+                var valuesParameter = (SqlParameterExpression)Visit(valuesExpression.ValuesParameter);
+                _isSearchCondition = parentSearchCondition;
+                return valuesExpression.Update(valuesParameter);
+
+            default:
+                throw new UnreachableException();
+        }
     }
 }

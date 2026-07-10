@@ -46,13 +46,20 @@ public sealed record RelationalQueryTranslationPostprocessorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public RelationalQueryTranslationPostprocessorDependencies(
-        ISqlExpressionFactory sqlExpressionFactory)
+        ISqlExpressionFactory sqlExpressionFactory,
+        IRelationalTypeMappingSource typeMappingSource)
     {
         SqlExpressionFactory = sqlExpressionFactory;
+        TypeMappingSource = typeMappingSource;
     }
 
     /// <summary>
     ///     The SQL expression factory.
     /// </summary>
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
+
+    /// <summary>
+    ///     The SQL expression factory.
+    /// </summary>
+    public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 }

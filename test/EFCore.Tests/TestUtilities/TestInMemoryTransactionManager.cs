@@ -6,16 +6,11 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestInMemoryTransactionManager : InMemoryTransactionManager
+public class TestInMemoryTransactionManager(
+    IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger) : InMemoryTransactionManager(logger)
 {
     private IDbContextTransaction _currentTransaction;
     private Transaction _enlistedTransaction;
-
-    public TestInMemoryTransactionManager(
-        IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
-        : base(logger)
-    {
-    }
 
     public override IDbContextTransaction CurrentTransaction
         => _currentTransaction;
@@ -44,16 +39,11 @@ public class TestInMemoryTransactionManager : InMemoryTransactionManager
     public override void EnlistTransaction(Transaction transaction)
         => _enlistedTransaction = transaction;
 
-    private class TestInMemoryTransaction : IDbContextTransaction
+    private class TestInMemoryTransaction(TestInMemoryTransactionManager transactionManager) : IDbContextTransaction
     {
-        public TestInMemoryTransaction(TestInMemoryTransactionManager transactionManager)
-        {
-            TransactionManager = transactionManager;
-        }
-
         public Guid TransactionId { get; } = Guid.NewGuid();
 
-        private TestInMemoryTransactionManager TransactionManager { get; }
+        private TestInMemoryTransactionManager TransactionManager { get; } = transactionManager;
 
         public void Dispose()
             => TransactionManager._currentTransaction = null;

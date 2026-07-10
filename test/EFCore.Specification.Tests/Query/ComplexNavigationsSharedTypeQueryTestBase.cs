@@ -3,14 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
+public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture>(TFixture fixture)
+    : ComplexNavigationsQueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsSharedTypeQueryFixtureBase, new()
 {
-    protected ComplexNavigationsSharedTypeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Join_navigation_self_ref(bool async)
         => AssertTranslationFailed(() => base.Join_navigation_self_ref(async));
 
@@ -71,4 +67,12 @@ public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture> : Comp
 
     public override Task Project_shadow_properties9(bool async)
         => AssertUnableToTranslateEFProperty(() => base.Project_shadow_properties9(async));
+
+    public override async Task Null_check_removal_applied_recursively_complex(bool async)
+    {
+        var message =
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Null_check_removal_applied_recursively_complex(async))).Message;
+
+        Assert.Equal(CoreStrings.IncludeOnNonEntity("x => x.OneToMany_Required_Inverse3"), message);
+    }
 }

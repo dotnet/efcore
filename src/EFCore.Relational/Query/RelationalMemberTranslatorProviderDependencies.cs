@@ -54,7 +54,7 @@ public sealed record RelationalMemberTranslatorProviderDependencies
     }
 
     /// <summary>
-    ///     The expression factory..
+    ///     The expression factory.
     /// </summary>
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 

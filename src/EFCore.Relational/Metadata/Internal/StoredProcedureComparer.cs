@@ -47,11 +47,11 @@ public sealed class StoredProcedureComparer : IEqualityComparer<IStoredProcedure
             return 1;
         }
 
-        var xId = x.GetStoreIdentifier();
-        var yId = y.GetStoreIdentifier();
+        var xStoreId = x.GetStoreIdentifier();
+        var yStoreId = y.GetStoreIdentifier();
 
         var result = 0;
-        result = xId.StoreObjectType.CompareTo(yId.StoreObjectType);
+        result = xStoreId.StoreObjectType.CompareTo(yStoreId.StoreObjectType);
         if (result != 0)
         {
             return result;
@@ -63,13 +63,13 @@ public sealed class StoredProcedureComparer : IEqualityComparer<IStoredProcedure
             return result;
         }
 
-        result = StringComparer.Ordinal.Compare(xId.Name, yId.Name);
+        result = StringComparer.Ordinal.Compare(xStoreId.Name, yStoreId.Name);
         if (result != 0)
         {
             return result;
         }
 
-        result = StringComparer.Ordinal.Compare(xId.Schema, yId.Schema);
+        result = StringComparer.Ordinal.Compare(xStoreId.Schema, yStoreId.Schema);
         if (result != 0)
         {
             return result;

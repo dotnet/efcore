@@ -18,9 +18,7 @@ public abstract class RelationalParameterBase : IRelationalParameter
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected RelationalParameterBase(string invariantName)
-    {
-        InvariantName = invariantName;
-    }
+        => InvariantName = invariantName;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

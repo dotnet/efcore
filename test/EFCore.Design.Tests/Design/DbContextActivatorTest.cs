@@ -18,7 +18,7 @@ public class DbContextActivatorTest
                 typeof(TestContext),
                 null,
                 null,
-                new[] { "A", "B" }));
+                ["A", "B"]));
 
     private class TestContext : DbContext
     {
@@ -37,9 +37,7 @@ public class DbContextActivatorTest
     private class ThrowingTestContext : DbContext
     {
         public ThrowingTestContext()
-        {
-            throw new Exception("Bang!");
-        }
+            => throw new Exception("Bang!");
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options
@@ -57,12 +55,10 @@ public class DbContextActivatorTest
         Assert.Contains("Microsoft.EntityFrameworkCore.Design.DbContextActivatorTest+ParameterTestContext", message);
     }
 
-    private class ParameterTestContext : DbContext
+#pragma warning disable CS9113 // Parameter 'foo' is unread
+    private class ParameterTestContext(string foo) : DbContext
+#pragma warning restore CS9113
     {
-        public ParameterTestContext(string foo)
-        {
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options
                 .EnableServiceProviderCaching(false)

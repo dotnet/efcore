@@ -18,7 +18,7 @@ public class SqlServerOnDeleteConventionTest
 
     public class SkippyDbContext : DbContext
     {
-        public DbSet<Arena> Areas { get; private set; }
+        public DbSet<Arena> Areas { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer();

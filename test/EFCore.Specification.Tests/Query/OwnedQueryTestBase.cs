@@ -5,14 +5,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : OwnedQueryTestBase<TFixture>.OwnedQueryFixtureBase, new()
 {
     protected OwnedQueryTestBase(TFixture fixture)
         : base(fixture)
-    {
-        fixture.ListLoggerFactory.Clear();
-    }
+        => fixture.ListLoggerFactory.Clear();
 
     [ConditionalTheory] // Issue #26257
     [MemberData(nameof(IsAsyncData))]
@@ -129,6 +129,20 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_owned_reference_navigation_which_owns_additional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().OrderBy(o => o.Id).Select(p => p.PersonAddress));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().OrderBy(o => o.Id).Select(p => p.PersonAddress.Country));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
         => AssertQuery(
             async,
@@ -173,6 +187,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().SelectMany(p => p.Orders));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_with_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().SelectMany(o => o.Orders, (p, o) => new { PersonId = p.Id, OrderId = o.Id }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -593,7 +614,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+    public virtual Task Can_OrderBy_owned_indexer_properties_converted(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().OrderBy(c => (int)c.PersonAddress["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
@@ -759,7 +780,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         using var context = CreateContext();
 
-        var ownedPerson = context.Set<OwnedPerson>().AsTracking().Single(e => e.Id == 1);
+        var ownedPerson = await context.Set<OwnedPerson>().AsTracking().SingleAsync(e => e.Id == 1);
         var collectionQuery = context.Entry(ownedPerson).Collection(e => e.Orders).Query().AsNoTracking();
 
         var actualOrders = async
@@ -896,6 +917,93 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 AssertEqual(e.Key, a.Key);
                 AssertEqual(e.Sum, a.Sum);
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Count_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count == 2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_without_predicate_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Any()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_with_predicate_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Any(i => i.Id == -30)));
+
+    // TODO: proper owned entity containment, #34027
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Contains(new Order { Id = -30 })),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Any(o => o.Id == -30)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAt_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.ElementAt(1).Id == -11),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 2 && p.Orders.ElementAt(1).Id == -11));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAtOrDefault_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.ElementAtOrDefault(10).Id == -11),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 11 && p.Orders.ElementAtOrDefault(1).Id == -11),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task OrderBy_ElementAt_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.OrderBy(o => o.Id).ElementAt(1).Id == -10),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 2 && p.Orders.OrderBy(o => o.Id).ElementAt(1).Id == -10));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Skip_Take_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Skip(1).Take(1).Count() == 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FirstOrDefault_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018),
+            ss => ss.Set<OwnedPerson>().Where(
+                p => p.Orders.FirstOrDefault(o => o.Id > -20) != null
+                    && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Distinct_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Distinct().Count() == 2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .Where(p => p.Orders.Where(o => o.Id == -10).Union(p.Orders.Where(o => o.Id == -11)).Count() == 2));
 
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();
@@ -1631,21 +1739,21 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     Id = 1,
                     Name = "Sol",
-                    Composition = new List<Element>
-                    {
-                        new()
+                    Composition =
+                    [
+                        new Element
                         {
                             Id = "H",
                             Name = "Hydrogen",
                             StarId = 1
                         },
-                        new()
+                        new Element
                         {
                             Id = "He",
                             Name = "Helium",
                             StarId = 1
                         }
-                    }
+                    ]
                 }
             };
 
@@ -1759,7 +1867,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -10,
                 Client = ownedPerson1,
                 ["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41"),
-                Details = new List<OrderDetail> { new() { Detail = "Discounted Order" }, new() { Detail = "Full Price Order" } }
+                Details = [new OrderDetail { Detail = "Discounted Order" }, new OrderDetail { Detail = "Full Price Order" }]
             };
 
             var order2 = new Order
@@ -1767,7 +1875,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -11,
                 Client = ownedPerson1,
                 ["OrderDate"] = Convert.ToDateTime("2015-03-03 04:37:59"),
-                Details = new List<OrderDetail>()
+                Details = []
             };
             ownedPerson1.Orders = new List<Order> { order1, order2 };
 
@@ -1776,7 +1884,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -20,
                 Client = ownedPerson2,
                 ["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48"),
-                Details = new List<OrderDetail> { new() { Detail = "Internal Order" } }
+                Details = [new OrderDetail { Detail = "Internal Order" }]
             };
             ownedPerson2.Orders = new List<Order> { order3 };
 
@@ -1785,7 +1893,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -30,
                 Client = ownedPerson3,
                 ["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42"),
-                Details = new List<OrderDetail> { new() { Detail = "Bulk Order" } }
+                Details = [new OrderDetail { Detail = "Bulk Order" }]
             };
             ownedPerson3.Orders = new List<Order> { order4 };
 
@@ -1794,7 +1902,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -40,
                 Client = ownedPerson4,
                 ["OrderDate"] = Convert.ToDateTime("2016-04-25 19:23:56"),
-                Details = new List<OrderDetail>()
+                Details = []
             };
             ownedPerson4.Orders = new List<Order> { order5 };
 
@@ -1848,9 +1956,9 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             leafB.PersonAddress.Country.Planet = planets[0];
             leafB.LeafBAddress.Country.Planet = planets[0];
 
-            planets[0].Moons = new List<Moon> { moons[0] };
+            planets[0].Moons = [moons[0]];
             planets[0].Star = stars[0];
-            stars[0].Planets = new List<Planet> { planets[0] };
+            stars[0].Planets = [planets[0]];
 
             finks[0].Barton = bartons[0];
         }

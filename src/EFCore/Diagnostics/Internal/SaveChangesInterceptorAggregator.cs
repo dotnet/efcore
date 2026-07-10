@@ -19,14 +19,9 @@ public class SaveChangesInterceptorAggregator : InterceptorAggregator<ISaveChang
     protected override ISaveChangesInterceptor CreateChain(IEnumerable<ISaveChangesInterceptor> interceptors)
         => new CompositeSaveChangesInterceptor(interceptors);
 
-    private sealed class CompositeSaveChangesInterceptor : ISaveChangesInterceptor
+    private sealed class CompositeSaveChangesInterceptor(IEnumerable<ISaveChangesInterceptor> interceptors) : ISaveChangesInterceptor
     {
-        private readonly ISaveChangesInterceptor[] _interceptors;
-
-        public CompositeSaveChangesInterceptor(IEnumerable<ISaveChangesInterceptor> interceptors)
-        {
-            _interceptors = interceptors.ToArray();
-        }
+        private readonly ISaveChangesInterceptor[] _interceptors = interceptors.ToArray();
 
         public InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {

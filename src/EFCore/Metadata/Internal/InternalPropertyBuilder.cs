@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -14,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class InternalPropertyBuilder
     : InternalPropertyBaseBuilder<IConventionPropertyBuilder, Property>, IConventionPropertyBuilder
 {
-    internal static readonly bool UseOldBehavior32430 =
-    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32430", out var enabled32430) && enabled32430;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -174,8 +173,29 @@ public class InternalPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetSentinel(object? sentinel, ConfigurationSource? configurationSource)
-        => configurationSource.Overrides(Metadata.GetSentinelConfigurationSource())
-            || Equals(Metadata.Sentinel, sentinel);
+    {
+        if (configurationSource.Overrides(Metadata.GetSentinelConfigurationSource()))
+        {
+            return true;
+        }
+
+        if (sentinel == null
+            || Metadata.ClrType.UnwrapNullableType().IsAssignableFrom(sentinel.GetType()))
+        {
+            return Equals(Metadata.Sentinel, sentinel);
+        }
+
+        try
+        {
+            return Equals(Metadata.Sentinel, Convert.ChangeType(sentinel, Metadata.ClrType, CultureInfo.InvariantCulture));
+        }
+        catch
+        {
+            throw new InvalidOperationException(
+                CoreStrings.IncompatibleSentinelValue(
+                    sentinel, Metadata.DeclaringType.DisplayName(), Metadata.Name, Metadata.ClrType.ShortDisplayName()));
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -499,10 +519,11 @@ public class InternalPropertyBuilder
     {
         if (CanSetConversion(converter, configurationSource))
         {
-            if (converter != null || UseOldBehavior32430)
+            if (converter != null)
             {
                 Metadata.SetElementType(null, configurationSource);
             }
+
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converter, configurationSource);
 
@@ -527,7 +548,7 @@ public class InternalPropertyBuilder
                 || (Metadata[CoreAnnotationNames.ValueConverterType] == null
                     && (ValueConverter?)Metadata[CoreAnnotationNames.ValueConverter] == converter))
             && configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
-            && (converter == null || CanSetElementType(null, configurationSource) || UseOldBehavior32430);
+            && (converter == null || CanSetElementType(null, configurationSource));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -539,10 +560,11 @@ public class InternalPropertyBuilder
     {
         if (CanSetConversion(providerClrType, configurationSource))
         {
-            if (providerClrType != null || UseOldBehavior32430)
+            if (providerClrType != null)
             {
                 Metadata.SetElementType(null, configurationSource);
             }
+
             Metadata.SetValueConverter((ValueConverter?)null, configurationSource);
             Metadata.SetProviderClrType(providerClrType, configurationSource);
 
@@ -562,7 +584,7 @@ public class InternalPropertyBuilder
         => (configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
                 || Metadata.GetProviderClrType() == providerClrType)
             && configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
-            && (providerClrType == null || CanSetElementType(null, configurationSource) || UseOldBehavior32430);
+            && (providerClrType == null || CanSetElementType(null, configurationSource));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -577,10 +599,11 @@ public class InternalPropertyBuilder
     {
         if (CanSetConverter(converterType, configurationSource))
         {
-            if (converterType != null || UseOldBehavior32430)
+            if (converterType != null)
             {
                 Metadata.SetElementType(null, configurationSource);
             }
+
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converterType, configurationSource);
 
@@ -601,9 +624,9 @@ public class InternalPropertyBuilder
         Type? converterType,
         ConfigurationSource? configurationSource)
         => (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
-            || (Metadata[CoreAnnotationNames.ValueConverter] == null
-                && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType))
-            && (converterType == null || CanSetElementType(null, configurationSource) || UseOldBehavior32430);
+                || (Metadata[CoreAnnotationNames.ValueConverter] == null
+                    && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType))
+            && (converterType == null || CanSetElementType(null, configurationSource));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -798,14 +821,13 @@ public class InternalPropertyBuilder
         if (CanSetElementType(elementType, configurationSource))
         {
             Metadata.SetElementType(elementType, configurationSource);
-            if (elementType != null || UseOldBehavior32430)
+            if (elementType != null)
             {
                 Metadata.SetValueConverter((Type?)null, configurationSource);
             }
 
             if (elementType == null
-                && CanSetConversion((Type?)null, configurationSource)
-                && !ElementTypeChangedConvention.UseOldBehavior33704)
+                && CanSetConversion((Type?)null, configurationSource))
             {
                 Metadata.RemoveAnnotation(CoreAnnotationNames.ValueConverter);
             }
@@ -824,7 +846,7 @@ public class InternalPropertyBuilder
     /// </summary>
     public virtual bool CanSetElementType(Type? elementType, ConfigurationSource? configurationSource)
         => (configurationSource.Overrides(Metadata.GetElementTypeConfigurationSource())
-            && (elementType == null || CanSetConversion((Type?)null, configurationSource) || UseOldBehavior32430))
+                && (elementType == null || CanSetConversion((Type?)null, configurationSource)))
             || elementType == Metadata.GetElementType()?.ClrType;
 
     /// <summary>

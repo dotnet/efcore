@@ -97,7 +97,5 @@ public class QueryFilterRewritingConventionTest
         public Blog Blog { get; set; }
     }
 
-    protected class MyContext : DbContext
-    {
-    }
+    protected class MyContext : DbContext;
 }

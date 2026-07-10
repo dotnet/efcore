@@ -52,19 +52,23 @@ public enum DbContextLoggerOptions
     LocalTime = 1 << 5,
 
     /// <summary>
-    ///     The default used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />.
+    ///     <para>
+    ///         The default used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />.
+    ///     </para>
+    ///     <para>
+    ///         Includes <see cref="Level" />, <see cref="Category" />, <see cref="Id" />, <see cref="LocalTime" />.
+    ///     </para>
     /// </summary>
-    /// <remarks>
-    ///     Includes <see cref="Level" />, <see cref="Category" />, <see cref="Id" />, <see cref="LocalTime" />.
-    /// </remarks>
     DefaultWithLocalTime = Level | Category | Id | LocalTime,
 
     /// <summary>
-    ///     The same defaults as used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />,
-    ///     but with UTC timestamps.
+    ///     <para>
+    ///         The same defaults as used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />,
+    ///         but with UTC timestamps.
+    ///     </para>
+    ///     <para>
+    ///         Includes <see cref="Level" />, <see cref="Category" />, <see cref="Id" />, <see cref="UtcTime" />.
+    ///     </para>
     /// </summary>
-    /// <remarks>
-    ///     Includes <see cref="Level" />, <see cref="Category" />, <see cref="Id" />, <see cref="UtcTime" />.
-    /// </remarks>
     DefaultWithUtcTime = Level | Category | Id | UtcTime
 }

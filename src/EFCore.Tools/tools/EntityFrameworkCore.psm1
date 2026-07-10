@@ -1220,15 +1220,15 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $platformTarget = GetPlatformTarget $startupProject
         if ($platformTarget -eq 'x86')
         {
-            $exePath = Join-Path $PSScriptRoot 'net461\win-x86\ef.exe'
+            $exePath = Join-Path $PSScriptRoot 'net472\win-x86\ef.exe'
         }
         elseif ($platformTarget -eq 'ARM64')
         {
-            $exePath = Join-Path $PSScriptRoot 'net461\win-arm64\ef.exe'
+            $exePath = Join-Path $PSScriptRoot 'net472\win-arm64\ef.exe'
         }
         elseif ($platformTarget -in 'AnyCPU', 'x64')
         {
-            $exePath = Join-Path $PSScriptRoot 'net461\any\ef.exe'
+            $exePath = Join-Path $PSScriptRoot 'net472\any\ef.exe'
         }
         else
         {

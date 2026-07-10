@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -29,12 +30,15 @@ public abstract class ReaderColumn
     /// <param name="nullable">A value indicating if the column is nullable.</param>
     /// <param name="name">The name of the column.</param>
     /// <param name="property">The property being read if any, null otherwise.</param>
-    protected ReaderColumn(Type type, bool nullable, string? name, IPropertyBase? property)
+    /// <param name="getFieldValueExpression">A lambda expression to get field value for the column from the reader.</param>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    protected ReaderColumn(Type type, bool nullable, string? name, IPropertyBase? property, LambdaExpression getFieldValueExpression)
     {
         Type = type;
         IsNullable = nullable;
         Name = name;
         Property = property;
+        GetFieldValueExpression = getFieldValueExpression;
     }
 
     /// <summary>
@@ -58,6 +62,12 @@ public abstract class ReaderColumn
     public virtual IPropertyBase? Property { get; }
 
     /// <summary>
+    ///     A lambda expression to get field value for the column from the reader.
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual LambdaExpression GetFieldValueExpression { get; }
+
+    /// <summary>
     ///     Creates an instance of <see cref="ReaderColumn{T}" />.
     /// </summary>
     /// <param name="type">The type of the column.</param>
@@ -68,15 +78,23 @@ public abstract class ReaderColumn
     ///     A <see cref="T:System.Func{DbDataReader, Int32[], T}" /> used to get the field value for this column.
     /// </param>
     /// <returns>An instance of <see cref="ReaderColumn{T}" />.</returns>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public static ReaderColumn Create(
         Type type,
         bool nullable,
         string? columnName,
         IPropertyBase? property,
-        object readFunc)
-        => (ReaderColumn)GetConstructor(type).Invoke(new[] { nullable, columnName, property, readFunc });
+        LambdaExpression readFunc)
+        => (ReaderColumn)GetConstructor(type).Invoke([nullable, columnName, property, readFunc]);
 
-    private static ConstructorInfo GetConstructor(Type type)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static ConstructorInfo GetConstructor(Type type)
         => Constructors.GetOrAdd(
             type, t => typeof(ReaderColumn<>).MakeGenericType(t).GetConstructors().First(ci => ci.GetParameters().Length == 4));
 }

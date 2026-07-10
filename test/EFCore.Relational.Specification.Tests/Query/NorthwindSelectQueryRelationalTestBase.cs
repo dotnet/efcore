@@ -3,14 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindSelectQueryRelationalTestBase<TFixture> : NorthwindSelectQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindSelectQueryRelationalTestBase<TFixture>(TFixture fixture) : NorthwindSelectQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindSelectQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool async)
         => AssertTranslationFailed(() => base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(async));
 
@@ -18,10 +15,7 @@ public abstract class NorthwindSelectQueryRelationalTestBase<TFixture> : Northwi
         => AssertTranslationFailedWithDetails(
             () => base.Reverse_without_explicit_ordering(async), RelationalStrings.MissingOrderingInSelectExpression);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

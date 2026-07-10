@@ -37,9 +37,7 @@ public class RelationalDatabase : Database
         DatabaseDependencies dependencies,
         RelationalDatabaseDependencies relationalDependencies)
         : base(dependencies)
-    {
-        RelationalDependencies = relationalDependencies;
-    }
+        => RelationalDependencies = relationalDependencies;
 
     private IUpdateAdapter UpdateAdapter
         => _updateAdapter ??= Dependencies.UpdateAdapterFactory.Create();
@@ -55,9 +53,15 @@ public class RelationalDatabase : Database
     /// <param name="entries">Entries representing the changes to be persisted.</param>
     /// <returns>The number of state entries persisted to the database.</returns>
     public override int SaveChanges(IList<IUpdateEntry> entries)
-        => RelationalDependencies.BatchExecutor.Execute(
+    {
+        var result = RelationalDependencies.BatchExecutor.Execute(
             RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
             RelationalDependencies.Connection);
+
+        RelationalDependencies.BatchPreparer.ResetState();
+
+        return result;
+    }
 
     /// <summary>
     ///     Asynchronously persists changes from the supplied entries to the database.
@@ -69,11 +73,17 @@ public class RelationalDatabase : Database
     ///     number of entries persisted to the database.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task<int> SaveChangesAsync(
+    public override async Task<int> SaveChangesAsync(
         IList<IUpdateEntry> entries,
         CancellationToken cancellationToken = default)
-        => RelationalDependencies.BatchExecutor.ExecuteAsync(
+    {
+        var result = await RelationalDependencies.BatchExecutor.ExecuteAsync(
             RelationalDependencies.BatchPreparer.BatchCommands(entries, UpdateAdapter),
             RelationalDependencies.Connection,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
+
+        await RelationalDependencies.BatchPreparer.ResetStateAsync(cancellationToken).ConfigureAwait(false);
+
+        return result;
+    }
 }

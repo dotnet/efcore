@@ -25,9 +25,7 @@ public class MigratorEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         IMigrator migrator)
         : base(eventDefinition, messageGenerator)
-    {
-        Migrator = migrator;
-    }
+        => Migrator = migrator;
 
     /// <summary>
     ///     The <see cref="IMigrator" /> in use.

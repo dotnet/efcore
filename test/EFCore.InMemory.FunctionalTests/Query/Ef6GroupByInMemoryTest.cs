@@ -3,13 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class Ef6GroupByInMemoryTest : Ef6GroupByTestBase<Ef6GroupByInMemoryTest.Ef6GroupByInMemoryFixture>
+public class Ef6GroupByInMemoryTest(Ef6GroupByInMemoryTest.Ef6GroupByInMemoryFixture fixture)
+    : Ef6GroupByTestBase<Ef6GroupByInMemoryTest.Ef6GroupByInMemoryFixture>(fixture)
 {
-    public Ef6GroupByInMemoryTest(Ef6GroupByInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-    }
-
     public class Ef6GroupByInMemoryFixture : Ef6GroupByFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

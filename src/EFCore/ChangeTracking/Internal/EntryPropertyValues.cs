@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -95,8 +94,7 @@ public abstract class EntryPropertyValues : PropertyValues
 
         foreach (var property in Properties)
         {
-            SetValueInternal(
-                property, EntityMaterializerSource.UseOldBehavior32701 ? propertyValues[property.Name] : propertyValues[property]);
+            SetValueInternal(property, propertyValues[property]);
         }
     }
 
@@ -109,9 +107,7 @@ public abstract class EntryPropertyValues : PropertyValues
     public override IReadOnlyList<IProperty> Properties
     {
         [DebuggerStepThrough]
-        get => _properties ??= EntityMaterializerSource.UseOldBehavior32701
-            ? EntityType.GetProperties().ToList()
-            : EntityType.GetFlattenedProperties().ToList();
+        get => _properties ??= EntityType.GetFlattenedProperties().ToList();
     }
 
     /// <summary>
@@ -134,8 +130,8 @@ public abstract class EntryPropertyValues : PropertyValues
     /// </summary>
     public override object? this[IProperty property]
     {
-        get => GetValueInternal(EntityType.CheckPropertyBelongsToType(property));
-        set => SetValueInternal(EntityType.CheckPropertyBelongsToType(property), value);
+        get => GetValueInternal(EntityType.CheckContains(property));
+        set => SetValueInternal(EntityType.CheckContains(property), value);
     }
 
     /// <summary>

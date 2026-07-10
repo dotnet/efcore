@@ -130,7 +130,7 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
             return _nullSafeAccesses.Contains(result);
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => expression == null || _nullSafeAccesses.Contains(expression)
                 ? expression

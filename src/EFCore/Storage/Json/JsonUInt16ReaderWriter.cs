@@ -10,6 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </summary>
 public sealed class JsonUInt16ReaderWriter : JsonValueReaderWriter<ushort>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(JsonUInt16ReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -26,4 +28,8 @@ public sealed class JsonUInt16ReaderWriter : JsonValueReaderWriter<ushort>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, ushort value)
         => writer.WriteNumberValue(value);
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

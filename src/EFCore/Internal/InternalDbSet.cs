@@ -19,6 +19,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     DbSet<TEntity>,
     IQueryable<TEntity>,
     IAsyncEnumerable<TEntity>,
+    IInfrastructure<DbContext>,
     IInfrastructure<IServiceProvider>,
     IResettableService
     where TEntity : class
@@ -519,6 +520,15 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     IQueryProvider IQueryable.Provider
         => EntityQueryable.Provider;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    DbContext IInfrastructure<DbContext>.Instance
+        => _context;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

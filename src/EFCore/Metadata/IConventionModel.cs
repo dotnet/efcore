@@ -59,6 +59,20 @@ public interface IConventionModel : IReadOnlyModel, IConventionAnnotatable
     ConfigurationSource? GetPropertyAccessModeConfigurationSource();
 
     /// <summary>
+    ///     Sets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    string? SetEmbeddedDiscriminatorName(string? name, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyModel.GetEmbeddedDiscriminatorName" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyModel.GetEmbeddedDiscriminatorName" />.</returns>
+    ConfigurationSource? GetEmbeddedDiscriminatorNameConfigurationSource();
+
+    /// <summary>
     ///     Sets the default change tracking strategy to use for entities in the model. This strategy indicates how the
     ///     context detects changes to properties for an instance of an entity type.
     /// </summary>

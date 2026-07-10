@@ -10,6 +10,4 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public interface IConventionOwnedEntityTypeBuilder
-{
-}
+public interface IConventionOwnedEntityTypeBuilder;

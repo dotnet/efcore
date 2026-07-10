@@ -3,6 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class QueryNoClientEvalSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>
-{
-}
+#nullable disable
+
+public class QueryNoClientEvalSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>;

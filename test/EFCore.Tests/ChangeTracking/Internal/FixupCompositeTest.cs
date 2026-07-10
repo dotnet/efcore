@@ -3535,15 +3535,10 @@ public class FixupCompositeTest
 
     private class CategoryPN
     {
-        public CategoryPN()
-        {
-            Products = new List<ProductPN>();
-        }
-
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<ProductPN> Products { get; }
+        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
     }
 
     private class ProductPN
@@ -3572,15 +3567,10 @@ public class FixupCompositeTest
 
     private class Category
     {
-        public Category()
-        {
-            Products = new List<Product>();
-        }
-
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<Product> Products { get; }
+        public ICollection<Product> Products { get; } = new List<Product>();
     }
 
     private class Product
@@ -3599,7 +3589,7 @@ public class FixupCompositeTest
         public long? FavoriteChildID { get; set; }
 
         public virtual ChildShared FavoriteChildShared { get; set; }
-        public virtual List<ChildShared> Children { get; } = new();
+        public virtual List<ChildShared> Children { get; } = [];
     }
 
     public class ChildShared
@@ -3613,10 +3603,8 @@ public class FixupCompositeTest
     private class FixupContext : DbContext
     {
         public FixupContext()
-        {
             // ReSharper disable once VirtualMemberCallInConstructor
-            ChangeTracker.AutoDetectChangesEnabled = false;
-        }
+            => ChangeTracker.AutoDetectChangesEnabled = false;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

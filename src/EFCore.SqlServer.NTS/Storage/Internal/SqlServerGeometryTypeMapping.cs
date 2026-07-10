@@ -23,7 +23,7 @@ public class SqlServerGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMap
     where TGeometry : Geometry
 {
     private static readonly MethodInfo _getSqlBytes
-        = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) })!;
+        = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), [typeof(int)])!;
 
     private static Action<DbParameter, SqlDbType>? _sqlDbTypeSetter;
     private static Action<DbParameter, string>? _udtTypeNameSetter;
@@ -44,9 +44,7 @@ public class SqlServerGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMap
                 CreateWriter(IsGeography(storeType))),
             storeType,
             SqlServerJsonGeometryWktReaderWriter.Instance)
-    {
-        _isGeography = IsGeography(storeType);
-    }
+        => _isGeography = IsGeography(storeType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,9 +56,7 @@ public class SqlServerGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMap
         RelationalTypeMappingParameters parameters,
         ValueConverter<TGeometry, SqlBytes>? converter)
         : base(parameters, converter)
-    {
-        _isGeography = IsGeography(StoreType);
-    }
+        => _isGeography = IsGeography(StoreType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

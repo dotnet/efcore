@@ -82,21 +82,11 @@ public class LanguageBasedSelectorTests
         Assert.Same(lastService, result);
     }
 
-    private class TestLanguageBasedSelector : LanguageBasedSelector<TestLanguageBasedService>
-    {
-        public TestLanguageBasedSelector(params TestLanguageBasedService[] services)
-            : base(services)
-        {
-        }
-    }
+    private class TestLanguageBasedSelector(params TestLanguageBasedService[] services)
+        : LanguageBasedSelector<TestLanguageBasedService>(services);
 
-    private class TestLanguageBasedService : ILanguageBasedService
+    private class TestLanguageBasedService(string language) : ILanguageBasedService
     {
-        public TestLanguageBasedService(string language)
-        {
-            Language = language;
-        }
-
-        public string Language { get; }
+        public string Language { get; } = language;
     }
 }

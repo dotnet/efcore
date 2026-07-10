@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public abstract class UpdateSqlGeneratorTestBase
 {
     [ConditionalFact]

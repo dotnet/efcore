@@ -78,7 +78,7 @@ public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventio
     public virtual InternalServicePropertyBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>

@@ -118,15 +118,8 @@ public class SharedTableEntryMap<TValue>
         }
     }
 
-    private sealed class EntryComparer : IComparer<IUpdateEntry>
+    private sealed class EntryComparer(ITable table) : IComparer<IUpdateEntry>
     {
-        private readonly ITable _table;
-
-        public EntryComparer(ITable table)
-        {
-            _table = table;
-        }
-
         public int Compare(IUpdateEntry? x, IUpdateEntry? y)
         {
             if (ReferenceEquals(x, y))
@@ -144,9 +137,9 @@ public class SharedTableEntryMap<TValue>
                 return 1;
             }
 
-            return !_table.GetRowInternalForeignKeys(x.EntityType).Any()
+            return !table.GetRowInternalForeignKeys(x.EntityType).Any()
                 ? -1
-                : !_table.GetRowInternalForeignKeys(y.EntityType).Any()
+                : !table.GetRowInternalForeignKeys(y.EntityType).Any()
                     ? 1
                     : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }

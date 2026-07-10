@@ -91,11 +91,11 @@ public class ShapedQueryExpression : Expression, IPrintableExpression
     /// <param name="queryExpression">The <see cref="QueryExpression" /> property of the result.</param>
     /// <returns>This expression if shaper expression did not change, or an expression with the updated shaper expression.</returns>
     public virtual ShapedQueryExpression UpdateQueryExpression(Expression queryExpression)
-        => !ReferenceEquals(queryExpression, QueryExpression)
-            ? new ShapedQueryExpression(
+        => ReferenceEquals(queryExpression, QueryExpression)
+            ? this
+            : new ShapedQueryExpression(
                 queryExpression,
-                ReplacingExpressionVisitor.Replace(QueryExpression, queryExpression, ShaperExpression), ResultCardinality)
-            : this;
+                ReplacingExpressionVisitor.Replace(QueryExpression, queryExpression, ShaperExpression), ResultCardinality);
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied shaper expression. If shaper expression is the same, it will

@@ -14,7 +14,6 @@ stages:
       parameters:
         enableMicrobuild: true
         enableRichCodeNavigation: true
-        richCodeNavigationEnvironment: production
         helixRepo: dotnet/efcore
         jobs:
           - job: Windows

@@ -135,9 +135,6 @@
   <data name="InvalidMigrationOperation" xml:space="preserve">
     <value>SQLite does not support this migration operation ('{operation}'). See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>
-  <data name="QueryingIntoJsonCollectionsNotSupported" xml:space="preserve">
-    <value>SQLite version {sqliteVersion} is being used, but version 3.38.0 or higher is required for querying into JSON collections.</value>
-  </data>
   <data name="LogCompositeKeyWithValueGeneration" xml:space="preserve">
     <value>The entity type '{entityType}' has composite key '{key}' which is configured to use generated values. SQLite does not support generated values on composite keys.</value>
     <comment>Warning SqliteEventId.CompositeKeyWithValueGeneration string? string?</comment>
@@ -215,6 +212,9 @@
   </data>
   <data name="OrderByNotSupported" xml:space="preserve">
     <value>SQLite does not support expressions of type '{type}' in ORDER BY clauses. Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.</value>
+  </data>
+  <data name="QueryingIntoJsonCollectionsNotSupported" xml:space="preserve">
+    <value>SQLite version {sqliteVersion} is being used, but version 3.38.0 or higher is required for querying into JSON collections.</value>
   </data>
   <data name="SequencesNotSupported" xml:space="preserve">
     <value>SQLite does not support sequences. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>

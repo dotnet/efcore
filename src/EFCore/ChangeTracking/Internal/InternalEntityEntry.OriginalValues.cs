@@ -7,37 +7,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public sealed partial class InternalEntityEntry
 {
-    private readonly struct OriginalValues
+    private readonly struct OriginalValues(InternalEntityEntry entry)
     {
-        private readonly ISnapshot _values;
-
-        public OriginalValues(InternalEntityEntry entry)
-        {
-            _values = entry.EntityType.OriginalValuesFactory(entry);
-        }
+        private readonly ISnapshot _values = entry.EntityType.OriginalValuesFactory(entry);
 
         public object? GetValue(InternalEntityEntry entry, IProperty property)
-        {
-            var index = property.GetOriginalValueIndex();
-            if (index == -1)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()));
-            }
-
-            return IsEmpty ? entry[property] : _values[index];
-        }
+            => property.GetOriginalValueIndex() is var index && index == -1
+                ? throw new InvalidOperationException(
+                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()))
+                : IsEmpty
+                    ? entry[property]
+                    : _values[index];
 
         public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index)
-        {
-            if (index == -1)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()));
-            }
-
-            return IsEmpty ? entry.GetCurrentValue<T>(property) : _values.GetValue<T>(index);
-        }
+            => index == -1
+                ? throw new InvalidOperationException(
+                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName()))
+                : IsEmpty
+                    ? entry.GetCurrentValue<T>(property)
+                    : _values.GetValue<T>(index);
 
         public void SetValue(IProperty property, object? value, int index)
         {

@@ -6,14 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindSetOperationsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
@@ -387,6 +384,48 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                     ss.Set<Order>()
                         .Where(o => o.CustomerID == "ALFKI")
                         .Select(o => o.Customer)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Intersect_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Intersect(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Union(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Except(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

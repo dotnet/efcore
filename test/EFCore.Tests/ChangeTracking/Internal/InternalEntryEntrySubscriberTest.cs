@@ -523,8 +523,8 @@ public class InternalEntryEntrySubscriberTest
 
     private class TestPropertyListener : IChangeDetector
     {
-        public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = new();
-        public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new();
+        public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = [];
+        public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = [];
 
         public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
             => Changed.Add(Tuple.Create(entry, property));
@@ -591,7 +591,7 @@ public class InternalEntryEntrySubscriberTest
     private class TestNavigationListener : INavigationFixer
     {
         public List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
-            = new();
+            = [];
 
         public bool BeginDelayedFixup()
             => false;

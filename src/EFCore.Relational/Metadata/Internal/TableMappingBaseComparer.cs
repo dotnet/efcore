@@ -69,24 +69,39 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
             }
         }
 
-        result = y.IncludesDerivedTypes.CompareTo(x.IncludesDerivedTypes);
-        if (result != 0)
+        if (y.IncludesDerivedTypes == null)
         {
-            return result;
+            if (x.IncludesDerivedTypes != null)
+            {
+                return -1;
+            }
+        }
+        else
+        {
+            if (x.IncludesDerivedTypes == null)
+            {
+                return 1;
+            }
+
+            result = y.IncludesDerivedTypes.Value.CompareTo(x.IncludesDerivedTypes.Value);
+            if (result != 0)
+            {
+                return result;
+            }
         }
 
         if (y.IsSplitEntityTypePrincipal == null)
         {
             if (x.IsSplitEntityTypePrincipal != null)
             {
-                return 1;
+                return -1;
             }
         }
         else
         {
             if (x.IsSplitEntityTypePrincipal == null)
             {
-                return -1;
+                return 1;
             }
 
             result = y.IsSplitEntityTypePrincipal.Value.CompareTo(x.IsSplitEntityTypePrincipal.Value);

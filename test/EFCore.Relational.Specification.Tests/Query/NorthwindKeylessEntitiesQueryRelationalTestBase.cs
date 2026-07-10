@@ -5,17 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> : NorthwindKeylessEntitiesQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindKeylessEntitiesQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindKeylessEntitiesQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_collection_correlated_with_keyless_entity_throws(bool async)
@@ -50,8 +45,6 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -60,8 +53,6 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -72,5 +63,5 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
 
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

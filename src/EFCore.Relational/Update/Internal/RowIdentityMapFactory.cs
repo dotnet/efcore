@@ -22,7 +22,7 @@ public class RowIdentityMapFactory : IRowIdentityMapFactory
     public virtual IRowIdentityMap Create(IUniqueConstraint key)
         => (IRowIdentityMap)_createMethod
             .MakeGenericMethod(key.Columns.Count == 1 ? key.Columns.First().ProviderClrType : typeof(object[]))
-            .Invoke(null, new object[] { key })!;
+            .Invoke(null, [key])!;
 
     private static readonly MethodInfo _createMethod = typeof(RowIdentityMapFactory).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreateRowIdentityMap))!;

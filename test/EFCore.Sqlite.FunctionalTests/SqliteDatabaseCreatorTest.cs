@@ -7,6 +7,8 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqliteDatabaseCreatorTest
 {
     [ConditionalTheory]
@@ -34,7 +36,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true)]
     public async Task HasTables_returns_false_when_database_is_empty(bool async)
     {
-        using var testStore = SqliteTestStore.GetOrCreateInitialized("Empty");
+        using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
         var context = CreateContext(testStore.ConnectionString);
 
         var creator = context.GetService<IRelationalDatabaseCreator>();
@@ -46,7 +48,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true)]
     public async Task HasTables_returns_true_when_database_is_not_empty(bool async)
     {
-        using var testStore = SqliteTestStore.GetOrCreateInitialized($"HasATable{(async ? 'A' : 'S')}");
+        using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync($"HasATable{(async ? 'A' : 'S')}");
         var context = CreateContext(testStore.ConnectionString);
         context.Database.ExecuteSqlRaw("CREATE TABLE Dummy (Foo INTEGER)");
 
@@ -61,7 +63,7 @@ public class SqliteDatabaseCreatorTest
     [InlineData(true, true)]
     public async Task Exists_returns_true_when_database_exists(bool async, bool useCanConnect)
     {
-        using var testStore = SqliteTestStore.GetOrCreateInitialized("Empty");
+        using var testStore = await SqliteTestStore.GetOrCreateInitializedAsync("Empty");
         var context = CreateContext(testStore.ConnectionString);
 
         if (useCanConnect)
@@ -98,7 +100,7 @@ public class SqliteDatabaseCreatorTest
         Assert.Equal("wal", journalMode);
     }
 
-    [ConditionalTheory(Skip = "Issues #25797 and #26016")]
+    [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task Delete_works_even_when_different_connection_exists_to_same_file(bool async)
@@ -134,14 +136,9 @@ public class SqliteDatabaseCreatorTest
         }
     }
 
-    private class BathtubContext : DbContext
+    private class BathtubContext(string connectionString) : DbContext
     {
-        private readonly string _connectionString;
-
-        public BathtubContext(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
+        private readonly string _connectionString = connectionString;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(_connectionString);
@@ -212,14 +209,9 @@ public class SqliteDatabaseCreatorTest
         public int Id { get; set; }
     }
 
-    private class ShowerContext : DbContext
+    private class ShowerContext(DbConnection connection) : DbContext
     {
-        private readonly DbConnection _connection;
-
-        public ShowerContext(DbConnection connection)
-        {
-            _connection = connection;
-        }
+        private readonly DbConnection _connection = connection;
 
         public DbSet<Soap> Soap
             => Set<Soap>();

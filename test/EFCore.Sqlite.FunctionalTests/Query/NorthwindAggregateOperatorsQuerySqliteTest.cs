@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOperatorsQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -18,46 +20,96 @@ public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOper
     }
 
     public override async Task Sum_with_division_on_decimal(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Sum_with_division_on_decimal(async)))
-            .Message);
+    {
+        await base.Sum_with_division_on_decimal(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(ef_sum(ef_divide(CAST("o"."Quantity" AS TEXT), '2.09')), '0.0')
+FROM "Order Details" AS "o"
+""");
+    }
 
     public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Sum_with_division_on_decimal_no_significant_digits(async)))
-            .Message);
+    {
+        await base.Sum_with_division_on_decimal_no_significant_digits(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(ef_sum(ef_divide(CAST("o"."Quantity" AS TEXT), '2.0')), '0.0')
+FROM "Order Details" AS "o"
+""");
+    }
 
     public override async Task Average_with_division_on_decimal(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_with_division_on_decimal(async)))
-            .Message);
+    {
+        await base.Average_with_division_on_decimal(async);
+
+        AssertSql(
+            """
+SELECT ef_avg(ef_divide(CAST("o"."Quantity" AS TEXT), '2.09'))
+FROM "Order Details" AS "o"
+""");
+    }
 
     public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_with_division_on_decimal_no_significant_digits(async)))
-            .Message);
+    {
+        await base.Average_with_division_on_decimal_no_significant_digits(async);
 
-    public override async Task Average_over_max_subquery_is_client_eval(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_over_max_subquery_is_client_eval(async)))
-            .Message);
+        AssertSql(
+            """
+SELECT ef_avg(ef_divide(CAST("o"."Quantity" AS TEXT), '2.0'))
+FROM "Order Details" AS "o"
+""");
+    }
 
-    public override async Task Average_over_nested_subquery_is_client_eval(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_over_nested_subquery_is_client_eval(async)))
-            .Message);
+    public override async Task Average_over_max_subquery(bool async)
+    {
+        await base.Average_over_max_subquery(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT ef_avg(CAST((
+    SELECT AVG(CAST(5 + (
+        SELECT MAX("o0"."ProductID")
+        FROM "Order Details" AS "o0"
+        WHERE "o"."OrderID" = "o0"."OrderID") AS REAL))
+    FROM "Orders" AS "o"
+    WHERE "c0"."CustomerID" = "o"."CustomerID") AS TEXT))
+FROM (
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."CustomerID"
+    LIMIT @__p_0
+) AS "c0"
+""");
+    }
+
+    public override async Task Average_over_nested_subquery(bool async)
+    {
+        await base.Average_over_nested_subquery(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT ef_avg(CAST((
+    SELECT AVG(5.0 + (
+        SELECT AVG(CAST("o0"."ProductID" AS REAL))
+        FROM "Order Details" AS "o0"
+        WHERE "o"."OrderID" = "o0"."OrderID"))
+    FROM "Orders" AS "o"
+    WHERE "c0"."CustomerID" = "o"."CustomerID") AS TEXT))
+FROM (
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."CustomerID"
+    LIMIT @__p_0
+) AS "c0"
+""");
+    }
 
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         => Assert.Equal(
@@ -66,7 +118,6 @@ public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOper
                 () => base.Multiple_collection_navigation_with_FirstOrDefault_chained(async))).Message);
 
     public override async Task Contains_with_local_anonymous_type_array_closure(bool async)
-        // Aggregates. Issue #15937.
         => await AssertTranslationFailed(() => base.Contains_with_local_anonymous_type_array_closure(async));
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)
@@ -198,6 +249,17 @@ SELECT MIN(CASE
     ELSE 0
 END)
 FROM "Customers" AS "c"
+""");
+    }
+
+    public override async Task Type_casting_inside_sum(bool async)
+    {
+        await base.Type_casting_inside_sum(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(ef_sum(CAST("o"."Discount" AS TEXT)), '0.0')
+FROM "Order Details" AS "o"
 """);
     }
 

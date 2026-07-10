@@ -71,7 +71,7 @@ public interface IStoreStoredProcedureParameter : IColumnBase
 
         if (Direction != ParameterDirection.Input)
         {
-            builder.Append(" ").Append(Direction);
+            builder.Append(' ').Append(Direction);
         }
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

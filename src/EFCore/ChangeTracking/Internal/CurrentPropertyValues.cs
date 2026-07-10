@@ -40,7 +40,7 @@ public class CurrentPropertyValues : EntryPropertyValues
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override TValue GetValue<TValue>(IProperty property)
-        => InternalEntry.GetCurrentValue<TValue>(InternalEntry.EntityType.CheckPropertyBelongsToType(property));
+        => InternalEntry.GetCurrentValue<TValue>(InternalEntry.EntityType.CheckContains(property));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

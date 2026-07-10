@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
-#nullable enable
-
 public class StoreValueGenerationData : IEquatable<StoreValueGenerationData>
 {
     // Generated on add (except for WithNoDatabaseGenerated2)

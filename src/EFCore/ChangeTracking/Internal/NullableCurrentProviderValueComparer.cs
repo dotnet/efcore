@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 public class NullableStructCurrentProviderValueComparer<TModel, TProvider> : IComparer<IUpdateEntry>
     where TModel : struct
 {
-    private readonly IPropertyBase _property;
+    private readonly IProperty _property;
     private readonly IComparer<TProvider> _underlyingComparer;
     private readonly Func<TModel, TProvider> _converter;
 
@@ -22,12 +22,10 @@ public class NullableStructCurrentProviderValueComparer<TModel, TProvider> : ICo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public NullableStructCurrentProviderValueComparer(
-        IPropertyBase property,
-        ValueConverter<TModel, TProvider> converter)
+    public NullableStructCurrentProviderValueComparer(IProperty property)
     {
         _property = property;
-        _converter = converter.ConvertToProviderExpression.Compile();
+        _converter = ((ValueConverter<TModel, TProvider>)property.GetTypeMapping().Converter!).ConvertToProviderTyped;
         _underlyingComparer = Comparer<TProvider>.Default;
     }
 

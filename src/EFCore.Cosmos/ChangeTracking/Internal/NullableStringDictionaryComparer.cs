@@ -19,11 +19,11 @@ public sealed class NullableStringDictionaryComparer<TElement, TCollection> : Va
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public NullableStringDictionaryComparer(ValueComparer elementComparer, bool readOnly)
+    public NullableStringDictionaryComparer(ValueComparer elementComparer)
         : base(
             (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
             o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
-            source => Snapshot(source, (ValueComparer<TElement>)elementComparer, readOnly))
+            source => Snapshot(source, (ValueComparer<TElement>)elementComparer))
     {
     }
 
@@ -92,13 +92,8 @@ public sealed class NullableStringDictionaryComparer<TElement, TCollection> : Va
         return hash.ToHashCode();
     }
 
-    private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer, bool readOnly)
+    private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer)
     {
-        if (readOnly)
-        {
-            return source;
-        }
-
         var snapshot = new Dictionary<string, TElement?>(((IReadOnlyDictionary<string, TElement?>)source).Count);
         foreach (var (key, element) in source)
         {

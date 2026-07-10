@@ -255,13 +255,9 @@ public class ServicePropertyDiscoveryConventionTest
         private Action<object, string>? LazyLoader { get; set; }
     }
 
-    protected class PrivateUnmappedBaseSuper : PrivateUnmappedBase
-    {
-    }
+    protected class PrivateUnmappedBaseSuper : PrivateUnmappedBase;
 
-    protected class PrivateUnmappedBaseSub : PrivateUnmappedBaseSuper
-    {
-    }
+    protected class PrivateUnmappedBaseSub : PrivateUnmappedBaseSuper;
 
     protected class PrivateMappedBase
     {
@@ -272,13 +268,9 @@ public class ServicePropertyDiscoveryConventionTest
         private Action<object, string>? LazyLoader { get; set; }
     }
 
-    protected class PrivateMappedBaseSuper : PrivateMappedBase
-    {
-    }
+    protected class PrivateMappedBaseSuper : PrivateMappedBase;
 
-    protected class PrivateMappedBaseSub : PrivateMappedBaseSuper
-    {
-    }
+    protected class PrivateMappedBaseSub : PrivateMappedBaseSuper;
 
     protected class PublicUnmappedBase
     {
@@ -360,13 +352,9 @@ public class ServicePropertyDiscoveryConventionTest
         public Action<object, string>? LazyLoader { get; set; }
     }
 
-    protected class PublicMappedBaseSuper : PublicMappedBase
-    {
-    }
+    protected class PublicMappedBaseSuper : PublicMappedBase;
 
-    protected class PublicMappedBaseSub : PublicMappedBaseSuper
-    {
-    }
+    protected class PublicMappedBaseSub : PublicMappedBaseSuper;
 
     protected class PrivateWithDuplicatesBase
     {
