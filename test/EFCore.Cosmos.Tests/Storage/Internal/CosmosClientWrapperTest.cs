@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Net;
+using System.Text;
 using Microsoft.Azure.Cosmos;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -49,6 +50,37 @@ public class CosmosClientWrapperTest
         var movedNext = await enumerator.MoveNextAsync();
         Assert.False(movedNext);
         Assert.Equal(2, feedIterator.ReadCount);
+    }
+
+    [Fact]
+    public async Task ToPageAsync_retries_with_new_feed_iterator_from_last_successful_continuation_token()
+    {
+        RetryingPagingCosmosClientWrapper.Reset();
+
+        using var context = new TestDbContext(
+            new DbContextOptionsBuilder()
+                .UseCosmos(
+                    CosmosTestEnvironment.DefaultConnection,
+                    CosmosTestEnvironment.AuthToken,
+                    PlaceholderDatabaseName,
+                    b => b.ExecutionStrategy(_ => new RetryingExecutionStrategy()))
+                .ReplaceService<ICosmosClientWrapper, RetryingPagingCosmosClientWrapper>()
+                .Options);
+
+#pragma warning disable EF9102 // Paging is experimental
+        var page = await context.Set<Root>()
+            .OrderBy(r => r.Id)
+            .Select(r => r.Id)
+            .ToPageAsync(pageSize: 3, continuationToken: null);
+#pragma warning restore EF9102 // Paging is experimental
+
+        Assert.Collection(
+            page.Values,
+            id => Assert.Equal("A", id),
+            id => Assert.Equal("B", id),
+            id => Assert.Equal("C", id));
+        Assert.Null(page.ContinuationToken);
+        Assert.Equal([null, "ct1", "ct1"], RetryingPagingCosmosClientWrapper.CreateQueryContinuationTokens);
     }
 
     [Fact]
@@ -145,12 +177,26 @@ public class CosmosClientWrapperTest
         return modelBuilder.FinalizeModel();
     }
 
-    private static ResponseMessage CreateResponseMessage(HttpStatusCode statusCode)
-        => new(statusCode)
+    private static ResponseMessage CreateResponseMessage(
+        HttpStatusCode statusCode,
+        string? content = null,
+        string? continuationToken = null)
+    {
+        var responseMessage = new ResponseMessage(statusCode)
         {
-            Content = Stream.Null,
+            Content = content is null
+                ? Stream.Null
+                : new MemoryStream(Encoding.UTF8.GetBytes(content)),
             Diagnostics = new TestCosmosDiagnostics()
         };
+
+        if (continuationToken is not null)
+        {
+            responseMessage.Headers.Add("x-ms-continuation", continuationToken);
+        }
+
+        return responseMessage;
+    }
 
     private sealed class TestFeedIterator(params ResponseMessage[] responses) : FeedIterator
     {
@@ -194,6 +240,71 @@ public class CosmosClientWrapperTest
             string? continuationToken = null,
             QueryRequestOptions? queryRequestOptions = null)
             => feedIterator;
+    }
+
+    private sealed class RetryingPagingCosmosClientWrapper(
+        ISingletonCosmosClientWrapper singletonCosmosClientWrapper,
+        IDbContextOptions dbContextOptions,
+        IExecutionStrategy executionStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+        : CosmosClientWrapper(singletonCosmosClientWrapper, dbContextOptions, executionStrategy, commandLogger)
+    {
+        private static int _continuationTokenReadCount;
+
+        public static List<string?> CreateQueryContinuationTokens { get; } = [];
+
+        public static void Reset()
+        {
+            _continuationTokenReadCount = 0;
+            CreateQueryContinuationTokens.Clear();
+        }
+
+        public override FeedIterator CreateQuery(
+            string containerId,
+            CosmosSqlQuery query,
+            ISessionTokenStorage sessionTokenStorage,
+            string? continuationToken = null,
+            QueryRequestOptions? queryRequestOptions = null)
+        {
+            CreateQueryContinuationTokens.Add(continuationToken);
+
+            return continuationToken switch
+            {
+                null => new TestFeedIterator(CreateResponseMessage(HttpStatusCode.OK, "{\"Documents\":[\"A\",\"B\"]}", "ct1")),
+                "ct1" when _continuationTokenReadCount++ == 0 => new ThrowingFeedIterator(CreateResponseMessage(HttpStatusCode.Gone)),
+                "ct1" => new TestFeedIterator(CreateResponseMessage(HttpStatusCode.OK, "{\"Documents\":[\"C\"]}")),
+                _ => throw new InvalidOperationException($"Unexpected continuation token '{continuationToken}'.")
+            };
+        }
+    }
+
+    private sealed class ThrowingFeedIterator(ResponseMessage firstResponse) : FeedIterator
+    {
+        private bool _hasReturnedResponse;
+
+        public override bool HasMoreResults
+            => !_hasReturnedResponse;
+
+        public override Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)
+        {
+            if (_hasReturnedResponse)
+            {
+                throw new InvalidOperationException("Feed iterator was reused across retry attempts.");
+            }
+
+            _hasReturnedResponse = true;
+            return Task.FromResult(firstResponse);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !_hasReturnedResponse)
+            {
+                firstResponse.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
     }
 
     private sealed class TestSingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
