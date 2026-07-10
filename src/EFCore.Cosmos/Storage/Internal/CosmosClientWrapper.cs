@@ -822,15 +822,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             TryTrackSessionTokenFromFailure(containerId, response.StatusCode, response.Headers, sessionTokenStorage);
 
-            var errorCode = response.StatusCode;
-            var errorEntries = response
-                .Select((opResult, index) => (opResult, index))
-                .Where(r => r.opResult.StatusCode == errorCode)
-                .Select(r => entries[r.index].Entry)
-                .ToList();
-
-            var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
-            throw new CosmosTransactionalBatchException(errorEntries, exception);
+            throw new CosmosException(
+                response.ErrorMessage, response.StatusCode, 0, response.ActivityId, response.RequestCharge);
         }
 
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
