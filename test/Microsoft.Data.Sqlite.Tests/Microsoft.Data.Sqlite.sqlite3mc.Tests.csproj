@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(DefaultNetCoreTargetFramework);net462</TargetFrameworks>
-    <AssemblyName>Microsoft.Data.Sqlite.e_sqlite3mc.Tests</AssemblyName>
     <DefineConstants>$(DefineConstants);E_SQLITE3MC</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
