@@ -112,7 +112,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Sqlite.Benchmarks", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks", "benchmark\EFCore.Benchmarks\EFCore.Benchmarks.csproj", "{2642F4F0-69BE-4C43-94B7-B298FEC87D89}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.e_sqlcipher.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.e_sqlcipher.Tests.csproj", "{7B598E0C-B8E2-4F1F-B53C-ED84178E65BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.sqlite3mc.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.sqlite3mc.Tests.csproj", "{7B598E0C-B8E2-4F1F-B53C-ED84178E65BE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.winsqlite3.Tests", "test\Microsoft.Data.Sqlite.Tests\Microsoft.Data.Sqlite.winsqlite3.Tests.csproj", "{B163761D-FB4A-4C80-BAB9-01905E1351EF}"
 EndProject
