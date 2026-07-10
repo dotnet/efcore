@@ -171,16 +171,14 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 {
                     await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
                 }
-                catch (CosmosException cosmosException)
+                catch (DbUpdateConcurrencyException concurrencyException)
                 {
-                    var entries = transaction.Entries.Select(x => x.Entry).ToArray();
-                    var exception = WrapUpdateException(cosmosException, entries);
-                    if (exception is not DbUpdateConcurrencyException
-                        || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                                transaction.Entries.First().Entry.Context, entries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                            .ConfigureAwait(false)).IsSuppressed)
+                    var allEntries = transaction.Entries.Select(x => x.Entry).ToArray();
+                    if (!(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                            transaction.Entries.First().Entry.Context, allEntries, concurrencyException, null, cancellationToken)
+                        .ConfigureAwait(false)).IsSuppressed)
                     {
-                        throw exception;
+                        throw;
                     }
 
                     suppressed = true;

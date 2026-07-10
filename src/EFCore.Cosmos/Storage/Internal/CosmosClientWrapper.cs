@@ -822,8 +822,26 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             TryTrackSessionTokenFromFailure(containerId, response.StatusCode, response.Headers, sessionTokenStorage);
 
-            throw new CosmosException(
-                response.ErrorMessage, response.StatusCode, 0, response.ActivityId, response.RequestCharge);
+            var errorCode = response.StatusCode;
+            var cosmosException = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
+            var errorBatchEntries = response
+                .Select((opResult, index) => (opResult, index))
+                .Where(r => r.opResult.StatusCode == errorCode)
+                .Select(r => entries[r.index])
+                .ToList();
+
+            var effectiveEntries = errorBatchEntries.Count > 0 ? (IReadOnlyList<CosmosTransactionalBatchEntry>)errorBatchEntries : entries;
+            IUpdateEntry[] errorUpdateEntries = effectiveEntries.Select(e => e.Entry).ToArray();
+
+            throw errorCode switch
+            {
+                HttpStatusCode.PreconditionFailed
+                    => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(effectiveEntries[0].Id), cosmosException, errorUpdateEntries),
+                HttpStatusCode.Conflict
+                    => new DbUpdateException(CosmosStrings.UpdateConflict(effectiveEntries[0].Id), cosmosException, errorUpdateEntries),
+                _
+                    => new DbUpdateException(CosmosStrings.UpdateStoreException(effectiveEntries[0].Id), cosmosException, errorUpdateEntries)
+            };
         }
 
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
