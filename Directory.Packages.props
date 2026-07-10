@@ -55,6 +55,6 @@
     <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="$(SQLitePCLRawLibeSqlite3Version)" />
+    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="$(SQLitePCLRawLibESqlite3Version)" />
   </ItemGroup>
 </Project>
