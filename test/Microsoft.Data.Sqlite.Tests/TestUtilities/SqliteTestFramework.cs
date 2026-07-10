@@ -30,22 +30,23 @@ using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite.Tests.TestUtilities;
 
-#if WINSQLITE3
+#if WINSQLITE3 || SQLITE3
 public static class Batteries_V2
 {
-    public static void Init()
-    {
-        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
-    }
-}
-#endif
+    private static int _initialized;
 
-#if SQLITE3
-public static class Batteries_V2
-{
     public static void Init()
     {
+        if (Interlocked.Exchange(ref _initialized, 1) == 1)
+        {
+            return;
+        }
+
+#if WINSQLITE3
+        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
+#elif SQLITE3
         SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
+#endif
     }
 }
 #endif
