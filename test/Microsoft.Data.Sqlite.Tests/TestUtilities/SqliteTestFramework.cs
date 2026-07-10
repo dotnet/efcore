@@ -33,15 +33,8 @@ namespace Microsoft.Data.Sqlite.Tests.TestUtilities;
 #if WINSQLITE3 || SQLITE3
 public static class Batteries_V2
 {
-    private static int _initialized;
-
     public static void Init()
     {
-        if (Interlocked.Exchange(ref _initialized, 1) == 1)
-        {
-            return;
-        }
-
 #if WINSQLITE3
         SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
 #elif SQLITE3
