@@ -3009,7 +3009,7 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string, string>)definition;
         var p = (EntityEntryEventData)payload;
         var internalEntry = p.EntityEntry.GetInfrastructure();
-        var ownership = internalEntry.EntityType.GetForeignKeys().First(fk => fk.IsOwnership);
+        var ownership = internalEntry.EntityType.GetForeignKeys().Single(fk => fk.IsOwnership);
         return d.GenerateMessage(
             internalEntry.EntityType.DisplayName(),
             internalEntry.BuildCurrentValuesString(internalEntry.EntityType.FindPrimaryKey()!.Properties),
