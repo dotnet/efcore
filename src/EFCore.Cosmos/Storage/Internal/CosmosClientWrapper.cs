@@ -833,15 +833,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             var effectiveEntries = errorBatchEntries.Count > 0 ? (IReadOnlyList<CosmosTransactionalBatchEntry>)errorBatchEntries : entries;
             IUpdateEntry[] errorUpdateEntries = effectiveEntries.Select(e => e.Entry).ToArray();
 
-            throw errorCode switch
-            {
-                HttpStatusCode.PreconditionFailed
-                    => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(effectiveEntries[0].Id), cosmosException, errorUpdateEntries),
-                HttpStatusCode.Conflict
-                    => new DbUpdateException(CosmosStrings.UpdateConflict(effectiveEntries[0].Id), cosmosException, errorUpdateEntries),
-                _
-                    => new DbUpdateException(CosmosStrings.UpdateStoreException(effectiveEntries[0].Id), cosmosException, errorUpdateEntries)
-            };
+            throw WrapUpdateException(cosmosException, effectiveEntries[0].Id, errorUpdateEntries);
         }
 
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
@@ -854,6 +846,22 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             ProcessWriteResponse(entry.Entry, item.ETag, item.ResourceStream);
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static DbUpdateException WrapUpdateException(Exception exception, string id, IReadOnlyList<IUpdateEntry> entries)
+        => exception switch
+        {
+            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
+                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
+            CosmosException { StatusCode: HttpStatusCode.Conflict }
+                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
+            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
+        };
 
     private static void ProcessWriteResponse(IUpdateEntry entry, string eTag, Stream? content)
     {

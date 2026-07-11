@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -175,7 +174,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
                 {
                     var allEntries = transaction.Entries.Select(x => x.Entry).ToArray();
                     if (!(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                            transaction.Entries.First().Entry.Context, allEntries, concurrencyException, null, cancellationToken)
+                            allEntries[0].Context, allEntries, concurrencyException, null, cancellationToken)
                         .ConfigureAwait(false)).IsSuppressed)
                     {
                         throw;
@@ -610,14 +609,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         var documentSource = GetDocumentSource(entry.EntityType);
         var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
 
-        return exception switch
-        {
-            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
-                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
-            CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
-            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
-        };
+        return CosmosClientWrapper.WrapUpdateException(exception, id, entries);
     }
 
     void IResettableService.ResetState()
