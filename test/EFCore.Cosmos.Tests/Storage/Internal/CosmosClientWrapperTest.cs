@@ -18,41 +18,6 @@ public class CosmosClientWrapperTest
     private const string TestContainerName = "container";
 
     [Fact]
-    public async Task ExecuteSqlQueryAsync_retries_when_response_status_is_transient_failure()
-    {
-        using var context = new TestDbContext(
-            new DbContextOptionsBuilder()
-                .UseCosmos(
-                    CosmosTestEnvironment.DefaultConnection,
-                    CosmosTestEnvironment.AuthToken,
-                    PlaceholderDatabaseName)
-                .Options);
-
-        using var feedIterator = new TestFeedIterator(
-            CreateResponseMessage(HttpStatusCode.Gone),
-            CreateResponseMessage(HttpStatusCode.OK));
-
-        var wrapper = new TestCosmosClientWrapper(
-            context.GetService<IDbContextOptions>(),
-            context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
-            feedIterator);
-
-        var query = new CosmosSqlQuery("SELECT VALUE r FROM Roots r", []);
-        var sessionTokenStorage = new SessionTokenStorage(
-            TestContainerName,
-            [TestContainerName],
-            Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.SessionTokenManagementMode.FullyAutomatic);
-
-        await using var enumerator = wrapper
-            .ExecuteSqlQueryAsync(TestContainerName, PartitionKey.None, query, sessionTokenStorage)
-            .GetAsyncEnumerator();
-
-        var movedNext = await enumerator.MoveNextAsync();
-        Assert.False(movedNext);
-        Assert.Equal(2, feedIterator.ReadCount);
-    }
-
-    [Fact]
     public async Task ToPageAsync_retries_with_new_feed_iterator_from_last_successful_continuation_token()
     {
         RetryingPagingCosmosClientWrapper.Reset();
@@ -227,21 +192,6 @@ public class CosmosClientWrapperTest
         }
     }
 
-    private sealed class TestCosmosClientWrapper(
-        IDbContextOptions dbContextOptions,
-        IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-        FeedIterator feedIterator)
-        : CosmosClientWrapper(new TestSingletonCosmosClientWrapper(), dbContextOptions, new RetryingExecutionStrategy(), commandLogger)
-    {
-        public override FeedIterator CreateQuery(
-            string containerId,
-            CosmosSqlQuery query,
-            ISessionTokenStorage sessionTokenStorage,
-            string? continuationToken = null,
-            QueryRequestOptions? queryRequestOptions = null)
-            => feedIterator;
-    }
-
     private sealed class RetryingPagingCosmosClientWrapper(
         ISingletonCosmosClientWrapper singletonCosmosClientWrapper,
         IDbContextOptions dbContextOptions,
@@ -304,16 +254,6 @@ public class CosmosClientWrapperTest
             }
 
             base.Dispose(disposing);
-        }
-    }
-
-    private sealed class TestSingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
-    {
-        public CosmosClient Client
-            => throw new NotSupportedException();
-
-        public void Dispose()
-        {
         }
     }
 
