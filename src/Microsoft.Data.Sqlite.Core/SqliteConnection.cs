@@ -86,6 +86,11 @@ public partial class SqliteConnection : DbConnection
             {
                 // Ignore the unpackaged-app "no package identity" case; ApplicationData.Current is unavailable there.
             }
+            catch (Exception ex) when (ex is NotImplementedException or NotSupportedException)
+            {
+                // Ignore when WinRT APIs aren't implemented or supported (e.g., running under Wine)
+                // ApplicationData.Current is unavailable there.
+            }
 
             if (currentAppData != null)
             {
