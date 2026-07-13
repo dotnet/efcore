@@ -2700,6 +2700,22 @@ WHERE [u].[Name] LIKE N'Name%'
 """);
     }
 
+    public override async Task Entity_equality_with_Contains_and_Parameter(bool async)
+    {
+        await base.Entity_equality_with_Contains_and_Parameter(async);
+
+        AssertSql(
+            """
+@entity_equality_details_Id1='1'
+@entity_equality_details_Id2='2'
+
+SELECT [b].[Id], [b].[DetailsId], [b].[Name]
+FROM [Blogs] AS [b]
+LEFT JOIN [BlogDetails] AS [b0] ON [b].[DetailsId] = [b0].[Id]
+WHERE [b0].[Id] IN (@entity_equality_details_Id1, @entity_equality_details_Id2)
+""");
+    }
+
     #region 30915
 
     public override async Task Anon_whole_object_GroupJoin_DefaultIfEmpty()
@@ -3497,6 +3513,24 @@ ORDER BY [s0].[PickupStatusId]
 """);
     }
 
+    public override async Task Query_when_null_key_in_database_should_throw()
+    {
+        await base.Query_when_null_key_in_database_should_throw();
+
+        AssertSql(
+            """
+SELECT [z].[Id]
+FROM [ZeroKey] AS [z]
+""");
+    }
+
+    public override async Task Mapping_JsonElement_property_throws_a_meaningful_exception()
+    {
+        await base.Mapping_JsonElement_property_throws_a_meaningful_exception();
+
+        AssertSql();
+    }
+
     public override async Task Struct_composed_user_marker_projection_into_subquery_self_heals()
     {
         await base.Struct_composed_user_marker_projection_into_subquery_self_heals();
@@ -3518,4 +3552,8 @@ ORDER BY [s0].[PickupStatusId]
     }
 
     #endregion
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

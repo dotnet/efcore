@@ -688,4 +688,8 @@ LEFT JOIN [People] AS [p0] ON [e].[EmployerId] IS NOT NULL AND [e].[EmployerId] 
 ORDER BY [p].[PersonId]
 """);
     }
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }
