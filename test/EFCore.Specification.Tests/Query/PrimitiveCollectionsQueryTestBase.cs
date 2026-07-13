@@ -959,7 +959,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     // .NET 11 first-class spans caused MemoryExtensions.Min to get resolved instead of Enumerable.Min.
     // The following tests that the various overloads are all supported.
     [ConditionalFact]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Min_on_MemoryExtensions()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Min(new[] { 30, c.Int }) == 30));
@@ -967,7 +966,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     // .NET 11 first-class spans caused MemoryExtensions.Max to get resolved instead of Enumerable.Max.
     // The following tests that the various overloads are all supported.
     [ConditionalFact]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Max_on_MemoryExtensions()
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Max(new[] { 30, c.Int }) == 30));
