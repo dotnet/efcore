@@ -903,6 +903,13 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                     return sqlOperand?.TypeMapping is null ? QueryCompilationContext.NotTranslatedExpression : sqlExpressionFactory.Convert(sqlOperand!, unaryExpression.Type);
                 }
 
+                // For implicit float to double conversions, we can keep the same type mapping
+                if (operand.Type.UnwrapNullableType() == typeof(float)
+                    && unaryExpression.Type.UnwrapNullableType() == typeof(double))
+                {
+                    return new SqlUnaryExpression(unaryExpression.NodeType, sqlOperand!, unaryExpression.Type, sqlOperand?.TypeMapping);
+                }
+
                 break;
 
             case ExpressionType.Quote:
