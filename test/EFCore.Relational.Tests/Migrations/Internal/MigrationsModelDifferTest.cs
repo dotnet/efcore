@@ -2083,6 +2083,52 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 enableSensitiveLogging: enableSensitiveLogging)).Message);
 
     [Fact]
+    public void Throws_circular_dependency_instead_of_sequence_contains_no_elements_for_seed_data_cycle()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => Execute(
+                model =>
+                {
+                    model.Entity(
+                        "WorkflowType",
+                        x =>
+                        {
+                            x.ToTable("WorkflowType");
+                            x.Property<string>("Code").IsRequired();
+                            x.Property<string>("FirstStepCode").IsRequired();
+                            x.HasKey("Code");
+                        });
+
+                    model.Entity(
+                        "WorkflowStep",
+                        x =>
+                        {
+                            x.ToTable("WorkflowStep");
+                            x.Property<string>("Code").IsRequired();
+                            x.Property<string>("WorkflowTypeCode").IsRequired();
+                            x.HasKey("Code");
+                        });
+
+                    model.Entity("WorkflowType").HasOne("WorkflowStep").WithMany().HasForeignKey("FirstStepCode");
+                    model.Entity("WorkflowStep").HasOne("WorkflowType").WithMany("Steps").HasForeignKey("WorkflowTypeCode");
+                },
+                _ => { },
+                target =>
+                {
+                    target.Entity("WorkflowType").HasData(
+                        new { Code = "TEST", FirstStepCode = "TEST-01A" });
+
+                    target.Entity("WorkflowStep").HasData(
+                        new { Code = "TEST-01A", WorkflowTypeCode = "TEST" });
+                },
+                _ => { },
+                _ => { }));
+
+        Assert.DoesNotContain("Sequence contains no elements", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("circular dependency", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void Add_column_with_order()
         => Execute(
             source => source.Entity("Peacock").Property<int>("Id"),
