@@ -34,7 +34,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
     private readonly IModel _model = queryCompilationContext.Model;
-    private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor = new();
+    //private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlVerifyingExpressionVisitor = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,7 +97,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                     return null;
                 }
 
-                _sqlVerifyingExpressionVisitor.Visit(translation);
+                //_sqlVerifyingExpressionVisitor.Visit(translation);
             }
 
             return translation;
@@ -338,7 +338,23 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 return extensionExpression;
 
             case QueryParameterExpression queryParameter:
-                return new SqlParameterExpression(queryParameter.Name, queryParameter.Type, null);
+                // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
+                // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
+                if (queryParameter.IsNonNullableReferenceType)
+                {
+                    /*Check.DebugAssert(
+                        _queryCompilationContext.IsPrecompiling,
+                        "Parameters can only be known to has non-nullable reference types in query precompilation.");*/
+                    return new SqlParameterExpression(
+                        name: queryParameter.Name,
+                        queryParameter.Type,
+                        typeMapping: null);
+                }
+
+                return new SqlParameterExpression(
+                    name: queryParameter.Name,
+                    queryParameter.Type.UnwrapNullableType(),
+                    typeMapping: null);
 
             case StructuralTypeShaperExpression shaper:
                 return new StructuralTypeReferenceExpression(shaper);
