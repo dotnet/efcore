@@ -189,6 +189,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
             }
             else if (trackingQuery
+                && entity is null
                 && relatedEntity != null
                 && navigation is INavigation { ForeignKey.IsOwnership: true })
             {

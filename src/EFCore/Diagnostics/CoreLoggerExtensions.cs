@@ -2988,7 +2988,7 @@ public static class CoreLoggerExtensions
             definition.Log(
                 diagnostics,
                 navigation.TargetEntityType.DisplayName(),
-                entry?.BuildCurrentValuesString(navigation.TargetEntityType.FindPrimaryKey()!.Properties) ?? "<unknown>",
+                entry?.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties) ?? "<unknown>",
                 navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
         }
 
