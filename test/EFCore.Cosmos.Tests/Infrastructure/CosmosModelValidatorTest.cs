@@ -4,7 +4,6 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -258,12 +257,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             b.Ignore(e => e.Name);
             b.Ignore(e => e.PartitionId);
             b.Ignore(e => e.Orders);
-            b.Property<JObject>("foo");
+            b.Property<object>("foo");
             b.HasPartitionKey("foo");
             b.HasKey(e => e.Id);
         });
 
-        VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "JObject"), modelBuilder);
+        VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "Object"), modelBuilder);
     }
 
     [Fact]

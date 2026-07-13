@@ -524,7 +524,7 @@ WHERE (c["Id"] = 4)
             "NestedOptionalReference": {
                 "DoB": "2000-01-01T00:00:00",
                 "Text": "e5 c1 nor"
-            },
+            }
         },
         {
             "Number": 7.0,
@@ -543,7 +543,7 @@ WHERE (c["Id"] = 4)
             "NestedOptionalReference": {
                 "DoB": "2000-01-01T00:00:00",
                 "Text": "e5 c2 nor"
-            },
+            }
         }
     ],
     "OptionalReference": {
@@ -563,7 +563,7 @@ WHERE (c["Id"] = 4)
         "NestedOptionalReference": {
             "DoB": "2000-01-01T00:00:00",
             "Text": "e5 or nor"
-        },
+        }
     },
     "RequiredReference": {
         "Number": 7.0,
@@ -582,7 +582,7 @@ WHERE (c["Id"] = 4)
         "NestedOptionalReference": {
             "DoB": "2000-01-01T00:00:00",
             "Text": "e5 rr nor"
-        },
+        }
     }
 }
 """;
@@ -1492,6 +1492,20 @@ WHERE (c["Id"] = 4)
     public override Task Bad_json_properties_empty_navigations(bool noTracking)
         => Task.CompletedTask;
 
+    // Insertion of the bad data fails thanks to json validation by Cosmos DB
+    public override Task Bad_json_properties_null_navigations(bool noTracking)
+       => Task.CompletedTask;
+
+    public override Task Bad_json_properties_null_scalars(bool noTracking)
+       => Task.CompletedTask;
+
+    // Insertion of the bad data is deduplicated by Cosmos DB
+    public override Task Bad_json_properties_duplicated_navigations(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_duplicated_scalars(bool noTracking)
+        => Task.CompletedTask;
+
     protected override void OnModelCreatingBadJsonProperties(ModelBuilder modelBuilder)
     {
         base.OnModelCreatingBadJsonProperties(modelBuilder);
@@ -1615,49 +1629,9 @@ WHERE (c["Id"] = 4)
             emptyScalars,
             CancellationToken.None);
 
-        var nullNavs =
-            """
-{
-    "Id": 10,
-    "$type": "Entity",
-    "id": "10",
-    "Scenario": "null navigation property names",
-    "OptionalReference": {null: { "Text":"or no" }, null: { "Text":"or nr" }, null: [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
-    "RequiredReference": {null: { "Text":"rr no" }, null: { "Text":"rr nr" }, null: [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
-    "Collection":
-    [
-        {null: { "Text":"c 1 no" }, null: { "Text":"c 1 nr" }, null: [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
-        {null: { "Text":"c 2 no" }, null: { "Text":"c 2 nr" }, null: [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
-    ]
-}
-""";
-
-        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
-            entitiesContainer,
-            nullNavs,
-            CancellationToken.None);
-
-        var nullScalars =
-            """
-{
-    "Id": 11,
-    "$type": "Entity",
-    "id": "11",
-    "Scenario": "null scalar property names",
-    "OptionalReference": {"NestedOptional": { null:"or no", "Text":"or no nonnull" }, "NestedRequired": { null:"or nr", "Text":"or nr nonnull" }, "NestedCollection": [ { null:"or nc 1", "Text":"or nc 1 nonnull" }, { null:"or nc 2", "Text":"or nc 2 nonnull" } ] },
-    "RequiredReference": {"NestedOptional": { null:"rr no", "Text":"rr no nonnull" }, "NestedRequired": { null:"rr nr", "Text":"rr nr nonnull" }, "NestedCollection": [ { null:"rr nc 1", "Text":"rr nc 1 nonnull" }, { null:"rr nc 2", "Text":"rr nc 2 nonnull" } ] },
-    "Collection":
-    [
-        {"NestedOptional": { null:"c 1 no", "Text":"c 1 no nonnull" }, "NestedRequired": { null:"c 1 nr", "Text":"c 1 nr nonnull" }, "NestedCollection": [ { null:"c 1 nc 1", "Text":"c 1 nc 1 nonnull" }, { null:"c 1 nc 2", "Text":"c 1 nc 2 nonnull" } ] },
-        {"NestedOptional": { null:"c 2 no", "Text":"c 2 no nonnull" }, "NestedRequired": { null:"c 2 nr", "Text":"c 2 nr nonnull" }, "NestedCollection": [ { null:"c 2 nc 1", "Text":"c 2 nc 1 nonnull" }, { null:"c 2 nc 2", "Text":"c 2 nc 2 nonnull" } ] }
-    ]
-}
-""";
-
-        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
-            entitiesContainer,
-            nullScalars,
-            CancellationToken.None);
+        // Insertion of the bad data fails thanks to json validation by Cosmos DB
+        // nullNavs or "Scenario": "null navigation property names" can not be tested
+        // nullScalars or "Scenario": "null scalar property names" can not be tested
     }
 
     #endregion

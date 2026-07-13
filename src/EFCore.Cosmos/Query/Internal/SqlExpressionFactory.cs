@@ -205,10 +205,63 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                         sqlBinaryExpression.OperatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
         }
 
+        // For cosmos numbers, we apply default type mappings, since a binary can contain different types for left and right.
+        // Except if the inferred type mapping is a type which gets promoted in an expression tree.
+        // This happens for example when the user compares chars.
+        // (char c) => c == 'a' becomes (char c) => ((int)c) == 97 in the expression tree
+
+        // The inferred type mapping is always the type mapping of the first property in the expression, right?
+
+        // If the other expression is also a property, we should just use the inferred type mapping.
+        // But what if the provider clr types don't match? This should throw right? Out of scope for now.
+
+        // If the other expression is not a property, it is either a constant or a parameter.
+        // So we need to take a look at the inferred type mapping to determine how to write the value.
+
+        // A problem arises when the inferred type mapping is a number type which is compared to a constant or parameter of a different number type.
+        // Normally, the expression tree will add a convert to the right type, but this is removed by the query pipeline because we want to use the type mapping for the underlying property as it might have a converter...
+        // Why don't we always use
+
+        // Also, For number types lower than int, the type is promoted to an int by the expression tree, because there is no defined equality operator other than the int.
+        // In these cases, we need to convert the value back to the original type (so it can be unboxed properly), and we can use the inferred type mapping.
+
+
+        // 
+        // 
+        //  and use it's type mapping, otherwise the query will write an int where it should have written the promoted type (e.g. char, byte, short).
+        // 
+
+        //      
+
+
+        if (inferredTypeMapping != null)
+        {
+            //if (inferredTypeMapping.Converter == null && !inferredTypeMapping.ClrType.IsEnum)
+            //{
+            //    switch (Type.GetTypeCode(inferredTypeMapping.ClrType.UnwrapNullableType()))
+            //    {
+            //        // Non promoted number types
+            //        case TypeCode.Int32:
+            //        case TypeCode.Int64:
+            //        case TypeCode.UInt32:
+            //        case TypeCode.UInt64:
+            //        case TypeCode.Single:
+            //        case TypeCode.Double:
+            //        case TypeCode.Decimal:
+            //            left = ApplyDefaultTypeMapping(left);
+            //            right = ApplyDefaultTypeMapping(right);
+            //            break;
+            //    }
+            //}
+
+            left = ApplyTypeMapping(left, inferredTypeMapping);
+            right = ApplyTypeMapping(right, inferredTypeMapping);
+        }
+
         return new SqlBinaryExpression(
             sqlBinaryExpression.OperatorType,
-            ApplyTypeMapping(left, inferredTypeMapping),
-            ApplyTypeMapping(right, inferredTypeMapping),
+            left,
+            right,
             resultType,
             resultTypeMapping);
     }

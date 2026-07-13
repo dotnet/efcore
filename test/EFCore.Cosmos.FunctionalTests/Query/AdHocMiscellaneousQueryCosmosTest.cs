@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -440,6 +441,89 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     #endregion
 
+    #region 34567
+
+    [Fact]
+    public virtual async Task Html_unsafe_character_scalar()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34567>();
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context34567.Data>()
+            .Where(x => x.Text == "ж")
+            .ToListAsync();
+
+        Assert.Equal(1, result.Count);
+
+        Assert.Equal("ж", result.Single().Text);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Text"] = "\u0436")
+""");
+    }
+
+    [Fact]
+    public virtual async Task Html_unsafe_character_id()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34567>();
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context34567.Data>()
+            .Where(x => x.Id == "ж")
+            .ToListAsync();
+
+        Assert.Equal(1, result.Count);
+
+        Assert.Equal("ж", result.Single().Text);
+
+        AssertSql(
+            """
+ReadItem(?, ?)
+""");
+    }
+
+    [Fact]
+    public virtual async Task Html_unsafe_character_partition_key()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context34567>();
+        using var context = contextFactory.CreateDbContext();
+
+        var result = await context.Set<Context34567.Data>()
+            .WithPartitionKey("ж")
+            .ToListAsync();
+
+        Assert.Equal(1, result.Count);
+
+        Assert.Equal("ж", result.Single().Text);
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
+
+    protected class Context34567(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Data>(builder =>
+            {
+                builder.HasPartitionKey(x => x.Id);
+                builder.HasData([new()]);
+            });
+
+        public class Data
+        {
+            public string Id { get; set; } = "ж";
+            public string Text { get; set; } = "ж";
+        }
+    }
+    #endregion
+
+
     protected override string NonSharedStoreName
         => "AdHocMiscellaneousQueryTests";
 
@@ -448,4 +532,10 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
+
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    private void AssertSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected);
 }

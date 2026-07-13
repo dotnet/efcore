@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -32,14 +30,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly JsonSerializer Serializer;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static readonly string DefaultPartitionKey = "__partitionKey";
 
     private const string SubStatusCodeHeaderName = "x-ms-substatus";
@@ -48,14 +38,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private readonly string _databaseId;
     private readonly IExecutionStrategy _executionStrategy;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
-
-    static CosmosClientWrapper()
-    {
-        Serializer = JsonSerializer.Create();
-        Serializer.Converters.Add(new ByteArrayConverter());
-        Serializer.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-        Serializer.DateParseHandling = DateParseHandling.None;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,32 +67,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     private CosmosClient Client
         => _singletonWrapper.Client;
-
-    private static bool TryDeserializeNextToken(JsonTextReader jsonReader, out JToken? token)
-    {
-        switch (jsonReader.TokenType)
-        {
-            case JsonToken.StartObject:
-                token = Serializer.Deserialize<JObject>(jsonReader);
-                return true;
-            case JsonToken.StartArray:
-                token = Serializer.Deserialize<JArray>(jsonReader);
-                return true;
-            case JsonToken.Date:
-            case JsonToken.Bytes:
-            case JsonToken.Float:
-            case JsonToken.String:
-            case JsonToken.Boolean:
-            case JsonToken.Integer:
-            case JsonToken.Null:
-                token = Serializer.Deserialize<JValue>(jsonReader);
-                return true;
-            case JsonToken.EndArray:
-            default:
-                token = null;
-                return false;
-        }
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -969,32 +925,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         queryDefinition = query.Parameters
             .Aggregate(
                 queryDefinition,
-                (current, parameter) => current.WithParameter(parameter.Name, parameter.Value));
+                (current, parameter) => parameter.Apply(current));
 
         return new CosmosFeedIteratorWrapper(container.GetItemQueryStreamIterator(queryDefinition, continuationToken, queryRequestOptions), containerId, sessionTokenStorage);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static JsonTextReader CreateJsonReader(TextReader reader)
-    {
-        var jsonReader = new JsonTextReader(reader);
-        jsonReader.DateParseHandling = DateParseHandling.None;
-
-        while (jsonReader.Read())
-        {
-            if (jsonReader.TokenType == JsonToken.StartObject)
-            {
-                while (jsonReader.Read())
-                {
-                    if (jsonReader.TokenType == JsonToken.StartArray)
-                    {
-                        return jsonReader;
-                    }
-                }
-            }
-        }
-
-        return jsonReader;
     }
 
     private sealed class ResponseAsyncEnumerable(

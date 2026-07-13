@@ -20,7 +20,47 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderWriter<T>
     where T : INumber<T>
 {
+    private static readonly Action<Utf8JsonWriter, T> WriteFunc;
     private static readonly PropertyInfo InstanceProperty = typeof(CosmosJsonNumberProjectionReaderWriter<T>).GetProperty(nameof(Instance))!;
+
+    static CosmosJsonNumberProjectionReaderWriter()
+    {
+        var writerParameter = Expression.Parameter(typeof(Utf8JsonWriter), "writer");
+        var valueParameter = Expression.Parameter(typeof(T), "value");
+        var writeNumberValueMethod = GetWriteNumberValueMethod();
+        var writeNumberValueParameterType = writeNumberValueMethod.GetParameters()[0].ParameterType;
+        Expression writeValueExpression = writeNumberValueParameterType == typeof(T)
+            ? valueParameter
+            : Expression.Convert(valueParameter, writeNumberValueParameterType);
+
+        WriteFunc = Expression.Lambda<Action<Utf8JsonWriter, T>>(
+            Expression.Call(
+                writerParameter,
+                writeNumberValueMethod,
+                writeValueExpression),
+            writerParameter,
+            valueParameter).Compile();
+    }
+
+    private static MethodInfo GetWriteNumberValueMethod()
+    {
+        var writeNumberValueParameterType = typeof(T);
+        if (writeNumberValueParameterType == typeof(byte)
+            || writeNumberValueParameterType == typeof(sbyte)
+            || writeNumberValueParameterType == typeof(short)
+            || writeNumberValueParameterType == typeof(ushort))
+        {
+            writeNumberValueParameterType = typeof(int);
+        }
+
+        return typeof(Utf8JsonWriter)
+            .GetMethods()
+            .SingleOrDefault(
+                m => m.Name == nameof(Utf8JsonWriter.WriteNumberValue)
+                    && m.GetParameters() is [{ ParameterType: var parameterType }]
+                    && parameterType == writeNumberValueParameterType)
+            ?? throw new UnreachableException();
+    }
 
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
@@ -35,7 +75,7 @@ public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderW
 
     /// <inheritdoc/>
     public override void ToJsonTyped(Utf8JsonWriter writer, T value)
-        => throw new UnreachableException("Projections are only deserialized");
+        => WriteFunc(writer, value);
 
     /// <inheritdoc />
     public override Expression ConstructorExpression

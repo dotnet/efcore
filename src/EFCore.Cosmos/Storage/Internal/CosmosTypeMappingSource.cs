@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -36,11 +35,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
             {
                 { typeof(TimeOnly), CosmosTimeOnlyTypeMapping.Default },
                 { typeof(TimeSpan), CosmosTimeSpanTypeMapping.Default },
-                { typeof(decimal), CosmosDecimalTypeMapping.Default },
-                {
-                    typeof(JObject), CreateMapping(
-                        typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
-                }
+                { typeof(decimal), CosmosDecimalTypeMapping.Default }
             }.ToFrozenDictionary();
 
     /// <summary>

@@ -1,12 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -53,7 +50,7 @@ public static class CosmosLoggerExtensions
                 ExecutingSqlQuery,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -167,7 +164,7 @@ public static class CosmosLoggerExtensions
                 activityId,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -574,8 +571,10 @@ public static class CosmosLoggerExtensions
         }
     }
 
-    private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
-        => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
+    private static string FormatParameters(IReadOnlyList<(string Name, string Value)> parameters, bool shouldLogParameterValues)
+        => parameters.Count == 0
+            ? ""
+            : string.Join(", ", parameters.Select(e => shouldLogParameterValues ? $"{e.Name}={e.Value}" : $"{e.Name}=?"));
 
     private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
@@ -591,7 +590,17 @@ public static class CosmosLoggerExtensions
 
         if (shouldLogParameterValue)
         {
-            FormatParameterValue(builder, parameter.Value);
+            var jsonString = parameter.ToJsonString();
+            if ("null".Equals(jsonString, StringComparison.OrdinalIgnoreCase))
+            {
+                builder.Append("null");
+            }
+            else
+            {
+                builder.Append('\'');
+                builder.Append(jsonString.Trim('"'));
+                builder.Append('\'');
+            }
         }
         else
         {
@@ -601,35 +610,52 @@ public static class CosmosLoggerExtensions
         return builder.ToString();
     }
 
-    private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
+    private static void FormatParameter(StringBuilder builder, SqlParameter parameter)
     {
-        if (parameterValue == null)
+        switch (parameter)
         {
-            builder.Append("null");
-            return;
-        }
+            case SqlRawJsonParameter jsonParameter:
+                if ("null".Equals(jsonParameter.ValueJson, StringComparison.OrdinalIgnoreCase))
+                {
+                    builder.Append("null");
+                }
 
-        builder.Append('\'');
+                builder.Append('\'');
+                builder.Append(jsonParameter.ValueJson.Trim('"'));
+                builder.Append('\'');
 
-        switch (parameterValue)
-        {
-            case JToken jTokenValue:
-                builder.Append(jTokenValue.ToString(Formatting.None).Trim('"'));
                 break;
-            case DateTime dateTimeValue:
-                builder.Append(dateTimeValue.ToString("s"));
-                break;
-            case DateTimeOffset dateTimeOffsetValue:
-                builder.Append(dateTimeOffsetValue.ToString("o"));
-                break;
-            case byte[] binaryValue:
-                builder.AppendBytes(binaryValue);
+            case SqlValueParameter objectParameter:
+                var parameterValue = objectParameter.Value;
+
+                if (parameterValue == null)
+                {
+                    builder.Append("null");
+                    return;
+                }
+
+                builder.Append('\'');
+
+                switch (parameterValue)
+                {
+                    case DateTime dateTimeValue:
+                        builder.Append(dateTimeValue.ToString("s"));
+                        break;
+                    case DateTimeOffset dateTimeOffsetValue:
+                        builder.Append(dateTimeOffsetValue.ToString("o"));
+                        break;
+                    case byte[] binaryValue:
+                        builder.AppendBytes(binaryValue);
+                        break;
+                    default:
+                        builder.Append(objectParameter.ToJsonString().Trim('"'));
+                        break;
+                }
+
+                builder.Append('\'');
                 break;
             default:
-                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
-                break;
+                throw new UnreachableException();
         }
-
-        builder.Append('\'');
     }
 }

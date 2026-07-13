@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -114,35 +113,4 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     /// </summary>
     protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
         => new CosmosVectorTypeMapping(parameters, VectorType);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override JToken? GenerateJToken(object? value)
-    {
-        // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
-        var type = value?.GetType();
-        if (type?.IsArray is false)
-        {
-            if (type == typeof(ReadOnlyMemory<byte>))
-            {
-                value = ((ReadOnlyMemory<byte>)value!).ToArray();
-            }
-            else if (type == typeof(ReadOnlyMemory<sbyte>))
-            {
-                value = ((ReadOnlyMemory<sbyte>)value!).ToArray();
-            }
-            else if (type == typeof(ReadOnlyMemory<float>))
-            {
-                value = ((ReadOnlyMemory<float>)value!).ToArray();
-            }
-        }
-
-        return value == null
-            ? null
-            : JToken.FromObject(value, CosmosClientWrapper.Serializer);
-    }
 }

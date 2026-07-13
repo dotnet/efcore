@@ -90,7 +90,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     .Append("-- ")
                     .Append(parameter.Name)
                     .Append("='")
-                    .Append(parameter.Value)
+                    .Append(parameter.ToJsonString().Trim('"'))
                     .AppendLine("'");
             }
 

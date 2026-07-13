@@ -26,7 +26,7 @@ public class CosmosQueryEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         string containerId,
         PartitionKey? partitionKeyValue,
-        IReadOnlyList<(string Name, object? Value)> parameters,
+        IReadOnlyList<(string Name, string Value)> parameters,
         string querySql,
         bool logSensitiveData)
         : base(eventDefinition, messageGenerator)
@@ -51,7 +51,7 @@ public class CosmosQueryEventData : EventData
     /// <summary>
     ///     Name/values for each parameter in the Cosmos Query.
     /// </summary>
-    public virtual IReadOnlyList<(string Name, object? Value)> Parameters { get; }
+    public virtual IReadOnlyList<(string Name, string Value)> Parameters { get; }
 
     /// <summary>
     ///     The SQL representing the query.

@@ -3,8 +3,6 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -54,7 +52,7 @@ public class SqlConstantExpression : SqlExpression
     /// </summary>
     public virtual SqlExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
         => new SqlConstantExpression(Value, Type, typeMapping ?? TypeMapping);
-
+    
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -93,33 +91,8 @@ public class SqlConstantExpression : SqlExpression
         }
         else
         {
-            var jToken = GenerateJToken(Value, TypeMapping);
-
-            expressionPrinter.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
+            expressionPrinter.Append((TypeMapping as CosmosTypeMapping)?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "null");
         }
-    }
-
-    private JToken? GenerateJToken(object? value, CoreTypeMapping? typeMapping)
-    {
-        var mappingClrType = typeMapping?.ClrType.UnwrapNullableType() ?? Type;
-        if (value?.GetType().IsInteger() == true
-            && mappingClrType.IsEnum)
-        {
-            value = Enum.ToObject(mappingClrType, value);
-        }
-
-        var converter = typeMapping?.Converter;
-        if (converter != null)
-        {
-            value = converter.ConvertToProvider(value);
-        }
-
-        if (value == null)
-        {
-            return null;
-        }
-
-        return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
     }
 
     /// <summary>

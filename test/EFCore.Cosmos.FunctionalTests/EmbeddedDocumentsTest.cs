@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
