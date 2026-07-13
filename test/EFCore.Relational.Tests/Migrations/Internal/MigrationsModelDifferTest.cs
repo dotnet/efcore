@@ -10753,6 +10753,31 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             upOps => Assert.Empty(upOps),
             downOps => Assert.Empty(downOps));
 
+    [Fact] // Issue #38191
+    public void SeedData_string_with_different_unicode_normalization_no_op()
+        => Execute(
+            _ => { },
+            source => source.Entity(
+                "EntityWithTwoProperties",
+                x =>
+                {
+                    x.Property<string>("Id");
+                    x.Property<string>("Value1");
+                    x.HasData(
+                        new { Id = "Caf\u00E9", Value1 = "Caf\u00E9" }); // "Café" in NFC (é == U+00E9)
+                }),
+            target => target.Entity(
+                "EntityWithTwoProperties",
+                x =>
+                {
+                    x.Property<string>("Id");
+                    x.Property<string>("Value1");
+                    x.HasData(
+                        new { Id = "Cafe\u0301", Value1 = "Cafe\u0301" }); // "Café" in NFD (e + U+0301 combining acute)
+                }),
+            upOps => Assert.Empty(upOps),
+            downOps => Assert.Empty(downOps));
+
     [Fact]
     public void SeedData_update_with_table_rename()
         => Execute(
