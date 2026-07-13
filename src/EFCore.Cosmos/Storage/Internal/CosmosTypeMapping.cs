@@ -143,11 +143,11 @@ public class CosmosTypeMapping : CoreTypeMapping
             return Convert.ChangeType(value, ClrType);
         }
 
-        //// Handle implicit conversions here to ensure the boxed value has the type expected by JsonValueReaderWriter. Otherwise, unboxing it will throw if the boxed type does not match (for example, var value = (char)boxedInt).
-        //if (type != ClrType.UnwrapNullableType() && value is IConvertible)
-        //{
-        //    return Convert.ChangeType(value, ClrType);
-        //}
+        // Handle implicit conversions here to ensure the boxed value has the type expected by JsonValueReaderWriter. Otherwise, unboxing it will throw if the boxed type does not match (for example, value = (char)boxedInt).
+        if (type != ClrType.UnwrapNullableType() && value is IConvertible)
+        {
+            return Convert.ChangeType(value, ClrType);
+        }
 
         return value;
     }

@@ -1054,9 +1054,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                         || innerType == typeof(sbyte)
                         || innerType == typeof(char)
                         || innerType == typeof(short)
-                        || innerType == typeof(ushort)))
-                || (convertedType == typeof(double)
-                    && (innerType == typeof(float))))
+                        || innerType == typeof(ushort))))
             {
                 return TryRemoveImplicitConvert(unaryExpression.Operand);
             }
