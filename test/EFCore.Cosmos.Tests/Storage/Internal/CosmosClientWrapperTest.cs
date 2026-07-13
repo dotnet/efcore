@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public class CosmosClientWrapperTest
 {
     private const string PlaceholderDatabaseName = "_";
-    private const string TestContainerName = "container";
 
     [Fact]
     public async Task ToPageAsync_retries_with_new_feed_iterator_from_last_successful_continuation_token()
