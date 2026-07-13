@@ -1169,8 +1169,18 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var (value, _) = ((TableIndex)index).GetRowIndexValueFactory()
-                        .CreateEquatableIndexValue(command, fromOriginalValues: true);
+                    var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+                    var (value, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
+
+                    if (command.EntityState == EntityState.Modified)
+                    {
+                        var (currentValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command);
+                        if (Equals(value, currentValue))
+                        {
+                            continue;
+                        }
+                    }
+
                     if (value != null)
                     {
                         indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
@@ -1251,8 +1261,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var (value, hasNullValue) = ((TableIndex)index).GetRowIndexValueFactory()
-                        .CreateEquatableIndexValue(command);
+                    var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+                    var (value, hasNullValue) = rowIndexValueFactory.CreateEquatableIndexValue(command);
+
+                    if (command.EntityState == EntityState.Modified)
+                    {
+                        var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
+                        if (Equals(originalValue, value))
+                        {
+                            continue;
+                        }
+                    }
                     if (value != null)
                     {
                         AddMatchingPredecessorEdge(
