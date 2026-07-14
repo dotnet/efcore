@@ -1,11 +1,11 @@
 {
   "sdk": {
-    "version": "9.0.116",
+    "version": "9.0.117",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
   "tools": {
-    "dotnet": "9.0.116",
+    "dotnet": "9.0.117",
     "runtimes": {
       "dotnet": [
         "$(MicrosoftNETCoreBrowserDebugHostTransportVersion)"
