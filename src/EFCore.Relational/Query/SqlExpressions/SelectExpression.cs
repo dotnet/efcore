@@ -3200,58 +3200,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         return isAscending is null ? null : (isAscending.Value ? 1 : -1);
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public bool TryGetNonEntityNullabilityMarker(Expression shaper, [NotNullWhen(true)] out Expression? markerBinding)
-    {
-        // #30915: looks up the nullability marker recorded for a non-entity inner shaper of an outer join (see
-        // _nonEntityNullabilityMarkers). The projection binder consults this when projecting the whole inner object, to gate it to
-        // null on no-match rows.
-        if (_nonEntityNullabilityMarkers is not null
-            && _nonEntityNullabilityMarkers.TryGetValue(shaper, out markerBinding))
-        {
-            return true;
-        }
-
-        markerBinding = null;
-        return false;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public void RemapNonEntityNullabilityMarker(Expression oldShaper, Expression newShaper, Expression newMarkerBinding)
-    {
-        // #30915: the recorded non-entity inner-shaper node is keyed by reference, and its marker binding is a projection binding
-        // valid only against the projection representation that existed when it was recorded. The TransparentIdentifier-rooted
-        // projection-binding pass (RelationalProjectionBindingExpressionVisitor) rebuilds the inner node into the final projection
-        // representation and rebinds its columns, leaving both the old node reference and the old marker binding stale. That pass
-        // calls this to re-key the recorded entry onto the rebuilt node with a freshly-rebound marker, so the *final* whole-object
-        // projection (a later pass over the same SelectExpression) still finds a valid node and marker binding to gate on.
-        if (_nonEntityNullabilityMarkers is not null
-            && _nonEntityNullabilityMarkers.ContainsKey(oldShaper))
-        {
-            _nonEntityNullabilityMarkers[newShaper] = newMarkerBinding;
-
-            // Guard the (not-currently-reachable) self-reference case: if the rebuilt node is reference-equal to the old node,
-            // the assignment above already updated the single entry in place; removing oldShaper would then delete it. Only drop
-            // the stale entry when the node identity actually changed.
-            if (!ReferenceEquals(oldShaper, newShaper))
-            {
-                _nonEntityNullabilityMarkers.Remove(oldShaper);
-            }
-        }
-    }
-
     private void AddJoin(
         JoinType joinType,
         ref SelectExpression innerSelect,
