@@ -1008,18 +1008,32 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case "Min"
                     when methodCall.Arguments is [var spanArg]
                     && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
-                    return Visit(
-                        Call(
-                            EnumerableMethods.MinWithoutSelector.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
-                            unwrappedSpanArg));
+                {
+                    var elementType = methodCall.Method.ReturnType;
+                    var enumerableMin = EnumerableMethods.GetMinWithoutSelector(elementType);
+
+                    if (enumerableMin.IsGenericMethodDefinition)
+                    {
+                        enumerableMin = enumerableMin.MakeGenericMethod(elementType);
+                    }
+
+                    return Visit(Call(enumerableMin, unwrappedSpanArg));
+                }
 
                 case "Max"
                     when methodCall.Arguments is [var spanArg]
                     && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
-                    return Visit(
-                        Call(
-                            EnumerableMethods.MaxWithoutSelector.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
-                            unwrappedSpanArg));
+                {
+                    var elementType = methodCall.Method.ReturnType;
+                    var enumerableMax = EnumerableMethods.GetMaxWithoutSelector(elementType);
+
+                    if (enumerableMax.IsGenericMethodDefinition)
+                    {
+                        enumerableMax = enumerableMax.MakeGenericMethod(elementType);
+                    }
+
+                    return Visit(Call(enumerableMax, unwrappedSpanArg));
+                }
             }
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
