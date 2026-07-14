@@ -139,7 +139,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         {
             if (batch.UpdateEntries.Count == 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
             {
-                // Skip the operations that were already committed by a previous execution strategy attempt.
+                // Skip the operations that were already processed by a previous execution strategy attempt.
                 if (operationIndex < state.CommittedOperations)
                 {
                     operationIndex++;
@@ -158,7 +158,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
             foreach (var transaction in CreateTransactions(batch))
             {
-                // Skip the operations that were already committed by a previous execution strategy attempt.
+                // Skip the operations that were already processed by a previous execution strategy attempt.
                 if (operationIndex < state.CommittedOperations)
                 {
                     operationIndex++;
