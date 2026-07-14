@@ -61,7 +61,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
         : this(
             new CoreTypeMappingParameters(
                 mapping.ClrType,
-                // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
+                // This is a hack to store vector types of bytes as byte arrays in the database, instead of strings
                 converter: mapping.Converter?.GetType() == typeof(BytesToStringConverter) ? null : mapping.Converter,
                 mapping.Comparer,
                 mapping.KeyComparer,
@@ -113,4 +113,38 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     /// </summary>
     protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
         => new CosmosVectorTypeMapping(parameters, VectorType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlParameter CreateParameter(string name, object? value)
+    {
+        // This is a hack to write vector types of bytes as byte arrays in queries, instead of strings
+        if (value is ReadOnlyMemory<byte> romBytes)
+        {
+            value = ToIntArray(romBytes.Span);
+        }
+        else if (value is byte[] byteArray)
+        {
+            value = ToIntArray(byteArray);
+        }
+
+        // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
+        return new SqlValueParameter(name, value);
+
+        static int[] ToIntArray(ReadOnlySpan<byte> bytes)
+        {
+            var ints = new int[bytes.Length];
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                ints[i] = bytes[i];
+            }
+
+            return ints;
+        }
+    }
 }
