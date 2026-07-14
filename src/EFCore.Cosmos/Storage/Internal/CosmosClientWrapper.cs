@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -47,21 +48,28 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     // CosmosException has an internal ctor that accepts a Headers object (which contains RetryAfter).
     // We use it to preserve the retry-after hint from a failed TransactionalBatchResponse.
-    // Signature (SDK 3.x): CosmosException(HttpStatusCode, string, string, Headers, ITrace, Error, Exception)
-    private static readonly ConstructorInfo? CosmosExceptionInternalCtor = typeof(CosmosException)
-        .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
-        .FirstOrDefault(static c =>
-        {
-            var parms = c.GetParameters();
-            return parms.Length == 7
-                && parms[0].ParameterType == typeof(HttpStatusCode)    // statusCode
-                && parms[1].ParameterType == typeof(string)            // message
-                && parms[2].ParameterType == typeof(string)            // stackTrace
-                && parms[3].ParameterType.FullName == "Microsoft.Azure.Cosmos.Headers"  // headers
-                && parms[4].ParameterType.Name == "ITrace"             // trace
-                && parms[5].ParameterType.Name == "Error"              // error
-                && parms[6].ParameterType == typeof(Exception);        // innerException
-        });
+    private static readonly ConstructorInfo? CosmosExceptionInternalCtor =
+        RuntimeFeature.IsDynamicCodeSupported ? FindCosmosExceptionInternalCtor() : null;
+
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2075",
+        Justification =
+            "The private CosmosException constructor is not preserved in trimmed builds; code falls back to the public constructor when unavailable.")]
+    private static ConstructorInfo? FindCosmosExceptionInternalCtor()
+        => typeof(CosmosException)
+            .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+            .FirstOrDefault(static c =>
+            {
+                var parms = c.GetParameters();
+                return parms.Length == 7
+                    && parms[0].ParameterType == typeof(HttpStatusCode)
+                    && parms[1].ParameterType == typeof(string)
+                    && parms[2].ParameterType == typeof(string)
+                    && parms[3].ParameterType.FullName == "Microsoft.Azure.Cosmos.Headers"
+                    && parms[4].ParameterType.Name == "ITrace"
+                    && parms[5].ParameterType.Name == "Error"
+                    && parms[6].ParameterType == typeof(Exception);
+            });
 
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
     private readonly string _databaseId;
