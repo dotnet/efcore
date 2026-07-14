@@ -98,6 +98,28 @@ WHERE abs(random() / 9.2233720368547799E+18) >= 0.0 AND abs(random() / 9.2233720
 
     #endregion Convert
 
+    #region Parse
+
+    public override Task Byte_Parse()
+        => AssertTranslationFailed(() => base.Byte_Parse());
+
+    public override Task Decimal_Parse()
+        => AssertTranslationFailed(() => base.Decimal_Parse());
+
+    public override Task Double_Parse()
+        => AssertTranslationFailed(() => base.Double_Parse());
+
+    public override Task Short_Parse()
+        => AssertTranslationFailed(() => base.Short_Parse());
+
+    public override Task Int_Parse()
+        => AssertTranslationFailed(() => base.Int_Parse());
+
+    public override Task Long_Parse()
+        => AssertTranslationFailed(() => base.Long_Parse());
+
+    #endregion
+
     #region Compare
 
     public override async Task Int_Compare_to_simple_zero()

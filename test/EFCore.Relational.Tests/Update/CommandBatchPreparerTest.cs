@@ -559,6 +559,47 @@ FakeEntity [Deleted]"
     }
 
     [Fact]
+    public void BatchCommands_skips_unique_index_edges_for_unchanged_store_generated_values()
+    {
+        var model = CreateCompositeKeyModelWithGeneratedUniqueIndex();
+        var configuration = CreateContextServices(model);
+        var stateManager = configuration.GetRequiredService<IStateManager>();
+
+        var testId = Guid.NewGuid();
+
+        var modifiedBasic = stateManager.GetOrCreateEntry(
+            new CompositeKeyEntity
+            {
+                TestId = testId,
+                Category = CompositeCategory.Basic,
+                Payload = "new-basic"
+            });
+        modifiedBasic.SetEntityState(EntityState.Modified);
+        modifiedBasic.SetOriginalValue(modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-basic");
+
+        var modifiedPro = stateManager.GetOrCreateEntry(
+            new CompositeKeyEntity
+            {
+                TestId = testId,
+                Category = CompositeCategory.Pro,
+                Payload = "new-pro"
+            });
+        modifiedPro.SetEntityState(EntityState.Modified);
+        modifiedPro.SetOriginalValue(modifiedPro.EntityType.FindProperty(nameof(CompositeKeyEntity.Payload)), "old-pro");
+
+        var clusteringKeyProperty = modifiedBasic.EntityType.FindProperty(nameof(CompositeKeyEntity.ClusteringKey));
+        modifiedBasic.SetOriginalValue(clusteringKeyProperty, 0);
+        modifiedPro.SetOriginalValue(clusteringKeyProperty, 0);
+
+        Assert.Equal(0, modifiedBasic.GetCurrentValue<int>(clusteringKeyProperty));
+        Assert.Equal(0, modifiedPro.GetCurrentValue<int>(clusteringKeyProperty));
+        var batches = CreateBatches([modifiedBasic, modifiedPro], new UpdateAdapter(stateManager));
+        var batch = Assert.Single(batches);
+
+        Assert.Equal(2, batch.ModificationCommands.Count);
+    }
+
+    [Fact]
     public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
     {
         var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -1158,6 +1199,21 @@ FakeEntity [Deleted]"
         return modelBuilder.Model.FinalizeModel();
     }
 
+    private static IModel CreateCompositeKeyModelWithGeneratedUniqueIndex()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<CompositeKeyEntity>(b =>
+        {
+            b.HasKey(e => new { e.TestId, e.Category });
+            b.Property(e => e.ClusteringKey).ValueGeneratedOnAdd();
+            b.Property(e => e.Payload);
+            b.HasIndex(e => e.ClusteringKey).IsUnique();
+        });
+
+        return modelBuilder.Model.FinalizeModel();
+    }
+
     private class FakeEntity
     {
         public int Id { get; set; }
@@ -1175,6 +1231,21 @@ FakeEntity [Deleted]"
     private class DerivedRelatedFakeEntity : RelatedFakeEntity
     {
         public string DerivedValue { get; set; }
+    }
+
+    private class CompositeKeyEntity
+    {
+        public Guid TestId { get; set; }
+        public CompositeCategory Category { get; set; }
+        public int ClusteringKey { get; set; }
+        public string Payload { get; set; }
+    }
+
+    private enum CompositeCategory
+    {
+        Basic,
+        Pro,
+        SuperPro
     }
 
     [Fact]
