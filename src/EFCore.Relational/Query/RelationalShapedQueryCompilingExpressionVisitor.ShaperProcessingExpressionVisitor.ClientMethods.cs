@@ -1368,9 +1368,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             if (dataReaderContext.ParentIdentifierSortOrder is null
                 && dataReaderContext.PreviousParentIdentifier != null)
             {
-                dataReaderContext.ParentIdentifierSortOrder = TryCompareIdentifiers(
+                var comparison = TryCompareIdentifiers(
                     parentIdentifier,
                     dataReaderContext.PreviousParentIdentifier);
+
+                if (comparison is > 0)
+                {
+                    dataReaderContext.ParentIdentifierSortOrder = AscendingSortOrder;
+                }
+                else if (comparison is < 0)
+                {
+                    dataReaderContext.ParentIdentifierSortOrder = DescendingSortOrder;
+                }
             }
 
             dataReaderContext.PreviousParentIdentifier = parentIdentifier;
