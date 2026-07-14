@@ -47,15 +47,20 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
     // CosmosException has an internal ctor that accepts a Headers object (which contains RetryAfter).
     // We use it to preserve the retry-after hint from a failed TransactionalBatchResponse.
+    // Signature (SDK 3.x): CosmosException(HttpStatusCode, string, string, Headers, ITrace, Error, Exception)
     private static readonly ConstructorInfo? CosmosExceptionInternalCtor = typeof(CosmosException)
         .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
         .FirstOrDefault(static c =>
         {
             var parms = c.GetParameters();
             return parms.Length == 7
-                && parms[0].ParameterType == typeof(HttpStatusCode)
-                && parms[1].ParameterType == typeof(string)
-                && parms[3].ParameterType.Name == "Headers";
+                && parms[0].ParameterType == typeof(HttpStatusCode)    // statusCode
+                && parms[1].ParameterType == typeof(string)            // message
+                && parms[2].ParameterType == typeof(string)            // stackTrace
+                && parms[3].ParameterType.FullName == "Microsoft.Azure.Cosmos.Headers"  // headers
+                && parms[4].ParameterType.Name == "ITrace"             // trace
+                && parms[5].ParameterType.Name == "Error"              // error
+                && parms[6].ParameterType == typeof(Exception);        // innerException
         });
 
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
@@ -875,7 +880,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 return (CosmosException)CosmosExceptionInternalCtor.Invoke(
                     [response.StatusCode, response.ErrorMessage, null, response.Headers, null, null, null]);
             }
-            catch
+            catch (Exception e) when (e is TargetInvocationException or ArgumentException or InvalidCastException)
             {
                 // Internal constructor signature changed — fall back to the public constructor.
             }
