@@ -3195,14 +3195,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     /// <summary>
     ///     Determines whether the parent identifier columns appear as the leading ORDER BY columns in the given ordering list,
-    ///     and if so, returns the consistent sort direction (positive for ascending, negative for descending, null if unknown or mixed).
+    ///     and if so, returns the consistent sort direction: <c>1</c> for ascending, <c>-1</c> for descending,
+    ///     or <see langword="null" /> if the sort order is unknown, mixed, or cannot be determined.
     /// </summary>
     private static int? GetParentIdentifierSortOrder(
         IReadOnlyList<OrderingExpression> orderings,
         IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifierColumns)
     {
         var identifierList = identifierColumns.ToList();
-        if (orderings.Count < identifierList.Count || identifierList.Count == 0)
+        if (orderings.Count < identifierList.Count)
         {
             return null;
         }
@@ -3225,7 +3226,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
-        return isAscending == true ? 1 : -1;
+        return isAscending is null ? null : (isAscending.Value ? 1 : -1);
     }
 
     /// <summary>
