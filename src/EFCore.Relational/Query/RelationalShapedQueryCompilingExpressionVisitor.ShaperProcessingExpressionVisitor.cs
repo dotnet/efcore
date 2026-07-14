@@ -1141,7 +1141,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     (inverseNavigation?.Name ?? "null") + "InverseNavigation",
                                     typeof(INavigationBase)),
                                 GenerateFixup(includingEntityClrType, relatedEntityClrType, navigation, inverseNavigation),
-                                Constant(_isTracking)));
+                                Constant(_isTracking),
+                                Constant(relationalSplitCollectionShaperExpression.ParentIdentifierSortOrder, typeof(int?))));
                     }
                     else
                     {

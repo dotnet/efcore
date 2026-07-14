@@ -432,7 +432,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
-            bool trackingQuery)
+            bool trackingQuery,
+            int? parentIdentifierSortOrder = null)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -472,7 +473,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
-                UpdateParentIdentifierSortOrder(dataReaderContext, splitQueryCollectionContext.ParentIdentifier);
+                dataReaderContext.ParentIdentifierSortOrder = parentIdentifierSortOrder;
 
                 while (dataReaderContext.HasNext ?? dbDataReader.Read())
                 {
@@ -535,7 +536,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
-            bool trackingQuery)
+            bool trackingQuery,
+            int? parentIdentifierSortOrder = null)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -583,7 +585,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
             if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
             {
-                UpdateParentIdentifierSortOrder(dataReaderContext, splitQueryCollectionContext.ParentIdentifier);
+                dataReaderContext.ParentIdentifierSortOrder = parentIdentifierSortOrder;
 
                 while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                 {
@@ -1361,28 +1363,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             return true;
-        }
-
-        private static void UpdateParentIdentifierSortOrder(SplitQueryDataReaderContext dataReaderContext, object[] parentIdentifier)
-        {
-            if (dataReaderContext.ParentIdentifierSortOrder is null
-                && dataReaderContext.PreviousParentIdentifier != null)
-            {
-                var comparison = TryCompareIdentifiers(
-                    parentIdentifier,
-                    dataReaderContext.PreviousParentIdentifier);
-
-                if (comparison is > 0)
-                {
-                    dataReaderContext.ParentIdentifierSortOrder = AscendingSortOrder;
-                }
-                else if (comparison is < 0)
-                {
-                    dataReaderContext.ParentIdentifierSortOrder = DescendingSortOrder;
-                }
-            }
-
-            dataReaderContext.PreviousParentIdentifier = parentIdentifier;
         }
 
         private static bool ShouldSkipOutOfOrderChild(

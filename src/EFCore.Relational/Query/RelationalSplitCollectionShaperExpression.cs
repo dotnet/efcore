@@ -27,6 +27,10 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     /// <param name="innerShaper">An expression used to create individual elements of the collection.</param>
     /// <param name="navigation">A navigation associated with this collection, if any.</param>
     /// <param name="elementType">The clr type of individual elements in the collection.</param>
+    /// <param name="parentIdentifierSortOrder">
+    ///     The sort order of the parent identifier in the outer query, if it can be determined at compile time;
+    ///     positive for ascending, negative for descending, <see langword="null" /> if unknown or mixed.
+    /// </param>
     public RelationalSplitCollectionShaperExpression(
         Expression parentIdentifier,
         Expression childIdentifier,
@@ -34,7 +38,8 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
         SelectExpression selectExpression,
         Expression innerShaper,
         INavigationBase? navigation,
-        Type elementType)
+        Type elementType,
+        int? parentIdentifierSortOrder = null)
     {
         ParentIdentifier = parentIdentifier;
         ChildIdentifier = childIdentifier;
@@ -43,6 +48,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
         InnerShaper = innerShaper;
         Navigation = navigation;
         ElementType = elementType;
+        ParentIdentifierSortOrder = parentIdentifierSortOrder;
     }
 
     /// <summary>
@@ -79,6 +85,12 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     ///     The clr type of elements of the collection.
     /// </summary>
     public virtual Type ElementType { get; }
+
+    /// <summary>
+    ///     The sort order of the parent identifier in the outer query, if it can be determined at compile time.
+    ///     Positive for ascending, negative for descending, <see langword="null" /> if unknown or mixed.
+    /// </summary>
+    public virtual int? ParentIdentifierSortOrder { get; }
 
     /// <inheritdoc />
     public override Type Type
@@ -118,7 +130,8 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
             || selectExpression != SelectExpression
             || innerShaper != InnerShaper
                 ? new RelationalSplitCollectionShaperExpression(
-                    parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation, ElementType)
+                    parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation,
+                    ElementType, ParentIdentifierSortOrder)
                 : this;
 
     /// <inheritdoc />

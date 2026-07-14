@@ -1048,14 +1048,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                             innerShaperExpression = innerSelectExpression.ApplyProjection(
                                 innerShaperExpression, shapedQueryExpression.ResultCardinality, querySplittingBehavior);
 
+                            var identifierColumns = innerSelectExpression._identifier.Take(_identifier.Count);
                             var (childIdentifier, childIdentifierValueComparers) = GetIdentifierAccessor(
                                 innerSelectExpression,
                                 innerSelectExpression._clientProjections,
-                                innerSelectExpression._identifier.Take(_identifier.Count));
+                                identifierColumns);
+
+                            var parentIdentifierSortOrder = GetParentIdentifierSortOrder(
+                                innerSelectExpression._orderings, identifierColumns);
 
                             var result = new SplitCollectionInfo(
                                 parentIdentifier, childIdentifier, childIdentifierValueComparers,
-                                innerSelectExpression, innerShaperExpression);
+                                innerSelectExpression, innerShaperExpression, parentIdentifierSortOrder);
                             clientProjectionIndexMap.Add(result);
                         }
                         else
@@ -3187,6 +3191,41 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         innerSelect._projectionMapping[NullabilityMarkerProjectionMember] = marker;
         return new ProjectionBindingExpression(innerSelect, NullabilityMarkerProjectionMember, typeof(int?));
+    }
+
+    /// <summary>
+    ///     Determines whether the parent identifier columns appear as the leading ORDER BY columns in the given ordering list,
+    ///     and if so, returns the consistent sort direction (positive for ascending, negative for descending, null if unknown or mixed).
+    /// </summary>
+    private static int? GetParentIdentifierSortOrder(
+        IReadOnlyList<OrderingExpression> orderings,
+        IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifierColumns)
+    {
+        var identifierList = identifierColumns.ToList();
+        if (orderings.Count < identifierList.Count || identifierList.Count == 0)
+        {
+            return null;
+        }
+
+        bool? isAscending = null;
+        for (var i = 0; i < identifierList.Count; i++)
+        {
+            if (!orderings[i].Expression.Equals(identifierList[i].Column))
+            {
+                return null;
+            }
+
+            if (isAscending is null)
+            {
+                isAscending = orderings[i].IsAscending;
+            }
+            else if (isAscending != orderings[i].IsAscending)
+            {
+                return null;
+            }
+        }
+
+        return isAscending == true ? 1 : -1;
     }
 
     /// <summary>
