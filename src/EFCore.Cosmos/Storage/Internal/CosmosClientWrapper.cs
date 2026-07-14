@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -43,6 +44,19 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public static readonly string DefaultPartitionKey = "__partitionKey";
 
     private const string SubStatusCodeHeaderName = "x-ms-substatus";
+
+    // CosmosException has an internal ctor that accepts a Headers object (which contains RetryAfter).
+    // We use it to preserve the retry-after hint from a failed TransactionalBatchResponse.
+    private static readonly ConstructorInfo? CosmosExceptionInternalCtor = typeof(CosmosException)
+        .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+        .FirstOrDefault(static c =>
+        {
+            var parms = c.GetParameters();
+            return parms.Length == 7
+                && parms[0].ParameterType == typeof(HttpStatusCode)
+                && parms[1].ParameterType == typeof(string)
+                && parms[3].ParameterType.Name == "Headers";
+        });
 
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
     private readonly string _databaseId;
@@ -823,7 +837,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             TryTrackSessionTokenFromFailure(containerId, response.StatusCode, response.Headers, sessionTokenStorage);
 
             var errorCode = response.StatusCode;
-            var cosmosException = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
+            var cosmosException = CreateCosmosException(response);
             var errorBatchEntries = response
                 .Select((opResult, index) => (opResult, index))
                 .Where(r => r.opResult.StatusCode == errorCode)
@@ -845,6 +859,29 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             ProcessWriteResponse(entry.Entry, item.ETag, item.ResourceStream);
         }
+    }
+
+    // Creates a CosmosException from a failed TransactionalBatchResponse, preserving retry-after headers.
+    // The internal CosmosException constructor accepting Headers is used when available (via reflection) so that
+    // CosmosException.RetryAfter is populated from the batch response headers (e.g. the x-ms-retry-after-ms header
+    // returned by the server on 429 TooManyRequests). This allows CosmosExecutionStrategy.GetNextDelay to honour
+    // the server-supplied retry delay instead of falling back to pure exponential back-off.
+    private static CosmosException CreateCosmosException(TransactionalBatchResponse response)
+    {
+        if (CosmosExceptionInternalCtor != null)
+        {
+            try
+            {
+                return (CosmosException)CosmosExceptionInternalCtor.Invoke(
+                    [response.StatusCode, response.ErrorMessage, null, response.Headers, null, null, null]);
+            }
+            catch
+            {
+                // Internal constructor signature changed — fall back to the public constructor.
+            }
+        }
+
+        return new CosmosException(response.ErrorMessage, response.StatusCode, 0, response.ActivityId, response.RequestCharge);
     }
 
     /// <summary>
