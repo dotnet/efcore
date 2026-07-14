@@ -228,6 +228,7 @@ public abstract class AdHocComplexTypeQueryRelationalTestBase(NonSharedFixture f
                 b =>
                 {
                     b.ComplexProperty(h => h.Number);
+                    b.Property(h => h.Weight).HasPrecision(18, 6);
                     b.SplitToTable(
                         "HookMetadata",
                         tb =>

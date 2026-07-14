@@ -460,6 +460,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             return containerColumn.Table;
                         }
                     }
+
+                    return null;
                 }
 
                 foreach (var property in complexProperty.ComplexType.GetProperties())

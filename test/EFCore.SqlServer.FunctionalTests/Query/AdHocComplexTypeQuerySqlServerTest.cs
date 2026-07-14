@@ -69,6 +69,22 @@ FROM [BlogsView] AS [b]
 
     #endregion 34706
 
+    #region 38077
+
+    public override async Task Complex_property_on_split_entity()
+    {
+        await base.Complex_property_on_split_entity();
+
+        AssertSql(
+            """
+SELECT [h].[Id], [h].[CreatedOn], [h0].[IsTestHook], [h0].[Weight], [h].[Number_Parsed], [h].[Number_Raw]
+FROM [Hook] AS [h]
+INNER JOIN [HookMetadata] AS [h0] ON [h].[Id] = [h0].[HookId]
+""");
+    }
+
+    #endregion 38077
+
     [Fact]
     public virtual async Task Complex_type_equality_with_non_default_type_mapping()
     {
