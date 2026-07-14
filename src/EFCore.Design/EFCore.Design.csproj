@@ -62,7 +62,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
     <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
-    <PackageReference Include="Mono.TextTemplating" Version="2.2.1" />
+    <PackageReference Include="Mono.TextTemplating" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
