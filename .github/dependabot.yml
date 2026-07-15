@@ -15,6 +15,25 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
+      # Only update to the latest patch version, never major or minor
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_e_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.provider.sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -51,6 +70,27 @@ updates:
       # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Only update to the latest patch version, never major or minor
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Data.SqlClient"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_e_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.provider.sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -87,6 +127,27 @@ updates:
       # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Only update to the latest patch version, never major or minor
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Data.SqlClient"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_e_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.provider.sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -123,6 +184,27 @@ updates:
       # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Only update to the latest patch version, never major or minor
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "Microsoft.Data.SqlClient"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_e_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.bundle_sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.core"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "SQLitePCLRaw.provider.sqlite3"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
