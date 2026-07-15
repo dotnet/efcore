@@ -426,7 +426,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
             if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property))
             {
-                var jsonReadPropertyValueExpression = ReadJsonPropertyValue(property);
+                var typeMapping = property.GetTypeMapping();
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
+                Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+                var jsonReadPropertyValueExpression = ReadJsonValue(
+                    _jsonReaderManagerVariable,
+                    jsonValueReaderWriter,
+                    typeMapping,
+                    property.ClrType,
+                    true); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
 
                 return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
             }
@@ -891,18 +899,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 finalBlockVariables,
                 valueBufferTryReadValueMethodsToProcess);
 
-            // Workaround for old databases that didn't store the primary key property (for owned collection entities)
+            // Workaround for old databases that didn't store the primary key property (for owned collection entities), see Old_still_works
             if (structuralType is IEntityType workaroundEntityType
-             && !workaroundEntityType.IsDocumentRoot())
+             && workaroundEntityType.FindOwnership() is { } ownership
+             && workaroundEntityType.FindPrimaryKey() is { Properties.Count: > 1 } primaryKey)
             {
-                foreach (var possiblyMissingProperty in workaroundEntityType.GetProperties().Where(property =>
+                foreach (var possiblyMissingProperty in primaryKey.Properties.Where(property =>
                     property.ClrType == typeof(int)
                  && !property.IsForeignKey()
-                 && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
                  && property.GetJsonPropertyName().Length != 0
                  && !property.IsShadowProperty()))
                 {
-                    finalBlockExpressions.Add(Assign(propertyAssignmentMap[possiblyMissingProperty], _ordinalParameter));
+                    // Before the property read loop, we assign the ordinal as a default for the possibly missing pk property
+                    var variable = propertyAssignmentMap[possiblyMissingProperty];
+                    finalBlockExpressions.Add(Assign(variable, ConvertIfNotMatch(_ordinalParameter, variable.Type)));
                 }
             }
 
@@ -923,11 +933,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(expression)));
             }
 
-            // Add undefined and null checks for pk on root document
-            // This only throws for root document entity types now, see Old_still_works
-            // @TODO: discuss?
+            // Add null(/undefined) checks for pk
             if (structuralType is IEntityType pkEt
-             && pkEt.IsDocumentRoot()
              && pkEt.FindPrimaryKey() is { } pk
              && pk.Properties.Where(propertyAssignmentMap.ContainsKey).ToArray() is { Length: > 0 } pkProperties)
             {
@@ -940,7 +947,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 : (Expression)Equal(p, Default(p.Type))).Aggregate(OrElse),
                         Throw(
                             Call(
-                                CreateNullKeyValueInNoTrackingQueryMethod,
+                                CreateInvalidKeyValueMethodInfo,
                                 Constant(pkEt),
                                 Constant(pkProperties),
                                 NewArrayInit(typeof(object), pkPropertyVariables.Select(p => Convert(p, typeof(object))))))));
@@ -1023,9 +1030,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     testExpressions.Add(JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, property.GetJsonPropertyName()));
 
                     var propertyVariableType = property.ClrType;
-                    // For discriminator property and root document entity primary key properties, we want to throw if the value is not present or null, so we make the variable nullable to allow for that check later
-                    if (structuralType.FindDiscriminatorProperty() == property
-                     || (property.IsPrimaryKey() && property.DeclaringType is IEntityType propertyEntityType && propertyEntityType.IsDocumentRoot()))
+                    // For discriminator property and persisted primary key properties, we want to throw if the value is not present or null, so we make the variable nullable to allow for that check later
+                    if (structuralType.FindDiscriminatorProperty() == property || property.IsPrimaryKey())
                     {
                         propertyVariableType = propertyVariableType.MakeNullable();
                     }
@@ -1034,9 +1040,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     finalBlockVariables.Add(propertyVariable);
 
+                    var typeMapping = property.GetTypeMapping();
+                    var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
+                    Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+
                     var assignment = Assign(
                         propertyVariable,
-                        ConvertIfNotMatch(Visit(valueBufferTryReadValueMethodToProcess), propertyVariableType));
+                        ReadJsonValue(
+                            _jsonReaderManagerVariable,
+                            jsonValueReaderWriter,
+                            typeMapping,
+                            propertyVariableType,
+                            true)); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
 
                     readExpressions.Add(
                         Block(
@@ -1282,6 +1297,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             testExpression,
                             Constant(JsonTokenType.PropertyName)));
                 }
+                else
+                {
+                    switchCases.Add(
+                        SwitchCase(
+                            // jsonReaderManager.Skip() x2
+                            Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod))),
+                            Constant(JsonTokenType.PropertyName)));
+                }
 
                 var loopBody = Block(
                     Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
@@ -1420,19 +1443,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             index = -1;
             return false;
-        }
-
-        private Expression ReadJsonPropertyValue(IProperty property)
-        {
-            var typeMapping = property.GetTypeMapping();
-            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
-            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
-            return ReadJsonValue(
-                _jsonReaderManagerVariable,
-                jsonValueReaderWriter,
-                typeMapping,
-                property.ClrType,
-                true); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
         }
 
         private static Expression ReadJsonValue(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)

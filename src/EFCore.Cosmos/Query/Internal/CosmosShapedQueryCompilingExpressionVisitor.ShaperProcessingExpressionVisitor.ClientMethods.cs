@@ -11,10 +11,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor
     {
-        private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
-            = typeof(ShapedQueryCompilingExpressionVisitor)
-                .GetMethod(nameof(CreateNullKeyValueInNoTrackingQuery)) ?? throw new UnreachableException();
-
         private static readonly MethodInfo CreateUnableToDiscriminateExceptionMethod
             = typeof(StructuralTypeShaperExpression).GetMethod("CreateUnableToDiscriminateException") ?? throw new UnreachableException();
 
@@ -156,5 +152,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private static InvalidOperationException CreateJsonReaderInvalidTokenType(JsonTokenType jsonTokenType)
             => new(CoreStrings.JsonReaderInvalidTokenType(jsonTokenType));
+
+        private static readonly MethodInfo CreateInvalidKeyValueMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(CreateInvalidKeyValue), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+
+        private static InvalidOperationException CreateInvalidKeyValue(
+            IEntityType entityType,
+            IReadOnlyList<IProperty> properties,
+            object?[] keyValues)
+            => new(CoreStrings.InvalidKeyValue(
+                entityType.DisplayName(),
+                properties[keyValues.Select((x, i) => (x, i)).First(x => x.x == null).i].Name));
     }
 }
