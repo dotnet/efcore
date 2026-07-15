@@ -53,8 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SourceGear.sqlite3" Version="3.53.3" />
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
   </ItemGroup>
 
 </Project>
