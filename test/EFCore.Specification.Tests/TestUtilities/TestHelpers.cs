@@ -333,7 +333,7 @@ public abstract class TestHelpers
         foreach (var method in methods)
         {
             var parameters = method.GetParameters();
-            var paramList = string.Join(", ", parameters.Select(x => $"{x.ParameterType.Name} {x.Name}"));
+            var paramList = string.Join(", ", parameters.Select(x => $"{Infrastructure.TypeExtensions.ShortDisplayName(x.ParameterType)} {x.Name}"));
             var argList = string.Join(", ", parameters.Select(x => x.Name));
 
             if (method.ReturnType == typeof(Task))
@@ -343,7 +343,10 @@ public abstract class TestHelpers
 {{
     await base.{method.Name}({argList});
 
-    AssertSql();
+    AssertSql(
+        """"""
+Placeholder SQL Baseline
+"""""");
 }}
 
 ");
@@ -355,7 +358,10 @@ public abstract class TestHelpers
 {{
     base.{method.Name}({argList});
 
-    AssertSql();
+    AssertSql(
+        """"""
+Placeholder SQL Baseline
+"""""");
 }}
 
 ");
