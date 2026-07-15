@@ -28,7 +28,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     /// <param name="navigation">A navigation associated with this collection, if any.</param>
     /// <param name="elementType">The clr type of individual elements in the collection.</param>
     /// <param name="parentIdentifierSortOrder">
-    ///     The sort order of the parent identifier in the outer query, if it can be determined at compile time:
+    ///     The sort order of the parent identifier in the split collection query result set, if it can be determined at compile time:
     ///     <c>1</c> for ascending, <c>-1</c> for descending, or <see langword="null" /> if unknown or mixed.
     /// </param>
     public RelationalSplitCollectionShaperExpression(
@@ -87,7 +87,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     public virtual Type ElementType { get; }
 
     /// <summary>
-    ///     The sort order of the parent identifier in the outer query, if it can be determined at compile time:
+    ///     The sort order of the parent identifier in the split collection query result set, if it can be determined at compile time:
     ///     <c>1</c> for ascending, <c>-1</c> for descending, or <see langword="null" /> if unknown or mixed.
     /// </summary>
     public virtual int? ParentIdentifierSortOrder { get; }
