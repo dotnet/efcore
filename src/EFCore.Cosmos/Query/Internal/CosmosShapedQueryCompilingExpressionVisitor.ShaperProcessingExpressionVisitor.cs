@@ -981,21 +981,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal.GetMemberInfo(true, true);
                             fixupBuilders.Add((dependentInstance) => dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
-                                        .Assign(
-                                            ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                                        .Assign(ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
                         }
 
                         foreach (var dependentForeignKeyProperty in navigation.ForeignKey.Properties.Where(x => !x.IsShadowProperty()
                                                                                                              && !x.IsPersisted()))
                         {
-                            if (dependentForeignKeyProperty.FindFirstPrincipal() is not { } princpalProperty)
+                            if (dependentForeignKeyProperty.FindFirstPrincipal() is not { } principalProperty
+                             || !propertyAssignmentMap.TryGetValue(principalProperty, out var principalPropertyVariable))
                             {
                                 continue;
                             }
 
                             fixupBuilders.Add((dependentInstance) =>
                                 dependentInstance.MakeMemberAccess(dependentForeignKeyProperty.GetMemberInfo(true, true))
-                                .Assign(ConvertIfNotMatch(instanceVariable.MakeMemberAccess(princpalProperty.GetMemberInfo(true, true)), dependentForeignKeyProperty.ClrType))); // What if shadow...
+                                    .Assign(ConvertIfNotMatch(principalPropertyVariable, dependentForeignKeyProperty.ClrType)));
                         }
 
                         if (navigation.IsCollection)
