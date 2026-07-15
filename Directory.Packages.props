@@ -53,7 +53,6 @@
     <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.lib.e_sqlite3" Version="$(SQLitePCLRawLibESqlite3Version)" />
 
     <!-- Pinned versions for Component Governance/NuGetAudit - Remove when root dependencies are updated -->
     <!--Workaround for Microsoft.CodeAnalysis.Workspaces.MSBuild 4.8.0, see https://github.com/dotnet/efcore/issues/34637-->

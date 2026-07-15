@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
+    <PackageReference Include="SQLitePCLRaw.core" VersionOverride="3.0.3" />
   </ItemGroup>
 
 </Project>
