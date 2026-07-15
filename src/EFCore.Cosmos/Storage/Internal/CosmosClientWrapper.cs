@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -49,11 +48,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     // CosmosException has an internal ctor that accepts a Headers object (which contains RetryAfter).
     // We use it to preserve the retry-after hint from a failed TransactionalBatchResponse.
     private static readonly ConstructorInfo? CosmosExceptionInternalCtor =
-        FindCosmosExceptionInternalCtor(typeof(CosmosException));
-
-    private static ConstructorInfo? FindCosmosExceptionInternalCtor(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.NonPublicConstructors)] Type cosmosExceptionType)
-        => cosmosExceptionType
+        typeof(CosmosException)
             .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
             .FirstOrDefault(static c =>
             {
