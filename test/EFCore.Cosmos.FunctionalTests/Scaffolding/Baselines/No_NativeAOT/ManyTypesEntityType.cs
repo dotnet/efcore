@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -33,7 +32,7 @@ public partial class ManyTypesEntityType
             baseEntityType,
             discriminatorProperty: "Discriminator",
             discriminatorValue: "ManyTypes",
-            propertyCount: 170,
+            propertyCount: 169,
             keyCount: 1);
 
         var id = runtimeEntityType.AddProperty(
@@ -1269,15 +1268,6 @@ public partial class ManyTypesEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new IdValueGeneratorFactory().Create);
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

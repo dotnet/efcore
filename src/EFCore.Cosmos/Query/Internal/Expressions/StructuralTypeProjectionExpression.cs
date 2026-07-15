@@ -116,10 +116,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
         }
 
         if (!clientEval
-            // TODO: Remove once __jObject is translated to the access root in a better fashion and
-            // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
-            // TODO: We shouldn't be returning null from here
-            && property.Name != CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName
+            // TODO: We shouldn't be returning null from here. See issues #17670 and #14121.
             && expression.PropertyName?.Length is null or 0)
         {
             // Non-persisted property can't be translated
@@ -155,7 +152,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             expression = navigation.IsCollection
                 ? new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
-                    new ObjectArrayAccessExpression(Object, navigation),
+                    new StructuralTypeProjectionExpression(new ObjectArrayAccessExpression(Object, navigation), navigation.TargetEntityType),
                     nullable: true)
                 : new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
@@ -197,7 +194,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             expression = complexProperty.IsCollection
                 ? new StructuralTypeShaperExpression(
                     complexProperty.ComplexType,
-                    new ObjectArrayAccessExpression(Object, complexProperty),
+                    new StructuralTypeProjectionExpression(new ObjectArrayAccessExpression(Object, complexProperty), complexProperty.ComplexType),
                     nullable: true)
                 : new StructuralTypeShaperExpression(
                     complexProperty.ComplexType,

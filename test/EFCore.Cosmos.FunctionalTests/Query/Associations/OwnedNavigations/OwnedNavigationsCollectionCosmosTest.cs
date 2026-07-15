@@ -78,8 +78,22 @@ WHERE (ARRAY(
     public override Task Distinct()
         => AssertTranslationFailed(base.Distinct);
 
-    public override Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAnyAsync<Exception>(() => base.Distinct_projected(queryTrackingBehavior));
+    public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Distinct_projected(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE ARRAY(
+    SELECT DISTINCT VALUE a
+    FROM a IN c["AssociateCollection"])
+FROM root c
+ORDER BY c["Id"]
+""");
+        }
+    }
 
     public override Task Distinct_over_projected_nested_collection()
         => Assert.ThrowsAsync<InvalidOperationException>(base.Distinct_over_projected_nested_collection);

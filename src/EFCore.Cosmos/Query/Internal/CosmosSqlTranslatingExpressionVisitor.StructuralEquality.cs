@@ -190,7 +190,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
             var reference = leftReference ?? rightReference;
             Check.DebugAssert(reference != null, "We checked that at least one side is a StructuralTypeReferenceExpression before calling this function");
-            var collection = (reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression is ObjectArrayAccessExpression;
+            var collection = ((reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression as StructuralTypeProjectionExpression)?.Object is ObjectArrayAccessExpression;
 
             var leftComplexType = leftReference?.StructuralType as IComplexType;
             var rightComplexType = rightReference?.StructuralType as IComplexType;

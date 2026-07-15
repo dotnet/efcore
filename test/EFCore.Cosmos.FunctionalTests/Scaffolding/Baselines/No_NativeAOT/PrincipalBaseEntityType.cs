@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -28,7 +27,7 @@ public partial class PrincipalBaseEntityType
             discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBase",
             derivedTypesCount: 1,
-            propertyCount: 15,
+            propertyCount: 14,
             navigationCount: 1,
             skipNavigationCount: 1,
             keyCount: 2);
@@ -139,12 +138,6 @@ public partial class PrincipalBaseEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new IdValueGeneratorFactory().Create);
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true);
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

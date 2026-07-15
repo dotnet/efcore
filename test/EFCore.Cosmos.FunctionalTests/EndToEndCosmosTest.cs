@@ -640,6 +640,16 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             c =>
             {
                 c.Collection.Clear();
+                c.Collection["2"] = [null];
+            },
+            new SortedDictionary<string, long?[]> { { "2", [null] } });
+
+        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+            transactionalBatch,
+            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+            c =>
+            {
+                c.Collection.Clear();
                 c.Collection["2"] = null;
             },
             new SortedDictionary<string, long?[]> { { "2", null } });
@@ -902,6 +912,13 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             customerFromStore.Name = "Theon Greyjoy";
 
             await context.SaveChangesAsync();
+        }
+
+        await using (var context = CreateContext(contextFactory, false))
+        {
+            var customersFromStore = await context.Set<Customer>()
+                .ToListAsync();
+            Assert.Equal(2, customersFromStore.Count);
         }
 
         await using (var context = CreateContext(contextFactory, false))
@@ -1300,9 +1317,6 @@ OFFSET 0 LIMIT 1
 
             var entry = context.Entry(customerFromStore);
             Assert.Equal("theon.g@winterfell.com", entry.Property<string>("EMail").CurrentValue);
-
-            var json = entry.Property<JObject>("__jObject").CurrentValue;
-            Assert.Equal("theon.g@winterfell.com", json["e-mail"]);
 
             context.Remove(customerFromStore);
 

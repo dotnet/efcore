@@ -62,7 +62,11 @@ WHERE (c["$type"] = "Order")
             });
 
     public override Task Projection_when_arithmetic_expressions(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Projection_when_arithmetic_expressions(a);
@@ -83,6 +87,7 @@ FROM root c
 WHERE (c["$type"] = "Order")
 """);
             });
+    }
 
     public override async Task Projection_when_arithmetic_mixed(bool async)
     {
@@ -122,7 +127,11 @@ FROM root c
     }
 
     public override Task Project_to_object_array(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Project_to_object_array(a);
@@ -134,6 +143,7 @@ FROM root c
 WHERE (c["EmployeeID"] = 1)
 """);
             });
+    }
 
     public override Task Projection_of_entity_type_into_object_array(bool async)
         => Fixture.NoSyncTest(
@@ -313,7 +323,11 @@ WHERE (c["$type"] = "Product")
             });
 
     public override Task Select_anonymous_with_object(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Select_anonymous_with_object(a);
@@ -324,6 +338,7 @@ SELECT c["City"], c
 FROM root c
 """);
             });
+    }
 
     public override Task Select_constant_int(bool async)
         => Fixture.NoSyncTest(
@@ -645,9 +660,9 @@ ORDER BY c["OrderID"]
                     """
 SELECT VALUE
 {
+    "Order" : c["OrderID"],
     "LongOrder" : c["OrderID"],
-    "ShortOrder" : c["OrderID"],
-    "Order" : c["OrderID"]
+    "ShortOrder" : c["OrderID"]
 }
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
@@ -1071,7 +1086,9 @@ WHERE STARTSWITH(c["id"], "A")
     public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+
+        Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
 
         AssertSql();
     }
@@ -1530,7 +1547,11 @@ OFFSET 0 LIMIT @p
     }
 
     public override Task Ternary_in_client_eval_assigns_correct_types(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Ternary_in_client_eval_assigns_correct_types(a);
@@ -1550,6 +1571,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] < 10300))
 ORDER BY c["OrderID"]
 """);
             });
+    }
 
     public override async Task Collection_include_over_result_of_single_non_scalar(bool async)
     {
@@ -1605,8 +1627,12 @@ ORDER BY c["OrderID"]
 
     public override async Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
     {
-        // Cross collection join. Issue #17246.
-        await AssertTranslationFailed(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
+            ex.Message);
 
         AssertSql();
     }
@@ -1808,18 +1834,23 @@ WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
     }
 
     public override Task Projecting_nullable_struct(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Projecting_nullable_struct(a);
 
                 AssertSql(
                     """
-SELECT c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, c["OrderID"], LENGTH(c["CustomerID"]) AS c0
+SELECT c["OrderID"], c["CustomerID"], (c["CustomerID"] = "ALFKI") AS c, LENGTH(c["CustomerID"]) AS c0
 FROM root c
 WHERE (c["$type"] = "Order")
 """);
             });
+    }
 
     public override Task Select_customer_identity(bool async)
         => Fixture.NoSyncTest(

@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -28,7 +27,7 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             propertyBag: true,
             discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
-            propertyCount: 8,
+            propertyCount: 7,
             foreignKeyCount: 2,
             keyCount: 1);
 
@@ -71,16 +70,6 @@ public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new IdValueGeneratorFactory().Create);
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            propertyInfo: runtimeEntityType.FindIndexerPropertyInfo(),
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var rowid = runtimeEntityType.AddProperty(
             "rowid",

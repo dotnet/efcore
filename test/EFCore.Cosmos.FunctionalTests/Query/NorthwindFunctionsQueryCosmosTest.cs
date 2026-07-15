@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -55,8 +56,8 @@ ORDER BY LENGTH(c["id"]), c["id"]
 
     public override async Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+        Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"), ex.Message);
 
         AssertSql();
     }

@@ -45,8 +45,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         bool distinct,
         List<OrderingExpression> orderings,
         SqlExpression? offset,
-        SqlExpression? limit,
-        bool usesClientProjection)
+        SqlExpression? limit)
     {
         _sources = sources;
         Predicate = predicate is SqlConstantExpression { Value: true } ? null : predicate;
@@ -55,7 +54,6 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         _orderings = orderings;
         Offset = offset;
         Limit = limit;
-        UsesClientProjection = usesClientProjection;
     }
 
     /// <summary>
@@ -102,8 +100,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                 distinct: false,
                 orderings: [],
                 offset: null,
-                limit: null,
-                usesClientProjection: false);
+                limit: null);
         }
 
         var source = new SourceExpression(sourceExpression, sourceAlias, withIn: true);
@@ -169,18 +166,6 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public bool IsDistinct { get; private set; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    /// <remarks>
-    ///     This property indicates whether the query uses client-side projection. We have to keep track of this
-    ///     because of #34067. We can't apply distinct to queries with client-side projection.
-    /// </remarks>
-    public bool UsesClientProjection { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -271,6 +256,82 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public int[]? MoveRootKeyProjectionsFirst(IEntityType rootEntityType, IReadOnlyList<IProperty> primaryKeyProperties)
+    {
+        if (_projection.Count < 2)
+        {
+            return null;
+        }
+
+        var keyProjectionIndexes = new List<int>();
+        foreach (var primaryKeyProperty in primaryKeyProperties)
+        {
+            for (var i = 0; i < _projection.Count; i++)
+            {
+                if (!keyProjectionIndexes.Contains(i)
+                    && IsRootKeyProjection(_projection[i], rootEntityType, primaryKeyProperty))
+                {
+                    keyProjectionIndexes.Add(i);
+                    break;
+                }
+            }
+        }
+
+        if (keyProjectionIndexes.Count == 0
+            || keyProjectionIndexes.SequenceEqual(Enumerable.Range(0, keyProjectionIndexes.Count)))
+        {
+            return null;
+        }
+
+        var keyProjectionIndexSet = keyProjectionIndexes.ToHashSet();
+        var newIndexToOldIndex = keyProjectionIndexes
+            .Concat(Enumerable.Range(0, _projection.Count).Where(i => !keyProjectionIndexSet.Contains(i)))
+            .ToArray();
+
+        var oldIndexToNewIndex = new int[_projection.Count];
+        for (var i = 0; i < newIndexToOldIndex.Length; i++)
+        {
+            oldIndexToNewIndex[newIndexToOldIndex[i]] = i;
+        }
+
+        var projections = newIndexToOldIndex.Select(i => _projection[i]).ToArray();
+        _projection.Clear();
+        _projection.AddRange(projections);
+
+        var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+        foreach (var (projectionMember, expression) in _projectionMapping)
+        {
+            projectionMapping[projectionMember] = expression is ConstantExpression { Value: int index }
+                && index >= 0
+                && index < oldIndexToNewIndex.Length
+                    ? Constant(oldIndexToNewIndex[index])
+                    : expression;
+        }
+
+        _projectionMapping = projectionMapping;
+
+        return oldIndexToNewIndex;
+    }
+
+    private static bool IsRootKeyProjection(ProjectionExpression projection, IEntityType rootEntityType, IProperty primaryKeyProperty)
+        => projection.Expression is ScalarAccessExpression
+            {
+                Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
+                PropertyName: var propertyName
+            }
+            && IsRootEntityType(entityType, rootEntityType)
+            && string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal);
+
+    private static bool IsRootEntityType(IEntityType entityType, IEntityType rootEntityType)
+        => entityType == rootEntityType
+            || entityType.GetRootType() == rootEntityType.GetRootType();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
     {
         _projectionMapping.Clear();
@@ -337,15 +398,6 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public void ApplyDistinct()
         => IsDistinct = true;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public void IndicateClientProjection()
-        => UsesClientProjection = true;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -642,7 +694,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         if (changed)
         {
-            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit, UsesClientProjection)
+            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
             {
                 _projectionMapping = projectionMapping
             };
@@ -673,7 +725,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit, UsesClientProjection)
+        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
         {
             _projectionMapping = projectionMapping, ReadItemInfo = ReadItemInfo
         };
@@ -686,7 +738,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpression WithReadItemInfo(ReadItemInfo readItemInfo)
-        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit, UsesClientProjection)
+        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
             _projectionMapping = _projectionMapping, ReadItemInfo = readItemInfo
         };
@@ -705,7 +757,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit, UsesClientProjection)
+        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
             _projectionMapping = projectionMapping
         };
