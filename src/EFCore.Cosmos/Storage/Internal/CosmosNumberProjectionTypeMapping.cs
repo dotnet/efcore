@@ -72,7 +72,7 @@ public class CosmosNumberProjectionTypeMapping<T> : CosmosTypeMapping<T>
     /// </summary>
     public CosmosNumberProjectionTypeMapping() : base(
         null, null, null,
-        JsonValueReaderWriter.CreateFromType(typeof(CosmosJsonNumberProjectionReaderWriter<>).MakeGenericType(typeof(T))))
+        CosmosJsonNumberProjectionReaderWriter<T>.Instance)
     {
     }
 
