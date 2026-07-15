@@ -968,28 +968,46 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 if (!_queryStateManager)
                 {
-                    // Non tracking dependent to principal fixup
+                    // Non tracking dependent to principal fk fixup
                     foreach (var navigation in fixupEntityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership
-                                                                                        && n == n.ForeignKey.PrincipalToDependent
-                                                                                        && n.ForeignKey.DependentToPrincipal != null))
+                                                                                        && !n.IsOnDependent))
                     {
+                        // Shadow owned navigations do not exist, so there is always a PrincipalToDependent member
                         var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
-                        var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal!.GetMemberInfo(true, true);
+
+                        var fixupBuilders = new List<Func<Expression, Expression>>();
+
+                        if (navigation.ForeignKey.DependentToPrincipal is not null)
+                        {
+                            var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal.GetMemberInfo(true, true);
+                            fixupBuilders.Add((dependentInstance) => dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
+                                        .Assign(
+                                            ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                        }
+
+                        foreach (var dependentForeignKeyProperty in navigation.ForeignKey.Properties.Where(x => !x.IsShadowProperty()
+                                                                                                             && !x.IsPersisted()))
+                        {
+                            if (dependentForeignKeyProperty.FindFirstPrincipal() is not { } princpalProperty)
+                            {
+                                continue;
+                            }
+
+                            fixupBuilders.Add((dependentInstance) =>
+                                dependentInstance.MakeMemberAccess(dependentForeignKeyProperty.GetMemberInfo(true, true))
+                                .Assign(ConvertIfNotMatch(instanceVariable.MakeMemberAccess(princpalProperty.GetMemberInfo(true, true)), dependentForeignKeyProperty.ClrType))); // What if shadow...
+                        }
 
                         if (navigation.IsCollection)
                         {
                             finalBlockExpressions.Add(
                                 EnumerableForEach(instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
-                                    dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
-                                        .Assign(
-                                            ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType()))));
+                                    Block(fixupBuilders.Select(f => f(dependentInstance)))));
                         }
                         else
                         {
                             finalBlockExpressions.Add(
-                                instanceVariable.MakeMemberAccess(principalToDependentMember).MakeMemberAccess(dependentToPrincipalMember)
-                                    .Assign(
-                                        ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                                Block(fixupBuilders.Select(f => f(instanceVariable.MakeMemberAccess(principalToDependentMember)))));
                         }
                     }
                 }
