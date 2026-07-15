@@ -15,6 +15,17 @@ updates:
     labels:
       - "area-infrastructure"
     ignore:
+      # Only update to the latest minor version, never major or patch
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -51,6 +62,17 @@ updates:
       # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Only update to the latest minor version, never major or patch
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -87,6 +109,17 @@ updates:
       # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Only update to the latest minor version, never major or patch
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
@@ -123,6 +156,17 @@ updates:
       # Only update to the latest minor or patch version, never major
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Only update to the latest minor version, never major or patch
+      - dependency-name: "Microsoft.Build.Locator"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.Workspaces.MSBuild"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Framework"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.Build.Utilities.Core"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.Workspaces"
+        update-types: ["version-update:semver-major", "version-update:semver-patch"]
       # Packages managed by Maestro dependency flow (eng/Version.Details.props)
       - dependency-name: "Microsoft.DotNet.Arcade.Sdk"
       - dependency-name: "Microsoft.DotNet.Build.Tasks.Templating"
