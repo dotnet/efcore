@@ -16,6 +16,8 @@ using static SQLitePCL.raw;
     "Microsoft.Data.Sqlite.Tests.TestUtilities.SqliteTestFramework",
 #if E_SQLITE3
     "Microsoft.Data.Sqlite.Tests")]
+#elif E_SQLCIPHER
+    "Microsoft.Data.Sqlite.e_sqlcipher.Tests")]
 #elif E_SQLITE3MC
     "Microsoft.Data.Sqlite.sqlite3mc.Tests")]
 #elif WINSQLITE3
