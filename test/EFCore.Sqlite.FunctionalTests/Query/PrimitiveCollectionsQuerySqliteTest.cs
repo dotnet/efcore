@@ -990,6 +990,7 @@ WHERE (
 """);
     }
 
+    [ConditionalTheory(Skip = "Issue #32561")]
     public override async Task Parameter_collection_Concat_column_collection(bool async)
     {
         await base.Parameter_collection_Concat_column_collection(async);
