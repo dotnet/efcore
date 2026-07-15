@@ -32,7 +32,9 @@
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
     <SQLitePCLRawVersion>2.1.12</SQLitePCLRawVersion>
-    <SQLitePCLRawBundleSqliteFlavorVersion>2.1.11</SQLitePCLRawBundleSqliteFlavorVersion>
+    <SQLitePCLRawBundleESqlcipherVersion>2.1.11</SQLitePCLRawBundleESqlcipherVersion>
+    <SQLitePCLRawBundleSqlite3Version>2.1.11</SQLitePCLRawBundleSqlite3Version>
+    <SQLitePCLRawBundleWinsqlite3Version>2.1.11</SQLitePCLRawBundleWinsqlite3Version>
     <SQLite3MCPCLRawBundleVersion>2.3.5</SQLite3MCPCLRawBundleVersion>
   </PropertyGroup>
 </Project>
