@@ -1531,15 +1531,15 @@ WHERE (
 """);
     }
 
-[ConditionalTheory]
-public override async Task Parameter_collection_Concat_column_collection(bool async)
-{
-    // Issue #32561
-    await Assert.ThrowsAsync<EqualException>(
-        () => base.Parameter_collection_Concat_column_collection(async));
+    [ConditionalTheory]
+    public override async Task Parameter_collection_Concat_column_collection(bool async)
+    {
+        // Issue #32561
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.Parameter_collection_Concat_column_collection(async));
 
-    AssertSql(
-        """
+        AssertSql(
+            """
 @__p_0='[11,111]' (Size = 8)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
@@ -1554,7 +1554,7 @@ WHERE (
         FROM json_each("p"."Ints") AS "i"
     ) AS "u") = 2
 """);
-}
+    }
 
     public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression(bool async)
     {
