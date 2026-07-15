@@ -138,6 +138,58 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
 
     #endregion Convert
 
+    #region Parse
+
+    public override async Task Byte_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Byte_Parse());
+
+        AssertSql();
+    }
+
+    public override async Task Decimal_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Decimal_Parse());
+
+        AssertSql();
+    }
+
+    public override async Task Double_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Double_Parse());
+
+        AssertSql();
+    }
+
+    public override async Task Short_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Short_Parse());
+
+        AssertSql();
+    }
+
+    public override async Task Int_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Int_Parse());
+
+        AssertSql();
+    }
+
+    public override async Task Long_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Long_Parse());
+
+        AssertSql();
+    }
+
+    #endregion
+
     #region Compare
 
     public override async Task Int_Compare_to_simple_zero()

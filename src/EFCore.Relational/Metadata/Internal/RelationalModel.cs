@@ -2078,7 +2078,14 @@ public class RelationalModel : Annotatable, IRelationalModel
             var includeInherited = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
             foreach (var foreignKey in includeInherited ? entityType.GetForeignKeys() : entityType.GetDeclaredForeignKeys())
             {
-                foreach (var principalMapping in GetTableMappings(foreignKey.PrincipalEntityType).Reverse())
+                var principalMappings = GetTableMappings(foreignKey.PrincipalEntityType).Reverse();
+                // For split entities, prefer non-fragment (main) table mappings over fragment
+                // mappings to avoid FKs targeting the PK being incorrectly resolved to a fragment
+                // table. Fragment mappings are still tried as a fallback so that FKs targeting an
+                // AK that lives on a fragment are resolved correctly.
+                foreach (var principalMapping in principalMappings
+                    .Where(m => m.IsSplitEntityTypePrincipal != false)
+                    .Concat(principalMappings.Where(m => m.IsSplitEntityTypePrincipal == false)))
                 {
                     var principalTable = (Table)principalMapping.Table;
                     var principalStoreObject = StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema);

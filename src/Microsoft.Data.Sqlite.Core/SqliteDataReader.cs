@@ -327,9 +327,7 @@ public class SqliteDataReader : DbDataReader
     /// </summary>
     /// <param name="ordinal">The zero-based column ordinal.</param>
     /// <returns>The data type of the column.</returns>
-#if NET8_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     public override Type GetFieldType(int ordinal)
         => _closed
             ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetFieldType)))
@@ -764,14 +762,12 @@ public class SqliteDataReader : DbDataReader
 
         return schemaTable;
 
-#if NET6_0_OR_GREATER
         [UnconditionalSuppressMessage(
             "Trimming", "IL2111:Method with parameters or return value with `DynamicallyAccessedMembersAttribute`"
             + " is accessed via reflection. Trimmer can't guarantee availability of the requirements of the method.",
             Justification = "This is about System.Type.TypeInitializer.get. It is accessed via reflection"
                 + " as the type parameter in DataColumn is annotated with DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties"
                 + " However, reflection is only used for nullable columns.")]
-#endif
         static DataColumn CreateDataTypeColumn()
             => new(SchemaTableColumn.DataType, typeof(Type)) { AllowDBNull = false };
     }

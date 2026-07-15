@@ -394,7 +394,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             var (command1, command2, edges) = data[i];
             Format(command1, builder);
 
-            switch (edges.First().Metadata)
+            var firstEdge = edges.FirstOrDefault();
+            Check.DebugAssert(
+                firstEdge is not null || (command1.Entries.Count == 0 && command2.Entries.Count == 0),
+                "Cycle edge sequence may be empty only when both commands have no entries, which occurs during predecessor traversal of migration data commands.");
+            switch (firstEdge?.Metadata)
             {
                 case IForeignKey foreignKey:
                     Format(foreignKey, command1, command2, builder);
@@ -432,6 +436,30 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
     private void Format(IReadOnlyModificationCommand command, StringBuilder builder)
     {
+        if (command.Entries.Count == 0)
+        {
+            Check.DebugAssert(
+                !string.IsNullOrEmpty(command.TableName),
+                "Commands without entries must have a table name because cycle errors need to identify the store object.");
+
+            if (command.Schema == null)
+            {
+                builder.Append(command.TableName);
+            }
+            else
+            {
+                builder.Append(command.Schema);
+                builder.Append('.');
+                builder.Append(command.TableName);
+            }
+
+            builder.Append(' ');
+            builder.Append('[');
+            builder.Append(command.EntityState);
+            builder.Append(']');
+            return;
+        }
+
         var entry = command.Entries.First();
         var entityType = entry.EntityType;
         builder.Append(entityType.DisplayName());
@@ -1141,8 +1169,18 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var (value, _) = ((TableIndex)index).GetRowIndexValueFactory()
-                        .CreateEquatableIndexValue(command, fromOriginalValues: true);
+                    var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+                    var (value, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
+
+                    if (command.EntityState == EntityState.Modified)
+                    {
+                        var (currentValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command);
+                        if (Equals(value, currentValue))
+                        {
+                            continue;
+                        }
+                    }
+
                     if (value != null)
                     {
                         indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
@@ -1223,8 +1261,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var (value, hasNullValue) = ((TableIndex)index).GetRowIndexValueFactory()
-                        .CreateEquatableIndexValue(command);
+                    var rowIndexValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
+                    var (value, hasNullValue) = rowIndexValueFactory.CreateEquatableIndexValue(command);
+
+                    if (command.EntityState == EntityState.Modified)
+                    {
+                        var (originalValue, _) = rowIndexValueFactory.CreateEquatableIndexValue(command, fromOriginalValues: true);
+                        if (Equals(originalValue, value))
+                        {
+                            continue;
+                        }
+                    }
                     if (value != null)
                     {
                         AddMatchingPredecessorEdge(

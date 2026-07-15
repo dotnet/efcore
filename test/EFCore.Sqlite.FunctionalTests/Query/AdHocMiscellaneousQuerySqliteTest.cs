@@ -686,5 +686,220 @@ ORDER BY "s0"."PickupStatusId"
 """);
     }
 
+    public override async Task Second_join_after_then_whole_object()
+    {
+        await base.Second_join_after_then_whole_object();
+
+        AssertSql(
+            """
+SELECT "s0"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+INNER JOIN "Statuses" AS "s0" ON "s"."PickupStatusId" = "s0"."PickupStatusId"
+ORDER BY "s0"."PickupStatusId"
+""");
+    }
+
+    public override async Task GroupBy_after_join_then_whole_object()
+    {
+        await base.GroupBy_after_join_then_whole_object();
+
+        AssertSql(
+            """
+SELECT "s1"."PickupStatusId", "s3"."pickupStatusId", "s3"."Count", "s3"."marker", "s3"."c"
+FROM (
+    SELECT "s"."PickupStatusId"
+    FROM "Statuses" AS "s"
+    LEFT JOIN (
+        SELECT "r"."PickupStatusId" AS "pickupStatusId"
+        FROM "Requests" AS "r"
+        GROUP BY "r"."PickupStatusId"
+    ) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+    GROUP BY "s"."PickupStatusId"
+) AS "s1"
+LEFT JOIN (
+    SELECT "s2"."pickupStatusId", "s2"."Count", "s2"."marker", "s2"."c", "s2"."PickupStatusId0"
+    FROM (
+        SELECT "r1"."pickupStatusId", "r1"."Count", "r1"."marker", 1 AS "c", "s0"."PickupStatusId" AS "PickupStatusId0", ROW_NUMBER() OVER(PARTITION BY "s0"."PickupStatusId" ORDER BY "s0"."PickupStatusId", "r1"."pickupStatusId") AS "row"
+        FROM "Statuses" AS "s0"
+        LEFT JOIN (
+            SELECT "r2"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+            FROM "Requests" AS "r2"
+            GROUP BY "r2"."PickupStatusId"
+        ) AS "r1" ON "s0"."PickupStatusId" = "r1"."pickupStatusId"
+    ) AS "s2"
+    WHERE "s2"."row" <= 1
+) AS "s3" ON "s1"."PickupStatusId" = "s3"."PickupStatusId0"
+ORDER BY "s1"."PickupStatusId"
+""");
+    }
+
+    public override async Task GroupBy_after_join_then_whole_object_nested_in_wrapper()
+    {
+        await base.GroupBy_after_join_then_whole_object_nested_in_wrapper();
+
+        // SQL is intentionally identical to the flat GroupBy_after_join_then_whole_object variant -- the wrapper is
+        // client-side-only nesting, so it changes no SQL. This test exists to exercise the nested-node rekey path.
+        AssertSql(
+            """
+SELECT "s1"."PickupStatusId", "s3"."pickupStatusId", "s3"."Count", "s3"."marker", "s3"."c"
+FROM (
+    SELECT "s"."PickupStatusId"
+    FROM "Statuses" AS "s"
+    LEFT JOIN (
+        SELECT "r"."PickupStatusId" AS "pickupStatusId"
+        FROM "Requests" AS "r"
+        GROUP BY "r"."PickupStatusId"
+    ) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+    GROUP BY "s"."PickupStatusId"
+) AS "s1"
+LEFT JOIN (
+    SELECT "s2"."pickupStatusId", "s2"."Count", "s2"."marker", "s2"."c", "s2"."PickupStatusId0"
+    FROM (
+        SELECT "r1"."pickupStatusId", "r1"."Count", "r1"."marker", 1 AS "c", "s0"."PickupStatusId" AS "PickupStatusId0", ROW_NUMBER() OVER(PARTITION BY "s0"."PickupStatusId" ORDER BY "s0"."PickupStatusId", "r1"."pickupStatusId") AS "row"
+        FROM "Statuses" AS "s0"
+        LEFT JOIN (
+            SELECT "r2"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+            FROM "Requests" AS "r2"
+            GROUP BY "r2"."PickupStatusId"
+        ) AS "r1" ON "s0"."PickupStatusId" = "r1"."pickupStatusId"
+    ) AS "s2"
+    WHERE "s2"."row" <= 1
+) AS "s3" ON "s1"."PickupStatusId" = "s3"."PickupStatusId0"
+ORDER BY "s1"."PickupStatusId"
+""");
+    }
+
+    public override async Task GroupBy_after_join_then_whole_object_dto_memberinit()
+    {
+        await base.GroupBy_after_join_then_whole_object_dto_memberinit();
+
+        AssertSql(
+            """
+SELECT "s1"."PickupStatusId", "s3"."PickupStatusId", "s3"."Count", "s3"."marker", "s3"."c"
+FROM (
+    SELECT "s"."PickupStatusId"
+    FROM "Statuses" AS "s"
+    LEFT JOIN (
+        SELECT "r"."PickupStatusId"
+        FROM "Requests" AS "r"
+        GROUP BY "r"."PickupStatusId"
+    ) AS "r0" ON "s"."PickupStatusId" = "r0"."PickupStatusId"
+    GROUP BY "s"."PickupStatusId"
+) AS "s1"
+LEFT JOIN (
+    SELECT "s2"."PickupStatusId", "s2"."Count", "s2"."marker", "s2"."c", "s2"."PickupStatusId0"
+    FROM (
+        SELECT "r1"."PickupStatusId", "r1"."Count", "r1"."marker", 1 AS "c", "s0"."PickupStatusId" AS "PickupStatusId0", ROW_NUMBER() OVER(PARTITION BY "s0"."PickupStatusId" ORDER BY "s0"."PickupStatusId", "r1"."PickupStatusId") AS "row"
+        FROM "Statuses" AS "s0"
+        LEFT JOIN (
+            SELECT "r2"."PickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+            FROM "Requests" AS "r2"
+            GROUP BY "r2"."PickupStatusId"
+        ) AS "r1" ON "s0"."PickupStatusId" = "r1"."PickupStatusId"
+    ) AS "s2"
+    WHERE "s2"."row" <= 1
+) AS "s3" ON "s1"."PickupStatusId" = "s3"."PickupStatusId0"
+ORDER BY "s1"."PickupStatusId"
+""");
+    }
+
+    public override async Task GroupBy_after_join_then_whole_object_struct()
+    {
+        await base.GroupBy_after_join_then_whole_object_struct();
+
+        AssertSql(
+            """
+SELECT "s1"."PickupStatusId", "s3"."PickupStatusId", "s3"."Count", "s3"."marker", "s3"."c"
+FROM (
+    SELECT "s"."PickupStatusId"
+    FROM "Statuses" AS "s"
+    LEFT JOIN (
+        SELECT "r"."PickupStatusId"
+        FROM "Requests" AS "r"
+        GROUP BY "r"."PickupStatusId"
+    ) AS "r0" ON "s"."PickupStatusId" = "r0"."PickupStatusId"
+    GROUP BY "s"."PickupStatusId"
+) AS "s1"
+LEFT JOIN (
+    SELECT "s2"."PickupStatusId", "s2"."Count", "s2"."marker", "s2"."c", "s2"."PickupStatusId0"
+    FROM (
+        SELECT "r1"."PickupStatusId", "r1"."Count", "r1"."marker", 1 AS "c", "s0"."PickupStatusId" AS "PickupStatusId0", ROW_NUMBER() OVER(PARTITION BY "s0"."PickupStatusId" ORDER BY "s0"."PickupStatusId", "r1"."PickupStatusId") AS "row"
+        FROM "Statuses" AS "s0"
+        LEFT JOIN (
+            SELECT "r2"."PickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+            FROM "Requests" AS "r2"
+            GROUP BY "r2"."PickupStatusId"
+        ) AS "r1" ON "s0"."PickupStatusId" = "r1"."PickupStatusId"
+    ) AS "s2"
+    WHERE "s2"."row" <= 1
+) AS "s3" ON "s1"."PickupStatusId" = "s3"."PickupStatusId0"
+ORDER BY "s1"."PickupStatusId"
+""");
+    }
+
+    public override async Task Two_left_joined_nonentity_objects_second_marker_orphaned()
+    {
+        await base.Two_left_joined_nonentity_objects_second_marker_orphaned();
+
+        AssertSql(
+            """
+SELECT "s"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker", "r2"."pickupStatusId", "r2"."Count", "r2"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+LEFT JOIN (
+    SELECT "r1"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r1"
+    GROUP BY "r1"."PickupStatusId"
+) AS "r2" ON "s"."PickupStatusId" = "r2"."pickupStatusId"
+ORDER BY "s"."PickupStatusId"
+""");
+    }
+
+    public override async Task Three_sequential_joins_marker_survives_two_remaps()
+    {
+        await base.Three_sequential_joins_marker_survives_two_remaps();
+
+        AssertSql(
+            """
+SELECT "s1"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+INNER JOIN "Statuses" AS "s0" ON "s"."PickupStatusId" = "s0"."PickupStatusId"
+INNER JOIN "Statuses" AS "s1" ON "s0"."PickupStatusId" = "s1"."PickupStatusId"
+ORDER BY "s1"."PickupStatusId"
+""");
+    }
+
+    public override async Task Marker_object_nested_in_outer_wrapper_across_second_join()
+    {
+        await base.Marker_object_nested_in_outer_wrapper_across_second_join();
+
+        AssertSql(
+            """
+SELECT "s0"."PickupStatusId", "r0"."pickupStatusId", "r0"."Count", "r0"."marker"
+FROM "Statuses" AS "s"
+LEFT JOIN (
+    SELECT "r"."PickupStatusId" AS "pickupStatusId", COUNT(*) AS "Count", 1 AS "marker"
+    FROM "Requests" AS "r"
+    GROUP BY "r"."PickupStatusId"
+) AS "r0" ON "s"."PickupStatusId" = "r0"."pickupStatusId"
+INNER JOIN "Statuses" AS "s0" ON "s"."PickupStatusId" = "s0"."PickupStatusId"
+ORDER BY "s0"."PickupStatusId"
+""");
+    }
+
     #endregion
 }

@@ -137,7 +137,7 @@ extends:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__SqlServer__DefaultConnection: "Data Source="
                 displayName: Build
-              - script: .dotnet\dotnet test test\EFCore.ApiBaseline.Tests -configuration $(_BuildConfig)
+              - script: .dotnet\dotnet test test\EFCore.ApiBaseline.Tests -p:Configuration=$(_BuildConfig)
                 displayName: Test API Baselines
                 condition: succeeded()
               - powershell: |
@@ -215,7 +215,8 @@ extends:
                   shopt -s nullglob
                   files=(artifacts/coverage/*.cobertura.xml)
                   if [ ${#files[@]} -gt 0 ]; then
-                    export PATH="$PATH:$HOME/.dotnet/tools"
+                    export DOTNET_ROOT="$(Build.SourcesDirectory)/.dotnet"
+                    export PATH="$DOTNET_ROOT:$PATH:$HOME/.dotnet/tools"
                     dotnet tool update --global dotnet-coverage || dotnet tool install --global dotnet-coverage
                     dotnet-coverage merge -o artifacts/coverage/coverage.cobertura.xml -f cobertura "${files[@]}"
                   fi

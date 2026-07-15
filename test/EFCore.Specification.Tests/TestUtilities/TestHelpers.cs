@@ -322,7 +322,9 @@ public abstract class TestHelpers
         var methods = testClass
             .GetRuntimeMethods()
             .Where(m => m.DeclaringType != testClass
-                && (Attribute.IsDefined(m, typeof(ConditionalFactAttribute))
+                && (Attribute.IsDefined(m, typeof(FactAttribute))
+                    || Attribute.IsDefined(m, typeof(TheoryAttribute))
+                    || Attribute.IsDefined(m, typeof(ConditionalFactAttribute))
                     || Attribute.IsDefined(m, typeof(ConditionalTheoryAttribute))))
             .ToList();
 
@@ -330,12 +332,24 @@ public abstract class TestHelpers
 
         foreach (var method in methods)
         {
+            var parameters = method.GetParameters();
+            var hasAsyncParameter = parameters.Length == 1
+                && parameters[0].ParameterType == typeof(bool);
+
+            if (parameters.Length > 0
+                && !hasAsyncParameter)
+            {
+                continue;
+            }
+
+            var paramList = hasAsyncParameter ? "bool async" : "";
+            var argList = hasAsyncParameter ? "async" : "";
             if (method.ReturnType == typeof(Task))
             {
                 methodCalls.Append(
-                    @$"public override async Task {method.Name}(bool async)
+                    @$"public override async Task {method.Name}({paramList})
 {{
-    await base.{method.Name}(async);
+    await base.{method.Name}({argList});
 
     AssertSql();
 }}
@@ -345,9 +359,9 @@ public abstract class TestHelpers
             else
             {
                 methodCalls.Append(
-                    @$"public override void {method.Name}()
+                    @$"public override void {method.Name}({paramList})
 {{
-    base.{method.Name}();
+    base.{method.Name}({argList});
 
     AssertSql();
 }}

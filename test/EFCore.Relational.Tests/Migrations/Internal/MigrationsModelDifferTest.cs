@@ -1438,6 +1438,157 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [Fact]
+    public void Foreign_key_to_entity_split_principal_points_to_main_table()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                        x.SplitToTable(
+                            "Address", t =>
+                            {
+                                t.Property<string>("City");
+                            });
+                    });
+
+                modelBuilder.Entity(
+                    "Management",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("CompanyId");
+                        x.HasOne("Company").WithMany().HasForeignKey("CompanyId");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Company", m.Name);
+                    Assert.Empty(m.ForeignKeys);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Management", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                },
+                o =>
+                {
+                    Assert.IsType<CreateIndexOperation>(o);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Management", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Company", m.Name);
+                }));
+
+    [Fact]
+    public void Foreign_key_to_entity_split_principal_ak_on_fragment_points_to_fragment_table()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("Code");
+                        x.SplitToTable(
+                            "Address", t =>
+                            {
+                                t.Property<string>("Code");
+                            });
+                        x.HasAlternateKey("Code");
+                    });
+
+                modelBuilder.Entity(
+                    "Management",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("CompanyCode");
+                        x.HasOne("Company").WithMany().HasForeignKey("CompanyCode").HasPrincipalKey("Code");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Company", m.Name);
+                    Assert.Empty(m.ForeignKeys);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                    Assert.Single(m.UniqueConstraints, uc => uc.Columns.SequenceEqual(new[] { "Code" }));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Management", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Address", fk.PrincipalTable);
+                    Assert.Equal(new[] { "Code" }, fk.PrincipalColumns);
+                },
+                o =>
+                {
+                    Assert.IsType<CreateIndexOperation>(o);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Management", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Company", m.Name);
+                }));
+
+    [Fact]
     public void Add_owned_types()
         => Execute(
             _ => { },
@@ -1930,6 +2081,52 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 downOps => { },
                 _ => { },
                 enableSensitiveLogging: enableSensitiveLogging)).Message);
+
+    [Fact]
+    public void Throws_circular_dependency_instead_of_sequence_contains_no_elements_for_seed_data_cycle()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => Execute(
+                model =>
+                {
+                    model.Entity(
+                        "WorkflowType",
+                        x =>
+                        {
+                            x.ToTable("WorkflowType");
+                            x.Property<string>("Code").IsRequired();
+                            x.Property<string>("FirstStepCode").IsRequired();
+                            x.HasKey("Code");
+                        });
+
+                    model.Entity(
+                        "WorkflowStep",
+                        x =>
+                        {
+                            x.ToTable("WorkflowStep");
+                            x.Property<string>("Code").IsRequired();
+                            x.Property<string>("WorkflowTypeCode").IsRequired();
+                            x.HasKey("Code");
+                        });
+
+                    model.Entity("WorkflowType").HasOne("WorkflowStep").WithMany().HasForeignKey("FirstStepCode");
+                    model.Entity("WorkflowStep").HasOne("WorkflowType").WithMany("Steps").HasForeignKey("WorkflowTypeCode");
+                },
+                _ => { },
+                target =>
+                {
+                    target.Entity("WorkflowType").HasData(
+                        new { Code = "TEST", FirstStepCode = "TEST-01A" });
+
+                    target.Entity("WorkflowStep").HasData(
+                        new { Code = "TEST-01A", WorkflowTypeCode = "TEST" });
+                },
+                _ => { },
+                _ => { }));
+
+        Assert.DoesNotContain("Sequence contains no elements", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("circular dependency", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
 
     [Fact]
     public void Add_column_with_order()
@@ -4613,6 +4810,130 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(5, operation.StartValue);
             },
             skipSourceConventions: true);
+
+    [Fact]
+    public void Create_sequence_and_alter_columns_before_dropping_old_sequences()
+        => Execute(
+            source =>
+            {
+                source.HasSequence("DogSequence");
+                source.HasSequence("CatSequence");
+
+                source.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR DogSequence");
+                        b.HasKey("Id");
+                    });
+
+                source.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR CatSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.HasSequence("AnimalSequence");
+
+                target.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+
+                target.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            operations =>
+            {
+                var operationIndexes = CreateOperationIndexes(operations);
+
+                var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
+                Assert.Equal("AnimalSequence", createSequenceOperation.Name);
+
+                var alterColumnOperations = operations.Where(o => o is AlterColumnOperation).ToList();
+                Assert.Equal(2, alterColumnOperations.Count);
+
+                var dropSequenceOperations = operations.OfType<DropSequenceOperation>().ToList();
+                Assert.Equal(2, dropSequenceOperations.Count);
+                Assert.Contains(dropSequenceOperations, o => o.Name == "DogSequence");
+                Assert.Contains(dropSequenceOperations, o => o.Name == "CatSequence");
+
+                var createSequenceIndex = operationIndexes[createSequenceOperation];
+                Assert.All(alterColumnOperations, o => Assert.True(operationIndexes[o] > createSequenceIndex));
+                var lastAlterColumnIndex = alterColumnOperations.Max(o => operationIndexes[o]);
+                Assert.All(dropSequenceOperations, o => Assert.True(operationIndexes[o] > lastAlterColumnIndex));
+            });
+
+    [Fact]
+    public void Create_sequence_and_alter_columns_before_dropping_renamed_sequence()
+        => Execute(
+            source =>
+            {
+                source.HasSequence("AnimalSequence");
+
+                source.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+
+                source.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR AnimalSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            target =>
+            {
+                target.HasSequence("PetSequence");
+
+                target.Entity(
+                    "Dog", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR PetSequence");
+                        b.HasKey("Id");
+                    });
+
+                target.Entity(
+                    "Cat", b =>
+                    {
+                        b.Property<int>("Id").ValueGeneratedOnAdd().HasDefaultValueSql("NEXT VALUE FOR PetSequence");
+                        b.HasKey("Id");
+                    });
+            },
+            operations =>
+            {
+                var operationIndexes = CreateOperationIndexes(operations);
+
+                var createSequenceOperation = Assert.IsType<CreateSequenceOperation>(operations.Single(o => o is CreateSequenceOperation));
+                Assert.Equal("PetSequence", createSequenceOperation.Name);
+
+                var alterColumnOperations = operations.Where(o => o is AlterColumnOperation).ToList();
+                Assert.Equal(2, alterColumnOperations.Count);
+
+                var dropSequenceOperation = Assert.IsType<DropSequenceOperation>(operations.Single(o => o is DropSequenceOperation));
+                Assert.Equal("AnimalSequence", dropSequenceOperation.Name);
+
+                var createSequenceIndex = operationIndexes[createSequenceOperation];
+                var dropSequenceIndex = operationIndexes[dropSequenceOperation];
+                Assert.All(alterColumnOperations, o => Assert.True(operationIndexes[o] > createSequenceIndex));
+                Assert.All(alterColumnOperations, o => Assert.True(dropSequenceIndex > operationIndexes[o]));
+            });
+
+    private static Dictionary<MigrationOperation, int> CreateOperationIndexes(IReadOnlyList<MigrationOperation> operations)
+        => operations
+            .Select((o, i) => (Operation: o, Index: i))
+            .ToDictionary(p => p.Operation, p => p.Index);
 
     [Fact]
     public void Restart_altered_sequence()
@@ -12471,6 +12792,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     operation2.Columns,
                     x => Assert.Equal("Id", x.Name),
                     x => Assert.Equal("Property2", x.Name));
+            });
+
+    [Fact]
+    public void Add_table_with_same_name_but_different_schema_does_not_drop_existing_foreign_key_in_down()
+        => Execute(
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "BaseReference",
+                    x =>
+                    {
+                        x.ToTable("BaseReference");
+                        x.Property<int>("Id");
+                    });
+
+                modelBuilder.Entity(
+                    "First.OtherEntity",
+                    x =>
+                    {
+                        x.ToTable("OtherEntity", "first");
+                        x.Property<int>("Id");
+                        x.Property<int>("BaseReferenceId");
+                        x.HasOne("BaseReference").WithMany().HasForeignKey("BaseReferenceId");
+                    });
+            },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Second.OtherEntity",
+                    x =>
+                    {
+                        x.ToTable("OtherEntity", "second");
+                        x.Property<int>("Id");
+                        x.Property<int>("BaseReferenceId");
+                        x.HasOne("BaseReference").WithMany().HasForeignKey("BaseReferenceId");
+                    });
+            },
+            upOperations =>
+            {
+                var createTableOperation = Assert.IsType<CreateTableOperation>(
+                    Assert.Single(upOperations, o => o is CreateTableOperation));
+                var foreignKey = Assert.Single(createTableOperation.ForeignKeys);
+
+                Assert.Equal("OtherEntity", createTableOperation.Name);
+                Assert.Equal("second", createTableOperation.Schema);
+                Assert.Equal("FK_OtherEntity_BaseReference_BaseReferenceId", foreignKey.Name);
+            },
+            downOperations =>
+            {
+                var dropTableOperation = Assert.IsType<DropTableOperation>(
+                    Assert.Single(downOperations, o => o is DropTableOperation));
+
+                Assert.Equal("OtherEntity", dropTableOperation.Name);
+                Assert.Equal("second", dropTableOperation.Schema);
+                Assert.DoesNotContain(downOperations, o => o is DropForeignKeyOperation);
             });
 
     [Fact]

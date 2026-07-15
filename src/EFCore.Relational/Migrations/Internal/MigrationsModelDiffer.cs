@@ -140,9 +140,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var dropColumnOperations = new List<MigrationOperation>();
         var dropComputedColumnOperations = new List<MigrationOperation>();
         var dropTableOperations = new List<DropTableOperation>();
-        var dropSequenceOperations = new List<MigrationOperation>();
+        var dropSequenceOperations = new List<DropSequenceOperation>();
         var ensureSchemaOperations = new List<MigrationOperation>();
-        var createSequenceOperations = new List<MigrationOperation>();
+        var createSequenceOperations = new List<CreateSequenceOperation>();
         var createTableOperations = new List<CreateTableOperation>();
         var alterDatabaseOperations = new List<MigrationOperation>();
         var alterTableOperations = new List<MigrationOperation>();
@@ -193,7 +193,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
             else if (type == typeof(CreateSequenceOperation))
             {
-                createSequenceOperations.Add(operation);
+                createSequenceOperations.Add((CreateSequenceOperation)operation);
             }
             else if (type == typeof(CreateTableOperation))
             {
@@ -319,13 +319,31 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return true;
         });
 
+        var dropReplacedSequenceOperations = new List<DropSequenceOperation>();
+        var dropObsoleteSequenceOperations = new List<DropSequenceOperation>();
+
+        var createdSequenceIds = new HashSet<(string Name, string? Schema)>(
+            createSequenceOperations.Select(o => (o.Name, o.Schema)));
+
+        foreach (var dropSequenceOperation in dropSequenceOperations)
+        {
+            if (createdSequenceIds.Contains((dropSequenceOperation.Name, dropSequenceOperation.Schema)))
+            {
+                dropReplacedSequenceOperations.Add(dropSequenceOperation);
+            }
+            else
+            {
+                dropObsoleteSequenceOperations.Add(dropSequenceOperation);
+            }
+        }
+
         return dropForeignKeyOperations
             .Concat(dropTableOperations)
             .Concat(dropOperations)
             .Concat(sourceDataOperations)
             .Concat(dropComputedColumnOperations)
             .Concat(dropColumnOperations)
-            .Concat(dropSequenceOperations)
+            .Concat(dropReplacedSequenceOperations)
             .Concat(ensureSchemaOperations)
             .Concat(renameTableOperations)
             .Concat(renameOperations)
@@ -336,6 +354,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(computedColumnOperations)
             .Concat(alterOperations)
             .Concat(restartSequenceOperations)
+            .Concat(dropObsoleteSequenceOperations)
             .Concat(createTableOperations)
             .Concat(targetDataOperations)
             .Concat(constraintOperations)
@@ -1399,6 +1418,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Add,
             Remove,
             (s, t, context) => s.Name == t.Name
+                && s.Table == context.FindSource(t.Table)
                 && s.IsExcludedFromMigrations == t.IsExcludedFromMigrations
                 && s.Columns.Select(c => c.Name).SequenceEqual(
                     t.Columns.Select(c => context.FindSource(c)?.Name))

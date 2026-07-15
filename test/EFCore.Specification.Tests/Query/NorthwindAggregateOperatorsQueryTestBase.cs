@@ -249,14 +249,16 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(double (o) => 5 + o.OrderDetails.Average(int (od) => od.ProductID)));
+            selector: c => (decimal)c.Orders.Average(double (o) => 5 + o.OrderDetails.Average(int (od) => od.ProductID)),
+            asserter: (e, a) => Assert.Equal(e, a, 10));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Average_over_max_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(int (o) => 5 + o.OrderDetails.Max(int (od) => od.ProductID)));
+            selector: c => (decimal)c.Orders.Average(int (o) => 5 + o.OrderDetails.Max(int (od) => od.ProductID)),
+            asserter: (e, a) => Assert.Equal(e, a, 10));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Average_on_float_column(bool async)

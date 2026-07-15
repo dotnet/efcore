@@ -1617,6 +1617,40 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityBasic>().Include(e => e.JsonEntityBasics).AsNoTrackingWithIdentityResolution(),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
+                new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics)));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(
+        bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<EntityBasic>()
+                .Include(e => e.JsonEntityBasics)
+                .Select(e => new
+                {
+                    e,
+                    First = ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => x.OwnedReferenceRoot)
+                        .FirstOrDefault()
+                })
+                .AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertInclude(
+                    e.e, a.e,
+                    new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics));
+                AssertEqual(e.First, a.First);
+            });
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_with_include_on_entity_collection_and_reference(bool async)
         => AssertQuery(
             async,
