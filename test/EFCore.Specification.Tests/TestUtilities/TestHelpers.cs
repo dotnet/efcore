@@ -343,10 +343,7 @@ public abstract class TestHelpers
 {{
     await base.{method.Name}({argList});
 
-    AssertSql(
-        """"""
-Placeholder SQL Baseline
-"""""");
+    AssertSql();
 }}
 
 ");
@@ -358,10 +355,7 @@ Placeholder SQL Baseline
 {{
     base.{method.Name}({argList});
 
-    AssertSql(
-        """"""
-Placeholder SQL Baseline
-"""""");
+    AssertSql();
 }}
 
 ");
