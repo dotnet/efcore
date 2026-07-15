@@ -11,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" />
-    <PackageReference Include="SQLitePCLRaw.provider.sqlite3" />
+    <PackageReference Include="SQLitePCLRaw.bundle_sqlite3" />
   </ItemGroup>
 
 </Project>

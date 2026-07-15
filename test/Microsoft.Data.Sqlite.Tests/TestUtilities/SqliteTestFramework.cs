@@ -28,20 +28,6 @@ using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite.Tests.TestUtilities;
 
-#if WINSQLITE3 || SQLITE3
-internal static class Batteries_V2
-{
-    public static void Init()
-    {
-#if WINSQLITE3
-        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_winsqlite3());
-#elif SQLITE3
-        SQLitePCL.raw.SetProvider(new SQLitePCL.SQLite3Provider_sqlite3());
-#endif
-    }
-}
-#endif
-
 internal class SqliteTestFramework : XunitTestFramework
 {
     protected SqliteTestFramework(IMessageSink diagnosticMessageSink)
