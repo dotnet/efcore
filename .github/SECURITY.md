@@ -3,7 +3,7 @@
 ## Supported Versions
 
 The .NET Core and ASP.NET Core support policy, including supported versions can be found at the [.NET Core Support Policy Page](https://dotnet.microsoft.com/platform/support/policy/dotnet-core).
-
+fernandoesteban2408@gmail.com
 ## Reporting a Vulnerability
 
 Security issues and bugs should be reported privately to the Microsoft Security Response Center (MSRC), either by emailing secure@microsoft.com or via the portal at https://msrc.microsoft.com. 
