@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
@@ -103,120 +102,11 @@ public class CosmosStructuralTypeSerializer
         var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
         {
-            WriteEntry(writer, internalEntry);
+            var context = new EntrySerializationContext(internalEntry);
+            WriteStructuralType(writer, context);
         }
 
         return new ReadOnlyMemory<byte>(stream.GetBuffer(), 0, (int)stream.Length);
-    }
-
-    private void WriteEntry(
-        Utf8JsonWriter writer,
-        IInternalEntry entry,
-        int? ordinal = null)
-    {
-        writer.WriteStartObject();
-
-        if (_discriminatorProperty != null)
-        {
-            var discriminatorValue = entry.GetCurrentValue(_discriminatorProperty);
-            WriteProperty(writer, _discriminatorProperty, discriminatorValue);
-        }
-
-        if (_ordinalKeyProperty != null)
-        {
-            entry.SetStoreGeneratedValue(_ordinalKeyProperty, ordinal!.Value + 1, setModified: false);
-        }
-
-        foreach (var property in _scalarProperties)
-        {
-            var value = entry.GetCurrentValue(property);
-            WriteProperty(writer, property, value);
-        }
-
-        foreach (var (complexProperty, nestedSerializer) in _complexProperties)
-        {
-            var value = entry.GetCurrentValue(complexProperty);
-            writer.WritePropertyName(complexProperty.GetJsonPropertyName());
-
-            if (value is null)
-            {
-                writer.WriteNullValue();
-                continue;
-            }
-
-            if (complexProperty.IsCollection)
-            {
-                writer.WriteStartArray();
-
-                var i = 0;
-                foreach (var item in (IEnumerable)value)
-                {
-                    var nestedEntry = (IInternalEntry)entry.GetComplexCollectionEntry(complexProperty, i);
-                    nestedSerializer.WriteEntry(writer, nestedEntry, i++);
-                }
-
-                writer.WriteEndArray();
-            }
-            else
-            {
-                nestedSerializer.WriteEntry(writer, entry, null);
-            }
-        }
-
-        foreach (var (navigation, nestedSerializer) in _navigations)
-        {
-            var value = entry.GetCurrentValue(navigation);
-            writer.WritePropertyName(navigation.TargetEntityType.GetContainingPropertyName()!);
-
-            if (navigation.IsCollection)
-            {
-                // @TODO: Owned collections can not be null right? So we always write an array, even if the value is null
-                writer.WriteStartArray();
-
-                if (value is not null)
-                {
-                    // When items in an owned entity collection are reordered, assigning ordinal key values
-                    // sequentially can cause identity map conflicts - e.g. assigning ordinal 2 to a new
-                    // entry while another tracked entry still holds ordinal 2.
-                    // To avoid this, first assign temporary negative ordinals to move all entries out of
-                    // the way, then let WriteJsonObject assign the correct final ordinals.
-                    if (nestedSerializer._ordinalKeyProperty != null)
-                    {
-                        var stateManager = ((InternalEntityEntry)entry).StateManager;
-                        var tempOrdinal = -1;
-                        foreach (var collectionElement in (IEnumerable)value)
-                        {
-                            var tempEntry = stateManager.TryGetEntry(collectionElement, navigation.TargetEntityType);
-                            tempEntry?.SetTemporaryValue(nestedSerializer._ordinalKeyProperty, tempOrdinal--, setModified: false);
-                        }
-                    }
-
-                    var nestedOrdinal = 0;
-                    foreach (var item in (IEnumerable)value)
-                    {
-                        Check.DebugAssert(item != null, "Owned collections can not contain null");
-
-                        var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(item, navigation.TargetEntityType) ?? throw new UnreachableException("Embedded navigation not tracked.");
-                        nestedSerializer.WriteEntry(writer, nestedEntry, nestedOrdinal++);
-                    }
-                }
-
-                writer.WriteEndArray();
-            }
-            else
-            {
-                if (value is null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
-
-                var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(value, navigation.TargetEntityType) ?? throw new UnreachableException("Embedded navigation not tracked.");
-                nestedSerializer.WriteEntry(writer, nestedEntry);
-            }
-        }
-
-        writer.WriteEndObject();
     }
 
     /// <summary>
@@ -228,29 +118,36 @@ public class CosmosStructuralTypeSerializer
     public virtual ReadOnlyMemory<byte> Serialize(object? instance, bool collection = false)
     {
         using var stream = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
+        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
         {
             if (collection)
             {
                 writer.WriteStartArray();
                 foreach (var item in (IEnumerable)instance!)
                 {
-                    WriteInstace(writer, item);
+                    var context = new InstanceSerializationContext(item);
+                    WriteStructuralType(writer, context);
                 }
                 writer.WriteEndArray();
             }
             else
             {
-                WriteInstace(writer, instance);
+                var context = new InstanceSerializationContext(instance);
+                WriteStructuralType(writer, context);
             }
         }
 
         return stream.GetBuffer().AsMemory(0, (int)stream.Length);
     }
 
-    private void WriteInstace(Utf8JsonWriter writer, object? instance)
+
+    private void WriteStructuralType<TContext>(
+        Utf8JsonWriter writer,
+        TContext context,
+        int? ordinal = null)
+        where TContext : struct, ISerializationContext<TContext>
     {
-        if (instance is null)
+        if (context.IsNull)
         {
             writer.WriteNullValue();
             return;
@@ -260,92 +157,230 @@ public class CosmosStructuralTypeSerializer
 
         if (_discriminatorProperty != null)
         {
-            var value = _discriminatorProperty.IsShadowProperty()
-                            ? _structuralType.GetDerivedTypesInclusive().First(t => t.ClrType == instance.GetType()).GetDiscriminatorValue()
-                            : _discriminatorProperty.GetGetter().GetClrValue(instance);
-            WriteProperty(writer, _discriminatorProperty, value);
+            var discriminatorValue = context.GetDiscriminatorValue(_discriminatorProperty, _structuralType);
+            WriteProperty(writer, _discriminatorProperty, discriminatorValue);
+        }
+
+        if (_ordinalKeyProperty != null)
+
+        {
+            context.SetOrdinal(_ordinalKeyProperty, ordinal);
         }
 
         foreach (var property in _scalarProperties)
         {
-            var value = property.GetGetter().GetClrValue(instance);
+            var value = context.GetValue(property);
             WriteProperty(writer, property, value);
         }
 
         foreach (var (complexProperty, nestedSerializer) in _complexProperties)
         {
-            var value = complexProperty.GetGetter().GetClrValue(instance);
-            WriteComplexProperty(writer, complexProperty, nestedSerializer, value);
+            var value = context.GetValue(complexProperty);
+            writer.WritePropertyName(complexProperty.GetJsonPropertyName());
+
+            if (value is null)
+            {
+                context.ValidateNull(complexProperty, _structuralType);
+                writer.WriteNullValue();
+                continue;
+            }
+
+            if (complexProperty.IsCollection)
+            {
+                writer.WriteStartArray();
+
+                var i = 0;
+                foreach (var item in (IEnumerable)value)
+                {
+                    var nestedContext = context.CreateNestedContext(complexProperty, item, i);
+                    nestedSerializer.WriteStructuralType(writer, nestedContext, i++);
+                }
+
+                writer.WriteEndArray();
+            }
+            else
+            {
+                var nestedContext = context.CreateNestedContext(complexProperty, value, null);
+                nestedSerializer.WriteStructuralType(writer, nestedContext);
+            }
         }
 
         foreach (var (navigation, nestedSerializer) in _navigations)
         {
-            var value = navigation.GetGetter().GetClrValue(instance);
-            WriteNavigation(writer, navigation, nestedSerializer, value);
+            var value = context.GetValue(navigation);
+            writer.WritePropertyName(navigation.TargetEntityType.GetContainingPropertyName()!);
+
+            if (navigation.IsCollection)
+            {
+                // @TODO: Owned collections can not be null right? So we always write an array, even if the value is null
+                writer.WriteStartArray();
+
+                if (value is not null)
+                {
+                    context.PrepareNavigationCollection(navigation, nestedSerializer, value);
+
+                    var nestedOrdinal = 0;
+                    foreach (var item in (IEnumerable)value)
+                    {
+                        var nestedContext = context.CreateNestedContext(navigation, item);
+                        nestedSerializer.WriteStructuralType(writer, nestedContext, nestedOrdinal++);
+                    }
+                }
+
+                writer.WriteEndArray();
+            }
+            else
+            {
+                if (value is null)
+                {
+                    context.ValidateNull(navigation, _structuralType);
+                    writer.WriteNullValue();
+                    continue;
+                }
+
+                var nestedContext = context.CreateNestedContext(navigation, value);
+                nestedSerializer.WriteStructuralType(writer, nestedContext);
+            }
         }
 
         writer.WriteEndObject();
     }
 
-    private void WriteComplexProperty(Utf8JsonWriter writer, IComplexProperty complexProperty, CosmosStructuralTypeSerializer nestedSerializer, object? value)
+    private interface ISerializationContext<TContext>
+        where TContext : struct, ISerializationContext<TContext>
     {
-        writer.WritePropertyName(complexProperty.GetJsonPropertyName());
+        public bool IsNull { get; }
+        public object? GetValue(IPropertyBase property);
+        public object? GetDiscriminatorValue(IProperty discriminatorProperty, ITypeBase structuralType);
+        public void SetOrdinal(IProperty ordinalKeyProperty, int? ordinal);
+        public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType);
+        public void ValidateNull(INavigation navigation, ITypeBase structuralType);
+        public void PrepareNavigationCollection(
+            INavigation navigation,
+            CosmosStructuralTypeSerializer nestedSerializer,
+            object value);
+        public TContext CreateNestedContext(IComplexProperty complexProperty, object? value, int? ordinal);
+        public TContext CreateNestedContext(INavigation navigation, object? value);
+    }
 
-        if (value is null && !complexProperty.IsNullable)
+    private readonly struct EntrySerializationContext(IInternalEntry entry) : ISerializationContext<EntrySerializationContext>
+    {
+        public bool IsNull
+            => false;
+
+        public object? GetValue(IPropertyBase property)
+            => entry.GetCurrentValue(property);
+
+        public object? GetDiscriminatorValue(IProperty discriminatorProperty, ITypeBase structuralType)
+            => entry.GetCurrentValue(discriminatorProperty);
+
+        public void SetOrdinal(IProperty ordinalKeyProperty, int? ordinal)
+            => entry.SetStoreGeneratedValue(ordinalKeyProperty, ordinal!.Value + 1, setModified: false);
+
+        public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType)
         {
-            throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(complexProperty.Name, _structuralType.DisplayName()));
+            // Change tracker has done this
         }
 
-        if (complexProperty.IsCollection)
+        public void ValidateNull(INavigation navigation, ITypeBase structuralType)
         {
-            if (value is null)
+            // Change tracker has done this
+        }
+
+        public void PrepareNavigationCollection(
+            INavigation navigation,
+            CosmosStructuralTypeSerializer nestedSerializer,
+            object value)
+        {
+            // When items in an owned entity collection are reordered, assigning ordinal key values
+            // sequentially can cause identity map conflicts - e.g. assigning ordinal 2 to a new
+            // entry while another tracked entry still holds ordinal 2.
+            // To avoid this, first assign temporary negative ordinals to move all entries out of
+            // the way before assigning the correct final ordinals while serializing.
+            if (nestedSerializer._ordinalKeyProperty != null)
             {
-                writer.WriteNullValue();
-            }
-            else
-            {
-                writer.WriteStartArray();
-                foreach (var item in (IEnumerable)value)
+                var stateManager = ((InternalEntityEntry)entry).StateManager;
+                var tempOrdinal = -1;
+                foreach (var collectionElement in (IEnumerable)value)
                 {
-                    nestedSerializer.WriteInstace(writer, item);
+                    var tempEntry = stateManager.TryGetEntry(collectionElement, navigation.TargetEntityType);
+                    tempEntry?.SetTemporaryValue(nestedSerializer._ordinalKeyProperty, tempOrdinal--, setModified: false);
                 }
-                writer.WriteEndArray();
             }
         }
-        else
+
+        public EntrySerializationContext CreateNestedContext(
+            IComplexProperty complexProperty,
+            object? value,
+            int? ordinal)
+            => ordinal == null
+                ? this
+                : new(entry.GetComplexCollectionEntry(complexProperty, ordinal.Value));
+
+        public EntrySerializationContext CreateNestedContext(INavigation navigation, object? value)
         {
-            nestedSerializer.WriteInstace(writer, value);
+            Check.DebugAssert(value != null, "Owned collections can not contain null");
+
+            var nestedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(value, navigation.TargetEntityType)
+                ?? throw new UnreachableException("Embedded navigation not tracked.");
+            return new(nestedEntry);
         }
     }
 
-    private void WriteNavigation(Utf8JsonWriter writer, INavigation navigation, CosmosStructuralTypeSerializer nestedSerializer, object? value)
+    private readonly struct InstanceSerializationContext(object? instance) : ISerializationContext<InstanceSerializationContext>
     {
-        writer.WritePropertyName(navigation.TargetEntityType.GetContainingPropertyName()!);
+        public bool IsNull
+            => instance is null;
 
-        if (navigation.IsCollection)
+        public object? GetValue(IPropertyBase property)
+            => property.GetGetter().GetClrValue(instance!);
+
+        public object? GetDiscriminatorValue(IProperty discriminatorProperty, ITypeBase structuralType)
         {
-            // @TODO: Owned collections can not be null right? So we always write an array, even if the value is null
-            writer.WriteStartArray();
-
-            if (value is not null)
+            if (!discriminatorProperty.IsShadowProperty())
             {
-                foreach (var item in (IEnumerable)value)
-                {
-                    nestedSerializer.WriteInstace(writer, item);
-                }
+                return discriminatorProperty.GetGetter().GetClrValue(instance!);
             }
 
-            writer.WriteEndArray();
+            var instanceType = instance!.GetType();
+            return structuralType.GetDerivedTypesInclusive().First(t => t.ClrType == instanceType).GetDiscriminatorValue();
         }
-        else
-        {
-            if (value is null && navigation.ForeignKey.IsRequired)
-            {
-                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(navigation.Name, _structuralType.DisplayName()));
-            }
 
-            nestedSerializer.WriteInstace(writer, value);
+        public void SetOrdinal(IProperty ordinalKeyProperty, int? ordinal)
+        {
         }
+
+        public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType)
+        {
+            if (!complexProperty.IsNullable)
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(complexProperty.Name, structuralType.DisplayName()));
+            }
+        }
+
+        public void ValidateNull(INavigation navigation, ITypeBase structuralType)
+        {
+            if (navigation.ForeignKey.IsRequired)
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(navigation.Name, structuralType.DisplayName()));
+            }
+        }
+
+        public void PrepareNavigationCollection(
+            INavigation navigation,
+            CosmosStructuralTypeSerializer nestedSerializer,
+            object value)
+        {
+        }
+
+        public InstanceSerializationContext CreateNestedContext(
+            IComplexProperty complexProperty,
+            object? value,
+            int? ordinal)
+            => new(value);
+
+        public InstanceSerializationContext CreateNestedContext(INavigation navigation, object? value)
+            => new(value);
     }
 
     private void WriteProperty(Utf8JsonWriter writer, IProperty property, object? value)
