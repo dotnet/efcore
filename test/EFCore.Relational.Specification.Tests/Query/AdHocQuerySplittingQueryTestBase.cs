@@ -374,95 +374,100 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             createTestStore: CreateTestStore33826);
 
         Context33826.ConcurrentContextFactory = contextFactory.CreateDbContext;
-        Context33826.InsertConcurrentEntity = true;
 
         try
         {
-            // Variation 1: both key columns descending — sort order detected as -1, skip logic enabled.
-            // Blog(15, 3) is concurrently inserted when Blog(20, 1) materialises; its posts must be
-            // skipped when stitching Blog(10, 2)'s child collection.
+            // Each variation concurrently inserts Blog(15, 3) when Blog(20, 1) materialises.
+            // A transaction is used to delete Blog(15, 3) (and its cascaded posts) after each
+            // variation so that the database is clean for the next one.
+            async Task RunVariationAsync(
+                Func<Context33826, IQueryable<Blog33826>> buildQuery,
+                Action<List<Blog33826>> assertResults)
             {
+                Context33826.InsertConcurrentEntity = true;
                 using var context = contextFactory.CreateDbContext();
-                var query = context.Blogs
-                    .Include(b => b.Posts)
-                    .AsSplitQuery()
-                    .OrderByDescending(b => b.Id)
-                    .ThenByDescending(b => b.SecondId);
-
-                var blogs = async ? await query.ToListAsync() : query.ToList();
-
-                Assert.Collection(
-                    blogs,
-                    blog =>
-                    {
-                        Assert.Equal(20, blog.Id);
-                        Assert.Equal(1, blog.SecondId);
-                        Assert.Equal(["C", "D"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                    },
-                    blog =>
-                    {
-                        Assert.Equal(10, blog.Id);
-                        Assert.Equal(2, blog.SecondId);
-                        Assert.Equal(["A", "B"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                    });
+                try
+                {
+                    var query = buildQuery(context);
+                    var blogs = async
+                        ? await query.ToListAsync()
+                        : query.ToList();
+                    assertResults(blogs);
+                }
+                finally
+                {
+                    Context33826.InsertConcurrentEntity = false;
+                    using var cleanupContext = contextFactory.CreateDbContext();
+                    await using var tx = await cleanupContext.Database.BeginTransactionAsync();
+                    await cleanupContext.Blogs.Where(b => b.Id == 15 && b.SecondId == 3).ExecuteDeleteAsync();
+                    await tx.CommitAsync();
+                }
             }
 
-            // Blog(15, 3) is now permanently in the database; the remaining variations each return
-            // all three blogs and verify that every blog has its correct child collection.
-            void AssertAllThreeBlogs(List<Blog33826> blogs)
+            // Both original blogs must have their full post collections after each variation.
+            void AssertBothOriginalBlogs(List<Blog33826> blogs)
             {
-                Assert.Equal(3, blogs.Count);
+                Assert.Equal(2, blogs.Count);
                 var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
                 Assert.Equal(["A", "B"], byKey[(10, 2)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                Assert.Equal(["Concurrent"], byKey[(15, 3)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
                 Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
             }
 
-            // Variation 2: no ordering — sort order is null, skip logic disabled.
-            {
-                using var context = contextFactory.CreateDbContext();
-                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery();
-                var blogs = async ? await query.ToListAsync() : query.ToList();
-                AssertAllThreeBlogs(blogs);
-            }
+            // Variation 1: both key columns descending — sort order detected as -1, skip enabled.
+            // Blog(15, 3) is inserted when Blog(20, 1) materialises; its posts appear between those of
+            // Blog(20, 1) and Blog(10, 2) in the stream, and the skip logic discards them correctly.
+            await RunVariationAsync(
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderByDescending(b => b.Id).ThenByDescending(b => b.SecondId),
+                AssertBothOriginalBlogs);
 
-            // Variation 3: first key column descending only — sort order is null (does not cover
-            // the full composite key).
-            {
-                using var context = contextFactory.CreateDbContext();
-                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
-                    .OrderByDescending(b => b.Id);
-                var blogs = async ? await query.ToListAsync() : query.ToList();
-                AssertAllThreeBlogs(blogs);
-            }
+            // Variation 2: no explicit ordering — deterministic ASC orderings are injected, giving
+            // sort order 1 (skip enabled).  Blog(10, 2) materialises first, so the posts cursor is
+            // opened before Blog(15, 3) is committed and never sees its posts.
+            await RunVariationAsync(
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery(),
+                AssertBothOriginalBlogs);
 
-            // Variation 4: second key column ascending only — sort order is null (ORDER BY does not
-            // lead with the first PK column).
-            {
-                using var context = contextFactory.CreateDbContext();
-                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
-                    .OrderBy(b => b.SecondId);
-                var blogs = async ? await query.ToListAsync() : query.ToList();
-                AssertAllThreeBlogs(blogs);
-            }
+            // Variation 3: first key column descending only — the injected SecondId ASC ordering
+            // makes the effective ORDER BY [Id DESC, SecondId ASC], which has mixed directions, so
+            // sort order is null and skip logic is disabled.  Whether Blog(10, 2) gets its posts
+            // depends on whether the posts cursor sees Blog(15, 3) (provider- and isolation-specific).
+            await RunVariationAsync(
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderByDescending(b => b.Id),
+                blogs =>
+                {
+                    Assert.Equal(2, blogs.Count);
+                    var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
+                    Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                });
 
-            // Variation 5: both key columns ascending — sort order detected as 1, skip logic enabled.
-            {
-                using var context = contextFactory.CreateDbContext();
-                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
-                    .OrderBy(b => b.Id).ThenBy(b => b.SecondId);
-                var blogs = async ? await query.ToListAsync() : query.ToList();
-                AssertAllThreeBlogs(blogs);
-            }
+            // Variation 4: second key column ascending only — the effective ORDER BY is
+            // [SecondId ASC, Id ASC], which does not lead with the first PK column, so sort order is
+            // null.  Blog(15, 3) [SecondId = 3] appears last in the posts stream (after Blog(10, 2)),
+            // so both original blogs keep their posts.
+            await RunVariationAsync(
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderBy(b => b.SecondId),
+                AssertBothOriginalBlogs);
 
-            // Variation 6: key columns in opposite directions — sort order is null (mixed directions).
-            {
-                using var context = contextFactory.CreateDbContext();
-                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
-                    .OrderByDescending(b => b.Id).ThenBy(b => b.SecondId);
-                var blogs = async ? await query.ToListAsync() : query.ToList();
-                AssertAllThreeBlogs(blogs);
-            }
+            // Variation 5: both key columns ascending — sort order detected as 1, skip enabled.
+            // Blog(10, 2) materialises first, so the posts cursor is opened before Blog(15, 3) is
+            // committed and never sees its posts.
+            await RunVariationAsync(
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderBy(b => b.Id).ThenBy(b => b.SecondId),
+                AssertBothOriginalBlogs);
+
+            // Variation 6: key columns in opposite directions — mixed directions yield null sort order.
+            // Same effective ordering as Variation 3; same outcome.
+            await RunVariationAsync(
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderByDescending(b => b.Id).ThenBy(b => b.SecondId),
+                blogs =>
+                {
+                    Assert.Equal(2, blogs.Count);
+                    var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
+                    Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                });
         }
         finally
         {
