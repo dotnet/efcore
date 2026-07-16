@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" />
+    <PackageReference Include="SQLitePCLRaw.core" VersionOverride="3.0.3" />
     <PackageReference Include="SQLitePCLRaw.provider.winsqlite3" />
     <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
   </ItemGroup>

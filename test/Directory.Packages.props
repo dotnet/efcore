@@ -19,7 +19,7 @@
     <PackageVersion Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="$(OpenTelemetryExporterInMemoryVersion)" />
     <PackageVersion Include="SQLitePCLRaw.provider.sqlite3" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.provider.winsqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.provider.winsqlite3" Version="3.0.3" />
     <PackageVersion Include="Testcontainers.CosmosDb" Version="4.11.0" />
     <PackageVersion Include="Microsoft.DotNet.XUnitV3Extensions" Version="$(MicrosoftDotNetXUnitV3ExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(MicrosoftTestingExtensionsCodeCoverageVersion)" />
