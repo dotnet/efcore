@@ -19,7 +19,7 @@ using static SQLitePCL.raw;
 #elif E_SQLCIPHER
     "Microsoft.Data.Sqlite.e_sqlcipher.Tests")]
 #elif E_SQLITE3MC
-    "Microsoft.Data.Sqlite.e_sqlite3mc.Tests")]
+    "Microsoft.Data.Sqlite.sqlite3mc.Tests")]
 #elif WINSQLITE3
     "Microsoft.Data.Sqlite.winsqlite3.Tests")]
 #elif SQLITE3
