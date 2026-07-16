@@ -138,6 +138,7 @@ public class CosmosStructuralTypeSerializer
                 }
             }
             else
+            {
                 var context = new InstanceSerializationContext(instance);
                 WriteStructuralType(writer, context);
             }
