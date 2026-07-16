@@ -3,7 +3,6 @@
 
 using System.Net;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -15,7 +14,7 @@ public class AdHocCosmosTestHelpers
         CancellationToken cancellationToken)
     {
         var response = await container.CreateItemStreamAsync(
-                MemoryStream.PublicReadOnly(Encoding.UTF8.GetBytes(json)),
+                new MemoryStream(Encoding.UTF8.GetBytes(json)),
                 PartitionKey.None,
                 requestOptions: null,
                 cancellationToken)

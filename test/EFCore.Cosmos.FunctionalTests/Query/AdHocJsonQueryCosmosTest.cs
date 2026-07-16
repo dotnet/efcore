@@ -2726,10 +2726,10 @@ WHERE (c["Id"] = 4)
   ],
   "KeyedAssociateCollection": [
     {
-      "Id": 6,
+      "Id": 6
     },
     {
-      "Id": 7,
+      "Id": 7
     }
   ],
   "ForeignKeyAssociate": {
@@ -3960,10 +3960,10 @@ WHERE (c["Id"] = 4)
   ],
   "KeyedForeignKeyAssociateCollection": [
     {
-      "Id": 12,
+      "Id": 12
     },
     {
-      "Id": 13,
+      "Id": 13
     }
   ]
 }

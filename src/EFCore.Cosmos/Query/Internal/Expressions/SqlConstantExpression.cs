@@ -52,7 +52,7 @@ public class SqlConstantExpression : SqlExpression
     /// </summary>
     public virtual SqlExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
         => new SqlConstantExpression(Value, Type, typeMapping ?? TypeMapping);
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

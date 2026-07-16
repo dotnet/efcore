@@ -468,7 +468,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
                     // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
                     // be referenced multiple times.
                     var parameterName = PrefixAndUniquifyParameterName("p");
-                    _sqlParameters.Add(new SqlValueParameter(parameterName, parameterValues[i])); // @TODO: This can only be scalars right...?
+                    _sqlParameters.Add(new SqlValueParameter(parameterName, parameterValues[i]));
                     substitutions[i] = parameterName;
                 }
 
@@ -718,7 +718,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
         }
         else
         {
-            _sqlBuilder.Append(((CosmosTypeMapping)sqlConstantExpression.TypeMapping).GenerateSqlLiteral(sqlConstantExpression.Value)); // @TODO: Can we get a stream to directly write to the sql builder?
+            _sqlBuilder.Append(((CosmosTypeMapping)sqlConstantExpression.TypeMapping).GenerateSqlLiteral(sqlConstantExpression.Value));
         }
 
         return sqlConstantExpression;
