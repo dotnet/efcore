@@ -12806,6 +12806,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId RollingBackToTransactionSavepoint"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId SplitCollectionWithoutOrderingWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId StoredProcedureConcurrencyTokenNotMapped"
         },
         {
@@ -13549,6 +13552,9 @@
         },
         {
           "Member": "static System.Threading.Tasks.ValueTask<Microsoft.EntityFrameworkCore.Diagnostics.InterceptionResult> RollingBackToTransactionSavepointAsync(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Database.Transaction> diagnostics, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, System.Data.Common.DbTransaction transaction, System.Guid transactionId, System.DateTimeOffset startTime, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "static void SplitCollectionWithoutOrderingWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics);"
         },
         {
           "Member": "static void StoredProcedureConcurrencyTokenNotMapped(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.IProperty concurrencyProperty, string storedProcedureName);"
@@ -15962,7 +15968,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalSplitCollectionShaperExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
       "Methods": [
         {
-          "Member": "RelationalSplitCollectionShaperExpression(System.Linq.Expressions.Expression parentIdentifier, System.Linq.Expressions.Expression childIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> identifierValueComparers, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, System.Linq.Expressions.Expression innerShaper, Microsoft.EntityFrameworkCore.Metadata.INavigationBase? navigation, System.Type elementType, int? parentIdentifierSortOrder = null);"
+          "Member": "RelationalSplitCollectionShaperExpression(System.Linq.Expressions.Expression parentIdentifier, System.Linq.Expressions.Expression childIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> identifierValueComparers, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, System.Linq.Expressions.Expression innerShaper, Microsoft.EntityFrameworkCore.Metadata.INavigationBase? navigation, System.Type elementType, bool[]? parentIdentifierOrdering = null);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RelationalSplitCollectionShaperExpression Update(System.Linq.Expressions.Expression parentIdentifier, System.Linq.Expressions.Expression childIdentifier, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, System.Linq.Expressions.Expression innerShaper);"
@@ -15994,7 +16000,7 @@
           "Member": "virtual System.Linq.Expressions.Expression ParentIdentifier { get; }"
         },
         {
-          "Member": "virtual int? ParentIdentifierSortOrder { get; }"
+          "Member": "virtual bool[]? ParentIdentifierOrdering { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression SelectExpression { get; }"

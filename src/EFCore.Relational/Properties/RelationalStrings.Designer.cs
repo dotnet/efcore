@@ -3772,6 +3772,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     Compiling a split query which loads a related collection, but the query does not have a deterministic ordering on all of the key columns needed to correlate the parent and child rows. Entity Framework has to buffer the entire result set of the related collection query into memory to correlate the rows correctly, which can require a large amount of memory. Consider adding an explicit ordering on the key columns to avoid buffering. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.SplitCollectionWithoutOrderingWarning))'.
+        /// </summary>
+        public static EventDefinition LogSplitCollectionWithoutOrdering(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogSplitCollectionWithoutOrdering;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogSplitCollectionWithoutOrdering,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.SplitCollectionWithoutOrderingWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.SplitCollectionWithoutOrderingWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.SplitCollectionWithoutOrderingWarning,
+                            _resourceManager.GetString("LogSplitCollectionWithoutOrdering")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.
         /// </summary>
         public static EventDefinition<string?, string, string> LogNamedIndexAllPropertiesNotMappedToAnyTable(IDiagnosticsLogger logger)

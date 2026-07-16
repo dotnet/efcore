@@ -1054,12 +1054,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerSelectExpression._clientProjections,
                                 identifierColumns);
 
-                            var parentIdentifierSortOrder = GetParentIdentifierSortOrder(
+                            var parentIdentifierOrdering = GetParentIdentifierOrdering(
                                 innerSelectExpression._orderings, identifierColumns);
 
                             var result = new SplitCollectionInfo(
                                 parentIdentifier, childIdentifier, childIdentifierValueComparers,
-                                innerSelectExpression, innerShaperExpression, parentIdentifierSortOrder);
+                                innerSelectExpression, innerShaperExpression, parentIdentifierOrdering);
                             clientProjectionIndexMap.Add(result);
                         }
                         else
@@ -3165,21 +3165,24 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Determines whether the parent identifier columns appear as the leading ORDER BY columns in the given ordering list,
-    ///     and if so, returns the consistent sort direction: <c>1</c> for ascending, <c>-1</c> for descending,
-    ///     or <see langword="null" /> if the sort order is unknown, mixed, or cannot be determined.
+    ///     Determines whether the leading ORDER BY columns of the split collection query are exactly the parent identifier
+    ///     (key) columns, meaning the child rows are deterministically ordered relative to their parents. If so, returns the
+    ///     per-column sort directions (<see langword="true" /> for ascending, <see langword="false" /> for descending) so that
+    ///     out-of-order rows introduced by concurrent inserts can be skipped while streaming. Returns <see langword="null" />
+    ///     when the ordering does not lead with the full set of key columns, in which case the child rows must be buffered.
     /// </summary>
-    private static int? GetParentIdentifierSortOrder(
+    private static bool[]? GetParentIdentifierOrdering(
         IReadOnlyList<OrderingExpression> orderings,
         IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifierColumns)
     {
         var identifierList = identifierColumns.ToList();
-        if (orderings.Count < identifierList.Count)
+        if (identifierList.Count == 0
+            || orderings.Count < identifierList.Count)
         {
             return null;
         }
 
-        bool? isAscending = null;
+        var directions = new bool[identifierList.Count];
         for (var i = 0; i < identifierList.Count; i++)
         {
             if (!orderings[i].Expression.Equals(identifierList[i].Column))
@@ -3187,17 +3190,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return null;
             }
 
-            if (isAscending is null)
-            {
-                isAscending = orderings[i].IsAscending;
-            }
-            else if (isAscending != orderings[i].IsAscending)
-            {
-                return null;
-            }
+            directions[i] = orderings[i].IsAscending;
         }
 
-        return isAscending is null ? null : (isAscending.Value ? 1 : -1);
+        return directions;
     }
 
     private void AddJoin(

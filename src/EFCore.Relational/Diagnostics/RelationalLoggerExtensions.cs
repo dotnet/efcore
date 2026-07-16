@@ -2745,6 +2745,30 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.SplitCollectionWithoutOrderingWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void SplitCollectionWithoutOrderingWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+    {
+        var definition = RelationalResources.LogSplitCollectionWithoutOrdering(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                (d, _) => ((EventDefinition)d).GenerateMessage());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.ModelValidationKeyDefaultValueWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

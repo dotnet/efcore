@@ -1142,7 +1142,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     typeof(INavigationBase)),
                                 GenerateFixup(includingEntityClrType, relatedEntityClrType, navigation, inverseNavigation),
                                 Constant(_isTracking),
-                                Constant(relationalSplitCollectionShaperExpression.ParentIdentifierSortOrder, typeof(int?))));
+                                CreateParentIdentifierOrderingExpression(relationalSplitCollectionShaperExpression)));
                     }
                     else
                     {
@@ -1460,7 +1460,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                         null, _isAsync
                                             ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
                                             : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>))
-                                    : relatedDataLoaders));
+                                    : relatedDataLoaders,
+                                CreateParentIdentifierOrderingExpression(relationalSplitCollectionShaperExpression)));
 
                         _variableShaperMapping[relationalSplitCollectionShaperExpression] = accessor;
                     }
@@ -2795,6 +2796,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 return base.VisitMethodCall(methodCallExpression);
             }
+        }
+
+        private Expression CreateParentIdentifierOrderingExpression(
+            RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression)
+        {
+            var parentIdentifierOrdering = relationalSplitCollectionShaperExpression.ParentIdentifierOrdering;
+            if (parentIdentifierOrdering is null)
+            {
+                // The split collection query is not deterministically ordered by all of the identifier columns, so the child
+                // rows have to be buffered to correlate them with their parents. Warn about the potential memory cost.
+                _queryLogger.SplitCollectionWithoutOrderingWarning();
+
+                return Constant(null, typeof(bool[]));
+            }
+
+            return NewArrayInit(typeof(bool), parentIdentifierOrdering.Select(ascending => (Expression)Constant(ascending)));
         }
 
         private LambdaExpression GenerateFixup(

@@ -413,61 +413,48 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                 Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
             }
 
-            // Variation 1: both key columns descending — sort order detected as -1, skip enabled.
-            // Blog(15, 3) is inserted when Blog(20, 1) materialises; its posts appear between those of
-            // Blog(20, 1) and Blog(10, 2) in the stream, and the skip logic discards them correctly.
+            // Variation 1: both key columns descending — the child query is fully ordered by all key
+            // columns, so the streaming fast path is used.  Blog(15, 3) is inserted when Blog(20, 1)
+            // materialises; its posts appear between those of Blog(20, 1) and Blog(10, 2) in the stream,
+            // and the fast path discards them as out-of-order rows.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderByDescending(b => b.Id).ThenByDescending(b => b.SecondId),
                 AssertBothOriginalBlogs);
 
-            // Variation 2: no explicit ordering — deterministic ASC orderings are injected, giving
-            // sort order 1 (skip enabled).  Blog(10, 2) materialises first, so the posts cursor is
-            // opened before Blog(15, 3) is committed and never sees its posts.
+            // Variation 2: no explicit ordering — deterministic ASC orderings on the key are injected,
+            // so the child query is fully ordered and the fast path is used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery(),
                 AssertBothOriginalBlogs);
 
-            // Variation 3: first key column descending only — the injected SecondId ASC ordering
-            // makes the effective ORDER BY [Id DESC, SecondId ASC], which has mixed directions, so
-            // sort order is null and skip logic is disabled.  Whether Blog(10, 2) gets its posts
-            // depends on whether the posts cursor sees Blog(15, 3) (provider- and isolation-specific).
+            // Variation 3: first key column descending only — the injected SecondId ASC ordering makes
+            // the effective ORDER BY [Id DESC, SecondId ASC].  The leading columns still match the key
+            // columns (just with mixed directions), so the fast path is used and both blogs are correct.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderByDescending(b => b.Id),
-                blogs =>
-                {
-                    Assert.Equal(2, blogs.Count);
-                    var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
-                    Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                });
+                AssertBothOriginalBlogs);
 
-            // Variation 4: second key column ascending only — the effective ORDER BY is
-            // [SecondId ASC, Id ASC], which does not lead with the first PK column, so sort order is
-            // null.  Blog(15, 3) [SecondId = 3] appears last in the posts stream (after Blog(10, 2)),
-            // so both original blogs keep their posts.
+            // Variation 4: ordering leads with a non-key column — the effective ORDER BY is
+            // [SecondId ASC, Id ASC], which does not lead with the first key column, so the child rows
+            // cannot be correlated by server order.  The child rows are buffered instead and a warning
+            // is logged; both original blogs still keep their full post collections.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderBy(b => b.SecondId),
                 AssertBothOriginalBlogs);
 
-            // Variation 5: both key columns ascending — sort order detected as 1, skip enabled.
-            // Blog(10, 2) materialises first, so the posts cursor is opened before Blog(15, 3) is
-            // committed and never sees its posts.
+            // Variation 5: both key columns ascending — fully ordered, fast path used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderBy(b => b.Id).ThenBy(b => b.SecondId),
                 AssertBothOriginalBlogs);
 
-            // Variation 6: key columns in opposite directions — mixed directions yield null sort order.
-            // Same effective ordering as Variation 3; same outcome.
+            // Variation 6: key columns in opposite directions — leading columns still match the key
+            // columns, so the fast path is used just like Variation 3.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderByDescending(b => b.Id).ThenBy(b => b.SecondId),
-                blogs =>
-                {
-                    Assert.Equal(2, blogs.Count);
-                    var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
-                    Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                });
+                AssertBothOriginalBlogs);
         }
         finally
         {

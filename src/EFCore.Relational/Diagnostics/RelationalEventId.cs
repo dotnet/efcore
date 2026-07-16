@@ -96,6 +96,7 @@ public static class RelationalEventId
         NonQueryOperationFailed = CoreEventId.RelationalBaseId + 505,
         ExecuteDeleteFailed = CoreEventId.RelationalBaseId + 506,
         ExecuteUpdateFailed = CoreEventId.RelationalBaseId + 507,
+        SplitCollectionWithoutOrderingWarning = CoreEventId.RelationalBaseId + 508,
 
         // Model validation events
         ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
@@ -847,6 +848,17 @@ public static class RelationalEventId
     ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
     /// </remarks>
     public static readonly EventId MultipleCollectionIncludeWarning = MakeQueryId(Id.MultipleCollectionIncludeWarning);
+
+    /// <summary>
+    ///     A split query which loads a related collection does not have a deterministic ordering on all of the key columns
+    ///     needed to correlate the parent and child rows. Entity Framework has to buffer the entire result set of the related
+    ///     collection query to correlate the rows correctly.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    /// </remarks>
+    public static readonly EventId SplitCollectionWithoutOrderingWarning =
+        MakeQueryId(Id.SplitCollectionWithoutOrderingWarning);
 
     /// <summary>
     ///     An error occurred while executing a non-query operation.

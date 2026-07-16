@@ -22,9 +22,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     [EntityFrameworkInternal]
     public sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
-        private const int AscendingSortOrder = 1;
-        private const int DescendingSortOrder = -1;
-
         private static readonly MethodInfo ThrowReadValueExceptionMethod =
             typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
@@ -433,7 +430,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery,
-            int? parentIdentifierSortOrder = null)
+            bool[]? parentIdentifierOrdering = null)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -471,48 +468,91 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var splitQueryCollectionContext = resultCoordinator.Collections[collectionId]!;
             var dataReaderContext = resultCoordinator.DataReaders[collectionId]!;
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
-            if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
+            if (splitQueryCollectionContext.Parent is not TIncludingEntity entity)
             {
-                dataReaderContext.ParentIdentifierSortOrder = parentIdentifierSortOrder;
+                return;
+            }
 
-                while (dataReaderContext.HasNext ?? dbDataReader.Read())
+            if (parentIdentifierOrdering is null)
+            {
+                // The query is not deterministically ordered by all of the identifier columns, so a child row for the current
+                // parent may appear anywhere in the result set (e.g. because of a concurrent insert). Buffer and group all the
+                // child rows once, then correlate each parent with its children by identifier equality.
+                if (!dataReaderContext.Buffered)
                 {
-                    var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
-                    if (!CompareIdentifiers(
-                            identifierValueComparers,
-                            splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
+                    dataReaderContext.Buffered = true;
+                    var buffer = trackingQuery ? null : new List<(object[], object?)>();
+                    while (dataReaderContext.HasNext ?? dbDataReader.Read())
                     {
-                        if (ShouldSkipOutOfOrderChild(
-                                dataReaderContext,
-                                splitQueryCollectionContext.ParentIdentifier,
-                                currentChildIdentifier))
-                        {
-                            dataReaderContext.HasNext = null;
-                            continue;
-                        }
+                        dataReaderContext.HasNext = null;
+                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
+                        splitQueryCollectionContext.ResultContext.Values = null;
 
-                        dataReaderContext.HasNext = true;
+                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                        relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
+                        var bufferedEntity = innerShaper(
+                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
 
-                        return;
+                        buffer?.Add((bufferedChildIdentifier, bufferedEntity));
                     }
 
-                    dataReaderContext.HasNext = null;
-                    splitQueryCollectionContext.ResultContext.Values = null;
+                    dataReaderContext.HasNext = false;
+                    dataReaderContext.BufferedEntities = buffer;
+                }
 
-                    innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-                    relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
-                    var relatedEntity = innerShaper(
-                        queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-
-                    if (!trackingQuery)
+                if (!trackingQuery && dataReaderContext.BufferedEntities is { } bufferedEntities)
+                {
+                    foreach (var (identifier, bufferedEntity) in bufferedEntities)
                     {
-                        fixup(entity, relatedEntity);
-                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
+                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
+                        {
+                            var relatedEntity = (TIncludedEntity)bufferedEntity!;
+                            fixup(entity, relatedEntity);
+                            inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
+                        }
                     }
                 }
 
-                dataReaderContext.HasNext = false;
+                return;
             }
+
+            while (dataReaderContext.HasNext ?? dbDataReader.Read())
+            {
+                var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
+                if (!CompareIdentifiers(
+                        identifierValueComparers,
+                        splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
+                {
+                    if (IsOrphanChild(
+                            parentIdentifierOrdering,
+                            splitQueryCollectionContext.ParentIdentifier,
+                            currentChildIdentifier))
+                    {
+                        dataReaderContext.HasNext = null;
+                        continue;
+                    }
+
+                    dataReaderContext.HasNext = true;
+
+                    return;
+                }
+
+                dataReaderContext.HasNext = null;
+                splitQueryCollectionContext.ResultContext.Values = null;
+
+                innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
+                var relatedEntity = innerShaper(
+                    queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+
+                if (!trackingQuery)
+                {
+                    fixup(entity, relatedEntity);
+                    inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
+                }
+            }
+
+            dataReaderContext.HasNext = false;
         }
 
         /// <summary>
@@ -537,7 +577,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery,
-            int? parentIdentifierSortOrder = null)
+            bool[]? parentIdentifierOrdering = null)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -583,52 +623,99 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var splitQueryCollectionContext = resultCoordinator.Collections[collectionId]!;
             var dataReaderContext = resultCoordinator.DataReaders[collectionId]!;
             var dbDataReader = dataReaderContext.DataReader.DbDataReader;
-            if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
+            if (splitQueryCollectionContext.Parent is not TIncludingEntity entity)
             {
-                dataReaderContext.ParentIdentifierSortOrder = parentIdentifierSortOrder;
+                return;
+            }
 
-                while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+            if (parentIdentifierOrdering is null)
+            {
+                // The query is not deterministically ordered by all of the identifier columns, so a child row for the current
+                // parent may appear anywhere in the result set (e.g. because of a concurrent insert). Buffer and group all the
+                // child rows once, then correlate each parent with its children by identifier equality.
+                if (!dataReaderContext.Buffered)
                 {
-                    var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
-                    if (!CompareIdentifiers(
-                            identifierValueComparers,
-                            splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
+                    dataReaderContext.Buffered = true;
+                    var buffer = trackingQuery ? null : new List<(object[], object?)>();
+                    while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                     {
-                        if (ShouldSkipOutOfOrderChild(
-                                dataReaderContext,
-                                splitQueryCollectionContext.ParentIdentifier,
-                                currentChildIdentifier))
+                        dataReaderContext.HasNext = null;
+                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
+                        splitQueryCollectionContext.ResultContext.Values = null;
+
+                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                        if (relatedDataLoaders != null)
                         {
-                            dataReaderContext.HasNext = null;
-                            continue;
+                            await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
                         }
 
-                        dataReaderContext.HasNext = true;
+                        var bufferedEntity = innerShaper(
+                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
 
-                        return;
+                        buffer?.Add((bufferedChildIdentifier, bufferedEntity));
                     }
 
-                    dataReaderContext.HasNext = null;
-                    splitQueryCollectionContext.ResultContext.Values = null;
+                    dataReaderContext.HasNext = false;
+                    dataReaderContext.BufferedEntities = buffer;
+                }
 
-                    innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-                    if (relatedDataLoaders != null)
+                if (!trackingQuery && dataReaderContext.BufferedEntities is { } bufferedEntities)
+                {
+                    foreach (var (identifier, bufferedEntity) in bufferedEntities)
                     {
-                        await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
-                    }
-
-                    var relatedEntity = innerShaper(
-                        queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-
-                    if (!trackingQuery)
-                    {
-                        fixup(entity, relatedEntity);
-                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
+                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
+                        {
+                            var relatedEntity = (TIncludedEntity)bufferedEntity!;
+                            fixup(entity, relatedEntity);
+                            inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
+                        }
                     }
                 }
 
-                dataReaderContext.HasNext = false;
+                return;
             }
+
+            while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+            {
+                var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
+                if (!CompareIdentifiers(
+                        identifierValueComparers,
+                        splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
+                {
+                    if (IsOrphanChild(
+                            parentIdentifierOrdering,
+                            splitQueryCollectionContext.ParentIdentifier,
+                            currentChildIdentifier))
+                    {
+                        dataReaderContext.HasNext = null;
+                        continue;
+                    }
+
+                    dataReaderContext.HasNext = true;
+
+                    return;
+                }
+
+                dataReaderContext.HasNext = null;
+                splitQueryCollectionContext.ResultContext.Values = null;
+
+                innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                if (relatedDataLoaders != null)
+                {
+                    await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
+                }
+
+                var relatedEntity = innerShaper(
+                    queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+
+                if (!trackingQuery)
+                {
+                    fixup(entity, relatedEntity);
+                    inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
+                }
+            }
+
+            dataReaderContext.HasNext = false;
         }
 
         /// <summary>
@@ -823,7 +910,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
-            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders)
+            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
+            bool[]? parentIdentifierOrdering = null)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
         {
@@ -867,12 +955,63 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            if (parentIdentifierOrdering is null)
+            {
+                // The query is not deterministically ordered by all of the identifier columns, so a child row for the current
+                // parent may appear anywhere in the result set (e.g. because of a concurrent insert). Buffer and group all the
+                // child rows once, then correlate each parent with its children by identifier equality.
+                if (!dataReaderContext.Buffered)
+                {
+                    dataReaderContext.Buffered = true;
+                    var buffer = new List<(object[], object?)>();
+                    while (dataReaderContext.HasNext ?? dbDataReader.Read())
+                    {
+                        dataReaderContext.HasNext = null;
+                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
+                        splitQueryCollectionContext.ResultContext.Values = null;
+
+                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                        relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
+                        var bufferedElement = innerShaper(
+                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+
+                        buffer.Add((bufferedChildIdentifier, bufferedElement!));
+                    }
+
+                    dataReaderContext.HasNext = false;
+                    dataReaderContext.BufferedEntities = buffer;
+                }
+
+                if (dataReaderContext.BufferedEntities is { } bufferedElements)
+                {
+                    foreach (var (identifier, bufferedElement) in bufferedElements)
+                    {
+                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
+                        {
+                            ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
+                        }
+                    }
+                }
+
+                return;
+            }
+
             while (dataReaderContext.HasNext ?? dbDataReader.Read())
             {
+                var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
                 if (!CompareIdentifiers(
                         identifierValueComparers,
-                        splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
+                        splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
+                    if (IsOrphanChild(
+                            parentIdentifierOrdering,
+                            splitQueryCollectionContext.ParentIdentifier,
+                            currentChildIdentifier))
+                    {
+                        dataReaderContext.HasNext = null;
+                        continue;
+                    }
+
                     dataReaderContext.HasNext = true;
 
                     return;
@@ -909,7 +1048,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
-            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders)
+            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
+            bool[]? parentIdentifierOrdering = null)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
         {
@@ -961,12 +1101,67 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            if (parentIdentifierOrdering is null)
+            {
+                // The query is not deterministically ordered by all of the identifier columns, so a child row for the current
+                // parent may appear anywhere in the result set (e.g. because of a concurrent insert). Buffer and group all the
+                // child rows once, then correlate each parent with its children by identifier equality.
+                if (!dataReaderContext.Buffered)
+                {
+                    dataReaderContext.Buffered = true;
+                    var buffer = new List<(object[], object?)>();
+                    while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
+                    {
+                        dataReaderContext.HasNext = null;
+                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
+                        splitQueryCollectionContext.ResultContext.Values = null;
+
+                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+                        if (relatedDataLoaders != null)
+                        {
+                            await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
+                        }
+
+                        var bufferedElement = innerShaper(
+                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
+
+                        buffer.Add((bufferedChildIdentifier, bufferedElement));
+                    }
+
+                    dataReaderContext.HasNext = false;
+                    dataReaderContext.BufferedEntities = buffer;
+                }
+
+                if (dataReaderContext.BufferedEntities is { } bufferedElements)
+                {
+                    foreach (var (identifier, bufferedElement) in bufferedElements)
+                    {
+                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
+                        {
+                            ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
+                        }
+                    }
+                }
+
+                return;
+            }
+
             while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
             {
+                var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
                 if (!CompareIdentifiers(
                         identifierValueComparers,
-                        splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
+                        splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
+                    if (IsOrphanChild(
+                            parentIdentifierOrdering,
+                            splitQueryCollectionContext.ParentIdentifier,
+                            currentChildIdentifier))
+                    {
+                        dataReaderContext.HasNext = null;
+                        continue;
+                    }
+
                     dataReaderContext.HasNext = true;
 
                     return;
@@ -1365,97 +1560,42 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return true;
         }
 
-        private static bool ShouldSkipOutOfOrderChild(
-            SplitQueryDataReaderContext dataReaderContext,
+        private static bool IsOrphanChild(
+            bool[] parentIdentifierOrdering,
             object[] parentIdentifier,
             object[] childIdentifier)
+            // On the fully-ordered fast path, a non-matching child row that sorts strictly before the current parent
+            // (according to the query's ORDER BY) cannot belong to any not-yet-processed parent, so it is an orphan
+            // introduced by a concurrent insert and should be skipped rather than treated as the next parent's boundary.
+            => CompareParentIdentifierOrdering(parentIdentifierOrdering, childIdentifier, parentIdentifier) < 0;
+
+        private static int CompareParentIdentifierOrdering(
+            bool[] parentIdentifierOrdering,
+            object[] left,
+            object[] right)
         {
-            if (dataReaderContext.ParentIdentifierSortOrder is not (AscendingSortOrder or DescendingSortOrder))
+            for (var i = 0; i < parentIdentifierOrdering.Length; i++)
             {
-                return false;
-            }
-
-            var childToParentComparison = TryCompareIdentifiers(childIdentifier, parentIdentifier);
-            if (childToParentComparison is not (< 0 or > 0))
-            {
-                return false;
-            }
-
-            return dataReaderContext.ParentIdentifierSortOrder == AscendingSortOrder
-                ? childToParentComparison < 0
-                : childToParentComparison > 0;
-        }
-
-        private static int? TryCompareIdentifiers(object[] left, object[] right)
-        {
-            for (var i = 0; i < left.Length; i++)
-            {
-                var valueComparison = TryCompareIdentifierValues(left[i], right[i]);
-                if (valueComparison == null)
+                int comparison;
+                try
                 {
-                    return null;
+                    comparison = Comparer<object>.Default.Compare(left[i], right[i]);
+                }
+                catch (Exception e) when (e is ArgumentException or InvalidCastException)
+                {
+                    // The values are only equality-comparable; the relative ordering cannot be determined, so treat the
+                    // row as a boundary rather than risk skipping a valid child row.
+                    return 0;
                 }
 
-                if (valueComparison != 0)
+                if (comparison != 0)
                 {
-                    return valueComparison;
+                    comparison = comparison < 0 ? -1 : 1;
+                    return parentIdentifierOrdering[i] ? comparison : -comparison;
                 }
             }
 
             return 0;
-        }
-
-        private static int? TryCompareIdentifierValues(object? left, object? right)
-        {
-            if (left == null)
-            {
-                return right == null ? 0 : -1;
-            }
-
-            if (right == null)
-            {
-                return 1;
-            }
-
-            if (left.GetType() != right.GetType())
-            {
-                return null;
-            }
-
-            if (left is IComparable leftComparable)
-            {
-                try
-                {
-                    return leftComparable.CompareTo(right);
-                }
-                catch (ArgumentException)
-                {
-                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
-                }
-                catch (InvalidCastException)
-                {
-                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
-                }
-            }
-
-            if (right is IComparable rightComparable)
-            {
-                try
-                {
-                    var comparison = rightComparable.CompareTo(left);
-                    return comparison == 0 ? 0 : -System.Math.Sign(comparison);
-                }
-                catch (ArgumentException)
-                {
-                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
-                }
-                catch (InvalidCastException)
-                {
-                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
-                }
-            }
-
-            return null;
         }
     }
 }

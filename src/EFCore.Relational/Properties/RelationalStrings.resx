@@ -876,6 +876,10 @@
     <value>Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.</value>
     <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
   </data>
+  <data name="LogSplitCollectionWithoutOrdering" xml:space="preserve">
+    <value>Compiling a split query which loads a related collection, but the query does not have a deterministic ordering on all of the key columns needed to correlate the parent and child rows. Entity Framework has to buffer the entire result set of the related collection query into memory to correlate the rows correctly, which can require a large amount of memory. Consider adding an explicit ordering on the key columns to avoid buffering. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.SplitCollectionWithoutOrderingWarning))'.</value>
+    <comment>Warning RelationalEventId.SplitCollectionWithoutOrderingWarning</comment>
+  </data>
   <data name="LogNamedIndexAllPropertiesNotMappedToAnyTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
     <comment>Warning RelationalEventId.AllIndexPropertiesNotMappedToAnyTable string? string string</comment>
