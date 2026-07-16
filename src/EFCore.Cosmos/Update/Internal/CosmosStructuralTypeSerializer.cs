@@ -34,6 +34,7 @@ public class CosmosStructuralTypeSerializer
     private readonly IProperty? _jsonIdProperty;
     private readonly IProperty? _discriminatorProperty;
     private readonly IProperty? _ordinalKeyProperty;
+    private readonly string? _container;
 
     /// <summary>
     /// Any properties that have to be written to the document (excluding the discriminator property)
@@ -64,11 +65,21 @@ public class CosmosStructuralTypeSerializer
             {
                 _jsonIdProperty = structuralType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)
                     ?? throw new InvalidOperationException(CosmosStrings.NoIdProperty(structuralType.DisplayName()));
+                _container = entityType.GetContainer() ?? throw new UnreachableException("Document root entity type does not have container.");
             }
 
             _navigations = [.. entityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership && !n.IsOnDependent).Select(n => (n, provider.Get(n.TargetEntityType)))];
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Container
+        => _container ?? throw new UnreachableException("Can not get json container for non root document type");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

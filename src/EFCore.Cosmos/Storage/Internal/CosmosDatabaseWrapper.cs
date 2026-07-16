@@ -306,7 +306,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     {
         var entityType = entry.EntityType;
         var serializer = _structuralTypeSerializerProvider.Get(entityType);
-        var containerId = entityType.GetContainer();
+        var containerId = serializer.Container;
         var operation = entry.EntityState switch
         {
             EntityState.Added => CosmosCudOperation.Create,
@@ -314,8 +314,6 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             EntityState.Deleted => CosmosCudOperation.Delete,
             _ => (CosmosCudOperation?)null
         };
-
-        Check.DebugAssert(containerId != null, "Root entity must have a container");
 
         if (operation == null)
         {
