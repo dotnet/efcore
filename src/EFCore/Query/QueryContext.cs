@@ -156,5 +156,5 @@ public abstract class QueryContext
     [EntityFrameworkInternal]
     public virtual InternalEntityEntry? TryGetEntry(object entity)
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.TryGetEntry(entity);
+        => _stateManager!.TryGetEntry(entity, throwOnNonUniqueness: false);
 }
