@@ -94,7 +94,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 if (paramJsonString == "null")
                 {
-                    builder.Append(paramJsonString);
+                    builder.AppendLine(paramJsonString);
                 }
                 else
                 {
