@@ -378,28 +378,91 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         try
         {
-            using var context = contextFactory.CreateDbContext();
-            var query = context.Blogs
-                .Include(b => b.Posts)
-                .AsSplitQuery()
-                .OrderByDescending(b => b.Id);
+            // Variation 1: both key columns descending — sort order detected as -1, skip logic enabled.
+            // Blog(15, 3) is concurrently inserted when Blog(20, 1) materialises; its posts must be
+            // skipped when stitching Blog(10, 2)'s child collection.
+            {
+                using var context = contextFactory.CreateDbContext();
+                var query = context.Blogs
+                    .Include(b => b.Posts)
+                    .AsSplitQuery()
+                    .OrderByDescending(b => b.Id)
+                    .ThenByDescending(b => b.SecondId);
 
-            var blogs = async
-                ? await query.ToListAsync()
-                : query.ToList();
+                var blogs = async ? await query.ToListAsync() : query.ToList();
 
-            Assert.Collection(
-                blogs,
-                blog =>
-                {
-                    Assert.Equal(20, blog.Id);
-                    Assert.Equal(["C", "D"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                },
-                blog =>
-                {
-                    Assert.Equal(10, blog.Id);
-                    Assert.Equal(["A", "B"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
-                });
+                Assert.Collection(
+                    blogs,
+                    blog =>
+                    {
+                        Assert.Equal(20, blog.Id);
+                        Assert.Equal(1, blog.SecondId);
+                        Assert.Equal(["C", "D"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                    },
+                    blog =>
+                    {
+                        Assert.Equal(10, blog.Id);
+                        Assert.Equal(2, blog.SecondId);
+                        Assert.Equal(["A", "B"], blog.Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                    });
+            }
+
+            // Blog(15, 3) is now permanently in the database; the remaining variations each return
+            // all three blogs and verify that every blog has its correct child collection.
+            void AssertAllThreeBlogs(List<Blog33826> blogs)
+            {
+                Assert.Equal(3, blogs.Count);
+                var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
+                Assert.Equal(["A", "B"], byKey[(10, 2)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                Assert.Equal(["Concurrent"], byKey[(15, 3)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+                Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Id).Select(p => p.Name).ToList());
+            }
+
+            // Variation 2: no ordering — sort order is null, skip logic disabled.
+            {
+                using var context = contextFactory.CreateDbContext();
+                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery();
+                var blogs = async ? await query.ToListAsync() : query.ToList();
+                AssertAllThreeBlogs(blogs);
+            }
+
+            // Variation 3: first key column descending only — sort order is null (does not cover
+            // the full composite key).
+            {
+                using var context = contextFactory.CreateDbContext();
+                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderByDescending(b => b.Id);
+                var blogs = async ? await query.ToListAsync() : query.ToList();
+                AssertAllThreeBlogs(blogs);
+            }
+
+            // Variation 4: second key column ascending only — sort order is null (ORDER BY does not
+            // lead with the first PK column).
+            {
+                using var context = contextFactory.CreateDbContext();
+                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderBy(b => b.SecondId);
+                var blogs = async ? await query.ToListAsync() : query.ToList();
+                AssertAllThreeBlogs(blogs);
+            }
+
+            // Variation 5: both key columns ascending — sort order detected as 1, skip logic enabled.
+            {
+                using var context = contextFactory.CreateDbContext();
+                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderBy(b => b.Id).ThenBy(b => b.SecondId);
+                var blogs = async ? await query.ToListAsync() : query.ToList();
+                AssertAllThreeBlogs(blogs);
+            }
+
+            // Variation 6: key columns in opposite directions — sort order is null (mixed directions).
+            {
+                using var context = contextFactory.CreateDbContext();
+                var query = context.Blogs.Include(b => b.Posts).AsSplitQuery()
+                    .OrderByDescending(b => b.Id).ThenBy(b => b.SecondId);
+                var blogs = async ? await query.ToListAsync() : query.ToList();
+                AssertAllThreeBlogs(blogs);
+            }
         }
         finally
         {
@@ -427,17 +490,26 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             modelBuilder.Entity<Blog33826>(
                 b =>
                 {
+                    b.HasKey(e => new { e.Id, e.SecondId });
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.HasMany(e => e.Posts).WithOne().HasForeignKey(e => e.BlogId);
+                    b.Property(e => e.SecondId).ValueGeneratedNever();
+                    b.HasMany(e => e.Posts).WithOne()
+                        .HasForeignKey(e => new { e.BlogId, e.BlogSecondId });
                 });
-            modelBuilder.Entity<Post33826>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Post33826>(
+                p =>
+                {
+                    p.HasKey(e => new { e.Id, e.SecondId });
+                    p.Property(e => e.Id).ValueGeneratedNever();
+                    p.Property(e => e.SecondId).ValueGeneratedNever();
+                });
         }
 
         public Task SeedAsync()
         {
             Blogs.AddRange(
-                new Blog33826(10, [new Post33826(1, "A"), new Post33826(2, "B")]),
-                new Blog33826(20, [new Post33826(3, "C"), new Post33826(4, "D")]));
+                new Blog33826(10, 2, [new Post33826(1, 2, "A"), new Post33826(2, 2, "B")]),
+                new Blog33826(20, 1, [new Post33826(3, 1, "C"), new Post33826(4, 1, "D")]));
 
             return SaveChangesAsync();
         }
@@ -445,36 +517,42 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
     protected sealed class Blog33826
     {
-        public Blog33826(int id, IEnumerable<Post33826> posts)
+        public Blog33826(int id, int secondId, IEnumerable<Post33826> posts)
         {
             Id = id;
+            SecondId = secondId;
             Posts = posts.ToList();
         }
 
-        private Blog33826(int id)
+        private Blog33826(int id, int secondId)
         {
             Id = id;
+            SecondId = secondId;
 
             if (id == 20
+                && secondId == 1
                 && Context33826.InsertConcurrentEntity)
             {
                 Context33826.InsertConcurrentEntity = false;
 
                 using var context = Context33826.ConcurrentContextFactory();
-                context.Blogs.Add(new Blog33826(15, [new Post33826(5, "Concurrent")]));
+                context.Blogs.Add(new Blog33826(15, 3, [new Post33826(5, 3, "Concurrent")]));
                 context.SaveChanges();
             }
         }
 
         public int Id { get; private init; }
+        public int SecondId { get; private init; }
         public List<Post33826> Posts { get; private init; } = [];
     }
 
-    protected sealed class Post33826(int id, string name)
+    protected sealed class Post33826(int id, int secondId, string name)
     {
         public int Id { get; private init; } = id;
+        public int SecondId { get; private init; } = secondId;
         public string Name { get; private init; } = name;
         public int BlogId { get; private set; }
+        public int BlogSecondId { get; private set; }
     }
 
     #endregion
