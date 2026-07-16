@@ -574,7 +574,9 @@ public static class CosmosLoggerExtensions
     private static string FormatParameters(IReadOnlyList<(string Name, string Value)> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
             ? ""
-            : string.Join(", ", parameters.Select(e => shouldLogParameterValues ? $"{e.Name}={e.Value}" : $"{e.Name}=?"));
+            : FormatParameters(
+                parameters.Select(p => (SqlParameter)new SqlRawJsonParameter(p.Name, p.Value)).ToList(),
+                shouldLogParameterValues);
 
     private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
