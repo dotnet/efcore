@@ -566,7 +566,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private sealed class SaveGroups
     {
-        public required IEnumerable< CosmosUpdateEntry> SingleUpdateEntries { get; init; }
+        public required IEnumerable<CosmosUpdateEntry> SingleUpdateEntries { get; init; }
 
         public required IEnumerable<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> BatchableUpdateEntries { get; init; }
     }
