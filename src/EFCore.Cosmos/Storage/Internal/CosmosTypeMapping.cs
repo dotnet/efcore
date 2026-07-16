@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -113,8 +115,20 @@ public class CosmosTypeMapping : CoreTypeMapping
     {
         value = NormalizeValue(value);
         return value is not null || JsonValueReaderWriter!.HandlesNullWrites
-                ? JsonValueReaderWriter!.ToJsonString(value)
+                ? ToCosmosJsonString(value)
                 : "null";
+    }
+
+    private string ToCosmosJsonString(object? value)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions);
+
+        JsonValueReaderWriter!.ToJson(writer, value);
+
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
     }
 
     private object? NormalizeValue(object? value)

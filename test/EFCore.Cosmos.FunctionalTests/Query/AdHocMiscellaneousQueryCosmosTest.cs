@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -450,18 +448,18 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         using var context = contextFactory.CreateDbContext();
 
         var result = await context.Set<Context34567.Data>()
-            .Where(x => x.Text == "ж")
+            .Where(x => x.Text == "\"")
             .ToListAsync();
 
         Assert.Equal(1, result.Count);
 
-        Assert.Equal("ж", result.Single().Text);
+        Assert.Equal("\"", result.Single().Text);
 
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Text"] = "\u0436")
+WHERE (c["Text"] = "\"")
 """);
     }
 
@@ -472,12 +470,12 @@ WHERE (c["Text"] = "\u0436")
         using var context = contextFactory.CreateDbContext();
 
         var result = await context.Set<Context34567.Data>()
-            .Where(x => x.Id == "ж")
+            .Where(x => x.Id == "\"")
             .ToListAsync();
 
         Assert.Equal(1, result.Count);
 
-        Assert.Equal("ж", result.Single().Text);
+        Assert.Equal("\"", result.Single().Text);
 
         AssertSql(
             """
@@ -492,12 +490,12 @@ ReadItem(?, ?)
         using var context = contextFactory.CreateDbContext();
 
         var result = await context.Set<Context34567.Data>()
-            .WithPartitionKey("ж")
+            .WithPartitionKey("\"")
             .ToListAsync();
 
         Assert.Equal(1, result.Count);
 
-        Assert.Equal("ж", result.Single().Text);
+        Assert.Equal("\"", result.Single().Text);
 
         AssertSql(
             """
@@ -517,12 +515,13 @@ FROM root c
 
         public class Data
         {
-            public string Id { get; set; } = "ж";
-            public string Text { get; set; } = "ж";
+            public string Id { get; set; } = "\"" +
+                "";
+            public string Text { get; set; } = "\"" +
+                "";
         }
     }
     #endregion
-
 
     protected override string NonSharedStoreName
         => "AdHocMiscellaneousQueryTests";

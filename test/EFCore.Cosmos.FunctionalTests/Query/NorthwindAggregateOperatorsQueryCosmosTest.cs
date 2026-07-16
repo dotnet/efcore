@@ -2659,7 +2659,7 @@ WHERE ARRAY_CONTAINS(@ids, c["id"])
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "M\u00E9xico D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
+WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 """,
                     //
                     """
@@ -2667,7 +2667,7 @@ WHERE ((c["City"] = "M\u00E9xico D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "M\u00E9xico D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
+WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@ids, c["id"]))
 """);
             });
 
@@ -2732,7 +2732,7 @@ WHERE NOT(ARRAY_CONTAINS(@ids, c["id"]))
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "M\u00E9xico D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
+WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """,
                     //
                     """
@@ -2740,7 +2740,7 @@ WHERE ((c["City"] = "M\u00E9xico D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["City"] = "M\u00E9xico D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
+WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@ids, c["id"])))
 """);
             });
 

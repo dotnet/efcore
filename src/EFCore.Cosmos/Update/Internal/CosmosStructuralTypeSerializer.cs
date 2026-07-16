@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 
@@ -100,7 +101,7 @@ public class CosmosStructuralTypeSerializer
     {
         var internalEntry = (IInternalEntry)entry;
         var stream = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
+        using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
         {
             WriteEntry(writer, internalEntry);
         }
