@@ -17,6 +17,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!--
+      Register the SQLitePCLRaw provider via the bundle's [ModuleInitializer].
+      Without this, every benchmark throws "You need to call SQLitePCL.raw.SetProvider()"
+      from [GlobalSetup] and BenchmarkDotNet reports NA for every method.
+    -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="AdventureWorks2014.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

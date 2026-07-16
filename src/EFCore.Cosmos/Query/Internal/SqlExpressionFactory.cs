@@ -38,9 +38,31 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     /// </summary>
     [return: NotNullIfNotNull(nameof(sqlExpression))]
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
+        => sqlExpression?.TypeMapping is not null
+            ? sqlExpression
+            : SetTypeMappingInternal(sqlExpression, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
+    public virtual SqlExpression? SetTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping typeMapping)
+        => SetTypeMappingInternal(sqlExpression, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
+    private SqlExpression? SetTypeMappingInternal(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
         => sqlExpression switch
         {
-            null or { TypeMapping: not null } => sqlExpression,
+            null => sqlExpression,
 
             ScalarSubqueryExpression e => e.ApplyTypeMapping(typeMapping),
             SqlConditionalExpression sqlConditionalExpression => ApplyTypeMappingOnSqlConditional(sqlConditionalExpression, typeMapping),
@@ -109,8 +131,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         SqlBinaryExpression sqlBinaryExpression,
         CoreTypeMapping? typeMapping)
     {
-        var left = sqlBinaryExpression.Left;
-        var right = sqlBinaryExpression.Right;
+        var left = sqlBinaryExpression.Left as SqlExpression ?? throw new UnreachableException();
+        var right = sqlBinaryExpression.Right as SqlExpression ?? throw new UnreachableException();
 
         Type resultType;
         CoreTypeMapping? resultTypeMapping;
@@ -707,10 +729,37 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     {
         var typeMapping = ExpressionExtensions.InferTypeMapping(ifTrue, ifFalse);
 
-        return new SqlConditionalExpression(
-            ApplyTypeMapping(test, _boolTypeMapping),
-            ApplyTypeMapping(ifTrue, typeMapping),
-            ApplyTypeMapping(ifFalse, typeMapping));
+        test = ApplyTypeMapping(test, _boolTypeMapping);
+        ifTrue = ApplyTypeMapping(ifTrue, typeMapping);
+        ifFalse = ApplyTypeMapping(ifFalse, typeMapping);
+
+        // Simplify:
+        //   a == b ? b : a -> a
+        //   a != b ? a : b -> a
+        if (test is SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                Left: SqlExpression left,
+                Right: SqlExpression right
+            } binary)
+        {
+            // Swap ifTrue/ifFalse for NotEqual so we can reason uniformly about ifEqual/ifNotEqual.
+            var (ifEqual, ifNotEqual) = binary.OperatorType is ExpressionType.Equal ? (ifTrue, ifFalse) : (ifFalse, ifTrue);
+
+            // 'left' survives: a == b ? b : a -> a
+            if (left.Equals(ifNotEqual) && right.Equals(ifEqual))
+            {
+                return left;
+            }
+
+            // 'right' survives: a == b ? a : b -> b
+            if (right.Equals(ifNotEqual) && left.Equals(ifEqual))
+            {
+                return right;
+            }
+        }
+
+        return new SqlConditionalExpression(test, ifTrue, ifFalse);
     }
 
     /// <summary>

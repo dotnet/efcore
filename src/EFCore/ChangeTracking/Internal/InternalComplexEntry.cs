@@ -159,8 +159,9 @@ public sealed class InternalComplexEntry : InternalEntryBase
     /// </summary>
     public override object? ReadPropertyValue(IPropertyBase propertyBase)
         => EntityState == EntityState.Deleted
-            ? GetOriginalValue(propertyBase)
-            : base.ReadPropertyValue(propertyBase);
+             && HasOriginalValuesSnapshot
+                ? GetOriginalValue(propertyBase)
+                : base.ReadPropertyValue(propertyBase);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -195,7 +196,7 @@ public sealed class InternalComplexEntry : InternalEntryBase
         if (oldState is EntityState.Detached or EntityState.Deleted
             && newState is not EntityState.Detached and not EntityState.Deleted)
         {
-            if (!UseOldBehavior37724 && Ordinal == -1)
+            if (Ordinal == -1)
             {
                 Ordinal = OriginalOrdinal;
             }

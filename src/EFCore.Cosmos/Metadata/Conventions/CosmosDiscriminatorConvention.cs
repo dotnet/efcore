@@ -83,11 +83,10 @@ public class CosmosDiscriminatorConvention :
         {
             return;
         }
-
         if (entityType.IsDocumentRoot())
         {
-            entityTypeBuilder.HasDiscriminator(entityType.Model.GetEmbeddedDiscriminatorName(), typeof(string))
-                ?.HasValue(entityType, entityType.ShortName());
+            var discriminator = HasDiscriminator(entityTypeBuilder);
+            discriminator?.HasValue(entityType, entityType.ShortName());
         }
         else
         {
@@ -125,7 +124,7 @@ public class CosmosDiscriminatorConvention :
         {
             if (entityType.IsDocumentRoot())
             {
-                entityTypeBuilder.HasDiscriminator(entityType.Model.GetEmbeddedDiscriminatorName(), typeof(string));
+                HasDiscriminator(entityTypeBuilder);
             }
         }
         else
@@ -137,12 +136,26 @@ public class CosmosDiscriminatorConvention :
                 return;
             }
 
-            var discriminator = rootType.Builder.HasDiscriminator(entityType.Model.GetEmbeddedDiscriminatorName(), typeof(string));
+            var discriminator = HasDiscriminator(rootType.Builder);
             if (discriminator != null)
             {
                 SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
             }
         }
+    }
+
+    private static IConventionDiscriminatorBuilder? HasDiscriminator(IConventionEntityTypeBuilder entityTypeBuilder)
+    {
+        var discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
+        var discriminatorProperty = discriminator?.EntityType.FindDiscriminatorProperty();
+        if (discriminatorProperty != null)
+        {
+            CosmosPropertyBuilderExtensions.ToJsonProperty(
+                discriminatorProperty.Builder,
+                entityTypeBuilder.Metadata.Model.GetEmbeddedDiscriminatorName());
+        }
+
+        return discriminator;
     }
 
     /// <inheritdoc />

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions;
 
 public class ScaffoldingMetadataExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void It_sets_DbSet_name()
     {
         IMutableModel model = new Model();
@@ -18,7 +18,7 @@ public class ScaffoldingMetadataExtensionsTest
         Assert.Equal("Blogs", entity.GetDbSetName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void It_sets_gets_database_name()
     {
         var model = new Model();

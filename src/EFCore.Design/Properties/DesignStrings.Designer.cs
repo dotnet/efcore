@@ -20,6 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
+        ///     Failed to create and apply migration '{name}'. {message}
+        /// </summary>
+        public static string AddAndApplyMigrationFailed(object? name, object? message)
+            => string.Format(
+                GetString("AddAndApplyMigrationFailed", nameof(name), nameof(message)),
+                name, message);
+
+        /// <summary>
         ///     Failed creating connection: {exceptionMessage}
         /// </summary>
         public static string BadConnection(object? exceptionMessage)
@@ -185,6 +193,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 contextClassName);
 
         /// <summary>
+        ///     Couldn't get interceptable location for: '{node}'.
+        /// </summary>
+        public static string CouldNotGetInterceptableLocation(object? node)
+            => string.Format(
+                GetString("CouldNotGetInterceptableLocation", nameof(node)),
+                node);
+
+        /// <summary>
+        ///     Creating and applying migration '{migrationName}'.
+        /// </summary>
+        public static string CreatingAndApplyingMigration(object? migrationName)
+            => string.Format(
+                GetString("CreatingAndApplyingMigration", nameof(migrationName)),
+                migrationName);
+
+        /// <summary>
         ///     Successfully dropped database '{name}'.
         /// </summary>
         public static string DatabaseDropped(object? name)
@@ -219,6 +243,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateMigrationName", nameof(migrationName)),
                 migrationName);
+
+        /// <summary>
+        ///     The dynamic migration '{migrationId}' was not found. Only migrations applied in the current session using CreateAndApplyMigration can be reverted.
+        /// </summary>
+        public static string DynamicMigrationNotFound(object? migrationId)
+            => string.Format(
+                GetString("DynamicMigrationNotFound", nameof(migrationId)),
+                migrationId);
 
         /// <summary>
         ///     Dynamic LINQ queries are not supported when precompiling queries.
@@ -423,10 +455,33 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ManuallyDeleted");
 
         /// <summary>
+        ///     Failed to compile migration '{migrationId}'. Errors:
+        ///     {errors}
+        /// </summary>
+        public static string MigrationCompilationFailed(object? migrationId, object? errors)
+            => string.Format(
+                GetString("MigrationCompilationFailed", nameof(migrationId), nameof(errors)),
+                migrationId, errors);
+
+        /// <summary>
+        ///     Migration '{migrationId}' was successfully created and applied.
+        /// </summary>
+        public static string MigrationCreatedAndApplied(object? migrationId)
+            => string.Format(
+                GetString("MigrationCreatedAndApplied", nameof(migrationId)),
+                migrationId);
+
+        /// <summary>
         ///     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
         /// </summary>
         public static string MigrationDescription
             => GetString("MigrationDescription");
+
+        /// <summary>
+        ///     A migration name must be specified.
+        /// </summary>
+        public static string MigrationNameRequired
+            => GetString("MigrationNameRequired");
 
         /// <summary>
         ///     Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
@@ -437,6 +492,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("MigrationsAssemblyMismatch", nameof(assembly), nameof(migrationsAssembly)),
                 assembly, migrationsAssembly);
+
+        /// <summary>
+        ///     Could not find migration type with ID '{migrationId}' in the compiled assembly.
+        /// </summary>
+        public static string MigrationTypeNotFound(object? migrationId)
+            => string.Format(
+                GetString("MigrationTypeNotFound", nameof(migrationId)),
+                migrationId);
 
         /// <summary>
         ///     MSBuild Workspace diagnostics:{diagnostics}
@@ -453,14 +516,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("MSBuildWorkspaceFailure", nameof(kind), nameof(message)),
                 kind, message);
-
-        /// <summary>
-        ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
-        /// </summary>
-        public static string MultipleAnnotationConflict(object? annotationName)
-            => string.Format(
-                GetString("MultipleAnnotationConflict", nameof(annotationName)),
-                annotationName);
 
         /// <summary>
         ///     More than one DbContext was found. Specify which one to use. Use the '-Context' parameter for PowerShell commands and the '--context' parameter for dotnet commands.
@@ -541,6 +596,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string NoDesignTimeServices
             => GetString("NoDesignTimeServices");
+
+        /// <summary>
+        ///     No dynamic migrations have been applied in the current session. Only migrations applied using CreateAndApplyMigration can be reverted with RevertMigration.
+        /// </summary>
+        public static string NoDynamicMigrationsToRevert
+            => GetString("NoDynamicMigrationsToRevert");
 
         /// <summary>
         ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for the programming language.
@@ -893,6 +954,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("VersionMismatch", nameof(toolsVersion), nameof(runtimeVersion)),
                 toolsVersion, runtimeVersion);
+
+        /// <summary>
+        ///     The wildcard '*' can only be used with commands that run for all contexts found. Specify a context name for this command.
+        /// </summary>
+        public static string WildcardNotSupported
+            => GetString("WildcardNotSupported");
 
         /// <summary>
         ///     Writing migration to '{file}'.

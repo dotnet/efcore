@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
-    private static readonly bool UseOldBehavior37016 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37016", out var enabled) && enabled;
-
     private const string SqlQuerySingleColumnAlias = "Value";
 
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -163,6 +160,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 && entityQueryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
                     { } sqlQuery:
             {
+                // TODO: Use the SqlQuery directly instead of the default mapping once hierarchy support is implemented.
+                // Issue #21660
                 var table = entityQueryRootExpression.EntityType.GetDefaultMappings().Single().Table;
                 var alias = _sqlAliasManager.GenerateTableAlias(table);
 
@@ -175,15 +174,40 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             case GroupByShaperExpression groupByShaperExpression:
                 var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
-                var groupClonedSelectExpression = ((SelectExpression)groupShapedQueryExpression.QueryExpression).Clone();
-                return new ShapedQueryExpression(
-                    groupClonedSelectExpression,
-                    new QueryExpressionReplacingExpressionVisitor(
-                            groupShapedQueryExpression.QueryExpression, groupClonedSelectExpression)
-                        .Visit(groupShapedQueryExpression.ShaperExpression));
+                var groupSourceSelectExpression = (SelectExpression)groupShapedQueryExpression.QueryExpression;
+                var groupClonedSelectExpression = groupSourceSelectExpression.Clone();
+
+                // #22517/#30915: this clone is (re)translating a grouping-element subquery (e.g.
+                // `els.Select(...).FirstOrDefault()`), so any non-entity nullability marker recorded on the source
+                // grouping SelectExpression must be carried over the same way ApplyGrouping does it -- otherwise the
+                // marker is stranded on groupSourceSelectExpression, which nothing consults once this clone is the
+                // one actually translated, and the whole-object null gate never fires for this subquery.
+                // RemapGroupingElementShaper rebuilds the shaper and owns that transfer (fail-safe; see its comments).
+                // Note: groupSourceSelectExpression here is the clone ApplyGrouping already populated -- this is the
+                // second hop of the propagation, not the origin, so the marker binding resolves against it.
+                var groupRebuiltShaperExpression = groupSourceSelectExpression.RemapGroupingElementShaper(
+                    groupClonedSelectExpression, groupShapedQueryExpression.ShaperExpression);
+
+                return new ShapedQueryExpression(groupClonedSelectExpression, groupRebuiltShaperExpression);
 
             case ShapedQueryExpression shapedQueryExpression:
-                var clonedSelectExpression = ((SelectExpression)shapedQueryExpression.QueryExpression).Clone();
+                var subquerySourceSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+
+                // #22517/#30915: unlike the GroupByShaperExpression case above, this non-grouping subquery clone does NOT
+                // carry non-entity nullability markers across. It is safe today because a non-grouping subquery is bound to
+                // completion -- its markers created and consumed by the projection binder in the same window -- before it is
+                // embedded, so no live marker ever reaches this clone (verified: this case is never hit with a live marker
+                // across the whole #30915 suite, whereas the grouping sibling is). Clone() deliberately drops markers (see the
+                // _nonEntityNullabilityMarkers field comment), so if a future change ever routed a live marker here it would be
+                // silently stranded and the whole-object null gate would regress to a throw. Assert the invariant so that
+                // regression surfaces loudly in Debug; the fix would be to route through the same marker-aware remap the
+                // grouping case uses (SelectExpression.RemapGroupingElementShaper).
+                Check.DebugAssert(
+                    !subquerySourceSelectExpression.HasNonEntityNullabilityMarkers,
+                    "Non-grouping subquery clone carries a live non-entity nullability marker; it would be stranded by Clone(). "
+                    + "Route it through a marker-aware remap as the GroupByShaperExpression case does.");
+
+                var clonedSelectExpression = subquerySourceSelectExpression.Clone();
                 return new ShapedQueryExpression(
                     clonedSelectExpression,
                     new QueryExpressionReplacingExpressionVisitor(shapedQueryExpression.QueryExpression, clonedSelectExpression)
@@ -877,14 +901,98 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
         if (joinPredicate != null)
         {
+            var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
+            var isPrunable = isToOneJoin && IsPrunableInnerJoin();
+
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            var outerShaperExpression = outerSelectExpression.AddInnerJoin(inner, joinPredicate, outer.ShaperExpression);
+            var outerShaperExpression = outerSelectExpression.AddInnerJoin(
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, isPrunable);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
         }
 
         return null;
+
+        // An INNER JOIN is safe to prune when every outer row is guaranteed to have exactly one matching inner row.
+        // The caller checks IsToOneJoin (at most one match via PK/AK/unique index); this method checks that at least
+        // one matching row exists by looking for a required FK between the outer and inner entity types.
+        // However, the FK guarantee only holds when the full inner table is available. If the inner query has been
+        // filtered (via predicates, limit, offset, etc.), some rows may be missing and the join may filter the outer
+        // side; in that case, the join must not be pruned.
+        bool IsPrunableInnerJoin()
+        {
+            if ((SelectExpression)inner.QueryExpression is
+                {
+                    Predicate: null,
+                    Limit: null,
+                    Offset: null,
+                    Having: null,
+                    IsDistinct: false,
+                    GroupBy.Count: 0
+                }
+                && outer.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType outerEntityType }
+                && inner.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType innerEntityType })
+            {
+                var outerKeyProperties = ExtractKeyProperties(outerEntityType, outerKeySelector);
+                var innerKeyProperties = ExtractKeyProperties(innerEntityType, innerKeySelector);
+
+                if (outerKeyProperties is null || innerKeyProperties is null)
+                {
+                    return false;
+                }
+
+                Debug.Assert(outerKeyProperties.Count == innerKeyProperties.Count);
+
+                // Case 1: Outer is dependent, inner is principal — FK.IsRequired guarantees every dependent has a principal.
+                // Case 2: Outer is principal, inner is dependent — FK.IsRequiredDependent guarantees every principal has a dependent.
+                return HasMatchingRequiredForeignKey(
+                        outerEntityType, innerEntityType, outerKeyProperties, innerKeyProperties, checkIsRequired: true)
+                    || HasMatchingRequiredForeignKey(
+                        innerEntityType, outerEntityType, innerKeyProperties, outerKeyProperties, checkIsRequired: false);
+            }
+
+            return false;
+
+            // Checks whether the dependent entity type has a required FK to the principal whose properties match the key selectors.
+            // When checkIsRequired is true, checks FK.IsRequired (every dependent has a principal);
+            // when false, checks FK.IsRequiredDependent (every principal has a dependent).
+            // The key selector properties may appear in a different order than the FK properties, so we match positionally:
+            // for each (fkProperty[i], principalKeyProperty[i]) pair, both must appear at the same index in the respective key selectors.
+            static bool HasMatchingRequiredForeignKey(
+                IEntityType dependentEntityType,
+                IEntityType principalEntityType,
+                IReadOnlyList<IReadOnlyProperty> dependentKeyProperties,
+                IReadOnlyList<IReadOnlyProperty> principalKeyProperties,
+                bool checkIsRequired)
+            {
+                foreach (var fk in dependentEntityType.GetForeignKeys())
+                {
+                    if (fk.PrincipalEntityType == principalEntityType
+                        && (checkIsRequired ? fk.IsRequired : fk.IsRequiredDependent)
+                        && fk.IsConstrained
+                        && fk.Properties.Count == dependentKeyProperties.Count)
+                    {
+                        for (var i = 0; i < fk.Properties.Count; i++)
+                        {
+                            var dependentIndex = dependentKeyProperties.IndexOf(fk.Properties[i]);
+                            if (dependentIndex == -1
+                                || dependentIndex >= principalKeyProperties.Count
+                                || principalKeyProperties[dependentIndex] != fk.PrincipalKey.Properties[i])
+                            {
+                                goto NextForeignKey;
+                            }
+                        }
+
+                        return true;
+
+                    NextForeignKey:;
+                    }
+                }
+
+                return false;
+            }
+        }
     }
 
     /// <inheritdoc />
@@ -898,8 +1006,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
         if (joinPredicate != null)
         {
+            var isToOneJoin = IsToOneJoin(inner, innerKeySelector);
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
-            var outerShaperExpression = outerSelectExpression.AddLeftJoin(inner, joinPredicate, outer.ShaperExpression);
+            var outerShaperExpression = outerSelectExpression.AddLeftJoin(
+                inner, joinPredicate, outer.ShaperExpression, isToOneJoin, prunableJoin: isToOneJoin);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
@@ -921,6 +1031,27 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             var outerSelectExpression = (SelectExpression)outer.QueryExpression;
             var outerShaperExpression = outerSelectExpression.AddRightJoin(inner, joinPredicate, outer.ShaperExpression);
+            outer = outer.UpdateShaperExpression(outerShaperExpression);
+
+            return TranslateTwoParameterSelector(outer, resultSelector);
+        }
+
+        return null;
+    }
+
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateFullJoin(
+        ShapedQueryExpression outer,
+        ShapedQueryExpression inner,
+        LambdaExpression outerKeySelector,
+        LambdaExpression innerKeySelector,
+        LambdaExpression resultSelector)
+    {
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
+        if (joinPredicate != null)
+        {
+            var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+            var outerShaperExpression = outerSelectExpression.AddFullJoin(inner, joinPredicate, outer.ShaperExpression);
             outer = outer.UpdateShaperExpression(outerShaperExpression);
 
             return TranslateTwoParameterSelector(outer, resultSelector);
@@ -954,6 +1085,20 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 : _sqlExpressionFactory.AndAlso(result, joinPredicate);
         }
 
+        // In LINQ equijoins, null is not equal null, just like in SQL
+        // (https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/join-clause#the-equals-operator)
+        // As a result, in SqlNullabilityProcessor.ProcessJoinPredicate(), we have special handling for an equality
+        // immediately inside a join predicate - we bypass null compensation for that, to make sure the SQL behavior
+        // matches the LINQ behavior.
+        // However, when two anonymous types are being compared, the LINQ behavior *does* treat nulls as equal; as a result, in
+        // SqlNullabilityProcessor.ProcessJoinPredicate() we differentiate between a single top-level comparison
+        // and multiple comparisons with ANDs.
+        // Unfortunately, when we have a an anonymous type with a single property (on new { Foo = x } equals new { Foo = y }),
+        // we produce the same predicate as the single comparison case (without an anonymous type), bypassing the null
+        // compensation and generating incorrect results.
+        // To work around this, we add an always-true predicate here, and the AND will cause
+        // SqlNullabilityProcessor.ProcessJoinPredicate() to go into the multiple-property anonymous type logic,
+        // and not bypass null compensation.
         if (outerNew.Arguments.Count == 1)
         {
             result = _sqlExpressionFactory.AndAlso(
@@ -961,11 +1106,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
         }
 
-        return result!;
-    }
+        return result ?? _sqlExpressionFactory.Constant(true);
 
-    private SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
-        => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
+        SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
+            => TranslateExpression(Infrastructure.ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey))!;
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateLastOrDefault(
@@ -1952,7 +2097,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var type = source switch
             {
                 StructuralTypeShaperExpression shaper => shaper.StructuralType,
-                JsonQueryExpression jsonQuery when !UseOldBehavior37016 => jsonQuery.StructuralType,
+                JsonQueryExpression jsonQuery => jsonQuery.StructuralType,
                 _ => null
             };
 
@@ -1983,22 +2128,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             }
 
             // See comments on indexing-related hacks in VisitMethodCall above
-            if (UseOldBehavior37016)
-            {
-                if (_bindComplexProperties && type.FindComplexProperty(memberName) is { IsCollection: true } complexProperty)
-                {
-                    Check.DebugAssert(complexProperty.ComplexType.IsMappedToJson());
-
-                    if (queryableTranslator._sqlTranslator.TryBindMember(
-                            queryableTranslator._sqlTranslator.Visit(source), MemberIdentity.Create(memberName),
-                            out var translatedExpression, out _)
-                        && translatedExpression is CollectionResultExpression { QueryExpression: JsonQueryExpression jsonQuery })
-                    {
-                        return jsonQuery;
-                    }
-                }
-            }
-            else if (_bindComplexProperties && type.FindComplexProperty(memberName) is IComplexProperty complexProperty)
+            if (_bindComplexProperties && type.FindComplexProperty(memberName) is IComplexProperty complexProperty)
             {
                 Expression? translatedExpression;
 
@@ -2399,10 +2529,87 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             .GetMethod(nameof(FakeDefaultIfEmpty), BindingFlags.NonPublic | BindingFlags.Static)!);
 
     /// <summary>
-    ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
-    ///     <see cref="RelationalQueryTranslationPostprocessor.ProcessTypeMappings" />.
+    ///     Determines whether a join is guaranteed to match at most one inner row per outer row (a "to-one" join).
+    ///     This is detected by checking whether the inner key selector's properties form a primary/alternate key
+    ///     or are covered by a unique index on the inner entity type.
     /// </summary>
-    [Obsolete(
-        "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
-    protected class RelationalInferredTypeMappingApplier;
+    private static bool IsToOneJoin(ShapedQueryExpression inner, LambdaExpression innerKeySelector)
+    {
+        if (inner.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType })
+        {
+            return false;
+        }
+
+        var keyProperties = ExtractKeyProperties(entityType, innerKeySelector);
+        if (keyProperties is null)
+        {
+            return false;
+        }
+
+        // Check if the inner key properties form a primary or alternate key.
+        if (entityType.FindKey(keyProperties) is not null)
+        {
+            return true;
+        }
+
+        // Check if the inner key properties are covered by a unique index (e.g. unique FK in a 1:1 relationship).
+        foreach (var index in entityType.GetIndexes())
+        {
+            if (index.IsUnique
+                && index.Properties.Count == keyProperties.Count
+                && index.Properties.OfType<IProperty>().SequenceEqual(keyProperties))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Extracts the <see cref="IProperty" /> instances referenced by the inner key selector lambda.
+    ///     Returns <see langword="null" /> if properties cannot be determined.
+    /// </summary>
+    private static IReadOnlyList<IReadOnlyProperty>? ExtractKeyProperties(
+        IEntityType entityType,
+        LambdaExpression innerKeySelector)
+    {
+        switch (innerKeySelector.Body.UnwrapTypeConversion(out _))
+        {
+            // Composite key: new[] { Convert(EF.Property<T>(...)), ... }
+            case NewArrayExpression { NodeType: ExpressionType.NewArrayInit } newArray:
+            {
+                var properties = new IReadOnlyProperty[newArray.Expressions.Count];
+                for (var i = 0; i < newArray.Expressions.Count; i++)
+                {
+                    var property = ExtractSingleKeyProperty(entityType, newArray.Expressions[i].UnwrapTypeConversion(out _));
+                    if (property is null)
+                    {
+                        return null;
+                    }
+
+                    properties[i] = property;
+                }
+
+                return properties;
+            }
+
+            // Single key
+            case var e when ExtractSingleKeyProperty(entityType, e) is IProperty singleProperty:
+                return [singleProperty];
+
+            default:
+                return null;
+        }
+
+        static IReadOnlyProperty? ExtractSingleKeyProperty(IEntityType entityType, Expression expression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+
+            return Infrastructure.ExpressionExtensions.IsMemberAccess(expression, entityType.Model, out _, out var memberIdentity)
+                && memberIdentity.Name is not null
+                    ? entityType.FindProperty(memberIdentity.Name)
+                    : null;
+        }
+    }
 }

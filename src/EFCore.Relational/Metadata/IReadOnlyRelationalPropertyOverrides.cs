@@ -29,7 +29,7 @@ public interface IReadOnlyRelationalPropertyOverrides : IReadOnlyAnnotatable
     string? ColumnName { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether the column name is overriden.
+    ///     Gets a value indicating whether the column name is overridden.
     /// </summary>
     bool IsColumnNameOverridden { get; }
 

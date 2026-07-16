@@ -148,6 +148,7 @@ public class JsonScalarExpression : SqlExpression
     /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj is JsonScalarExpression jsonScalarExpression
+            && base.Equals(jsonScalarExpression)
             && Json.Equals(jsonScalarExpression.Json)
             && Path.SequenceEqual(jsonScalarExpression.Path);
 

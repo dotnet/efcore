@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Intercept_SaveChanges_passively(bool async, bool inject, bool noAcceptChanges)
@@ -69,7 +69,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
     protected class PassiveSaveChangesInterceptor : SaveChangesInterceptorBase;
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Intercept_SaveChanges_to_suppress_save(bool async, bool inject, bool noAcceptChanges)
@@ -149,7 +149,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Intercept_SaveChanges_to_change_result(bool async, bool inject, bool noAcceptChanges)
@@ -229,7 +229,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false, false), InlineData(true, false, false, false),
+    [Theory, InlineData(false, false, false, false), InlineData(true, false, false, false),
      InlineData(false, true, false, false), InlineData(true, true, false, false), InlineData(false, false, true, false),
      InlineData(true, false, true, false), InlineData(false, true, true, false), InlineData(true, true, true, false),
      InlineData(false, false, false, true), InlineData(true, false, false, true), InlineData(false, true, false, true),
@@ -329,7 +329,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Intercept_to_suppress_concurrency_exception(bool async, bool inject, bool noAcceptChanges)
@@ -430,7 +430,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         }
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
+    [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(true, false, true), InlineData(false, true, true),
      InlineData(true, true, true)]
     public virtual async Task Intercept_SaveChanges_with_multiple_interceptors(bool async, bool inject, bool noAcceptChanges)

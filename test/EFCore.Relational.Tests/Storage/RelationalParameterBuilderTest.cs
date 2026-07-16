@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalParameterBuilderTest
 {
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Can_add_type_mapped_parameter_by_type(bool nullable)
     {
         var typeMapper = (IRelationalTypeMappingSource)new TestRelationalTypeMappingSource(
@@ -40,7 +40,7 @@ public class RelationalParameterBuilderTest
         Assert.Equal(nullable, parameter.IsNullable);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public void Can_add_type_mapped_parameter_by_property(bool nullable)
     {
         var typeMapper = new TestRelationalTypeMappingSource(
@@ -75,7 +75,7 @@ public class RelationalParameterBuilderTest
         Assert.Equal(nullable, parameter.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_composite_parameter()
     {
         var typeMapper = new TestRelationalTypeMappingSource(
@@ -113,7 +113,7 @@ public class RelationalParameterBuilderTest
         Assert.Equal(2, parameter.RelationalParameters.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_add_empty_composite_parameter()
     {
         var typeMapper = new TestRelationalTypeMappingSource(

@@ -837,6 +837,61 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             elseResult = lastCase.ElseResult;
         }
 
+        // Simplify:
+        //   a == b ? b : a -> a
+        //   a != b ? a : b -> a
+        // And lift:
+        //   a == b ? null : a -> NULLIF(a, b)
+        //   a != b ? a : null -> NULLIF(a, b)
+        if (operand is null
+            && typeMappedWhenClauses is
+            [
+                {
+                    Test: SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                        Left: var left,
+                        Right: var right
+                    } binary,
+                    Result: var result
+                }
+            ])
+        {
+            // Swap result/elseResult for NotEqual so we can reason uniformly about ifEqual/ifNotEqual.
+            // A missing ELSE clause is equivalent to ELSE NULL, so normalize to a null constant for matching.
+            var (ifEqual, ifNotEqual) = binary.OperatorType is ExpressionType.Equal
+                ? (result, elseResult ?? Constant(null, result.Type, result.TypeMapping))
+                : (elseResult ?? Constant(null, result.Type, result.TypeMapping), result);
+
+            // 'left' survives the conditional.
+            if (left.Equals(ifNotEqual))
+            {
+                switch (ifEqual)
+                {
+                    // a == b ? b : a -> a   (also collapses NULLIF(a, NULL) when both are null constants)
+                    case var _ when ifEqual.Equals(right):
+                        return left;
+                    // a == b ? null : a -> NULLIF(a, b)
+                    case SqlConstantExpression { Value: null }:
+                        return Function("NULLIF", [left, right], nullable: true, Statics.TrueFalse, left.Type, left.TypeMapping);
+                }
+            }
+
+            // 'right' survives the conditional (operand-swapped equivalents of the patterns above).
+            if (right.Equals(ifNotEqual))
+            {
+                switch (ifEqual)
+                {
+                    // a == b ? a : b -> b
+                    case var _ when ifEqual.Equals(left):
+                        return right;
+                    // a == b ? null : b -> NULLIF(b, a)
+                    case SqlConstantExpression { Value: null }:
+                        return Function("NULLIF", [right, left], nullable: true, Statics.TrueFalse, right.Type, right.TypeMapping);
+                }
+            }
+        }
+
         return existingExpression is CaseExpression expr
             && operand == expr.Operand
             && typeMappedWhenClauses.SequenceEqual(expr.WhenClauses)

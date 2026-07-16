@@ -51,6 +51,10 @@ internal static class SharedTypeExtensions
             && !type.IsNullableValueType()
             && !IsScalarType(type);
 
+    public static bool IsUnion(this Type type)
+        => type.GetCustomAttributesData().Any(
+            static a => a.AttributeType.FullName == "System.Runtime.CompilerServices.UnionAttribute");
+
     public static bool IsScalarType(this Type type)
         => type == typeof(string)
             || CommonTypeDictionary.ContainsKey(type);
@@ -621,7 +625,7 @@ internal static class SharedTypeExtensions
         }
         else
         {
-            if (type.Namespace is not null)
+            if (!string.IsNullOrEmpty(type.Namespace))
             {
                 yield return type.Namespace;
             }

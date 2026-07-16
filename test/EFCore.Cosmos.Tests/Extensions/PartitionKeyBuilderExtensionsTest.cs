@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class PartitionKeyBuilderExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Add_expected_value_types()
     {
         using var context = new PartitionKeyContext();
@@ -44,7 +44,7 @@ public class PartitionKeyBuilderExtensionsTest
         builder.Add(null, FindProperty(context, typeof(Customer4), nameof(Customer4.NullableLong)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throw_for_unexpected_types()
     {
         using var context = new PartitionKeyContext();

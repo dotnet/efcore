@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class RelationalModelValidatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_added_property_is_not_mapped_to_store()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -25,7 +25,38 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
+    public void Throws_spatial_message_when_geometry_property_is_not_mapped()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
+        entityTypeBuilder.Property(typeof(NetTopologySuite.Geometries.FakePoint), "Location");
+        entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedSpatial(
+                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                "Location"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [Fact]
+    public void Throws_spatial_message_when_declaring_type_is_geometry()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity(typeof(NetTopologySuite.Geometries.FakePoint));
+        entityTypeBuilder.Property(typeof(Tuple<long>), "SomeProperty");
+
+        Assert.Equal(
+            RelationalStrings.PropertyNotMappedSpatial(
+                typeof(Tuple<long>).ShortDisplayName(),
+                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                "SomeProperty"),
+            Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+    }
+
+    [Fact]
     public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -42,7 +73,7 @@ public partial class RelationalModelValidatorTest
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override void Detects_non_list_complex_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -66,7 +97,7 @@ public partial class RelationalModelValidatorTest
             modelBuilder);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_complex_collection_is_not_mapped_to_json()
     {
         var modelBuilder = CreateConventionlessModelBuilder();

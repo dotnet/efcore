@@ -100,9 +100,40 @@ public class DbContextOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void DropDatabase(string? contextType)
+    public virtual void DropDatabase(string? contextType, string? connectionString)
     {
+        if (contextType == "*")
+        {
+            var anyContext = false;
+            
+            foreach(var contextItem in CreateAllContexts())
+            {
+                anyContext = true;
+                using (contextItem)
+                {
+                    DropDatabaseContext(contextItem, connectionString);
+                }
+            }
+
+            if (!anyContext)
+            {
+                throw new OperationException(DesignStrings.NoContext(_assembly.GetName().Name));
+            }
+
+            return;
+        }
+
         using var context = CreateContext(contextType);
+         DropDatabaseContext(context, connectionString);
+    }
+
+    private void DropDatabaseContext(DbContext context, string? connectionString)
+    {
+        if (connectionString is not null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+
         var connection = context.Database.GetDbConnection();
         _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database, connection.DataSource));
         _reporter.WriteInformation(
@@ -253,6 +284,7 @@ public class DbContextOperations
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
 
         var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
+        var databaseProvider = context.GetService<IDatabaseProvider>();
 
         var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
@@ -267,6 +299,7 @@ public class DbContextOperations
                 UseNullableReferenceTypes = _nullable,
                 Suffix = suffix,
                 ForNativeAot = nativeAot,
+                ProviderName = databaseProvider.Name,
                 GeneratedFileNames = generatedFileNames
             });
 
@@ -418,9 +451,20 @@ public class DbContextOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ContextInfo GetContextInfo(string? contextType)
+    public virtual ContextInfo GetContextInfo(string? contextType, string? connectionString = null)
     {
+        if (contextType == "*")
+        {
+            throw new OperationException(DesignStrings.WildcardNotSupported);
+        }
+
         using var context = CreateContext(contextType);
+        
+        if (connectionString != null)
+        {
+            context.Database.SetConnectionString(connectionString);
+        }
+        
         var info = new ContextInfo { Type = context.GetType().FullName! };
 
         var provider = context.GetService<IDatabaseProvider>();

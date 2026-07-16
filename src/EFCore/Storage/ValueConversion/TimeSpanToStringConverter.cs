@@ -43,8 +43,15 @@ public class TimeSpanToStringConverter : StringTimeSpanConverter<TimeSpan, strin
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static TimeSpanToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TimeSpan), typeof(string), i => new TimeSpanToStringConverter(i.MappingHints), DefaultHints);
+        = new(typeof(TimeSpan), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new TimeSpanToStringConverter(i.MappingHints),
+            DefaultHints);
 }

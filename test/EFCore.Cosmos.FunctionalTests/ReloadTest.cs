@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Newtonsoft.Json.Linq;
@@ -23,16 +23,16 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
         ClearLog();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Entity_reference_can_be_reloaded()
     {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         using var context = CreateContext();
 
         var entry = await context.AddAsync(new Item { Id = 1337, PartitionKey = "Foo" });
         await context.SaveChangesAsync();
-
-        var itemJson = entry.Property<JObject>("__jObject").CurrentValue;
-        itemJson["unmapped"] = 2;
 
         await entry.ReloadAsync();
 
@@ -45,16 +45,12 @@ SELECT VALUE
     "Id" : c["Id"],
     "PartitionKey" : c["PartitionKey"],
     "$type" : c["$type"],
-    "id0" : c["id"],
-    "" : c
+    "id0" : c["id"]
 }
 FROM root c
 WHERE (c["Id"] = @p)
 OFFSET 0 LIMIT 1
 """);
-
-        itemJson = entry.Property<JObject>("__jObject").CurrentValue;
-        Assert.Null(itemJson["unmapped"]);
     }
 
     protected ReloadTestContext CreateContext()

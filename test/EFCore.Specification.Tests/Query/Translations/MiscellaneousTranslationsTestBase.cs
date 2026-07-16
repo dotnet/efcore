@@ -10,7 +10,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 {
     #region Random
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_on_EF_Functions()
         => AssertCount(
             ss => ss.Set<BasicTypesEntity>(),
@@ -18,29 +18,29 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
             ss => EF.Functions.Random() >= 0 && EF.Functions.Random() < 1,
             c => true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_Shared_Next_with_no_args()
         => AssertQuery(
             ss => ss.Set<BasicTypesEntity>().Where(o => o.Int < (Random.Shared.Next() - 2147483647)),
             assertEmpty: true);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_Shared_Next_with_one_arg()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(5) - 2147483647));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_Shared_Next_with_two_args()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > Random.Shared.Next(0, 10) - 2147483647));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_new_Next_with_no_args()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next() - 2147483647));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_new_Next_with_one_arg()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(5) - 2147483647));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Random_new_Next_with_two_args()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int > new Random(15).Next(0, 10) - 2147483647));
 
@@ -48,7 +48,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
     #region Convert
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToBoolean()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -70,7 +70,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToByte()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -93,7 +93,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToDecimal()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -116,7 +116,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToDouble()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -139,7 +139,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToInt16()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -162,7 +162,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToInt32()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -185,7 +185,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToInt64()
     {
         var convertMethods = new List<Expression<Func<BasicTypesEntity, bool>>>
@@ -208,7 +208,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Convert_ToString()
     {
         // Actual convert-to-string behavior varies across databases for most types and cannot be asserted upon here
@@ -236,9 +236,35 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
 
     #endregion Convert
 
+    #region Parse
+    [Fact]
+    public virtual Task Byte_Parse() =>
+        AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => o.Int >= 0 && o.Int <= 255 && byte.Parse(Convert.ToString(o.Int)) == 12));
+
+    [Fact]
+    public virtual Task Decimal_Parse() =>
+        AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => decimal.Parse(Convert.ToString(o.Int)) == 8));
+
+    [Fact]
+    public virtual Task Double_Parse() =>
+        AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => double.Parse(Convert.ToString(o.Int)) == 8));
+
+    [Fact]
+    public virtual Task Short_Parse() =>
+        AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => short.Parse(Convert.ToString(o.Int)) == 12));
+
+    [Fact]
+    public virtual Task Int_Parse() =>
+        AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => int.Parse(Convert.ToString(o.Int)) == 12));
+
+    [Fact]
+    public virtual Task Long_Parse() =>
+        AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => long.Parse(Convert.ToString(o.Int)) == 12));
+    #endregion
+
     #region Compare
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Int_Compare_to_simple_zero()
     {
         var orderId = 8;
@@ -256,7 +282,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(c => c.Int.CompareTo(orderId) <= 0));
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task DateTime_Compare_to_simple_zero(bool compareTo)
     {
         var dateTime = new DateTime(1998, 5, 4, 15, 30, 10);
@@ -291,7 +317,7 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task TimeSpan_Compare_to_simple_zero(bool compareTo)
     {
         var timeSpan = new TimeSpan(1, 2, 3);

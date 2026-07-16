@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -54,4 +55,65 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(()
                 => base.Take_in_collection_projection_with_FirstOrDefault_on_top_level(async))).Message);
+
+    public override async Task Join_local_string_closure_is_cached_correctly(bool async)
+    {
+        await base.Join_local_string_closure_is_cached_correctly(async);
+
+        AssertSql(
+            """
+@p1='1' (DbType = String)
+@p2='2' (DbType = String)
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value" UNION ALL VALUES (@p2)) AS "p" ON "e"."EmployeeID" = unicode("p"."Value")
+""",
+            //
+            """
+@p1='3' (DbType = String)
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value") AS "p" ON "e"."EmployeeID" = unicode("p"."Value")
+""");
+    }
+
+    public override async Task Join_local_bytes_closure_is_cached_correctly(bool async)
+    {
+        var ids = new byte[] { 1, 2 };
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
+
+        ids = new byte[] { 3 };
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
+
+        AssertSql(
+            """
+@p1='1'
+@p2='2'
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value" UNION ALL VALUES (@p2)) AS "p" ON "e"."EmployeeID" = "p"."Value"
+""",
+            //
+            """
+@p1='3'
+
+SELECT "e"."EmployeeID"
+FROM "Employees" AS "e"
+INNER JOIN (SELECT @p1 AS "Value") AS "p" ON "e"."EmployeeID" = "p"."Value"
+""");
+    }
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

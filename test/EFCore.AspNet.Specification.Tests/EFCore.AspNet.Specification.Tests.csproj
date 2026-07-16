@@ -8,6 +8,9 @@
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <!-- This project contains base tests to be used by providers, but is not itself a test project with
+         tests to be executed. Disable test discovery. -->
+    <IsTestProject>false</IsTestProject>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);8981</NoWarn>
@@ -39,7 +42,6 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,10 +53,7 @@
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
-    <PackageReference Include="IdentityServer4.EntityFramework" />
     <PackageReference Condition="!$([MSBuild]::IsOSPlatform('OSX'))" Include="Grpc.AspNetCore" />
-    <!-- Suppress NuGet audit warnings for IdentityServer4, see https://github.com/dotnet/efcore/issues/34485 -->
-    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-ff4q-64jc-gx98;https://github.com/advisories/GHSA-55p7-v223-x366" />
   </ItemGroup>
 
   <ItemGroup>

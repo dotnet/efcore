@@ -17,7 +17,7 @@ public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase
             new SqliteDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
         .OptionsBuilder).Options)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void It_lifts_foreign_key_additions()
     {
         Generate(
@@ -52,7 +52,7 @@ CREATE TABLE "Pie" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DefaultValue_formats_literal_correctly()
     {
         Generate(
@@ -104,7 +104,7 @@ CREATE TABLE "TestLineBreaks" (
 """);
     }
 
-    [ConditionalTheory, InlineData(true, null), InlineData(false, "PK_Id")]
+    [Theory, InlineData(true, null), InlineData(false, "PK_Id")]
     public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
     {
         var addIdColumn = new AddColumnOperation
@@ -169,7 +169,7 @@ CREATE TABLE "People" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CreateSchemaOperation_is_ignored()
     {
         Generate(new EnsureSchemaOperation());
@@ -258,7 +258,7 @@ ALTER TABLE "Person" ADD "Name" TEXT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_spatial_type()
     {
         Generate(
@@ -277,7 +277,7 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void DropSchemaOperation_is_ignored()
     {
         Generate(new DropSchemaOperation());
@@ -285,7 +285,7 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
         Assert.Empty(Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RestartSequenceOperation_not_supported()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(new RestartSequenceOperation()));
@@ -304,7 +304,7 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void AlterColumnOperation_computed()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -318,7 +318,7 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void RenameIndexOperations_throws_when_no_model()
     {
         var migrationBuilder = new MigrationBuilder("Sqlite");
@@ -353,7 +353,7 @@ ALTER TABLE "People" RENAME TO "Person";
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void CreateTableOperation_old_autoincrement_annotation()
     {
         Generate(
@@ -690,7 +690,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddPrimaryKey_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -704,7 +704,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddPrimaryKeyOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddUniqueConstraint_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -718,7 +718,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddUniqueConstraintOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddCheckConstraint_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -732,7 +732,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddCheckConstraintOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AlterTable_mostly_works_when_no_model()
     {
         Generate(
@@ -741,7 +741,7 @@ SELECT changes();
         Assert.Empty(Sql);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropForeignKey_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -750,7 +750,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropForeignKeyOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropPrimaryKey_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -759,7 +759,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropPrimaryKeyOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropUniqueConstraint_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -768,7 +768,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropUniqueConstraintOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropColumn_throws_when_no_model()
     {
         var ex = Assert.Throws<NotSupportedException>(() => Generate(
@@ -777,7 +777,7 @@ SELECT changes();
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("DropColumnOperation"), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void AddColumnOperation_with_comment_mostly_works_when_no_model()
     {
         Generate(
@@ -795,7 +795,7 @@ ALTER TABLE "Blogs" ADD "Summary" TEXT NOT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropColumn_defers_subsequent_RenameColumn()
     {
         Generate(
@@ -836,7 +836,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Deferred_RenameColumn_defers_subsequent_AddColumn()
     {
         Generate(
@@ -887,7 +887,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Deferred_RenameColumn_defers_subsequent_CreateIndex_unique()
     {
         Generate(
@@ -941,7 +941,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropColumn_defers_subsequent_AddColumn_required()
     {
         Generate(
@@ -990,7 +990,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Deferred_AddColumn_defers_subsequent_CreateIndex()
     {
         Generate(
@@ -1045,7 +1045,7 @@ CREATE INDEX "IX_Blog_Name" ON "Blog" ("Name");
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DropColumn_in_table_which_has_another_spatial_column()
     {
         Generate(
@@ -1091,7 +1091,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void RenameTable_preserves_pending_rebuilds()
     {
         Generate(
@@ -1134,7 +1134,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Rebuild_preserves_column_order()
     {
         Generate(

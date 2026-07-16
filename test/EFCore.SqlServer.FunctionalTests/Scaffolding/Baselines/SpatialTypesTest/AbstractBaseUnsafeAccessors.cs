@@ -6,11 +6,10 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public static class AbstractBaseUnsafeAccessors
 {
-    public static class AbstractBaseUnsafeAccessors
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int Id(CompiledModelTestBase.AbstractBase @this);
-    }
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+    public static extern ref int Id(CompiledModelTestBase.AbstractBase @this);
 }

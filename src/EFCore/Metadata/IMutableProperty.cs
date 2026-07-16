@@ -21,13 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
 {
     /// <summary>
-    ///     Gets the entity type that this property belongs to.
-    /// </summary>
-    [Obsolete("Use DeclaringType and cast to IMutableEntityType or IMutableComplexType")]
-    new IMutableEntityType DeclaringEntityType
-        => (IMutableEntityType)DeclaringType;
-
-    /// <summary>
     ///     Gets or sets a value indicating whether this property can contain <see langword="null" />.
     /// </summary>
     new bool IsNullable { get; set; }
@@ -49,6 +42,13 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     changes will not be applied to the database.
     /// </summary>
     new bool IsConcurrencyToken { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether this property is automatically loaded when the entity is queried
+    ///     from the database. When set to <see langword="false" />, the property value will not be read from the database
+    ///     and the property will be excluded from <c>UPDATE</c> statements unless explicitly loaded or modified.
+    /// </summary>
+    new bool IsAutoLoaded { get; set; }
 
     /// <summary>
     ///     Gets or sets the sentinel value that indicates that this property is not set.
@@ -281,8 +281,12 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <summary>
     ///     Sets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
-    /// <param name="elementType">If <see langword="true" />, then this is a collection of primitive elements.</param>
-    void SetElementType(Type? elementType);
+    /// <param name="elementType">The element type, or <see langword="null" /> to remove the primitive collection configuration.</param>
+    [Obsolete(
+        "The element type of a primitive collection is now a creation-time concern. Recreate the property as a primitive collection "
+        + "using IMutableTypeBase.AddProperty with an element type instead.")]
+    void SetElementType(Type? elementType)
+        => ((IConventionProperty)this).SetElementType(elementType);
 
     /// <inheritdoc />
     bool IReadOnlyProperty.IsNullable

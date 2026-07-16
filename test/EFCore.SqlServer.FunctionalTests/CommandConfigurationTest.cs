@@ -18,14 +18,14 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
 
     protected CommandConfigurationFixture Fixture { get; set; }
 
-    [ConditionalFact]
+    [Fact]
     public void Constructed_select_query_CommandBuilder_throws_when_negative_CommandTimeout_is_used()
     {
         using var context = CreateContext();
         Assert.Throws<ArgumentException>(() => context.Database.SetCommandTimeout(-5));
     }
 
-    [ConditionalTheory, InlineData(59, 6), InlineData(50, 5), InlineData(20, 2), InlineData(2, 1)]
+    [Theory, InlineData(59, 6), InlineData(50, 5), InlineData(20, 2), InlineData(2, 1)]
     public async Task Keys_generated_in_batches(int count, int expected)
     {
         await TestHelpers.ExecuteWithStrategyInTransactionAsync(

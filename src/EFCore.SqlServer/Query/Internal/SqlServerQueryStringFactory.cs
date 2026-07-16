@@ -51,8 +51,18 @@ public class SqlServerQueryStringFactory : IRelationalQueryStringFactory
                 .Append("DECLARE ")
                 .Append(parameter.ParameterName)
                 .Append(' ')
-                .Append(typeName)
-                .Append(" = ");
+                .Append(typeName);
+
+            // Table-valued parameters (TVPs) cannot be initialized inline in SQL, and rendering their rows
+            // would be expensive — and counter-productive for IEnumerable<SqlDataRecord> values. Emit only
+            // the DECLARE so the result remains pasteable into SSMS for plan analysis. See #33849.
+            if (parameter is SqlParameter { SqlDbType: SqlDbType.Structured })
+            {
+                builder.AppendLine(";");
+                continue;
+            }
+
+            builder.Append(" = ");
 
             if (parameter.Value == DBNull.Value || parameter.Value is null)
             {
@@ -66,9 +76,13 @@ public class SqlServerQueryStringFactory : IRelationalQueryStringFactory
                     .Append(
                         parameter.Value is SqlBytes sqlBytes
                             ? new SqlServerByteArrayTypeMapping(typeName).GenerateSqlLiteral(sqlBytes.Value)
-                            : typeMapping != null
-                                ? typeMapping.GenerateSqlLiteral(parameter.Value)
-                                : parameter.Value.ToString());
+                            : parameter.Value is SqlXml sqlXml
+                                ? new SqlServerStringTypeMapping(
+                                        typeName, unicode: true, sqlDbType: SqlDbType.Xml, storeTypePostfix: StoreTypePostfix.None)
+                                    .GenerateSqlLiteral(sqlXml.Value)
+                                : typeMapping != null
+                                    ? typeMapping.GenerateSqlLiteral(parameter.Value)
+                                    : parameter.Value.ToString());
             }
 
             builder.AppendLine(";");
@@ -177,7 +191,7 @@ internal static class TypeNameBuilder
                 SqlDbType.SmallDateTime => builder.Append("smalldatetime"),
                 SqlDbType.SmallInt => builder.Append("smallint"),
                 SqlDbType.SmallMoney => builder.Append("smallmoney"),
-                SqlDbType.Structured => builder.Append("structured"),
+                SqlDbType.Structured => builder.Append(sqlParameter.TypeName),
                 SqlDbType.Text => builder.Append("text"),
                 SqlDbType.Time => builder.Append("time").AppendScale(parameter),
                 SqlDbType.Timestamp => builder.Append("rowversion"),

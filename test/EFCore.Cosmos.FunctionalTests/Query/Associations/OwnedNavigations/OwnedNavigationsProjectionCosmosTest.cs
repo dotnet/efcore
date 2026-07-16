@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
@@ -96,10 +96,38 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]
 FROM root c
 """);
         }
+    }
+
+    [Fact]
+    public async Task Select_distinct_associate()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["RequiredAssociate"]
+FROM root c
+""");
+    }
+
+    [Fact]
+    public async Task Select_distinct_nested_associate()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate.RequiredNestedAssociate).Distinct(),
+            queryTrackingBehavior: QueryTrackingBehavior.NoTracking);
+
+        AssertSql(
+            """
+SELECT DISTINCT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
+FROM root c
+""");
     }
 
     public override async Task Select_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
@@ -110,7 +138,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]
 FROM root c
 """);
         }
@@ -124,7 +152,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]["RequiredNestedAssociate"]
 FROM root c
 """);
         }
@@ -138,7 +166,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]["OptionalNestedAssociate"]
 FROM root c
 """);
         }
@@ -150,20 +178,16 @@ FROM root c
         {
             // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
             // result to be filtered out entirely.
-            await Assert.ThrowsAsync<NullReferenceException>(() => // #36403
-                AssertQuery(
-                    ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
-                    ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
-                    queryTrackingBehavior: queryTrackingBehavior));
+            await AssertQuery(
+                ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
+                queryTrackingBehavior: queryTrackingBehavior);
 
-            if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
-            {
-                AssertSql(
-                    """
-SELECT VALUE c
+            AssertSql(
+                """
+SELECT VALUE c["OptionalAssociate"]["OptionalNestedAssociate"]
 FROM root c
 """);
-            }
         }
     }
 
@@ -173,20 +197,16 @@ FROM root c
         {
             // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
             // result to be filtered out entirely.
-            await Assert.ThrowsAsync<NullReferenceException>(() => // #36403
-                AssertQuery(
-                    ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
-                    ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
-                    queryTrackingBehavior: queryTrackingBehavior));
+            await AssertQuery(
+                ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
+                queryTrackingBehavior: queryTrackingBehavior);
 
-            if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
-            {
-                AssertSql(
-                    """
-SELECT VALUE c
+            AssertSql(
+                """
+SELECT VALUE c["OptionalAssociate"]["RequiredNestedAssociate"]
 FROM root c
 """);
-            }
         }
     }
 
@@ -202,7 +222,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]
 FROM root c
 """);
         }
@@ -231,7 +251,7 @@ FROM root c
         {
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["AssociateCollection"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -240,14 +260,13 @@ ORDER BY c["Id"]
 
     public override async Task Select_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.Select_nested_collection_on_required_associate(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Select_nested_collection_on_required_associate(queryTrackingBehavior));
-
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["RequiredAssociate"]["NestedCollection"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -258,12 +277,18 @@ ORDER BY c["Id"]
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Select_nested_collection_on_optional_associate(queryTrackingBehavior));
+            // When OptionalAssociate is null, the property access on it evaluates to undefined in Cosmos, causing the
+            // result to be filtered out entirely.
+            await AssertQuery(
+                ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
+                queryTrackingBehavior: queryTrackingBehavior);
 
             AssertSql(
                 """
-SELECT VALUE c
+SELECT VALUE c["OptionalAssociate"]["NestedCollection"]
 FROM root c
 ORDER BY c["Id"]
 """);
@@ -272,36 +297,46 @@ ORDER BY c["Id"]
 
     public override async Task SelectMany_associate_collection(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.SelectMany_associate_collection(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => base.SelectMany_associate_collection(queryTrackingBehavior));
-
-            AssertSql();
+            AssertSql(
+                """
+SELECT VALUE a
+FROM root c
+JOIN a IN c["AssociateCollection"]
+""");
         }
     }
 
     public override async Task SelectMany_nested_collection_on_required_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(()
-                => base.SelectMany_nested_collection_on_required_associate(queryTrackingBehavior));
-
-            AssertSql();
+            AssertSql(
+                """
+SELECT VALUE n
+FROM root c
+JOIN n IN c["RequiredAssociate"]["NestedCollection"]
+""");
         }
     }
 
     public override async Task SelectMany_nested_collection_on_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
     {
+        await base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior);
+
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            // The given key 'n' was not present in the dictionary
-            await Assert.ThrowsAsync<KeyNotFoundException>(()
-                => base.SelectMany_nested_collection_on_optional_associate(queryTrackingBehavior));
-
-            AssertSql();
+            AssertSql(
+                """
+SELECT VALUE n
+FROM root c
+JOIN n IN c["OptionalAssociate"]["NestedCollection"]
+""");
         }
     }
 
@@ -318,6 +353,73 @@ ORDER BY c["Id"]
 SELECT VALUE c
 FROM root c
 """);
+    }
+
+    public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT c["Id"], c["RequiredAssociate"]
+FROM root c
+""");
+        }
+    }
+
+    public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_associate_duplicated(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE c["RequiredAssociate"]
+FROM root c
+""");
+        }
+    }
+
+    public override async Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_associate_and_optional_associate(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE
+{
+    "First" : c["RequiredAssociate"],
+    "Second" : c["OptionalAssociate"]
+}
+FROM root c
+""");
+        }
+    }
+
+    public override async Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Select_optional_associate_and_ints(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT VALUE
+{
+    "First" : c["OptionalAssociate"],
+    "Ints" : c["RequiredAssociate"]["Ints"]
+}
+FROM root c
+""");
+        }
     }
 
     #endregion Multiple
@@ -344,13 +446,13 @@ FROM root c
     {
         if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
         {
-            await AssertTranslationFailed(() => base.Select_subquery_required_related_FirstOrDefault(queryTrackingBehavior));
+            await AssertTranslationFailed(() => base.Select_subquery_optional_related_FirstOrDefault(queryTrackingBehavior));
         }
     }
 
     #endregion Subquery
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

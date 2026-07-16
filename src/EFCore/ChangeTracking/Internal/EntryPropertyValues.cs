@@ -40,6 +40,15 @@ public abstract class EntryPropertyValues : PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override bool IsNullableComplexPropertyNull(int index)
+     => NullableComplexProperties != null && GetValueInternal(InternalEntry, NullableComplexProperties[index]) == null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override void SetValues(object obj)
     {
         Check.NotNull(obj);
@@ -57,7 +66,17 @@ public abstract class EntryPropertyValues : PropertyValues
         }
     }
 
-    private void SetValuesFromInstance(InternalEntryBase entry, IRuntimeTypeBase structuralType, object obj)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void SetValuesFromInstance(
+        InternalEntryBase entry,
+        IRuntimeTypeBase structuralType,
+        object obj,
+        bool skipChangeDetection = false)
     {
         foreach (var property in structuralType.GetProperties())
         {
@@ -66,7 +85,7 @@ public abstract class EntryPropertyValues : PropertyValues
                 continue;
             }
 
-            SetValueInternal(entry, property, property.GetGetter().GetClrValue(obj));
+            SetValueInternal(entry, property, property.GetGetter().GetClrValue(obj), skipChangeDetection: skipChangeDetection);
         }
 
         foreach (var complexProperty in structuralType.GetComplexProperties())
@@ -79,7 +98,7 @@ public abstract class EntryPropertyValues : PropertyValues
             if (complexProperty.IsCollection)
             {
                 var complexList = (IList?)complexProperty.GetGetter().GetClrValue(obj);
-                SetValueInternal(entry, complexProperty, complexList);
+                SetValueInternal(entry, complexProperty, complexList, skipChangeDetection: skipChangeDetection);
 
                 for (var i = 0; i < complexList?.Count; i++)
                 {
@@ -90,15 +109,20 @@ public abstract class EntryPropertyValues : PropertyValues
                     }
 
                     var complexEntry = GetComplexCollectionEntry(entry, complexProperty, i);
-                    SetValuesFromInstance(complexEntry, complexEntry.StructuralType, complexObject);
+                    SetValuesFromInstance(complexEntry, complexEntry.StructuralType, complexObject, skipChangeDetection);
                 }
             }
             else
             {
                 var complexObject = complexProperty.GetGetter().GetClrValue(obj);
+                if (complexProperty.IsNullable)
+                {
+                    SetValueInternal(entry, complexProperty, complexObject, skipChangeDetection: skipChangeDetection);
+                }
+
                 if (complexObject != null)
                 {
-                    SetValuesFromInstance(entry, (IRuntimeTypeBase)complexProperty.ComplexType, complexObject);
+                    SetValuesFromInstance(entry, (IRuntimeTypeBase)complexProperty.ComplexType, complexObject, skipChangeDetection);
                 }
             }
         }
@@ -171,8 +195,16 @@ public abstract class EntryPropertyValues : PropertyValues
                 if (dtoComplexValue != null)
                 {
                     var complexObject = CreateComplexObjectFromDto((IRuntimeComplexType)complexProperty.ComplexType, dtoComplexValue);
-                    SetValueInternal(entry, complexProperty, complexObject);
+                    if (complexProperty.IsNullable)
+                    {
+                        SetValueInternal(entry, complexProperty, complexObject);
+                    }
+
                     SetValuesFromDto(entry, (IRuntimeComplexType)complexProperty.ComplexType, dtoComplexValue);
+                }
+                else if (complexProperty.IsNullable)
+                {
+                    SetValueInternal(entry, complexProperty, null);
                 }
             }
         }
@@ -282,18 +314,21 @@ public abstract class EntryPropertyValues : PropertyValues
             values[i] = GetValueInternal(InternalEntry, Properties[i]);
         }
 
-        bool[]? flags = null;
+        bool[]? nullValues = null;
         var nullableComplexProperties = NullableComplexProperties;
         if (nullableComplexProperties != null && nullableComplexProperties.Count > 0)
         {
-            flags = new bool[nullableComplexProperties.Count];
+            nullValues = new bool[nullableComplexProperties.Count];
+            
             for (var i = 0; i < nullableComplexProperties.Count; i++)
             {
-                flags[i] = GetValueInternal(InternalEntry, nullableComplexProperties[i]) == null;
+                var complexProperty = nullableComplexProperties[i];
+                
+                nullValues[i] = GetValueInternal(InternalEntry, complexProperty) == null;
             }
         }
 
-        var cloned = new ArrayPropertyValues(InternalEntry, values, flags);
+        var cloned = new ArrayPropertyValues(InternalEntry, values, nullValues);
 
         foreach (var complexProperty in ComplexCollectionProperties)
         {
@@ -317,10 +352,11 @@ public abstract class EntryPropertyValues : PropertyValues
     {
         Check.NotNull(propertyValues);
 
-        var nullableComplexProperties = NullableComplexProperties;
         HashSet<IComplexProperty>? nullComplexProperties = null;
+        var nullableComplexProperties = NullableComplexProperties;
         if (nullableComplexProperties != null)
         {
+            object? materializedObject = null;
             for (var i = 0; i < nullableComplexProperties.Count; i++)
             {
                 if (propertyValues.IsNullableComplexPropertyNull(i))
@@ -328,12 +364,34 @@ public abstract class EntryPropertyValues : PropertyValues
                     nullComplexProperties ??= [];
                     nullComplexProperties.Add(nullableComplexProperties[i]);
                 }
+                else
+                {
+                    // Ensure the CLR complex object exists on the target entry so child property setters
+                    // can navigate through it. Create it from the source property values if needed.
+                    var complexProperty = nullableComplexProperties[i];
+                    var currentValue = GetValueInternal(InternalEntry, complexProperty);
+                    if (currentValue == null)
+                    {
+                        materializedObject ??= propertyValues.ToObject();
+                        var chain = complexProperty.GetChainToComplexProperty(fromEntity: false);
+                        var value = materializedObject;
+                        for (var j = 0; j < chain.Count && value != null; j++)
+                        {
+                            value = chain[j].GetGetter().GetClrValue(value);
+                        }
+
+                        if (value != null)
+                        {
+                            SetValueInternal(InternalEntry, complexProperty, value);
+                        }
+                    }
+                }
             }
         }
 
         foreach (var property in Properties)
         {
-            if (nullComplexProperties != null && IsPropertyInNullComplexType(property, nullComplexProperties))
+            if (nullComplexProperties != null && IsInNullComplexType(property, nullComplexProperties))
             {
                 continue;
             }
@@ -343,7 +401,31 @@ public abstract class EntryPropertyValues : PropertyValues
 
         foreach (var complexProperty in ComplexCollectionProperties)
         {
+            if (IsInNullComplexType(complexProperty, nullComplexProperties))
+            {
+                continue;
+            }
+
             SetValueInternal(InternalEntry, complexProperty, propertyValues[complexProperty]);
+
+            // Also propagate individual element values into complex collection entries
+            // so that OriginalPropertyValues/CurrentPropertyValues backed by tracked entries
+            // can properly reconstruct collection elements via their complex entries.
+            var sourceCollection = propertyValues[complexProperty];
+            if (sourceCollection != null)
+            {
+                for (var i = 0; i < sourceCollection.Count; i++)
+                {
+                    var element = sourceCollection[i];
+                    if (element == null)
+                    {
+                        continue;
+                    }
+
+                    var targetEntry = GetComplexCollectionEntry(InternalEntry, complexProperty, i);
+                    SetValuesFromInstance(targetEntry, (IRuntimeTypeBase)complexProperty.ComplexType, element);
+                }
+            }
         }
 
         if (nullComplexProperties != null)
@@ -355,10 +437,15 @@ public abstract class EntryPropertyValues : PropertyValues
         }
     }
 
-    private static bool IsPropertyInNullComplexType(IProperty property, HashSet<IComplexProperty> nullComplexProperties)
+    private static bool IsInNullComplexType(IPropertyBase property, HashSet<IComplexProperty>? nullComplexProperties)
     {
+        if (nullComplexProperties == null)
+        {
+            return false;
+        }
+
         var declaringType = property.DeclaringType;
-        while (declaringType is IComplexType complexType)
+        while (declaringType is IComplexType complexType && !complexType.ComplexProperty.IsCollection)
         {
             if (nullComplexProperties.Contains(complexType.ComplexProperty))
             {
@@ -449,7 +536,10 @@ public abstract class EntryPropertyValues : PropertyValues
                 }
 
                 var complexObject = CreateComplexObjectFromDictionary((IRuntimeComplexType)complexProperty.ComplexType, complexDict);
-                SetValueInternal(entry, complexProperty, complexObject);
+                if (complexProperty.IsNullable)
+                {
+                    SetValueInternal(entry, complexProperty, complexObject);
+                }
 
                 if (complexDict != null)
                 {
@@ -541,7 +631,7 @@ public abstract class EntryPropertyValues : PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract void SetValueInternal(IInternalEntry entry, IPropertyBase property, object? value);
+    protected abstract void SetValueInternal(IInternalEntry entry, IPropertyBase property, object? value, bool skipChangeDetection = false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -564,7 +654,11 @@ public abstract class EntryPropertyValues : PropertyValues
             return null;
         }
 
-        var values = new object?[complexType.PropertyCount];
+        // For non-collection complex types property indices are in the containing type's value space.
+        var valueCount = complexType.ComplexProperty.IsCollection
+            ? complexType.PropertyCount
+            : complexType.ContainingEntryType.PropertyCount;
+        var values = new object?[valueCount];
         foreach (var property in complexType.GetProperties())
         {
             if (dictionary.TryGetValue(property.Name, out var value)
