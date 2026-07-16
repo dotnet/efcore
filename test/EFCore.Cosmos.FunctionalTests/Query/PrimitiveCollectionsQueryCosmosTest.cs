@@ -569,8 +569,18 @@ OFFSET 0 LIMIT 2
     }
 
     public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
-        => await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Inline_collection_SelectMany_with_unreferenced_collection_value());
+    {
+        await base.Inline_collection_SelectMany_with_unreferenced_collection_value();
+
+        AssertSql(
+            """
+SELECT VALUE j
+FROM root c
+JOIN (
+    SELECT VALUE c
+    FROM a IN (SELECT VALUE ["a", "b"])) j
+""");
+    }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/330 (Aggregates over subqueries return null result set)
     public override async Task Parameter_collection_Count()
@@ -2224,6 +2234,9 @@ ORDER BY c["Id"]
 
     public override async Task Project_primitive_collections_element()
     {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         await base.Project_primitive_collections_element();
 
         AssertSql(

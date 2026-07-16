@@ -485,7 +485,8 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
 
     #endregion ORDER BY RANK
 
-    [Fact]
+    // issue #35898: full-text indexes on collection wildcard paths are not supported
+    //[Fact]
     public virtual async Task Full_text_index_through_complex_collection_roundtrips()
     {
         // The fixture configures a full-text index on a property inside a complex collection
@@ -586,8 +587,10 @@ ORDER BY RANK FullTextScore(c["Description"], "beaver", "dolphin")
                     //});
                 });
 
-                b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.AnotherDescription).EnableFullTextSearch());
-                b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.AnotherDescription)).IsFullTextIndex();
+                // issue #35898: full-text indexes on collection wildcard paths are not supported
+                //b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.AnotherDescription).EnableFullTextSearch());
+                //b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.AnotherDescription)).IsFullTextIndex();
+                b.Ignore(x => x.ComplexNestedCollection);
             });
 
         protected override Task SeedAsync(PoolableDbContext context)

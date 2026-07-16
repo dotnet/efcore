@@ -5,6 +5,7 @@ using System.Collections;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -85,11 +86,28 @@ public class DocumentSource
     {
         writer.WriteStartObject();
 
-        foreach (var property in structuralType.GetProperties())
+        // TODO: Get a better way to order the discriminator property first, without having to special case it here.
+        IProperty? discriminatorProperty = null;
+        if ((discriminatorProperty = structuralType.FindDiscriminatorProperty()) is not null)
         {
-            var jsonPropertyName = property.GetJsonPropertyName();
+            var discriminatorValue = entry.GetCurrentValue(discriminatorProperty);
+            writer.WritePropertyName(discriminatorProperty.GetJsonPropertyName());
 
-            if (jsonPropertyName == "")
+            var jsonValueReaderWriter = discriminatorProperty.GetJsonValueReaderWriter() ?? discriminatorProperty.GetTypeMapping().JsonValueReaderWriter;
+            if (discriminatorValue is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
+            {
+                Check.DebugAssert(jsonValueReaderWriter is not null, $"Missing JsonValueReaderWriter for property: {discriminatorProperty}");
+                jsonValueReaderWriter.ToJson(writer, discriminatorValue!);
+            }
+            else
+            {
+                writer.WriteNullValue();
+            }
+        }
+
+        foreach (var property in structuralType.GetProperties().Where(x => x != discriminatorProperty))
+        {
+            if (!property.IsPersisted())
             {
                 if (property.IsKey() && property.IsOrdinalKeyProperty())
                 {
@@ -97,6 +115,8 @@ public class DocumentSource
                 }
                 continue;
             }
+
+            var jsonPropertyName = property.GetJsonPropertyName();
 
             var propertyValue = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
@@ -167,7 +187,8 @@ public class DocumentSource
 
             var entry = structuralType is IComplexType
                 ? parentEntry
-                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value!, (IEntityType)structuralType)!;
+                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(value, (IEntityType)structuralType)
+                    ?? throw new UnreachableException("Embedded navigation not tracked.");
 
             WriteJsonObject(writer, entry, structuralType, null);
         }
@@ -213,7 +234,8 @@ public class DocumentSource
         {
             var entry = structuralType is IComplexType complexType
                 ? (IInternalEntry)parentEntry.GetComplexCollectionEntry(complexType.ComplexProperty, i)
-                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(collectionElement, (IEntityType)structuralType)!;
+                : ((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(collectionElement, (IEntityType)structuralType)
+                    ?? throw new UnreachableException("Collection element not tracked.");
 
             WriteJsonObject(
                 writer,

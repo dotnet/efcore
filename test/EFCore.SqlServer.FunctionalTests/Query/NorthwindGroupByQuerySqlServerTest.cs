@@ -21,6 +21,50 @@ public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationa
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task GroupBy_ValueTuple_projection_joined_on_tuple_member(bool async)
+    {
+        await base.GroupBy_ValueTuple_projection_joined_on_tuple_member(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [o0].[c] AS [Count]
+FROM (
+    SELECT [o].[CustomerID], COUNT(*) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [o0]
+INNER JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Select_Anonymous_Type_With_Entire_Entity(bool async)
+    {
+        await base.GroupBy_Select_Anonymous_Type_With_Entire_Entity(async);
+
+        AssertSql(
+            """
+SELECT [o2].[CustomerID], [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING (
+        SELECT TOP(1) [o1].[OrderID]
+        FROM [Orders] AS [o1]
+        WHERE [o].[CustomerID] = [o1].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL)
+        ORDER BY [o1].[OrderDate] DESC) IS NOT NULL
+) AS [o2]
+LEFT JOIN (
+    SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [o3]
+    WHERE [o3].[row] <= 1
+) AS [o4] ON [o2].[CustomerID] = [o4].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_Property_Select_Average(bool async)
     {
         await base.GroupBy_Property_Select_Average(async);

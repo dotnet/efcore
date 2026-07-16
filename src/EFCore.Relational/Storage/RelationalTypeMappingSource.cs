@@ -226,21 +226,31 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         Type modelType,
         Type? providerType,
         CoreTypeMapping? elementMapping)
-        => TryFindJsonCollectionMapping(
-            info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
-            ? (RelationalTypeMapping)FindMapping(
-                    info.WithConverter(
-                        // Note that the converter info is only used temporarily here and never creates an instance.
-                        new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
-                .WithComposedConverter(
-                    (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
-                    comparer,
-                    comparer,
-                    elementMapping,
-                    collectionReaderWriter)
-            : null;
+    {
+        if (!TryFindJsonCollectionMapping(
+                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter))
+        {
+            return null;
+        }
+
+        var mapping = FindMapping(
+            info.WithConverter(
+                // Note that the converter info is only used temporarily here and never creates an instance.
+                new ValueConverterInfo(modelType, typeof(string), _ => null!)));
+        if (mapping is null)
+        {
+            return null;
+        }
+
+        return (RelationalTypeMapping)mapping.WithComposedConverter(
+            (ValueConverter)Activator.CreateInstance(
+                typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                    modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+            comparer,
+            comparer,
+            elementMapping,
+            collectionReaderWriter);
+    }
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.

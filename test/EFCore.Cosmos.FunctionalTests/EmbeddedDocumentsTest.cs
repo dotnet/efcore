@@ -99,6 +99,59 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
+    [Fact]
+    public virtual async Task Can_manipulate_embedded_document_simple()
+    {
+        var options = await Fixture.CreateOptions(seed: false);
+        var swappedOptions = await Fixture.CreateOptions(seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            await context.AddAsync(new Person { Id = 1, MainAddress = new Address { Street = "First", City = "Village" } });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var person = await context.Set<Person>().SingleAsync();
+            person.MainAddress.Street = "Second Street";
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var person = await context.Set<Person>().SingleAsync();
+            Assert.Equal("Second Street", person.MainAddress.Street);
+        }
+    }
+
+    [Fact]
+    public virtual async Task Can_manipulate_embedded_collections_simple()
+    {
+        var options = await Fixture.CreateOptions(seed: false);
+        var swappedOptions = await Fixture.CreateOptions(
+            modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                v => v.Addresses, b =>
+                {
+                    b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                    b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                })),
+            seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            await context.AddAsync(new Person { Id = 1, Addresses = [ new Address { Street = "First", City = "Village" }] });
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var person = await context.Set<Person>().SingleAsync();
+            person.Addresses.Add(new Address { Street = "Second", City = "Village" });
+            await context.SaveChangesAsync();
+        }
+    }
+
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
@@ -400,8 +453,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                         {
                             Street = "Second",
                             City = "Village",
-                            Notes = new List<Note> { new() { Content = "First note" } },
-                            IdNotes = new List<NoteWithId> { new() { Id = 3, Content = "Second note" } }
+                            Notes = [new() { Content = "First note" }, new() { Content = "Second note" }],
+                            IdNotes = [new() { Id = 3, Content = "Third note" }, new() { Id = 4, Content = "Fourth note" }]
                         }
                     }
                 });
@@ -414,17 +467,16 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var people = await context.Set<Person>().ToListAsync();
             var address = people.Single().Addresses.Single();
 
-            Assert.Equal("First note", address.Notes.Single().Content);
+            Assert.Equal("First note", address.Notes.First().Content);
+            Assert.Equal("Second note", address.Notes.Skip(1).First().Content);
 
-            var idNote = address.IdNotes.Single();
-            Assert.Equal(3, idNote.Id);
-            Assert.Equal("Second note", idNote.Content);
+            var idNote1 = address.IdNotes.First();
+            Assert.Equal(3, idNote1.Id);
+            Assert.Equal("Third note", idNote1.Content);
 
-            var noteEntry = context.Entry(idNote);
-            var noteJson = noteEntry.Property<JObject>("__jObject").CurrentValue;
-
-            Assert.Equal(3, noteJson[nameof(NoteWithId.Id)]);
-            Assert.Null(noteJson[nameof(NoteWithId.AddressId)]);
+            var idNote2 = address.IdNotes.Skip(1).First();
+            Assert.Equal(4, idNote2.Id);
+            Assert.Equal("Fourth note", idNote2.Content);
         }
 
         using (var context = new EmbeddedTransportationContext(swappedOptions))
@@ -432,8 +484,15 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var people = await context.Set<Person>().ToListAsync();
             var address = people.Single().Addresses.Single();
 
-            Assert.Equal("Second note", address.Notes.Single().Content);
-            Assert.Equal("First note", address.IdNotes.Single().Content);
+            Assert.Equal("Third note", address.Notes.First().Content);
+            Assert.Equal("Fourth note", address.Notes.Skip(1).First().Content);
+
+            var idNote1 = address.IdNotes.First();
+            Assert.Equal(1, idNote1.Id);
+            Assert.Equal("First note", idNote1.Content);
+            var idNote2 = address.IdNotes.Skip(1).First();
+            Assert.Equal(2, idNote2.Id);
+            Assert.Equal("Second note", idNote2.Content);
         }
     }
 
@@ -859,12 +918,15 @@ OFFSET 0 LIMIT 2
             modelBuilder.Ignore<SolidRocket>();
 
             modelBuilder.Entity<PersonBase>();
-            modelBuilder.Entity<Person>(eb => eb.OwnsMany(
-                v => v.Addresses, b =>
+            modelBuilder.Entity<Person>(eb =>
+            {
+                eb.OwnsMany(v => v.Addresses, b =>
                 {
                     b.ToJsonProperty("Stored Addresses");
                     b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
-                }));
+                });
+                eb.OwnsOne(x => x.MainAddress);
+            });
         }
     }
 
@@ -884,6 +946,7 @@ OFFSET 0 LIMIT 2
 
     private class Person : PersonBase
     {
+        public Address MainAddress { get; set; }
         public ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 

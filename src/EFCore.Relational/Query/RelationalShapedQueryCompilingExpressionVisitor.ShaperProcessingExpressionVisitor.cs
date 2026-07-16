@@ -2387,7 +2387,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var startTrackingAssignment = ifFalseBlock.Expressions
                         .OfType<BinaryExpression>()
                         .Single(e => e is
-                                { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression }
+                            { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression }
                             && instance.Type == typeof(InternalEntityEntry));
 
                     var startTrackingExpression =

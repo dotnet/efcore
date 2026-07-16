@@ -1,0 +1,1792 @@
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using static System.Linq.Expressions.Expression;
+
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+
+public partial class CosmosShapedQueryCompilingExpressionVisitor
+{
+    private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
+    {
+        private static readonly MethodInfo StartTrackingMethodInfo
+            = typeof(QueryContext).GetMethod(
+                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()]) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo CollectionAccessorCreateMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Create)) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate)) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo CollectionAccessorAddStandaloneMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.AddStandalone)) ?? throw new UnreachableException();
+
+        private static readonly ConstructorInfo JsonReaderDataConstructor
+            = typeof(JsonReaderData).GetConstructor([typeof(ReadOnlyMemory<byte>)]) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo JsonReaderDataBytesConsumedProperty
+            = typeof(JsonReaderData).GetProperty(nameof(JsonReaderData.BytesConsumed)) ?? throw new UnreachableException();
+
+        private static readonly ConstructorInfo JsonReaderManagerConstructor
+            = typeof(Utf8JsonReaderManager).GetConstructor(
+                [typeof(JsonReaderData), typeof(IDiagnosticsLogger<DbLoggerCategory.Query>)]) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo Utf8JsonReaderManagerMoveNextMethod
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.MoveNext), []) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo Utf8JsonReaderManagerCaptureStateMethod
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.CaptureState), []) ?? throw new UnreachableException();
+
+        private static readonly FieldInfo Utf8JsonReaderManagerCurrentReaderField
+            = typeof(Utf8JsonReaderManager).GetField(nameof(Utf8JsonReaderManager.CurrentReader)) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo Utf8JsonReaderManagerSkipMethod
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.Skip), []) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
+            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)]) ?? throw new UnreachableException();
+
+        private static readonly ConstructorInfo Utf8JsonReaderConstructor
+            = typeof(Utf8JsonReader).GetConstructor([typeof(ReadOnlySpan<byte>), typeof(bool), typeof(JsonReaderState)]) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo Utf8JsonReaderReadMethod
+            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.Read), []) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo Utf8JsonReaderBytesConsumedProperty
+            = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.BytesConsumed)) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo Utf8JsonReaderStateProperty
+            = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.CurrentState)) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo ReadOnlyMemorySpanProperty
+            = typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span)) ?? throw new UnreachableException();
+
+        private static readonly MethodInfo ReadOnlyMemorySliceMethod
+            = typeof(ReadOnlyMemory<byte>).GetMethod(nameof(ReadOnlyMemory<>.Slice), [typeof(int)]) ?? throw new UnreachableException();
+
+        private static FieldInfo MaterializerTupleEntityTypeField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item1)) ?? throw new UnreachableException();
+        private static FieldInfo MaterializerTupleInstanceField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item2)) ?? throw new UnreachableException();
+        private static FieldInfo MaterializerTupleShadowSnapshotField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item3)) ?? throw new UnreachableException();
+        private static FieldInfo MaterializerTupleTrackingActionsField(Type tupleType)
+            => tupleType.GetField(nameof(ValueTuple<,,,>.Item4)) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
+            = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType)) ?? throw new UnreachableException();
+
+        private static readonly PropertyInfo QueryContextQueryLoggerProperty =
+            typeof(QueryContext).GetProperty(nameof(QueryContext.QueryLogger)) ?? throw new UnreachableException();
+
+        private readonly Dictionary<ITypeBase, LambdaExpression>
+            _structuralTypeJsonShaperLambdaMapping = [];
+
+        private readonly Dictionary<ITypeBase, LambdaExpression>
+            _structuralTypeJsonMaterializerLambdaMapping = [];
+
+        private readonly Dictionary<ProjectionBindingExpression, (ParameterExpression Variable, Expression Shaper)>
+            _deferredProjectionBindings = [];
+
+        private readonly Dictionary<IEntityType, (
+            ParameterExpression InstanceVariable,
+            ParameterExpression? ShadowSnapshotVariable,
+            ParameterExpression TrackingActionsVariable,
+            BinaryExpression TryGetEntryAssignment)> _entityTypeMaterializerExpressionsMapping = [];
+
+        private readonly Dictionary<IProperty, ParameterExpression> _ownerKeyProjectionVariables = [];
+        private readonly ParameterExpression _jsonReaderDataParameter = Parameter(typeof(JsonReaderData), "jsonReaderData");
+        private readonly ParameterExpression _jsonReaderManagerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");
+        private readonly ParameterExpression _innerShaperBytesConsumedVariable = Variable(typeof(int), "innerShaperBytesConsumed");
+        private readonly ParameterExpression _ordinalParameter = Variable(typeof(int), "ordinal");
+        private readonly ParameterExpression _ownerKeySnapshotParameter = Parameter(typeof(ISnapshot), "ownerKeySnapshot");
+
+        private readonly IReadOnlyList<IProperty> _ownerKeyProperties;
+        private readonly CosmosShapedQueryCompilingExpressionVisitor _parentVisitor;
+        private readonly SelectExpression _selectExpression;
+        private readonly ParameterExpression _dataParameter;
+        private readonly ParameterExpression _bytesConsumedParameter;
+
+        private readonly bool _queryStateManager;
+
+        public ShaperProcessingExpressionVisitor(
+            CosmosShapedQueryCompilingExpressionVisitor parentVisitor,
+            SelectExpression selectExpression,
+            ParameterExpression dataParameter,
+            ParameterExpression bytesConsumedParameter)
+        {
+            _parentVisitor = parentVisitor;
+            _selectExpression = selectExpression;
+            _dataParameter = dataParameter;
+            _bytesConsumedParameter = bytesConsumedParameter;
+
+            _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
+                or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+            _ownerKeyProperties = ((CosmosQueryCompilationContext)parentVisitor.QueryCompilationContext).RootEntityType?.FindPrimaryKey()?.Properties.ToArray() ?? [];
+        }
+
+        public LambdaExpression ProcessShaper(Expression shaperExpression)
+        {
+            var processedShaperExpression = Visit(shaperExpression);
+
+            if (_deferredProjectionBindings.Count == 0)
+            {
+                var resultVariable = Variable(processedShaperExpression.Type, "result");
+                processedShaperExpression = Block(
+                    [_jsonReaderDataParameter, resultVariable, _innerShaperBytesConsumedVariable, _ownerKeySnapshotParameter],
+                    // bytesConsumed = 0
+                    [Assign(_bytesConsumedParameter, Constant(0)),
+                    // result = shaper
+                    Assign(resultVariable, processedShaperExpression),
+                    // bytesConsumed += innerShaperBytesConsumed
+                    AddBytesConsumedExpressions(_innerShaperBytesConsumedVariable)[0],
+                    // return result
+                    resultVariable]);
+            }
+            else
+            {
+                // We read the projections in the order they are defined in from the data and pass the sub data to the shaper
+                var jsonReaderVariable = Parameter(typeof(Utf8JsonReader), "jsonReader");
+                var afterStartObjectReaderStateVariable = Parameter(typeof(JsonReaderState), "afterStartObjectReaderState");
+
+                var shaperBlockVariables = new List<ParameterExpression>(_deferredProjectionBindings.Values.Select(x => x.Variable))
+                {
+                    _jsonReaderDataParameter,
+                    jsonReaderVariable,
+                    afterStartObjectReaderStateVariable,
+                    _innerShaperBytesConsumedVariable,
+                    _ownerKeySnapshotParameter
+                };
+
+                var shaperBlockExpressions = new List<Expression>()
+                {
+                    // bytesConsumed = 0
+                    Assign(_bytesConsumedParameter, Constant(0)),
+                    // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: default)
+                    AssignJsonReaderVariableExpression(),
+                    // jsonReader.Read() // Reads StartObject (always present)
+                    Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                    // if (jsonReader.TokenType != JsonTokenType.StartObject) throw new InvalidOperationException(InvalidTokenType);
+                    IfThen(
+                        NotEqual(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty), Constant(JsonTokenType.StartObject)),
+                        ThrowInvalidToken(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty))
+                    ),
+                    // afterStartObjectReaderState = jsonReader.CurrentState // Store the state of after start object to be able to continue reading properties later on
+                    Assign(afterStartObjectReaderStateVariable, Property(jsonReaderVariable, Utf8JsonReaderStateProperty))
+                };
+
+                BinaryExpression AssignJsonReaderVariableExpression(Expression? jsonReaderState = null)
+                    => Assign(jsonReaderVariable, New(Utf8JsonReaderConstructor, Property(_dataParameter, ReadOnlyMemorySpanProperty), Constant(true), jsonReaderState ?? Default(typeof(JsonReaderState))));
+
+                var groups = _deferredProjectionBindings.GroupBy(x => GetProjectionIndex(x.Key));
+                var ownerKeySnapshotInitialized = false;
+
+                foreach (var group in groups.OrderBy(x => x.Key))
+                {
+                    var projectionReadExpressions = new List<Expression>();
+
+                    projectionReadExpressions.AddRange([
+                        // bytesConsumed += jsonReader.BytesConsumed
+                        // data = data.Slice((int)jsonReader.BytesConsumed) // Slice the data to the start json value being deserialized
+                        .. AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int))),
+                    ]);
+
+                    string? alias = null;
+                    // Deserialize the json value the amount of times there are projections for this json value, and assign the result to the variable for each projection.
+                    foreach (var (projectionBindingExpression, (variable, innerShaper)) in group)
+                    {
+                        alias ??= GetProjection(projectionBindingExpression).Alias;
+                        projectionReadExpressions.Add(
+                            // variable = innerShaper
+                            Assign(variable, innerShaper));
+
+                        if (TryGetOwnerKeyProperty(projectionBindingExpression, out var ownerKeyProperty))
+                        {
+                            _ownerKeyProjectionVariables[ownerKeyProperty] = variable;
+                        }
+                    }
+                    Debug.Assert(alias != null, "There is always one item in a group");
+
+                    var nextItemBytesConsumedVariable = Variable(typeof(int), "nextItemBytesConsumed");
+                    projectionReadExpressions.AddRange([
+                        // bytesConsumed += innerShaperBytesConsumed
+                        // data = data.Slice(innerShaperBytesConsumed) // innerShaperBytesConsumed is set by every inner shaper, slice the data to the end of the json value that was deserialzed
+                        ..AddBytesConsumedExpressions(_innerShaperBytesConsumedVariable),
+                        // Slice the possible ',' after the last json value
+                        Block(
+                            [nextItemBytesConsumedVariable],
+                            // data = SliceNextItemTokenMethodInfo(data, out nextItemBytesConsumed)
+                            [Assign(_dataParameter, Call(SliceNextItemTokenMethodInfo, _dataParameter, nextItemBytesConsumedVariable)),
+                            // nextItemBytesConsumed += nextItemBytesConsumedVariable
+                            AddAssignChecked(_bytesConsumedParameter, nextItemBytesConsumedVariable)]),
+                    ]);
+
+                    // After we have read all the primary key properties of the root document entity type (always come first: see CosmosQueryTranslationPostprocessor),
+                    // We initialize the snapshot variable so it can be used in the structural type shapers that need it.
+                    // We need this for owned entity projections that use AsNoTrackingWithIdentityResolution
+                    if (!ownerKeySnapshotInitialized
+                        && _ownerKeyProperties.Count > 0
+                        && _ownerKeyProjectionVariables.Count == _ownerKeyProperties.Count)
+                    {
+                        projectionReadExpressions.Add(
+                            // ownerKeySnapshot = new Snapshot(ownerKeyProjectionVariables.Select(x => x.Value))
+                            Assign(
+                                _ownerKeySnapshotParameter,
+                                New(
+                                    Snapshot.CreateSnapshotType([.. _ownerKeyProperties.Select(x => x.ClrType)]).GetConstructors().Single(),
+                                    _ownerKeyProperties.Select(x => ConvertIfNotMatch(_ownerKeyProjectionVariables[x], x.ClrType)))));
+                        ownerKeySnapshotInitialized = true;
+                    }
+
+                    var throwProjectionContainsUndefined = Throw(New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!, Constant(CosmosStrings.ProjectionUndefined)));
+
+                    // Only read the property if the property name matches the alias of the projection, otherwise the projection is undefined and we will throw an exception.
+                    shaperBlockExpressions.AddRange(
+                        // jsonReader.Read()
+                        Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                        // switch (jsonReader.TokenType)
+                        Switch(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty),
+                            // default: throw new InvalidOperationException(InvalidTokenType)
+                            ThrowInvalidToken(Property(jsonReaderVariable, Utf8JsonReaderTokenTypeProperty)),
+                            // case PropertyName
+                            SwitchCase(
+                                // if (jsonReader.ValueTextEquals(alias))
+                                IfThenElse(JsonReaderValueTextEquals(jsonReaderVariable, alias),
+                                    Block(projectionReadExpressions),
+                                // else throw new InvalidOperationException(ProjectionContainsUndefinedValue)
+                                    throwProjectionContainsUndefined), // The next projection should have been this one, but it isn't. This means the projection was undefined.
+                                Constant(JsonTokenType.PropertyName)),
+                            // case: JsonTokenType.EndObject throw new InvalidOperationException(ProjectionContainsUndefinedValue) // There should have been more projection values, but there arent. We are missing the last.
+                            SwitchCase(throwProjectionContainsUndefined, Constant(JsonTokenType.EndObject))),
+                        // jsonReader = new Utf8JsonReader(data.Span, isFinalBlock: true, state: afterStartObjectReaderState) // Create a new json reader to continue reading the document,
+                        // using the state from when we started reading the first property
+                        // The data is sliced to the end of the last json value that was deserialized, so we can continue reading the next property
+                        AssignJsonReaderVariableExpression(afterStartObjectReaderStateVariable));
+                }
+
+                shaperBlockExpressions.AddRange(
+                    // jsonReader.Read() // Reads EndObject
+                    Call(jsonReaderVariable, Utf8JsonReaderReadMethod),
+                    // bytesConsumed += jsonReader.BytesConsumed
+                    AddBytesConsumedExpressions(Convert(Property(jsonReaderVariable, Utf8JsonReaderBytesConsumedProperty), typeof(int)))[0]);
+
+                shaperBlockExpressions.Add(processedShaperExpression);
+                processedShaperExpression = Block(shaperBlockVariables, shaperBlockExpressions);
+            }
+
+            Expression[] AddBytesConsumedExpressions(Expression bytesConsumedExpression) =>
+            [
+                AddAssignChecked(_bytesConsumedParameter, bytesConsumedExpression),
+                Assign(_dataParameter, Call(_dataParameter, ReadOnlyMemorySliceMethod, bytesConsumedExpression))
+            ];
+
+            var shaperLambda = Lambda(
+                typeof(Shaper<>).MakeGenericType(shaperExpression.Type),
+                processedShaperExpression,
+                "Shaper",
+                [QueryCompilationContext.QueryContextParameter,
+                _dataParameter,
+                _ordinalParameter,
+                _bytesConsumedParameter]);
+
+            return shaperLambda;
+        }
+        
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            // Every deserialize action sets innerShaperBytesConsumed, so it can be used by the parent shaper to slice the data.
+            var resultVariable = Variable(extensionExpression.Type, "result");
+            switch (extensionExpression)
+            {
+                case StructuralTypeShaperExpression structuralTypeShaperExpression:
+                {
+                    var shaperLambda = StructuralTypeJsonShaperLambda(structuralTypeShaperExpression);
+
+                    var shaper = Block(
+                        [resultVariable],
+                        [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                         Assign(
+                             resultVariable,
+                             Invoke(
+                                 shaperLambda,
+                                 GetParametersForLambda(structuralTypeShaperExpression.StructuralType))),
+                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                         resultVariable]);
+
+                    if (structuralTypeShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBinding) // Otherwise this is an inner shaper of a CollectionShaperExpression,
+                    {
+                        return CheckDeferProjectionBinding(projectionBinding, shaper);
+                    }
+
+                    return shaper;
+                }
+
+                case ProjectionBindingExpression projectionBindingExpression:
+                {
+                    var projection = GetProjection(projectionBindingExpression);
+                    var typeMapping = ((SqlExpression)projection.Expression).TypeMapping!;
+                    var valueJsonReaderManager = Variable(typeof(Utf8JsonReaderManager), "valueJsonReaderManager");
+
+                    var shaper = Block(
+                        [resultVariable, valueJsonReaderManager],
+                        [Assign(_jsonReaderDataParameter, New(JsonReaderDataConstructor, _dataParameter)),
+                         Assign(valueJsonReaderManager, NewJsonReaderManager()),
+                         Call(valueJsonReaderManager, Utf8JsonReaderManagerMoveNextMethod),
+                         Assign(
+                             resultVariable,
+                             ReadJsonValue(valueJsonReaderManager, typeMapping, resultVariable.Type)),
+                         Call(valueJsonReaderManager, Utf8JsonReaderManagerCaptureStateMethod),
+                         Assign(_innerShaperBytesConsumedVariable, Property(_jsonReaderDataParameter, JsonReaderDataBytesConsumedProperty)),
+                         resultVariable]);
+
+                    return CheckDeferProjectionBinding(projectionBindingExpression, shaper);
+                }
+
+                case CollectionShaperExpression collectionShaperExpression:
+                {
+                    var innerShaper = Visit(collectionShaperExpression.InnerShaper);
+
+                    var innerResultVariable = Variable(innerShaper.Type, "innerResult");
+                    innerShaper = Block(
+                        [_jsonReaderDataParameter, innerResultVariable, _innerShaperBytesConsumedVariable],
+                         // innerResult = shaper
+                         Assign(innerResultVariable, innerShaper),
+                         // bytesConsumed += innerShaperBytesConsumed
+                         AddAssignChecked(_bytesConsumedParameter, _innerShaperBytesConsumedVariable),
+                         // return innerResult
+                         innerResultVariable);
+
+                    var innerShaperLambda = Lambda(
+                        typeof(Shaper<>).MakeGenericType(innerShaper.Type),
+                        innerShaper,
+                        "InnerShaper",
+                        [QueryCompilationContext.QueryContextParameter,
+                        _dataParameter,
+                        _ordinalParameter,
+                        _bytesConsumedParameter]);
+
+                    var collectionBytesConsumedVariable = Variable(typeof(int), "collectionBytesConsumed");
+
+                    var shaper = Block(
+                        [resultVariable, collectionBytesConsumedVariable],
+                        [Assign(resultVariable,
+                            Call(
+                                ShapeCollectionMethodInfo.MakeGenericMethod(collectionShaperExpression.ElementType, collectionShaperExpression.Type),
+                                QueryCompilationContext.QueryContextParameter,
+                                _dataParameter,
+                                Constant(collectionShaperExpression.CollectionCreator),
+                                innerShaperLambda,
+                                collectionBytesConsumedVariable)),
+                         Assign(_innerShaperBytesConsumedVariable, collectionBytesConsumedVariable),
+                         resultVariable]);
+
+                    var projectionBinding = (ProjectionBindingExpression)collectionShaperExpression.Projection;
+                    return CheckDeferProjectionBinding(projectionBinding, shaper);
+                }
+
+                case IncludeExpression includeExpression:
+                    return Visit(includeExpression.EntityExpression);
+            }
+
+            Expression CheckDeferProjectionBinding(ProjectionBindingExpression projectionBinding, Expression shaper)
+            {
+                var projection = GetProjection(projectionBinding);
+                if (!projection.IsValueProjection && projection.Alias != null) // There are multiple projections in the query result, so we have to defer the shaper to a variable assignment and run it when we are reading the projection from the result. See: ProcessShaper
+                {
+                    if (!_deferredProjectionBindings.TryGetValue(projectionBinding, out var deferredBinding))
+                    {
+                        deferredBinding = (Variable(shaper.Type, projection.Alias), shaper);
+                        _deferredProjectionBindings[projectionBinding] = deferredBinding;
+                    }
+                    
+                    return deferredBinding.Variable;
+                }
+
+                return shaper;
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            // Converts valueBuffer.TryReadValue to jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+            if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property))
+            {
+                var typeMapping = property.GetTypeMapping();
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
+                Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+                var jsonReadPropertyValueExpression = ReadJsonValue(
+                    _jsonReaderManagerVariable,
+                    jsonValueReaderWriter,
+                    typeMapping,
+                    property.ClrType,
+                    true); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
+
+                return ConvertIfNotMatch(jsonReadPropertyValueExpression, methodCallExpression.Type);
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            switch (binaryExpression)
+            {
+                case { NodeType: ExpressionType.Assign }
+                    when binaryExpression.Left.Type == typeof(MaterializationContext):
+                {
+                    var newExpression = (NewExpression)binaryExpression.Right;
+
+                    return binaryExpression.Update(binaryExpression.Left, binaryExpression.Conversion, newExpression.Update([Constant(ValueBuffer.Empty), .. newExpression.Arguments.Skip(1)]));
+                }
+
+                default:
+                    return base.VisitBinary(binaryExpression);
+            }
+        }
+
+        private LambdaExpression StructuralTypeJsonShaperLambda(StructuralTypeShaperExpression shaper)
+        {
+            if (_structuralTypeJsonShaperLambdaMapping.TryGetValue(shaper.StructuralType, out var lambda))
+            {
+                return lambda;
+            }
+
+            var materializer = StructuralTypeJsonMaterializerLambda(
+                shaper.StructuralType,
+                shaper.IsNullable);
+
+            // For non tracking scenario's, we can use the materializer as the shaper, since we don't need additional tracking logic generated below.
+            if (!IsTracking(shaper.StructuralType, out var entityType))
+            {
+                return materializer;
+            }
+
+            var tupleVariable = Variable(materializer.Body.Type);
+            var shaperVariables = new List<ParameterExpression>
+            {
+                tupleVariable
+            };
+
+            var shaperExpressions = new List<Expression>()
+            {
+                // var (entityType, instance, shadowSnapshot, trackingActions) = MaterializeRootEntity(queryContext, jsonReaderData);
+                Assign(
+                    tupleVariable,
+                    Invoke(
+                        materializer,
+                        GetParametersForLambda(entityType)))
+            };
+
+            var entityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(materializer.Body.Type));
+            var instanceVariable = Field(tupleVariable, MaterializerTupleInstanceField(materializer.Body.Type));
+            var shadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(materializer.Body.Type));
+            var trackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(materializer.Body.Type));
+
+            var tryGetEntryAssignment = GetEntityTypeMaterializerExpressions(entityType).TryGetEntryAssignment;
+            var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
+            var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
+            shaperVariables.Add(entryVariable);
+            shaperVariables.Add(hasNullKeyVariable);
+
+            if (entityType.IsOwned())
+            {
+                // Non persisted fixup: we need to set any non persisted principal properties on the entity
+                // Since the entity is owned and is a projection binding root, we don't know the owner entity values when deserializing the document
+                // We get the owner entity key values from the ownerKeySnapshot (only for AsNoTrackingWithIdentityResolution)
+                foreach (var property in entityType.FindPrimaryKey()!.Properties.Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()))
+                {
+                    var principalProperty = property.FindFirstPrincipal()!;
+                    if (!TryGetOwnerKeyPropertyIndex(principalProperty, out var ownerKeyPropertyIndex))
+                    {
+                        continue;
+                    }
+
+                    var propertyValueExpression = ConvertIfNotMatch(
+                        Call(
+                            _ownerKeySnapshotParameter,
+                            Snapshot.GetValueMethod.MakeGenericMethod(principalProperty.ClrType),
+                            Constant(ownerKeyPropertyIndex)),
+                        property.ClrType);
+
+                    shaperExpressions.Add(
+                        property.IsShadowProperty()
+                            ? Call(shadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(property.ClrType),
+                                Constant(property.GetShadowIndex()),
+                                propertyValueExpression)
+                            : ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(propertyValueExpression));
+                }
+            }
+
+            var tryGetEntryPropertyMap = entityType.FindPrimaryKey()!.Properties
+                .ToDictionary(
+                    p => p,
+                    property =>
+                        property.IsShadowProperty()
+                            // shadowSnapshot.GetValue<T>(1)
+                            ? Call(shadowSnapshotVariable, Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType), Constant(property.GetShadowIndex()))
+                            // instance.Property
+                            : (Expression)InstancePropertyValue(instanceVariable, entityType, property));
+
+            // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id }, true, out var _);
+            tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
+                .Visit(tryGetEntryAssignment);
+
+            shaperExpressions.Add(tryGetEntryAssignment);
+
+            //if (entry != default)
+            //{
+            //    instance = entry.Entity;
+            //}
+            //else
+            //{
+            //    foreach (var action in trackingActions)
+            //    {
+            //        action();
+            //    }
+            //    queryContext.StartTracking(entityType, instance, shadowSnapshot);
+            //}
+            shaperExpressions.Add(IfThenElse(
+                NotEqual(entryVariable, Default(entryVariable.Type)),
+                Assign(instanceVariable, Convert(MakeMemberAccess(entryVariable, typeof(InternalEntityEntry).GetProperty(nameof(InternalEntityEntry.Entity))!), instanceVariable.Type)),
+                Block(
+                    ListForEach(trackingActionsVariable, (trackingAction) => Invoke(trackingAction)),
+                    Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, entityTypeVariable, instanceVariable, shadowSnapshotVariable))));
+
+            // return instance
+            shaperExpressions.Add(instanceVariable);
+
+            lambda = Lambda(
+                Block(shaperVariables, shaperExpressions),
+                entityType.Name + "_Shaper",
+                GetParametersForLambda(entityType));
+            _structuralTypeJsonShaperLambdaMapping.Add(entityType, lambda);
+
+            return lambda;
+        }
+
+        private LambdaExpression StructuralTypeJsonMaterializerLambda(
+            ITypeBase structuralType,
+            bool nullable)
+        {
+            if (_structuralTypeJsonMaterializerLambdaMapping.TryGetValue(structuralType, out var lambda))
+            {
+                return lambda;
+            }
+
+            var materializerVariables = new List<ParameterExpression>() { _jsonReaderManagerVariable };
+            var materializerExpressions = new List<Expression>();
+
+            var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
+                structuralType,
+                Default(typeof(ValueBuffer)),
+                nullable);
+
+            var materializerBlock =
+                (BlockExpression)_parentVisitor.InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
+
+            //  Rewrite ordinal key properties
+            if (structuralType.TryGetOrdinalKey(out var ordinalKeyProperty))
+            {
+                materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
+                {
+                    { ordinalKeyProperty, _ordinalParameter }
+                }).Rewrite(materializerBlock);
+            }
+
+            var discriminatorProperty = structuralType.FindDiscriminatorProperty();
+            if (discriminatorProperty != null
+             && structuralType is IEntityType) // Complex type discriminators don't have to be determined for materialization, since inheritance hiarchies are not supported. See #38119 and #31250
+            {
+                if (structuralType.GetDerivedTypesInclusive().Count() == 1)
+                {
+                    // Optimize for only 1 possible value, do discriminator value correct check when finding property instead of scanning document.
+                    materializerBlock = new SingleDiscriminatorValueRewritingExpressionVisitor(structuralType, discriminatorProperty)
+                        .Rewrite(materializerBlock);
+                }
+                else
+                {
+                    // We have to read the json document to find the discriminator value before we can know how to deserialize the document.
+                    var discriminatorValueVariable = Variable(discriminatorProperty.ClrType.MakeNullable(), "discriminatorValue");
+                    materializerVariables.Add(discriminatorValueVariable);
+                    var discriminatorRead = ReadDiscriminator(structuralType, discriminatorProperty, discriminatorValueVariable);
+                    materializerExpressions.Add(discriminatorRead);
+
+                    // Replace calls for ValueBufferTryReadValue for the discriminator property
+                    materializerBlock = new ValueBufferTryReadValueMethodsReplacer(new Dictionary<IProperty, Expression>
+                    {
+                        { discriminatorProperty, discriminatorValueVariable }
+                    }).Rewrite(materializerBlock);
+                }
+            }
+
+            var instanceVariable = (ParameterExpression)materializerBlock.Expressions[^1];
+            var materializationContextVariable = materializerBlock.Variables.Single(x => x.Type == typeof(MaterializationContext));
+            var entityTypeVariable = materializerBlock.Variables.Single(x => x.Type.IsAssignableTo(typeof(ITypeBase)));
+            materializerVariables.AddRange(materializationContextVariable, entityTypeVariable, instanceVariable);
+
+            var materializationContextAssignment = materializerBlock.Expressions.Single(x => x is BinaryExpression { NodeType: ExpressionType.Assign } be && be.Left == materializationContextVariable);
+            materializerExpressions.Add(Visit(materializationContextAssignment));
+
+            var trackingActions = Variable(typeof(List<Action>), "trackingActions");
+            if (IsTracking(structuralType, out var entityType))
+            {
+                materializerVariables.Add(trackingActions);
+                materializerExpressions.Add(Assign(trackingActions, New(typeof(List<Action>))));
+
+                // We can't do tracking till after the entity is materialized
+                // So we remove the generated tracking expressions from the materializer block and store it for later use
+                var entryVariable = materializerBlock.Variables.Single(x => x.Type == typeof(InternalEntityEntry));
+                var hasNullKeyVariable = materializerBlock.Variables.Single(x => x.Type == typeof(bool));
+
+                var entryAssignment = materializerBlock.Expressions.OfType<BinaryExpression>()
+                    .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
+
+                var hasNullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>()
+                    .Single(x => x.Test is UnaryExpression { NodeType: ExpressionType.Not } ue && ue.Operand == hasNullKeyVariable);
+                var entryNotNullCheck = (ConditionalExpression)hasNullKeyCheck.IfTrue;
+                var entryNotNullBlock = (BlockExpression)entryNotNullCheck.IfTrue;
+                var readValuesBlock = (BlockExpression)entryNotNullCheck.IfFalse;
+
+                var shadowSnapshotVariable = readValuesBlock.Variables.SingleOrDefault(x => x.Type == typeof(ISnapshot));
+
+                _entityTypeMaterializerExpressionsMapping[entityType] = (
+                    instanceVariable,
+                    shadowSnapshotVariable,
+                    trackingActions,
+                    entryAssignment);
+
+                var startTrackingAssignment = readValuesBlock.Expressions.OfType<BinaryExpression>()
+                    .Single(x => x.NodeType == ExpressionType.Assign && x.Left == entryVariable);
+                readValuesBlock = readValuesBlock.Update(readValuesBlock.Variables, readValuesBlock.Expressions.Where(x => x != startTrackingAssignment));
+
+                // Rewrite the materialization block to a json deserializer
+                materializerBlock = (BlockExpression)Visit(readValuesBlock);
+
+                materializerVariables.AddRange(materializerBlock.Variables);
+                materializerExpressions.AddRange(materializerBlock.Expressions);
+
+                // Because of tracking, this returns (IEntityType, RootEntity, ISnapshot, List<Action>)
+                // Else this only returns RootEntity (clrType)
+                materializerExpressions.Add(
+                    New(
+                        typeof(ValueTuple<,,,>).MakeGenericType(typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>))
+                            .GetConstructor([typeof(IEntityType), entityType.ClrType, typeof(ISnapshot), typeof(List<Action>)])!,
+                        entityTypeVariable,
+                        instanceVariable,
+                        (Expression?)shadowSnapshotVariable ?? Default(typeof(ISnapshot)),
+                        trackingActions));
+            }
+            else
+            {
+                // For non tracking, we simply find the materialization block and rewrite it to a json deserializer.
+                if (structuralType is IEntityType et && et.FindPrimaryKey() != null)
+                {
+                    var nullKeyCheck = materializerBlock.Expressions.OfType<ConditionalExpression>().Single();
+                    var readValuesBlock = (BlockExpression)nullKeyCheck.IfTrue;
+
+                    materializerBlock = (BlockExpression)Visit(readValuesBlock);
+                }
+                else
+                {
+                    materializerBlock = materializerBlock.Expressions.OfType<BlockExpression>().Single();
+                    materializerBlock = (BlockExpression)Visit(materializerBlock);
+                }
+                
+                materializerVariables.AddRange(materializerBlock.Variables);
+                materializerExpressions.AddRange(materializerBlock.Expressions);
+            }
+
+            materializerBlock = Block(materializerVariables, materializerExpressions);
+
+            var resultType = structuralType.ClrType.IsValueType && nullable ? materializerBlock.Type.MakeNullable() : materializerBlock.Type;
+
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+
+            // Check if there is an object to materialize before we start.
+            // If so invoke the rewritten json materializer
+            // Else return default for the result type
+            materializerBlock = Block(
+                [_jsonReaderManagerVariable, tokenTypeVariable],
+                // jsonReaderManager = new Utf8JsonReaderManager(data.Span)
+                [Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
+                // tokenType = jsonReaderManager.MoveNext()
+                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                // switch (tokenType)
+                Switch(
+                    tokenTypeVariable,
+                    // default: throw new InvalidOperationException(InvalidTokenType)
+                    ThrowInvalidToken(tokenTypeVariable, resultType),
+                    // case JsonTokenType.Null: return default
+                    SwitchCase(
+                        Block(
+                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                            Default(resultType)),
+                        Constant(JsonTokenType.Null)),
+                    // case JsonTokenType.StartObject: materializerBlock
+                    SwitchCase(ConvertIfNotMatch(materializerBlock, resultType),
+                        Constant(JsonTokenType.StartObject)))]);
+
+            lambda = Lambda(
+                materializerBlock,
+                structuralType.Name + "_Materializer",
+                GetParametersForLambda(structuralType));
+
+            _structuralTypeJsonMaterializerLambdaMapping.Add(structuralType, lambda);
+
+            return lambda;
+        }
+
+        private BlockExpression ReadDiscriminator(ITypeBase structuralType, IProperty discriminatorProperty, ParameterExpression discriminatorValueVariable)
+        {
+            // Generate a read loop to get the discriminator
+            // string? discriminatorValue = null;
+            // while (true)
+            //  tokenType = jsonReaderManager.MoveNext();
+            //  switch($tokenType) {
+            //      case(JsonTokenType.Null):
+            //      case(JsonTokenType.EndObject):
+            //          goto EndRead;
+            //      case(JsonTokenType.PropertyName):
+            //          if (jsonReaderManager.CurrentReader.ValueTextEquals("Discriminator"u8))
+            //              jsonReaderManager.MoveNext();
+            //              discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+            //              goto EndRead;
+            //          else
+            //              jsonReaderManager.Skip();
+            //              jsonReaderManager.Skip();
+            //      default:
+            //          throw invalid json
+            // EndRead:
+
+            var breakLabel = Label("EndRead");
+
+            var noMatch = Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod)));
+            //if (_throwOnLateDiscriminator) // TODO: #38576
+            //{
+            //    var ifNotPropertyMatchThrow = Throw(New(InvalidOperationExceptionConstructor, Constant("Discriminator was not early in the document.")));
+            //    noMatch = structuralType is IEntityType entityType && entityType.FindPrimaryKey() is { } primaryKey // Allow primary keys to come before discriminator, for backwards compatibility this is how most documents were serialized by older versions of EF
+            //                                                                                                        // else if (jsonReaderManager.CurrentReader.ValueTextEquals(("Id"u8).Span))
+            //            ? IfThenElse(
+            //                primaryKey.Properties
+            //                    .Select(p => JsonReaderValueTextEquals(_jsonReaderManagerVariable, p.GetJsonPropertyName()))
+            //                    .Aggregate<MethodCallExpression, Expression?>(
+            //                        null,
+            //                        (previous, next) => previous is null ? next : OrElse(previous, next))!,
+            //                    // jsonReaderManager.Skip() x2
+            //                    Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod))),
+            //                // else throw new InvalidOperationException("Discriminator was not early in the document.")
+            //                ifNotPropertyMatchThrow)
+            //            : ifNotPropertyMatchThrow;
+            //}
+
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+            var typeMapping = discriminatorProperty.GetTypeMapping();
+
+            return Block(
+                [_jsonReaderManagerVariable, tokenTypeVariable],
+                Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
+                // jsonReaderManager.MoveNext();
+                Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
+                // string? discriminatorValue = defalt();
+                Assign(discriminatorValueVariable, Default(discriminatorProperty.ClrType.MakeNullable())),
+                Loop(
+                    Block([], [
+                        // tokenType = jsonReaderManager.MoveNext();
+                        Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                        // switch (tokenType)
+                        Switch(tokenTypeVariable,
+                            // default: throw
+                            ThrowInvalidToken(tokenTypeVariable),
+                            [
+                                // case Null: goto EndRead
+                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.Null)),
+                                // case EndObject: goto EndRead
+                                SwitchCase(Break(breakLabel, typeof(void)), Constant(JsonTokenType.EndObject)),
+                                // case PropertyName:
+                                SwitchCase(
+                                    // if (jsonReaderManager.CurrentReader.ValueTextEquals(("Discriminator"u8).Span))
+                                    IfThenElse(
+                                        JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, discriminatorProperty.GetJsonPropertyName()),
+                                        Block(
+                                            // jsonReaderManager.MoveNext()
+                                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
+                                            // discriminatorValue = jsonValueReaderWriter.FromJsonTyped(jsonReaderManager, null)
+                                            Assign(
+                                                discriminatorValueVariable,
+                                                ReadJsonValue(_jsonReaderManagerVariable, discriminatorProperty.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter!, typeMapping, discriminatorProperty.ClrType.MakeNullable(), true)),
+                                            // goto EndRead
+                                            Break(breakLabel, typeof(void))),
+                                        noMatch),
+                                    Constant(JsonTokenType.PropertyName))])]),
+                    breakLabel));
+        }
+
+        protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
+            => switchCase switch
+            {
+                {
+                    Body: BlockExpression { Expressions.Count: > 0 } body,
+                    TestValues: [ConstantExpression { Value: ITypeBase structuralType }]
+                } => switchCase.Update(switchCase.TestValues, RewriteStructuralTypeCase(body, structuralType)),
+                _ => base.VisitSwitchCase(switchCase)
+            };
+
+        private BlockExpression RewriteStructuralTypeCase(BlockExpression body, ITypeBase structuralType)
+        {
+            // Set any non persisted properties to their default values, also replace ordinals with the ordinal parameter.
+            // If the property has a principal (i.e. foreign key), it will be fixed up later when we have fully deserialized the parent.
+            var nonPersistedPropertyDefaultReplacements = structuralType.GetProperties()
+                .Where(p => !p.IsPersisted())
+                .ToDictionary(x => x, p => p.IsOrdinalKeyProperty() ? _ordinalParameter : (Expression)Default(p.ClrType));
+            body = new ValueBufferTryReadValueMethodsReplacer(nonPersistedPropertyDefaultReplacements).Rewrite(body);
+
+            // keep track which variable corresponds to which navigation - we need that info for fixup
+            // which happens at the end (after we read everything to guarantee that we can instantiate the entity
+            var navigationVariableMap = new Dictionary<IPropertyBase, ParameterExpression>();
+
+            var valueBufferTryReadValueMethodsToProcess =
+                new ValueBufferTryReadValueMethodsFinder(structuralType).FindValueBufferTryReadValueMethods(body);
+
+            var jsonEntityTypeInitializerBlock = NormalizeStructuralTypeInitializerBlock(body.Expressions[^1]);
+
+            var tokenTypeVariable = Variable(typeof(JsonTokenType), "tokenType");
+            var instanceVariable = (ParameterExpression)jsonEntityTypeInitializerBlock.Expressions[^1];
+
+            Debug.Assert(instanceVariable.Type.IsAssignableFrom(structuralType.ClrType));
+
+            var finalBlockVariables = new List<ParameterExpression>
+            {
+                _jsonReaderManagerVariable, tokenTypeVariable,
+            };
+
+            finalBlockVariables.AddRange(jsonEntityTypeInitializerBlock.Variables);
+
+            var finalBlockExpressions = new List<Expression>
+            {
+                // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
+                Assign(_jsonReaderManagerVariable, NewJsonReaderManager()),
+                // jsonReaderManager.MoveNext();
+                Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
+            };
+
+            IEnumerable<IPropertyBase> nestedStructuralProperties = structuralType.GetComplexProperties();
+
+            if (structuralType is IEntityType entityType)
+            {
+                nestedStructuralProperties = nestedStructuralProperties.Concat(
+                    entityType.GetNavigations()
+                        .Where(n => n.ForeignKey.IsOwnership
+                                 && n == n.ForeignKey.PrincipalToDependent));
+            }
+
+            var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
+                tokenTypeVariable,
+                finalBlockVariables,
+                valueBufferTryReadValueMethodsToProcess);
+
+            // Workaround for old databases that didn't store the primary key property (for owned collection entities), see Old_still_works
+            if (structuralType is IEntityType workaroundEntityType
+             && workaroundEntityType.FindOwnership() is { } ownership
+             && workaroundEntityType.FindPrimaryKey() is { Properties.Count: > 1 } primaryKey)
+            {
+                foreach (var possiblyMissingProperty in primaryKey.Properties.Where(property =>
+                    property.ClrType == typeof(int)
+                 && !property.IsForeignKey()
+                 && property.GetJsonPropertyName().Length != 0
+                 && !property.IsShadowProperty()))
+                {
+                    // Before the property read loop, we assign the ordinal as a default for the possibly missing pk property
+                    var variable = propertyAssignmentMap[possiblyMissingProperty];
+                    finalBlockExpressions.Add(Assign(variable, ConvertIfNotMatch(_ordinalParameter, variable.Type)));
+                }
+            }
+
+            finalBlockExpressions.Add(loop);
+
+            var finalCaptureState = Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod);
+            finalBlockExpressions.Add(finalCaptureState);
+
+            // we have the loop, now we can add code that generate the entity instance
+            // will have to replace ValueBufferTryReadValue method calls with the parameters that store the value
+            // we can't use simple ExpressionReplacingVisitor, because there could be multiple instances of MethodCallExpression for given property
+            // using dedicated mini-visitor that looks for MCEs with a given shape and compare the IProperty inside
+            var valueBufferTryReadValueReplacer = new ValueBufferTryReadValueMethodsReplacer(propertyAssignmentMap);
+
+            // Process any earlier expressions (shadowSnapshot assignment, null discriminator check)
+            foreach (var expression in body.Expressions.Take(body.Expressions.Count - 1))
+            {
+                finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(expression)));
+            }
+
+            // Add null(/undefined) checks for pk
+            if (structuralType is IEntityType pkEt
+             && pkEt.FindPrimaryKey() is { } pk
+             && pk.Properties.Where(propertyAssignmentMap.ContainsKey).ToArray() is { Length: > 0 } pkProperties)
+            {
+                var pkPropertyVariables = pkProperties.Select(p => (ParameterExpression)propertyAssignmentMap[p]).ToArray();
+                finalBlockExpressions.Add(
+                    IfThen(
+                        pkPropertyVariables.Select(p =>
+                            p.Type.IsNullableValueType()
+                                ? Not(Property(p, typeof(Nullable<>).MakeGenericType(p.Type.UnwrapNullableType()).GetProperty(nameof(Nullable<>.HasValue))!))
+                                : (Expression)Equal(p, Default(p.Type))).Aggregate(OrElse),
+                        Throw(
+                            Call(
+                                CreateInvalidKeyValueMethodInfo,
+                                Constant(pkEt),
+                                Constant(pkProperties),
+                                NewArrayInit(typeof(object), pkPropertyVariables.Select(p => Convert(p, typeof(object))))))));
+            }
+
+            foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.Take(jsonEntityTypeInitializerBlock.Expressions.Count - 1))
+            {
+                finalBlockExpressions.Add(Visit(valueBufferTryReadValueReplacer.Visit(jsonEntityTypeInitializerBlockExpression)));
+            }
+
+            foreach (var (property, variable) in navigationVariableMap)
+            {
+                finalBlockExpressions.Add(
+                    MakeMemberAccess(ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType), property.GetMemberInfo(true, true)).Assign(variable));
+            }
+
+            if (structuralType is IEntityType fixupEntityType)
+            {
+                if (!_queryStateManager)
+                {
+                    // Non tracking dependent to principal fk fixup
+                    foreach (var navigation in fixupEntityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership
+                                                                                        && !n.IsOnDependent))
+                    {
+                        // Shadow owned navigations do not exist, so there is always a PrincipalToDependent member
+                        var principalToDependentMember = navigation.ForeignKey.PrincipalToDependent!.GetMemberInfo(true, true);
+
+                        var fixupBuilders = new List<Func<Expression, Expression>>();
+
+                        if (navigation.ForeignKey.DependentToPrincipal is not null)
+                        {
+                            var dependentToPrincipalMember = navigation.ForeignKey.DependentToPrincipal.GetMemberInfo(true, true);
+                            fixupBuilders.Add((dependentInstance) => dependentInstance.MakeMemberAccess(dependentToPrincipalMember)
+                                        .Assign(ConvertIfNotMatch(instanceVariable, dependentToPrincipalMember.GetMemberType())));
+                        }
+
+                        foreach (var dependentForeignKeyProperty in navigation.ForeignKey.Properties.Where(x => !x.IsShadowProperty()
+                                                                                                             && !x.IsPersisted()))
+                        {
+                            if (dependentForeignKeyProperty.FindFirstPrincipal() is not { } principalProperty
+                             || !propertyAssignmentMap.TryGetValue(principalProperty, out var principalPropertyVariable))
+                            {
+                                continue;
+                            }
+
+                            fixupBuilders.Add((dependentInstance) =>
+                                dependentInstance.MakeMemberAccess(dependentForeignKeyProperty.GetMemberInfo(true, true))
+                                    .Assign(ConvertIfNotMatch(principalPropertyVariable, dependentForeignKeyProperty.ClrType)));
+                        }
+
+                        if (navigation.IsCollection)
+                        {
+                            finalBlockExpressions.Add(
+                                EnumerableForEach(instanceVariable.MakeMemberAccess(principalToDependentMember), dependentInstance =>
+                                    Block(fixupBuilders.Select(f => f(dependentInstance)))));
+                        }
+                        else
+                        {
+                            finalBlockExpressions.Add(
+                                Block(fixupBuilders.Select(f => f(instanceVariable.MakeMemberAccess(principalToDependentMember)))));
+                        }
+                    }
+                }
+                else
+                {
+                    // In tracking, undefined or empty collections will not be initialized because the state manager isn't invoked
+                    // We make sure we initialize them to empty collections here.
+                    // This isn't needed for non-tracking, because the materializer will always create a new instance of the collection and set it by reference
+                    foreach (var collectionProperty in nestedStructuralProperties.Where(x => x is INavigation && x.IsCollection))
+                    {
+                        finalBlockExpressions.Add(Call(Constant(collectionProperty.GetCollectionAccessor()), CollectionAccessorGetOrCreateMethodInfo, instanceVariable, Constant(true)));
+                    }
+                }
+            }
+
+            finalBlockExpressions.Add(instanceVariable);
+
+            return Block(
+                finalBlockVariables,
+                finalBlockExpressions);
+
+            // builds a loop that extracts values of JSON properties and assigns them into variables
+            // also creates materializers for child navigations
+            // returns the loop expression and mappings for properties (so we know which calls to replace with variables)
+            (LoopExpression, Dictionary<IProperty, Expression>) GenerateJsonPropertyReadLoop(
+                ParameterExpression tokenTypeVariable,
+                List<ParameterExpression> finalBlockVariables,
+                List<MethodCallExpression> valueBufferTryReadValueMethodsToProcess)
+            {
+                var breakLabel = Label("done");
+                var testExpressions = new List<Expression>();
+                var readExpressions = new List<Expression>();
+                var propertyAssignmentMap = new Dictionary<IProperty, Expression>();
+
+                foreach (var valueBufferTryReadValueMethodToProcess in valueBufferTryReadValueMethodsToProcess)
+                {
+                    var property = valueBufferTryReadValueMethodToProcess.Arguments[2].GetConstantValue<IProperty>();
+                    testExpressions.Add(JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, property.GetJsonPropertyName()));
+
+                    var propertyVariableType = property.ClrType;
+                    // For discriminator property and persisted primary key properties, we want to throw if the value is not present or null, so we make the variable nullable to allow for that check later
+                    if (structuralType.FindDiscriminatorProperty() == property || property.IsPrimaryKey())
+                    {
+                        propertyVariableType = propertyVariableType.MakeNullable();
+                    }
+
+                    var propertyVariable = Variable(propertyVariableType, property.Name);
+
+                    finalBlockVariables.Add(propertyVariable);
+
+                    var typeMapping = property.GetTypeMapping();
+                    var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? typeMapping.JsonValueReaderWriter;
+                    Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+
+                    var assignment = Assign(
+                        propertyVariable,
+                        ReadJsonValue(
+                            _jsonReaderManagerVariable,
+                            jsonValueReaderWriter,
+                            typeMapping,
+                            propertyVariableType,
+                            true)); // Matches 10.0 behaviour. Missing OR null properties were materialized as the default value.
+
+                    readExpressions.Add(
+                        Block(
+                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
+                            assignment,
+                            Empty()));
+
+                    propertyAssignmentMap[property] = propertyVariable;
+                }
+
+                // Go over all structural properties (complex properties and navigations - if we're an (owned) entity)
+                // Generate materializers and fixup to wire the materialized related instance into the parent's property.
+                // Note that we need to build entity materializers and tracking fixup separately; we don't know the order in which data comes, so
+                // we need to read through everything before we can do tracking fixup safely
+                foreach (var nestedStructuralProperty in nestedStructuralProperties)
+                {
+                    Check.DebugAssert(
+                        nestedStructuralProperty is not INavigation ownedNavigation || !ownedNavigation.IsOnDependent,
+                        "JSON navigations should always be from principal do dependent");
+
+                    var (nestedStructuralType, inverseNavigation, isStructuralPropertyNullable, jsonPropertyName) = nestedStructuralProperty switch
+                    {
+                        INavigation n => ((ITypeBase)n.TargetEntityType, n.Inverse, !n.ForeignKey.IsRequiredDependent, n.TargetEntityType.GetContainingPropertyName()!),
+                        IComplexProperty cp => (cp.ComplexType, null, cp.IsNullable, cp.GetJsonPropertyName()),
+
+                        _ => throw new UnreachableException()
+                    };
+
+                    testExpressions.Add(JsonReaderManagerValueTextEquals(_jsonReaderManagerVariable, jsonPropertyName));
+
+                    var nestedMaterializerLambda =
+                        StructuralTypeJsonMaterializerLambda(
+                            nestedStructuralType,
+                            isStructuralPropertyNullable);
+
+                    // Builds the expression tree for collection properties. This is a while loop around the materializer for the nested structural type
+                    var nestedCollectionReadVariables = new List<ParameterExpression>()
+                    {
+                        _ordinalParameter
+                    };
+                    var nestedCollectionReadExpressions = new List<Expression>()
+                    {
+                        Assign(_ordinalParameter, Constant(0)),
+                    };
+
+                    var nestedMaterializer = Invoke(nestedMaterializerLambda, GetParametersForLambda(nestedStructuralType));
+
+                    // Builds the expression tree for materializing an instance of the nested structural type
+                    var nestedReadExpressions = new List<Expression>();
+                    var nestedReadVariables = new List<ParameterExpression>();
+
+                    if (!nestedStructuralProperty.IsCollection)
+                    {
+                        nestedReadExpressions.Add(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod));
+                    }
+                    else
+                    {
+                        nestedReadExpressions.Add(PostIncrementAssign(_ordinalParameter));
+                    }
+
+                    if (IsTracking(nestedStructuralType, out var nestedEntityType))
+                    {
+                        // Change tracker will do reference fixup, but we have to generate tracking actions that have to be executed after the parent entity is fully materialized.
+                        // We also need to do non persisted fixup: set any non persisted principal properties on the nested entity to the values from the parent entity
+
+                        //var (nestedEntityType, nestedInstance, nestedShadowSnapshot, nestedTrackingActions) = MaterializeAssociate(queryContext, jsonReaderData);
+                        //if (nestedInstance != default)
+                        //{
+                        //  trackingActions.Add(() =>
+                        //  {
+                        //      var entry = queryContext.TryGetEntry(nestedEntityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
+                        //      if (entry == default)
+                        //      {
+                        //          nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
+                        //          nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
+                        //          foreach (var nestedTrackingAction in nestedTrackingActions)
+                        //          {
+                        //              nestedTrackingAction();
+                        //          }
+                        //          queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot);
+                        //      }
+                        //  });
+                        //}
+
+                        var tupleType = nestedMaterializerLambda.Body.Type;
+
+                        var tupleVariable = Variable(tupleType);
+                        nestedReadVariables.Add(tupleVariable);
+
+                        var nestedEntityTypeVariable = Field(tupleVariable, MaterializerTupleEntityTypeField(tupleType));
+                        var nestedInstanceVariable = Field(tupleVariable, MaterializerTupleInstanceField(tupleType));
+                        var nestedShadowSnapshotVariable = Field(tupleVariable, MaterializerTupleShadowSnapshotField(tupleType));
+                        var nestedTrackingActionsVariable = Field(tupleVariable, MaterializerTupleTrackingActionsField(tupleType));
+
+                        var (parentInstanceVariable, parentShadowSnapshotVariable, parentTrackingActionsVariable, _) = GetEntityTypeMaterializerExpressions((IEntityType)structuralType);
+                        var tryGetEntryAssignment = GetEntityTypeMaterializerExpressions(nestedEntityType).TryGetEntryAssignment;
+                        var entryVariable = (ParameterExpression)tryGetEntryAssignment.Left;
+                        var hasNullKeyVariable = (ParameterExpression)((MethodCallExpression)tryGetEntryAssignment.Right).Arguments[3];
+
+                        // Map key values to the correct source for the try get entry call.
+                        var tryGetEntryPropertyMap = nestedEntityType.FindPrimaryKey()!.Properties
+                            .ToDictionary(property => property, GetPropertyValue);
+
+                        tryGetEntryAssignment = (BinaryExpression)new ValueBufferTryReadValueMethodsReplacer(tryGetEntryPropertyMap)
+                            .Visit(tryGetEntryAssignment);
+
+                        nestedReadExpressions.AddRange(
+                            Assign(tupleVariable, nestedMaterializer),
+                            // if (nestedInstance != default)
+                            IfThen(NotEqual(nestedInstanceVariable, Default(nestedInstanceVariable.Type)),
+                                // parentTrackingActions.Add(() =>
+                                Call(parentTrackingActionsVariable, parentTrackingActionsVariable.Type.GetMethod(nameof(List<>.Add))!,
+                                    Lambda(
+                                        Block(
+                                            [entryVariable, hasNullKeyVariable],
+                                            [
+                                                // var entry = queryContext.TryGetEntry(entityType, new object[] { instance.Id, nestedInstance.Id }, false, out var _);
+                                                tryGetEntryAssignment,
+                                                // if (entry == default)
+                                                IfThen(Equal(entryVariable, Default(entryVariable.Type)),
+                                                    Block([
+                                                        // nestedInstace.OwnerId1 = instanceShadowSnapShot.GetValue<T>(0)
+                                                        // nestedShadowSnapshotVariable.SetValue<T>(0, instance.Id2)
+                                                        ..nestedEntityType.GetProperties().Where(p => p.FindFirstPrincipal() != null && !p.IsPersisted()).Select(p =>
+                                                            p.IsShadowProperty()
+                                                                ? Call(nestedShadowSnapshotVariable, Snapshot.SetValueMethod.MakeGenericMethod(p.ClrType),
+                                                                    Constant(p.GetShadowIndex()),
+                                                                    GetPropertyValue(p))
+                                                                : ConvertIfNotMatch(nestedInstanceVariable, p.DeclaringType.ClrType).MakeMemberAccess(p.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(GetPropertyValue(p))),
+                                                        // nestedTrackingActions.ForEach(nestedTrackingAction => nestedTrackingAction())
+                                                        ListForEach(nestedTrackingActionsVariable, nestedTrackingAction => Invoke(nestedTrackingAction)),
+                                                        // queryContext.StartTracking(nestedEntityType, nestedInstance, nestedShadowSnapshot)
+                                                        Call(QueryCompilationContext.QueryContextParameter, StartTrackingMethodInfo, nestedEntityTypeVariable, nestedInstanceVariable, nestedShadowSnapshotVariable)]))])))));
+
+                        Expression GetPropertyValue(IProperty property)
+                            => property.FindFirstPrincipal() is { } principalProperty
+                                ? principalProperty.IsShadowProperty()
+                                    ? ConvertIfNotMatch(GetSnapshotValue(parentShadowSnapshotVariable!, principalProperty), property.ClrType)
+                                    : ConvertIfNotMatch(InstancePropertyValue(parentInstanceVariable, structuralType, principalProperty), property.ClrType)
+                                : property.IsShadowProperty()
+                                    ? GetSnapshotValue(nestedShadowSnapshotVariable, property)
+                                    : InstancePropertyValue(nestedInstanceVariable, nestedStructuralType, property);
+
+                        static Expression GetSnapshotValue(Expression snapshotVariable, IProperty property)
+                            => Call(
+                                snapshotVariable,
+                                Snapshot.GetValueMethod.MakeGenericMethod(property.ClrType),
+                                Constant(property.GetShadowIndex()));
+                    }
+                    else
+                    {
+                        // We have to do manual reference fixup for this structural property
+                        var propertyVariable = Variable(nestedStructuralProperty.ClrType, nestedStructuralProperty.Name);
+                        finalBlockVariables.Add(propertyVariable);
+                        navigationVariableMap[nestedStructuralProperty] = propertyVariable;
+                        if (!nestedStructuralProperty.IsCollection)
+                        {
+                            // property = nestedMaterializer
+                            nestedReadExpressions.Add(Assign(propertyVariable, nestedMaterializer));
+                        }
+                        else
+                        {
+                            // property = nestedStructuralProperty.GetCollectionAccessor().Create() // Adds this before the property read loop, so the collection is always initialized
+                            finalBlockExpressions.Add(Assign(propertyVariable, Convert(Call(Constant(nestedStructuralProperty.GetCollectionAccessor(), typeof(IClrCollectionAccessor)), CollectionAccessorCreateMethodInfo), propertyVariable.Type)));
+                            // collectionAccessor.AddStandalone(property, nestedMaterializer)
+                            nestedReadExpressions.Add(Call(Constant(nestedStructuralProperty.GetCollectionAccessor()), CollectionAccessorAddStandaloneMethodInfo, propertyVariable, nestedMaterializer));
+                        }
+                    }
+
+                    nestedReadExpressions.Add(Assign(_jsonReaderManagerVariable, NewJsonReaderManager()));
+                    nestedReadExpressions.Add(Empty());
+
+                    var nestedReadBlock = Block(nestedReadVariables, nestedReadExpressions);
+
+                    if (nestedStructuralProperty.IsCollection)
+                    {
+                        var collectionBreakLabel = Label("EndCollection");
+                        readExpressions.Add(
+                            Block(nestedCollectionReadVariables,
+                                // tokenType = jsonReaderManager.MoveNext()
+                                [Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                // switch (tokenType)
+                                Switch(tokenTypeVariable,
+                                    // default: throw new InvalidOperationException(InvalidTokenType)
+                                    ThrowInvalidToken(tokenTypeVariable),
+                                    // case Null: jsonReaderManager.CaptureState()
+                                    SwitchCase(Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod), Constant(JsonTokenType.Null)),
+                                    // case StartArray
+                                    SwitchCase(
+                                        Block([
+                                            ..nestedCollectionReadExpressions,
+                                            // jsonReaderManager.CaptureState()
+                                            Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod),
+                                            // while (true)
+                                            Loop(Block(
+                                                // tokenType = jsonReaderManager.MoveNext()
+                                                Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                                                // switch (tokenType)
+                                                Switch(tokenTypeVariable,
+                                                    // default: materializer
+                                                    nestedReadBlock,
+                                                    // case Null: throw new InvalidOperationException
+                                                    SwitchCase(ThrowInvalidToken(tokenTypeVariable), Constant(JsonTokenType.Null)),
+                                                    // case EndArray: goto collectionBreakLabel
+                                                    SwitchCase(Break(collectionBreakLabel), Constant(JsonTokenType.EndArray)))),
+                                                collectionBreakLabel)]),
+                                        Constant(JsonTokenType.StartArray)))]));
+                    }
+                    else
+                    {
+                        readExpressions.Add(nestedReadBlock);
+                    }
+                }
+
+                var switchCases = new List<SwitchCase>
+                {
+                    SwitchCase(
+                        Break(breakLabel),
+                        Constant(JsonTokenType.EndObject))
+                };
+
+                var testsCount = testExpressions.Count;
+
+                // generate PropertyName switch-case code
+                if (testsCount > 0)
+                {
+                    var testExpression = IfThenElse(
+                        testExpressions[testsCount - 1],
+                        readExpressions[testsCount - 1],
+                        // jsonReaderManager.Skip() x2
+                        Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod))));
+
+                    for (var i = testsCount - 2; i >= 0; i--)
+                    {
+                        testExpression = IfThenElse(
+                            testExpressions[i],
+                            readExpressions[i],
+                            testExpression);
+                    }
+
+                    switchCases.Add(
+                        SwitchCase(
+                            testExpression,
+                            Constant(JsonTokenType.PropertyName)));
+                }
+                else
+                {
+                    switchCases.Add(
+                        SwitchCase(
+                            // jsonReaderManager.Skip() x2
+                            Block(Enumerable.Range(0, 2).Select(_ => Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerSkipMethod))),
+                            Constant(JsonTokenType.PropertyName)));
+                }
+
+                var loopBody = Block(
+                    Assign(tokenTypeVariable, Call(_jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod)),
+                    Switch(
+                        tokenTypeVariable,
+                        Block(
+                            ThrowInvalidToken(tokenTypeVariable),
+                            Default(typeof(void))),
+                        switchCases.ToArray()));
+
+                return (Loop(loopBody, breakLabel), propertyAssignmentMap);
+            }
+        }
+
+        private static BlockExpression NormalizeStructuralTypeInitializerBlock(Expression initializerExpression)
+        {
+            // Sometimes we have shadow snapshot and sometimes not, but type initializer always comes last.
+            switch (initializerExpression)
+            {
+                case UnaryExpression
+                {
+                    Operand: BlockExpression innerBlock,
+                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked
+                } jsonEntityTypeInitializerUnary:
+                {
+                    // In case of proxies, the entity initializer block is wrapped around a Convert node.
+                    // Normalize that by pushing the convert inside the block.
+                    var newVariables = innerBlock.Variables.ToList();
+                    var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
+                    newVariables.Add(proxyConversionVariable);
+
+                    var newExpressions = innerBlock.Expressions.ToList()[..^1];
+                    newExpressions.Add(
+                        Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
+                    newExpressions.Add(proxyConversionVariable);
+
+                    return Block(newVariables, newExpressions);
+                }
+
+                case BlockExpression block:
+                    return block;
+
+                case NewExpression jsonEntityTypeInitializerCtor:
+                    var newInstanceVariable = Variable(jsonEntityTypeInitializerCtor.Type, "instance");
+
+                    return Block(
+                        [newInstanceVariable],
+                        Assign(newInstanceVariable, jsonEntityTypeInitializerCtor),
+                        newInstanceVariable);
+
+                default:
+                    throw new UnreachableException();
+            }
+        }
+
+        private (
+            ParameterExpression InstanceVariable,
+            ParameterExpression? ShadowSnapshotVariable,
+            ParameterExpression TrackingActionsVariable,
+            BinaryExpression TryGetEntryAssignment)
+            GetEntityTypeMaterializerExpressions(IEntityType entityType)
+        {
+            do
+            {
+                if (_entityTypeMaterializerExpressionsMapping.TryGetValue(entityType, out var materializerExpressions))
+                {
+                    return materializerExpressions;
+                }
+            } while ((entityType = entityType.BaseType!) != null);
+
+            throw new UnreachableException();
+        }
+
+        private ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression)
+            => ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[GetProjectionIndex(projectionBindingExpression)];
+
+        private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
+            => projectionBindingExpression.ProjectionMember != null
+                ? ((SelectExpression)projectionBindingExpression.QueryExpression).GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
+                : (projectionBindingExpression.Index
+                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
+
+        private NewExpression NewJsonReaderManager()
+            => New(JsonReaderManagerConstructor, _jsonReaderDataParameter, MakeMemberAccess(QueryCompilationContext.QueryContextParameter, QueryContextQueryLoggerProperty));
+
+        private static UnaryExpression ThrowInvalidToken(Expression tokenType, Type? type = null)
+            => Throw(Call(CreateJsonReaderInvalidTokenTypeMethodInfo, tokenType), type ?? typeof(void));
+
+        private ParameterExpression[] GetParametersForLambda(ITypeBase structuralType)
+            => structuralType.TryGetOrdinalKey(out _)
+                ? [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ownerKeySnapshotParameter, _ordinalParameter]
+                : [QueryCompilationContext.QueryContextParameter, _jsonReaderDataParameter, _ownerKeySnapshotParameter];
+
+        private bool IsTracking(ITypeBase structuralType, [NotNullWhen(true)] out IEntityType? entityType)
+        {
+            entityType = structuralType as IEntityType;
+            return _queryStateManager && entityType != null && entityType.FindPrimaryKey() != null;
+        }
+
+        private bool TryGetOwnerKeyProperty(ProjectionBindingExpression projectionBindingExpression, [NotNullWhen(true)] out IProperty? property)
+        {
+            property = null;
+
+            if (projectionBindingExpression.QueryExpression != _selectExpression)
+            {
+                return false;
+            }
+
+            var projection = GetProjection(projectionBindingExpression);
+            if (projection.Expression is not ScalarAccessExpression
+                {
+                    Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
+                    PropertyName: var propertyName
+                }
+                || entityType.IsOwned())
+            {
+                return false;
+            }
+
+            property = _ownerKeyProperties.FirstOrDefault(
+                primaryKeyProperty => string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal));
+
+            return property is not null;
+        }
+
+        private bool TryGetOwnerKeyPropertyIndex(IProperty property, out int index)
+        {
+            for (var i = 0; i < _ownerKeyProperties.Count; i++)
+            {
+                if (_ownerKeyProperties[i] == property)
+                {
+                    index = i;
+                    return true;
+                }
+            }
+
+            index = -1;
+            return false;
+        }
+
+        private static Expression ReadJsonValue(ParameterExpression jsonReaderManagerParameter, CoreTypeMapping typeMapping, Type clrType)
+        {
+            var jsonValueReaderWriter = typeMapping.JsonValueReaderWriter;
+            Debug.Assert(jsonValueReaderWriter != null, "JsonValueReaderWriter should not be null since we are in Cosmos provider and all types should have JsonValueReaderWriter");
+            return ReadJsonValue(jsonReaderManagerParameter, jsonValueReaderWriter, typeMapping, clrType, clrType.IsNullableType());
+        }
+
+        private static Expression ReadJsonValue(
+            ParameterExpression jsonReaderManagerParameter,
+            JsonValueReaderWriter jsonValueReaderWriter,
+            CoreTypeMapping typeMapping,
+            Type clrType,
+            bool nullable)
+        {
+            var jsonValueReaderWriterConstant = Constant(jsonValueReaderWriter);
+
+            var fromJsonMethod = jsonValueReaderWriterConstant.Type.GetMethod(
+                nameof(JsonValueReaderWriter<>.FromJsonTyped),
+                [typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object)])!;
+
+            Expression resultExpression = Call(jsonValueReaderWriterConstant, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object)));
+
+            if (resultExpression.Type != clrType)
+            {
+                resultExpression = Convert(resultExpression, clrType);
+            }
+
+            var nullConverter = typeMapping.Converter is { ConvertsNulls: true } converter ? converter : null;
+            if (nullable || nullConverter != null)
+            {
+                // When the value is allowed to be null, we can't just use the JsonReader method, so we check for JsonTokenType.Null
+                // If there is a converter that accepts nulls, we need to call it, otherwise we just return default value of the CLR type
+                resultExpression = Condition(
+                    Equal(
+                        Property(
+                            Field(
+                                jsonReaderManagerParameter,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty),
+                        Constant(JsonTokenType.Null)),
+                    nullConverter != null
+                        ? Invoke(
+                            Property(Constant(nullConverter, nullConverter.GetType()), nameof(ValueConverter<,>.ConvertFromProviderTyped)),
+                            Default(nullConverter.ProviderClrType))
+                        : Default(clrType),
+                    resultExpression, clrType);
+            }
+
+            return resultExpression;
+        }
+
+        private static BlockExpression ListForEach(Expression list, Func<ParameterExpression, Expression> bodyFactory)
+        {
+            var itemType = list.Type.GetGenericArguments()[0];
+
+            var listVar = Variable(list.Type, "list");
+            var i = Variable(typeof(int), "i");
+            var count = Variable(typeof(int), "count");
+            var item = Variable(itemType, "item");
+
+            var breakLabel = Label("break");
+
+            var countProperty = list.Type.GetProperty(nameof(List<int>.Count))!;
+            var indexerProperty = list.Type.GetProperty("Item")!;
+
+            var body = bodyFactory(item);
+
+            if (body.Type != typeof(void))
+            {
+                body = Block(body, Empty());
+            }
+
+            return Block(
+                [listVar, i, count, item],
+
+                Assign(listVar, list),
+                Assign(i, Constant(0)),
+                Assign(count, Property(listVar, countProperty)),
+
+                Loop(
+                    IfThenElse(
+                        LessThan(i, count),
+
+                        Block(
+                            Assign(
+                                item,
+                                MakeIndex(
+                                    listVar,
+                                    indexerProperty,
+                                    [i])),
+
+                            body,
+
+                            PostIncrementAssign(i)),
+                        Break(breakLabel)),
+                    breakLabel));
+        }
+
+        private static BlockExpression EnumerableForEach(Expression enumerable, Func<ParameterExpression, Expression> bodyFactory)
+        {
+            var itemType = enumerable.Type.GetSequenceType();
+
+            var enumeratorVar = Variable(typeof(IEnumerator<>).MakeGenericType(itemType), "enumerator");
+            var itemVar = Variable(itemType, "item");
+            var breakLabel = Label();
+
+            return Block(
+                [enumeratorVar, itemVar],
+
+                Assign(enumeratorVar, Call(enumerable, typeof(IEnumerable<>).MakeGenericType(itemType).GetMethod(nameof(IEnumerable<>.GetEnumerator))!)),
+
+                TryFinally(
+                    Loop(
+                        IfThenElse(
+                            Call(enumeratorVar, typeof(System.Collections.IEnumerator).GetMethod(nameof(System.Collections.IEnumerator.MoveNext))!),
+                            Block(
+                                Assign(itemVar, Property(enumeratorVar, typeof(IEnumerator<>).MakeGenericType(itemType).GetProperty(nameof(IEnumerator<>.Current))!)),
+                                bodyFactory(itemVar)),
+                            Break(breakLabel)),
+                        breakLabel),
+                    Call(enumeratorVar, typeof(IDisposable).GetMethod(nameof(IDisposable.Dispose))!)));
+        }
+
+        private static MemberExpression StringConstantSpan(string value)
+            => Property(Constant((ReadOnlyMemory<byte>)Encoding.UTF8.GetBytes(value)), typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span))!);
+
+        private static Expression ConvertIfNotMatch(Expression expression, Type targetType)
+            => expression.Type != targetType
+                ? Convert(expression, targetType)
+                : expression;
+
+        private static Expression CheckMakeNullableValueType(Expression expression)
+            => expression.Type.IsValueType && !expression.Type.IsNullableValueType()
+                ? Convert(expression, expression.Type.MakeNullable())
+                : expression;
+
+        private static MethodCallExpression JsonReaderManagerValueTextEquals(Expression jsonReaderManager, string text)
+            => JsonReaderValueTextEquals(
+                Field(
+                    jsonReaderManager,
+                    Utf8JsonReaderManagerCurrentReaderField),
+                text);
+
+        private static MethodCallExpression JsonReaderValueTextEquals(Expression jsonReader, string text)
+            => Call(
+                jsonReader,
+                Utf8JsonReaderValueTextEqualsMethod,
+                StringConstantSpan(text));
+
+        private static bool IsValueBufferTryReadValueMethodCall(Expression expression, [NotNullWhen(true)] out IProperty? property)
+        {
+            if (expression is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition()
+                == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                && methodCallExpression.Arguments[2].GetConstantValue<object>() is IProperty p)
+            {
+                property = p;
+                return true;
+            }
+
+            property = null;
+            return false;
+        }
+
+        private static MemberExpression InstancePropertyValue(Expression instanceVariable, ITypeBase structuralType, IPropertyBase property)
+        {
+            // Keys might be defined on embedded complex types, so we need to traverse the complex type hierarchy to get the correct instance variable for the property.
+            if (property.DeclaringType != structuralType && property.DeclaringType is IComplexType complexParent)
+            {
+                instanceVariable = ConvertIfNotMatch(InstancePropertyValue(instanceVariable, property.DeclaringType, complexParent.ComplexProperty), property.DeclaringType.ClrType);
+            }
+
+            return ConvertIfNotMatch(instanceVariable, property.DeclaringType.ClrType).MakeMemberAccess(property.GetMemberInfo(forMaterialization: true, forSet: false));
+        }
+
+        private sealed class SingleDiscriminatorValueRewritingExpressionVisitor(
+            ITypeBase structuralType,
+            IProperty discriminatorProperty) : ExpressionVisitor
+        {
+            public BlockExpression Rewrite(BlockExpression blockExpression)
+                => (BlockExpression)Visit(blockExpression);
+
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+                => binaryExpression.NodeType == ExpressionType.Assign
+                && binaryExpression.Left is ParameterExpression entityTypeVariable
+                && entityTypeVariable.Type.IsAssignableTo(typeof(ITypeBase))
+                    ? binaryExpression.Update(binaryExpression.Left, null, Constant(structuralType, entityTypeVariable.Type))
+                    : base.VisitBinary(binaryExpression);
+
+            protected override SwitchCase VisitSwitchCase(SwitchCase switchCase)
+            => switchCase switch
+            {
+                {
+                    Body: BlockExpression { Expressions.Count: > 0 } body,
+                    TestValues: [ConstantExpression { Value: ITypeBase testValue }]
+                } => testValue == structuralType
+                        ? switchCase.Update(switchCase.TestValues, body.Update(body.Variables, [
+                            // if (ValueBuffer.TryReadValue(discriminatorProperty.ClrType, ValueBuffer.Empty, discriminatorProperty.GetIndex(), discriminatorProperty) != structuralType.GetDiscriminatorValue())
+                            IfThen(
+                                NotEqual(
+                                    Call(
+                                        EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
+                                        Constant(ValueBuffer.Empty),
+                                        Constant(discriminatorProperty.GetIndex()),
+                                        Constant(discriminatorProperty)),
+                                    Constant(structuralType.GetDiscriminatorValue(), discriminatorProperty.ClrType)),
+                                // throw new InvalidOperationException(UnableToDiscriminateStructuralType)
+                                Throw(
+                                    Call(
+                                        CreateUnableToDiscriminateExceptionMethod,
+                                        Constant(structuralType),
+                                        Convert(
+                                            Call(
+                                                EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod.MakeGenericMethod(discriminatorProperty.ClrType),
+                                                Constant(ValueBuffer.Empty),
+                                                Constant(discriminatorProperty.GetIndex()),
+                                                Constant(discriminatorProperty)),
+                                        typeof(object))))),
+                            ..body.Expressions]))
+                        : throw new UnreachableException("There should only be 1 case for the specified structural type, since there is only 1 possible discriminator value."),
+                _ => base.VisitSwitchCase(switchCase)
+            };
+        }
+
+        private sealed class ValueBufferTryReadValueMethodsFinder : ExpressionVisitor
+        {
+            private readonly List<IProperty> _properties;
+            private readonly List<MethodCallExpression> _valueBufferTryReadValueMethods = [];
+
+            public ValueBufferTryReadValueMethodsFinder(ITypeBase structuralType)
+                => _properties = structuralType.GetProperties().ToList();
+
+            public List<MethodCallExpression> FindValueBufferTryReadValueMethods(Expression expression)
+            {
+                _valueBufferTryReadValueMethods.Clear();
+
+                Visit(expression);
+
+                return _valueBufferTryReadValueMethods;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
+                 && _properties.Contains(property))
+                {
+                    _valueBufferTryReadValueMethods.Add(methodCallExpression);
+                    _properties.Remove(property);
+
+                    return methodCallExpression;
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+        }
+
+        private sealed class ValueBufferTryReadValueMethodsReplacer(IReadOnlyDictionary<IProperty, Expression> mappedProperties) : ExpressionVisitor
+        {
+            private readonly Dictionary<IProperty, Expression> _propertyInstanceMap = [];
+
+            public BlockExpression Rewrite(BlockExpression materializerExpression)
+            {
+                _propertyInstanceMap.Clear();
+                return (BlockExpression)VisitBlock(materializerExpression);
+            }
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                if (IsValueBufferTryReadValueMethodCall(node.Right, out var property)
+                 && mappedProperties.TryGetValue(property, out var parameter))
+                {
+                    parameter = ConvertIfNotMatch(parameter, node.Right.Type);
+
+                    if (node.Left is MemberExpression memberExpression)
+                    {
+                        _propertyInstanceMap[property] = memberExpression.Expression ?? throw new UnreachableException();
+                    }
+
+                    if (property!.IsPrimitiveCollection
+                        && !property.ClrType.IsArray)
+                    {
+                        var instance = _propertyInstanceMap[property];
+
+                        var genericMethod = StructuralTypeMaterializerSource.PopulateListMethod.MakeGenericMethod(
+                            property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
+
+                        var currentVariable = Variable(parameter!.Type);
+                        var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                            ? (Expression)currentVariable
+                            : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
+                        return Block(
+                            [currentVariable],
+                            MakeMemberAccess(instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                .Assign(currentVariable),
+                            IfThenElse(
+                                OrElse(
+                                    ReferenceEqual(currentVariable, Constant(null)),
+                                    ReferenceEqual(parameter, Constant(null))),
+                                node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
+                                    ? leftMemberExpression.Assign(parameter)
+                                    : MakeBinary(node.NodeType, node.Left, parameter),
+                                Call(
+                                    genericMethod,
+                                    parameter,
+                                    convertedVariable)
+                            ));
+                    }
+
+                    var visitedLeft = Visit(node.Left);
+                    return node.NodeType == ExpressionType.Assign
+                        && visitedLeft is MemberExpression me
+                            ? me.Assign(parameter!)
+                            : MakeBinary(node.NodeType, visitedLeft, parameter!);
+                }
+
+                return base.VisitBinary(node);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+                => IsValueBufferTryReadValueMethodCall(methodCallExpression, out var property)
+                && mappedProperties.TryGetValue(property, out var parameter)
+                    ? ConvertIfNotMatch(parameter, methodCallExpression.Type)
+                    : base.VisitMethodCall(methodCallExpression);
+        }
+    }
+}

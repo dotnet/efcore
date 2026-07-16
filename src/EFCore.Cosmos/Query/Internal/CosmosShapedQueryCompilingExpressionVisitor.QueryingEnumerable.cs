@@ -1,13 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Collections;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -24,7 +21,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly Func<CosmosQueryContext, JToken, T> _shaper;
+        private readonly Shaper<T> _shaper;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
         private readonly string _cosmosContainer;
@@ -38,7 +35,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             SelectExpression selectExpression,
-            Func<CosmosQueryContext, JToken, T> shaper,
+            Shaper<T> shaper,
             Type contextType,
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
@@ -76,7 +73,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _sqlExpressionFactory,
                         _cosmosQueryContext.Parameters)
                     .Visit(_selectExpression),
-                _cosmosQueryContext.Parameters);
+                _cosmosQueryContext.Parameters!);
 
         public string ToQueryString()
         {
@@ -104,17 +101,20 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             private readonly QueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly Func<CosmosQueryContext, JToken, T> _shaper;
+            private readonly Shaper<T> _shaper;
             private readonly Type _contextType;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
-            private readonly IConcurrencyDetector _concurrencyDetector;
+            private readonly IConcurrencyDetector? _concurrencyDetector;
             private readonly IExceptionDetector _exceptionDetector;
 
-            private IAsyncEnumerator<JToken> _enumerator;
+            private int _ordinal;
+            private T? _current;
+            private ReadOnlyMemory<byte>? _data;
+            private IAsyncEnumerator<ReadOnlyMemory<byte>>? _enumerator;
 
             public AsyncEnumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken)
             {
@@ -134,7 +134,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     : null;
             }
 
-            public T Current { get; private set; }
+            public T Current => _current!;
 
             public async ValueTask<bool> MoveNextAsync()
             {
@@ -154,14 +154,32 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
-                    var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+ReadNext:
+                    if (!_data.HasValue)
+                    {
+                        var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+                        if (!hasNext)
+                        {
+                            return false;
+                        }
+                        _data = _enumerator.Current;
 
-                    Current
-                        = hasNext
-                            ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                            : default;
+                        _data = ShaperProcessingExpressionVisitor.ExtractDocuments(_data.Value);
+                    }
 
-                    return hasNext;
+                    if (!ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
+                            _cosmosQueryContext, _data.Value,
+                            _shaper, _ordinal,
+                            out var bytesConsumed, out _current))
+                    {
+                        _data = null;
+                        goto ReadNext;
+                    }
+
+                    _ordinal++;
+                    _data = _data.Value.Slice(bytesConsumed);
+
+                    return true;
                 }
                 catch (Exception exception)
                 {

@@ -479,7 +479,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregate(source, selector, resultType, "AVG");
+        => TranslateAggregateWithSelector(source, selector, resultType, "AVG");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -570,14 +570,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if ((select.Limit is not null || select.Offset is not null)
             && !TryPushdownIntoSubquery(select))
-        {
-            return null;
-        }
-
-        // We can not apply distinct because SQL DISTINCT operates on the full
-        // structural type, but the shaper extracts only a subset of that data.
-        // Cosmos: Projecting out nested documents retrieves the entire document #34067
-        if (select.UsesClientProjection)
         {
             return null;
         }
@@ -907,7 +899,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregate(source, selector, resultType, "MAX");
+        => TranslateAggregateWithSelector(source, selector, resultType, "MAX");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -916,7 +908,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregate(source, selector, resultType, "MIN");
+        => TranslateAggregateWithSelector(source, selector, resultType, "MIN");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1031,16 +1023,28 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct)
+
+        var newSelectorBody = RemapLambdaBody(source, selector);
+
+        // We currently don't allow selects over a distinct query, because it would require subquery pushdown (#33968)
+        // We do allow select include over a distinct query that doesn't change the shaper. This is for owned types, as the query pipeline will generate a select include after the user's distinct
+        var isIncludeThatDoesntChangeShaper = newSelectorBody is IncludeExpression includeExpression
+            && UnwrapInclude(includeExpression) == source.ShaperExpression;
+        if (selectExpression.IsDistinct && !isIncludeThatDoesntChangeShaper)
         {
             // TODO: The base TranslateSelect does not allow returning null (presumably because client eval should always be possible)
             return null!;
         }
 
-        var newSelectorBody = RemapLambdaBody(source, selector);
+        var newShaper = _projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody);
 
-        return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
+        return source.UpdateShaperExpression(newShaper);
     }
+
+    private static Expression UnwrapInclude(IncludeExpression includeExpression)
+        => includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
+            ? UnwrapInclude(innerIncludeExpression)
+            : includeExpression.EntityExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1245,27 +1249,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-    {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
-        {
-            return null;
-        }
-
-        if (selector != null)
-        {
-            source = TranslateSelect(source, selector);
-        }
-
-        var serverOutputType = resultType.UnwrapNullableType();
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-
-        projection = _sqlExpressionFactory.Function("SUM", [projection], serverOutputType, projection.TypeMapping);
-
-        return AggregateResultShaper(source, projection, resultType);
-    }
+        => TranslateAggregateWithSelector(source, selector, resultType, "SUM");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1443,11 +1427,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }
                                                                          or IComplexProperty { IsCollection: true }:
                 {
+                    var innerProjection = (StructuralTypeProjectionExpression)shaper.ValueBufferExpression;
                     var targetStructuralType = shaper.StructuralType;
                     var projection = new StructuralTypeProjectionExpression(
                         new ObjectReferenceExpression(targetStructuralType, sourceAlias), targetStructuralType);
                     var select = SelectExpression.CreateForCollection(
-                        shaper.ValueBufferExpression,
+                        innerProjection.Object,
                         sourceAlias,
                         projection);
                     return CreateShapedQueryExpression(targetStructuralType, select);
@@ -1537,13 +1522,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
     #endregion Queryable collection support
 
-    private ShapedQueryExpression? TranslateAggregate(
+    private ShapedQueryExpression? TranslateAggregateWithSelector(
         ShapedQueryExpression source,
-        LambdaExpression? selector,
+        LambdaExpression? selectorLambda,
         Type resultType,
         string functionName)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
+
         if (selectExpression.IsDistinct
             || selectExpression.Limit != null
             || selectExpression.Offset != null)
@@ -1551,9 +1537,30 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        if (selector != null)
+        Expression? selector = null;
+        if (selectorLambda == null
+            || selectorLambda.Body == selectorLambda.Parameters[0])
         {
-            source = TranslateSelect(source, selector);
+            var shaperExpression = source.ShaperExpression;
+            if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
+            {
+                shaperExpression = unaryExpression.Operand;
+            }
+
+            if (shaperExpression is ProjectionBindingExpression projectionBindingExpression)
+            {
+                selector = selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember ?? new ProjectionMember());
+            }
+        }
+        else
+        {
+            selector = RemapLambdaBody(source, selectorLambda);
+        }
+
+        if (selector == null
+            || TranslateExpression(selector) is not { } translatedSelector)
+        {
+            return null;
         }
 
         if (!_subquery && resultType.IsNullableType())
@@ -1564,8 +1571,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = source.UpdateResultCardinality(ResultCardinality.SingleOrDefault);
         }
 
-        var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-        projection = _sqlExpressionFactory.Function(functionName, [projection], resultType, _typeMappingSource.FindMapping(resultType));
+        var serverOutputType = resultType.UnwrapNullableType();
+        var projection = _sqlExpressionFactory.Function(
+            functionName,
+            [translatedSelector],
+            serverOutputType,
+            CosmosNumberProjectionTypeMapping.IsRequiredForType(serverOutputType)
+                ? CosmosNumberProjectionTypeMapping.CreateFromType(serverOutputType)
+                : _typeMappingSource.FindMapping(resultType));
 
         return AggregateResultShaper(source, projection, resultType);
     }
@@ -1727,8 +1740,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var translation = new ObjectFunctionExpression(functionName, [array1, array2], arrayType);
                 var alias = _aliasManager.GenerateSourceAlias(translation);
                 var select = SelectExpression.CreateForCollection(
-                    translation, alias, new ObjectReferenceExpression(structuralType1, alias));
-                return CreateShapedQueryExpression(select, structuralType1.ClrType);
+                    translation,
+                    alias,
+                    new StructuralTypeProjectionExpression(
+                        new ObjectReferenceExpression(structuralType1, alias),
+                        structuralType1));
+                return source1.Update(
+                    select,
+                    new StructuralTypeShaperExpression(structuralType1, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(ValueBuffer)), nullable: true));
             }
         }
 

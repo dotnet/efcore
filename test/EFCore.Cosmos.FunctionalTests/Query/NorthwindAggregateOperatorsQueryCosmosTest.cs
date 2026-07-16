@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -795,7 +795,7 @@ OFFSET 0 LIMIT 1
 
         AssertSql();
     }
-    
+
     public override async Task MaxBy_over_nested_subquery(bool async)
     {
         // The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
@@ -2925,16 +2925,12 @@ WHERE (c["$type"] = "Order")
         AssertSql();
     }
 
-    public override async Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
-    {
+    public override Task Average_with_unmapped_property_access_throws_meaningful_exception(bool async)
         // Aggregate selecting non-mapped type. Issue #20677.
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => AssertAverage(
+        => AssertTranslationFailed(() => AssertAverage(
             async,
             ss => ss.Set<Order>(),
             selector: c => c.ShipVia));
-
-        AssertSql();
-    }
 
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
     {
@@ -3061,7 +3057,11 @@ FROM root c
             });
 
     public override Task Return_type_of_singular_operator_is_preserved(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Return_type_of_singular_operator_is_preserved(a);
@@ -3111,6 +3111,7 @@ ORDER BY c["id"] DESC
 OFFSET 0 LIMIT 1
 """);
             });
+    }
 
     public override Task Type_casting_inside_sum(bool async)
         => Fixture.NoSyncTest(

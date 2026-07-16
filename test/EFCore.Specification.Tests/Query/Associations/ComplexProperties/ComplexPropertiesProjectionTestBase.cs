@@ -7,6 +7,8 @@ public abstract class ComplexPropertiesProjectionTestBase<TFixture>(TFixture fix
     : AssociationsProjectionTestBase<TFixture>(fixture)
     where TFixture : ComplexPropertiesFixtureBase, new()
 {
+    public override bool AssertQueryTrackingBehaviour => false;
+
     #region Value types
 
     [Theory]

@@ -658,14 +658,14 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<DropSequenceOperation>(o);
-                    Assert.Equal("dbo", operation.Schema);
-                    Assert.Equal("FireflySequence", operation.Name);
+                    var operation = Assert.IsType<AlterColumnOperation>(o);
+                    Assert.Null(operation.DefaultValueSql);
                 },
                 o =>
                 {
-                    var operation = Assert.IsType<AlterColumnOperation>(o);
-                    Assert.Null(operation.DefaultValueSql);
+                    var operation = Assert.IsType<DropSequenceOperation>(o);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("FireflySequence", operation.Name);
                 }));
 
     [Fact]

@@ -6,7 +6,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -25,7 +24,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly string _cosmosContainer;
         private readonly ReadItemInfo _readItemInfo;
         private readonly PartitionKey _cosmosPartitionKey;
-        private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+        private readonly Shaper<T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
@@ -36,7 +35,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IEntityType rootEntityType,
             List<Expression> partitionKeyPropertyValues,
             ReadItemInfo readItemInfo,
-            Func<CosmosQueryContext, JObject, T> shaper,
+            Shaper<T> shaper,
             Type contextType,
             bool standAloneStateManager,
             bool threadSafetyChecksEnabled)
@@ -105,7 +104,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly string _cosmosContainer;
             private readonly PartitionKey _cosmosPartitionKey;
-            private readonly Func<CosmosQueryContext, JObject, T> _shaper;
+            private readonly Shaper<T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
@@ -114,7 +113,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
             private readonly CancellationToken _cancellationToken;
 
-            private JObject _item;
+            private ReadOnlyMemory<byte>? _response;
             private bool _hasExecuted;
 
             public AsyncEnumerator(ReadItemQueryingEnumerable<T> readItemEnumerable, CancellationToken cancellationToken = default)
@@ -155,7 +154,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                    _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
+                    _response = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
                             _cosmosContainer,
                             _cosmosPartitionKey,
                             resourceId,
@@ -182,7 +181,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             public ValueTask DisposeAsync()
             {
-                _item = null;
+                _response = null;
                 _hasExecuted = false;
 
                 return default;
@@ -193,13 +192,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private bool ShapeResult()
             {
-                var hasNext = _item is not null;
+                var hasNext = _response is not null;
 
                 _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 
                 Current
                     = hasNext
-                        ? _shaper(_cosmosQueryContext, _item)
+                        ? _shaper(_cosmosQueryContext, _response.Value, ordinal: 0, out var _)
                         : default;
 
                 _hasExecuted = true;

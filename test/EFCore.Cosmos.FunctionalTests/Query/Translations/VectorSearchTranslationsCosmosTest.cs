@@ -232,7 +232,8 @@ ORDER BY VectorDistance(c["SinglesArray"], @p, false, { 'distanceFunction': 'dot
 
     #endregion Brute force and options
 
-    [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotEmulator))]
+    // issue #35898: vector indexes on collection wildcard paths are not supported
+    //[ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotEmulator))]
     public virtual async Task Vector_index_through_complex_collection_roundtrips()
     {
         await using var context = CreateContext();
@@ -462,13 +463,16 @@ ORDER BY RANK RRF(VectorDistance(c["BytesArray"], @p), VectorDistance(c["Singles
                         bb.OwnsMany(x => x.NestedOwnedCollection, bbb => bbb.Ignore(x => x.NestedSingles));
                     });
 
-                if (!CosmosTestEnvironment.IsEmulator)
-                {
-                    b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10));
-                    b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.NestedSingles)).IsVectorIndex(VectorIndexType.Flat);
-                } else {
-                    b.Ignore(x => x.ComplexNestedCollection);
-                }
+                // issue #35898: vector indexes on collection wildcard paths are not supported
+                //if (!CosmosTestEnvironment.IsEmulator)
+                //{
+                //    b.ComplexCollection(x => x.ComplexNestedCollection, cb => cb.Property(c => c.NestedSingles).IsVectorProperty(DistanceFunction.Cosine, 10));
+                //    b.HasIndex(x => x.ComplexNestedCollection.Select(c => c.NestedSingles)).IsVectorIndex(VectorIndexType.Flat);
+                //}
+                //else
+                //{
+                b.Ignore(x => x.ComplexNestedCollection);
+                //}
             });
 
         protected override Task SeedAsync(PoolableDbContext context)
