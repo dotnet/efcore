@@ -1417,6 +1417,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return 1;
             }
 
+            if (left.GetType() != right.GetType())
+            {
+                return null;
+            }
+
             if (left is IComparable leftComparable)
             {
                 try
@@ -1427,15 +1432,24 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     // Some identifier values are only equality-comparable; fall back to returning "not comparable".
                 }
+                catch (InvalidCastException)
+                {
+                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
+                }
             }
 
             if (right is IComparable rightComparable)
             {
                 try
                 {
-                    return -rightComparable.CompareTo(left);
+                    var comparison = rightComparable.CompareTo(left);
+                    return comparison == 0 ? 0 : -System.Math.Sign(comparison);
                 }
                 catch (ArgumentException)
+                {
+                    // Some identifier values are only equality-comparable; fall back to returning "not comparable".
+                }
+                catch (InvalidCastException)
                 {
                     // Some identifier values are only equality-comparable; fall back to returning "not comparable".
                 }
