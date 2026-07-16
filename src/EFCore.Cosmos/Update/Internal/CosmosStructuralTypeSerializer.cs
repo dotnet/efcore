@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 
@@ -158,7 +160,7 @@ public class CosmosStructuralTypeSerializer
         if (_discriminatorProperty != null)
         {
             var discriminatorValue = context.GetDiscriminatorValue(_discriminatorProperty, _structuralType);
-            WriteProperty(writer, _discriminatorProperty, discriminatorValue);
+            WriteProperty(context, writer, _discriminatorProperty, discriminatorValue);
         }
 
         if (_ordinalKeyProperty != null)
@@ -170,7 +172,7 @@ public class CosmosStructuralTypeSerializer
         foreach (var property in _scalarProperties)
         {
             var value = context.GetValue(property);
-            WriteProperty(writer, property, value);
+            WriteProperty(context, writer, property, value);
         }
 
         foreach (var (complexProperty, nestedSerializer) in _complexProperties)
@@ -253,6 +255,7 @@ public class CosmosStructuralTypeSerializer
         public object? GetValue(IPropertyBase property);
         public object? GetDiscriminatorValue(IProperty discriminatorProperty, ITypeBase structuralType);
         public void SetOrdinal(IProperty ordinalKeyProperty, int? ordinal);
+        public void ValidateNull(IProperty property, ITypeBase structuralType);
         public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType);
         public void ValidateNull(INavigation navigation, ITypeBase structuralType);
         public void PrepareNavigationCollection(
@@ -276,6 +279,11 @@ public class CosmosStructuralTypeSerializer
 
         public void SetOrdinal(IProperty ordinalKeyProperty, int? ordinal)
             => entry.SetStoreGeneratedValue(ordinalKeyProperty, ordinal!.Value + 1, setModified: false);
+
+        public void ValidateNull(IProperty property, ITypeBase structuralType)
+        {
+            // Change tracker has done this
+        }
 
         public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType)
         {
@@ -350,6 +358,14 @@ public class CosmosStructuralTypeSerializer
         {
         }
 
+        public void ValidateNull(IProperty property, ITypeBase structuralType)
+        {
+            if (!property.IsNullable)
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(property.Name, structuralType.DisplayName()));
+            }
+        }
+
         public void ValidateNull(IComplexProperty complexProperty, ITypeBase structuralType)
         {
             if (!complexProperty.IsNullable)
@@ -383,7 +399,8 @@ public class CosmosStructuralTypeSerializer
             => new(value);
     }
 
-    private void WriteProperty(Utf8JsonWriter writer, IProperty property, object? value)
+    private void WriteProperty<TContext>(TContext context, Utf8JsonWriter writer, IProperty property, object? value)
+        where TContext : struct, ISerializationContext<TContext>
     {
         writer.WritePropertyName(property.GetJsonPropertyName());
 
@@ -395,6 +412,7 @@ public class CosmosStructuralTypeSerializer
         }
         else
         {
+            context.ValidateNull(property, _structuralType);
             writer.WriteNullValue();
         }
     }
