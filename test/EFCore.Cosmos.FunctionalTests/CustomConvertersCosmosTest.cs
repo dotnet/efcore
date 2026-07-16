@@ -124,7 +124,7 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
     public override async Task Optional_owned_with_converter_reading_non_nullable_column()
     {
         // Cosmos filters out the undefined value
-        var ex = Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
+        var ex = await Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
 
         AssertSql(
             """

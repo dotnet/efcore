@@ -207,7 +207,8 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal(jsonValue, mapping.JsonValueReaderWriter.ToJsonString(value!));
 
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(jsonValue)), null);
-        Assert.Equal(value, ((JsonValueReaderWriter<T>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager));
+        readerManager.MoveNext();
+        Assert.Equal(value, (T)mapping.JsonValueReaderWriter.FromJson(ref readerManager));
     }
 
     [Fact]
@@ -227,6 +228,7 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal("\"AQIDBAU=\"", mapping.JsonValueReaderWriter.ToJsonString(value!));
 
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes("\"AQIDBAU=\"")), null);
+        readerManager.MoveNext();
         Assert.Equal(value, ((JsonValueReaderWriter<byte[]>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager));
     }
 
@@ -337,7 +339,8 @@ public class CosmosTypeMappingSourceTest
         Assert.IsType<TReader>(mapping.JsonValueReaderWriter);
         Assert.Equal(jsonValue, mapping.JsonValueReaderWriter.ToJsonString(value!));
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(jsonValue)), null);
-        Assert.Equal((IEnumerable<TElement?>)value!, (IEnumerable<TElement?>)((JsonCollectionOfStructsReaderWriter<TCollection, TElement>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager)!.ToList()!);
+        readerManager.MoveNext();
+        Assert.Equal((IEnumerable<TElement>)value!, ((JsonCollectionOfStructsReaderWriter<TCollection, TElement>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager)!.ToList()!);
     }
 
     [Fact]
@@ -358,6 +361,7 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal("\"39e5debb-8826-4996-b68d-f9c05e687a86\"", mapping.JsonValueReaderWriter.ToJsonString(value!));
 
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes("\"39e5debb-8826-4996-b68d-f9c05e687a86\"")), null);
+        readerManager.MoveNext();
         Assert.Equal(value, ((JsonValueReaderWriter<Guid>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager));
     }
 

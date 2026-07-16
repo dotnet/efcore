@@ -257,12 +257,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             b.Ignore(e => e.Name);
             b.Ignore(e => e.PartitionId);
             b.Ignore(e => e.Orders);
-            b.Property<object>("foo");
+            b.Property<double[]>("foo");
             b.HasPartitionKey("foo");
             b.HasKey(e => e.Id);
         });
 
-        VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "Object"), modelBuilder);
+        VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "double[]"), modelBuilder);
     }
 
     [Fact]

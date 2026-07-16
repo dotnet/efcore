@@ -1190,7 +1190,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "CosmosQueryEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string containerId, Microsoft.Azure.Cosmos.PartitionKey? partitionKeyValue, System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> parameters, string querySql, bool logSensitiveData);"
+          "Member": "CosmosQueryEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, string containerId, Microsoft.Azure.Cosmos.PartitionKey? partitionKeyValue, System.Collections.Generic.IReadOnlyList<(string Name, string Value)> parameters, string querySql, bool logSensitiveData);"
         }
       ],
       "Properties": [
@@ -1201,7 +1201,7 @@
           "Member": "virtual bool LogSensitiveData { get; }"
         },
         {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> Parameters { get; }"
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<(string Name, string Value)> Parameters { get; }"
         },
         {
           "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey? PartitionKeyValue { get; }"
@@ -1215,7 +1215,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.CosmosQueryExecutedEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
-          "Member": "CosmosQueryExecutedEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, System.TimeSpan elapsed, double requestCharge, string activityId, string containerId, Microsoft.Azure.Cosmos.PartitionKey? partitionKeyValue, System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> parameters, string querySql, bool logSensitiveData);"
+          "Member": "CosmosQueryExecutedEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, System.TimeSpan elapsed, double requestCharge, string activityId, string containerId, Microsoft.Azure.Cosmos.PartitionKey? partitionKeyValue, System.Collections.Generic.IReadOnlyList<(string Name, string Value)> parameters, string querySql, bool logSensitiveData);"
         }
       ],
       "Properties": [
@@ -1232,7 +1232,7 @@
           "Member": "virtual bool LogSensitiveData { get; }"
         },
         {
-          "Member": "virtual System.Collections.Generic.IReadOnlyList<(string Name, object? Value)> Parameters { get; }"
+          "Member": "virtual System.Collections.Generic.IReadOnlyList<(string Name, string Value)> Parameters { get; }"
         },
         {
           "Member": "virtual Microsoft.Azure.Cosmos.PartitionKey? PartitionKeyValue { get; }"
