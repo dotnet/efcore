@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -1128,6 +1129,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "identifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
+                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                    relationalSplitCollectionShaperExpression.IdentifierValueComparers
+                                        .Select(x => (Func<object, int>)x.GetHashCode).ToArray(),
+                                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                        NewArrayInit(
+                                            typeof(Func<object, int>),
+                                            relationalSplitCollectionShaperExpression.IdentifierValueComparers
+                                                .Select(CreateObjectHashCodeExpression)),
+                                        Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                                    "identifierHashCodeCalculators",
+                                    typeof(Func<object, int>[])),
                                 innerShaper,
                                 relatedDataLoaders
                                 ?? (Expression)Constant(
@@ -1454,6 +1466,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "identifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
+                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                    relationalSplitCollectionShaperExpression.IdentifierValueComparers
+                                        .Select(x => (Func<object, int>)x.GetHashCode).ToArray(),
+                                    Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                                        NewArrayInit(
+                                            typeof(Func<object, int>),
+                                            relationalSplitCollectionShaperExpression.IdentifierValueComparers
+                                                .Select(CreateObjectHashCodeExpression)),
+                                        Parameter(typeof(MaterializerLiftableConstantContext), "_")),
+                                    "identifierHashCodeCalculators",
+                                    typeof(Func<object, int>[])),
                                 innerShaper,
                                 relatedDataLoaders == null
                                     ? Constant(
@@ -2812,6 +2835,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             return Constant(parentIdentifierOrdering, typeof(bool[]));
+        }
+
+        private static Expression<Func<object, int>> CreateObjectHashCodeExpression(ValueComparer valueComparer)
+        {
+            var parameter = Parameter(typeof(object), "v");
+            return Lambda<Func<object, int>>(
+                ReplacingExpressionVisitor.Replace(
+                    valueComparer.HashCodeExpression.Parameters[0],
+                    Convert(parameter, valueComparer.Type),
+                    valueComparer.HashCodeExpression.Body),
+                parameter);
         }
 
         private LambdaExpression GenerateFixup(

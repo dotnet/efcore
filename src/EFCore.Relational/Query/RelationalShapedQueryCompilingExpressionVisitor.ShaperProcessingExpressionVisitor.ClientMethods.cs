@@ -425,6 +425,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            IReadOnlyList<Func<object, int>> identifierHashCodeCalculators,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -483,7 +484,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     dataReaderContext.Buffered = true;
                     var lookup = trackingQuery
                         ? null
-                        : new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
+                        : new Dictionary<object[], List<object?>>(
+                            new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
                     while (dataReaderContext.HasNext ?? dbDataReader.Read())
                     {
                         dataReaderContext.HasNext = null;
@@ -582,6 +584,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            IReadOnlyList<Func<object, int>> identifierHashCodeCalculators,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -648,7 +651,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     dataReaderContext.Buffered = true;
                     var lookup = trackingQuery
                         ? null
-                        : new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
+                        : new Dictionary<object[], List<object?>>(
+                            new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
                     while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                     {
                         dataReaderContext.HasNext = null;
@@ -929,6 +933,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            IReadOnlyList<Func<object, int>> identifierHashCodeCalculators,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
             bool[]? parentIdentifierOrdering = null)
@@ -983,7 +988,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
-                    var lookup = new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
+                    var lookup = new Dictionary<object[], List<object?>>(
+                        new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
                     while (dataReaderContext.HasNext ?? dbDataReader.Read())
                     {
                         dataReaderContext.HasNext = null;
@@ -1071,6 +1077,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
             IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            IReadOnlyList<Func<object, int>> identifierHashCodeCalculators,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
             bool[]? parentIdentifierOrdering = null)
@@ -1133,7 +1140,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
-                    var lookup = new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
+                    var lookup = new Dictionary<object[], List<object?>>(
+                        new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
                     while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                     {
                         dataReaderContext.HasNext = null;
@@ -1588,7 +1596,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return true;
         }
 
-        private sealed class IdentifierEqualityComparer(IReadOnlyList<Func<object, object, bool>> valueComparers) : IEqualityComparer<object[]>
+        private sealed class IdentifierEqualityComparer(
+            IReadOnlyList<Func<object, object, bool>> valueComparers,
+            IReadOnlyList<Func<object, int>> hashCodeCalculators) : IEqualityComparer<object[]>
         {
             public bool Equals(object[]? x, object[]? y)
             {
@@ -1607,7 +1617,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 var hash = new HashCode();
                 for (var i = 0; i < identifier.Length; i++)
                 {
-                    hash.Add(identifier[i]);
+                    var value = identifier[i];
+                    hash.Add(value is null ? 0 : hashCodeCalculators[i](value));
                 }
 
                 return hash.ToHashCode();

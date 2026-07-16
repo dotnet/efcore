@@ -1198,15 +1198,25 @@ public class LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : Exp
             && type.GetElementType() is { } elementType)
         {
             var elements = new ExpressionSyntax[array.Length];
+            var supported = true;
             for (var i = 0; i < array.Length; i++)
             {
                 var element = array.GetValue(i);
+                if (element is Array)
+                {
+                    supported = false;
+                    break;
+                }
+
                 elements[i] = element is null
                     ? LiteralExpression(SyntaxKind.NullLiteralExpression)
                     : GenerateValue(element);
             }
 
-            return (ExpressionSyntax)_g.ArrayCreationExpression(Generate(elementType), elements);
+            if (supported)
+            {
+                return (ExpressionSyntax)_g.ArrayCreationExpression(Generate(elementType), elements);
+            }
         }
 
         throw new NotSupportedException(
