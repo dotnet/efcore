@@ -2215,17 +2215,22 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             return entityTypeName;
         }
 
-        if (entityType.HasSharedClrType
-            && entityTypeName
-            == ownership.PrincipalEntityType.GetOwnedName(
-                entityType.ClrType.ShortDisplayName(), ownership.PrincipalToDependent!.Name))
+        var ownerNavigation = ownership.PrincipalToDependent!.Name;
+        if (entityType.HasSharedClrType)
         {
-            entityTypeName = entityType.ClrType.DisplayName();
+            if (entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ClrType.DisplayName();
+            }
+            else if (entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ShortName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ShortName();
+            }
         }
 
         return GetFullName(ownership.PrincipalEntityType)
             + "."
-            + ownership.PrincipalToDependent!.Name
+            + ownerNavigation
             + "#"
             + entityTypeName;
     }
