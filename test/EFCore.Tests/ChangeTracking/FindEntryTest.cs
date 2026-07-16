@@ -9,10 +9,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class FindEntryTest
 {
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_int_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -26,10 +26,10 @@ public class FindEntryTest
         AssertSingle(context.Set<IntKey>(), nameof(IntKey.Id), entities, 88, 99, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_int_alternate_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -43,13 +43,13 @@ public class FindEntryTest
         AssertSingle(context.Set<AlternateIntKey>(), nameof(AlternateIntKey.AlternateId), entities, 88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_int_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -70,10 +70,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ForeignIntKey>(), nameof(ForeignIntKey.IntKeyId), entities, 88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_int_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -88,10 +88,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<IntNonKey>(), nameof(IntNonKey.Int), entities, 88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_int_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -105,10 +105,10 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowIntKey>(), "Id", entities, 88, 99, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_alternate_int_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -122,13 +122,13 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowAlternateIntKey>(), "AlternateId", entities, 88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_shadow_int_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -149,10 +149,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowForeignIntKey>(), "IntKeyId", entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_int_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -167,10 +167,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowIntNonKey>(), "Int", entities, 88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_int_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -191,10 +191,10 @@ public class FindEntryTest
         AssertSingle(setB, nameof(IntKey.Id), entities, 88, 99, keyType, isPk: true, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_int_alternate_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -215,13 +215,13 @@ public class FindEntryTest
         AssertSingle(setB, nameof(AlternateIntKey.AlternateId), entities, 88, 99, keyType, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_int_foreign_key_shared(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContextShared();
@@ -250,10 +250,10 @@ public class FindEntryTest
         AssertMultiple(setB, nameof(ForeignIntKey.IntKeyId), entities, 88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_int_non_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -276,10 +276,10 @@ public class FindEntryTest
         AssertMultiple(setB, nameof(IntNonKey.Int), entities, 88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_int_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -297,10 +297,10 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowIntKey>("ShadowIntKeyB"), "Id", entities, 88, 99, keyType, isPk: true, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_alternate_int_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -318,13 +318,13 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowAlternateIntKey>("ShadowAlternateIntKeyB"), "AlternateId", entities, 88, 99, keyType, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_shadow_int_foreign_key_shared(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContextShared();
@@ -351,10 +351,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowForeignIntKey>("ShadowForeignIntKeyB"), "IntKeyId", entities, (int?)88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_int_non_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -374,10 +374,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowIntNonKey>("ShadowIntNonKeyB"), "Int", entities, 88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -391,10 +391,10 @@ public class FindEntryTest
         AssertSingle(context.Set<NullableIntKey>(), nameof(IntKey.Id), entities, (int?)88, 99, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_alternate_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -408,13 +408,13 @@ public class FindEntryTest
         AssertSingle(context.Set<AlternateNullableIntKey>(), nameof(AlternateNullableIntKey.AlternateId), entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_nullable_int_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -436,10 +436,10 @@ public class FindEntryTest
             context.Set<ForeignNullableIntKey>(), nameof(ForeignNullableIntKey.NullableIntKeyId), entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -454,10 +454,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<NullableIntNonKey>(), nameof(NullableIntNonKey.NullableInt), entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_nullable_int_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -471,10 +471,10 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowNullableIntKey>(), "Id", entities, (int?)88, 99, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_alternate_nullable_int_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -488,13 +488,13 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowAlternateNullableIntKey>(), "AlternateId", entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_shadow_nullable_int_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -515,10 +515,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowForeignNullableIntKey>(), "NullableIntKeyId", entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_nullable_int_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -533,10 +533,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowNullableIntNonKey>(), "NullableInt", entities, (int?)88, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_foreign_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -553,10 +553,10 @@ public class FindEntryTest
             context.Set<ForeignNullableIntKey>(), nameof(ForeignNullableIntKey.NullableIntKeyId), entities, (int?)null, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_non_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -571,10 +571,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<NullableIntNonKey>(), nameof(NullableIntNonKey.NullableInt), entities, (int?)null, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_nullable_int_foreign_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -590,10 +590,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowForeignNullableIntKey>(), "NullableIntKeyId", entities, (int?)null, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_nullable_int_non_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -608,10 +608,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowNullableIntNonKey>(), "NullableInt", entities, (int?)null, 99, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -632,10 +632,10 @@ public class FindEntryTest
         AssertSingle(setB, nameof(NullableIntKey.Id), entities, (int?)88, 99, keyType, isPk: true, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_alternate_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -656,13 +656,13 @@ public class FindEntryTest
         AssertSingle(setB, nameof(AlternateNullableIntKey.AlternateId), entities, (int?)88, 99, keyType, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_nullable_int_foreign_key_shared(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContextShared();
@@ -691,10 +691,10 @@ public class FindEntryTest
         AssertMultiple(setB, nameof(ForeignNullableIntKey.NullableIntKeyId), entities, (int?)88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_nullable_int_non_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -717,10 +717,10 @@ public class FindEntryTest
         AssertMultiple(setB, nameof(NullableIntNonKey.NullableInt), entities, (int?)88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_nullable_int_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -739,10 +739,10 @@ public class FindEntryTest
             context.Set<ShadowNullableIntKey>("ShadowNullableIntKeyB"), "Id", entities, (int?)88, 99, keyType, isPk: true, index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_alternate_nullable_int_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -764,13 +764,13 @@ public class FindEntryTest
             index: 4);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_shadow_nullable_int_foreign_key_shared(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContextShared();
@@ -801,10 +801,10 @@ public class FindEntryTest
             index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_nullable_int_non_key_shared(CompositeKeyType keyType)
     {
         using var context = new FindContextShared();
@@ -827,10 +827,10 @@ public class FindEntryTest
             context.Set<ShadowNullableIntNonKey>("ShadowNullableIntNonKeyB"), "NullableInt", entities, (int?)88, 99, keyType, index: 5);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_string_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -844,10 +844,10 @@ public class FindEntryTest
         AssertSingle(context.Set<StringKey>(), nameof(StringKey.Id), entities, "88", "99", keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_string_alternate_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -861,13 +861,13 @@ public class FindEntryTest
         AssertSingle(context.Set<AlternateStringKey>(), nameof(AlternateStringKey.AlternateId), entities, "88", "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_string_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -888,10 +888,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ForeignStringKey>(), nameof(ForeignStringKey.StringKeyId), entities, "88", "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_string_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -906,10 +906,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<StringNonKey>(), nameof(StringNonKey.String), entities, "88", "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_string_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -923,10 +923,10 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowStringKey>(), "Id", entities, "88", "99", keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_alternate_string_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -940,13 +940,13 @@ public class FindEntryTest
         AssertSingle(context.Set<ShadowAlternateStringKey>(), "AlternateId", entities, "88", "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_shadow_string_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -967,10 +967,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowForeignStringKey>(), "StringKeyId", entities, "88", "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_string_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -985,10 +985,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowStringNonKey>(), "String", entities, "88", "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_string_foreign_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1004,10 +1004,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ForeignStringKey>(), nameof(ForeignStringKey.StringKeyId), entities, null, "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_string_non_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1022,10 +1022,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<StringNonKey>(), nameof(StringNonKey.String), entities, null, "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_string_foreign_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1040,10 +1040,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowForeignStringKey>(), "StringKeyId", entities, null, "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_string_non_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1058,10 +1058,10 @@ public class FindEntryTest
         AssertMultiple(context.Set<ShadowStringNonKey>(), "String", entities, null, "99", keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_composite_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1095,10 +1095,10 @@ public class FindEntryTest
             [nameof(CompositeKey.Id1), nameof(CompositeKey.Id2), nameof(CompositeKey.Foo)], entities, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_composite_alternate_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1140,13 +1140,13 @@ public class FindEntryTest
             entities, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_composite_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -1208,10 +1208,10 @@ public class FindEntryTest
             entities, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_composite_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1257,10 +1257,10 @@ public class FindEntryTest
             entities, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_composite_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1285,10 +1285,10 @@ public class FindEntryTest
             ["Id1", "Id2", "Foo"], entities, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_alternate_composite_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1313,13 +1313,13 @@ public class FindEntryTest
             ["AlternateId1", "AlternateId2", "AlternateFoo"], entities, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array, true)]
-    [InlineData(CompositeKeyType.List, true)]
-    [InlineData(CompositeKeyType.Enumerable, true)]
-    [InlineData(CompositeKeyType.Array, false)]
-    [InlineData(CompositeKeyType.List, false)]
-    [InlineData(CompositeKeyType.Enumerable, false)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array, true),
+     InlineData(CompositeKeyType.List, true),
+     InlineData(CompositeKeyType.Enumerable, true),
+     InlineData(CompositeKeyType.Array, false),
+     InlineData(CompositeKeyType.List, false),
+     InlineData(CompositeKeyType.Enumerable, false)]
     public virtual void Find_shadow_composite_foreign_key(CompositeKeyType keyType, bool trackPrincipal)
     {
         using var context = new FindContext();
@@ -1360,10 +1360,10 @@ public class FindEntryTest
             ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"], entities, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_composite_non_key(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1392,10 +1392,10 @@ public class FindEntryTest
             ["Int", "String", "Foo"], entities, keyType);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_composite_foreign_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1446,10 +1446,10 @@ public class FindEntryTest
             entities, keyType, withNulls: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_composite_non_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1495,10 +1495,10 @@ public class FindEntryTest
             entities, keyType, withNulls: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_composite_foreign_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1528,10 +1528,10 @@ public class FindEntryTest
             ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"], entities, keyType, withNulls: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_shadow_composite_non_key_with_nulls(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1560,10 +1560,10 @@ public class FindEntryTest
             ["Int", "String", "Foo"], entities, keyType, withNulls: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_base_type_tracked(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1577,10 +1577,10 @@ public class FindEntryTest
         AssertSingle(context.Set<BaseType>(), nameof(BaseType.Id), entities, 88, 99, keyType, isPk: true);
     }
 
-    [ConditionalTheory]
-    [InlineData(CompositeKeyType.Array)]
-    [InlineData(CompositeKeyType.List)]
-    [InlineData(CompositeKeyType.Enumerable)]
+    [ConditionalTheory,
+     InlineData(CompositeKeyType.Array),
+     InlineData(CompositeKeyType.List),
+     InlineData(CompositeKeyType.Enumerable)]
     public virtual void Find_derived_type_tracked(CompositeKeyType keyType)
     {
         using var context = new FindContext();
@@ -1600,8 +1600,8 @@ public class FindEntryTest
         using var context = new FindContext();
 
         var local = context.Set<IntKey>().Local;
-        Assert.Null(local.FindEntryUntyped(new object?[] { null }));
-        Assert.Null(local.FindEntry(new[] { nameof(IntKey.Id) }, new object?[] { null }));
+        Assert.Null(local.FindEntryUntyped([null]));
+        Assert.Null(local.FindEntry([nameof(IntKey.Id)], [null]));
     }
 
     [ConditionalFact]
@@ -1610,7 +1610,7 @@ public class FindEntryTest
         using var context = new FindContext();
 
         var local = context.Set<AlternateIntKey>().Local;
-        Assert.Null(local.FindEntry(new[] { nameof(AlternateIntKey.AlternateId) }, new object?[] { null }));
+        Assert.Null(local.FindEntry([nameof(AlternateIntKey.AlternateId)], [null]));
     }
 
     [ConditionalFact]
@@ -1620,9 +1620,9 @@ public class FindEntryTest
 
         var local = context.Set<NullableIntKey>().Local;
         Assert.Null(local.FindEntry((int?)null));
-        Assert.Null(local.FindEntryUntyped(new object?[] { null }));
+        Assert.Null(local.FindEntryUntyped([null]));
         Assert.Null(local.FindEntry(nameof(NullableIntKey.Id), (int?)null));
-        Assert.Null(local.FindEntry(new[] { nameof(NullableIntKey.Id) }, new object?[] { null }));
+        Assert.Null(local.FindEntry([nameof(NullableIntKey.Id)], [null]));
     }
 
     [ConditionalFact]
@@ -1632,7 +1632,7 @@ public class FindEntryTest
 
         var local = context.Set<AlternateNullableIntKey>().Local;
         Assert.Null(local.FindEntry(nameof(AlternateNullableIntKey.AlternateId), (int?)null));
-        Assert.Null(local.FindEntry(new[] { nameof(AlternateNullableIntKey.AlternateId) }, new object?[] { null }));
+        Assert.Null(local.FindEntry([nameof(AlternateNullableIntKey.AlternateId)], [null]));
     }
 
     [ConditionalFact]
@@ -1641,7 +1641,7 @@ public class FindEntryTest
         using var context = new FindContext();
 
         var local = context.Set<IntKey>().Local;
-        Assert.Empty(local.GetEntries(new[] { nameof(IntKey.Id) }, new object?[] { null }));
+        Assert.Empty(local.GetEntries([nameof(IntKey.Id)], [null]));
     }
 
     [ConditionalFact]
@@ -1650,7 +1650,7 @@ public class FindEntryTest
         using var context = new FindContext();
 
         var local = context.Set<AlternateIntKey>().Local;
-        Assert.Empty(local.GetEntries(new[] { nameof(AlternateIntKey.AlternateId) }, new object?[] { null }));
+        Assert.Empty(local.GetEntries([nameof(AlternateIntKey.AlternateId)], [null]));
     }
 
     [ConditionalFact]
@@ -1660,7 +1660,7 @@ public class FindEntryTest
 
         var local = context.Set<NullableIntKey>().Local;
         Assert.Empty(local.GetEntries(nameof(NullableIntKey.Id), (int?)null));
-        Assert.Empty(local.GetEntries(new[] { nameof(NullableIntKey.Id) }, new object?[] { null }));
+        Assert.Empty(local.GetEntries([nameof(NullableIntKey.Id)], [null]));
     }
 
     [ConditionalFact]
@@ -1670,7 +1670,7 @@ public class FindEntryTest
 
         var local = context.Set<AlternateNullableIntKey>().Local;
         Assert.Empty(local.GetEntries(nameof(AlternateNullableIntKey.AlternateId), (int?)null));
-        Assert.Empty(local.GetEntries(new[] { nameof(AlternateNullableIntKey.AlternateId) }, new object?[] { null }));
+        Assert.Empty(local.GetEntries([nameof(AlternateNullableIntKey.AlternateId)], [null]));
     }
 
     [ConditionalFact]
@@ -1680,12 +1680,12 @@ public class FindEntryTest
 
         var local = context.Set<CompositeKey>().Local;
 
-        Assert.Null(local.FindEntryUntyped(new object?[] { null, "99", "foo" }));
+        Assert.Null(local.FindEntryUntyped([null, "99", "foo"]));
 
         Assert.Null(
             local.FindEntry(
-                new[] { nameof(CompositeKey.Id1), nameof(CompositeKey.Id2), nameof(CompositeKey.Foo) },
-                new object?[] { 1, null, "foo" }));
+                [nameof(CompositeKey.Id1), nameof(CompositeKey.Id2), nameof(CompositeKey.Foo)],
+                [1, null, "foo"]));
     }
 
     [ConditionalFact]
@@ -1697,13 +1697,12 @@ public class FindEntryTest
 
         Assert.Null(
             local.FindEntry(
-                new[]
-                {
+                [
                     nameof(AlternateCompositeKey.AlternateId1),
                     nameof(AlternateCompositeKey.AlternateId2),
                     nameof(AlternateCompositeKey.AlternateFoo)
-                },
-                new object?[] { null, "88", "foo" }));
+                ],
+                [null, "88", "foo"]));
     }
 
     [ConditionalFact]
@@ -1718,7 +1717,7 @@ public class FindEntryTest
 
         Assert.Equal(
             CoreStrings.FindWrongCount(1, 3),
-            Assert.Throws<ArgumentException>(() => local.FindEntryUntyped(new object?[] { 1 })).Message);
+            Assert.Throws<ArgumentException>(() => local.FindEntryUntyped([1])).Message);
     }
 
     [ConditionalFact]
@@ -1728,8 +1727,7 @@ public class FindEntryTest
 
         Assert.Equal(
             CoreStrings.FindWrongCount(2, 1),
-            Assert.Throws<ArgumentException>(
-                () => context.Set<IntKey>().Local.FindEntryUntyped(new object[] { 77, 88 })).Message);
+            Assert.Throws<ArgumentException>(() => context.Set<IntKey>().Local.FindEntryUntyped([77, 88])).Message);
     }
 
     [ConditionalFact]
@@ -1744,48 +1742,40 @@ public class FindEntryTest
 
         Assert.Equal(
             CoreStrings.FindWrongCount(1, 3),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntryUntyped(new object[] { 77 })).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntryUntyped([77])).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(1, 2),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1.Name, property2.Name }, oneValue)).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1.Name, property2.Name], oneValue)).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(2, 1),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1.Name }, twoValues)).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1.Name], twoValues)).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(1, 2),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1.Name, property2.Name }, oneValue).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1.Name, property2.Name], oneValue).ToList())
+                .Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(2, 1),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1.Name }, twoValues).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1.Name], twoValues).ToList()).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(1, 2),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1, property2 }, oneValue)).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1, property2], oneValue)).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(2, 1),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1 }, twoValues)).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1], twoValues)).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(1, 2),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1, property2 }, oneValue).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1, property2], oneValue).ToList()).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongCount(2, 1),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1 }, twoValues).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1], twoValues).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -1796,13 +1786,11 @@ public class FindEntryTest
 
         Assert.Equal(
             CoreStrings.WrongGenericPropertyType("Id", "IntKey", "int", "string"),
-            Assert.Throws<ArgumentException>(
-                () => local.FindEntry("77")).Message);
+            Assert.Throws<ArgumentException>(() => local.FindEntry("77")).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("string", "Id", "int"),
-            Assert.Throws<ArgumentException>(
-                () => local.FindEntryUntyped(new object?[] { "77" })).Message);
+            Assert.Throws<ArgumentException>(() => local.FindEntryUntyped(["77"])).Message);
     }
 
     [ConditionalFact]
@@ -1815,33 +1803,27 @@ public class FindEntryTest
 
         Assert.Equal(
             CoreStrings.WrongGenericPropertyType("Id1", "CompositeKey", "int", "string"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(property1.Name, "1")).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry(property1.Name, "1")).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("string", "Id1", "int"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1.Name }, new object?[] { "1" })).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1.Name], ["1"])).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("string", "Id1", "int"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1.Name }, new object?[] { "1" }).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1.Name], ["1"]).ToList()).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("string", "Id1", "int"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(property1, "1")).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry(property1, "1")).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("string", "Id1", "int"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1 }, new object?[] { "1" })).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1], ["1"])).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("string", "Id1", "int"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1 }, new object?[] { "1" }).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1], ["1"]).ToList()).Message);
     }
 
     [ConditionalFact]
@@ -1854,29 +1836,26 @@ public class FindEntryTest
 
         Assert.Equal(
             CoreStrings.FindWrongType("int", "Id2", "string"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntryUntyped(new object[] { 77, 88, "X" })).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntryUntyped([77, 88, "X"])).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("int", "Foo", "string"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1.Name, property2.Name }, new object?[] { 1, 2 })).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1.Name, property2.Name], [1, 2]))
+                .Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("int", "Foo", "string"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(
-                    new[] { property1.Name, property2.Name }, new object?[] { 1, 2 }).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries(
+                [property1.Name, property2.Name], [1, 2]).ToList()).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("int", "Foo", "string"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.FindEntry(new[] { property1, property2 }, new object?[] { 1, 2 })).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.FindEntry([property1, property2], [1, 2])).Message);
 
         Assert.Equal(
             CoreStrings.FindWrongType("int", "Foo", "string"),
-            Assert.Throws<ArgumentException>(
-                () => set.Local.GetEntries(new[] { property1, property2 }, new object?[] { 1, 2 }).ToList()).Message);
+            Assert.Throws<ArgumentException>(() => set.Local.GetEntries([property1, property2], [1, 2]).ToList())
+                .Message);
     }
 
     private static void AssertSingle<TEntity, TProperty>(
@@ -1902,12 +1881,12 @@ public class FindEntryTest
 
         Assert.Same(entities[index], set.Local.FindEntry(propertyName, found)!.Entity);
         Assert.Same(entities[index], set.Local.FindEntry(property, found)!.Entity);
-        Assert.Same(entities[index], set.Local.FindEntry(new[] { propertyName }, foundList)!.Entity);
-        Assert.Same(entities[index], set.Local.FindEntry(new[] { property }, foundList)!.Entity);
+        Assert.Same(entities[index], set.Local.FindEntry([propertyName], foundList)!.Entity);
+        Assert.Same(entities[index], set.Local.FindEntry([property], foundList)!.Entity);
         Assert.Same(entities[index], set.Local.GetEntries(propertyName, found).Single().Entity);
         Assert.Same(entities[index], set.Local.GetEntries(property, found).Single().Entity);
-        Assert.Same(entities[index], set.Local.GetEntries(new[] { propertyName }, foundList).Single().Entity);
-        Assert.Same(entities[index], set.Local.GetEntries(new[] { property }, foundList).Single().Entity);
+        Assert.Same(entities[index], set.Local.GetEntries([propertyName], foundList).Single().Entity);
+        Assert.Same(entities[index], set.Local.GetEntries([property], foundList).Single().Entity);
 
         if (isPk)
         {
@@ -1917,12 +1896,12 @@ public class FindEntryTest
 
         Assert.Null(set.Local.FindEntry(propertyName, notFound));
         Assert.Null(set.Local.FindEntry(property, notFound));
-        Assert.Null(set.Local.FindEntry(new[] { propertyName }, notFoundList));
-        Assert.Null(set.Local.FindEntry(new[] { property }, notFoundList));
+        Assert.Null(set.Local.FindEntry([propertyName], notFoundList));
+        Assert.Null(set.Local.FindEntry([property], notFoundList));
         Assert.Empty(set.Local.GetEntries(propertyName, notFound));
         Assert.Empty(set.Local.GetEntries(property, notFound));
-        Assert.Empty(set.Local.GetEntries(new[] { propertyName }, notFoundList));
-        Assert.Empty(set.Local.GetEntries(new[] { property }, notFoundList));
+        Assert.Empty(set.Local.GetEntries([propertyName], notFoundList));
+        Assert.Empty(set.Local.GetEntries([property], notFoundList));
     }
 
     private static void AssertMultiple<TEntity, TProperty>(
@@ -1941,21 +1920,21 @@ public class FindEntryTest
 
         Assert.Contains(set.Local.FindEntry(propertyName, found)!.Entity, entities);
         Assert.Contains(set.Local.FindEntry(property, found)!.Entity, entities);
-        Assert.Contains(set.Local.FindEntry(new[] { propertyName }, foundList)!.Entity, entities);
-        Assert.Contains(set.Local.FindEntry(new[] { property }, foundList)!.Entity, entities);
+        Assert.Contains(set.Local.FindEntry([propertyName], foundList)!.Entity, entities);
+        Assert.Contains(set.Local.FindEntry([property], foundList)!.Entity, entities);
         AssertFound(set.Local.GetEntries(propertyName, found).Select(e => e.Entity));
         AssertFound(set.Local.GetEntries(property, found).Select(e => e.Entity));
-        AssertFound(set.Local.GetEntries(new[] { propertyName }, foundList).Select(e => e.Entity));
-        AssertFound(set.Local.GetEntries(new[] { property }, foundList).Select(e => e.Entity));
+        AssertFound(set.Local.GetEntries([propertyName], foundList).Select(e => e.Entity));
+        AssertFound(set.Local.GetEntries([property], foundList).Select(e => e.Entity));
 
         Assert.Null(set.Local.FindEntry(propertyName, notFound));
         Assert.Null(set.Local.FindEntry(property, notFound));
-        Assert.Null(set.Local.FindEntry(new[] { propertyName }, notFoundList));
-        Assert.Null(set.Local.FindEntry(new[] { property }, notFoundList));
+        Assert.Null(set.Local.FindEntry([propertyName], notFoundList));
+        Assert.Null(set.Local.FindEntry([property], notFoundList));
         Assert.Empty(set.Local.GetEntries(propertyName, notFound).Select(e => e.Entity));
         Assert.Empty(set.Local.GetEntries(property, notFound).Select(e => e.Entity));
-        Assert.Empty(set.Local.GetEntries(new[] { propertyName }, notFoundList).Select(e => e.Entity));
-        Assert.Empty(set.Local.GetEntries(new[] { property }, notFoundList).Select(e => e.Entity));
+        Assert.Empty(set.Local.GetEntries([propertyName], notFoundList).Select(e => e.Entity));
+        Assert.Empty(set.Local.GetEntries([property], notFoundList).Select(e => e.Entity));
 
         void AssertFound(IEnumerable<TEntity> actual)
         {
@@ -2289,12 +2268,11 @@ public class FindEntryTest
             modelBuilder.Entity<IntNonKey>();
 
             modelBuilder.Entity<ShadowIntKey>().Property<int>("Id").ValueGeneratedNever();
-            modelBuilder.Entity<ShadowAlternateIntKey>(
-                b =>
-                {
-                    b.Property<int>("AlternateId");
-                    b.HasAlternateKey("AlternateId");
-                });
+            modelBuilder.Entity<ShadowAlternateIntKey>(b =>
+            {
+                b.Property<int>("AlternateId");
+                b.HasAlternateKey("AlternateId");
+            });
             modelBuilder.Entity<ShadowForeignIntKey>();
             modelBuilder.Entity<ShadowIntNonKey>().Property<int>("Int");
 
@@ -2304,12 +2282,11 @@ public class FindEntryTest
             modelBuilder.Entity<NullableIntNonKey>();
 
             modelBuilder.Entity<ShadowNullableIntKey>().Property<int?>("Id").ValueGeneratedNever();
-            modelBuilder.Entity<ShadowAlternateNullableIntKey>(
-                b =>
-                {
-                    b.Property<int?>("AlternateId");
-                    b.HasAlternateKey("AlternateId");
-                });
+            modelBuilder.Entity<ShadowAlternateNullableIntKey>(b =>
+            {
+                b.Property<int?>("AlternateId");
+                b.HasAlternateKey("AlternateId");
+            });
             modelBuilder.Entity<ShadowForeignNullableIntKey>();
             modelBuilder.Entity<ShadowNullableIntNonKey>().Property<int?>("NullableInt");
 
@@ -2319,63 +2296,57 @@ public class FindEntryTest
             modelBuilder.Entity<StringNonKey>();
 
             modelBuilder.Entity<ShadowStringKey>().Property<string>("Id").ValueGeneratedNever();
-            modelBuilder.Entity<ShadowAlternateStringKey>(
-                b =>
-                {
-                    b.Property<string>("AlternateId");
-                    b.HasAlternateKey("AlternateId");
-                });
+            modelBuilder.Entity<ShadowAlternateStringKey>(b =>
+            {
+                b.Property<string>("AlternateId");
+                b.HasAlternateKey("AlternateId");
+            });
             modelBuilder.Entity<ShadowForeignStringKey>();
             modelBuilder.Entity<ShadowStringNonKey>().Property<string>("String");
 
             modelBuilder.Entity<CompositeKey>()
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Foo
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Foo
+                });
 
             modelBuilder.Entity<AlternateCompositeKey>()
-                .HasAlternateKey(
-                    e => new
-                    {
-                        e.AlternateId1,
-                        e.AlternateId2,
-                        e.AlternateFoo
-                    });
+                .HasAlternateKey(e => new
+                {
+                    e.AlternateId1,
+                    e.AlternateId2,
+                    e.AlternateFoo
+                });
 
             modelBuilder.Entity<ForeignCompositeKey>()
                 .HasOne(e => e.CompositeKey)
                 .WithMany()
-                .HasForeignKey(
-                    e => new
-                    {
-                        e.CompositeKeyId1,
-                        e.CompositeKeyId2,
-                        e.CompositeKeyFoo
-                    });
+                .HasForeignKey(e => new
+                {
+                    e.CompositeKeyId1,
+                    e.CompositeKeyId2,
+                    e.CompositeKeyFoo
+                });
 
             modelBuilder.Entity<CompositeNonKey>();
 
-            modelBuilder.Entity<ShadowCompositeKey>(
-                b =>
-                {
-                    b.Property<int>("Id1");
-                    b.Property<string>("Id2");
-                    b.Property<string>("Foo");
-                    b.HasKey("Id1", "Id2", "Foo");
-                });
+            modelBuilder.Entity<ShadowCompositeKey>(b =>
+            {
+                b.Property<int>("Id1");
+                b.Property<string>("Id2");
+                b.Property<string>("Foo");
+                b.HasKey("Id1", "Id2", "Foo");
+            });
 
-            modelBuilder.Entity<ShadowAlternateCompositeKey>(
-                b =>
-                {
-                    b.Property<int>("AlternateId1");
-                    b.Property<string>("AlternateId2");
-                    b.Property<string>("AlternateFoo");
-                    b.HasAlternateKey("AlternateId1", "AlternateId2", "AlternateFoo");
-                });
+            modelBuilder.Entity<ShadowAlternateCompositeKey>(b =>
+            {
+                b.Property<int>("AlternateId1");
+                b.Property<string>("AlternateId2");
+                b.Property<string>("AlternateFoo");
+                b.HasAlternateKey("AlternateId1", "AlternateId2", "AlternateFoo");
+            });
 
             modelBuilder.Entity<ShadowForeignCompositeKey>()
                 .HasOne(e => e.CompositeKey)
@@ -2383,13 +2354,12 @@ public class FindEntryTest
                 .HasForeignKey("CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo");
 
             modelBuilder.Entity<ShadowCompositeNonKey>().Property<string>("String");
-            modelBuilder.Entity<ShadowCompositeNonKey>(
-                b =>
-                {
-                    b.Property<int?>("Int");
-                    b.Property<string?>("String");
-                    b.Property<string?>("Foo");
-                });
+            modelBuilder.Entity<ShadowCompositeNonKey>(b =>
+            {
+                b.Property<int?>("Int");
+                b.Property<string?>("String");
+                b.Property<string?>("Foo");
+            });
 
             modelBuilder.Entity<BaseType>();
             modelBuilder.Entity<DerivedType>();
@@ -2519,38 +2489,34 @@ public class FindEntryTest
             modelBuilder.SharedTypeEntity<ShadowStringNonKey>("ShadowStringNonKeyB").Property<string>("String");
 
             modelBuilder.SharedTypeEntity<CompositeKey>("CompositeKeyA")
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Foo
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Foo
+                });
             modelBuilder.SharedTypeEntity<CompositeKey>("CompositeKeyB")
-                .HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2,
-                        e.Foo
-                    });
+                .HasKey(e => new
+                {
+                    e.Id1,
+                    e.Id2,
+                    e.Foo
+                });
 
             modelBuilder.SharedTypeEntity<AlternateCompositeKey>("AlternateCompositeKeyA")
-                .HasAlternateKey(
-                    e => new
-                    {
-                        e.AlternateId1,
-                        e.AlternateId2,
-                        e.AlternateFoo
-                    });
+                .HasAlternateKey(e => new
+                {
+                    e.AlternateId1,
+                    e.AlternateId2,
+                    e.AlternateFoo
+                });
             modelBuilder.SharedTypeEntity<AlternateCompositeKey>("AlternateCompositeKeyB")
-                .HasAlternateKey(
-                    e => new
-                    {
-                        e.AlternateId1,
-                        e.AlternateId2,
-                        e.AlternateFoo
-                    });
+                .HasAlternateKey(e => new
+                {
+                    e.AlternateId1,
+                    e.AlternateId2,
+                    e.AlternateFoo
+                });
 
             modelBuilder.SharedTypeEntity<ForeignCompositeKey>("ForeignCompositeKeyA")
                 .HasOne("CompositeKeyA", "CompositeKey")

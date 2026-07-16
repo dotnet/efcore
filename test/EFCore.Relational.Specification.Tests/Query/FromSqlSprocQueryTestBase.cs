@@ -13,9 +13,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
 {
     protected TFixture Fixture { get; } = fixture;
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure(bool async)
     {
         using var context = CreateContext();
@@ -35,9 +33,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 && mep.UnitPrice == 263.50m);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_tag(bool async)
     {
         using var context = CreateContext();
@@ -58,9 +54,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 && mep.UnitPrice == 263.50m);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_tags(bool async)
     {
         using var context = CreateContext();
@@ -83,9 +77,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 && mep.UnitPrice == 263.50m);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
     {
         using var context = CreateContext();
@@ -103,9 +95,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal("-- File: SampleFileName:13", actual);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_caller_info_tag_and_other_tags(bool async)
     {
         using var context = CreateContext();
@@ -127,9 +117,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal("-- After", tags[2]);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_projection(bool async)
     {
         using var context = CreateContext();
@@ -145,18 +133,15 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_re_projection(bool async)
     {
         using var context = CreateContext();
         var query = context
             .Set<MostExpensiveProduct>()
             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-            .Select(
-                mep =>
-                    new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice });
+            .Select(mep =>
+                new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice });
 
         Assert.Equal(
             RelationalStrings.FromSqlNonComposable,
@@ -165,9 +150,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_re_projection_on_client(bool async)
     {
         using var context = CreateContext();
@@ -176,17 +159,14 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
 
         var actual = (async ? await query.ToListAsync() : query.ToList())
-            .Select(
-                mep =>
-                    new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice }).ToArray();
+            .Select(mep =>
+                new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice }).ToArray();
 
         Assert.Equal(10, actual.Length);
         Assert.True(actual.All(mep => mep.TenMostExpensiveProducts == "Foo"));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_parameter(bool async)
     {
         using var context = CreateContext();
@@ -206,9 +186,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 && coh.Total == 6);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_composed(bool async)
     {
         using var context = CreateContext();
@@ -225,9 +203,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_composed_on_client(bool async)
     {
         using var context = CreateContext();
@@ -247,9 +223,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal(263.50m, actual.Last().UnitPrice);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
     {
         using var context = CreateContext();
@@ -267,9 +241,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_parameter_composed_on_client(bool async)
     {
         using var context = CreateContext();
@@ -289,9 +261,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal(21, actual.Last().Total);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_take(bool async)
     {
         using var context = CreateContext();
@@ -308,9 +278,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_take_on_client(bool async)
     {
         using var context = CreateContext();
@@ -330,9 +298,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal(123.79m, actual.Last().UnitPrice);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_min(bool async)
     {
         using var context = CreateContext();
@@ -346,9 +312,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.Min(mep => mep.UnitPrice))).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_min_on_client(bool async)
     {
         using var context = CreateContext();
@@ -363,9 +327,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
             .Min(mep => mep.UnitPrice));
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_with_include_throws(bool async)
     {
         using var context = CreateContext();
@@ -380,9 +342,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_with_multiple_stored_procedures(bool async)
     {
         using var context = CreateContext();
@@ -400,9 +360,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_with_multiple_stored_procedures_on_client(bool async)
     {
         using var context = CreateContext();
@@ -423,9 +381,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal(10, actual.Length);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_and_select(bool async)
     {
         using var context = CreateContext();
@@ -443,9 +399,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_stored_procedure_and_select_on_client(bool async)
     {
         using var context = CreateContext();
@@ -465,9 +419,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
         Assert.Equal(10, actual.Length);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_select_and_stored_procedure(bool async)
     {
         using var context = CreateContext();
@@ -484,9 +436,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
     }
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual async Task From_sql_queryable_select_and_stored_procedure_on_client(bool async)
     {
         using var context = CreateContext();

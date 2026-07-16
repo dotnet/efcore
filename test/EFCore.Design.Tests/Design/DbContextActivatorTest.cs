@@ -48,8 +48,7 @@ public class DbContextActivatorTest
     [ConditionalFact]
     public void CreateInstance_throws_if_constructor_not_parameterless()
     {
-        var message = Assert.Throws<OperationException>(
-            () => DbContextActivator.CreateInstance(typeof(ParameterTestContext))).Message;
+        var message = Assert.Throws<OperationException>(() => DbContextActivator.CreateInstance(typeof(ParameterTestContext))).Message;
 
         Assert.StartsWith(DesignStrings.CannotCreateContextInstance(nameof(ParameterTestContext), "").Substring(0, 10), message);
         Assert.Contains("Microsoft.EntityFrameworkCore.Design.DbContextActivatorTest+ParameterTestContext", message);

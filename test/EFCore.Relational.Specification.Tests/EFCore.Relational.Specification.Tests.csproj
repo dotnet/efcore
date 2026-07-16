@@ -10,6 +10,9 @@
     <IsShipping>true</IsShipping>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
+    <!-- This is a test project, but we ship the package to customers. Avoid skipping in VMR builds
+         that do not build tests -->
+    <ExcludeFromDotNetBuild>false</ExcludeFromDotNetBuild>
   </PropertyGroup>
 
   <ItemGroup>

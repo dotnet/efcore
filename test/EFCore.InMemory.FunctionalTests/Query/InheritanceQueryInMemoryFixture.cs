@@ -14,8 +14,7 @@ public class InheritanceQueryInMemoryFixture : InheritanceQueryFixtureBase
         => false;
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            c => c.Log(InMemoryEventId.TransactionIgnoredWarning));
+        => base.AddOptions(builder).ConfigureWarnings(c => c.Log(InMemoryEventId.TransactionIgnoredWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

@@ -31,7 +31,6 @@ public abstract class EventDefinitionBase
         EventIdCode = eventIdCode;
 
         var warningsConfiguration = loggingOptions.WarningsConfiguration;
-
         if (warningsConfiguration != null)
         {
             var levelOverride = warningsConfiguration.GetLevel(eventId);
@@ -86,12 +85,11 @@ public abstract class EventDefinitionBase
 
     internal sealed class MessageExtractingLogger : ILogger
     {
-        private string? _message;
-
+        [field: AllowNull, MaybeNull]
         public string Message
         {
-            get => _message ?? throw new InvalidOperationException();
-            private set => _message = value;
+            get => field ?? throw new InvalidOperationException();
+            private set;
         }
 
         void ILogger.Log<TState>(

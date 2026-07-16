@@ -104,17 +104,16 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Quarks>(
-                b =>
-                {
-                    b.HasKey(e => e.Id);
-                    b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
-                    b.Property(e => e.Down).ValueGeneratedNever();
-                    b.Property<int>("Charm").Metadata.ValueGenerated = ValueGenerated.OnUpdateSometimes;
-                    b.Property<string>("Strange").ValueGeneratedNever();
-                    b.Property<int>("Top").ValueGeneratedOnAddOrUpdate();
-                    b.Property<string>("Bottom").ValueGeneratedOnUpdate();
-                });
+            modelBuilder.Entity<Quarks>(b =>
+            {
+                b.HasKey(e => e.Id);
+                b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
+                b.Property(e => e.Down).ValueGeneratedNever();
+                b.Property<int>("Charm").Metadata.ValueGenerated = ValueGenerated.OnUpdateSometimes;
+                b.Property<string>("Strange").ValueGeneratedNever();
+                b.Property<int>("Top").ValueGeneratedOnAddOrUpdate();
+                b.Property<string>("Bottom").ValueGeneratedOnUpdate();
+            });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks))!;
@@ -143,7 +142,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.Id), nameof(Customer.AlternateKey) },
+                [nameof(Customer.Id), nameof(Customer.AlternateKey)],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
 
             Assert.Equal(1, entity.GetKeys().Count());
@@ -164,7 +163,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.Title), nameof(Customer.Name) },
+                [nameof(Customer.Title), nameof(Customer.Name)],
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(1, entity.GetKeys().Count());
@@ -178,13 +177,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(
-                    b => new
-                    {
-                        b.Title,
-                        b.Name,
-                        b.AlternateKey
-                    })
+                .HasPartitionKey(b => new
+                {
+                    b.Title,
+                    b.Name,
+                    b.AlternateKey
+                })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -192,7 +190,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.Title), nameof(Customer.Name), nameof(Customer.AlternateKey) },
+                [nameof(Customer.Title), nameof(Customer.Name), nameof(Customer.AlternateKey)],
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(1, entity.GetKeys().Count());
@@ -203,23 +201,22 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>(
-                b =>
-                {
-                    b.HasAnnotation(CosmosAnnotationNames.HasShadowId, true);
-                    b.HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.HasAnnotation(CosmosAnnotationNames.HasShadowId, true);
+                b.HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
-                    b.Ignore(b => b.Details)
-                        .Ignore(b => b.Orders)
-                        .HasPartitionKey(b => b.AlternateKey)
-                        .Property(b => b.AlternateKey).HasConversion<string>();
-                });
+                b.Ignore(b => b.Details)
+                    .Ignore(b => b.Orders)
+                    .HasPartitionKey(b => b.AlternateKey)
+                    .Property(b => b.AlternateKey).HasConversion<string>();
+            });
 
             var model = modelBuilder.FinalizeModel();
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { CosmosJsonIdConvention.DefaultIdPropertyName },
+                [CosmosJsonIdConvention.DefaultIdPropertyName],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
 
             Assert.Equal(1, entity.GetKeys().Count());
@@ -230,19 +227,18 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
             modelBuilder.Entity<Customer>().HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(
-                    b => new
-                    {
-                        b.AlternateKey,
-                        b.Name,
-                        b.Title
-                    })
+                .HasPartitionKey(b => new
+                {
+                    b.AlternateKey,
+                    b.Name,
+                    b.Title
+                })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -250,11 +246,35 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title) },
+                [nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title)],
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
             Assert.Equal(
-                new[] { CosmosJsonIdConvention.DefaultIdPropertyName },
+                [CosmosJsonIdConvention.DefaultIdPropertyName],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Id_property_created_if_key_not_mapped_to_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.Name)
+                .ToJsonProperty("Name");
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasKey(c => c.Name);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                CosmosJsonIdConvention.IdPropertyJsonName,
+                entity.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName)!.GetJsonPropertyName());
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -311,7 +331,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
             modelBuilder.Entity<Customer>().HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -323,7 +343,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { CosmosJsonIdConvention.DefaultIdPropertyName },
+                [CosmosJsonIdConvention.DefaultIdPropertyName],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
 
@@ -335,7 +355,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
             modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -349,7 +369,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName },
+                [nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
@@ -359,7 +379,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.AlternateKey),
@@ -370,13 +390,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(
-                    b => new
-                    {
-                        b.AlternateKey,
-                        b.Name,
-                        b.Title
-                    })
+                .HasPartitionKey(b => new
+                {
+                    b.AlternateKey,
+                    b.Name,
+                    b.Title
+                })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -384,17 +403,16 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title) },
+                [nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title)],
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(Customer.AlternateKey),
                     nameof(Customer.Name),
                     nameof(Customer.Title),
                     CosmosJsonIdConvention.DefaultIdPropertyName
-                },
+                ],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
@@ -404,7 +422,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.Title),
@@ -415,13 +433,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(
-                    b => new
-                    {
-                        b.AlternateKey,
-                        b.Name,
-                        b.Title
-                    })
+                .HasPartitionKey(b => new
+                {
+                    b.AlternateKey,
+                    b.Name,
+                    b.Title
+                })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -429,17 +446,16 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title) },
+                [nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title)],
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[]
-                {
+                [
                     nameof(Customer.Title),
                     nameof(Customer.Name),
                     nameof(Customer.AlternateKey),
                     CosmosJsonIdConvention.DefaultIdPropertyName
-                },
+                ],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
@@ -449,7 +465,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().AlwaysHasShadowId();
+            modelBuilder.Entity<Customer>().HasShadowId();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.Title),
@@ -459,13 +475,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(
-                    b => new
-                    {
-                        b.Title,
-                        b.AlternateKey,
-                        b.Name
-                    })
+                .HasPartitionKey(b => new
+                {
+                    b.Title,
+                    b.AlternateKey,
+                    b.Name
+                })
                 .Property(b => b.AlternateKey).HasConversion<string>();
 
             var model = modelBuilder.FinalizeModel();
@@ -473,11 +488,11 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.Title), nameof(Customer.AlternateKey), nameof(Customer.Name) },
+                [nameof(Customer.Title), nameof(Customer.AlternateKey), nameof(Customer.Name)],
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[] { nameof(Customer.Title), nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName },
+                [nameof(Customer.Title), nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
@@ -498,7 +513,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.AlternateKey) },
+                [nameof(Customer.AlternateKey)],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
@@ -508,23 +523,21 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasKey(
-                e => new
-                {
-                    e.Name,
-                    e.AlternateKey,
-                    e.Title
-                });
+            modelBuilder.Entity<Customer>().HasKey(e => new
+            {
+                e.Name,
+                e.AlternateKey,
+                e.Title
+            });
             modelBuilder.Entity<Customer>()
                 .Ignore(b => b.Details)
                 .Ignore(b => b.Orders)
-                .HasPartitionKey(
-                    b => new
-                    {
-                        b.Name,
-                        b.AlternateKey,
-                        b.Title
-                    })
+                .HasPartitionKey(b => new
+                {
+                    b.Name,
+                    b.AlternateKey,
+                    b.Title
+                })
                 .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
 
             var model = modelBuilder.FinalizeModel();
@@ -532,7 +545,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Equal(
-                new[] { nameof(Customer.Name), nameof(Customer.AlternateKey), nameof(Customer.Title) },
+                [nameof(Customer.Name), nameof(Customer.AlternateKey), nameof(Customer.Title)],
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
@@ -596,7 +609,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<SingleStringKey>().HasPartitionKey(e => new { e.P1, e.P2, e.P3 });
+            modelBuilder.Entity<SingleStringKey>().HasPartitionKey(e => new
+            {
+                e.P1,
+                e.P2,
+                e.P3
+            });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -686,7 +704,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<SingleGuidKey>().HasPartitionKey(e => new { e.P1, e.P2, e.P3 });
+            modelBuilder.Entity<SingleGuidKey>().HasPartitionKey(e => new
+            {
+                e.P1,
+                e.P2,
+                e.P3
+            });
 
             var model = modelBuilder.FinalizeModel();
 
@@ -733,6 +756,9 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         public override void Properties_can_have_provider_type_set()
             => Properties_can_have_provider_type_set<string>();
 
+        public override void Complex_properties_can_be_configured_by_type()
+            => Assert.Throws<InvalidOperationException>(() => base.Complex_properties_can_be_configured_by_type());
+
         public override void Can_set_complex_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -740,6 +766,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var complexPropertyBuilder = modelBuilder
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
+                .Ignore(e => e.Customers)
                 .ComplexProperty(e => e.Customer)
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
@@ -753,7 +780,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal("bar2", complexProperty["foo2"]);
             Assert.Equal(typeof(Customer).Name, complexProperty.Name);
             Assert.Equal(
-                @"Customer (Customer) Required
+                @"Customer (Customer)
   ComplexType: ComplexProperties.Customer#Customer
     Properties: "
                 + @"
@@ -762,6 +789,203 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
       Name (string)
       Notes (List<string>) Element type: string Required
       Title (string) Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
+    public class CosmosGenericComplexCollection(CosmosModelBuilderFixture fixture)
+        : ComplexCollectionTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
+    {
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_custom_type_value_converter_type_set()
+            => Properties_can_have_custom_type_value_converter_type_set<string>();
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_non_generic_value_converter_set()
+            => Properties_can_have_non_generic_value_converter_set<string>();
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_provider_type_set()
+            => Properties_can_have_provider_type_set<string>();
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_complex_property_annotation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var complexPropertyBuilder = modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .Ignore(e => e.Customer)
+                .ComplexCollection(e => e.Customers)
+                .HasTypeAnnotation("foo", "bar")
+                .HasPropertyAnnotation("foo2", "bar2")
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Title)
+                .Ignore(c => c.Orders);
+
+            var model = modelBuilder.FinalizeModel();
+            var complexCollection = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+
+            Assert.Equal("bar", complexCollection.ComplexType["foo"]);
+            Assert.Equal("bar2", complexCollection["foo2"]);
+            Assert.Equal(nameof(ComplexProperties.Customers), complexCollection.Name);
+            Assert.Equal(
+                @"Customers (List<Customer>) Required
+  ComplexType: ComplexProperties.Customers#Customer
+    Properties: "
+                + @"
+      AlternateKey (Guid) Required
+      Id (int) Required
+      Name (string)
+      Notes (List<string>) Element type: string Required", complexCollection.ToDebugString(), ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Access_mode_can_be_overridden_at_entity_and_property_levels()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_unicode_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_property_annotation()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_property_annotation_by_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_ignored()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Value_converter_configured_on_non_nullable_type_is_applied()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_ignored_by_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Non_nullable_properties_cannot_be_made_optional()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_add_shadow_properties_when_they_have_been_ignored()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_field_set()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_unicode_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_custom_value_generator_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_made_optional()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_value_converter_set_inline()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_precision_and_scale_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_be_made_required()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_sentinel_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_property_annotation_when_no_clr_property()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_sentinel_for_properties()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_max_length_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_provider_type_set_for_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_value_converter_set()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Value_converter_type_is_checked()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Value_converter_configured_on_nullable_type_overrides_non_nullable()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Can_set_unbounded_max_length_for_property_type()
+        {
+        }
+
+        [ConditionalFact(Skip = "Issue #31253: Complex type collections are not supported in Cosmos")]
+        public override void Properties_can_have_access_mode_set()
+        {
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
@@ -875,7 +1099,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             public EntityType2? E2 { get; set; }
         }
 
-
         protected class EntityType2
         {
             public int Id { get; set; }
@@ -911,19 +1134,17 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Ignore<OneToManyNavPrincipal>();
             modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-            modelBuilder.Entity<ManyToManyNavPrincipal>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+            modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+            {
+                mb.Property<string>("PartitionId");
+                mb.HasPartitionKey("PartitionId");
+            });
 
-            modelBuilder.Entity<NavDependent>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+            modelBuilder.Entity<NavDependent>(mb =>
+            {
+                mb.Property<string>("PartitionId");
+                mb.HasPartitionKey("PartitionId");
+            });
 
             modelBuilder.Entity<ManyToManyNavPrincipal>()
                 .HasMany(e => e.Dependents)
@@ -969,23 +1190,21 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Ignore<OneToManyNavPrincipal>();
             modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-            modelBuilder.Entity<ManyToManyNavPrincipal>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId1");
-                    mb.Property<string>("PartitionId2");
-                    mb.Property<string>("PartitionId3");
-                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
-                });
+            modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+            {
+                mb.Property<string>("PartitionId1");
+                mb.Property<string>("PartitionId2");
+                mb.Property<string>("PartitionId3");
+                mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+            });
 
-            modelBuilder.Entity<NavDependent>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId1");
-                    mb.Property<string>("PartitionId2");
-                    mb.Property<string>("PartitionId3");
-                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
-                });
+            modelBuilder.Entity<NavDependent>(mb =>
+            {
+                mb.Property<string>("PartitionId1");
+                mb.Property<string>("PartitionId2");
+                mb.Property<string>("PartitionId3");
+                mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+            });
 
             modelBuilder.Entity<ManyToManyNavPrincipal>()
                 .HasMany(e => e.Dependents)
@@ -1015,11 +1234,11 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 fk => Assert.Equal("Bar", fk["Left"]));
 
             Assert.Equal(
-                new[] { "PartitionId1", "PartitionId2", "PartitionId3" },
+                ["PartitionId1", "PartitionId2", "PartitionId3"],
                 joinType.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[] { "DependentId", "PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3" },
+                ["DependentId", "PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3"],
                 joinType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
@@ -1031,20 +1250,18 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Ignore<OneToManyNavPrincipal>();
             modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-            modelBuilder.Entity<ManyToManyNavPrincipal>(
-                mb =>
-                {
-                    mb.Ignore(e => e.Dependents);
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+            modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+            {
+                mb.Ignore(e => e.Dependents);
+                mb.Property<string>("PartitionId");
+                mb.HasPartitionKey("PartitionId");
+            });
 
-            modelBuilder.Entity<NavDependent>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+            modelBuilder.Entity<NavDependent>(mb =>
+            {
+                mb.Property<string>("PartitionId");
+                mb.HasPartitionKey("PartitionId");
+            });
 
             modelBuilder.Entity<ManyToManyNavPrincipal>()
                 .HasMany(e => e.Dependents)
@@ -1074,24 +1291,22 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Ignore<OneToManyNavPrincipal>();
             modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-            modelBuilder.Entity<ManyToManyNavPrincipal>(
-                mb =>
-                {
-                    mb.Ignore(e => e.Dependents);
-                    mb.Property<string>("PartitionId1");
-                    mb.Property<string>("PartitionId2");
-                    mb.Property<string>("PartitionId3");
-                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
-                });
+            modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+            {
+                mb.Ignore(e => e.Dependents);
+                mb.Property<string>("PartitionId1");
+                mb.Property<string>("PartitionId2");
+                mb.Property<string>("PartitionId3");
+                mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+            });
 
-            modelBuilder.Entity<NavDependent>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId1");
-                    mb.Property<string>("PartitionId2");
-                    mb.Property<string>("PartitionId3");
-                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
-                });
+            modelBuilder.Entity<NavDependent>(mb =>
+            {
+                mb.Property<string>("PartitionId1");
+                mb.Property<string>("PartitionId2");
+                mb.Property<string>("PartitionId3");
+                mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+            });
 
             modelBuilder.Entity<ManyToManyNavPrincipal>()
                 .HasMany(e => e.Dependents)
@@ -1103,11 +1318,11 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.NotNull(joinType);
 
             Assert.Equal(
-                new[] { "PartitionId1", "PartitionId2", "PartitionId3" },
+                ["PartitionId1", "PartitionId2", "PartitionId3"],
                 joinType.GetPartitionKeyProperties().Select(p => p.Name));
 
             Assert.Equal(
-                new[] { "Id", "Id1", "PartitionId1", "PartitionId2", "PartitionId3" },
+                ["Id", "Id1", "PartitionId1", "PartitionId2", "PartitionId3"],
                 joinType.FindPrimaryKey()!.Properties.Select(p => p.Name));
 
             Assert.Equal(2, joinType.GetForeignKeys().Count());
@@ -1124,33 +1339,29 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             modelBuilder.Ignore<OneToManyNavPrincipal>();
             modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-            modelBuilder.Entity<ManyToManyNavPrincipal>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+            modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+            {
+                mb.Property<string>("PartitionId");
+                mb.HasPartitionKey("PartitionId");
+            });
 
-            modelBuilder.Entity<NavDependent>(
-                mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+            modelBuilder.Entity<NavDependent>(mb =>
+            {
+                mb.Property<string>("PartitionId");
+                mb.HasPartitionKey("PartitionId");
+            });
 
-            modelBuilder.Entity<ManyToManyNavPrincipal>(
-                mb =>
-                {
-                    mb.Property<string>("Partition2Id");
-                    mb.HasPartitionKey("Partition2Id");
-                });
+            modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+            {
+                mb.Property<string>("Partition2Id");
+                mb.HasPartitionKey("Partition2Id");
+            });
 
-            modelBuilder.Entity<NavDependent>(
-                mb =>
-                {
-                    mb.Property<string>("Partition2Id");
-                    mb.HasPartitionKey("Partition2Id");
-                });
+            modelBuilder.Entity<NavDependent>(mb =>
+            {
+                mb.Property<string>("Partition2Id");
+                mb.HasPartitionKey("Partition2Id");
+            });
 
             var model = modelBuilder.FinalizeModel();
 

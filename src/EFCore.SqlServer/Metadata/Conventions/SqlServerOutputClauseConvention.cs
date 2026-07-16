@@ -57,8 +57,8 @@ public class SqlServerOutputClauseConvention : ITriggerAddedConvention, ITrigger
         var entityType = entityTypeBuilder.Metadata;
         var triggerTableIdentifier = StoreObjectIdentifier.Table(trigger.GetTableName(), trigger.GetTableSchema());
 
-        if (!entityType.GetDeclaredTriggers().Any(
-                t => t.GetTableName() == trigger.GetTableName() && t.GetTableSchema() == trigger.GetTableSchema()))
+        if (!entityType.GetDeclaredTriggers()
+                .Any(t => t.GetTableName() == trigger.GetTableName() && t.GetTableSchema() == trigger.GetTableSchema()))
         {
             entityType.UseSqlOutputClause(null, triggerTableIdentifier);
         }

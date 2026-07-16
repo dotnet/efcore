@@ -97,4 +97,16 @@ public abstract class DbConnectionInterceptor : IDbConnectionInterceptor
         ConnectionErrorEventData eventData,
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public virtual void ConnectionCanceled(DbConnection connection, ConnectionEndEventData eventData)
+    {
+    }
+
+    /// <inheritdoc />
+    public virtual Task ConnectionCanceledAsync(
+        DbConnection connection,
+        ConnectionEndEventData eventData,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }

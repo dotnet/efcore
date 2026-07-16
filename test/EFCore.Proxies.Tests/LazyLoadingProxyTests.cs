@@ -14,8 +14,7 @@ public class LazyLoadingProxyTests
         using var context = new LazyContext<LazySealedEntity>();
         Assert.Equal(
             ProxiesStrings.ItsASeal(nameof(LazySealedEntity)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     [ConditionalFact]
@@ -24,8 +23,7 @@ public class LazyLoadingProxyTests
         using var context = new LazyContext<LazyNonVirtualNavEntity>();
         Assert.Equal(
             ProxiesStrings.NonVirtualProperty(nameof(LazyNonVirtualNavEntity.SelfRef), nameof(LazyNonVirtualNavEntity)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     [ConditionalFact]
@@ -84,8 +82,7 @@ public class LazyLoadingProxyTests
         using var context = new LazyContext<LazyHiddenFieldEntity>();
         Assert.Equal(
             CoreStrings.NoBackingFieldLazyLoading(nameof(LazyHiddenFieldEntity.SelfRef), nameof(LazyHiddenFieldEntity)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Model).Message);
+            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
     [ConditionalFact]
@@ -94,11 +91,10 @@ public class LazyLoadingProxyTests
         var serviceProvider = new ServiceCollection()
             .AddEntityFrameworkInMemoryDatabase()
             .AddEntityFrameworkProxies()
-            .AddDbContext<JammieDodgerContext>(
-                (p, b) =>
-                    b.UseInMemoryDatabase("Jammie")
-                        .UseInternalServiceProvider(p)
-                        .UseLazyLoadingProxies())
+            .AddDbContext<JammieDodgerContext>((p, b) =>
+                b.UseInMemoryDatabase("Jammie")
+                    .UseInternalServiceProvider(p)
+                    .UseLazyLoadingProxies())
             .BuildServiceProvider(validateScopes: true);
 
         using (var scope = serviceProvider.CreateScope())
@@ -121,8 +117,7 @@ public class LazyLoadingProxyTests
                 CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
                     .GenerateMessage("PhoneProxy", "Texts"),
                 "CoreEventId.LazyLoadOnDisposedContextWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => phone.Texts).Message);
+            Assert.Throws<InvalidOperationException>(() => phone.Texts).Message);
     }
 
     private class LazyContextIgnoreVirtuals<TEntity>() : TestContext<TEntity>(

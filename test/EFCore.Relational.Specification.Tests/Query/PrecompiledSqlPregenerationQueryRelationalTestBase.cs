@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see cref="PrecompiledQueryRelationalTestBase" /> for general precompiled query tests not related to
 ///     SQL pregeneration.
 /// </summary>
-public class PrecompiledSqlPregenerationQueryRelationalTestBase
+[Collection("PrecompiledQuery")]
+public abstract class PrecompiledSqlPregenerationQueryRelationalTestBase
 {
     public PrecompiledSqlPregenerationQueryRelationalTestBase(
         PrecompiledSqlPregenerationQueryRelationalFixture fixture,
@@ -54,7 +55,7 @@ var blogs = await context.Blogs.Where(b => b.Id == id).ToListAsync();
 
                 AssertContains(
                     """
-if (parameters["__id_0"] == null)
+if (parameters["id"] == null)
 {
     result = relationalCommandTemplate;
 }
@@ -78,7 +79,7 @@ var blogs = await context.Blogs.Where(b => b.Name == name).ToListAsync();
 
                 AssertContains(
                     """
-if (parameters["__name_0"] == null)
+if (parameters["name"] == null)
 {
     result = relationalCommandTemplate;
 }
@@ -111,7 +112,7 @@ var blogs = await context.Blogs.Where(b => b.Id == id1 || b.Id == id2).ToListAsy
 
                 AssertContains(
                     """
-if (parameters["__id1_0"] == null)
+if (parameters["id1"] == null)
 {
     result = relationalCommandTemplate;
 }
@@ -136,9 +137,9 @@ var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2).T
 
                 AssertContains(
                     """
-if (parameters["__name1_0"] == null)
+if (parameters["name1"] == null)
 {
-    if (parameters["__name2_1"] == null)
+    if (parameters["name2"] == null)
     {
         result = relationalCommandTemplate;
     }
@@ -149,7 +150,7 @@ if (parameters["__name1_0"] == null)
 }
 else
 {
-    if (parameters["__name2_1"] == null)
+    if (parameters["name2"] == null)
     {
         result = relationalCommandTemplate1;
     }
@@ -184,7 +185,7 @@ var blogs = await context.Blogs.Where(b => b.Name == name1 || b.Name == name2).T
 
                 AssertContains(
                     """
-if (parameters["__name1_0"] == null)
+if (parameters["name1"] == null)
 {
     result = relationalCommandTemplate;
 }
@@ -306,7 +307,7 @@ await using var context = new Microsoft.EntityFrameworkCore.Query.PrecompiledSql
 
         public string? Name { get; set; }
 
-        public List<Post> Posts { get; set; } = new();
+        public List<Post> Posts { get; set; } = [];
     }
 
     public class Post

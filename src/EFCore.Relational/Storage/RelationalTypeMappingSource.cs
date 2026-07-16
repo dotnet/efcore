@@ -374,7 +374,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// <inheritdoc />
     public override RelationalTypeMapping? FindMapping(MemberInfo member)
     {
-        if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
+        if (member.GetCustomAttribute<ColumnAttribute>(true) is { } attribute)
         {
             var storeTypeName = attribute.TypeName;
             bool? unicode = null;
@@ -395,7 +395,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     public override RelationalTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
     {
         if (useAttributes
-            && member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
+            && member.GetCustomAttribute<ColumnAttribute>(true) is { } attribute)
         {
             var storeTypeName = attribute.TypeName;
             bool? unicode = null;

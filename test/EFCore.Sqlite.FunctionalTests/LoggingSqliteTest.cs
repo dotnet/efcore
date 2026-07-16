@@ -27,8 +27,7 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
                 RelationalEventId.AmbientTransactionWarning.ToString(),
                 RelationalResources.LogAmbientTransaction(CreateTestLogger()).GenerateMessage(),
                 "RelationalEventId.AmbientTransactionWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => context.SaveChanges()).Message);
+            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
     protected class AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)

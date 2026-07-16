@@ -211,6 +211,32 @@ public interface IRelationalConnectionDiagnosticsLogger : IDiagnosticsLogger<DbL
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionCanceled" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <param name="duration">The amount of time that passed until the command was canceled.</param>
+    void ConnectionCanceled(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ConnectionCanceled" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="startTime">The time that the operation was started.</param>
+    /// <param name="duration">The amount of time that passed until the command was canceled.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    Task ConnectionCanceledAsync(
+        IRelationalConnection connection,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Whether <see cref="RelationalEventId.ConnectionCreating" /> or <see cref="RelationalEventId.ConnectionCreated" /> need
     ///     to be logged.
     /// </summary>

@@ -41,7 +41,7 @@ public class AlterOperationBuilder<TOperation> : OperationBuilder<TOperation>
         string name,
         object? value)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         Operation.OldAnnotations.AddAnnotation(name, value);
 

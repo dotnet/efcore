@@ -32,33 +32,31 @@ public class NonLoadingNavigationsManyToManyLoadSqliteTest(
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<EntityOne>(
-                b =>
-                {
-                    b.Navigation(e => e.Reference).EnableLazyLoading(false);
-                    b.Navigation(e => e.Collection).EnableLazyLoading(false);
-                    b.Navigation(e => e.TwoSkip).EnableLazyLoading(false);
-                    b.Navigation(e => e.ThreeSkipPayloadFull).EnableLazyLoading(false);
-                    b.Navigation(e => e.TwoSkipShared).EnableLazyLoading(false);
-                    b.Navigation(e => e.ThreeSkipPayloadFullShared).EnableLazyLoading(false);
-                    b.Navigation(e => e.JoinThreePayloadFullShared).EnableLazyLoading(false);
-                    b.Navigation(e => e.SelfSkipPayloadLeft).EnableLazyLoading(false);
-                    b.Navigation(e => e.JoinSelfPayloadLeft).EnableLazyLoading(false);
-                    b.Navigation(e => e.SelfSkipPayloadRight).EnableLazyLoading(false);
-                    b.Navigation(e => e.JoinSelfPayloadRight).EnableLazyLoading(false);
-                    b.Navigation(e => e.BranchSkip).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<EntityOne>(b =>
+            {
+                b.Navigation(e => e.Reference).EnableLazyLoading(false);
+                b.Navigation(e => e.Collection).EnableLazyLoading(false);
+                b.Navigation(e => e.TwoSkip).EnableLazyLoading(false);
+                b.Navigation(e => e.ThreeSkipPayloadFull).EnableLazyLoading(false);
+                b.Navigation(e => e.TwoSkipShared).EnableLazyLoading(false);
+                b.Navigation(e => e.ThreeSkipPayloadFullShared).EnableLazyLoading(false);
+                b.Navigation(e => e.JoinThreePayloadFullShared).EnableLazyLoading(false);
+                b.Navigation(e => e.SelfSkipPayloadLeft).EnableLazyLoading(false);
+                b.Navigation(e => e.JoinSelfPayloadLeft).EnableLazyLoading(false);
+                b.Navigation(e => e.SelfSkipPayloadRight).EnableLazyLoading(false);
+                b.Navigation(e => e.JoinSelfPayloadRight).EnableLazyLoading(false);
+                b.Navigation(e => e.BranchSkip).EnableLazyLoading(false);
+            });
 
-            modelBuilder.Entity<EntityCompositeKey>(
-                b =>
-                {
-                    b.Navigation(e => e.TwoSkipShared).EnableLazyLoading(false);
-                    b.Navigation(e => e.ThreeSkipFull).EnableLazyLoading(false);
-                    b.Navigation(e => e.JoinThreeFull).EnableLazyLoading(false);
-                    b.Navigation(e => e.RootSkipShared).EnableLazyLoading(false);
-                    b.Navigation(e => e.LeafSkipFull).EnableLazyLoading(false);
-                    b.Navigation(e => e.JoinLeafFull).EnableLazyLoading(false);
-                });
+            modelBuilder.Entity<EntityCompositeKey>(b =>
+            {
+                b.Navigation(e => e.TwoSkipShared).EnableLazyLoading(false);
+                b.Navigation(e => e.ThreeSkipFull).EnableLazyLoading(false);
+                b.Navigation(e => e.JoinThreeFull).EnableLazyLoading(false);
+                b.Navigation(e => e.RootSkipShared).EnableLazyLoading(false);
+                b.Navigation(e => e.LeafSkipFull).EnableLazyLoading(false);
+                b.Navigation(e => e.JoinLeafFull).EnableLazyLoading(false);
+            });
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class ToSqlQuerySqlServerTest : ToSqlQueryTestBase
+public class ToSqlQuerySqlServerTest(NonSharedFixture fixture) : ToSqlQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
