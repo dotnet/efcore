@@ -153,9 +153,9 @@ public class CosmosTypeMapping : CoreTypeMapping
         // When Enum is cast manually our logic of removing implicit convert gives us enum value here
         // So if CLR type is integer we need to convert enum value to integer value
         if (type.IsEnum == true
-            && ClrType.IsInteger())
+            && unwrapppedClrType.IsInteger())
         {
-            return Convert.ChangeType(value, ClrType);
+            return Convert.ChangeType(value, unwrapppedClrType);
         }
 
         // Handle implicit conversions here to ensure the boxed value has the type expected by JsonValueReaderWriter. Otherwise, unboxing it will throw if the boxed type does not match (for example, value = (char)boxedInt).
