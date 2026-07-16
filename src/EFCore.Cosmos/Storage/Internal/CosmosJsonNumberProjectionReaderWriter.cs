@@ -25,21 +25,18 @@ public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderW
 
     static CosmosJsonNumberProjectionReaderWriter()
     {
-        var writerParameter = Expression.Parameter(typeof(Utf8JsonWriter), "writer");
-        var valueParameter = Expression.Parameter(typeof(T), "value");
         var writeNumberValueMethod = GetWriteNumberValueMethod();
-        var writeNumberValueParameterType = writeNumberValueMethod.GetParameters()[0].ParameterType;
-        Expression writeValueExpression = writeNumberValueParameterType == typeof(T)
-            ? valueParameter
-            : Expression.Convert(valueParameter, writeNumberValueParameterType);
+        var parameterType = writeNumberValueMethod.GetParameters()[0].ParameterType;
 
-        WriteFunc = Expression.Lambda<Action<Utf8JsonWriter, T>>(
-            Expression.Call(
-                writerParameter,
-                writeNumberValueMethod,
-                writeValueExpression),
-            writerParameter,
-            valueParameter).Compile();
+        // For byte/sbyte/short/ushort we intentionally bind to WriteNumberValue(int) and convert.
+        if (parameterType == typeof(int) && typeof(T) != typeof(int))
+        {
+            var writeInt = (Action<Utf8JsonWriter, int>)writeNumberValueMethod.CreateDelegate(typeof(Action<Utf8JsonWriter, int>));
+            WriteFunc = (writer, value) => writeInt(writer, int.CreateChecked(value));
+            return;
+        }
+
+        WriteFunc = (Action<Utf8JsonWriter, T>)writeNumberValueMethod.CreateDelegate(typeof(Action<Utf8JsonWriter, T>));
     }
 
     private static MethodInfo GetWriteNumberValueMethod()
