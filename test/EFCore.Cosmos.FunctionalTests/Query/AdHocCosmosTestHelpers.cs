@@ -13,8 +13,9 @@ public class AdHocCosmosTestHelpers
         string json,
         CancellationToken cancellationToken)
     {
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
         var response = await container.CreateItemStreamAsync(
-                new MemoryStream(Encoding.UTF8.GetBytes(json)),
+                stream,
                 PartitionKey.None,
                 requestOptions: null,
                 cancellationToken)
