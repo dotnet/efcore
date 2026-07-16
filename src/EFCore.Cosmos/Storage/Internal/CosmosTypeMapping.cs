@@ -139,28 +139,29 @@ public class CosmosTypeMapping : CoreTypeMapping
         }
 
         var type = value.GetType();
+        var unwrapppedClrType = ClrType.UnwrapNullableType();
 
         // When Enum column is compared to constant the C# compiler put a constant of integer there
         // In some unknown cases for parameter we also see integer value.
         // So if CLR type is enum we need to convert integer value to enum value
         if (type.IsInteger() == true
-            && ClrType.UnwrapNullableType().IsEnum)
+            && unwrapppedClrType.IsEnum)
         {
-            return Enum.ToObject(ClrType.UnwrapNullableType(), value);
+            return Enum.ToObject(unwrapppedClrType, value);
         }
 
         // When Enum is cast manually our logic of removing implicit convert gives us enum value here
         // So if CLR type is integer we need to convert enum value to integer value
         if (type.IsEnum == true
-            && ClrType.UnwrapNullableType().IsInteger())
+            && ClrType.IsInteger())
         {
             return Convert.ChangeType(value, ClrType);
         }
 
         // Handle implicit conversions here to ensure the boxed value has the type expected by JsonValueReaderWriter. Otherwise, unboxing it will throw if the boxed type does not match (for example, value = (char)boxedInt).
-        if (type != ClrType.UnwrapNullableType() && value is IConvertible)
+        if (type != unwrapppedClrType && value is IConvertible)
         {
-            return Convert.ChangeType(value, ClrType);
+            return Convert.ChangeType(value, unwrapppedClrType);
         }
 
         return value;
