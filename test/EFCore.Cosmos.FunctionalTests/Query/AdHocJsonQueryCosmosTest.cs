@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -1693,7 +1693,7 @@ WHERE (c["Id"] = 4)
         var client = context.Database.GetCosmosClient();
         var container = client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
-        var entityJson = JObject.Parse("""
+        var entityJson = JsonNode.Parse("""
 {
   "$type": "Entity",
   "Id": 1,
@@ -1746,19 +1746,19 @@ WHERE (c["Id"] = 4)
     }
   ]
 }
-""");
+""")!.AsObject();
 
-        var dbJson = JObject.Parse(
+        var dbJson = JsonNode.Parse(
                 new StreamReader(
-                    (await container.ReadItemStreamAsync("1", Azure.Cosmos.PartitionKey.None)).Content).ReadToEnd());
-        foreach (var property in dbJson.Properties().Where(x => x.Name.StartsWith("_")).ToList())
+                    (await container.ReadItemStreamAsync("1", Azure.Cosmos.PartitionKey.None)).Content).ReadToEnd())!.AsObject();
+        foreach (var property in dbJson.Where(x => x.Key.StartsWith("_")).ToList())
         {
-            property.Remove();
+            dbJson.Remove(property.Key);
         }
 
         var text = dbJson.ToString();
 
-        Assert.True(JToken.DeepEquals(entityJson, dbJson));
+        Assert.True(JsonNode.DeepEquals(entityJson, dbJson));
 
         var entity = await context.Entities.SingleAsync();
         Assert.Equal(2, entity.Associate.Id);
