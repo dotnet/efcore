@@ -370,7 +370,9 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     {
         var contextFactory = await InitializeNonSharedTest<Context33826>(
             seed: c => c.SeedAsync(),
-            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery)
+                .ConfigureWarnings(w => w.Log(RelationalEventId.SplitCollectionWithoutOrderingWarning)),
+            shouldLogCategory: c => c == DbLoggerCategory.Query.Name,
             createTestStore: CreateTestStore33826);
 
         Context33826.ConcurrentContextFactory = contextFactory.CreateDbContext;
@@ -382,9 +384,11 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             // variation so that the database is clean for the next one.
             async Task RunVariationAsync(
                 Func<Context33826, IQueryable<Blog33826>> buildQuery,
-                Action<List<Blog33826>> assertResults)
+                Action<List<Blog33826>> assertResults,
+                bool expectsBuffering)
             {
                 Context33826.InsertConcurrentEntity = true;
+                ClearLog();
                 using var context = contextFactory.CreateDbContext();
                 try
                 {
@@ -393,6 +397,11 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                         ? await query.ToListAsync()
                         : query.ToList();
                     assertResults(blogs);
+
+                    Assert.Equal(
+                        expectsBuffering,
+                        TestSqlLoggerFactory.Log.Any(
+                            l => l.Id == RelationalEventId.SplitCollectionWithoutOrderingWarning));
                 }
                 finally
                 {
@@ -420,20 +429,23 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderByDescending(b => b.Id).ThenByDescending(b => b.SecondId),
-                AssertBothOriginalBlogs);
+                AssertBothOriginalBlogs,
+                expectsBuffering: false);
 
             // Variation 2: no explicit ordering — deterministic ASC orderings on the key are injected,
             // so the child query is fully ordered and the fast path is used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery(),
-                AssertBothOriginalBlogs);
+                AssertBothOriginalBlogs,
+                expectsBuffering: false);
 
             // Variation 3: first key column descending only — the injected SecondId ASC ordering makes
             // the effective ORDER BY [Id DESC, SecondId ASC].  The leading columns still match the key
             // columns (just with mixed directions), so the fast path is used and both blogs are correct.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderByDescending(b => b.Id),
-                AssertBothOriginalBlogs);
+                AssertBothOriginalBlogs,
+                expectsBuffering: false);
 
             // Variation 4: ordering leads with a non-key column — the effective ORDER BY is
             // [SecondId ASC, Id ASC], which does not lead with the first key column, so the child rows
@@ -441,20 +453,23 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             // is logged; both original blogs still keep their full post collections.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderBy(b => b.SecondId),
-                AssertBothOriginalBlogs);
+                AssertBothOriginalBlogs,
+                expectsBuffering: true);
 
             // Variation 5: both key columns ascending — fully ordered, fast path used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderBy(b => b.Id).ThenBy(b => b.SecondId),
-                AssertBothOriginalBlogs);
+                AssertBothOriginalBlogs,
+                expectsBuffering: false);
 
             // Variation 6: key columns in opposite directions — leading columns still match the key
             // columns, so the fast path is used just like Variation 3.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderByDescending(b => b.Id).ThenBy(b => b.SecondId),
-                AssertBothOriginalBlogs);
+                AssertBothOriginalBlogs,
+                expectsBuffering: false);
         }
         finally
         {

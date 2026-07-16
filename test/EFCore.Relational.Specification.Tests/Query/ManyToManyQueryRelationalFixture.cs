@@ -12,6 +12,10 @@ public abstract class ManyToManyQueryRelationalFixture : ManyToManyQueryFixtureB
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder)
+            .ConfigureWarnings(c => c.Log(RelationalEventId.SplitCollectionWithoutOrderingWarning));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
