@@ -167,11 +167,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var responseMessage = await _cosmosQueryContext.ExecutionStrategy.ExecuteAsync(
-                                continuationToken,
-                                async (_, continuationToken, cancellationToken) =>
+                                (CosmosClient: cosmosClient,
+                                Container: _cosmosContainer,
+                                SqlQuery: sqlQuery,
+                                SessionTokenStorage: _cosmosQueryContext.SessionTokenStorage,
+                                ContinuationToken: continuationToken,
+                                QueryRequestOptions: queryRequestOptions),
+                                static async (_, state, cancellationToken) =>
                                 {
-                                    using var feedIterator = cosmosClient.CreateQuery(
-                                        _cosmosContainer, sqlQuery, _cosmosQueryContext.SessionTokenStorage, continuationToken, queryRequestOptions);
+                                    using var feedIterator = state.CosmosClient.CreateQuery(
+                                        state.Container, state.SqlQuery, state.SessionTokenStorage, state.ContinuationToken, state.QueryRequestOptions);
 
                                     var responseMessage = await feedIterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
                                     try
