@@ -41,7 +41,7 @@
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.61.0" />
 
     <!-- SQL Server dependencies -->
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.6" />
     <PackageVersion Include="Microsoft.SqlServer.Types" Version="160.1000.6" />
 
     <!-- external dependencies -->
@@ -54,7 +54,7 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_sqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_sqlite3" Version="$(SQLitePCLRawBundleSqlite3Version)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="$(SQLitePCLRawVersion)" />
   </ItemGroup>
 </Project>
