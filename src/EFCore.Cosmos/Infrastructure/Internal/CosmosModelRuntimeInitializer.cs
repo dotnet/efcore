@@ -4,6 +4,7 @@
 // ReSharper disable once CheckNamespace
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
@@ -48,6 +49,11 @@ public class CosmosModelRuntimeInitializer : ModelRuntimeInitializer
         if (prevalidation || !designTime)
         {
             model.SetRuntimeAnnotation(CosmosAnnotationNames.ModelDependencies, CosmosDependencies);
+
+            if (model is RuntimeModel runtimeModel)
+            {
+                runtimeModel.SetRuntimeAnnotation(CosmosAnnotationNames.StructuralTypeSerializerProvider, new Lazy<CosmosStructuralTypeSerializerProvider>(() => new CosmosStructuralTypeSerializerProvider(runtimeModel)));
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Buffers;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -32,9 +33,21 @@ public sealed class CosmosJsonDecimalReaderWriter : JsonValueReaderWriter<decima
         var reader = manager.CurrentReader;
         var span = reader.ValueSpan;
 
-        var isFloatToken = span.IndexOf((byte)'.') >= 0
-                        || span.IndexOf((byte)'e') >= 0
-                        || span.IndexOf((byte)'E') >= 0;
+        var isFloatToken = reader.HasValueSequence
+            ? ContainsAny(reader.ValueSequence)
+            : reader.ValueSpan.ContainsAny((byte)'.', (byte)'e', (byte)'E');
+
+        static bool ContainsAny(ReadOnlySequence<byte> sequence)
+        {
+            foreach (var segment in sequence)
+            {
+                if (segment.Span.ContainsAny((byte)'.', (byte)'e', (byte)'E'))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         return isFloatToken
             ? Convert.ToDecimal(reader.GetDouble())
