@@ -112,9 +112,9 @@ public class CosmosTypeMapping : CoreTypeMapping
     public virtual string GenerateSqlLiteral(object? value)
     {
         value = NormalizeValue(value);
-        return value is null
-                ? "null"
-                : JsonValueReaderWriter!.ToJsonString(value);
+        return value is not null || JsonValueReaderWriter!.HandlesNullWrites
+                ? JsonValueReaderWriter!.ToJsonString(value)
+                : "null";
     }
 
     private object? NormalizeValue(object? value)
