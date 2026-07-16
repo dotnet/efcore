@@ -91,7 +91,7 @@ public class SqlConstantExpression : SqlExpression
         }
         else
         {
-            expressionPrinter.Append((TypeMapping as CosmosTypeMapping)?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "null");
+            expressionPrinter.Append((TypeMapping as CosmosTypeMapping)?.GenerateSqlLiteral(value) ?? value?.ToString() ?? "null");
         }
     }
 

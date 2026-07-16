@@ -122,16 +122,22 @@ public class CosmosStructuralTypeSerializer
         {
             if (collection)
             {
-                writer.WriteStartArray();
-                foreach (var item in (IEnumerable)instance!)
+                if (instance is null)
                 {
-                    var context = new InstanceSerializationContext(item);
-                    WriteStructuralType(writer, context);
+                    writer.WriteNullValue();
                 }
-                writer.WriteEndArray();
+                else
+                {
+                    writer.WriteStartArray();
+                    foreach (var item in (IEnumerable)instance)
+                    {
+                        var context = new InstanceSerializationContext(item);
+                        WriteStructuralType(writer, context);
+                    }
+                    writer.WriteEndArray();
+                }
             }
             else
-            {
                 var context = new InstanceSerializationContext(instance);
                 WriteStructuralType(writer, context);
             }
