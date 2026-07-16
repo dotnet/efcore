@@ -20,6 +20,10 @@ public class TemporalManyToManyQuerySqlServerFixture : ManyToManyQueryFixtureBas
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder)
+            .ConfigureWarnings(w => w.Log(RelationalEventId.SplitCollectionWithoutOrderingWarning));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<EntityTableSharing1>().ToTable("TableSharing");

@@ -481,7 +481,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
-                    var buffer = trackingQuery ? null : new List<(object[], object?)>();
+                    var lookup = trackingQuery
+                        ? null
+                        : new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
                     while (dataReaderContext.HasNext ?? dbDataReader.Read())
                     {
                         dataReaderContext.HasNext = null;
@@ -493,23 +495,31 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var bufferedEntity = innerShaper(
                             queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
 
-                        buffer?.Add((bufferedChildIdentifier, bufferedEntity));
+                        if (lookup != null)
+                        {
+                            if (!lookup.TryGetValue(bufferedChildIdentifier, out var entities))
+                            {
+                                entities = [];
+                                lookup[bufferedChildIdentifier] = entities;
+                            }
+
+                            entities.Add(bufferedEntity);
+                        }
                     }
 
                     dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntities = buffer;
+                    dataReaderContext.BufferedEntityLookup = lookup;
                 }
 
-                if (!trackingQuery && dataReaderContext.BufferedEntities is { } bufferedEntities)
+                if (!trackingQuery
+                    && dataReaderContext.BufferedEntityLookup is { } bufferedEntities
+                    && bufferedEntities.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedEntitiesForParent))
                 {
-                    foreach (var (identifier, bufferedEntity) in bufferedEntities)
+                    foreach (var bufferedEntity in bufferedEntitiesForParent)
                     {
-                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
-                        {
-                            var relatedEntity = (TIncludedEntity)bufferedEntity!;
-                            fixup(entity, relatedEntity);
-                            inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        var relatedEntity = (TIncludedEntity)bufferedEntity!;
+                        fixup(entity, relatedEntity);
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
 
@@ -636,7 +646,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
-                    var buffer = trackingQuery ? null : new List<(object[], object?)>();
+                    var lookup = trackingQuery
+                        ? null
+                        : new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
                     while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                     {
                         dataReaderContext.HasNext = null;
@@ -652,23 +664,31 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var bufferedEntity = innerShaper(
                             queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
 
-                        buffer?.Add((bufferedChildIdentifier, bufferedEntity));
+                        if (lookup != null)
+                        {
+                            if (!lookup.TryGetValue(bufferedChildIdentifier, out var entities))
+                            {
+                                entities = [];
+                                lookup[bufferedChildIdentifier] = entities;
+                            }
+
+                            entities.Add(bufferedEntity);
+                        }
                     }
 
                     dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntities = buffer;
+                    dataReaderContext.BufferedEntityLookup = lookup;
                 }
 
-                if (!trackingQuery && dataReaderContext.BufferedEntities is { } bufferedEntities)
+                if (!trackingQuery
+                    && dataReaderContext.BufferedEntityLookup is { } bufferedEntities
+                    && bufferedEntities.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedEntitiesForParent))
                 {
-                    foreach (var (identifier, bufferedEntity) in bufferedEntities)
+                    foreach (var bufferedEntity in bufferedEntitiesForParent)
                     {
-                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
-                        {
-                            var relatedEntity = (TIncludedEntity)bufferedEntity!;
-                            fixup(entity, relatedEntity);
-                            inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        var relatedEntity = (TIncludedEntity)bufferedEntity!;
+                        fixup(entity, relatedEntity);
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
 
@@ -963,7 +983,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
-                    var buffer = new List<(object[], object?)>();
+                    var lookup = new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
                     while (dataReaderContext.HasNext ?? dbDataReader.Read())
                     {
                         dataReaderContext.HasNext = null;
@@ -975,21 +995,25 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var bufferedElement = innerShaper(
                             queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
 
-                        buffer.Add((bufferedChildIdentifier, bufferedElement!));
+                        if (!lookup.TryGetValue(bufferedChildIdentifier, out var elements))
+                        {
+                            elements = [];
+                            lookup[bufferedChildIdentifier] = elements;
+                        }
+
+                        elements.Add(bufferedElement);
                     }
 
                     dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntities = buffer;
+                    dataReaderContext.BufferedEntityLookup = lookup;
                 }
 
-                if (dataReaderContext.BufferedEntities is { } bufferedElements)
+                if (dataReaderContext.BufferedEntityLookup is { } bufferedElements
+                    && bufferedElements.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedElementsForParent))
                 {
-                    foreach (var (identifier, bufferedElement) in bufferedElements)
+                    foreach (var bufferedElement in bufferedElementsForParent)
                     {
-                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
-                        {
-                            ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
-                        }
+                        ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
                     }
                 }
 
@@ -1109,7 +1133,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
-                    var buffer = new List<(object[], object?)>();
+                    var lookup = new Dictionary<object[], List<object?>>(new IdentifierEqualityComparer(identifierValueComparers));
                     while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                     {
                         dataReaderContext.HasNext = null;
@@ -1125,21 +1149,25 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var bufferedElement = innerShaper(
                             queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
 
-                        buffer.Add((bufferedChildIdentifier, bufferedElement));
+                        if (!lookup.TryGetValue(bufferedChildIdentifier, out var elements))
+                        {
+                            elements = [];
+                            lookup[bufferedChildIdentifier] = elements;
+                        }
+
+                        elements.Add(bufferedElement);
                     }
 
                     dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntities = buffer;
+                    dataReaderContext.BufferedEntityLookup = lookup;
                 }
 
-                if (dataReaderContext.BufferedEntities is { } bufferedElements)
+                if (dataReaderContext.BufferedEntityLookup is { } bufferedElements
+                    && bufferedElements.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedElementsForParent))
                 {
-                    foreach (var (identifier, bufferedElement) in bufferedElements)
+                    foreach (var bufferedElement in bufferedElementsForParent)
                     {
-                        if (CompareIdentifiers(identifierValueComparers, splitQueryCollectionContext.ParentIdentifier, identifier))
-                        {
-                            ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
-                        }
+                        ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
                     }
                 }
 
@@ -1558,6 +1586,32 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             return true;
+        }
+
+        private sealed class IdentifierEqualityComparer(IReadOnlyList<Func<object, object, bool>> valueComparers) : IEqualityComparer<object[]>
+        {
+            public bool Equals(object[]? x, object[]? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                return x is not null
+                    && y is not null
+                    && CompareIdentifiers(valueComparers, x, y);
+            }
+
+            public int GetHashCode(object[] identifier)
+            {
+                var hash = new HashCode();
+                for (var i = 0; i < identifier.Length; i++)
+                {
+                    hash.Add(identifier[i]);
+                }
+
+                return hash.ToHashCode();
+            }
         }
 
         private static bool IsOrphanChild(
