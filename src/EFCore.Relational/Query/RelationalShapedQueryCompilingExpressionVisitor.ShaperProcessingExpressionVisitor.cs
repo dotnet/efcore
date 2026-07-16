@@ -2811,7 +2811,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return Constant(null, typeof(bool[]));
             }
 
-            return NewArrayInit(typeof(bool), parentIdentifierOrdering.Select(ascending => (Expression)Constant(ascending)));
+            return Constant(parentIdentifierOrdering, typeof(bool[]));
         }
 
         private LambdaExpression GenerateFixup(
