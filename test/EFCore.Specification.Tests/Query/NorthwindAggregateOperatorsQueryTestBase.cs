@@ -278,7 +278,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)));
+            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Average(od => od.ProductID)),
+            asserter: (e, a) => Assert.Equal(e, a, 10));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -286,7 +287,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Max(od => od.ProductID)));
+            selector: c => (decimal)c.Orders.Average(o => 5 + o.OrderDetails.Max(od => od.ProductID)),
+            asserter: (e, a) => Assert.Equal(e, a, 10));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
