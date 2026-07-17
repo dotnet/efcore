@@ -688,8 +688,24 @@ INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
         switch (JsonColumnType)
         {
             case "json":
-                AssertSql(
-                    """
+                if (Microsoft.EntityFrameworkCore.TestUtilities.TestEnvironment.IsAzureSql)
+                {
+                    AssertSql(
+                        """
+SELECT [p].[value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
+    [packageId] nvarchar(max) '$.packageId',
+    [partNumbers] nvarchar(max) '$.partNumbers' AS JSON
+) AS [o]
+CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
+WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
+""");
+                }
+                else
+                {
+                    AssertSql(
+                        """
 SELECT [p].[value]
 FROM [Cars] AS [c]
 CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
@@ -699,8 +715,9 @@ CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
 CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
 WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
 """);
-                break;
+                }
 
+                break;
             case "nvarchar(max)":
                 AssertSql(
                     """
