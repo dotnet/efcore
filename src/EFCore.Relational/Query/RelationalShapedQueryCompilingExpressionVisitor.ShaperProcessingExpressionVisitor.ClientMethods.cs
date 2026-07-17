@@ -528,6 +528,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            var foundFirstMatch = false;
             while (dataReaderContext.HasNext ?? dbDataReader.Read())
             {
                 var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
@@ -535,20 +536,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    if (IsOrphanChild(
-                            parentIdentifierOrdering,
-                            splitQueryCollectionContext.ParentIdentifier,
-                            currentChildIdentifier))
+                    if (foundFirstMatch)
                     {
-                        dataReaderContext.HasNext = null;
-                        continue;
+                        // Matching rows were already found; this non-matching row is the start of
+                        // the next parent's group (or an orphan after current parent's rows).
+                        // Stop here — the next PopulateSplitIncludeCollection call will handle it.
+                        dataReaderContext.HasNext = true;
+                        return;
                     }
 
-                    dataReaderContext.HasNext = true;
-
-                    return;
+                    // No matching rows yet; this row belongs to a concurrently-inserted parent
+                    // that was not returned by the outer query. Skip it.
+                    dataReaderContext.HasNext = null;
+                    continue;
                 }
 
+                foundFirstMatch = true;
                 dataReaderContext.HasNext = null;
                 splitQueryCollectionContext.ResultContext.Values = null;
 
@@ -699,6 +702,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            var foundFirstMatch = false;
             while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
             {
                 var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
@@ -706,20 +710,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    if (IsOrphanChild(
-                            parentIdentifierOrdering,
-                            splitQueryCollectionContext.ParentIdentifier,
-                            currentChildIdentifier))
+                    if (foundFirstMatch)
                     {
-                        dataReaderContext.HasNext = null;
-                        continue;
+                        // Matching rows were already found; this non-matching row is the start of
+                        // the next parent's group (or an orphan after current parent's rows).
+                        // Stop here — the next PopulateSplitIncludeCollectionAsync call will handle it.
+                        dataReaderContext.HasNext = true;
+                        return;
                     }
 
-                    dataReaderContext.HasNext = true;
-
-                    return;
+                    // No matching rows yet; this row belongs to a concurrently-inserted parent
+                    // that was not returned by the outer query. Skip it.
+                    dataReaderContext.HasNext = null;
+                    continue;
                 }
 
+                foundFirstMatch = true;
                 dataReaderContext.HasNext = null;
                 splitQueryCollectionContext.ResultContext.Values = null;
 
@@ -1026,6 +1032,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            var foundFirstMatch = false;
             while (dataReaderContext.HasNext ?? dbDataReader.Read())
             {
                 var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
@@ -1033,20 +1040,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    if (IsOrphanChild(
-                            parentIdentifierOrdering,
-                            splitQueryCollectionContext.ParentIdentifier,
-                            currentChildIdentifier))
+                    if (foundFirstMatch)
                     {
-                        dataReaderContext.HasNext = null;
-                        continue;
+                        // Matching rows were already found; this non-matching row is the start of
+                        // the next parent's group (or an orphan after current parent's rows).
+                        // Stop here — the next PopulateSplitCollection call will handle it.
+                        dataReaderContext.HasNext = true;
+                        return;
                     }
 
-                    dataReaderContext.HasNext = true;
-
-                    return;
+                    // No matching rows yet; this row belongs to a concurrently-inserted parent
+                    // that was not returned by the outer query. Skip it.
+                    dataReaderContext.HasNext = null;
+                    continue;
                 }
 
+                foundFirstMatch = true;
                 dataReaderContext.HasNext = null;
                 splitQueryCollectionContext.ResultContext.Values = null;
 
@@ -1182,6 +1191,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
+            var foundFirstMatch = false;
             while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
             {
                 var currentChildIdentifier = childIdentifier(queryContext, dbDataReader);
@@ -1189,20 +1199,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    if (IsOrphanChild(
-                            parentIdentifierOrdering,
-                            splitQueryCollectionContext.ParentIdentifier,
-                            currentChildIdentifier))
+                    if (foundFirstMatch)
                     {
-                        dataReaderContext.HasNext = null;
-                        continue;
+                        // Matching rows were already found; this non-matching row is the start of
+                        // the next parent's group (or an orphan after current parent's rows).
+                        // Stop here — the next PopulateSplitCollectionAsync call will handle it.
+                        dataReaderContext.HasNext = true;
+                        return;
                     }
 
-                    dataReaderContext.HasNext = true;
-
-                    return;
+                    // No matching rows yet; this row belongs to a concurrently-inserted parent
+                    // that was not returned by the outer query. Skip it.
+                    dataReaderContext.HasNext = null;
+                    continue;
                 }
 
+                foundFirstMatch = true;
                 dataReaderContext.HasNext = null;
                 splitQueryCollectionContext.ResultContext.Values = null;
 
@@ -1625,42 +1637,5 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static bool IsOrphanChild(
-            bool[] parentIdentifierOrdering,
-            object[] parentIdentifier,
-            object[] childIdentifier)
-            // On the fully-ordered fast path, a non-matching child row that sorts strictly before the current parent
-            // (according to the query's ORDER BY) cannot belong to any not-yet-processed parent, so it is an orphan
-            // introduced by a concurrent insert and should be skipped rather than treated as the next parent's boundary.
-            => CompareParentIdentifierOrdering(parentIdentifierOrdering, childIdentifier, parentIdentifier) < 0;
-
-        private static int CompareParentIdentifierOrdering(
-            bool[] parentIdentifierOrdering,
-            object[] left,
-            object[] right)
-        {
-            for (var i = 0; i < parentIdentifierOrdering.Length; i++)
-            {
-                int comparison;
-                try
-                {
-                    comparison = Comparer<object>.Default.Compare(left[i], right[i]);
-                }
-                catch (Exception e) when (e is ArgumentException or InvalidCastException)
-                {
-                    // The values are only equality-comparable; the relative ordering cannot be determined, so treat the
-                    // row as a boundary rather than risk skipping a valid child row.
-                    return 0;
-                }
-
-                if (comparison != 0)
-                {
-                    comparison = comparison < 0 ? -1 : 1;
-                    return parentIdentifierOrdering[i] ? comparison : -comparison;
-                }
-            }
-
-            return 0;
-        }
     }
 }

@@ -407,9 +407,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                 {
                     Context33826.InsertConcurrentEntity = false;
                     using var cleanupContext = contextFactory.CreateDbContext();
-                    await using var tx = await cleanupContext.Database.BeginTransactionAsync();
                     await cleanupContext.Blogs.Where(b => b.Id == 15 && b.SecondId == 3).ExecuteDeleteAsync();
-                    await tx.CommitAsync();
                 }
             }
 
