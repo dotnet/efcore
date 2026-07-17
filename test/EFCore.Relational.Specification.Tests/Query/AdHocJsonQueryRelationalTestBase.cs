@@ -691,6 +691,99 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #endregion HasJsonPropertyName
 
+    #region 38615
+
+    [ConditionalFact]
+    public virtual async Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
+    {
+        var contextFactory = await InitializeAsync<Context38615>(
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: m => m.Entity<Context38615.Car>(b =>
+            {
+                b.ToTable("Cars");
+                b.HasKey(e => e.CarId);
+                b.Property(e => e.Vin).IsUnicode(false).HasMaxLength(32);
+                b.Property(e => e.DealerId).IsUnicode(false).HasMaxLength(32);
+                b.HasIndex(e => new { e.Vin, e.DealerId }).IsUnique();
+
+                b.ComplexProperty(e => e.CarConfiguration, pp =>
+                {
+                    pp.ToJson("CarConfiguration");
+                    if (JsonColumnType != null)
+                    {
+                        pp.HasColumnType(JsonColumnType);
+                    }
+
+                    pp.Property(p => p.CurrentTrim).HasJsonPropertyName("currentTrim");
+
+                    pp.ComplexCollection(p => p.OptionPackages, op =>
+                    {
+                        op.HasJsonPropertyName("optionPackages");
+                        op.Property(o => o.PackageId).HasJsonPropertyName("packageId");
+                        op.PrimitiveCollection(o => o.PartNumbers)
+                            .ElementType(e => e.IsUnicode(false).HasMaxLength(32))
+                            .HasJsonPropertyName("partNumbers");
+                    });
+                });
+            }),
+            seed: context =>
+            {
+                context.Set<Context38615.Car>().Add(
+                    new Context38615.Car
+                    {
+                        Vin = "1FA6P8TH8J5123456",
+                        DealerId = "DEALER-001",
+                        CarConfiguration = new Context38615.CarConfiguration
+                        {
+                            CurrentTrim = "GT-Line",
+                            OptionPackages =
+                            [
+                                new Context38615.OptionPackage { PackageId = "PKG-SPORT", PartNumbers = ["SP-100", "SP-101"] },
+                                new Context38615.OptionPackage { PackageId = "PKG-TOW", PartNumbers = ["TW-200"] }
+                            ]
+                        }
+                    });
+
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var partNumbers = await context.Set<Context38615.Car>()
+            .Where(c => c.Vin == "1FA6P8TH8J5123456" && c.DealerId == "DEALER-001")
+            .SelectMany(c => c.CarConfiguration.OptionPackages)
+            .Where(op => op.PackageId == "PKG-SPORT")
+            .SelectMany(op => op.PartNumbers)
+            .ToListAsync();
+
+        Assert.Equal(["SP-100", "SP-101"], partNumbers.Order().ToList());
+    }
+
+    protected class Context38615(DbContextOptions options) : DbContext(options)
+    {
+        public class Car
+        {
+            public int CarId { get; set; }
+            public string Vin { get; set; }
+            public string DealerId { get; set; }
+            public CarConfiguration CarConfiguration { get; set; }
+        }
+
+        public class CarConfiguration
+        {
+            public string CurrentTrim { get; set; }
+            public List<OptionPackage> OptionPackages { get; set; }
+        }
+
+        public class OptionPackage
+        {
+            public string PackageId { get; set; }
+            public ICollection<string> PartNumbers { get; set; }
+        }
+    }
+
+    #endregion 38615
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

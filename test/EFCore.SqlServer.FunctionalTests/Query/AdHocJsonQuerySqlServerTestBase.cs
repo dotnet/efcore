@@ -680,4 +680,43 @@ FROM [MyEntity] AS [m]
 INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
 """);
     }
+
+    public override async Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
+    {
+        await base.SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column();
+
+        switch (JsonColumnType)
+        {
+            case "json":
+                AssertSql(
+                    """
+SELECT [p].[value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
+    [packageId] nvarchar(max) '$.packageId',
+    [partNumbers] json '$.partNumbers' AS JSON
+) AS [o]
+CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
+WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
+""");
+                break;
+
+            case "nvarchar(max)":
+                AssertSql(
+                    """
+SELECT [p].[value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[CarConfiguration], '$.optionPackages') WITH (
+    [packageId] nvarchar(max) '$.packageId',
+    [partNumbers] nvarchar(max) '$.partNumbers' AS JSON
+) AS [o]
+CROSS APPLY OPENJSON([o].[partNumbers]) WITH ([value] varchar(32) '$') AS [p]
+WHERE [c].[Vin] = '1FA6P8TH8J5123456' AND [c].[DealerId] = 'DEALER-001' AND [o].[packageId] = N'PKG-SPORT'
+""");
+                break;
+
+            default:
+                throw new UnreachableException();
+        }
+    }
 }
