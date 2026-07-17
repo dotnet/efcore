@@ -4,7 +4,6 @@
 // ReSharper disable once CheckNamespace
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
