@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -27,9 +26,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
     private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
-
-    private readonly CosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider =
-        queryCompilationContext.Model.GetCosmosStructuralTypeSerializerProvider();
 
     private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
     {
@@ -263,7 +259,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                             => CreateJsonQueryParameter(sqlParameterExpression),
                         SqlConstantExpression constant
                             => sqlExpressionFactory.Constant(
-                                Encoding.UTF8.GetString(_structuralTypeSerializerProvider.Get(complexType).Serialize(constant.Value, collection).Span),
+                                Encoding.UTF8.GetString(structuralTypeSerializerProvider.Get(complexType).Serialize(constant.Value, collection).Span),
                                 CosmosQueryRawJsonTypeMapping.Default),
 
                         _ => null
@@ -278,7 +274,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                                     Expression.Call(Expression.Constant(Encoding.UTF8), GetStringMethodInfo,
                                     Expression.Property(
                                         Expression.Call(
-                                            Expression.Constant(_structuralTypeSerializerProvider.Get(complexType)),
+                                            Expression.Constant(structuralTypeSerializerProvider.Get(complexType)),
                                             CosmosStructuralTypeSerializer.SerializeInstanceMethod,
                                             Expression.Convert(
                                                 Expression.Call(

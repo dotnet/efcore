@@ -20,6 +20,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private readonly ITypeMappingSource _typeMappingSource;
     private readonly IMemberTranslatorProvider _memberTranslatorProvider;
     private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
+    private readonly ICosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
     private readonly CosmosAliasManager _aliasManager;
@@ -37,7 +38,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         ISqlExpressionFactory sqlExpressionFactory,
         ITypeMappingSource typeMappingSource,
         IMemberTranslatorProvider memberTranslatorProvider,
-        IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        IMethodCallTranslatorProvider methodCallTranslatorProvider,
+        ICosmosStructuralTypeSerializerProvider structuralTypeSerializerProvider)
         : base(dependencies, queryCompilationContext, subquery: false)
     {
         _queryCompilationContext = queryCompilationContext;
@@ -45,12 +47,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         _typeMappingSource = typeMappingSource;
         _memberTranslatorProvider = memberTranslatorProvider;
         _methodCallTranslatorProvider = methodCallTranslatorProvider;
+        _structuralTypeSerializerProvider = structuralTypeSerializerProvider;
         _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             queryCompilationContext,
             _sqlExpressionFactory,
             _typeMappingSource,
             _memberTranslatorProvider,
             _methodCallTranslatorProvider,
+            _structuralTypeSerializerProvider,
             this);
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);
@@ -73,12 +77,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         _typeMappingSource = parentVisitor._typeMappingSource;
         _memberTranslatorProvider = parentVisitor._memberTranslatorProvider;
         _methodCallTranslatorProvider = parentVisitor._methodCallTranslatorProvider;
+        _structuralTypeSerializerProvider = parentVisitor._structuralTypeSerializerProvider;
         _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             QueryCompilationContext,
             _sqlExpressionFactory,
             _typeMappingSource,
             _memberTranslatorProvider,
             _methodCallTranslatorProvider,
+            _structuralTypeSerializerProvider,
             parentVisitor);
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);

@@ -5,7 +5,6 @@ using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -21,12 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class CosmosDatabaseWrapper : Database, IResettableService
 {
-    private readonly CosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider;
+    private readonly ICurrentDbContext _currentDbContext;
     private readonly ICosmosClientWrapper _cosmosClient;
+    private readonly ICosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider;
+
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _bulkExecutionEnabled;
-
-    private readonly ICurrentDbContext _currentDbContext;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,14 +39,15 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         ICosmosClientWrapper cosmosClient,
         ICosmosSingletonOptions cosmosSingletonOptions,
         ISessionTokenStorageFactory sessionTokenStorageFactory,
+        ICosmosStructuralTypeSerializerProvider structuralTypeSerializerProvider,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
+        _structuralTypeSerializerProvider = structuralTypeSerializerProvider;
         _bulkExecutionEnabled = cosmosSingletonOptions.EnableBulkExecution == true;
         SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
-        _structuralTypeSerializerProvider = currentDbContext.Context.Model.GetCosmosStructuralTypeSerializerProvider();
 
         if (loggingOptions.IsSensitiveDataLoggingEnabled)
         {
@@ -539,7 +539,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     private DbUpdateException WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
     {
         var entry = entries[0];
-        var serializer = _structuralTypeSerializerProvider.Get(entry.EntityType);
+        var serializer = _structuralTypeSerializerProvider.Get((entry.SharedIdentityEntry ?? entry).EntityType);
         var id = serializer.GetJsonId(entry.SharedIdentityEntry ?? entry);
 
         return exception switch

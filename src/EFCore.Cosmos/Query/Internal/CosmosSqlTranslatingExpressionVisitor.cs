@@ -22,6 +22,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ITypeMappingSource typeMappingSource,
     IMemberTranslatorProvider memberTranslatorProvider,
     IMethodCallTranslatorProvider methodCallTranslatorProvider,
+    ICosmosStructuralTypeSerializerProvider structuralTypeSerializerProvider,
     QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
     : ExpressionVisitor
 {
