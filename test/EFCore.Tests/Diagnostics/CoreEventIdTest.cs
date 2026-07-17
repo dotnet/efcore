@@ -104,7 +104,7 @@ public class CoreEventIdTest : EventIdTestBase
             => (IEntityType)DeclaringType;
 
         public IEntityType TargetEntityType
-            => throw new NotImplementedException();
+            => (IEntityType)DeclaringType;
 
         public INavigationBase Inverse
             => throw new NotImplementedException();
@@ -124,7 +124,7 @@ public class CoreEventIdTest : EventIdTestBase
             => (IReadOnlyEntityType)DeclaringType;
 
         IReadOnlyEntityType IReadOnlyNavigationBase.TargetEntityType
-            => throw new NotImplementedException();
+            => (IReadOnlyEntityType)DeclaringType;
 
         IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
             => throw new NotImplementedException();
