@@ -3,7 +3,7 @@
 
 using System.Collections.Frozen;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

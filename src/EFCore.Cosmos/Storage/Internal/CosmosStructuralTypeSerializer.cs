@@ -7,9 +7,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
 

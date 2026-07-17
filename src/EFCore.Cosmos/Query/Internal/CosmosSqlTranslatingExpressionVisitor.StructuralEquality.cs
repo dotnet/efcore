@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 

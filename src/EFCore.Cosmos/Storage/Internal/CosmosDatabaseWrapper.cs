@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
