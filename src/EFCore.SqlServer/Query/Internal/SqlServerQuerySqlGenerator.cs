@@ -799,7 +799,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 // See: https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#limitations
                 if (columnInfo.AsJson
                     && columnInfo.TypeMapping.StoreType == "json"
-                    && !_sqlServerSingletonOptions.SupportsJsonTypeInOpenJson)
+                    && (_sqlServerSingletonOptions.EngineType != SqlServerEngineType.SqlServer
+                        || _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170))
                 {
                     Sql.Append("nvarchar(max)");
                 }
