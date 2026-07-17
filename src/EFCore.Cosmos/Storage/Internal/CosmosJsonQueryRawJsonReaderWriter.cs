@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosJsonQueryRawJsonReaderWriter : JsonValueReaderWriter<string>
+public class CosmosJsonQueryRawJsonReaderWriter : JsonValueReaderWriter<ReadOnlyMemory<byte>>
 {
     private static readonly PropertyInfo InstanceProperty = typeof(CosmosJsonQueryRawJsonReaderWriter).GetProperty(nameof(Instance))!;
 
@@ -26,10 +26,10 @@ public class CosmosJsonQueryRawJsonReaderWriter : JsonValueReaderWriter<string>
         => Expression.Property(null, InstanceProperty);
 
     /// <inheritdoc/>
-    public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+    public override ReadOnlyMemory<byte> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => throw new UnreachableException("Query json is only serialized.");
 
     /// <inheritdoc/>
-    public override void ToJsonTyped(Utf8JsonWriter writer, string value)
-        => writer.WriteRawValue(value, skipInputValidation: true);
+    public override void ToJsonTyped(Utf8JsonWriter writer, ReadOnlyMemory<byte> value)
+        => writer.WriteRawValue(value.Span, skipInputValidation: true);
 }

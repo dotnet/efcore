@@ -574,25 +574,26 @@ public static class CosmosLoggerExtensions
     private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
             ? ""
-            : FormatParameters(
-                parameters.Select(p => (SqlParameter)new SqlRawJsonParameter(p.Name, (string)p.Value!)).ToList(),
-                shouldLogParameterValues);
+            : string.Join(
+                ", ",
+                parameters.Select(p => FormatParameter(p.Name, shouldLogParameterValues ? (string)p.Value! : null)));
 
     private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
             ? ""
-            : string.Join(", ", parameters.Select(e => FormatParameter(e, shouldLogParameterValues)));
+            : string.Join(
+                ", ",
+                parameters.Select(p => FormatParameter(p.Name, shouldLogParameterValues ? p.ToJsonString() : null)));
 
-    private static string FormatParameter(SqlParameter parameter, bool shouldLogParameterValue)
+    private static string FormatParameter(string name, string? jsonString)
     {
         var builder = new StringBuilder();
         builder
-            .Append(parameter.Name)
+            .Append(name)
             .Append('=');
 
-        if (shouldLogParameterValue)
+        if (jsonString is not null)
         {
-            var jsonString = parameter.ToJsonString();
             if ("null".Equals(jsonString, StringComparison.OrdinalIgnoreCase))
             {
                 builder.Append("null");

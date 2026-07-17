@@ -47,5 +47,5 @@ public class CosmosQueryRawJsonTypeMapping : CosmosTypeMapping
 
     /// <inheritdoc/>
     public override SqlParameter CreateParameter(string name, object? value)
-        => new SqlRawJsonParameter(name, (string)(value ?? "null"));
+        => new SqlRawJsonParameter(name, (ReadOnlyMemory<byte>)value!);
 }

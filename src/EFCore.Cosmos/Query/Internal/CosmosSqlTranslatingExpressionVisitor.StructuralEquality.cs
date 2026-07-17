@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -11,12 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public partial class CosmosSqlTranslatingExpressionVisitor
 {
     private const string RuntimeParameterPrefix = "entity_equality_";
-
-    private static readonly PropertyInfo ReadOnlyMemorySpanProperty
-        = typeof(ReadOnlyMemory<byte>).GetProperty(nameof(ReadOnlyMemory<>.Span)) ?? throw new UnreachableException();
-
-    private static readonly MethodInfo GetStringMethodInfo
-        = typeof(Encoding).GetMethod(nameof(Encoding.GetString), [typeof(ReadOnlySpan<byte>)]) ?? throw new UnreachableException();
 
     private static readonly MethodInfo ParameterPropertyValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterPropertyValueExtractor))!;
@@ -259,7 +252,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                             => CreateJsonQueryParameter(sqlParameterExpression),
                         SqlConstantExpression constant
                             => sqlExpressionFactory.Constant(
-                                Encoding.UTF8.GetString(structuralTypeSerializerProvider.Get(complexType).Serialize(constant.Value, collection).Span),
+                                structuralTypeSerializerProvider.Get(complexType).Serialize(constant.Value, collection),
                                 CosmosQueryRawJsonTypeMapping.Default),
 
                         _ => null
@@ -270,21 +263,19 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
                 SqlExpression CreateJsonQueryParameter(SqlParameterExpression sqlParameterExpression)
                 {
+                    // (queryContext) => CosmosStructuralTypeSerializer.SerializeInstance((object)queryContext.ParameterValueExtractor(sqlParameterExpression.Name), collection)
                     var lambda = Expression.Lambda(
-                                    Expression.Call(Expression.Constant(Encoding.UTF8), GetStringMethodInfo,
-                                    Expression.Property(
-                                        Expression.Call(
-                                            Expression.Constant(structuralTypeSerializerProvider.Get(complexType)),
-                                            CosmosStructuralTypeSerializer.SerializeInstanceMethod,
-                                            Expression.Convert(
-                                                Expression.Call(
-                                                    ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
-                                                    QueryCompilationContext.QueryContextParameter,
-                                                    Expression.Constant(sqlParameterExpression.Name, typeof(string))),
-                                                typeof(object)),
-                                            Expression.Constant(collection)),
-                                        ReadOnlyMemorySpanProperty)),
-                                        QueryCompilationContext.QueryContextParameter);
+                                    Expression.Call(
+                                        Expression.Constant(structuralTypeSerializerProvider.Get(complexType)),
+                                        CosmosStructuralTypeSerializer.SerializeInstanceMethod,
+                                        Expression.Convert(
+                                            Expression.Call(
+                                                ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
+                                                QueryCompilationContext.QueryContextParameter,
+                                                Expression.Constant(sqlParameterExpression.Name, typeof(string))),
+                                            typeof(object)),
+                                        Expression.Constant(collection)),
+                                    QueryCompilationContext.QueryContextParameter);
 
                     var param = queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
                     return new SqlParameterExpression(param.Name, param.Type, CosmosQueryRawJsonTypeMapping.Default);
