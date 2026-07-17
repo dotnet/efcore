@@ -12168,37 +12168,15 @@ FROM [Squads] AS [s]
 
         AssertSql(
             """
-SELECT [s].[Name], (
-    SELECT ISNULL(SUM(CAST(LEN([c].[Location]) AS int)), 0)
-    FROM (
-        SELECT [g2].[SquadId], [g2].[CityOfBirthName]
-        FROM [Gears] AS [g2]
-        UNION ALL
-        SELECT [o2].[SquadId], [o2].[CityOfBirthName]
-        FROM [Officers] AS [o2]
-    ) AS [u3]
-    INNER JOIN [Squads] AS [s0] ON [u3].[SquadId] = [s0].[Id]
-    INNER JOIN [Cities] AS [c] ON [u3].[CityOfBirthName] = [c].[Name]
-    WHERE N'Marcus' IN (
-        SELECT [g3].[Nickname]
-        FROM [Gears] AS [g3]
-        UNION ALL
-        SELECT [o3].[Nickname]
-        FROM [Officers] AS [o3]
-        UNION ALL
-        SELECT [g4].[Nickname]
-        FROM [Gears] AS [g4]
-        UNION ALL
-        SELECT [o4].[Nickname]
-        FROM [Officers] AS [o4]
-    ) AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
+SELECT [s].[Name], ISNULL(SUM(CAST(LEN([c].[Location]) AS int)), 0) AS [SumOfLengths]
 FROM (
-    SELECT [g].[SquadId]
+    SELECT [g].[SquadId], [g].[CityOfBirthName]
     FROM [Gears] AS [g]
     UNION ALL
-    SELECT [o].[SquadId]
+    SELECT [o].[SquadId], [o].[CityOfBirthName]
     FROM [Officers] AS [o]
 ) AS [u]
+LEFT JOIN [Cities] AS [c] ON [u].[CityOfBirthName] = [c].[Name]
 INNER JOIN [Squads] AS [s] ON [u].[SquadId] = [s].[Id]
 WHERE N'Marcus' IN (
     SELECT [g0].[Nickname]

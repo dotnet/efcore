@@ -2366,12 +2366,76 @@ GROUP BY [o].[OrderID], [o].[CustomerID]
 
         AssertSql(
             """
-SELECT (
-    SELECT MAX([c].[Region])
-    FROM [Orders] AS [o0]
-    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [max]
+SELECT MAX([c].[Region]) AS [max]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_multiple_aggregates_sharing_same_navigation(bool async)
+    {
+        await base.GroupBy_multiple_aggregates_sharing_same_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'Berlin' THEN 1
+    ELSE 0
+END), 0) AS [Berlins], ISNULL(SUM([o].[OrderID]), 0) AS [Total], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_two_level_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_through_two_level_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[ProductID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons]
+FROM [Order Details] AS [o]
+LEFT JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[ProductID]
+""");
+    }
+
+    public override async Task GroupBy_Count_with_predicate_through_navigation_property(bool async)
+    {
+        await base.GroupBy_Count_with_predicate_through_navigation_property(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_navigation_in_intermediate_projection(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_in_intermediate_projection(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
