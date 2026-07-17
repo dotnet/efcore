@@ -106,7 +106,7 @@ public class CosmosStructuralTypeSerializer
             WriteStructuralType(writer, context);
         }
 
-        return new ReadOnlyMemory<byte>(stream.GetBuffer(), 0, (int)stream.Length);
+        return stream.GetBuffer().AsMemory(0, (int)stream.Length);
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public class CosmosStructuralTypeSerializer
     /// </summary>
     public virtual ReadOnlyMemory<byte> Serialize(object? instance, bool collection = false)
     {
-        using var stream = new MemoryStream();
+        var stream = new MemoryStream();
         using (var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions))
         {
             if (collection)
@@ -169,7 +169,6 @@ public class CosmosStructuralTypeSerializer
         }
 
         if (_ordinalKeyProperty != null)
-
         {
             context.SetOrdinal(_ordinalKeyProperty, ordinal);
         }
@@ -219,7 +218,7 @@ public class CosmosStructuralTypeSerializer
 
             if (navigation.IsCollection)
             {
-                // @TODO: Owned collections can not be null right? So we always write an array, even if the value is null
+                // Owned collections can not be null, so we always write an array, see: #35916
                 writer.WriteStartArray();
 
                 if (value is not null)
@@ -283,7 +282,10 @@ public class CosmosStructuralTypeSerializer
             => entry.GetCurrentValue(discriminatorProperty);
 
         public void SetOrdinal(IProperty ordinalKeyProperty, int? ordinal)
-            => entry.SetStoreGeneratedValue(ordinalKeyProperty, ordinal!.Value + 1, setModified: false);
+            => entry.SetStoreGeneratedValue(
+                ordinalKeyProperty,
+                (ordinal ?? throw new UnreachableException("Ordinal property on non collection entity")) + 1,
+                setModified: false);
 
         public void ValidateNull(IProperty property, ITypeBase structuralType)
         {

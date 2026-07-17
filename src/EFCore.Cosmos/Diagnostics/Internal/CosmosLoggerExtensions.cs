@@ -50,7 +50,7 @@ public static class CosmosLoggerExtensions
                 ExecutingSqlQuery,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.ToJsonString())).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, (object?)p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -164,7 +164,7 @@ public static class CosmosLoggerExtensions
                 activityId,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.ToJsonString())).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, (object?)p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -571,11 +571,11 @@ public static class CosmosLoggerExtensions
         }
     }
 
-    private static string FormatParameters(IReadOnlyList<(string Name, string Value)> parameters, bool shouldLogParameterValues)
+    private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
             ? ""
             : FormatParameters(
-                parameters.Select(p => (SqlParameter)new SqlRawJsonParameter(p.Name, p.Value)).ToList(),
+                parameters.Select(p => (SqlParameter)new SqlRawJsonParameter(p.Name, (string)p.Value!)).ToList(),
                 shouldLogParameterValues);
 
     private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)

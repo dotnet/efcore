@@ -32,7 +32,7 @@ public class CosmosQueryExecutedEventData : EventData
         string activityId,
         string containerId,
         PartitionKey? partitionKeyValue,
-        IReadOnlyList<(string Name, string Value)> parameters,
+        IReadOnlyList<(string Name, object? Value)> parameters,
         string querySql,
         bool logSensitiveData)
         : base(eventDefinition, messageGenerator)
@@ -75,7 +75,7 @@ public class CosmosQueryExecutedEventData : EventData
     /// <summary>
     ///     Name/values for each parameter in the Cosmos Query.
     /// </summary>
-    public virtual IReadOnlyList<(string Name, string Value)> Parameters { get; }
+    public virtual IReadOnlyList<(string Name, object? Value)> Parameters { get; }
 
     /// <summary>
     ///     The SQL representing the query.

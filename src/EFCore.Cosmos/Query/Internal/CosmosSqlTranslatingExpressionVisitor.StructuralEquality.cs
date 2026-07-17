@@ -29,7 +29,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor
     private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
 
-
     private readonly CosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider =
         queryCompilationContext.Model.GetCosmosStructuralTypeSerializerProvider();
 

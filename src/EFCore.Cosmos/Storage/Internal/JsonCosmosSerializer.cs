@@ -26,7 +26,8 @@ public class JsonCosmosSerializer : CosmosSerializer
     public override Stream ToStream<T>(T input)
     {
         var stream = new MemoryStream();
-        JsonSerializer.Serialize(stream, input);
+        using var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions);
+        JsonSerializer.Serialize(writer, input);
         stream.Position = 0;
         return stream;
     }

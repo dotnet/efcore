@@ -2251,7 +2251,7 @@ WHERE (ARRAY_CONTAINS(@ids, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] != "
 
                 AssertSql(
                     """
-@ids='["ALFKI","ABC\u0027)); GO; DROP TABLE Orders; GO; --"]'
+@ids='["ALFKI","ABC')); GO; DROP TABLE Orders; GO; --"]'
 
 SELECT VALUE c
 FROM root c

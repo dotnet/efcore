@@ -20,44 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderWriter<T>
     where T : INumber<T>
 {
-    private static readonly Action<Utf8JsonWriter, T> WriteFunc;
     private static readonly PropertyInfo InstanceProperty = typeof(CosmosJsonNumberProjectionReaderWriter<T>).GetProperty(nameof(Instance))!;
-
-    static CosmosJsonNumberProjectionReaderWriter()
-    {
-        var writeNumberValueMethod = GetWriteNumberValueMethod();
-        var parameterType = writeNumberValueMethod.GetParameters()[0].ParameterType;
-
-        // For byte/sbyte/short/ushort we intentionally bind to WriteNumberValue(int) and convert.
-        if (parameterType == typeof(int) && typeof(T) != typeof(int))
-        {
-            var writeInt = (Action<Utf8JsonWriter, int>)writeNumberValueMethod.CreateDelegate(typeof(Action<Utf8JsonWriter, int>));
-            WriteFunc = (writer, value) => writeInt(writer, int.CreateChecked(value));
-            return;
-        }
-
-        WriteFunc = (Action<Utf8JsonWriter, T>)writeNumberValueMethod.CreateDelegate(typeof(Action<Utf8JsonWriter, T>));
-    }
-
-    private static MethodInfo GetWriteNumberValueMethod()
-    {
-        var writeNumberValueParameterType = typeof(T);
-        if (writeNumberValueParameterType == typeof(byte)
-            || writeNumberValueParameterType == typeof(sbyte)
-            || writeNumberValueParameterType == typeof(short)
-            || writeNumberValueParameterType == typeof(ushort))
-        {
-            writeNumberValueParameterType = typeof(int);
-        }
-
-        return typeof(Utf8JsonWriter)
-            .GetMethods()
-            .SingleOrDefault(
-                m => m.Name == nameof(Utf8JsonWriter.WriteNumberValue)
-                    && m.GetParameters() is [{ ParameterType: var parameterType }]
-                    && parameterType == writeNumberValueParameterType)
-            ?? throw new UnreachableException();
-    }
 
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
@@ -72,7 +35,44 @@ public sealed class CosmosJsonNumberProjectionReaderWriter<T> : JsonValueReaderW
 
     /// <inheritdoc/>
     public override void ToJsonTyped(Utf8JsonWriter writer, T value)
-        => WriteFunc(writer, value);
+    {
+        if (typeof(T) == typeof(int)
+            || typeof(T) == typeof(short)
+            || typeof(T) == typeof(sbyte)
+            || typeof(T) == typeof(byte)
+            || typeof(T) == typeof(ushort))
+        {
+            writer.WriteNumberValue(int.CreateChecked(value));
+        }
+        else if (typeof(T) == typeof(uint))
+        {
+            writer.WriteNumberValue(uint.CreateChecked(value));
+        }
+        else if (typeof(T) == typeof(long))
+        {
+            writer.WriteNumberValue(long.CreateChecked(value));
+        }
+        else if (typeof(T) == typeof(ulong))
+        {
+            writer.WriteNumberValue(ulong.CreateChecked(value));
+        }
+        else if (typeof(T) == typeof(float))
+        {
+            writer.WriteNumberValue(float.CreateChecked(value));
+        }
+        else if (typeof(T) == typeof(double))
+        {
+            writer.WriteNumberValue(double.CreateChecked(value));
+        }
+        else if (typeof(T) == typeof(decimal))
+        {
+            writer.WriteNumberValue(decimal.CreateChecked(value));
+        }
+        else
+        {
+            throw new UnreachableException($"Unsupported numeric type '{typeof(T)}' for JSON number projection.");
+        }
+    }
 
     /// <inheritdoc />
     public override Expression ConstructorExpression
