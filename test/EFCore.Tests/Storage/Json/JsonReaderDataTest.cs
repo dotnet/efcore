@@ -80,4 +80,29 @@ public class JsonReaderDataTest
         Assert.Equal(JsonTokenType.PropertyName, manager.MoveNext());
         Assert.True(manager.CurrentReader.ValueTextEquals("Value"u8));
     }
+
+    [Fact]
+    public void BytesConsumed_is_preserved_across_partial_stream_reads()
+    {
+        var json = Encoding.UTF8.GetBytes($"[{string.Join(",", Enumerable.Range(0, 300))}]");
+        using var stream = new PartialReadStream(json, 32);
+        var data = new JsonReaderData(stream);
+        var manager = new Utf8JsonReaderManager(data, queryLogger: null);
+
+        while (manager.MoveNext() != JsonTokenType.EndArray)
+        {
+        }
+
+        manager.CaptureState();
+
+        Assert.Equal(json.Length, data.BytesConsumed);
+    }
+
+    private sealed class PartialReadStream(byte[] buffer, int maxBytesPerRead) : MemoryStream(buffer)
+    {
+        private readonly int _maxBytesPerRead = maxBytesPerRead;
+
+        public override int Read(Span<byte> destination)
+            => base.Read(destination[..Math.Min(destination.Length, _maxBytesPerRead)]);
+    }
 }
