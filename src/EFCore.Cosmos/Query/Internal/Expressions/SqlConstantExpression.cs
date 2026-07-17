@@ -75,19 +75,22 @@ public class SqlConstantExpression : SqlExpression
         object? value,
         ExpressionPrinter expressionPrinter)
     {
-        if (value is IEnumerable enumerable and not (string or byte[]))
+        if (value is IEnumerable enumerable and not (string or byte[])
+            && TypeMapping?.ClrType.GetInterfaces().Any(i => i == typeof(IEnumerable)) == false)
         {
             var first = true;
+            expressionPrinter.Append("[");
             foreach (var item in enumerable)
             {
                 if (!first)
                 {
-                    expressionPrinter.Append(", ");
+                    expressionPrinter.Append(",");
                 }
 
                 first = false;
                 Print(item, expressionPrinter);
             }
+            expressionPrinter.Append("]");
         }
         else
         {
