@@ -52,15 +52,15 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
             .FirstOrDefault(static c =>
             {
-                var parms = c.GetParameters();
-                return parms.Length == 7
-                    && parms[0].ParameterType == typeof(HttpStatusCode)
-                    && parms[1].ParameterType == typeof(string)
-                    && parms[2].ParameterType == typeof(string)
-                    && parms[3].ParameterType.FullName == "Microsoft.Azure.Cosmos.Headers"
-                    && parms[4].ParameterType.Name == "ITrace"
-                    && parms[5].ParameterType.Name == "Error"
-                    && parms[6].ParameterType == typeof(Exception);
+                var parameters = c.GetParameters();
+                return parameters.Length == 7
+                    && parameters[0].ParameterType.FullName == "System.Net.HttpStatusCode"
+                    && parameters[1].ParameterType.FullName == "System.String"
+                    && parameters[2].ParameterType.FullName == "System.String"
+                    && parameters[3].ParameterType.FullName == "Microsoft.Azure.Cosmos.Headers"
+                    && parameters[4].ParameterType.FullName == "Microsoft.Azure.Cosmos.Tracing.ITrace"
+                    && parameters[5].ParameterType.FullName == "Microsoft.Azure.Documents.Error"
+                    && parameters[6].ParameterType.FullName == "System.Exception";
             });
 
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
