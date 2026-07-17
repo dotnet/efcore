@@ -165,6 +165,15 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                 break;
             }
 
+            case ExpressionType.Subtract
+                when left.Type == typeof(TimeOnly) && right.Type == typeof(TimeOnly):
+            {
+                inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right) ?? typeMappingSource.FindMapping(typeof(TimeOnly), model);
+                resultType = typeof(TimeSpan);
+                resultTypeMapping = typeMappingSource.FindMapping(resultType, model);
+                break;
+            }
+
             case ExpressionType.Add:
             case ExpressionType.Subtract:
             case ExpressionType.Multiply:

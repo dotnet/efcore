@@ -17382,7 +17382,7 @@
           "Member": "virtual string ToJsonObjectString(string propertyName, object? value);"
         },
         {
-          "Member": "string ToJsonString(object value);"
+          "Member": "string ToJsonString(object? value);"
         }
       ],
       "Properties": [

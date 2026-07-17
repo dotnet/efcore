@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore;

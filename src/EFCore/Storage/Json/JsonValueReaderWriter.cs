@@ -87,7 +87,7 @@ public abstract class JsonValueReaderWriter
     /// </summary>
     /// <param name="value">The value to write.</param>
     /// <returns>The JSON representation of the given value.</returns>
-    public string ToJsonString(object value)
+    public string ToJsonString(object? value)
     {
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);

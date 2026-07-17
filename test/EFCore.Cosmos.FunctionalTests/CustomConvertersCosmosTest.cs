@@ -121,10 +121,18 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
 """);
     }
 
-    // Issue #34567
-    [Fact]
-    public override Task Optional_owned_with_converter_reading_non_nullable_column()
-        => Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
+    public override async Task Optional_owned_with_converter_reading_non_nullable_column()
+    {
+        // Cosmos filters out the undefined value
+        var ex = await Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
+
+        AssertSql(
+            """
+SELECT VALUE c["OwnedWithConverter"]["Value"]
+FROM root c
+WHERE (c["$type"] = "Parent")
+""");
+    }
 
     public override void Value_conversion_on_enum_collection_contains()
         => Assert.Contains(

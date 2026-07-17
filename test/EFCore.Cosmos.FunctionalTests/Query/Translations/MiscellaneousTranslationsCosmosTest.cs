@@ -22,7 +22,7 @@ public class MiscellaneousTranslationsCosmosTest : MiscellaneousTranslationsTest
             """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
+WHERE ((RAND() >= 0) AND (RAND() < 1))
 """);
     }
 
