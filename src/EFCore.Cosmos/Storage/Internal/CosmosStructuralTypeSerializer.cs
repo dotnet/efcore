@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -31,17 +32,17 @@ public class CosmosStructuralTypeSerializer
 
     private readonly ITypeBase _structuralType;
     private readonly IProperty? _jsonIdProperty;
-    private readonly IProperty? _discriminatorProperty;
+    private readonly (IProperty Property, string JsonName, JsonValueReaderWriter JsonValueReaderWriter)? _discriminatorProperty;
     private readonly IProperty? _ordinalKeyProperty;
     private readonly string? _container;
 
     /// <summary>
     /// Any properties that have to be written to the document (excluding the discriminator property)
     /// </summary>
-    private readonly IProperty[] _scalarProperties;
+    private readonly (IProperty Property, string JsonName, JsonValueReaderWriter JsonValueReaderWriter)[] _scalarProperties;
 
-    private readonly (IComplexProperty ComplexProperty, CosmosStructuralTypeSerializer Serializer)[] _complexProperties;
-    private readonly (INavigation Navigation, CosmosStructuralTypeSerializer Serializer)[] _navigations = [];
+    private readonly (IComplexProperty ComplexProperty, string JsonName, CosmosStructuralTypeSerializer Serializer)[] _complexProperties;
+    private readonly (INavigation Navigation, string JsonName, CosmosStructuralTypeSerializer Serializer)[] _navigations = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,10 +54,12 @@ public class CosmosStructuralTypeSerializer
     {
         _structuralType = structuralType;
 
-        _discriminatorProperty = structuralType.FindDiscriminatorProperty();
+        _discriminatorProperty = structuralType.FindDiscriminatorProperty() is { } dp
+            ? (dp, dp.GetJsonPropertyName(), dp.GetJsonValueReaderWriter() ?? dp.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter"))
+            : null;
         _ordinalKeyProperty = structuralType.GetProperties().SingleOrDefault(p => p.IsOrdinalKeyProperty());
-        _scalarProperties = [.. structuralType.GetProperties().Where(p => p.IsPersisted() && p != _discriminatorProperty)];
-        _complexProperties = [.. structuralType.GetComplexProperties().Select(cp => (cp, provider.Get(cp.ComplexType)))];
+        _scalarProperties = [.. structuralType.GetProperties().Where(p => p.IsPersisted() && p != _discriminatorProperty?.Property).Select(p => (p, p.GetJsonPropertyName(), p.GetJsonValueReaderWriter() ?? p.GetTypeMapping().JsonValueReaderWriter ?? throw new UnreachableException("Property without JsonValueReaderWriter")))];
+        _complexProperties = [.. structuralType.GetComplexProperties().Select(cp => (cp, cp.GetJsonPropertyName(), provider.Get(cp.ComplexType)))];
 
         if (structuralType is IEntityType entityType)
         {
@@ -67,7 +70,7 @@ public class CosmosStructuralTypeSerializer
                 _container = entityType.GetContainer() ?? throw new UnreachableException("Document root entity type does not have container.");
             }
 
-            _navigations = [.. entityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership && !n.IsOnDependent).Select(n => (n, provider.Get(n.TargetEntityType)))];
+            _navigations = [.. entityType.GetNavigations().Where(n => n.ForeignKey.IsOwnership && !n.IsOnDependent).Select(n => (n, n.TargetEntityType.GetContainingPropertyName() ?? throw new UnreachableException("Owned entity without containing property name"), provider.Get(n.TargetEntityType)))];
         }
     }
 
@@ -146,7 +149,6 @@ public class CosmosStructuralTypeSerializer
         return stream.GetBuffer().AsMemory(0, (int)stream.Length);
     }
 
-
     private void WriteStructuralType<TContext>(
         Utf8JsonWriter writer,
         TContext context,
@@ -163,8 +165,14 @@ public class CosmosStructuralTypeSerializer
 
         if (_discriminatorProperty != null)
         {
-            var discriminatorValue = context.GetDiscriminatorValue(_discriminatorProperty, _structuralType);
-            WriteProperty(context, writer, _discriminatorProperty, discriminatorValue);
+            var discriminatorValue = context.GetDiscriminatorValue(_discriminatorProperty.Value.Property, _structuralType);
+            WriteProperty(
+                context,
+                writer,
+                _discriminatorProperty.Value.Property,
+                _discriminatorProperty.Value.JsonName,
+                _discriminatorProperty.Value.JsonValueReaderWriter,
+                discriminatorValue);
         }
 
         if (_ordinalKeyProperty != null)
@@ -172,16 +180,16 @@ public class CosmosStructuralTypeSerializer
             context.SetOrdinal(_ordinalKeyProperty, ordinal);
         }
 
-        foreach (var property in _scalarProperties)
+        foreach (var (property, jsonName, jsonValueReaderWriter) in _scalarProperties)
         {
             var value = context.GetValue(property);
-            WriteProperty(context, writer, property, value);
+            WriteProperty(context, writer, property, jsonName, jsonValueReaderWriter, value);
         }
 
-        foreach (var (complexProperty, nestedSerializer) in _complexProperties)
+        foreach (var (complexProperty, jsonName, nestedSerializer) in _complexProperties)
         {
             var value = context.GetValue(complexProperty);
-            writer.WritePropertyName(complexProperty.GetJsonPropertyName());
+            writer.WritePropertyName(jsonName);
 
             if (value is null)
             {
@@ -210,10 +218,10 @@ public class CosmosStructuralTypeSerializer
             }
         }
 
-        foreach (var (navigation, nestedSerializer) in _navigations)
+        foreach (var (navigation, jsonName, nestedSerializer) in _navigations)
         {
             var value = context.GetValue(navigation);
-            writer.WritePropertyName(navigation.TargetEntityType.GetContainingPropertyName()!);
+            writer.WritePropertyName(jsonName);
 
             if (navigation.IsCollection)
             {
@@ -249,6 +257,28 @@ public class CosmosStructuralTypeSerializer
         }
 
         writer.WriteEndObject();
+    }
+
+    private void WriteProperty<TContext>(
+        TContext context,
+        Utf8JsonWriter writer,
+        IProperty property,
+        string jsonName,
+        JsonValueReaderWriter jsonValueReaderWriter,
+        object? value)
+        where TContext : struct, ISerializationContext<TContext>
+    {
+        writer.WritePropertyName(jsonName);
+
+        if (value is not null || jsonValueReaderWriter.HandlesNullWrites == true)
+        {
+            jsonValueReaderWriter.ToJson(writer, value!);
+        }
+        else
+        {
+            context.ValidateNull(property, _structuralType);
+            writer.WriteNullValue();
+        }
     }
 
     private interface ISerializationContext<TContext>
@@ -403,23 +433,5 @@ public class CosmosStructuralTypeSerializer
 
         public InstanceSerializationContext CreateNestedContext(INavigation navigation, object? value)
             => new(value);
-    }
-
-    private void WriteProperty<TContext>(TContext context, Utf8JsonWriter writer, IProperty property, object? value)
-        where TContext : struct, ISerializationContext<TContext>
-    {
-        writer.WritePropertyName(property.GetJsonPropertyName());
-
-        var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
-        if (value is not null || jsonValueReaderWriter?.HandlesNullWrites == true)
-        {
-            Check.DebugAssert(jsonValueReaderWriter is not null, $"Missing JsonValueReaderWriter for property: {property}");
-            jsonValueReaderWriter.ToJson(writer, value!);
-        }
-        else
-        {
-            context.ValidateNull(property, _structuralType);
-            writer.WriteNullValue();
-        }
     }
 }
