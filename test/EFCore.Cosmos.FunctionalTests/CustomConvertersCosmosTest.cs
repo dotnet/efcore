@@ -49,6 +49,14 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
     public override Task Can_read_back_mapped_enum_from_collection_first_or_default()
         => base.Can_read_back_mapped_enum_from_collection_first_or_default();
 
+    public override async Task Field_on_derived_type_retrieved_via_cast_applies_value_converter()
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Field_on_derived_type_retrieved_via_cast_applies_value_converter();
+    }
+
     [Fact(Skip = "Issue #17246")]
     public override Task Can_read_back_bool_mapped_as_int_through_navigation()
         => base.Can_read_back_bool_mapped_as_int_through_navigation();
@@ -113,10 +121,18 @@ WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
 """);
     }
 
-    // Issue #34567
-    [Fact]
-    public override Task Optional_owned_with_converter_reading_non_nullable_column()
-        => Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
+    public override async Task Optional_owned_with_converter_reading_non_nullable_column()
+    {
+        // Cosmos filters out the undefined value
+        var ex = await Assert.ThrowsAnyAsync<XunitException>(() => base.Optional_owned_with_converter_reading_non_nullable_column());
+
+        AssertSql(
+            """
+SELECT VALUE c["OwnedWithConverter"]["Value"]
+FROM root c
+WHERE (c["$type"] = "Parent")
+""");
+    }
 
     public override void Value_conversion_on_enum_collection_contains()
         => Assert.Contains(

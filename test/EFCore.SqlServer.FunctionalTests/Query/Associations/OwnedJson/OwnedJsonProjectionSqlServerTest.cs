@@ -433,6 +433,48 @@ FROM [RootEntity] AS [r]
 """);
     }
 
+    public override async Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_associate_duplicated(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[RequiredAssociate], [r].[Id], [r].[RequiredAssociate]
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_required_associate_and_optional_associate(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[RequiredAssociate], [r].[Id], [r].[OptionalAssociate]
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
+    public override async Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Select_optional_associate_and_ints(queryTrackingBehavior);
+
+        if (queryTrackingBehavior is not QueryTrackingBehavior.TrackAll)
+        {
+            AssertSql(
+                """
+SELECT [r].[OptionalAssociate], [r].[Id], JSON_QUERY([r].[RequiredAssociate], '$.Ints')
+FROM [RootEntity] AS [r]
+""");
+        }
+    }
+
     public override async Task Select_associate_and_target_to_index_based_binding_via_closure(QueryTrackingBehavior queryTrackingBehavior)
     {
         await base.Select_associate_and_target_to_index_based_binding_via_closure(queryTrackingBehavior);

@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -33,7 +32,7 @@ public partial class PrincipalBaseEntityType
             discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBase",
             derivedTypesCount: 1,
-            propertyCount: 15,
+            propertyCount: 14,
             complexPropertyCount: 1,
             navigationCount: 1,
             foreignKeyCount: 1,
@@ -539,24 +538,6 @@ public partial class PrincipalBaseEntityType
         __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
 
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true);
-        __jObject.SetAccessors(
-            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(3),
-            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(3),
-            JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 14),
-            JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-        __jObject.SetPropertyIndexes(
-            index: 14,
-            originalValueIndex: 14,
-            shadowIndex: 3,
-            relationshipIndex: -1,
-            storeGenerationIndex: -1);
-        __jObject.TypeMapping = CosmosTypeMapping<JObject>.Default;
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
-
         OwnedComplexProperty.Create(runtimeEntityType);
         var key = runtimeEntityType.AddKey(
             new[] { id });
@@ -649,11 +630,11 @@ public partial class PrincipalBaseEntityType
             details.SetAccessors(
                 string (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))).Details),
                 string (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(string) : PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))).Details),
-                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(details, 15),
+                string (IInternalEntry entry) => entry.ReadOriginalValue<string>(details, 14),
                 string (IInternalEntry entry) => entry.GetCurrentValue<string>(details));
             details.SetPropertyIndexes(
-                index: 15,
-                originalValueIndex: 15,
+                index: 14,
+                originalValueIndex: 14,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -696,11 +677,11 @@ public partial class PrincipalBaseEntityType
             number.SetAccessors(
                 int (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(int) : OwnedTypeUnsafeAccessors.Number(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 int (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(int) : OwnedTypeUnsafeAccessors.Number(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(number, 16),
+                int (IInternalEntry entry) => entry.ReadOriginalValue<int>(number, 15),
                 int (IInternalEntry entry) => entry.GetCurrentValue<int>(number));
             number.SetPropertyIndexes(
-                index: 16,
-                originalValueIndex: 16,
+                index: 15,
+                originalValueIndex: 15,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -742,11 +723,11 @@ public partial class PrincipalBaseEntityType
             refTypeEnumerable.SetAccessors(
                 IEnumerable<string> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IEnumerable<string>) : OwnedTypeUnsafeAccessors._refTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 IEnumerable<string> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IEnumerable<string>) : OwnedTypeUnsafeAccessors._refTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                IEnumerable<string> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 17),
+                IEnumerable<string> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 16),
                 IEnumerable<string> (IInternalEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable));
             refTypeEnumerable.SetPropertyIndexes(
-                index: 17,
-                originalValueIndex: 17,
+                index: 16,
+                originalValueIndex: 16,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -795,11 +776,11 @@ public partial class PrincipalBaseEntityType
             refTypeIList.SetAccessors(
                 IList<string> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IList<string>) : OwnedTypeUnsafeAccessors._refTypeIList(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 IList<string> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IList<string>) : OwnedTypeUnsafeAccessors._refTypeIList(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                IList<string> (IInternalEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 18),
+                IList<string> (IInternalEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 17),
                 IList<string> (IInternalEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList));
             refTypeIList.SetPropertyIndexes(
-                index: 18,
-                originalValueIndex: 18,
+                index: 17,
+                originalValueIndex: 17,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -848,11 +829,11 @@ public partial class PrincipalBaseEntityType
             valueTypeArray.SetAccessors(
                 DateTime[] (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(DateTime[]) : OwnedTypeUnsafeAccessors._valueTypeArray(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 DateTime[] (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(DateTime[]) : OwnedTypeUnsafeAccessors._valueTypeArray(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                DateTime[] (IInternalEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 19),
+                DateTime[] (IInternalEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 18),
                 DateTime[] (IInternalEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray));
             valueTypeArray.SetPropertyIndexes(
-                index: 19,
-                originalValueIndex: 19,
+                index: 18,
+                originalValueIndex: 18,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -901,11 +882,11 @@ public partial class PrincipalBaseEntityType
             valueTypeEnumerable.SetAccessors(
                 IEnumerable<byte> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IEnumerable<byte>) : OwnedTypeUnsafeAccessors._valueTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 IEnumerable<byte> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IEnumerable<byte>) : OwnedTypeUnsafeAccessors._valueTypeEnumerable(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                IEnumerable<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 20),
+                IEnumerable<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 19),
                 IEnumerable<byte> (IInternalEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable));
             valueTypeEnumerable.SetPropertyIndexes(
-                index: 20,
-                originalValueIndex: 20,
+                index: 19,
+                originalValueIndex: 19,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -954,11 +935,11 @@ public partial class PrincipalBaseEntityType
             valueTypeIList.SetAccessors(
                 IList<byte> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IList<byte>) : OwnedTypeUnsafeAccessors.ValueTypeIList(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 IList<byte> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(IList<byte>) : OwnedTypeUnsafeAccessors.ValueTypeIList(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                IList<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 21),
+                IList<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 20),
                 IList<byte> (IInternalEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList));
             valueTypeIList.SetPropertyIndexes(
-                index: 21,
-                originalValueIndex: 21,
+                index: 20,
+                originalValueIndex: 20,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -1007,11 +988,11 @@ public partial class PrincipalBaseEntityType
             valueTypeList.SetAccessors(
                 List<short> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(List<short>) : OwnedTypeUnsafeAccessors._valueTypeList(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
                 List<short> (IInternalEntry entry) => (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(List<short>) : OwnedTypeUnsafeAccessors._valueTypeList(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))),
-                List<short> (IInternalEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 22),
+                List<short> (IInternalEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 21),
                 List<short> (IInternalEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList));
             valueTypeList.SetPropertyIndexes(
-                index: 22,
-                originalValueIndex: 22,
+                index: 21,
+                originalValueIndex: 21,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -1078,7 +1059,7 @@ public partial class PrincipalBaseEntityType
                     CompiledModelTestBase.PrincipalBase (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(complexProperty));
                 complexProperty.SetPropertyIndexes(
                     index: 1,
-                    originalValueIndex: 23,
+                    originalValueIndex: 22,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1118,11 +1099,11 @@ public partial class PrincipalBaseEntityType
                 alternateId.SetAccessors(
                     Guid (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))).AlternateId),
                     Guid (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(Guid) : (PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))).AlternateId),
-                    Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(alternateId, 24),
+                    Guid (IInternalEntry entry) => entry.ReadOriginalValue<Guid>(alternateId, 23),
                     Guid (IInternalEntry entry) => entry.GetCurrentValue<Guid>(alternateId));
                 alternateId.SetPropertyIndexes(
-                    index: 23,
-                    originalValueIndex: 24,
+                    index: 22,
+                    originalValueIndex: 23,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1172,11 +1153,11 @@ public partial class PrincipalBaseEntityType
                 enum1.SetAccessors(
                     CompiledModelTestBase.AnEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     CompiledModelTestBase.AnEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum) : PrincipalBaseUnsafeAccessors.Enum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    CompiledModelTestBase.AnEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 25),
+                    CompiledModelTestBase.AnEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 24),
                     CompiledModelTestBase.AnEnum (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1));
                 enum1.SetPropertyIndexes(
-                    index: 24,
-                    originalValueIndex: 25,
+                    index: 23,
+                    originalValueIndex: 24,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1227,11 +1208,11 @@ public partial class PrincipalBaseEntityType
                 enum2.SetAccessors(
                     CompiledModelTestBase.AnEnum? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     CompiledModelTestBase.AnEnum? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AnEnum? ) : PrincipalBaseUnsafeAccessors.Enum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    CompiledModelTestBase.AnEnum? (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum?>(enum2, 26),
+                    CompiledModelTestBase.AnEnum? (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum?>(enum2, 25),
                     CompiledModelTestBase.AnEnum? (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2));
                 enum2.SetPropertyIndexes(
-                    index: 25,
-                    originalValueIndex: 26,
+                    index: 24,
+                    originalValueIndex: 25,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1281,11 +1262,11 @@ public partial class PrincipalBaseEntityType
                 flagsEnum1.SetAccessors(
                     CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum1((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 27),
+                    CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 26),
                     CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1));
                 flagsEnum1.SetPropertyIndexes(
-                    index: 26,
-                    originalValueIndex: 27,
+                    index: 25,
+                    originalValueIndex: 26,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1335,11 +1316,11 @@ public partial class PrincipalBaseEntityType
                 flagsEnum2.SetAccessors(
                     CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(CompiledModelTestBase.AFlagsEnum) : PrincipalBaseUnsafeAccessors.FlagsEnum2((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 28),
+                    CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 27),
                     CompiledModelTestBase.AFlagsEnum (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2));
                 flagsEnum2.SetPropertyIndexes(
-                    index: 27,
-                    originalValueIndex: 28,
+                    index: 26,
+                    originalValueIndex: 27,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1390,11 +1371,11 @@ public partial class PrincipalBaseEntityType
                 id.SetAccessors(
                     long? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     long? (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(long? ) : PrincipalBaseUnsafeAccessors.Id((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 29),
+                    long? (IInternalEntry entry) => entry.ReadOriginalValue<long?>(id, 28),
                     long? (IInternalEntry entry) => entry.GetCurrentValue<long?>(id));
                 id.SetPropertyIndexes(
-                    index: 28,
-                    originalValueIndex: 29,
+                    index: 27,
+                    originalValueIndex: 28,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1439,11 +1420,11 @@ public partial class PrincipalBaseEntityType
                 refTypeEnumerable.SetAccessors(
                     IEnumerable<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     IEnumerable<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<string>) : PrincipalBaseUnsafeAccessors.RefTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    IEnumerable<string> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 30),
+                    IEnumerable<string> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 29),
                     IEnumerable<string> (IInternalEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable));
                 refTypeEnumerable.SetPropertyIndexes(
-                    index: 29,
-                    originalValueIndex: 30,
+                    index: 28,
+                    originalValueIndex: 29,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1494,11 +1475,11 @@ public partial class PrincipalBaseEntityType
                 refTypeIList.SetAccessors(
                     IList<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     IList<string> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<string>) : PrincipalBaseUnsafeAccessors.RefTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    IList<string> (IInternalEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 31),
+                    IList<string> (IInternalEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 30),
                     IList<string> (IInternalEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList));
                 refTypeIList.SetPropertyIndexes(
-                    index: 30,
-                    originalValueIndex: 31,
+                    index: 29,
+                    originalValueIndex: 30,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1549,11 +1530,11 @@ public partial class PrincipalBaseEntityType
                 valueTypeArray.SetAccessors(
                     DateTime[] (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     DateTime[] (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(DateTime[]) : PrincipalBaseUnsafeAccessors.ValueTypeArray((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    DateTime[] (IInternalEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 32),
+                    DateTime[] (IInternalEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 31),
                     DateTime[] (IInternalEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray));
                 valueTypeArray.SetPropertyIndexes(
-                    index: 31,
-                    originalValueIndex: 32,
+                    index: 30,
+                    originalValueIndex: 31,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1604,11 +1585,11 @@ public partial class PrincipalBaseEntityType
                 valueTypeEnumerable.SetAccessors(
                     IEnumerable<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     IEnumerable<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IEnumerable<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeEnumerable((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    IEnumerable<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 33),
+                    IEnumerable<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 32),
                     IEnumerable<byte> (IInternalEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable));
                 valueTypeEnumerable.SetPropertyIndexes(
-                    index: 32,
-                    originalValueIndex: 33,
+                    index: 31,
+                    originalValueIndex: 32,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1659,11 +1640,11 @@ public partial class PrincipalBaseEntityType
                 valueTypeIList.SetAccessors(
                     IList<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     IList<byte> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(IList<byte>) : PrincipalBaseUnsafeAccessors.ValueTypeIList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    IList<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 34),
+                    IList<byte> (IInternalEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 33),
                     IList<byte> (IInternalEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList));
                 valueTypeIList.SetPropertyIndexes(
-                    index: 33,
-                    originalValueIndex: 34,
+                    index: 32,
+                    originalValueIndex: 33,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1714,11 +1695,11 @@ public partial class PrincipalBaseEntityType
                 valueTypeList.SetAccessors(
                     List<short> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
                     List<short> (IInternalEntry entry) => ((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))) == null ? default(List<short>) : PrincipalBaseUnsafeAccessors.ValueTypeList((PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))) == null ? default(CompiledModelTestBase.PrincipalBase) : OwnedTypeUnsafeAccessors.Principal(PrincipalBaseUnsafeAccessors._ownedField(((CompiledModelTestBase.PrincipalBase)(entry.Entity))))))),
-                    List<short> (IInternalEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 35),
+                    List<short> (IInternalEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 34),
                     List<short> (IInternalEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList));
                 valueTypeList.SetPropertyIndexes(
-                    index: 34,
-                    originalValueIndex: 35,
+                    index: 33,
+                    originalValueIndex: 34,
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
@@ -1801,7 +1782,6 @@ public partial class PrincipalBaseEntityType
         var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList");
         var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList");
         var __id = runtimeEntityType.FindProperty("__id");
-        var __jObject = runtimeEntityType.FindProperty("__jObject");
         var owned = runtimeEntityType.FindComplexProperty("Owned");
         var ownedType = owned.ComplexType;
         var details = ownedType.FindProperty("Details");
@@ -1834,18 +1814,18 @@ public partial class PrincipalBaseEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
-                var liftedArg = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, JObject, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(principal))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))))));
+                var liftedArg = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(principal))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))))));
                 var structuralType0 = ((CompiledModelTestBase.PrincipalBase)(source.Entity));
-                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, ((ISnapshot)(new Snapshot<IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>((((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1)))))))))) })));
+                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, ((ISnapshot)(new Snapshot<IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>((((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1)))))))))) })));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
             ISnapshot () => ((ISnapshot)(new Snapshot<long?>((default(long? ) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(default(long? )))))));
         runtimeEntityType.SetTemporaryValuesFactory(
             ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long?>(default(long? )))));
         runtimeEntityType.SetShadowValuesFactory(
-            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, long?, string, JObject>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("PrincipalBaseId") ? ((long? )(source["PrincipalBaseId"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, long?, string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("PrincipalBaseId") ? ((long? )(source["PrincipalBaseId"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
         runtimeEntityType.SetEmptyShadowValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<string, long?, string, JObject>(default(string), default(long? ), default(string), default(JObject)))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<string, long?, string>(default(string), default(long? ), default(string)))));
         runtimeEntityType.SetRelationshipSnapshotFactory(
             ISnapshot (IInternalEntry source) =>
             {
@@ -1853,12 +1833,12 @@ public partial class PrincipalBaseEntityType
                 return ((ISnapshot)(new Snapshot<long?, long?, object>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), SnapshotFactoryFactory.SnapshotCollection(source.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 35,
+            propertyCount: 34,
             navigationCount: 1,
             complexPropertyCount: 2,
             complexCollectionCount: 0,
-            originalValueCount: 36,
-            shadowCount: 4,
+            originalValueCount: 35,
+            shadowCount: 3,
             relationshipCount: 3,
             storeGeneratedCount: 1));
 

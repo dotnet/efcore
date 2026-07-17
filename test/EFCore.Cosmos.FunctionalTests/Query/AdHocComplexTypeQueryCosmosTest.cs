@@ -32,10 +32,9 @@ OFFSET 0 LIMIT 2
     {
         await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
-        // #34067: Cosmos: Projecting out nested documents retrieves the entire document
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["Complex"]
 FROM root c
 """);
     }
@@ -214,6 +213,67 @@ OFFSET 0 LIMIT 2
             """
 SELECT VALUE c
 FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_query_by_complex_type_property_with_index()
+    {
+        await base.Can_query_by_complex_type_property_with_index();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Address"]["City"] = "Seattle")
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_update_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_delete_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+""");
+    }
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+    {
+        await base.Can_query_by_alternate_key_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Address"]["City"] = "Redmond")
 OFFSET 0 LIMIT 2
 """);
     }

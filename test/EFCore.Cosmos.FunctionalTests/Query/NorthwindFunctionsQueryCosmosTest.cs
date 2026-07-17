@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -32,7 +33,7 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
                     """
 SELECT VALUE c
 FROM root c
-WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10 < c["ProductID"]))
+WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7)) AND (10 < c["ProductID"]))
 """);
             });
 
@@ -55,8 +56,8 @@ ORDER BY LENGTH(c["id"]), c["id"]
 
     public override async Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
+        Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"), ex.Message);
 
         AssertSql();
     }
@@ -83,7 +84,7 @@ ORDER BY LENGTH(c["id"]), c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (POWER(LENGTH(c["id"]), 2.0) = 25.0)
+WHERE (POWER(LENGTH(c["id"]), 2) = 25)
 """);
             });
 

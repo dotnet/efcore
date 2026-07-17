@@ -190,7 +190,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
             var reference = leftReference ?? rightReference;
             Check.DebugAssert(reference != null, "We checked that at least one side is a StructuralTypeReferenceExpression before calling this function");
-            var collection = (reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression is ObjectArrayAccessExpression;
+            var collection = ((reference.Parameter ?? ((StructuralTypeShaperExpression)reference.Subquery!.ShaperExpression)).ValueBufferExpression as StructuralTypeProjectionExpression)?.Object is ObjectArrayAccessExpression;
 
             var leftComplexType = leftReference?.StructuralType as IComplexType;
             var rightComplexType = rightReference?.StructuralType as IComplexType;
@@ -252,8 +252,8 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                             => CreateJsonQueryParameter(sqlParameterExpression),
                         SqlConstantExpression constant
                             => sqlExpressionFactory.Constant(
-                                CosmosSerializationUtilities.SerializeObjectToComplexProperty(complexType, constant.Value, collection),
-                                CosmosTypeMapping.Default),
+                                structuralTypeSerializerProvider.Get(complexType).Serialize(constant.Value, collection),
+                                CosmosQueryRawJsonTypeMapping.Default),
 
                         _ => null
                     };
@@ -263,10 +263,11 @@ public partial class CosmosSqlTranslatingExpressionVisitor
 
                 SqlExpression CreateJsonQueryParameter(SqlParameterExpression sqlParameterExpression)
                 {
+                    // (queryContext) => CosmosStructuralTypeSerializer.SerializeInstance((object)queryContext.ParameterValueExtractor(sqlParameterExpression.Name), collection)
                     var lambda = Expression.Lambda(
                                     Expression.Call(
-                                        CosmosSerializationUtilities.SerializeObjectToComplexPropertyMethod,
-                                        Expression.Constant(complexType, typeof(IComplexType)),
+                                        Expression.Constant(structuralTypeSerializerProvider.Get(complexType)),
+                                        CosmosStructuralTypeSerializer.SerializeInstanceMethod,
                                         Expression.Convert(
                                             Expression.Call(
                                                 ParameterValueExtractorMethod.MakeGenericMethod(sqlParameterExpression.Type.MakeNullable()),
@@ -277,7 +278,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor
                                     QueryCompilationContext.QueryContextParameter);
 
                     var param = queryCompilationContext.RegisterRuntimeParameter($"{RuntimeParameterPrefix}{sqlParameterExpression.Name}", lambda);
-                    return new SqlParameterExpression(param.Name, param.Type, CosmosTypeMapping.Default);
+                    return new SqlParameterExpression(param.Name, param.Type, CosmosQueryRawJsonTypeMapping.Default);
                 }
             }
         }

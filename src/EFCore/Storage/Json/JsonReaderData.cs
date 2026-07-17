@@ -15,6 +15,7 @@ public class JsonReaderData
     private byte[]? _mutableBuffer;
     private int _positionInBuffer;
     private int _bytesAvailable;
+    private int _bytesRead;
     private JsonReaderState _readerState;
 
     /// <summary>
@@ -48,6 +49,12 @@ public class JsonReaderData
     }
 
     /// <summary>
+    ///     The number of bytes read from the JSON data at the last captured state.
+    /// </summary>
+    public virtual int BytesConsumed
+        => _bytesRead + _positionInBuffer;
+
+    /// <summary>
     ///     Called to capture the state of the given <see cref="Utf8JsonReaderManager" /> so that a new <see cref="Utf8JsonReaderManager" />
     ///     can later be created to pick up at the same position in the JSON document.
     /// </summary>
@@ -74,6 +81,7 @@ public class JsonReaderData
         {
             var buffer = _mutableBuffer!;
             var totalConsumed = bytesConsumed + _positionInBuffer;
+            _bytesRead += totalConsumed;
             if (_bytesAvailable != 0 && totalConsumed < buffer.Length)
             {
                 var leftover = buffer.AsSpan(totalConsumed);

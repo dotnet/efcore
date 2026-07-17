@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 
 /// <summary>
@@ -30,8 +32,8 @@ public class CosmosValueGeneratorSelector : ValueGeneratorSelector
     /// </summary>
     protected override ValueGenerator? FindForType(IProperty property, ITypeBase typeBase, Type clrType)
     {
-        if (property.GetJsonPropertyName() == ""
-            && clrType == typeof(int))
+        if (!property.IsPersisted()
+         && clrType == typeof(int))
         {
             return new TemporaryNumberValueGeneratorFactory().Create(property, typeBase);
         }

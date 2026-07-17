@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Globalization;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -140,9 +141,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var dropColumnOperations = new List<MigrationOperation>();
         var dropComputedColumnOperations = new List<MigrationOperation>();
         var dropTableOperations = new List<DropTableOperation>();
-        var dropSequenceOperations = new List<MigrationOperation>();
+        var dropSequenceOperations = new List<DropSequenceOperation>();
         var ensureSchemaOperations = new List<MigrationOperation>();
-        var createSequenceOperations = new List<MigrationOperation>();
+        var createSequenceOperations = new List<CreateSequenceOperation>();
         var createTableOperations = new List<CreateTableOperation>();
         var alterDatabaseOperations = new List<MigrationOperation>();
         var alterTableOperations = new List<MigrationOperation>();
@@ -193,7 +194,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
             else if (type == typeof(CreateSequenceOperation))
             {
-                createSequenceOperations.Add(operation);
+                createSequenceOperations.Add((CreateSequenceOperation)operation);
             }
             else if (type == typeof(CreateTableOperation))
             {
@@ -319,13 +320,31 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return true;
         });
 
+        var dropReplacedSequenceOperations = new List<DropSequenceOperation>();
+        var dropObsoleteSequenceOperations = new List<DropSequenceOperation>();
+
+        var createdSequenceIds = new HashSet<(string Name, string? Schema)>(
+            createSequenceOperations.Select(o => (o.Name, o.Schema)));
+
+        foreach (var dropSequenceOperation in dropSequenceOperations)
+        {
+            if (createdSequenceIds.Contains((dropSequenceOperation.Name, dropSequenceOperation.Schema)))
+            {
+                dropReplacedSequenceOperations.Add(dropSequenceOperation);
+            }
+            else
+            {
+                dropObsoleteSequenceOperations.Add(dropSequenceOperation);
+            }
+        }
+
         return dropForeignKeyOperations
             .Concat(dropTableOperations)
             .Concat(dropOperations)
             .Concat(sourceDataOperations)
             .Concat(dropComputedColumnOperations)
             .Concat(dropColumnOperations)
-            .Concat(dropSequenceOperations)
+            .Concat(dropReplacedSequenceOperations)
             .Concat(ensureSchemaOperations)
             .Concat(renameTableOperations)
             .Concat(renameOperations)
@@ -336,6 +355,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(computedColumnOperations)
             .Concat(alterOperations)
             .Concat(restartSequenceOperations)
+            .Concat(dropObsoleteSequenceOperations)
             .Concat(createTableOperations)
             .Concat(targetDataOperations)
             .Concat(constraintOperations)
@@ -1399,6 +1419,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Add,
             Remove,
             (s, t, context) => s.Name == t.Name
+                && s.Table == context.FindSource(t.Table)
                 && s.IsExcludedFromMigrations == t.IsExcludedFromMigrations
                 && s.Columns.Select(c => c.Name).SequenceEqual(
                     t.Columns.Select(c => context.FindSource(c)?.Name))
@@ -1908,9 +1929,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
 
                     var valueConverter = columnMapping.TypeMapping.Converter;
-                    key[i] = valueConverter == null
-                        ? value
-                        : valueConverter.ConvertToProvider(value);
+                    key[i] = NormalizeSeedValue(
+                        valueConverter == null
+                            ? value
+                            : valueConverter.ConvertToProvider(value));
                 }
 
                 if (!keyFound)
@@ -2001,7 +2023,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     var existingColumnModification = command.ColumnModifications.FirstOrDefault(c => c.ColumnName == column.Name);
                     if (existingColumnModification != null)
                     {
-                        if (!Equals(existingColumnModification.Value, value))
+                        if (!Equals(NormalizeSeedValue(existingColumnModification.Value), NormalizeSeedValue(value)))
                         {
                             if (sensitiveLoggingEnabled)
                             {
@@ -2075,6 +2097,27 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
 
             return (value, true);
+        }
+    }
+
+    // Seed data string values can differ only by Unicode normalization form (e.g. "Café" in NFC vs NFD), which can happen when
+    // the model and the migration snapshot are authored on different operating systems. These are canonically equivalent, so
+    // normalize to NFC before comparing to avoid scaffolding spurious migrations (see #38191).
+    private static object? NormalizeSeedValue(object? value)
+    {
+        if (value is not string stringValue)
+        {
+            return value;
+        }
+
+        try
+        {
+            return stringValue.Normalize(NormalizationForm.FormC);
+        }
+        catch (ArgumentException)
+        {
+            // The string contains invalid Unicode (e.g. an unpaired surrogate) and cannot be normalized; compare it as-is.
+            return stringValue;
         }
     }
 
@@ -2152,7 +2195,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 for (var i = 0; i < keyValues.Length; i++)
                 {
                     var modification = targetRow.ColumnModifications.First(m => m.ColumnName == key.Columns[i].Name);
-                    keyValues[i] = modification.Value;
+                    keyValues[i] = NormalizeSeedValue(modification.Value);
                 }
 
                 var sourceRow = sourceIdentityMap.FindCommand(keyValues);
@@ -2218,8 +2261,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         continue;
                     }
 
-                    var sourceValue = sourceColumnModification.OriginalValue;
-                    var targetValue = targetColumnModification.Value;
+                    var sourceValue = NormalizeSeedValue(sourceColumnModification.OriginalValue);
+                    var targetValue = NormalizeSeedValue(targetColumnModification.Value);
                     var comparer = targetColumn.ProviderValueComparer;
                     if (sourceColumn.ProviderClrType == targetColumn.ProviderClrType
                         && comparer.Equals(sourceValue, targetValue))

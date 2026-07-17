@@ -117,6 +117,7 @@ jobs:
         with:
           ref: ${{ steps.detect.outputs.target_sha }}
           fetch-depth: 1
+          allow-unsafe-pr-checkout: true
 
       - name: Restore repo-local .NET SDK
         if: steps.detect.outputs.has_baselines == 'true'
