@@ -1055,10 +1055,24 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 }
 
                 using var responseMessage = await _cosmosClientWrapper._executionStrategy.ExecuteAsync(
-                    (_query, _cosmosClientWrapper),
-                    static (_, state, cancellationToken) => state._query.ReadNextAsync(cancellationToken),
-                    null,
-                    cancellationToken).ConfigureAwait(false);
+                        _query,
+                        static async (_, query, cancellationToken) =>
+                        {
+                            var responseMessage = await query.ReadNextAsync(cancellationToken).ConfigureAwait(false);
+                            try
+                            {
+                                responseMessage.EnsureSuccessStatusCode();
+                            }
+                            catch
+                            {
+                                responseMessage.Dispose();
+                                throw;
+                            }
+
+                            return responseMessage;
+                        },
+                        null,
+                        cancellationToken).ConfigureAwait(false);
 
                 _cosmosClientWrapper._commandLogger.ExecutedReadNext(
                     responseMessage.Diagnostics.GetClientElapsedTime(),
@@ -1067,8 +1081,6 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                     _containerId,
                     _partitionKeyValue,
                     _cosmosSqlQuery);
-
-                responseMessage.EnsureSuccessStatusCode();
 
                 _current = CosmosResponseStreamHelper.ExtractContentAsMemory(responseMessage.Content);
 
