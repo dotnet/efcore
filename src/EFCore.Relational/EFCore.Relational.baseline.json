@@ -15788,6 +15788,9 @@
           "Member": "override System.Linq.Expressions.Expression NormalizeQueryableMethod(System.Linq.Expressions.Expression expression);"
         },
         {
+          "Member": "override System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression query);"
+        },
+        {
           "Member": "override System.Linq.Expressions.Expression ProcessQueryRoots(System.Linq.Expressions.Expression expression);"
         }
       ],
