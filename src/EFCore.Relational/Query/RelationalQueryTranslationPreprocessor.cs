@@ -32,19 +32,6 @@ public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocess
     protected virtual RelationalQueryTranslationPreprocessorDependencies RelationalDependencies { get; }
 
     /// <inheritdoc />
-    public override Expression Process(Expression query)
-    {
-        // Relational-only: rewrites GroupBy aggregates over reference navigations into explicit
-        // pre-GroupBy left joins (#27933). Must run before the GroupJoin-flattening normalization,
-        // and must not run for non-relational providers (Cosmos has no joins).
-        // The synthesized tree is only correct under SQL translation (a joined hop may be null
-        // after DefaultIfEmpty; SQL null propagation handles it, client evaluation would not).
-        query = new GroupByAggregateNavigationLiftingExpressionVisitor(QueryCompilationContext.Model).Visit(query);
-
-        return base.Process(query);
-    }
-
-    /// <inheritdoc />
     public override Expression NormalizeQueryableMethod(Expression expression)
     {
         expression = new RelationalQueryMetadataExtractingExpressionVisitor(_relationalQueryCompilationContext).Visit(expression);
