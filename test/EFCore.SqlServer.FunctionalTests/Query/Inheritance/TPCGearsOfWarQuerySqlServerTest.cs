@@ -12176,8 +12176,8 @@ FROM (
     SELECT [o].[SquadId], [o].[CityOfBirthName]
     FROM [Officers] AS [o]
 ) AS [u]
-LEFT JOIN [Cities] AS [c] ON [u].[CityOfBirthName] = [c].[Name]
 INNER JOIN [Squads] AS [s] ON [u].[SquadId] = [s].[Id]
+INNER JOIN [Cities] AS [c] ON [u].[CityOfBirthName] = [c].[Name]
 WHERE N'Marcus' IN (
     SELECT [g0].[Nickname]
     FROM [Gears] AS [g0]

@@ -10350,8 +10350,8 @@ FROM [Squads] AS [s]
             """
 SELECT [s].[Name], ISNULL(SUM(CAST(LEN([c].[Location]) AS int)), 0) AS [SumOfLengths]
 FROM [Gears] AS [g]
-LEFT JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
+INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 WHERE N'Marcus' IN (
     SELECT [g0].[Nickname]
     FROM [Gears] AS [g0]
