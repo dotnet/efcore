@@ -1154,7 +1154,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     typeof(INavigationBase)),
                                 GenerateFixup(includingEntityClrType, relatedEntityClrType, navigation, inverseNavigation),
                                 Constant(_isTracking),
-                                CreateParentIdentifierOrderingExpression(relationalSplitCollectionShaperExpression)));
+                                CreateSplitQueryOrderedExpression(relationalSplitCollectionShaperExpression)));
                     }
                     else
                     {
@@ -1484,7 +1484,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                             ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
                                             : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>))
                                     : relatedDataLoaders,
-                                CreateParentIdentifierOrderingExpression(relationalSplitCollectionShaperExpression)));
+                                CreateSplitQueryOrderedExpression(relationalSplitCollectionShaperExpression)));
 
                         _variableShaperMapping[relationalSplitCollectionShaperExpression] = accessor;
                     }
@@ -2821,20 +2821,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private Expression CreateParentIdentifierOrderingExpression(
+        private Expression CreateSplitQueryOrderedExpression(
             RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression)
         {
-            var parentIdentifierOrdering = relationalSplitCollectionShaperExpression.ParentIdentifierOrdering;
-            if (parentIdentifierOrdering is null)
+            if (!relationalSplitCollectionShaperExpression.SplitQueryOrdered)
             {
                 // The split collection query is not deterministically ordered by all of the identifier columns, so the child
                 // rows have to be buffered to correlate them with their parents. Warn about the potential memory cost.
                 _queryLogger.SplitCollectionWithoutOrderingWarning();
 
-                return Constant(null, typeof(bool[]));
+                return Constant(false);
             }
 
-            return Constant(parentIdentifierOrdering, typeof(bool[]));
+            return Constant(true);
         }
 
         private static Expression<Func<object, int>> CreateObjectHashCodeExpression(ValueComparer valueComparer)

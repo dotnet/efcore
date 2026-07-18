@@ -431,7 +431,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery,
-            bool[]? parentIdentifierOrdering = null)
+            bool splitQueryOrdered = false)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -474,7 +474,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            if (dataReaderContext.Buffered || parentIdentifierOrdering is null)
+            if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
                 // The query is not deterministically ordered by all of the identifier columns (or buffering was
                 // triggered by a non-matching row in the ordered fast path below), so child rows for the current
@@ -634,7 +634,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
             bool trackingQuery,
-            bool[]? parentIdentifierOrdering = null)
+            bool splitQueryOrdered = false)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
@@ -685,7 +685,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            if (dataReaderContext.Buffered || parentIdentifierOrdering is null)
+            if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
                 // The query is not deterministically ordered by all of the identifier columns (or buffering was
                 // triggered by a non-matching row in the ordered fast path below), so child rows for the current
@@ -1021,7 +1021,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             IReadOnlyList<Func<object, int>> identifierHashCodeCalculators,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
-            bool[]? parentIdentifierOrdering = null)
+            bool splitQueryOrdered = false)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
         {
@@ -1065,7 +1065,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            if (dataReaderContext.Buffered || parentIdentifierOrdering is null)
+            if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
                 // The query is not deterministically ordered by all of the identifier columns (or buffering was
                 // triggered by a non-matching row in the ordered fast path below), so child rows for the current
@@ -1192,7 +1192,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             IReadOnlyList<Func<object, int>> identifierHashCodeCalculators,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
-            bool[]? parentIdentifierOrdering = null)
+            bool splitQueryOrdered = false)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
         {
@@ -1244,7 +1244,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            if (dataReaderContext.Buffered || parentIdentifierOrdering is null)
+            if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
                 // The query is not deterministically ordered by all of the identifier columns (or buffering was
                 // triggered by a non-matching row in the ordered fast path below), so child rows for the current

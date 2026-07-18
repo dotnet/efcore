@@ -27,11 +27,10 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     /// <param name="innerShaper">An expression used to create individual elements of the collection.</param>
     /// <param name="navigation">A navigation associated with this collection, if any.</param>
     /// <param name="elementType">The clr type of individual elements in the collection.</param>
-    /// <param name="parentIdentifierOrdering">
-    ///     The per-column sort directions of the parent identifier columns in the split collection query's <c>ORDER BY</c>
-    ///     (<see langword="true" /> for ascending, <see langword="false" /> for descending) when the query is deterministically
-    ///     ordered by all of the identifier columns; otherwise <see langword="null" />, in which case the child rows must be
-    ///     buffered to correlate them with their parents.
+    /// <param name="splitQueryOrdered">
+    ///     <see langword="true" /> if the split collection query is deterministically ordered by all of the identifier
+    ///     columns; <see langword="false" /> if the query does not have a full ordering, in which case child rows must
+    ///     be buffered to correlate them with their parents.
     /// </param>
     public RelationalSplitCollectionShaperExpression(
         Expression parentIdentifier,
@@ -41,7 +40,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
         Expression innerShaper,
         INavigationBase? navigation,
         Type elementType,
-        bool[]? parentIdentifierOrdering = null)
+        bool splitQueryOrdered = false)
     {
         ParentIdentifier = parentIdentifier;
         ChildIdentifier = childIdentifier;
@@ -50,7 +49,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
         InnerShaper = innerShaper;
         Navigation = navigation;
         ElementType = elementType;
-        ParentIdentifierOrdering = parentIdentifierOrdering;
+        SplitQueryOrdered = splitQueryOrdered;
     }
 
     /// <summary>
@@ -89,12 +88,11 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
     public virtual Type ElementType { get; }
 
     /// <summary>
-    ///     The per-column sort directions of the parent identifier columns in the split collection query's <c>ORDER BY</c>
-    ///     (<see langword="true" /> for ascending, <see langword="false" /> for descending) when the query is deterministically
-    ///     ordered by all of the identifier columns; otherwise <see langword="null" />, in which case the child rows must be
-    ///     buffered to correlate them with their parents.
+    ///     <see langword="true" /> if the split collection query is deterministically ordered by all of the identifier
+    ///     columns; <see langword="false" /> if the query does not have a full ordering, in which case child rows must
+    ///     be buffered to correlate them with their parents.
     /// </summary>
-    public virtual bool[]? ParentIdentifierOrdering { get; }
+    public virtual bool SplitQueryOrdered { get; }
 
     /// <inheritdoc />
     public override Type Type
@@ -135,7 +133,7 @@ public class RelationalSplitCollectionShaperExpression : Expression, IPrintableE
             || innerShaper != InnerShaper
                 ? new RelationalSplitCollectionShaperExpression(
                     parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation,
-                    ElementType, ParentIdentifierOrdering)
+                    ElementType, SplitQueryOrdered)
                 : this;
 
     /// <inheritdoc />

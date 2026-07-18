@@ -15968,7 +15968,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalSplitCollectionShaperExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
       "Methods": [
         {
-          "Member": "RelationalSplitCollectionShaperExpression(System.Linq.Expressions.Expression parentIdentifier, System.Linq.Expressions.Expression childIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> identifierValueComparers, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, System.Linq.Expressions.Expression innerShaper, Microsoft.EntityFrameworkCore.Metadata.INavigationBase? navigation, System.Type elementType, bool[]? parentIdentifierOrdering = null);"
+          "Member": "RelationalSplitCollectionShaperExpression(System.Linq.Expressions.Expression parentIdentifier, System.Linq.Expressions.Expression childIdentifier, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer> identifierValueComparers, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, System.Linq.Expressions.Expression innerShaper, Microsoft.EntityFrameworkCore.Metadata.INavigationBase? navigation, System.Type elementType, bool splitQueryOrdered = false);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.RelationalSplitCollectionShaperExpression Update(System.Linq.Expressions.Expression parentIdentifier, System.Linq.Expressions.Expression childIdentifier, Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression selectExpression, System.Linq.Expressions.Expression innerShaper);"
@@ -16000,7 +16000,7 @@
           "Member": "virtual System.Linq.Expressions.Expression ParentIdentifier { get; }"
         },
         {
-          "Member": "virtual bool[]? ParentIdentifierOrdering { get; }"
+          "Member": "virtual bool SplitQueryOrdered { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Query.SqlExpressions.SelectExpression SelectExpression { get; }"

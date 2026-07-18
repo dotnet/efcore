@@ -1054,12 +1054,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerSelectExpression._clientProjections,
                                 identifierColumns);
 
-                            var parentIdentifierOrdering = GetParentIdentifierOrdering(
+                            var splitQueryOrdered = IsOrderedByParentIdentifier(
                                 innerSelectExpression._orderings, identifierColumns);
 
                             var result = new SplitCollectionInfo(
                                 parentIdentifier, childIdentifier, childIdentifierValueComparers,
-                                innerSelectExpression, innerShaperExpression, parentIdentifierOrdering);
+                                innerSelectExpression, innerShaperExpression, splitQueryOrdered);
                             clientProjectionIndexMap.Add(result);
                         }
                         else
@@ -3166,12 +3166,10 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     /// <summary>
     ///     Determines whether the leading ORDER BY columns of the split collection query are exactly the parent identifier
-    ///     (key) columns, meaning the child rows are deterministically ordered relative to their parents. If so, returns the
-    ///     per-column sort directions (<see langword="true" /> for ascending, <see langword="false" /> for descending) so that
-    ///     out-of-order rows introduced by concurrent inserts can be skipped while streaming. Returns <see langword="null" />
-    ///     when the ordering does not lead with the full set of key columns, in which case the child rows must be buffered.
+    ///     (key) columns. If so, the child rows are deterministically ordered relative to their parents and the streaming
+    ///     fast path can be used; otherwise the child rows must be buffered.
     /// </summary>
-    private static bool[]? GetParentIdentifierOrdering(
+    private static bool IsOrderedByParentIdentifier(
         IReadOnlyList<OrderingExpression> orderings,
         IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifierColumns)
     {
@@ -3179,21 +3177,18 @@ public sealed partial class SelectExpression : TableExpressionBase
         if (identifierList.Count == 0
             || orderings.Count < identifierList.Count)
         {
-            return null;
+            return false;
         }
 
-        var directions = new bool[identifierList.Count];
         for (var i = 0; i < identifierList.Count; i++)
         {
             if (!orderings[i].Expression.Equals(identifierList[i].Column))
             {
-                return null;
+                return false;
             }
-
-            directions[i] = orderings[i].IsAscending;
         }
 
-        return directions;
+        return true;
     }
 
     private void AddJoin(

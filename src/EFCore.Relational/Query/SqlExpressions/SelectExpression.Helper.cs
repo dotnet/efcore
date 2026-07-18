@@ -502,14 +502,14 @@ public sealed partial class SelectExpression
         IReadOnlyList<ValueComparer> identifierValueComparers,
         SelectExpression selectExpression,
         Expression shaperExpression,
-        bool[]? parentIdentifierOrdering = null)
+        bool splitQueryOrdered = false)
     {
         public Expression ParentIdentifier { get; } = parentIdentifier;
         public Expression ChildIdentifier { get; } = childIdentifier;
         public IReadOnlyList<ValueComparer> IdentifierValueComparers { get; } = identifierValueComparers;
         public SelectExpression SelectExpression { get; } = selectExpression;
         public Expression ShaperExpression { get; } = shaperExpression;
-        public bool[]? ParentIdentifierOrdering { get; } = parentIdentifierOrdering;
+        public bool SplitQueryOrdered { get; } = splitQueryOrdered;
     }
 
     private sealed class ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap) : ExpressionVisitor
@@ -560,7 +560,7 @@ public sealed partial class SelectExpression
                                 splitCollectionInfo.ParentIdentifier, splitCollectionInfo.ChildIdentifier,
                                 splitCollectionInfo.IdentifierValueComparers, splitCollectionInfo.SelectExpression,
                                 splitCollectionInfo.ShaperExpression, navigation,
-                                collectionResultExpression.ElementType, splitCollectionInfo.ParentIdentifierOrdering),
+                                collectionResultExpression.ElementType, splitCollectionInfo.SplitQueryOrdered),
 
                         int => collectionResultExpression.Update(
                             (ProjectionBindingExpression)Visit(innerProjectionBindingExpression)),
