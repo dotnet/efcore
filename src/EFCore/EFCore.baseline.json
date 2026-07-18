@@ -14697,6 +14697,11 @@
         {
           "Member": "void ValidateQueryRootCreation(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Query.EntityQueryRootExpression? source);"
         }
+      ],
+      "Properties": [
+        {
+          "Member": "bool SupportsNavigationExpansionJoins { get; }"
+        }
       ]
     },
     {

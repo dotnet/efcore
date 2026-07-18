@@ -14398,6 +14398,19 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalNavigationExpansionExtensibilityHelper : Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelper, Microsoft.EntityFrameworkCore.Query.INavigationExpansionExtensibilityHelper",
+      "Methods": [
+        {
+          "Member": "RelationalNavigationExpansionExtensibilityHelper(Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies dependencies);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual bool SupportsNavigationExpansionJoins { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalNavigationJsonPropertyNameAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NavigationAttributeConventionBase<System.Text.Json.Serialization.JsonPropertyNameAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.INavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
       "Methods": [
         {
@@ -15786,9 +15799,6 @@
         },
         {
           "Member": "override System.Linq.Expressions.Expression NormalizeQueryableMethod(System.Linq.Expressions.Expression expression);"
-        },
-        {
-          "Member": "override System.Linq.Expressions.Expression Process(System.Linq.Expressions.Expression query);"
         },
         {
           "Member": "override System.Linq.Expressions.Expression ProcessQueryRoots(System.Linq.Expressions.Expression expression);"
