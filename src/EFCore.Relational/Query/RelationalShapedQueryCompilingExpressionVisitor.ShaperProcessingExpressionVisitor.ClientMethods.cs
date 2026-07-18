@@ -476,10 +476,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
-                // The query is not deterministically ordered by all of the identifier columns (or buffering was
-                // triggered by a non-matching row in the ordered fast path below), so child rows for the current
-                // parent may appear anywhere in the result set. Buffer and group all child rows once, then
-                // correlate each parent with its children by identifier equality.
+                // The query is not deterministically ordered by all of the identifier columns, so child rows
+                // for the current parent may appear anywhere in the result set. Buffer and group all child rows
+                // once, then correlate each parent with its children by identifier equality.
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
@@ -536,60 +535,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    // A non-matching row was encountered in the ordered stream. This can happen when a
-                    // concurrent transaction inserts a new parent/child pair after the outer query ran,
-                    // causing orphan rows to appear in the inner stream, or when the immediately next
-                    // outer parent has no children. We cannot reliably distinguish these cases without
-                    // comparing identifier values against server ordering (which can differ from .NET
-                    // comparison for types such as GUIDs on SQL Server). Instead, switch to buffering:
-                    // drain all remaining rows into a lookup and correlate each parent by equality.
-                    dataReaderContext.HasNext = true; // current (non-matching) row is not yet consumed
-                    dataReaderContext.Buffered = true;
-                    var lookup = trackingQuery
-                        ? null
-                        : new Dictionary<object[], List<object?>>(
-                            new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
-                    while (dataReaderContext.HasNext ?? dbDataReader.Read())
-                    {
-                        dataReaderContext.HasNext = null;
-                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
-                        splitQueryCollectionContext.ResultContext.Values = null;
-
-                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-                        relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
-                        var bufferedEntity = innerShaper(
-                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-
-                        if (lookup != null)
-                        {
-                            if (!lookup.TryGetValue(bufferedChildIdentifier, out var entities))
-                            {
-                                entities = [];
-                                lookup[bufferedChildIdentifier] = entities;
-                            }
-
-                            entities.Add(bufferedEntity);
-                        }
-                    }
-
-                    dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntityLookup = lookup;
-
-                    // Look up any remaining children for the current parent from the newly buffered rows.
-                    // In a correctly ordered stream the current parent's rows all precede the non-matching
-                    // row, so this is typically empty — but the check is required for correctness.
-                    if (!trackingQuery
-                        && lookup is { } bufferedEntities
-                        && bufferedEntities.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedEntitiesForParent))
-                    {
-                        foreach (var bufferedEntity2 in bufferedEntitiesForParent)
-                        {
-                            var bufferedRelatedEntity = (TIncludedEntity)bufferedEntity2!;
-                            fixup(entity, bufferedRelatedEntity);
-                            inverseNavigation?.SetIsLoadedWhenNoTracking(bufferedRelatedEntity);
-                        }
-                    }
-
+                    // The query is ordered by all identifier columns so children for each parent are
+                    // contiguous; a non-matching row means we have reached the next parent boundary.
+                    dataReaderContext.HasNext = true;
                     return;
                 }
 
@@ -687,10 +635,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
-                // The query is not deterministically ordered by all of the identifier columns (or buffering was
-                // triggered by a non-matching row in the ordered fast path below), so child rows for the current
-                // parent may appear anywhere in the result set. Buffer and group all child rows once, then
-                // correlate each parent with its children by identifier equality.
+                // The query is not deterministically ordered by all of the identifier columns, so child rows
+                // for the current parent may appear anywhere in the result set. Buffer and group all child rows
+                // once, then correlate each parent with its children by identifier equality.
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
@@ -751,57 +698,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    // A non-matching row was encountered in the ordered stream. Switch to buffering mode:
-                    // drain all remaining rows into a lookup and correlate each parent by equality.
-                    // See the sync overload for full reasoning.
-                    dataReaderContext.HasNext = true; // current (non-matching) row is not yet consumed
-                    dataReaderContext.Buffered = true;
-                    var lookup = trackingQuery
-                        ? null
-                        : new Dictionary<object[], List<object?>>(
-                            new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
-                    while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
-                    {
-                        dataReaderContext.HasNext = null;
-                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
-                        splitQueryCollectionContext.ResultContext.Values = null;
-
-                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-                        if (relatedDataLoaders != null)
-                        {
-                            await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
-                        }
-
-                        var bufferedEntity = innerShaper(
-                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-
-                        if (lookup != null)
-                        {
-                            if (!lookup.TryGetValue(bufferedChildIdentifier, out var entities))
-                            {
-                                entities = [];
-                                lookup[bufferedChildIdentifier] = entities;
-                            }
-
-                            entities.Add(bufferedEntity);
-                        }
-                    }
-
-                    dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntityLookup = lookup;
-
-                    if (!trackingQuery
-                        && lookup is { } bufferedEntities
-                        && bufferedEntities.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedEntitiesForParent))
-                    {
-                        foreach (var bufferedEntity2 in bufferedEntitiesForParent)
-                        {
-                            var bufferedRelatedEntity = (TIncludedEntity)bufferedEntity2!;
-                            fixup(entity, bufferedRelatedEntity);
-                            inverseNavigation?.SetIsLoadedWhenNoTracking(bufferedRelatedEntity);
-                        }
-                    }
-
+                    // The query is ordered by all identifier columns so children for each parent are
+                    // contiguous; a non-matching row means we have reached the next parent boundary.
+                    dataReaderContext.HasNext = true;
                     return;
                 }
 
@@ -1067,10 +966,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
-                // The query is not deterministically ordered by all of the identifier columns (or buffering was
-                // triggered by a non-matching row in the ordered fast path below), so child rows for the current
-                // parent may appear anywhere in the result set. Buffer and group all child rows once, then
-                // correlate each parent with its children by identifier equality.
+                // The query is not deterministically ordered by all of the identifier columns, so child rows
+                // for the current parent may appear anywhere in the result set. Buffer and group all child rows
+                // once, then correlate each parent with its children by identifier equality.
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
@@ -1119,43 +1017,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    // A non-matching row was encountered in the ordered stream. Switch to buffering mode.
-                    // See the Include overload for full reasoning.
-                    dataReaderContext.HasNext = true; // current (non-matching) row is not yet consumed
-                    dataReaderContext.Buffered = true;
-                    var lookup = new Dictionary<object[], List<object?>>(
-                        new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
-                    while (dataReaderContext.HasNext ?? dbDataReader.Read())
-                    {
-                        dataReaderContext.HasNext = null;
-                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
-                        splitQueryCollectionContext.ResultContext.Values = null;
-
-                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-                        relatedDataLoaders?.Invoke(queryContext, executionStrategy, resultCoordinator);
-                        var bufferedElement = innerShaper(
-                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-
-                        if (!lookup.TryGetValue(bufferedChildIdentifier, out var elements))
-                        {
-                            elements = [];
-                            lookup[bufferedChildIdentifier] = elements;
-                        }
-
-                        elements.Add(bufferedElement);
-                    }
-
-                    dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntityLookup = lookup;
-
-                    if (lookup.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedElementsForParent))
-                    {
-                        foreach (var bufferedElement in bufferedElementsForParent)
-                        {
-                            ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
-                        }
-                    }
-
+                    // The query is ordered by all identifier columns so children for each parent are
+                    // contiguous; a non-matching row means we have reached the next parent boundary.
+                    dataReaderContext.HasNext = true;
                     return;
                 }
 
@@ -1246,10 +1110,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (dataReaderContext.Buffered || !splitQueryOrdered)
             {
-                // The query is not deterministically ordered by all of the identifier columns (or buffering was
-                // triggered by a non-matching row in the ordered fast path below), so child rows for the current
-                // parent may appear anywhere in the result set. Buffer and group all child rows once, then
-                // correlate each parent with its children by identifier equality.
+                // The query is not deterministically ordered by all of the identifier columns, so child rows
+                // for the current parent may appear anywhere in the result set. Buffer and group all child rows
+                // once, then correlate each parent with its children by identifier equality.
                 if (!dataReaderContext.Buffered)
                 {
                     dataReaderContext.Buffered = true;
@@ -1302,47 +1165,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         identifierValueComparers,
                         splitQueryCollectionContext.ParentIdentifier, currentChildIdentifier))
                 {
-                    // A non-matching row was encountered in the ordered stream. Switch to buffering mode.
-                    // See the sync Include overload for full reasoning.
-                    dataReaderContext.HasNext = true; // current (non-matching) row is not yet consumed
-                    dataReaderContext.Buffered = true;
-                    var lookup = new Dictionary<object[], List<object?>>(
-                        new IdentifierEqualityComparer(identifierValueComparers, identifierHashCodeCalculators));
-                    while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
-                    {
-                        dataReaderContext.HasNext = null;
-                        var bufferedChildIdentifier = childIdentifier(queryContext, dbDataReader);
-                        splitQueryCollectionContext.ResultContext.Values = null;
-
-                        innerShaper(queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-                        if (relatedDataLoaders != null)
-                        {
-                            await relatedDataLoaders(queryContext, executionStrategy, resultCoordinator).ConfigureAwait(false);
-                        }
-
-                        var bufferedElement = innerShaper(
-                            queryContext, dbDataReader, splitQueryCollectionContext.ResultContext, resultCoordinator);
-
-                        if (!lookup.TryGetValue(bufferedChildIdentifier, out var elements))
-                        {
-                            elements = [];
-                            lookup[bufferedChildIdentifier] = elements;
-                        }
-
-                        elements.Add(bufferedElement);
-                    }
-
-                    dataReaderContext.HasNext = false;
-                    dataReaderContext.BufferedEntityLookup = lookup;
-
-                    if (lookup.TryGetValue(splitQueryCollectionContext.ParentIdentifier, out var bufferedElementsForParent))
-                    {
-                        foreach (var bufferedElement in bufferedElementsForParent)
-                        {
-                            ((TCollection)splitQueryCollectionContext.Collection).Add((TRelatedEntity)bufferedElement!);
-                        }
-                    }
-
+                    // The query is ordered by all identifier columns so children for each parent are
+                    // contiguous; a non-matching row means we have reached the next parent boundary.
+                    dataReaderContext.HasNext = true;
                     return;
                 }
 

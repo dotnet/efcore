@@ -3165,9 +3165,9 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Determines whether the leading ORDER BY columns of the split collection query are exactly the parent identifier
-    ///     (key) columns. If so, the child rows are deterministically ordered relative to their parents and the streaming
-    ///     fast path can be used; otherwise the child rows must be buffered.
+    ///     Determines whether the leading ORDER BY columns of the split collection query cover all parent identifier
+    ///     (key) columns (in any order). If so, the child rows are deterministically ordered relative to their parents
+    ///     and the streaming fast path can be used; otherwise the child rows must be buffered.
     /// </summary>
     private static bool IsOrderedByParentIdentifier(
         IReadOnlyList<OrderingExpression> orderings,
@@ -3180,12 +3180,16 @@ public sealed partial class SelectExpression : TableExpressionBase
             return false;
         }
 
+        var remainingIdentifiers = identifierList.Select(id => (SqlExpression)id.Column).ToList();
         for (var i = 0; i < identifierList.Count; i++)
         {
-            if (!orderings[i].Expression.Equals(identifierList[i].Column))
+            var idx = remainingIdentifiers.FindIndex(col => col.Equals(orderings[i].Expression));
+            if (idx < 0)
             {
                 return false;
             }
+
+            remainingIdentifiers.RemoveAt(idx);
         }
 
         return true;

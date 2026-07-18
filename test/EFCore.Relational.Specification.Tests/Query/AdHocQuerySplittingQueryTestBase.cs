@@ -379,15 +379,13 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         try
         {
-            // Each variation concurrently inserts Blog(15, 3) when Blog(20, 1) materialises.
-            // A transaction is used to delete Blog(15, 3) (and its cascaded posts) after each
-            // variation so that the database is clean for the next one.
             async Task RunVariationAsync(
                 Func<Context33826, IQueryable<Blog33826>> buildQuery,
                 Action<List<Blog33826>> assertResults,
-                bool expectsBuffering)
+                bool expectsBuffering,
+                bool insertConcurrent = false)
             {
-                Context33826.InsertConcurrentEntity = true;
+                Context33826.InsertConcurrentEntity = insertConcurrent;
                 ClearLog();
                 using var context = contextFactory.CreateDbContext();
                 try
@@ -421,9 +419,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             }
 
             // Variation 1: both key columns descending — the child query is fully ordered by all key
-            // columns, so the streaming fast path is used.  Blog(15, 3) is inserted when Blog(20, 1)
-            // materialises; its posts appear between those of Blog(20, 1) and Blog(10, 2) in the stream,
-            // and the fast path discards them as out-of-order rows.
+            // columns (in any permutation), so the streaming fast path is used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderByDescending(b => b.Id).ThenByDescending(b => b.SecondId),
@@ -431,38 +427,40 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                 expectsBuffering: false);
 
             // Variation 2: no explicit ordering — deterministic ASC orderings on the key are injected,
-            // so the child query is fully ordered and the fast path is used.
+            // covering all key columns, so the streaming fast path is used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery(),
                 AssertBothOriginalBlogs,
                 expectsBuffering: false);
 
             // Variation 3: first key column descending only — the injected SecondId ASC ordering makes
-            // the effective ORDER BY [Id DESC, SecondId ASC].  The leading columns still match the key
-            // columns (just with mixed directions), so the fast path is used and both blogs are correct.
+            // the effective ORDER BY cover both key columns, so the streaming fast path is used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderByDescending(b => b.Id),
                 AssertBothOriginalBlogs,
                 expectsBuffering: false);
 
-            // Variation 4: ordering leads with a non-key column — the effective ORDER BY is
-            // [SecondId ASC, Id ASC], which does not lead with the first key column, so the child rows
-            // cannot be correlated by server order.  The child rows are buffered instead and a warning
-            // is logged; both original blogs still keep their full post collections.
+            // Variation 4: ordering leads with a non-key column (Category) — the first N orderings do
+            // not cover all key columns, so the child rows are buffered and a warning is logged.
+            // Blog(15, 3) is inserted concurrently after Blog(10, 2) is shaped (and before the child
+            // reader is opened), introducing an orphan row into the split query result.  The buffering
+            // path groups all child rows by parent identifier and correctly assigns posts to their
+            // respective parents, so both original blogs keep their full post collections.
             await RunVariationAsync(
-                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderBy(b => b.SecondId),
+                ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery().OrderBy(b => b.Category),
                 AssertBothOriginalBlogs,
-                expectsBuffering: true);
+                expectsBuffering: true,
+                insertConcurrent: true);
 
-            // Variation 5: both key columns ascending — fully ordered, fast path used.
+            // Variation 5: both key columns ascending — fully ordered, streaming fast path used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderBy(b => b.Id).ThenBy(b => b.SecondId),
                 AssertBothOriginalBlogs,
                 expectsBuffering: false);
 
-            // Variation 6: key columns in opposite directions — leading columns still match the key
-            // columns, so the fast path is used just like Variation 3.
+            // Variation 6: key columns in opposite directions — leading columns still cover both key
+            // columns, so the streaming fast path is used.
             await RunVariationAsync(
                 ctx => ctx.Blogs.Include(b => b.Posts).AsSplitQuery()
                     .OrderByDescending(b => b.Id).ThenBy(b => b.SecondId),
@@ -488,7 +486,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         public static Func<Context33826> ConcurrentContextFactory { get; set; }
         public static bool InsertConcurrentEntity { get; set; }
 
-        public DbSet<Blog33826> Blogs { get; set; }
+        public DbSet<Blog33826> Blogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -513,8 +511,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         public Task SeedAsync()
         {
             Blogs.AddRange(
-                new Blog33826(10, 2, [new Post33826(1, 2, "A"), new Post33826(2, 2, "B")]),
-                new Blog33826(20, 1, [new Post33826(3, 1, "C"), new Post33826(4, 1, "D")]));
+                new Blog33826(10, 2, category: 1, [new Post33826(1, 2, "A"), new Post33826(2, 2, "B")]),
+                new Blog33826(20, 1, category: 2, [new Post33826(3, 1, "C"), new Post33826(4, 1, "D")]));
 
             return SaveChangesAsync();
         }
@@ -522,32 +520,35 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
     protected sealed class Blog33826
     {
-        public Blog33826(int id, int secondId, IEnumerable<Post33826> posts)
+        public Blog33826(int id, int secondId, int category, IEnumerable<Post33826> posts)
         {
             Id = id;
             SecondId = secondId;
+            Category = category;
             Posts = posts.ToList();
         }
 
-        private Blog33826(int id, int secondId)
+        private Blog33826(int id, int secondId, int category)
         {
             Id = id;
             SecondId = secondId;
+            Category = category;
 
-            if (id == 20
-                && secondId == 1
+            if (id == 10
+                && secondId == 2
                 && Context33826.InsertConcurrentEntity)
             {
                 Context33826.InsertConcurrentEntity = false;
 
-                using var context = Context33826.ConcurrentContextFactory();
-                context.Blogs.Add(new Blog33826(15, 3, [new Post33826(5, 3, "Concurrent")]));
+                using var context = Context33826.ConcurrentContextFactory!();
+                context.Blogs.Add(new Blog33826(15, 3, category: 1, [new Post33826(5, 3, "Concurrent")]));
                 context.SaveChanges();
             }
         }
 
         public int Id { get; private init; }
         public int SecondId { get; private init; }
+        public int Category { get; private init; }
         public List<Post33826> Posts { get; private init; } = [];
     }
 
