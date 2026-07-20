@@ -82,7 +82,7 @@ public class JsonReaderData
             var buffer = _mutableBuffer!;
             var totalConsumed = bytesConsumed + _positionInBuffer;
             _bytesRead += totalConsumed;
-            if (_bytesAvailable != 0 && totalConsumed < _bytesAvailable)
+            if (totalConsumed < _bytesAvailable)
             {
                 var leftover = buffer.AsSpan(totalConsumed, _bytesAvailable - totalConsumed);
 
@@ -92,11 +92,12 @@ public class JsonReaderData
                 }
 
                 leftover.CopyTo(buffer);
-                _bytesAvailable = ReadToEnd(_stream, buffer.AsSpan(leftover.Length)) + leftover.Length;
+                _bytesAvailable = _stream.ReadAtLeast(buffer.AsSpan(leftover.Length), buffer.Length - leftover.Length, throwOnEndOfStream: false)
+                    + leftover.Length;
             }
             else
             {
-                _bytesAvailable = ReadToEnd(_stream, buffer);
+                _bytesAvailable = _stream.ReadAtLeast(buffer, buffer.Length, throwOnEndOfStream: false);
             }
 
             _mutableBuffer = buffer;
@@ -118,21 +119,4 @@ public class JsonReaderData
             _buffer.Span[_positionInBuffer..],
             isFinalBlock: _stream is null || _bytesAvailable != _buffer.Length,
             _readerState);
-
-    private static int ReadToEnd(Stream stream, Span<byte> buffer)
-    {
-        var bytesRead = 0;
-        while (bytesRead < buffer.Length)
-        {
-            var read = stream.Read(buffer[bytesRead..]);
-            if (read == 0)
-            {
-                break;
-            }
-
-            bytesRead += read;
-        }
-
-        return bytesRead;
-    }
 }
