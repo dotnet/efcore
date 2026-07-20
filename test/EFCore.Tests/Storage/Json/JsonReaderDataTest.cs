@@ -98,11 +98,58 @@ public class JsonReaderDataTest
         Assert.Equal(json.Length, data.BytesConsumed);
     }
 
-    private sealed class PartialReadStream(byte[] buffer, int maxBytesPerRead) : MemoryStream(buffer)
+    private sealed class PartialReadStream : Stream
     {
-        private readonly int _maxBytesPerRead = maxBytesPerRead;
+        private readonly ReadOnlyMemory<byte> _buffer;
+        private readonly int _maxBytesPerRead;
+        private int _position;
+
+        public PartialReadStream(byte[] buffer, int maxBytesPerRead)
+        {
+            _buffer = buffer;
+            _maxBytesPerRead = maxBytesPerRead > 0
+                ? maxBytesPerRead
+                : throw new ArgumentOutOfRangeException(nameof(maxBytesPerRead));
+        }
 
         public override int Read(Span<byte> destination)
-            => base.Read(destination[..Math.Min(destination.Length, _maxBytesPerRead)]);
+        {
+            if (_position >= _buffer.Length)
+            {
+                return 0;
+            }
+
+            var bytesToRead = Math.Min(destination.Length, Math.Min(_maxBytesPerRead, _buffer.Length - _position));
+            _buffer.Span.Slice(_position, bytesToRead).CopyTo(destination);
+            _position += bytesToRead;
+            return bytesToRead;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+            => Read(buffer.AsSpan(offset, count));
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => _buffer.Length;
+
+        public override long Position
+        {
+            get => _position;
+            set => throw new NotSupportedException();
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+            => throw new NotSupportedException();
+
+        public override void SetLength(long value)
+            => throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count)
+            => throw new NotSupportedException();
     }
 }
