@@ -553,6 +553,12 @@
         },
         {
           "Member": "virtual System.Threading.Tasks.Task<System.Collections.Generic.List<T>> NextAsListAsync<T>(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual int NextAsRowsAffected();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<int> NextAsRowsAffectedAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         }
       ]
     },
@@ -6310,6 +6316,9 @@
       ],
       "Properties": [
         {
+          "Member": "string? AffectedRowsCountStatement { get; }"
+        },
+        {
           "Member": "string BatchTerminator { get; }"
         },
         {
@@ -9677,13 +9686,13 @@
       "Type": "static class Microsoft.EntityFrameworkCore.RelationalBatchQueryExtensions",
       "Methods": [
         {
-          "Member": "static Microsoft.EntityFrameworkCore.BatchResultsReader Batch<TContext>(this TContext context, params System.Func<TContext, System.Linq.IQueryable>[] queries);"
+          "Member": "static Microsoft.EntityFrameworkCore.BatchResultsReader Batch<TContext>(this TContext context, params System.Linq.Expressions.Expression<System.Func<TContext, object>>[] queries);"
         },
         {
-          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, params System.Func<TContext, System.Linq.IQueryable>[] queries);"
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, params System.Linq.Expressions.Expression<System.Func<TContext, object>>[] queries);"
         },
         {
-          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, System.Collections.Generic.IEnumerable<System.Func<TContext, System.Linq.IQueryable>> queries, System.Threading.CancellationToken cancellationToken);"
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, System.Collections.Generic.IEnumerable<System.Linq.Expressions.Expression<System.Func<TContext, object>>> queries, System.Threading.CancellationToken cancellationToken);"
         }
       ]
     },
@@ -14872,6 +14881,9 @@
       ],
       "Properties": [
         {
+          "Member": "virtual string? AffectedRowsCountStatement { get; }"
+        },
+        {
           "Member": "virtual string BatchTerminator { get; }"
         },
         {
@@ -15003,6 +15015,9 @@
         },
         {
           "Member": "static string BatchQueryResultTypeMismatch(object? actualType, object? requestedType);"
+        },
+        {
+          "Member": "static string BatchQueryUnsupportedExpression(object? expression);"
         },
         {
           "Member": "static string BatchQueryUnsupportedParameter(object? parameterType);"
@@ -15843,6 +15858,15 @@
         },
         {
           "Member": "static string BatchQueryEmpty { get; }"
+        },
+        {
+          "Member": "static string BatchQueryExpectedQueryResults { get; }"
+        },
+        {
+          "Member": "static string BatchQueryExpectedRowsAffected { get; }"
+        },
+        {
+          "Member": "static string BatchQueryNonQueryNotSupported { get; }"
         },
         {
           "Member": "static string BatchQueryRequiresRelationalProvider { get; }"

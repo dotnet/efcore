@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public static class RelationalBatchQueryExecutor
 {
+    private static readonly Expression<Func<DbDataReader, int[], int>> AffectedRowsReadFunc
+        = (reader, _) => reader.GetInt32(0);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -23,20 +26,20 @@ public static class RelationalBatchQueryExecutor
     /// </summary>
     public static BatchResultsReader Execute(
         DbContext context,
-        IReadOnlyList<IRelationalBatchQueryingEnumerable> queries)
+        IReadOnlyList<RelationalBatchElement> elements)
     {
-        var (command, parameterObject, concurrencyDetector) = PrepareCommand(context, queries);
+        var (command, parameterObject, concurrencyDetector) = PrepareCommand(context, elements);
 
         using var _ = concurrencyDetector?.EnterCriticalSection();
 
         // When the queries were compiled for buffering (e.g. a retrying execution strategy is configured), all result
         // sets are buffered eagerly inside ExecuteReader, making the execution safe to retry.
-        var dataReader = queries[0].QueryContext.ExecutionStrategy.Execute(
+        var dataReader = elements[0].QueryContext.ExecutionStrategy.Execute(
             (command, parameterObject),
             static (_, state) => state.command.ExecuteReader(state.parameterObject),
             null);
 
-        return new BatchResultsReader(queries, dataReader);
+        return new BatchResultsReader(elements, dataReader);
     }
 
     /// <summary>
@@ -47,51 +50,62 @@ public static class RelationalBatchQueryExecutor
     /// </summary>
     public static async Task<BatchResultsReader> ExecuteAsync(
         DbContext context,
-        IReadOnlyList<IRelationalBatchQueryingEnumerable> queries,
+        IReadOnlyList<RelationalBatchElement> elements,
         CancellationToken cancellationToken)
     {
-        var (command, parameterObject, concurrencyDetector) = PrepareCommand(context, queries);
+        var (command, parameterObject, concurrencyDetector) = PrepareCommand(context, elements);
 
-        foreach (var query in queries)
+        foreach (var element in elements)
         {
-            query.QueryContext.CancellationToken = cancellationToken;
+            element.QueryContext.CancellationToken = cancellationToken;
         }
 
         using var _ = concurrencyDetector?.EnterCriticalSection();
 
-        var dataReader = await queries[0].QueryContext.ExecutionStrategy.ExecuteAsync(
+        var dataReader = await elements[0].QueryContext.ExecutionStrategy.ExecuteAsync(
                 (command, parameterObject),
                 static (_, state, cancellationToken) => state.command.ExecuteReaderAsync(state.parameterObject, cancellationToken),
                 null,
                 cancellationToken)
             .ConfigureAwait(false);
 
-        return new BatchResultsReader(queries, dataReader, cancellationToken);
+        return new BatchResultsReader(elements, dataReader, cancellationToken);
     }
 
     private static (IRelationalCommand Command, RelationalCommandParameterObject ParameterObject, IConcurrencyDetector? ConcurrencyDetector)
-        PrepareCommand(DbContext context, IReadOnlyList<IRelationalBatchQueryingEnumerable> queries)
+        PrepareCommand(DbContext context, IReadOnlyList<RelationalBatchElement> elements)
     {
-        if (queries.Count == 0)
+        if (elements.Count == 0)
         {
             throw new InvalidOperationException(RelationalStrings.BatchQueryEmpty);
         }
 
-        var firstQueryContext = queries[0].QueryContext;
-        var statements = new string[queries.Count];
-        var logStatements = new string[queries.Count];
+        var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
+
+        var firstQueryContext = elements[0].QueryContext;
+        var statements = new string[elements.Count];
+        var logStatements = new string[elements.Count];
         var parameters = new List<IRelationalParameter>();
         var parameterValues = new Dictionary<string, object?>();
+        var queryCount = 0;
         var bufferingCount = 0;
 
-        for (var i = 0; i < queries.Count; i++)
+        for (var i = 0; i < elements.Count; i++)
         {
-            var query = queries[i];
-            var queryContext = query.QueryContext;
+            var element = elements[i];
+            var queryContext = element.QueryContext;
 
-            if (query.ReaderColumns != null)
+            if (!element.IsNonQuery)
             {
-                bufferingCount++;
+                queryCount++;
+                if (element.ReaderColumns != null)
+                {
+                    bufferingCount++;
+                }
+            }
+            else if (sqlGenerationHelper.AffectedRowsCountStatement == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.BatchQueryNonQueryNotSupported);
             }
 
             if (!ReferenceEquals(queryContext.Connection, firstQueryContext.Connection)
@@ -100,7 +114,7 @@ public static class RelationalBatchQueryExecutor
                 throw new InvalidOperationException(RelationalStrings.BatchQueryDifferentContext);
             }
 
-            var template = query.ResolveCommandTemplate();
+            var template = element.ResolveCommandTemplate();
             var renameMap = new Dictionary<string, string>();
 
             foreach (var parameter in template.Parameters)
@@ -110,21 +124,34 @@ public static class RelationalBatchQueryExecutor
 
             statements[i] = RewriteParameterPlaceholders(template.CommandText, renameMap);
             logStatements[i] = RewriteParameterPlaceholders(template.LogCommandText, renameMap);
+
+            if (element.IsNonQuery)
+            {
+                // Surface the rows-affected count of the DML statement as a result set of its own, keeping result
+                // sets aligned one-to-one with the batch's elements.
+                var affectedRowsSuffix = sqlGenerationHelper.StatementTerminator
+                    + Environment.NewLine
+                    + sqlGenerationHelper.AffectedRowsCountStatement;
+                statements[i] += affectedRowsSuffix;
+                logStatements[i] += affectedRowsSuffix;
+            }
         }
 
         // Either all queries were compiled for buffering (e.g. a retrying execution strategy is configured on the
         // context) or none were; a mix would require buffering some result sets while streaming others on one reader.
+        // Rows-affected result sets of non-query elements are buffered with a synthetic single-int column.
         IReadOnlyList<ReaderColumn?>? readerColumns = null;
-        if (bufferingCount == queries.Count)
+        if (bufferingCount > 0 && bufferingCount == queryCount)
         {
-            readerColumns = new BatchReaderColumns([.. queries.Select(q => q.ReaderColumns!)]);
+            var affectedRowsColumns = new[] { ReaderColumn.Create(typeof(int), nullable: false, null, null, AffectedRowsReadFunc) };
+            readerColumns = new BatchReaderColumns(
+                [.. elements.Select(e => e.ReaderColumns ?? affectedRowsColumns)]);
         }
         else if (bufferingCount > 0)
         {
             throw new InvalidOperationException(RelationalStrings.BatchQueryBufferingNotSupported);
         }
 
-        var sqlGenerationHelper = context.GetService<ISqlGenerationHelper>();
         var separator = sqlGenerationHelper.StatementTerminator + Environment.NewLine + Environment.NewLine;
 
         var command = new RelationalCommand(
@@ -139,10 +166,10 @@ public static class RelationalBatchQueryExecutor
             readerColumns,
             context,
             firstQueryContext.CommandLogger,
-            queries[0].DetailedErrorsEnabled,
+            elements.FirstOrDefault(e => !e.IsNonQuery)?.DetailedErrorsEnabled ?? false,
             CommandSource.LinqQuery);
 
-        var concurrencyDetector = queries[0].ThreadSafetyChecksEnabled
+        var concurrencyDetector = elements[0].ThreadSafetyChecksEnabled
             ? firstQueryContext.ConcurrencyDetector
             : null;
 

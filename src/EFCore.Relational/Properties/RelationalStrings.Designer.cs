@@ -74,12 +74,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("BatchQueryEmpty");
 
         /// <summary>
+        ///     The current batch result set contains query results. Use 'NextAsList', 'NextAsEnumerable' or their asynchronous counterparts to consume it.
+        /// </summary>
+        public static string BatchQueryExpectedQueryResults
+            => GetString("BatchQueryExpectedQueryResults");
+
+        /// <summary>
+        ///     The current batch result is the number of rows affected by an 'ExecuteDelete' or 'ExecuteUpdate' operation. Use 'NextAsRowsAffected' or 'NextAsRowsAffectedAsync' to consume it.
+        /// </summary>
+        public static string BatchQueryExpectedRowsAffected
+            => GetString("BatchQueryExpectedRowsAffected");
+
+        /// <summary>
         ///     All {count} result sets of the batch have already been consumed.
         /// </summary>
         public static string BatchQueryNoMoreResultSets(object? count)
             => string.Format(
                 GetString("BatchQueryNoMoreResultSets", nameof(count)),
                 count);
+
+        /// <summary>
+        ///     The current database provider does not support 'ExecuteDelete' or 'ExecuteUpdate' operations in a batch.
+        /// </summary>
+        public static string BatchQueryNonQueryNotSupported
+            => GetString("BatchQueryNonQueryNotSupported");
 
         /// <summary>
         ///     'Batch' can only be used with a relational database provider.
@@ -100,6 +118,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("BatchQueryResultTypeMismatch", nameof(actualType), nameof(requestedType)),
                 actualType, requestedType);
+
+        /// <summary>
+        ///     The expression '{expression}' cannot be batched. Batch expressions must return an IQueryable or invoke 'ExecuteDelete' or 'ExecuteUpdate' (use the synchronous methods even with 'BatchAsync').
+        /// </summary>
+        public static string BatchQueryUnsupportedExpression(object? expression)
+            => string.Format(
+                GetString("BatchQueryUnsupportedExpression", nameof(expression)),
+                expression);
 
         /// <summary>
         ///     The query cannot be executed as part of a batch because it contains a parameter of type '{parameterType}'. User-provided DbParameter instances cannot be batched.

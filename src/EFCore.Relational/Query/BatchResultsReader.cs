@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public class BatchResultsReader : IDisposable, IAsyncDisposable
 {
-    private readonly IReadOnlyList<IRelationalBatchQueryingEnumerable> _queries;
+    private readonly IReadOnlyList<RelationalBatchElement> _elements;
     private readonly RelationalDataReader _dataReader;
     private readonly CancellationToken _cancellationToken;
 
@@ -40,11 +40,11 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
     /// </summary>
     [EntityFrameworkInternal]
     public BatchResultsReader(
-        IReadOnlyList<IRelationalBatchQueryingEnumerable> queries,
+        IReadOnlyList<RelationalBatchElement> elements,
         RelationalDataReader dataReader,
         CancellationToken cancellationToken = default)
     {
-        _queries = queries;
+        _elements = elements;
         _dataReader = dataReader;
         _cancellationToken = cancellationToken;
     }
@@ -116,9 +116,66 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         CheckDisposed();
 
         var index = ReserveNextResultSet();
-        var query = _queries[index];
+        var element = _elements[index];
 
-        return new SingleUseAsyncEnumerable<T>(this, query, index);
+        return new SingleUseAsyncEnumerable<T>(this, element, index);
+    }
+
+    /// <summary>
+    ///     Consumes the next result of the batch as the number of rows affected by an 'ExecuteDelete' or
+    ///     'ExecuteUpdate' operation.
+    /// </summary>
+    /// <returns>The number of rows affected.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///     The next result is a query result set, or all result sets have already been consumed.
+    /// </exception>
+    public virtual int NextAsRowsAffected()
+    {
+        CheckDisposed();
+
+        var index = ReserveNextResultSet();
+        if (!_elements[index].IsNonQuery)
+        {
+            throw new InvalidOperationException(RelationalStrings.BatchQueryExpectedQueryResults);
+        }
+
+        Position(index);
+
+        var dbDataReader = _dataReader.DbDataReader;
+        var hasRow = dbDataReader.Read();
+        Check.DebugAssert(hasRow, "Rows-affected result set contained no rows");
+
+        return hasRow ? dbDataReader.GetInt32(0) : -1;
+    }
+
+    /// <summary>
+    ///     Asynchronously consumes the next result of the batch as the number of rows affected by an
+    ///     'ExecuteDelete' or 'ExecuteUpdate' operation.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task containing the number of rows affected.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///     The next result is a query result set, or all result sets have already been consumed.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public virtual async Task<int> NextAsRowsAffectedAsync(CancellationToken cancellationToken = default)
+    {
+        CheckDisposed();
+
+        var index = ReserveNextResultSet();
+        if (!_elements[index].IsNonQuery)
+        {
+            throw new InvalidOperationException(RelationalStrings.BatchQueryExpectedQueryResults);
+        }
+
+        var effectiveCancellationToken = cancellationToken == default ? _cancellationToken : cancellationToken;
+        await PositionAsync(index, effectiveCancellationToken).ConfigureAwait(false);
+
+        var dbDataReader = _dataReader.DbDataReader;
+        var hasRow = await dbDataReader.ReadAsync(effectiveCancellationToken).ConfigureAwait(false);
+        Check.DebugAssert(hasRow, "Rows-affected result set contained no rows");
+
+        return hasRow ? dbDataReader.GetInt32(0) : -1;
     }
 
     private IEnumerator<T> NextEnumerator<T>()
@@ -126,7 +183,7 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         CheckDisposed();
 
         var index = ReserveNextResultSet();
-        var enumerator = _queries[index].MaterializeResultSet<T>(_dataReader);
+        var enumerator = _elements[index].MaterializeResultSet<T>(_dataReader);
 
         Position(index);
 
@@ -138,7 +195,7 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         CheckDisposed();
 
         var index = ReserveNextResultSet();
-        var enumerator = _queries[index].MaterializeResultSetAsync<T>(
+        var enumerator = _elements[index].MaterializeResultSetAsync<T>(
             _dataReader,
             cancellationToken == default ? _cancellationToken : cancellationToken);
 
@@ -148,9 +205,9 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
     }
 
     private int ReserveNextResultSet()
-        => _nextResultSet < _queries.Count
+        => _nextResultSet < _elements.Count
             ? _nextResultSet++
-            : throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_queries.Count));
+            : throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_elements.Count));
 
     private void Position(int index)
     {
@@ -163,7 +220,7 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         {
             if (!_dataReader.DbDataReader.NextResult())
             {
-                throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_queries.Count));
+                throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_elements.Count));
             }
 
             _readerResultSet++;
@@ -181,7 +238,7 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
         {
             if (!await _dataReader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false))
             {
-                throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_queries.Count));
+                throw new InvalidOperationException(RelationalStrings.BatchQueryNoMoreResultSets(_elements.Count));
             }
 
             _readerResultSet++;
@@ -239,7 +296,7 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
 
     private sealed class SingleUseAsyncEnumerable<T>(
         BatchResultsReader reader,
-        IRelationalBatchQueryingEnumerable query,
+        RelationalBatchElement element,
         int index) : IAsyncEnumerable<T>
     {
         private bool _used;
@@ -256,7 +313,7 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
             reader.CheckDisposed();
 
             var effectiveCancellationToken = cancellationToken == default ? reader._cancellationToken : cancellationToken;
-            var enumerator = query.MaterializeResultSetAsync<T>(reader._dataReader, effectiveCancellationToken);
+            var enumerator = element.MaterializeResultSetAsync<T>(reader._dataReader, effectiveCancellationToken);
             await using var _ = enumerator.ConfigureAwait(false);
 
             await reader.PositionAsync(index, effectiveCancellationToken).ConfigureAwait(false);

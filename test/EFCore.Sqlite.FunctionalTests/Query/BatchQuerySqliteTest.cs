@@ -28,6 +28,26 @@ WHERE "e"."City" = @b1_city
 """);
     }
 
+    public override async Task Batch_with_execute_delete(bool async)
+    {
+        await base.Batch_with_execute_delete(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."City" = 'London';
+
+DELETE FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 10248;
+SELECT changes();
+
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 10248
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
