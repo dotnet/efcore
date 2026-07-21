@@ -56,6 +56,66 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("BadSequenceType");
 
         /// <summary>
+        ///     Some queries in the batch require buffering while others do not, so the batch cannot be executed as a single command.
+        /// </summary>
+        public static string BatchQueryBufferingNotSupported
+            => GetString("BatchQueryBufferingNotSupported");
+
+        /// <summary>
+        ///     All queries in a batch must be created from the DbContext instance passed to 'Batch'.
+        /// </summary>
+        public static string BatchQueryDifferentContext
+            => GetString("BatchQueryDifferentContext");
+
+        /// <summary>
+        ///     At least one query must be provided to 'Batch'.
+        /// </summary>
+        public static string BatchQueryEmpty
+            => GetString("BatchQueryEmpty");
+
+        /// <summary>
+        ///     All {count} result sets of the batch have already been consumed.
+        /// </summary>
+        public static string BatchQueryNoMoreResultSets(object? count)
+            => string.Format(
+                GetString("BatchQueryNoMoreResultSets", nameof(count)),
+                count);
+
+        /// <summary>
+        ///     'Batch' can only be used with a relational database provider.
+        /// </summary>
+        public static string BatchQueryRequiresRelationalProvider
+            => GetString("BatchQueryRequiresRelationalProvider");
+
+        /// <summary>
+        ///     The batch result set can no longer be consumed because a later result set has already been requested.
+        /// </summary>
+        public static string BatchQueryResultSetInvalidated
+            => GetString("BatchQueryResultSetInvalidated");
+
+        /// <summary>
+        ///     The current batch result set contains elements of type '{actualType}', which cannot be returned as '{requestedType}'.
+        /// </summary>
+        public static string BatchQueryResultTypeMismatch(object? actualType, object? requestedType)
+            => string.Format(
+                GetString("BatchQueryResultTypeMismatch", nameof(actualType), nameof(requestedType)),
+                actualType, requestedType);
+
+        /// <summary>
+        ///     The query cannot be executed as part of a batch because it contains a parameter of type '{parameterType}'. User-provided DbParameter instances cannot be batched.
+        /// </summary>
+        public static string BatchQueryUnsupportedParameter(object? parameterType)
+            => string.Format(
+                GetString("BatchQueryUnsupportedParameter", nameof(parameterType)),
+                parameterType);
+
+        /// <summary>
+        ///     The query cannot be executed as part of a batch because it does not translate to a single self-contained SQL query. Split queries, streaming GroupBy queries and non-composed FromSql queries cannot be batched.
+        /// </summary>
+        public static string BatchQueryUnsupportedQueryType
+            => GetString("BatchQueryUnsupportedQueryType");
+
+        /// <summary>
         ///     The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.
         /// </summary>
         public static string CannotChangeWhenOpen
