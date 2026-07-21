@@ -1689,6 +1689,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         selectorBody = Visit(selectorBody);
         selectorBody =
             new PendingSelectorExpandingExpressionVisitor(this, _extensibilityHelper, applyIncludes: true).Visit(selectorBody);
+
+        // Snapshot the structure of the selector result before reducing, so that entity references
+        // survive and navigations accessed on the elements afterwards can still be expanded
+        // (e.g. GroupBy(k).Select(g => g.First()).OrderBy(e => e.Navigation.Member)).
+        var newStructure = SnapshotSelectorStructure(selectorBody);
+
         selectorBody = Reduce(selectorBody);
         selector = Expression.Lambda(selectorBody, groupBySource.CurrentParameter);
 
@@ -1697,11 +1703,19 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             groupBySource.Source,
             Expression.Quote(selector));
 
-        var navigationTree = new NavigationTreeExpression(Expression.Default(selector.ReturnType));
+        var navigationTree = new NavigationTreeExpression(newStructure);
         var parameterName = GetParameterName("e");
 
         return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
     }
+
+    private static Expression SnapshotSelectorStructure(Expression expression)
+        => expression is NavigationExpansionExpression { CardinalityReducingGenericMethodInfo: not null } navigationExpansion
+            // A cardinality-reduced subquery yields its pending selector's shape as the element
+            // (e.g. the group element entity for g.OrderBy(...).First()), so entity references
+            // survive and navigations can still be expanded on the result.
+            ? SnapshotExpression(navigationExpansion.PendingSelector)
+            : SnapshotExpression(expression);
 
     /// <summary>
     ///     Rewrites GroupBy(k).Select(g => ...aggregates...) so reference navigations used in aggregate
