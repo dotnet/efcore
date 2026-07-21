@@ -250,6 +250,80 @@ public abstract class BatchQueryTestBase<TFixture> : QueryTestBase<TFixture>
             Assert.Throws<InvalidOperationException>(() => batch.NextAsRowsAffected()).Message);
     }
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_with_anonymous_type_projection(bool async)
+    {
+        using var context = CreateContext();
+
+        var customerStats = BatchQuery.Create((NorthwindContext ctx) => ctx.Set<Customer>()
+            .Where(c => c.City == "London")
+            .OrderBy(c => c.CustomerID)
+            .Select(c => new { c.CustomerID, c.City, OrderCount = c.Orders.Count() }));
+        var employeeNames = BatchQuery.Create((NorthwindContext ctx) => ctx.Set<Employee>()
+            .Where(e => e.City == "London")
+            .Select(e => new { e.EmployeeID, e.FirstName }));
+
+        using var batch = async
+            ? await context.BatchAsync(customerStats, employeeNames)
+            : context.Batch(customerStats, employeeNames);
+
+        var stats = async
+            ? await batch.NextAsListAsync(customerStats)
+            : batch.NextAsList(customerStats);
+        var names = async
+            ? await batch.NextAsListAsync(employeeNames)
+            : batch.NextAsList(employeeNames);
+
+        Assert.Equal(6, stats.Count);
+        Assert.All(stats, s => Assert.Equal("London", s.City));
+        Assert.Equal("AROUT", stats[0].CustomerID);
+        Assert.Equal(13, stats[0].OrderCount);
+        Assert.Equal(4, names.Count);
+        Assert.All(names, n => Assert.False(string.IsNullOrEmpty(n.FirstName)));
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_query_wrapper_mixed_with_plain_lambda(bool async)
+    {
+        using var context = CreateContext();
+
+        var orderIds = BatchQuery.Create((NorthwindContext ctx) => ctx.Set<Order>()
+            .Where(o => o.CustomerID == "AROUT")
+            .OrderBy(o => o.OrderID)
+            .Select(o => new { o.OrderID }));
+
+        using var batch = async
+            ? await context.BatchAsync(
+                ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+                orderIds)
+            : context.Batch(
+                ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+                orderIds);
+
+        var customers = async
+            ? await batch.NextAsListAsync<Customer>()
+            : batch.NextAsList<Customer>();
+        var ids = new List<int>();
+        if (async)
+        {
+            await foreach (var row in batch.NextAsAsyncEnumerable(orderIds))
+            {
+                ids.Add(row.OrderID);
+            }
+        }
+        else
+        {
+            foreach (var row in batch.NextAsEnumerable(orderIds))
+            {
+                ids.Add(row.OrderID);
+            }
+        }
+
+        Assert.Equal(6, customers.Count);
+        Assert.Equal(13, ids.Count);
+        Assert.Equal(10355, ids[0]);
+    }
+
     [Fact]
     public virtual void Batch_throws_for_unsupported_expression()
     {

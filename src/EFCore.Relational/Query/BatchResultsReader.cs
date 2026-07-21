@@ -122,6 +122,102 @@ public class BatchResultsReader : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
+    ///     Materializes the next result set of the batch into a <see cref="List{T}" />, inferring the element
+    ///     type from the given <see cref="BatchQuery{TContext, TResult}" />.
+    /// </summary>
+    /// <remarks>
+    ///     The query argument is used only to infer the element type; result sets are always consumed in the
+    ///     order in which the queries were supplied to the batch. Pass the same instance that was supplied to
+    ///     the batch at this position.
+    /// </remarks>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <typeparam name="TResult">The element type of the query that produced the next result set.</typeparam>
+    /// <param name="query">The wrapped query that produced the next result set.</param>
+    /// <returns>The materialized results.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="query" /> is <see langword="null" />.</exception>
+    /// <exception cref="InvalidOperationException">All result sets have already been consumed.</exception>
+    public virtual List<TResult> NextAsList<TContext, TResult>(BatchQuery<TContext, TResult> query)
+        where TContext : DbContext
+    {
+        Check.NotNull(query);
+
+        return NextAsList<TResult>();
+    }
+
+    /// <summary>
+    ///     Asynchronously materializes the next result set of the batch into a <see cref="List{T}" />, inferring
+    ///     the element type from the given <see cref="BatchQuery{TContext, TResult}" />.
+    /// </summary>
+    /// <remarks>
+    ///     The query argument is used only to infer the element type; result sets are always consumed in the
+    ///     order in which the queries were supplied to the batch. Pass the same instance that was supplied to
+    ///     the batch at this position.
+    /// </remarks>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <typeparam name="TResult">The element type of the query that produced the next result set.</typeparam>
+    /// <param name="query">The wrapped query that produced the next result set.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task containing the materialized results.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="query" /> is <see langword="null" />.</exception>
+    /// <exception cref="InvalidOperationException">All result sets have already been consumed.</exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public virtual Task<List<TResult>> NextAsListAsync<TContext, TResult>(
+        BatchQuery<TContext, TResult> query,
+        CancellationToken cancellationToken = default)
+        where TContext : DbContext
+    {
+        Check.NotNull(query);
+
+        return NextAsListAsync<TResult>(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Returns a lazily-evaluated enumerable that streams the rows of the next result set of the batch,
+    ///     inferring the element type from the given <see cref="BatchQuery{TContext, TResult}" />.
+    /// </summary>
+    /// <remarks>
+    ///     The query argument is used only to infer the element type; result sets are always consumed in the
+    ///     order in which the queries were supplied to the batch. The returned enumerable can only be enumerated
+    ///     once, and is invalidated as soon as a later result set is requested from this reader.
+    /// </remarks>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <typeparam name="TResult">The element type of the query that produced the next result set.</typeparam>
+    /// <param name="query">The wrapped query that produced the next result set.</param>
+    /// <returns>An enumerable streaming the results.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="query" /> is <see langword="null" />.</exception>
+    /// <exception cref="InvalidOperationException">All result sets have already been consumed.</exception>
+    public virtual IEnumerable<TResult> NextAsEnumerable<TContext, TResult>(BatchQuery<TContext, TResult> query)
+        where TContext : DbContext
+    {
+        Check.NotNull(query);
+
+        return NextAsEnumerable<TResult>();
+    }
+
+    /// <summary>
+    ///     Returns a lazily-evaluated async enumerable that streams the rows of the next result set of the batch,
+    ///     inferring the element type from the given <see cref="BatchQuery{TContext, TResult}" />.
+    /// </summary>
+    /// <remarks>
+    ///     The query argument is used only to infer the element type; result sets are always consumed in the
+    ///     order in which the queries were supplied to the batch. The returned enumerable can only be enumerated
+    ///     once, and is invalidated as soon as a later result set is requested from this reader.
+    /// </remarks>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <typeparam name="TResult">The element type of the query that produced the next result set.</typeparam>
+    /// <param name="query">The wrapped query that produced the next result set.</param>
+    /// <returns>An async enumerable streaming the results.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="query" /> is <see langword="null" />.</exception>
+    /// <exception cref="InvalidOperationException">All result sets have already been consumed.</exception>
+    public virtual IAsyncEnumerable<TResult> NextAsAsyncEnumerable<TContext, TResult>(BatchQuery<TContext, TResult> query)
+        where TContext : DbContext
+    {
+        Check.NotNull(query);
+
+        return NextAsAsyncEnumerable<TResult>();
+    }
+
+    /// <summary>
     ///     Consumes the next result of the batch as the number of rows affected by an 'ExecuteDelete' or
     ///     'ExecuteUpdate' operation.
     /// </summary>

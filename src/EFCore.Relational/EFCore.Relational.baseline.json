@@ -534,6 +534,27 @@
       ]
     },
     {
+      "Type": "static class Microsoft.EntityFrameworkCore.BatchQuery",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> Create<TContext, TResult>(System.Linq.Expressions.Expression<System.Func<TContext, System.Linq.IQueryable<TResult>>> query);"
+        }
+      ]
+    },
+    {
+      "Type": "sealed class Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> where TContext : Microsoft.EntityFrameworkCore.DbContext",
+      "Methods": [
+        {
+          "Member": "static implicit operator System.Linq.Expressions.Expression<System.Func<TContext, object>>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> batchQuery);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "System.Linq.Expressions.Expression<System.Func<TContext, System.Linq.IQueryable<TResult>>> Expression { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.BatchResultsReader : System.IDisposable, System.IAsyncDisposable",
       "Methods": [
         {
@@ -546,13 +567,25 @@
           "Member": "virtual System.Collections.Generic.IAsyncEnumerable<T> NextAsAsyncEnumerable<T>();"
         },
         {
+          "Member": "virtual System.Collections.Generic.IAsyncEnumerable<TResult> NextAsAsyncEnumerable<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query);"
+        },
+        {
           "Member": "virtual System.Collections.Generic.IEnumerable<T> NextAsEnumerable<T>();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<TResult> NextAsEnumerable<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query);"
         },
         {
           "Member": "virtual System.Collections.Generic.List<T> NextAsList<T>();"
         },
         {
+          "Member": "virtual System.Collections.Generic.List<TResult> NextAsList<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query);"
+        },
+        {
           "Member": "virtual System.Threading.Tasks.Task<System.Collections.Generic.List<T>> NextAsListAsync<T>(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<System.Collections.Generic.List<TResult>> NextAsListAsync<TContext, TResult>(Microsoft.EntityFrameworkCore.BatchQuery<TContext, TResult> query, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
         },
         {
           "Member": "virtual int NextAsRowsAffected();"
