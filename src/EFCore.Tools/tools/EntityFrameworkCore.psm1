@@ -976,6 +976,9 @@ Register-TabExpansion Update-Database @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER NoBuild
+    Don't build the project. Intended to be used when the build is up-to-date.
+
 .PARAMETER Args
     Arguments passed to the application.
 
@@ -996,6 +999,7 @@ function Update-Database
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
+        [switch] $NoBuild,
         [string] $Args)
 
     if (-not $Add)
@@ -1045,7 +1049,7 @@ function Update-Database
     $params += GetParams $Context
 
 
-    EF $dteProject $dteStartupProject $params $Args
+    EF $dteProject $dteStartupProject $params $Args -skipBuild:$NoBuild
 }
 
 #
