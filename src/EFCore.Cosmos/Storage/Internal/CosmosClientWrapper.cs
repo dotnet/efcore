@@ -3,6 +3,7 @@
 
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -43,6 +44,24 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     public static readonly string DefaultPartitionKey = "__partitionKey";
 
     private const string SubStatusCodeHeaderName = "x-ms-substatus";
+
+    // CosmosException has an internal ctor that accepts a Headers object (which contains RetryAfter).
+    // We use it to preserve the retry-after hint from a failed TransactionalBatchResponse.
+    private static readonly ConstructorInfo? CosmosExceptionInternalCtor =
+        typeof(CosmosException)
+            .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
+            .FirstOrDefault(static c =>
+            {
+                var parameters = c.GetParameters();
+                return parameters.Length == 7
+                    && parameters[0].ParameterType.FullName == "System.Net.HttpStatusCode"
+                    && parameters[1].ParameterType.FullName == "System.String"
+                    && parameters[2].ParameterType.FullName == "System.String"
+                    && parameters[3].ParameterType.FullName == "Microsoft.Azure.Cosmos.Headers"
+                    && parameters[4].ParameterType.FullName == "Microsoft.Azure.Cosmos.Tracing.ITrace"
+                    && parameters[5].ParameterType.FullName == "Microsoft.Azure.Documents.Error"
+                    && parameters[6].ParameterType.FullName == "System.Exception";
+            });
 
     private readonly ISingletonCosmosClientWrapper _singletonWrapper;
     private readonly string _databaseId;
@@ -679,17 +698,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchAsync(ICosmosTransactionalBatchWrapper batch, ISessionTokenStorage sessionTokenStorage, CancellationToken cancellationToken = default)
-        => _executionStrategy.ExecuteAsync((batch, sessionTokenStorage, this), ExecuteTransactionalBatchOnceAsync, null, cancellationToken);
-
-    private static async Task<CosmosTransactionalBatchResult> ExecuteTransactionalBatchOnceAsync(DbContext _,
-        (ICosmosTransactionalBatchWrapper Batch, ISessionTokenStorage SessionTokenStorage, CosmosClientWrapper Wrapper) parameters,
+    public virtual async Task ExecuteTransactionalBatchAsync(
+        ICosmosTransactionalBatchWrapper batch,
+        ISessionTokenStorage sessionTokenStorage,
         CancellationToken cancellationToken = default)
     {
-        var batch = parameters.Batch;
         var transactionalBatch = batch.GetTransactionalBatch();
-        var wrapper = parameters.Wrapper;
-        var sessionTokenStorage = parameters.SessionTokenStorage;
 
         var options = new TransactionalBatchRequestOptions
         {
@@ -698,7 +712,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
         using var response = await transactionalBatch.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
-        wrapper._commandLogger.ExecutedTransactionalBatch(
+        _commandLogger.ExecutedTransactionalBatch(
             response.Diagnostics.GetClientElapsedTime(),
             response.Headers.RequestCharge,
             response.Headers.ActivityId,
@@ -706,7 +720,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             batch.PartitionKeyValue,
             "[ \"" + string.Join("\", \"", batch.Entries.Select(x => x.Id)) + "\" ]");
 
-        return ProcessBatchResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
+        ProcessBatchResponse(batch.CollectionId, response, batch.Entries, sessionTokenStorage);
     }
 
     private static ItemRequestOptions CreateItemRequestOptions(IUpdateEntry entry, string? sessionToken)
@@ -787,21 +801,24 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         }
     }
 
-    private static CosmosTransactionalBatchResult ProcessBatchResponse(string containerId, TransactionalBatchResponse response, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
+    private static void ProcessBatchResponse(string containerId, TransactionalBatchResponse response, IReadOnlyList<CosmosTransactionalBatchEntry> entries, ISessionTokenStorage sessionTokenStorage)
     {
         if (!response.IsSuccessStatusCode)
         {
             TryTrackSessionTokenFromFailure(containerId, response.StatusCode, response.Headers, sessionTokenStorage);
 
             var errorCode = response.StatusCode;
-            var errorEntries = response
+            var cosmosException = CreateCosmosException(response);
+            var errorBatchEntries = response
                 .Select((opResult, index) => (opResult, index))
                 .Where(r => r.opResult.StatusCode == errorCode)
-                .Select(r => entries[r.index].Entry)
+                .Select(r => entries[r.index])
                 .ToList();
 
-            var exception = new CosmosException(response.ErrorMessage, errorCode, 0, response.ActivityId, response.RequestCharge);
-            return new CosmosTransactionalBatchResult(errorEntries, exception);
+            var effectiveEntries = errorBatchEntries.Count > 0 ? (IReadOnlyList<CosmosTransactionalBatchEntry>)errorBatchEntries : entries;
+            IUpdateEntry[] errorUpdateEntries = effectiveEntries.Select(e => e.Entry).ToArray();
+
+            throw WrapUpdateException(cosmosException, effectiveEntries[0].Id, errorUpdateEntries);
         }
 
         sessionTokenStorage.TrackSessionToken(containerId, response.Headers.Session);
@@ -813,9 +830,46 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             ProcessWriteResponse(entry.Entry, item.ETag, item.ResourceStream);
         }
-
-        return CosmosTransactionalBatchResult.Success;
     }
+
+    // Creates a CosmosException from a failed TransactionalBatchResponse, preserving retry-after headers.
+    // The internal CosmosException constructor accepting Headers is used when available (via reflection) so that
+    // CosmosException.RetryAfter is populated from the batch response headers (e.g. the x-ms-retry-after-ms header
+    // returned by the server on 429 TooManyRequests). This allows CosmosExecutionStrategy.GetNextDelay to honour
+    // the server-supplied retry delay instead of falling back to pure exponential back-off.
+    private static CosmosException CreateCosmosException(TransactionalBatchResponse response)
+    {
+        if (CosmosExceptionInternalCtor != null)
+        {
+            try
+            {
+                return (CosmosException)CosmosExceptionInternalCtor.Invoke(
+                    [response.StatusCode, response.ErrorMessage, null, response.Headers, null, null, null]);
+            }
+            catch (Exception e) when (e is TargetInvocationException or ArgumentException or InvalidCastException)
+            {
+                // Internal constructor signature changed — fall back to the public constructor.
+            }
+        }
+
+        return new CosmosException(response.ErrorMessage, response.StatusCode, 0, response.ActivityId, response.RequestCharge);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static DbUpdateException WrapUpdateException(Exception exception, string id, IReadOnlyList<IUpdateEntry> entries)
+        => exception switch
+        {
+            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
+                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
+            CosmosException { StatusCode: HttpStatusCode.Conflict }
+                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
+            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
+        };
 
     private static void ProcessWriteResponse(IUpdateEntry entry, string eTag, Stream? content)
     {
