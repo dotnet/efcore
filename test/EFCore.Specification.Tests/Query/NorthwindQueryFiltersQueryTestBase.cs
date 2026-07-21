@@ -148,6 +148,15 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
             elementSorter: e => e.Key.GetValueOrDefault());
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_filtered_navigation_with_total(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Total = g.Count(), Londons = g.Count(o => o.Customer.City == "London") }),
+            elementSorter: e => e.Key.GetValueOrDefault());
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_through_filtered_navigation_ignore_query_filters(bool async)
         => AssertQuery(
             async,

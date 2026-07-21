@@ -14403,11 +14403,6 @@
         {
           "Member": "RelationalNavigationExpansionExtensibilityHelper(Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies dependencies);"
         }
-      ],
-      "Properties": [
-        {
-          "Member": "virtual bool SupportsNavigationExpansionJoins { get; }"
-        }
       ]
     },
     {

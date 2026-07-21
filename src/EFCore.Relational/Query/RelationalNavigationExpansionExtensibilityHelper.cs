@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 ///     </para>
 /// </remarks>
-// The interface is re-listed so SupportsNavigationExpansionJoins re-maps the interface default;
-// a member on a derived class alone does not change interface dispatch.
 public class RelationalNavigationExpansionExtensibilityHelper : NavigationExpansionExtensibilityHelper, INavigationExpansionExtensibilityHelper
 {
     /// <summary>
@@ -30,7 +28,7 @@ public class RelationalNavigationExpansionExtensibilityHelper : NavigationExpans
     {
     }
 
-    /// <inheritdoc cref="INavigationExpansionExtensibilityHelper.SupportsNavigationExpansionJoins" />
-    public virtual bool SupportsNavigationExpansionJoins
+    /// <inheritdoc />
+    bool INavigationExpansionExtensibilityHelper.SupportsNavigationExpansionJoins
         => true;
 }

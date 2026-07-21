@@ -1758,8 +1758,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             parent.Source,
             Expression.Quote(keySelector));
 
-        var groupingParameter = Expression.Parameter(
-            typeof(IGrouping<,>).MakeGenericType(keySelector.ReturnType, elementType), GetParameterName("g"));
+        var groupingParameter = Expression.Parameter(groupByCall.Type.GetSequenceType(), GetParameterName("g"));
         var originalElementType = selector.Parameters[0].Type.GetGenericArguments()[1];
 
         var aggregateReplacements = new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance);
