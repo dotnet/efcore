@@ -114,4 +114,20 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
     [Theory(Skip = "Issue#31209")]
     public override Task GroupBy_Select_Entire_Entity_composite_key_Select(bool async)
         => base.GroupBy_Select_Entire_Entity_composite_key_Select(async);
+
+    [Theory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_OrderBy_navigation(bool async)
+        => base.GroupBy_Select_Entire_Entity_OrderBy_navigation(async);
+
+    [Theory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_Select_navigation_member(bool async)
+        => base.GroupBy_Select_Entire_Entity_Select_navigation_member(async);
+
+    [Theory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_Where_navigation(bool async)
+        => base.GroupBy_Select_Entire_Entity_Where_navigation(async);
+
+    [Theory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_Join(bool async)
+        => base.GroupBy_Select_Entire_Entity_Join(async);
 }
