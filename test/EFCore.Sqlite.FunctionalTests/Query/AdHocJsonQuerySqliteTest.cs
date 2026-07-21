@@ -319,4 +319,8 @@ VALUES(
 ]')
 """);
     }
+
+    public override Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            base.SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column);
 }

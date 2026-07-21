@@ -10,7 +10,7 @@
 
     <PackageVersion Include="Azure.Identity" Version="$(AzureIdentityVersion)" />
     <PackageVersion Include="Azure.ResourceManager.CosmosDB" Version="$(AzureResourceManagerCosmosDBVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.17" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.18" />
     <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.5.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MicrosoftExtensionsConfigurationVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationEnvironmentVariablesVersion)" />
@@ -19,9 +19,10 @@
     <PackageVersion Include="Grpc.AspNetCore" Version="2.80.0" />
     <PackageVersion Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="$(OpenTelemetryExporterInMemoryVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3mc" Version="$(SQLitePCLRawVersion)" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_winsqlite3" Version="$(SQLitePCLRawVersion)" />
+    <PackageVersion Include="SQLite3MC.PCLRaw.bundle" Version="$(SQLite3MCPCLRawBundleVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="$(SQLitePCLRawBundleESqlcipherVersion)" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_winsqlite3" Version="$(SQLitePCLRawBundleWinsqlite3Version)" />
+    <PackageVersion Include="SQLitePCLRaw.provider.sqlite3" Version="$(SQLitePCLRawVersion)" />
 
     <!-- Pinned versions for Component Governance/NuGetAudit - Remove when root dependencies are updated -->
     <!--Workaround for IdentityServer4.EntityFramework v4.1.2-->

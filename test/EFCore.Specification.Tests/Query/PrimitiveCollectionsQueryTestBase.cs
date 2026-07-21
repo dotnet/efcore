@@ -955,6 +955,22 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
 
+#if NET11_0_OR_GREATER
+    // .NET 11 first-class spans caused MemoryExtensions.Min to get resolved instead of Enumerable.Min.
+    // The following tests that the various overloads are all supported.
+    [ConditionalFact]
+    public virtual Task Min_on_MemoryExtensions()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Min(new[] { 30, c.Int }) == 30));
+
+    // .NET 11 first-class spans caused MemoryExtensions.Max to get resolved instead of Enumerable.Max.
+    // The following tests that the various overloads are all supported.
+    [ConditionalFact]
+    public virtual Task Max_on_MemoryExtensions()
+        => AssertQuery(
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Max(new[] { 30, c.Int }) == 30));
+#endif
+
     [ConditionalFact]
     public virtual Task Column_collection_Count_method()
         => AssertQuery(

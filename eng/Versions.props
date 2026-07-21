@@ -30,7 +30,11 @@
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.3-beta1.24352.1</MicrosoftCodeAnalysisCSharpTestingVersion>
     <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.3.2</AzureResourceManagerCosmosDBVersion>
-    <OpenTelemetryExporterInMemoryVersion>1.12.0</OpenTelemetryExporterInMemoryVersion>
-    <SQLitePCLRawVersion>2.1.11</SQLitePCLRawVersion>
+    <OpenTelemetryExporterInMemoryVersion>1.16.0</OpenTelemetryExporterInMemoryVersion>
+    <SQLitePCLRawVersion>2.1.12</SQLitePCLRawVersion>
+    <SQLitePCLRawBundleESqlcipherVersion>2.1.11</SQLitePCLRawBundleESqlcipherVersion>
+    <SQLitePCLRawBundleSqlite3Version>2.1.11</SQLitePCLRawBundleSqlite3Version>
+    <SQLitePCLRawBundleWinsqlite3Version>2.1.11</SQLitePCLRawBundleWinsqlite3Version>
+    <SQLite3MCPCLRawBundleVersion>2.3.6</SQLite3MCPCLRawBundleVersion>
   </PropertyGroup>
 </Project>
