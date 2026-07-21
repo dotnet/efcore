@@ -9025,20 +9025,10 @@ FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
 
         AssertSql(
             """
-SELECT [s].[Name], (
-    SELECT ISNULL(SUM(CAST(LEN([c].[Location]) AS int)), 0)
-    FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g2]
-    INNER JOIN [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s0] ON [g2].[SquadId] = [s0].[Id]
-    INNER JOIN [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c] ON [g2].[CityOfBirthName] = [c].[Name]
-    WHERE N'Marcus' IN (
-        SELECT [g3].[Nickname]
-        FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g3]
-        UNION ALL
-        SELECT [g4].[Nickname]
-        FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g4]
-    ) AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
+SELECT [s].[Name], ISNULL(SUM(CAST(LEN([c].[Location]) AS int)), 0) AS [SumOfLengths]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 INNER JOIN [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [g].[SquadId] = [s].[Id]
+INNER JOIN [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 WHERE N'Marcus' IN (
     SELECT [g0].[Nickname]
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0]

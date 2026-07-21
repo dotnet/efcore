@@ -2399,22 +2399,11 @@ ORDER BY [o2].[Id]
 
         AssertSql(
             """
-SELECT (
-    SELECT MIN([o].[HourlyRate])
-    FROM [TimeSheets] AS [t0]
-    LEFT JOIN [Order] AS [o] ON [t0].[OrderId] = [o].[Id]
-    WHERE [t0].[OrderId] IS NOT NULL AND [t].[OrderId] = [t0].[OrderId]) AS [HourlyRate], (
-    SELECT MIN([c].[Id])
-    FROM [TimeSheets] AS [t1]
-    INNER JOIN [Project] AS [p] ON [t1].[ProjectId] = [p].[Id]
-    INNER JOIN [Customers] AS [c] ON [p].[CustomerId] = [c].[Id]
-    WHERE [t1].[OrderId] IS NOT NULL AND [t].[OrderId] = [t1].[OrderId]) AS [CustomerId], (
-    SELECT MIN([c0].[Name])
-    FROM [TimeSheets] AS [t2]
-    INNER JOIN [Project] AS [p0] ON [t2].[ProjectId] = [p0].[Id]
-    INNER JOIN [Customers] AS [c0] ON [p0].[CustomerId] = [c0].[Id]
-    WHERE [t2].[OrderId] IS NOT NULL AND [t].[OrderId] = [t2].[OrderId]) AS [CustomerName]
+SELECT MIN([o].[HourlyRate]) AS [HourlyRate], MIN([c].[Id]) AS [CustomerId], MIN([c].[Name]) AS [CustomerName]
 FROM [TimeSheets] AS [t]
+LEFT JOIN [Order] AS [o] ON [t].[OrderId] = [o].[Id]
+INNER JOIN [Project] AS [p] ON [t].[ProjectId] = [p].[Id]
+INNER JOIN [Customers] AS [c] ON [p].[CustomerId] = [c].[Id]
 WHERE [t].[OrderId] IS NOT NULL
 GROUP BY [t].[OrderId]
 """);

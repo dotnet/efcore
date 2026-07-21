@@ -14398,6 +14398,14 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalNavigationExpansionExtensibilityHelper : Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelper, Microsoft.EntityFrameworkCore.Query.INavigationExpansionExtensibilityHelper",
+      "Methods": [
+        {
+          "Member": "RelationalNavigationExpansionExtensibilityHelper(Microsoft.EntityFrameworkCore.Query.NavigationExpansionExtensibilityHelperDependencies dependencies);"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.RelationalNavigationJsonPropertyNameAttributeConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.NavigationAttributeConventionBase<System.Text.Json.Serialization.JsonPropertyNameAttribute>, Microsoft.EntityFrameworkCore.Metadata.Conventions.INavigationAddedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
       "Methods": [
         {
