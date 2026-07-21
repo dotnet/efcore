@@ -457,6 +457,9 @@ function Script-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER NoBuild
+    Don't build the project. Intended to be used when the build is up-to-date.
+
 .PARAMETER Args
     Arguments passed to the application.
 
@@ -473,6 +476,7 @@ function Update-Database(
     $Context,
     $Project,
     $StartupProject,
+    [switch] $NoBuild,
     $Args)
 {
     WarnIfEF6 'Update-Database'
