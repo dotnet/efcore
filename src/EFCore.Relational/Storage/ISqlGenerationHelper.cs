@@ -38,6 +38,14 @@ public interface ISqlGenerationHelper
     string BatchTerminator { get; }
 
     /// <summary>
+    ///     A SELECT statement returning the number of rows affected by the immediately preceding statement,
+    ///     or <see langword="null" /> if the provider does not support one. Used to surface rows-affected counts
+    ///     as result sets when 'ExecuteDelete' or 'ExecuteUpdate' operations are included in a query batch.
+    /// </summary>
+    string? AffectedRowsCountStatement
+        => null;
+
+    /// <summary>
     ///     Gets the SQL for a START TRANSACTION statement.
     /// </summary>
     string StartTransactionStatement { get; }

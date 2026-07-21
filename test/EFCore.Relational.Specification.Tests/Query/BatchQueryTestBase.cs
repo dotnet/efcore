@@ -100,28 +100,8 @@ public abstract class BatchQueryTestBase<TFixture> : QueryTestBase<TFixture>
         using var context = CreateContext();
 
         using var batch = async
-            ? await context.BatchAsync(
-                ctx =>
-                {
-                    var city = "London";
-                    return ctx.Set<Customer>().Where(c => c.City == city);
-                },
-                ctx =>
-                {
-                    var city = "Seattle";
-                    return ctx.Set<Employee>().Where(e => e.City == city);
-                })
-            : context.Batch(
-                ctx =>
-                {
-                    var city = "London";
-                    return ctx.Set<Customer>().Where(c => c.City == city);
-                },
-                ctx =>
-                {
-                    var city = "Seattle";
-                    return ctx.Set<Employee>().Where(e => e.City == city);
-                });
+            ? await context.BatchAsync(CustomersQuery(), EmployeesQuery())
+            : context.Batch(CustomersQuery(), EmployeesQuery());
 
         var customers = async
             ? await batch.NextAsListAsync<Customer>()
@@ -134,6 +114,151 @@ public abstract class BatchQueryTestBase<TFixture> : QueryTestBase<TFixture>
         Assert.All(customers, c => Assert.Equal("London", c.City));
         Assert.Equal(2, employees.Count);
         Assert.All(employees, e => Assert.Equal("Seattle", e.City));
+
+        static Expression<Func<NorthwindContext, object>> CustomersQuery()
+        {
+            var city = "London";
+            return ctx => ctx.Set<Customer>().Where(c => c.City == city);
+        }
+
+        static Expression<Func<NorthwindContext, object>> EmployeesQuery()
+        {
+            var city = "Seattle";
+            return ctx => ctx.Set<Employee>().Where(e => e.City == city);
+        }
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_with_execute_delete(bool async)
+    {
+        using var context = CreateContext();
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            async () =>
+            {
+                await using var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+
+                using var batch = async
+                    ? await context.BatchAsync(
+                        ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248).ExecuteDelete(),
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248))
+                    : context.Batch(
+                        ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248).ExecuteDelete(),
+                        ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248));
+
+                var customers = async
+                    ? await batch.NextAsListAsync<Customer>()
+                    : batch.NextAsList<Customer>();
+                var rowsAffected = async
+                    ? await batch.NextAsRowsAffectedAsync()
+                    : batch.NextAsRowsAffected();
+                var remainingDetails = async
+                    ? await batch.NextAsListAsync<OrderDetail>()
+                    : batch.NextAsList<OrderDetail>();
+
+                Assert.Equal(6, customers.Count);
+                Assert.Equal(3, rowsAffected);
+
+                // The query following the delete in the same command sees the deletion
+                Assert.Empty(remainingDetails);
+            });
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Batch_with_execute_update(bool async)
+    {
+        using var context = CreateContext();
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            async () =>
+            {
+                await using var transaction = async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction();
+
+                using var batch = async
+                    ? await context.BatchAsync(
+                        ctx => ctx.Set<Customer>().Where(c => c.City == "London")
+                            .ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated")),
+                        ctx => ctx.Set<Customer>().Where(c => c.ContactName == "Updated"))
+                    : context.Batch(
+                        ctx => ctx.Set<Customer>().Where(c => c.City == "London")
+                            .ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated")),
+                        ctx => ctx.Set<Customer>().Where(c => c.ContactName == "Updated"));
+
+                var rowsAffected = async
+                    ? await batch.NextAsRowsAffectedAsync()
+                    : batch.NextAsRowsAffected();
+                var updatedCustomers = async
+                    ? await batch.NextAsListAsync<Customer>()
+                    : batch.NextAsList<Customer>();
+
+                Assert.Equal(6, rowsAffected);
+
+                // The query following the update in the same command sees the updated values
+                Assert.Equal(6, updatedCustomers.Count);
+                Assert.All(updatedCustomers, c => Assert.Equal("Updated", c.ContactName));
+            });
+    }
+
+    [Fact]
+    public virtual async Task Batch_with_execute_delete_async_form()
+    {
+        using var context = CreateContext();
+        await context.Database.CreateExecutionStrategy().ExecuteAsync(
+            async () =>
+            {
+                await using var transaction = await context.Database.BeginTransactionAsync();
+
+                await using var batch = await context.BatchAsync(
+                    ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248).ExecuteDeleteAsync(CancellationToken.None));
+
+                var rowsAffected = await batch.NextAsRowsAffectedAsync();
+
+                Assert.Equal(3, rowsAffected);
+            });
+    }
+
+    [Fact]
+    public virtual void Batch_throws_when_consuming_rows_affected_as_list()
+    {
+        using var context = CreateContext();
+        context.Database.CreateExecutionStrategy().Execute(
+            () =>
+            {
+                using var transaction = context.Database.BeginTransaction();
+
+                using var batch = context.Batch(ctx => ctx.Set<OrderDetail>().Where(od => od.OrderID == 10248).ExecuteDelete());
+
+                Assert.Equal(
+                    RelationalStrings.BatchQueryExpectedRowsAffected,
+                    Assert.Throws<InvalidOperationException>(() => batch.NextAsList<OrderDetail>()).Message);
+            });
+    }
+
+    [Fact]
+    public virtual void Batch_throws_when_consuming_query_as_rows_affected()
+    {
+        using var context = CreateContext();
+
+        using var batch = context.Batch(ctx => ctx.Set<Customer>().Where(c => c.City == "London"));
+
+        Assert.Equal(
+            RelationalStrings.BatchQueryExpectedQueryResults,
+            Assert.Throws<InvalidOperationException>(() => batch.NextAsRowsAffected()).Message);
+    }
+
+    [Fact]
+    public virtual void Batch_throws_for_unsupported_expression()
+    {
+        using var context = CreateContext();
+
+        var message = Assert.Throws<InvalidOperationException>(
+            () => context.Batch(ctx => ctx.Set<Customer>().Count())).Message;
+
+        Assert.Contains("cannot be batched", message);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]

@@ -181,6 +181,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         CommandSource commandSource,
         bool threadSafetyChecksEnabled)
     {
+        // When compiled as part of a query batch, the command is captured for deferred execution instead of
+        // being executed here; the rows-affected count is later consumed from the batch's result sets.
+        if (RelationalBatchNonQueryCapture.TryCapture(relationalQueryContext, relationalCommandResolver, threadSafetyChecksEnabled))
+        {
+            return 0;
+        }
+
         try
         {
             using var _ = threadSafetyChecksEnabled
@@ -248,6 +255,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         CommandSource commandSource,
         bool threadSafetyChecksEnabled)
     {
+        // When compiled as part of a query batch, the command is captured for deferred execution instead of
+        // being executed here; the rows-affected count is later consumed from the batch's result sets.
+        if (RelationalBatchNonQueryCapture.TryCapture(relationalQueryContext, relationalCommandResolver, threadSafetyChecksEnabled))
+        {
+            return Task.FromResult(0);
+        }
+
         try
         {
             using var _ = threadSafetyChecksEnabled
