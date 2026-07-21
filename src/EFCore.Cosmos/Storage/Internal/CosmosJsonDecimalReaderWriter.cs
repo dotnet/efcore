@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Buffers;
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -50,8 +51,19 @@ public sealed class CosmosJsonDecimalReaderWriter : JsonValueReaderWriter<decima
         }
 
         return isFloatToken
-            ? Convert.ToDecimal(reader.GetDouble())
+            ? DoubleToDecimal(reader.GetDouble())
             : reader.GetDecimal();
+
+        // Cosmos stores all numbers as IEEE-754 doubles, so a decimal is materialized from a double here. Historically this went
+        // through Convert.ToDecimal(double), which rounded to 15 significant digits. .NET 11 made floating-point/decimal conversions
+        // correctly-rounded (dotnet/runtime#130566), so Convert.ToDecimal now yields the full binary expansion (e.g. 21.35 =>
+        // 21.350000000000001421085471520). Round-trip through the shortest 15-significant-digit representation to preserve the
+        // original behavior.
+        static decimal DoubleToDecimal(double value)
+            => decimal.Parse(
+                value.ToString("G15", CultureInfo.InvariantCulture),
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />
