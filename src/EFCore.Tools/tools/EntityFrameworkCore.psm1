@@ -36,6 +36,9 @@ Register-TabExpansion Add-Migration @{
 .PARAMETER Namespace
     The namespace to use. Matches the directory by default.
 
+.PARAMETER NoBuild
+    Don't build the project. Intended to be used when the build is up-to-date.
+
 .PARAMETER Args
     Arguments passed to the application.
 
@@ -55,6 +58,7 @@ function Add-Migration
         [string] $Project,
         [string] $StartupProject,
         [string] $Namespace,
+        [switch] $NoBuild,
         [string] $Args)
 
     WarnIfEF6 'Add-Migration'
@@ -77,7 +81,7 @@ function Add-Migration
     $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
+    $result = (EF $dteProject $dteStartupProject $params $Args -skipBuild:$NoBuild) -join "`n" | ConvertFrom-Json
     Write-Host 'To undo this action, use Remove-Migration.'
 
     if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
@@ -972,6 +976,9 @@ Register-TabExpansion Update-Database @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER NoBuild
+    Don't build the project. Intended to be used when the build is up-to-date.
+
 .PARAMETER Args
     Arguments passed to the application.
 
@@ -992,6 +999,7 @@ function Update-Database
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
+        [switch] $NoBuild,
         [string] $Args)
 
     if (-not $Add)
@@ -1041,7 +1049,7 @@ function Update-Database
     $params += GetParams $Context
 
 
-    EF $dteProject $dteStartupProject $params $Args
+    EF $dteProject $dteStartupProject $params $Args -skipBuild:$NoBuild
 }
 
 #

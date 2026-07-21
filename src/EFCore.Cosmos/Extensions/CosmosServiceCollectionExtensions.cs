@@ -125,7 +125,8 @@ public static class CosmosServiceCollectionExtensions
                 .TryAddScoped<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                 .TryAddScoped<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
                 .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>()
-                .TryAddSingleton<ISessionTokenStorageFactory, SessionTokenStorageFactory>());
+                .TryAddSingleton<ISessionTokenStorageFactory, SessionTokenStorageFactory>()
+                .TryAddSingleton<ICosmosStructuralTypeSerializerProvider, CosmosStructuralTypeSerializerProvider>());
 
         builder.TryAddCoreServices();
 

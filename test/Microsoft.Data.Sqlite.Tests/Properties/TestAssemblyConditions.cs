@@ -5,4 +5,4 @@ using Microsoft.Data.Sqlite.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // Skip the entire assembly if the SQLite native library could not be initialized
-[assembly: ConditionalAssembly(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.IsAvailable))]
+[assembly: Xunit.ConditionalAssembly(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.IsAvailable))]

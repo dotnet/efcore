@@ -4,4 +4,4 @@
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // Skip the entire assembly if SQL Server is not available
-[assembly: ConditionalAssembly(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
+[assembly: Xunit.ConditionalAssembly(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]

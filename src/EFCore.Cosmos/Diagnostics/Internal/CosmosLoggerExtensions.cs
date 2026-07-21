@@ -1,12 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -53,7 +50,7 @@ public static class CosmosLoggerExtensions
                 ExecutingSqlQuery,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, (object?)p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -167,7 +164,7 @@ public static class CosmosLoggerExtensions
                 activityId,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, (object?)p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -575,23 +572,38 @@ public static class CosmosLoggerExtensions
     }
 
     private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
-        => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
+        => parameters.Count == 0
+            ? ""
+            : string.Join(
+                ", ",
+                parameters.Select(p => FormatParameter(p.Name, shouldLogParameterValues ? (string)p.Value! : null)));
 
     private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
             ? ""
-            : string.Join(", ", parameters.Select(e => FormatParameter(e, shouldLogParameterValues)));
+            : string.Join(
+                ", ",
+                parameters.Select(p => FormatParameter(p.Name, shouldLogParameterValues ? p.ToJsonString() : null)));
 
-    private static string FormatParameter(SqlParameter parameter, bool shouldLogParameterValue)
+    private static string FormatParameter(string name, string? jsonString)
     {
         var builder = new StringBuilder();
         builder
-            .Append(parameter.Name)
+            .Append(name)
             .Append('=');
 
-        if (shouldLogParameterValue)
+        if (jsonString is not null)
         {
-            FormatParameterValue(builder, parameter.Value);
+            if ("null".Equals(jsonString, StringComparison.OrdinalIgnoreCase))
+            {
+                builder.Append("null");
+            }
+            else
+            {
+                builder.Append('\'');
+                builder.Append(jsonString.Trim('"'));
+                builder.Append('\'');
+            }
         }
         else
         {
@@ -599,37 +611,5 @@ public static class CosmosLoggerExtensions
         }
 
         return builder.ToString();
-    }
-
-    private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
-    {
-        if (parameterValue == null)
-        {
-            builder.Append("null");
-            return;
-        }
-
-        builder.Append('\'');
-
-        switch (parameterValue)
-        {
-            case JToken jTokenValue:
-                builder.Append(jTokenValue.ToString(Formatting.None).Trim('"'));
-                break;
-            case DateTime dateTimeValue:
-                builder.Append(dateTimeValue.ToString("s"));
-                break;
-            case DateTimeOffset dateTimeOffsetValue:
-                builder.Append(dateTimeOffsetValue.ToString("o"));
-                break;
-            case byte[] binaryValue:
-                builder.AppendBytes(binaryValue);
-                break;
-            default:
-                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
-                break;
-        }
-
-        builder.Append('\'');
     }
 }

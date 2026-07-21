@@ -1581,7 +1581,7 @@ WHERE ((c["$type"] = "Order") AND @p)
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["$type"] = "Product") AND (c["UnitPrice"] > 100.0))
+WHERE ((c["$type"] = "Product") AND (c["UnitPrice"] > 100))
 """);
             });
 

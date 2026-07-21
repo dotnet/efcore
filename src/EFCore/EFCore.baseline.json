@@ -2970,6 +2970,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId IncompatibleMatchingForeignKeyProperties"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId InconsistentOwnedDataWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId InvalidIncludePathError"
         },
         {
@@ -3225,6 +3228,12 @@
         },
         {
           "Member": "static void IncompatibleMatchingForeignKeyProperties(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model> diagnostics, string dependentToPrincipalNavigationSpecification, string principalToDependentNavigationSpecification, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> foreignKeyProperties, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyPropertyBase> principalKeyProperties);"
+        },
+        {
+          "Member": "static void InconsistentOwnedDataSensitive(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation, Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry? entry);"
+        },
+        {
+          "Member": "static void InconsistentOwnedDataWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, Microsoft.EntityFrameworkCore.Metadata.INavigationBase navigation);"
         },
         {
           "Member": "static void InvalidIncludePathError(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, string navigationChain, string navigationName);"
@@ -14688,6 +14697,11 @@
         {
           "Member": "void ValidateQueryRootCreation(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Query.EntityQueryRootExpression? source);"
         }
+      ],
+      "Properties": [
+        {
+          "Member": "bool SupportsNavigationExpansionJoins { get; }"
+        }
       ]
     },
     {
@@ -17373,7 +17387,7 @@
           "Member": "virtual string ToJsonObjectString(string propertyName, object? value);"
         },
         {
-          "Member": "string ToJsonString(object value);"
+          "Member": "string ToJsonString(object? value);"
         }
       ],
       "Properties": [

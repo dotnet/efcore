@@ -2029,7 +2029,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertSum(
             async,
             ss => ss.Set<OrderDetail>(),
-            x => (decimal)x.Discount);
+            x => (decimal)x.Discount,
+            asserter: (e, a) => Assert.Equal(e, a, 5));
 
     private class CustomerIdDto
     {

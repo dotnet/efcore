@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
@@ -851,13 +852,13 @@ public class SqliteDataReaderTest
         => X_throws_when_non_query(r => r.GetDataTypeName(0));
 
     [Theory,
-     InlineData("3.14", 3.14),
-     InlineData("1.0e-2", 0.01)]
-    public void GetDecimal_works(string input, decimal expected)
+     InlineData("3.14", "3.14"),
+     InlineData("1.0e-2", "0.010")]
+    public void GetDecimal_works(string input, string expected)
         => GetX_works(
             "SELECT '" + input + "';",
             r => r.GetDecimal(0),
-            expected);
+            decimal.Parse(expected, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture));
 
     [Fact]
     public void GetDecimal_throws_when_null()

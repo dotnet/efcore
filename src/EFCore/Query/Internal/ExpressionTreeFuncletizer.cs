@@ -1022,6 +1022,37 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         Call(
                             EnumerableMethods.SequenceEqual.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
                             unwrappedSpanArg, unwrappedOtherArg));
+
+                // .NET 11 added Min/Max Span overloads; rewrite to Enumerable.Min/Max.
+                case "Min"
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.ReturnType;
+                    var enumerableMin = EnumerableMethods.GetMinWithoutSelector(elementType);
+
+                    if (enumerableMin.IsGenericMethodDefinition)
+                    {
+                        enumerableMin = enumerableMin.MakeGenericMethod(elementType);
+                    }
+
+                    return Visit(Call(enumerableMin, unwrappedSpanArg));
+                }
+
+                case "Max"
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.ReturnType;
+                    var enumerableMax = EnumerableMethods.GetMaxWithoutSelector(elementType);
+
+                    if (enumerableMax.IsGenericMethodDefinition)
+                    {
+                        enumerableMax = enumerableMax.MakeGenericMethod(elementType);
+                    }
+
+                    return Visit(Call(enumerableMax, unwrappedSpanArg));
+                }
             }
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)

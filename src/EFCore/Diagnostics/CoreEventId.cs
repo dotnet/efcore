@@ -76,6 +76,7 @@ public static class CoreEventId
         DistinctAfterOrderByWithoutRowLimitingOperatorWarning = CoreBaseId + 114,
         QueryCanceled = CoreBaseId + 115,
         StringEnumValueInJson = CoreBaseId + 116,
+        InconsistentOwnedDataWarning = CoreBaseId + 117,
 
         // Infrastructure events
         SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -345,6 +346,16 @@ public static class CoreEventId
     /// </remarks>
     public static readonly EventId StringEnumValueInJson
         = MakeQueryId(Id.StringEnumValueInJson);
+
+    /// <summary>
+    ///     An owned entity was loaded, but the owning entity was null. This indicates inconsistent data in the database.
+    ///     The owned entity will be ignored.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    /// </remarks>
+    public static readonly EventId InconsistentOwnedDataWarning
+        = MakeQueryId(Id.InconsistentOwnedDataWarning);
 
     private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 

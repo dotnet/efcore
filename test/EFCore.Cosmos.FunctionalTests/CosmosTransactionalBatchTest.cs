@@ -5,6 +5,7 @@ using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -37,6 +38,111 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
         using var assertContext = Fixture.CreateContext();
         var customersCount = await assertContext.Customers.CountAsync();
         Assert.Equal(1, customersCount);
+    }
+
+    [Fact]
+    public virtual async Task SaveChanges_transactional_batch_failure_flows_through_execution_strategy()
+    {
+        using (var arrangeContext = Fixture.CreateContext())
+        {
+            arrangeContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+            await arrangeContext.SaveChangesAsync();
+        }
+
+        var recordedExceptions = new List<Exception>();
+
+        var options = new DbContextOptionsBuilder<TransactionalBatchContext>()
+            .UseCosmos(
+                ((CosmosTestStore)Fixture.TestStore).ConnectionUri,
+                ((CosmosTestStore)Fixture.TestStore).AuthToken,
+                Fixture.TestStore.Name,
+                cfg =>
+                {
+                    cfg.ApplyConfiguration();
+                    cfg.ExecutionStrategy(d => new RecordingExecutionStrategy(d, recordedExceptions));
+                })
+            .Options;
+
+        using var context = new TransactionalBatchContext(options);
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        context.Customers.Add(new Customer { Id = "2", PartitionKey = "1" });
+        context.Customers.Add(new Customer { Id = "1", PartitionKey = "1" });
+
+        // Before the fix the transactional batch failure never reached the execution strategy, so it could not be
+        // retried and RetryLimitExceededException was never thrown.
+        await Assert.ThrowsAsync<RetryLimitExceededException>(() => context.SaveChangesAsync());
+
+        Assert.NotEmpty(recordedExceptions);
+        Assert.All(
+            recordedExceptions,
+            e => Assert.Equal(HttpStatusCode.Conflict, Assert.IsType<CosmosException>(e).StatusCode));
+
+        using var assertContext = Fixture.CreateContext();
+        var customersCount = await assertContext.Customers.CountAsync();
+        Assert.Equal(1, customersCount);
+    }
+
+    [Fact]
+    public virtual async Task SaveChanges_suppressed_concurrency_exception_in_transactional_batch_reports_zero_rows_affected()
+    {
+        using (var arrangeContext = Fixture.CreateContext())
+        {
+            arrangeContext.Customers.Add(new Customer { Id = "1", PartitionKey = "1", Name = "Original" });
+            await arrangeContext.SaveChangesAsync();
+        }
+
+        var options = new DbContextOptionsBuilder<TransactionalBatchContext>()
+            .UseCosmos(
+                ((CosmosTestStore)Fixture.TestStore).ConnectionUri,
+                ((CosmosTestStore)Fixture.TestStore).AuthToken,
+                Fixture.TestStore.Name,
+                cfg => cfg.ApplyConfiguration())
+            .AddInterceptors(new ConcurrencySuppressingInterceptor())
+            .Options;
+
+        using var staleContext = new TransactionalBatchContext(options);
+        staleContext.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
+
+        var customer = await staleContext.Customers.SingleAsync(c => c.Id == "1");
+
+        // Change the ETag in the database so the stale context will conflict
+        using (var updateContext = Fixture.CreateContext())
+        {
+            var current = await updateContext.Customers.SingleAsync(c => c.Id == "1");
+            current.Name = "Updated by other";
+            await updateContext.SaveChangesAsync();
+        }
+
+        // Update from the stale context — PreconditionFailed → DbUpdateConcurrencyException, then suppressed
+        customer.Name = "Updated by stale";
+        var rowsAffected = await staleContext.SaveChangesAsync();
+
+        // The suppressed exception means the batch was not committed, so rows affected should be 0
+        Assert.Equal(0, rowsAffected);
+
+        using var assertContext = Fixture.CreateContext();
+        var customerInStore = await assertContext.Customers.SingleAsync(c => c.Id == "1");
+        Assert.Equal("Updated by other", customerInStore.Name);
+    }
+
+    private sealed class ConcurrencySuppressingInterceptor : SaveChangesInterceptor
+    {
+        public override ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+            ConcurrencyExceptionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+            => new(InterceptionResult.Suppress());
+    }
+
+    private sealed class RecordingExecutionStrategy(ExecutionStrategyDependencies dependencies, List<Exception> recordedExceptions)
+        : CosmosExecutionStrategy(dependencies, maxRetryCount: 2, maxRetryDelay: TimeSpan.FromMilliseconds(1))
+    {
+        protected override bool ShouldRetryOn(Exception exception)
+        {
+            recordedExceptions.Add(exception);
+            return true;
+        }
     }
 
     [Fact]

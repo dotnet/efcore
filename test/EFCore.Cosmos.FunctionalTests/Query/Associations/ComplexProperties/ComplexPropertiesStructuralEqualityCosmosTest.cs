@@ -63,7 +63,7 @@ WHERE (c["OptionalAssociate"] = null)
 
         AssertSql(
             """
-@entity_equality_related='null'
+@entity_equality_related=null
 
 SELECT VALUE c
 FROM root c
@@ -124,7 +124,7 @@ WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = @entity_equality_nest
 
         AssertSql(
             """
-@entity_equality_nested='null'
+@entity_equality_nested=null
 
 SELECT VALUE c
 FROM root c
@@ -141,7 +141,7 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = @entity_equality_nest
 
         AssertSql(
             """
-@entity_equality_nested='null'
+@entity_equality_nested=null
 
 SELECT VALUE c
 FROM root c

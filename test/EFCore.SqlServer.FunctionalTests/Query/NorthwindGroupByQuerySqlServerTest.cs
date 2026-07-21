@@ -2366,12 +2366,91 @@ GROUP BY [o].[OrderID], [o].[CustomerID]
 
         AssertSql(
             """
-SELECT (
-    SELECT MAX([c].[Region])
-    FROM [Orders] AS [o0]
-    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [max]
+SELECT MAX([c].[Region]) AS [max]
 FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_multiple_aggregates_sharing_same_navigation(bool async)
+    {
+        await base.GroupBy_multiple_aggregates_sharing_same_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'Berlin' THEN 1
+    ELSE 0
+END), 0) AS [Berlins], ISNULL(SUM([o].[OrderID]), 0) AS [Total], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_two_level_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_through_two_level_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[ProductID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[ProductID]
+""");
+    }
+
+    public override async Task GroupBy_Count_with_predicate_through_navigation_property(bool async)
+    {
+        await base.GroupBy_Count_with_predicate_through_navigation_property(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_key_and_aggregate_through_same_navigation(bool async)
+    {
+        await base.GroupBy_key_and_aggregate_through_same_navigation(async);
+
+        AssertSql(
+            """
+SELECT [c].[City] AS [Key], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[City]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_through_navigation_in_intermediate_projection(bool async)
+    {
+        await base.GroupBy_aggregate_through_navigation_in_intermediate_projection(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]
 """);
     }
@@ -3831,27 +3910,20 @@ ORDER BY [s].[ProductID], [c1].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], [s1].[Sum], [s1].[Count], [s1].[Key]
+SELECT [c].[CustomerID], [s0].[Sum], [s0].[Count], [s0].[Key]
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT ISNULL(SUM([s].[OrderID]), 0) AS [Sum], (
-        SELECT COUNT(*)
-        FROM (
-            SELECT [o0].[CustomerID], COALESCE([c1].[City], N'') + COALESCE([o0].[CustomerID], N'') AS [Key]
-            FROM [Orders] AS [o0]
-            LEFT JOIN [Customers] AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
-            WHERE [c].[CustomerID] = [o0].[CustomerID]
-        ) AS [s0]
-        LEFT JOIN [Customers] AS [c2] ON [s0].[CustomerID] = [c2].[CustomerID]
-        WHERE ([s].[Key] = [s0].[Key] OR ([s].[Key] IS NULL AND [s0].[Key] IS NULL)) AND COALESCE([c2].[City], N'') + COALESCE([s0].[CustomerID], N'') LIKE N'Lon%') AS [Count], [s].[Key]
+    SELECT ISNULL(SUM([s].[OrderID]), 0) AS [Sum], COUNT(CASE
+        WHEN COALESCE([s].[City], N'') + COALESCE([s].[CustomerID], N'') LIKE N'Lon%' THEN 1
+    END) AS [Count], [s].[Key]
     FROM (
-        SELECT [o].[OrderID], COALESCE([c0].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
+        SELECT [o].[OrderID], [o].[CustomerID], [c0].[City], COALESCE([c0].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE [c].[CustomerID] = [o].[CustomerID]
     ) AS [s]
     GROUP BY [s].[Key]
-) AS [s1]
+) AS [s0]
 ORDER BY [c].[CustomerID]
 """);
     }

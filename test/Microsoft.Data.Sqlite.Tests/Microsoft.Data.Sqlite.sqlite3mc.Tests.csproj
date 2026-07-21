@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\ConditionalAssemblyAttribute.cs" Link="TestUtilities\Xunit\ConditionalAssemblyAttribute.cs" />
     <Compile Include="..\EFCore.Specification.Tests\TestUtilities\Xunit\UseCultureAttribute.cs" Link="TestUtilities\Xunit\UseCultureAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
+    <PackageReference Include="SQLitePCLRaw.core" VersionOverride="3.0.3" />
     <PackageReference Include="Microsoft.DotNet.XUnitV3Extensions" />
   </ItemGroup>
 

@@ -22,6 +22,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
     ITypeMappingSource typeMappingSource,
     IMemberTranslatorProvider memberTranslatorProvider,
     IMethodCallTranslatorProvider methodCallTranslatorProvider,
+    ICosmosStructuralTypeSerializerProvider structuralTypeSerializerProvider,
     QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
     : ExpressionVisitor
 {
@@ -1054,9 +1055,7 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                         || innerType == typeof(sbyte)
                         || innerType == typeof(char)
                         || innerType == typeof(short)
-                        || innerType == typeof(ushort)))
-                || (convertedType == typeof(double)
-                    && (innerType == typeof(float))))
+                        || innerType == typeof(ushort))))
             {
                 return TryRemoveImplicitConvert(unaryExpression.Operand);
             }

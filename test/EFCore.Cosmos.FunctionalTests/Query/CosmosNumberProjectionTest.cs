@@ -167,7 +167,7 @@ WHERE (c["Short"] != null)
 SELECT VALUE
 {
     "Id" : c["Id"],
-    "Value" : (c["Float"] / (c["Float"] - 1.0))
+    "Value" : (c["Float"] / (c["Float"] - 1))
 }
 FROM root c
 """);
@@ -185,7 +185,7 @@ FROM root c
 SELECT VALUE
 {
     "Id" : c["Id"],
-    "Value" : (c["Float"] / (c["Float"] - 1.0))
+    "Value" : (c["Float"] / (c["Float"] - 1))
 }
 FROM root c
 WHERE (c["Float"] != null)
@@ -376,7 +376,7 @@ FROM root c
             """
 SELECT VALUE (
     SELECT VALUE AVG(a)
-    FROM a IN (SELECT VALUE [(c["Float"] / (c["Float"] - 1.0)), (c["Float"] / (c["Float"] - 1.0))]))
+    FROM a IN (SELECT VALUE [(c["Float"] / (c["Float"] - 1)), (c["Float"] / (c["Float"] - 1))]))
 FROM root c
 """);
     }
@@ -391,7 +391,7 @@ FROM root c
             """
 SELECT VALUE (
     SELECT VALUE AVG(a)
-    FROM a IN (SELECT VALUE [(c["Float"] / (c["Float"] - 1.0)), (c["Float"] / (c["Float"] - 1.0))]))
+    FROM a IN (SELECT VALUE [(c["Float"] / (c["Float"] - 1)), (c["Float"] / (c["Float"] - 1))]))
 FROM root c
 """);
     }
@@ -443,7 +443,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE SUM((c["Float"] / (c["Float"] - 1.0)))
+SELECT VALUE SUM((c["Float"] / (c["Float"] - 1)))
 FROM root c
 """);
     }
@@ -455,7 +455,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE SUM((c["Float"] / 2.0))
+SELECT VALUE SUM((c["Float"] / 2))
 FROM root c
 """);
     }

@@ -2149,7 +2149,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE DateTimeAdd("hh", 1.0, c["OrderDate"])
+SELECT VALUE DateTimeAdd("hh", 1, c["OrderDate"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2163,7 +2163,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE DateTimeAdd("mi", 1.0, c["OrderDate"])
+SELECT VALUE DateTimeAdd("mi", 1, c["OrderDate"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2177,7 +2177,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE DateTimeAdd("ss", 1.0, c["OrderDate"])
+SELECT VALUE DateTimeAdd("ss", 1, c["OrderDate"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2191,7 +2191,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE DateTimeAdd("ms", 1000000000000.0, c["OrderDate"])
+SELECT VALUE DateTimeAdd("ms", 1000000000000, c["OrderDate"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2209,7 +2209,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT VALUE DateTimeAdd("ms", -1000000000000.0, c["OrderDate"])
+SELECT VALUE DateTimeAdd("ms", -1000000000000, c["OrderDate"])
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
 """);

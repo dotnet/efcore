@@ -169,6 +169,61 @@ partial class Snapshot : ModelSnapshot
         Assert.Single(snapshotModel.FindEntityType("Dependent")!.GetForeignKeys());
     }
 
+    [Fact] // Issue #36180
+    public void Owned_collection_with_one_to_one_reference_round_trips()
+    {
+        // Regenerating the snapshot from a model that was itself built from a snapshot (as happens
+        // when removing a migration) must not corrupt the owned entity type name used in the
+        // HasForeignKey call of a one-to-one relationship declared inside an owned collection.
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.HasDefaultSchema(null);
+        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+        modelBuilder.Entity<Cart>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.OwnsMany(
+                e => e.CartProducts,
+                ownedBuilder =>
+                {
+                    ownedBuilder.WithOwner().HasForeignKey(nameof(CartProduct.CartId));
+                    ownedBuilder.HasKey(nameof(CartProduct.CartId), nameof(CartProduct.ProductId));
+                    ownedBuilder.HasOne(e => e.Product).WithOne().HasForeignKey<CartProduct>(e => e.ProductId);
+                });
+        });
+        modelBuilder.Entity<Product>();
+
+        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+
+        var generator = CreateMigrationsGenerator();
+        var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
+
+        var roundTrippedModel = BuildModelFromSnapshotSource(code);
+        var roundTrippedCode = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", roundTrippedModel);
+
+        Assert.Equal(code, roundTrippedCode, ignoreLineEndingDifferences: true);
+
+        // The regenerated snapshot must still compile into a valid model.
+        Assert.NotNull(BuildModelFromSnapshotSource(roundTrippedCode));
+    }
+
+    private class Cart
+    {
+        public int Id { get; set; }
+        public List<CartProduct> CartProducts { get; set; } = [];
+    }
+
+    private class CartProduct
+    {
+        public int CartId { get; set; }
+        public int ProductId { get; set; }
+        public Product Product { get; set; } = null!;
+    }
+
+    private class Product
+    {
+        public int Id { get; set; }
+    }
+
     [Fact]
     public void Snapshot_with_migration_id()
     {

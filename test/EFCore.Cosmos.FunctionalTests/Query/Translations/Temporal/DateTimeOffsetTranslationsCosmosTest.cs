@@ -244,7 +244,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("ss", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("ss", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -256,7 +256,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("hh", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("hh", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -268,7 +268,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("mi", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("mi", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -280,7 +280,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("ss", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("ss", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -292,7 +292,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("ms", 300.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("ms", 300, c["DateTimeOffset"])
 FROM root c
 """);
     }

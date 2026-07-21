@@ -92,6 +92,21 @@ WHERE ((
     }
 
     [Fact]
+    public virtual async Task Where_constant()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints == new List<int> { 1, 2, 3 }),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints.SequenceEqual(new List<int> { 1, 2, 3 })));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["Ints"] = [1,2,3])
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
