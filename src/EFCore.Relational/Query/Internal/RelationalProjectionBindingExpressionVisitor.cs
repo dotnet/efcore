@@ -133,6 +133,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         {
                             StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
                             SqlExpression mappedSqlExpression => AddClientProjection(mappedSqlExpression, expression.Type.MakeNullable()),
+                            // A single-result subquery (e.g. the group element of GroupBy(k).Select(g => g.First()))
+                            // being composed over: lower it into the current select as a to-one join so the result
+                            // has a bindable shape, instead of failing.
+                            ShapedQueryExpression
+                                {
+                                    ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault
+                                } singleResultSubquery
+                                => _selectExpression.LowerSingleResultSubquery(singleResultSubquery, _clientProjections!),
                             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
                         };
 
