@@ -534,6 +534,29 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.BatchResultsReader : System.IDisposable, System.IAsyncDisposable",
+      "Methods": [
+        {
+          "Member": "virtual void Dispose();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.ValueTask DisposeAsync();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IAsyncEnumerable<T> NextAsAsyncEnumerable<T>();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<T> NextAsEnumerable<T>();"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.List<T> NextAsList<T>();"
+        },
+        {
+          "Member": "virtual System.Threading.Tasks.Task<System.Collections.Generic.List<T>> NextAsListAsync<T>(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Storage.BoolTypeMapping : Microsoft.EntityFrameworkCore.Storage.RelationalTypeMapping<bool>",
       "Methods": [
         {
@@ -9651,6 +9674,20 @@
       ]
     },
     {
+      "Type": "static class Microsoft.EntityFrameworkCore.RelationalBatchQueryExtensions",
+      "Methods": [
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.BatchResultsReader Batch<TContext>(this TContext context, params System.Func<TContext, System.Linq.IQueryable>[] queries);"
+        },
+        {
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, params System.Func<TContext, System.Linq.IQueryable>[] queries);"
+        },
+        {
+          "Member": "static System.Threading.Tasks.Task<Microsoft.EntityFrameworkCore.BatchResultsReader> BatchAsync<TContext>(this TContext context, System.Collections.Generic.IEnumerable<System.Func<TContext, System.Linq.IQueryable>> queries, System.Threading.CancellationToken cancellationToken);"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Query.RelationalCollectionShaperExpression : System.Linq.Expressions.Expression, Microsoft.EntityFrameworkCore.Query.IPrintableExpression",
       "Methods": [
         {
@@ -14962,6 +14999,15 @@
           "Member": "static string AutoLoadedJsonProperty(object? property, object? type);"
         },
         {
+          "Member": "static string BatchQueryNoMoreResultSets(object? count);"
+        },
+        {
+          "Member": "static string BatchQueryResultTypeMismatch(object? actualType, object? requestedType);"
+        },
+        {
+          "Member": "static string BatchQueryUnsupportedParameter(object? parameterType);"
+        },
+        {
           "Member": "static string CannotCompareJsonComplexTypeToNonJson(object? jsonComplexType, object? nonJsonComplexType);"
         },
         {
@@ -15788,6 +15834,24 @@
         },
         {
           "Member": "static string BadSequenceType { get; }"
+        },
+        {
+          "Member": "static string BatchQueryBufferingNotSupported { get; }"
+        },
+        {
+          "Member": "static string BatchQueryDifferentContext { get; }"
+        },
+        {
+          "Member": "static string BatchQueryEmpty { get; }"
+        },
+        {
+          "Member": "static string BatchQueryRequiresRelationalProvider { get; }"
+        },
+        {
+          "Member": "static string BatchQueryResultSetInvalidated { get; }"
+        },
+        {
+          "Member": "static string BatchQueryUnsupportedQueryType { get; }"
         },
         {
           "Member": "static string CannotChangeWhenOpen { get; }"
