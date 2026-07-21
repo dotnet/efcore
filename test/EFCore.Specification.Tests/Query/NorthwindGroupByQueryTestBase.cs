@@ -355,6 +355,60 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.max);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_multiple_aggregates_sharing_same_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(
+                    g => new
+                    {
+                        g.Key,
+                        Londons = g.Sum(o => o.Customer.City == "London" ? 1 : 0),
+                        Berlins = g.Sum(o => o.Customer.City == "Berlin" ? 1 : 0),
+                        Total = g.Sum(o => o.OrderID),
+                        Count = g.Count()
+                    }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_two_level_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .GroupBy(od => od.ProductID)
+                .Select(g => new { g.Key, Londons = g.Sum(od => od.Order.Customer.City == "London" ? 1 : 0) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Count_with_predicate_through_navigation_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.Count(o => o.Customer.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_key_and_aggregate_through_same_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.Customer.City)
+                .Select(g => new { g.Key, Londons = g.Count(o => o.Customer.City == "London") }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_through_navigation_in_intermediate_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => new { o.EmployeeID, City = o.Customer.City })
+                .GroupBy(x => x.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.Sum(x => x.City == "London" ? 1 : 0) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_with_aggregate_containing_complex_where(bool async)
         => AssertQuery(
             async,

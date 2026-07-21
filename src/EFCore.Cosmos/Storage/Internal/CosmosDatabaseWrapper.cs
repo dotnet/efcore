@@ -1,14 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -21,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class CosmosDatabaseWrapper : Database, IResettableService
 {
-    private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
-
+    private readonly ICurrentDbContext _currentDbContext;
     private readonly ICosmosClientWrapper _cosmosClient;
+    private readonly IExecutionStrategy _executionStrategy;
+    private readonly ICosmosStructuralTypeSerializerProvider _structuralTypeSerializerProvider;
+
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _bulkExecutionEnabled;
-
-    private readonly ICurrentDbContext _currentDbContext;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,13 +37,17 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         DatabaseDependencies dependencies,
         ICurrentDbContext currentDbContext,
         ICosmosClientWrapper cosmosClient,
+        IExecutionStrategy executionStrategy,
         ICosmosSingletonOptions cosmosSingletonOptions,
         ISessionTokenStorageFactory sessionTokenStorageFactory,
+        ICosmosStructuralTypeSerializerProvider structuralTypeSerializerProvider,
         ILoggingOptions loggingOptions)
         : base(dependencies)
     {
         _currentDbContext = currentDbContext;
         _cosmosClient = cosmosClient;
+        _executionStrategy = executionStrategy;
+        _structuralTypeSerializerProvider = structuralTypeSerializerProvider;
         _bulkExecutionEnabled = cosmosSingletonOptions.EnableBulkExecution == true;
         SessionTokenStorage = sessionTokenStorageFactory.Create(currentDbContext.Context);
 
@@ -108,46 +110,94 @@ public class CosmosDatabaseWrapper : Database, IResettableService
             }
         }
 
-        foreach (var batch in groups.BatchableUpdateEntries)
+        var batchableUpdateEntries = groups.BatchableUpdateEntries as IReadOnlyList<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)>
+            ?? groups.BatchableUpdateEntries.ToList();
+
+        if (batchableUpdateEntries.Count > 0)
+        {
+            // The execution strategy is invoked around the whole set of batches (rather than around each individual
+            // batch) so that a transient failure retries the remaining work, while skipping the operations that were
+            // already committed by a previous attempt.
+            var state = new BatchExecutionState();
+            rowsAffected += await _executionStrategy.ExecuteAsync(
+                (Database: this, Batches: batchableUpdateEntries, State: state),
+                static (_, s, ct) => s.Database.ExecuteBatchesAsync(s.Batches, s.State, ct),
+                verifySucceeded: null,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        return rowsAffected;
+    }
+
+    private async Task<int> ExecuteBatchesAsync(
+        IReadOnlyList<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> batches,
+        BatchExecutionState state,
+        CancellationToken cancellationToken)
+    {
+        var operationIndex = 0;
+        foreach (var batch in batches)
         {
             if (batch.UpdateEntries.Count == 1 && _currentDbContext.Context.Database.AutoTransactionBehavior != AutoTransactionBehavior.Always)
             {
-                if (await SaveAsync(batch.UpdateEntries[0], cancellationToken).ConfigureAwait(false))
+                // Skip the operations that were already processed by a previous execution strategy attempt.
+                if (operationIndex < state.CommittedOperations)
                 {
-                    rowsAffected++;
+                    operationIndex++;
+                    continue;
                 }
 
+                if (await SaveAsync(batch.UpdateEntries[0], cancellationToken).ConfigureAwait(false))
+                {
+                    state.RowsAffected++;
+                }
+
+                state.CommittedOperations++;
+                operationIndex++;
                 continue;
             }
 
             foreach (var transaction in CreateTransactions(batch))
             {
+                // Skip the operations that were already processed by a previous execution strategy attempt.
+                if (operationIndex < state.CommittedOperations)
+                {
+                    operationIndex++;
+                    continue;
+                }
+
+                var suppressed = false;
                 try
                 {
-                    var response = await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
-                    if (!response.IsSuccess)
+                    await _cosmosClient.ExecuteTransactionalBatchAsync(transaction, SessionTokenStorage, cancellationToken).ConfigureAwait(false);
+                }
+                catch (DbUpdateConcurrencyException concurrencyException)
+                {
+                    var allEntries = transaction.Entries.Select(x => x.Entry).ToArray();
+                    if (!(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
+                            allEntries[0].Context, allEntries, concurrencyException, null, cancellationToken)
+                        .ConfigureAwait(false)).IsSuppressed)
                     {
-                        var exception = WrapUpdateException(response.Exception, response.ErroredEntries);
-                        if (exception is not DbUpdateConcurrencyException
-                            || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                                    transaction.Entries.First().Entry.Context, transaction.Entries.Select(x => x.Entry).ToArray(), (DbUpdateConcurrencyException)exception, null, cancellationToken)
-                                .ConfigureAwait(false)).IsSuppressed)
-                        {
-                            throw exception;
-                        }
+                        throw;
                     }
+
+                    suppressed = true;
                 }
                 catch (Exception ex) when (!ex.IsCritical() && ex is not DbUpdateException)
                 {
-                    var exception = WrapUpdateException(ex, transaction.Entries.Select(x => x.Entry).ToArray());
-                    throw exception;
+                    throw WrapUpdateException(ex, transaction.Entries.Select(x => x.Entry).ToArray());
                 }
 
-                rowsAffected += transaction.Entries.Count;
+                if (!suppressed)
+                {
+                    state.RowsAffected += transaction.Entries.Count;
+                }
+
+                state.CommittedOperations++;
+                operationIndex++;
             }
         }
 
-        return rowsAffected;
+        return state.RowsAffected;
     }
 
     private SaveGroups CreateSaveGroups(IList<IUpdateEntry> entries)
@@ -304,8 +354,8 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     private CosmosUpdateEntry? CreateCosmosUpdateEntry(IUpdateEntry entry)
     {
         var entityType = entry.EntityType;
-        var documentSource = GetDocumentSource(entityType);
-        var collectionId = documentSource.GetContainerId();
+        var serializer = _structuralTypeSerializerProvider.Get(entityType);
+        var containerId = serializer.Container;
         var operation = entry.EntityState switch
         {
             EntityState.Added => CosmosCudOperation.Create,
@@ -407,8 +457,8 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         return new CosmosUpdateEntry
         {
-            CollectionId = collectionId,
-            DocumentSource = documentSource,
+            CollectionId = containerId,
+            Serializer = serializer,
             Entry = entry,
             Operation = operation.Value
         };
@@ -425,7 +475,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
         foreach (var updateEntry in batch.UpdateEntries)
         {
-            var document = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.DocumentSource.Serialize(updateEntry.Entry) : default;
+            var document = updateEntry.Operation != CosmosCudOperation.Delete ? updateEntry.Serializer.Serialize(updateEntry.Entry) : default;
 
             // With AutoTransactionBehavior.Always, AddToTransaction will always return true.
             if (!AddToTransaction(transaction, updateEntry, document))
@@ -451,7 +501,7 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
     private bool AddToTransaction(ICosmosTransactionalBatchWrapper transaction, CosmosUpdateEntry updateEntry, ReadOnlyMemory<byte> document)
     {
-        var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
+        var id = updateEntry.Serializer.GetJsonId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
         return updateEntry.Operation switch
         {
             CosmosCudOperation.Create => transaction.CreateItem(id, document, updateEntry.Entry),
@@ -465,20 +515,20 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     {
         try
         {
-            var id = updateEntry.DocumentSource.GetId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
+            var id = updateEntry.Serializer.GetJsonId(updateEntry.Entry.SharedIdentityEntry ?? updateEntry.Entry);
             return updateEntry.Operation switch
             {
                 CosmosCudOperation.Create => await _cosmosClient.CreateItemAsync(
                                     updateEntry.CollectionId,
                                     id,
-                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
+                                    updateEntry.Serializer.Serialize(updateEntry.Entry),
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
                 CosmosCudOperation.Update => await _cosmosClient.ReplaceItemAsync(
                                     updateEntry.CollectionId,
                                     id,
-                                    updateEntry.DocumentSource.Serialize(updateEntry.Entry),
+                                    updateEntry.Serializer.Serialize(updateEntry.Entry),
                                     updateEntry.Entry,
                                     SessionTokenStorage,
                                     cancellationToken).ConfigureAwait(false),
@@ -506,23 +556,6 @@ public class CosmosDatabaseWrapper : Database, IResettableService
 
             return false;
         }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual DocumentSource GetDocumentSource(IEntityType entityType)
-    {
-        if (!_documentCollections.TryGetValue(entityType, out var documentSource))
-        {
-            _documentCollections.Add(
-                entityType, documentSource = new DocumentSource(entityType)); // @TODO: Make this singleton #34567
-        }
-
-        return documentSource;
     }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -556,17 +589,10 @@ public class CosmosDatabaseWrapper : Database, IResettableService
     private DbUpdateException WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
     {
         var entry = entries[0];
-        var documentSource = GetDocumentSource(entry.EntityType);
-        var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
+        var serializer = _structuralTypeSerializerProvider.Get((entry.SharedIdentityEntry ?? entry).EntityType);
+        var id = serializer.GetJsonId(entry.SharedIdentityEntry ?? entry);
 
-        return exception switch
-        {
-            CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
-                => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, entries),
-            CosmosException { StatusCode: HttpStatusCode.Conflict }
-                => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, entries),
-            _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, entries)
-        };
+        return CosmosClientWrapper.WrapUpdateException(exception, id, entries);
     }
 
     void IResettableService.ResetState()
@@ -587,12 +613,19 @@ public class CosmosDatabaseWrapper : Database, IResettableService
         public required IEnumerable<(Grouping Key, List<CosmosUpdateEntry> UpdateEntries)> BatchableUpdateEntries { get; init; }
     }
 
+    private sealed class BatchExecutionState
+    {
+        public int CommittedOperations { get; set; }
+
+        public int RowsAffected { get; set; }
+    }
+
     private sealed class CosmosUpdateEntry
     {
         public required IUpdateEntry Entry { get; init; }
         public required CosmosCudOperation Operation { get; init; }
         public required string CollectionId { get; init; }
-        public required DocumentSource DocumentSource { get; init; }
+        public required CosmosStructuralTypeSerializer Serializer { get; init; }
     }
 
     private sealed record Grouping(string ContainerId, PartitionKey PartitionKeyValue);

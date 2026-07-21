@@ -86,12 +86,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var builder = new StringBuilder();
             foreach (var parameter in sqlQuery.Parameters)
             {
+                var paramJsonString = parameter.ToJsonString();
                 builder
                     .Append("-- ")
                     .Append(parameter.Name)
-                    .Append("='")
-                    .Append(parameter.Value)
+                    .Append('=');
+
+                if (paramJsonString == "null")
+                {
+                    builder.AppendLine(paramJsonString);
+                }
+                else
+                {
+                    builder.Append('\'')
+                    .Append(paramJsonString.Trim('"'))
                     .AppendLine("'");
+                }
             }
 
             return builder.Append(sqlQuery.Query).ToString();

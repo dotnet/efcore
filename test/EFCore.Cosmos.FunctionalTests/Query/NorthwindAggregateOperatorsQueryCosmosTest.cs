@@ -458,7 +458,7 @@ WHERE (c["$type"] = "OrderDetail")
 
                 AssertSql(
                     """
-SELECT VALUE SUM((c["Quantity"] / 2.0))
+SELECT VALUE SUM((c["Quantity"] / 2))
 FROM root c
 WHERE (c["$type"] = "OrderDetail")
 """);
@@ -472,7 +472,7 @@ WHERE (c["$type"] = "OrderDetail")
 
                 AssertSql(
                     """
-SELECT VALUE SUM(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0))
+SELECT VALUE SUM(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0))
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
 """);
@@ -676,7 +676,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
             await base.MaxBy_no_data_value_type(async);
 
             AssertSql(
-"""
+                """
 SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
@@ -730,7 +730,7 @@ OFFSET 0 LIMIT 1
             await base.MaxBy_no_data_nullable_selector(async);
 
             AssertSql(
-"""
+                """
 SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
@@ -778,11 +778,11 @@ OFFSET 0 LIMIT 1
             await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_with_coalesce(async));
 
             AssertSql(
-"""
+                """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
-ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0) DESC
+ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0) DESC
 OFFSET 0 LIMIT 1
 """);
         }
@@ -844,7 +844,7 @@ OFFSET 0 LIMIT 1
             await base.MinBy_no_data_value_type(async);
 
             AssertSql(
-"""
+                """
 SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
@@ -898,7 +898,7 @@ OFFSET 0 LIMIT 1
             await base.MinBy_no_data_nullable_selector(async);
 
             AssertSql(
-"""
+                """
 SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
@@ -930,11 +930,11 @@ OFFSET 0 LIMIT 1
             await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_with_coalesce(async));
 
             AssertSql(
-"""
+                """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
-ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)
+ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0)
 OFFSET 0 LIMIT 1
 """);
         }
@@ -1042,7 +1042,7 @@ WHERE (c["$type"] = "OrderDetail")
 
                 AssertSql(
                     """
-SELECT VALUE AVG((c["Quantity"] / 2.0))
+SELECT VALUE AVG((c["Quantity"] / 2))
 FROM root c
 WHERE (c["$type"] = "OrderDetail")
 """);
@@ -1056,7 +1056,7 @@ WHERE (c["$type"] = "OrderDetail")
 
                 AssertSql(
                     """
-SELECT VALUE AVG(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0))
+SELECT VALUE AVG(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0))
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
 """);
@@ -1180,7 +1180,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderID"] = -1))
 
                 AssertSql(
                     """
-SELECT VALUE MIN(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0))
+SELECT VALUE MIN(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0))
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
 """);
@@ -1246,7 +1246,7 @@ WHERE (c["$type"] = "Order")
 
                 AssertSql(
                     """
-SELECT VALUE MAX(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0))
+SELECT VALUE MAX(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0))
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["ProductID"] < 40))
 """);
@@ -2974,7 +2974,7 @@ WHERE (c["$type"] = "Order")
                     """
 @cities='["London","Berlin"]'
 
-SELECT VALUE AVG((ARRAY_CONTAINS(@cities, c["City"]) ? 1.0 : 0.0))
+SELECT VALUE AVG((ARRAY_CONTAINS(@cities, c["City"]) ? 1 : 0))
 FROM root c
 """);
             });

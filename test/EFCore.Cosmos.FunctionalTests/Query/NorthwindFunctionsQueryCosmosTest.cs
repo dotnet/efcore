@@ -33,7 +33,7 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
                     """
 SELECT VALUE c
 FROM root c
-WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10 < c["ProductID"]))
+WHERE (((c["$type"] = "OrderDetail") AND (c["UnitPrice"] < 7)) AND (10 < c["ProductID"]))
 """);
             });
 
@@ -84,7 +84,7 @@ ORDER BY LENGTH(c["id"]), c["id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (POWER(LENGTH(c["id"]), 2.0) = 25.0)
+WHERE (POWER(LENGTH(c["id"]), 2) = 25)
 """);
             });
 

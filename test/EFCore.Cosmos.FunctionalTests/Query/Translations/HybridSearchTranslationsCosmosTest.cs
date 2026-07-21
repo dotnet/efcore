@@ -62,7 +62,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector), [2.5,1.0])
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector), [2.5,1])
 """);
     }
 

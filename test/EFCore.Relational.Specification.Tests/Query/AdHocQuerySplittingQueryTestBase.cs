@@ -183,13 +183,13 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async()
     {
         var (context1, context2) = await CreateTwoContext25225();
+        ClearLog();
         var task1 = QueryAsync(context1, Context25225.Parent1Id, Context25225.Collection1Id);
         var task2 = QueryAsync(context2, Context25225.Parent2Id, Context25225.Collection2Id);
         await Task.WhenAll(task1, task2);
 
         async Task QueryAsync(Context25225 context, Guid parentId, Guid collectionId)
         {
-            ClearLog();
             for (var i = 0; i < 100; i++)
             {
                 var parent = await SelectParent25225(context, parentId).SingleAsync();
@@ -202,13 +202,13 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
     {
         var (context1, context2) = await CreateTwoContext25225();
+        ClearLog();
         var task1 = Task.Run(() => Query(context1, Context25225.Parent1Id, Context25225.Collection1Id));
         var task2 = Task.Run(() => Query(context2, Context25225.Parent2Id, Context25225.Collection2Id));
         await Task.WhenAll(task1, task2);
 
         void Query(Context25225 context, Guid parentId, Guid collectionId)
         {
-            ClearLog();
             for (var i = 0; i < 10; i++)
             {
                 var parent = SelectParent25225(context, parentId).Single();

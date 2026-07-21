@@ -35,8 +35,10 @@ internal class Project
     public string? Language { get; set; }
     public string? OutputPath { get; set; }
     public string? PlatformTarget { get; set; }
+    public string? ProjectDepsFileName { get; set; }
     public string? ProjectAssetsFile { get; set; }
     public string? ProjectDir { get; set; }
+    public string? ProjectRuntimeConfigFileName { get; set; }
     public string? RootNamespace { get; set; }
     public string? RuntimeFrameworkVersion { get; set; }
     public string? TargetFileName { get; set; }
@@ -160,8 +162,10 @@ internal class Project
             Language = properties[nameof(Language)],
             OutputPath = normalizedOutputPath,
             PlatformTarget = platformTarget,
+            ProjectDepsFileName = properties[nameof(ProjectDepsFileName)],
             ProjectAssetsFile = normalizedProjectAssetsFile,
             ProjectDir = normalizedProjectDir,
+            ProjectRuntimeConfigFileName = properties[nameof(ProjectRuntimeConfigFileName)],
             RootNamespace = properties[nameof(RootNamespace)],
             RuntimeFrameworkVersion = properties[nameof(RuntimeFrameworkVersion)],
             TargetFileName = properties[nameof(TargetFileName)],

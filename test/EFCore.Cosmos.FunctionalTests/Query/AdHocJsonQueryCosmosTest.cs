@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -524,7 +524,7 @@ WHERE (c["Id"] = 4)
             "NestedOptionalReference": {
                 "DoB": "2000-01-01T00:00:00",
                 "Text": "e5 c1 nor"
-            },
+            }
         },
         {
             "Number": 7.0,
@@ -543,7 +543,7 @@ WHERE (c["Id"] = 4)
             "NestedOptionalReference": {
                 "DoB": "2000-01-01T00:00:00",
                 "Text": "e5 c2 nor"
-            },
+            }
         }
     ],
     "OptionalReference": {
@@ -563,7 +563,7 @@ WHERE (c["Id"] = 4)
         "NestedOptionalReference": {
             "DoB": "2000-01-01T00:00:00",
             "Text": "e5 or nor"
-        },
+        }
     },
     "RequiredReference": {
         "Number": 7.0,
@@ -582,7 +582,7 @@ WHERE (c["Id"] = 4)
         "NestedOptionalReference": {
             "DoB": "2000-01-01T00:00:00",
             "Text": "e5 rr nor"
-        },
+        }
     }
 }
 """;
@@ -1492,6 +1492,20 @@ WHERE (c["Id"] = 4)
     public override Task Bad_json_properties_empty_navigations(bool noTracking)
         => Task.CompletedTask;
 
+    // Insertion of the bad data fails thanks to json validation by Cosmos DB
+    public override Task Bad_json_properties_null_navigations(bool noTracking)
+       => Task.CompletedTask;
+
+    public override Task Bad_json_properties_null_scalars(bool noTracking)
+       => Task.CompletedTask;
+
+    // Insertion of the bad data is deduplicated by Cosmos DB
+    public override Task Bad_json_properties_duplicated_navigations(bool noTracking)
+        => Task.CompletedTask;
+
+    public override Task Bad_json_properties_duplicated_scalars(bool noTracking)
+        => Task.CompletedTask;
+
     protected override void OnModelCreatingBadJsonProperties(ModelBuilder modelBuilder)
     {
         base.OnModelCreatingBadJsonProperties(modelBuilder);
@@ -1615,49 +1629,9 @@ WHERE (c["Id"] = 4)
             emptyScalars,
             CancellationToken.None);
 
-        var nullNavs =
-            """
-{
-    "Id": 10,
-    "$type": "Entity",
-    "id": "10",
-    "Scenario": "null navigation property names",
-    "OptionalReference": {null: { "Text":"or no" }, null: { "Text":"or nr" }, null: [ { "Text":"or nc 1" }, { "Text":"or nc 2" } ] },
-    "RequiredReference": {null: { "Text":"rr no" }, null: { "Text":"rr nr" }, null: [ { "Text":"rr nc 1" }, { "Text":"rr nc 2" } ] },
-    "Collection":
-    [
-        {null: { "Text":"c 1 no" }, null: { "Text":"c 1 nr" }, null: [ { "Text":"c 1 nc 1" }, { "Text":"c 1 nc 2" } ] },
-        {null: { "Text":"c 2 no" }, null: { "Text":"c 2 nr" }, null: [ { "Text":"c 2 nc 1" }, { "Text":"c 2 nc 2" } ] }
-    ]
-}
-""";
-
-        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
-            entitiesContainer,
-            nullNavs,
-            CancellationToken.None);
-
-        var nullScalars =
-            """
-{
-    "Id": 11,
-    "$type": "Entity",
-    "id": "11",
-    "Scenario": "null scalar property names",
-    "OptionalReference": {"NestedOptional": { null:"or no", "Text":"or no nonnull" }, "NestedRequired": { null:"or nr", "Text":"or nr nonnull" }, "NestedCollection": [ { null:"or nc 1", "Text":"or nc 1 nonnull" }, { null:"or nc 2", "Text":"or nc 2 nonnull" } ] },
-    "RequiredReference": {"NestedOptional": { null:"rr no", "Text":"rr no nonnull" }, "NestedRequired": { null:"rr nr", "Text":"rr nr nonnull" }, "NestedCollection": [ { null:"rr nc 1", "Text":"rr nc 1 nonnull" }, { null:"rr nc 2", "Text":"rr nc 2 nonnull" } ] },
-    "Collection":
-    [
-        {"NestedOptional": { null:"c 1 no", "Text":"c 1 no nonnull" }, "NestedRequired": { null:"c 1 nr", "Text":"c 1 nr nonnull" }, "NestedCollection": [ { null:"c 1 nc 1", "Text":"c 1 nc 1 nonnull" }, { null:"c 1 nc 2", "Text":"c 1 nc 2 nonnull" } ] },
-        {"NestedOptional": { null:"c 2 no", "Text":"c 2 no nonnull" }, "NestedRequired": { null:"c 2 nr", "Text":"c 2 nr nonnull" }, "NestedCollection": [ { null:"c 2 nc 1", "Text":"c 2 nc 1 nonnull" }, { null:"c 2 nc 2", "Text":"c 2 nc 2 nonnull" } ] }
-    ]
-}
-""";
-
-        await AdHocCosmosTestHelpers.CreateCustomEntityHelperAsync(
-            entitiesContainer,
-            nullScalars,
-            CancellationToken.None);
+        // Insertion of the bad data fails thanks to json validation by Cosmos DB
+        // nullNavs or "Scenario": "null navigation property names" can not be tested
+        // nullScalars or "Scenario": "null scalar property names" can not be tested
     }
 
     #endregion
@@ -1719,7 +1693,7 @@ WHERE (c["Id"] = 4)
         var client = context.Database.GetCosmosClient();
         var container = client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
-        var entityJson = JObject.Parse("""
+        var entityJson = JsonNode.Parse("""
 {
   "$type": "Entity",
   "Id": 1,
@@ -1772,19 +1746,19 @@ WHERE (c["Id"] = 4)
     }
   ]
 }
-""");
+""")!.AsObject();
 
-        var dbJson = JObject.Parse(
+        var dbJson = JsonNode.Parse(
                 new StreamReader(
-                    (await container.ReadItemStreamAsync("1", Azure.Cosmos.PartitionKey.None)).Content).ReadToEnd());
-        foreach (var property in dbJson.Properties().Where(x => x.Name.StartsWith("_")).ToList())
+                    (await container.ReadItemStreamAsync("1", Azure.Cosmos.PartitionKey.None)).Content).ReadToEnd())!.AsObject();
+        foreach (var property in dbJson.Where(x => x.Key.StartsWith("_")).ToList())
         {
-            property.Remove();
+            dbJson.Remove(property.Key);
         }
 
         var text = dbJson.ToString();
 
-        Assert.True(JToken.DeepEquals(entityJson, dbJson));
+        Assert.True(JsonNode.DeepEquals(entityJson, dbJson));
 
         var entity = await context.Entities.SingleAsync();
         Assert.Equal(2, entity.Associate.Id);
@@ -2752,10 +2726,10 @@ WHERE (c["Id"] = 4)
   ],
   "KeyedAssociateCollection": [
     {
-      "Id": 6,
+      "Id": 6
     },
     {
-      "Id": 7,
+      "Id": 7
     }
   ],
   "ForeignKeyAssociate": {
@@ -3986,10 +3960,10 @@ WHERE (c["Id"] = 4)
   ],
   "KeyedForeignKeyAssociateCollection": [
     {
-      "Id": 12,
+      "Id": 12
     },
     {
-      "Id": 13,
+      "Id": 13
     }
   ]
 }
