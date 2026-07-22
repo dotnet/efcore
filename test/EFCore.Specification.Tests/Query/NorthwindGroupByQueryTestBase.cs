@@ -2096,6 +2096,54 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .Select(p => p.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_OrderBy_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderBy(o => o.OrderID).First())
+                .OrderBy(o => o.Customer.City)
+                .ThenBy(o => o.OrderID)
+                // Identity projection: the ordering by City is collation-sensitive, so the order
+                // itself is not asserted across providers.
+                .Select(o => o));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Select_navigation_member(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderBy(o => o.OrderID).First())
+                .Select(o => new { o.OrderID, o.Customer.City }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Where_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderBy(o => o.OrderID).First())
+                .Where(o => o.Customer.City == "London"));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Select_referenced_twice(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderBy(o => o.OrderID).First())
+                .Select(o => new { First = o, Second = o }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Join(bool async) // #28125
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderBy(o => o.OrderID).First())
+                .Join(
+                    ss.Set<Customer>(),
+                    o => o.CustomerID,
+                    c => c.CustomerID,
+                    (o, c) => new { o.OrderID, c.City }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_join_with_group_result(bool async)
         => AssertQuery(
             async,
