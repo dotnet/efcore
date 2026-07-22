@@ -163,4 +163,71 @@ public static class SqlServerKeyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the key uses the fill factor.</returns>
     public static ConfigurationSource? GetFillFactorConfigurationSource(this IConventionKey key)
         => key.FindAnnotation(SqlServerAnnotationNames.FillFactor)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the data compression that the key uses.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The data compression that the key uses.</returns>
+    public static DataCompressionType? GetDataCompression(this IReadOnlyKey key)
+        => (key is RuntimeKey)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (DataCompressionType?)key[SqlServerAnnotationNames.DataCompression];
+
+    /// <summary>
+    ///     Returns the data compression that the key uses.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The data compression that the key uses.</returns>
+    public static DataCompressionType? GetDataCompression(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
+    {
+        if (key is RuntimeKey)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = key.FindAnnotation(SqlServerAnnotationNames.DataCompression);
+        if (annotation != null)
+        {
+            return (DataCompressionType?)annotation.Value;
+        }
+
+        var sharedTableRootKey = key.FindSharedObjectRootKey(storeObject);
+        return sharedTableRootKey?.GetDataCompression(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets a value indicating the data compression the key uses.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="dataCompression">The value to set.</param>
+    public static void SetDataCompression(this IMutableKey key, DataCompressionType? dataCompression)
+        => key.SetAnnotation(
+            SqlServerAnnotationNames.DataCompression,
+            dataCompression);
+
+    /// <summary>
+    ///     Sets a value indicating the data compression the key uses.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="dataCompression">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static DataCompressionType? SetDataCompression(
+        this IConventionKey key,
+        DataCompressionType? dataCompression,
+        bool fromDataAnnotation = false)
+        => (DataCompressionType?)key.SetAnnotation(
+            SqlServerAnnotationNames.DataCompression,
+            dataCompression,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the data compression the key uses.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the data compression the key uses.</returns>
+    public static ConfigurationSource? GetDataCompressionConfigurationSource(this IConventionKey key)
+        => key.FindAnnotation(SqlServerAnnotationNames.DataCompression)?.GetConfigurationSource();
 }
