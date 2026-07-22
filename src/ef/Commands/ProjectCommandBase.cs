@@ -27,6 +27,10 @@ internal abstract class ProjectCommandBase : EFCommandBase
     protected CommandOption? WorkingDir { get; private set; }
     protected CommandOption? Framework { get; private set; }
     protected CommandOption? Configuration { get; private set; }
+    protected CommandOption? DepsFile { get; private set; }
+    protected CommandOption? RuntimeConfig { get; private set; }
+    protected CommandOption? FxVersion { get; private set; }
+    protected CommandOption? AdditionalProbingPaths { get; private set; }
 
     public override void Configure(CommandLineApplication command)
     {
@@ -45,8 +49,47 @@ internal abstract class ProjectCommandBase : EFCommandBase
         Framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
         Configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
         _designAssembly = command.Option("--design-assembly <PATH>", Resources.DesignAssemblyDescription);
+        DepsFile = command.Option("--deps-file <PATH>", Resources.DepsFileDescription);
+        RuntimeConfig = command.Option("--runtime-config <PATH>", Resources.RuntimeConfigDescription);
+        FxVersion = command.Option("--runtime-framework-version <VERSION>", Resources.RuntimeFrameworkVersionDescription);
+        AdditionalProbingPaths = command.Option(
+            "--additional-probing-path <PATH>", Resources.AdditionalProbingPathDescription, CommandOptionType.MultipleValue);
 
         base.Configure(command);
+    }
+
+    protected IReadOnlyList<string> GetCommonProjectArgs()
+    {
+        var args = new List<string>();
+
+        void AddValue(CommandOption? option, string name)
+        {
+            if (option!.HasValue())
+            {
+                args.Add(name);
+                args.Add(option.Value()!);
+            }
+        }
+
+        AddValue(Assembly, "--assembly");
+        AddValue(StartupAssembly, "--startup-assembly");
+        AddValue(Project, "--project");
+        AddValue(StartupProject, "--startup-project");
+        AddValue(_dataDir, "--data-dir");
+        AddValue(_projectDir, "--project-dir");
+        AddValue(_rootNamespace, "--root-namespace");
+        AddValue(_language, "--language");
+        if (_nullable!.HasValue())
+        {
+            args.Add("--nullable");
+        }
+
+        AddValue(WorkingDir, "--working-dir");
+        AddValue(Framework, "--framework");
+        AddValue(Configuration, "--configuration");
+        AddValue(_designAssembly, "--design-assembly");
+
+        return args;
     }
 
     protected override void Validate()
