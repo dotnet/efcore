@@ -49,7 +49,7 @@
     <PackageVersion Include="NetTopologySuite" Version="2.5.0" />
     <PackageVersion Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
     <PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="mod_spatialite" Version="4.3.0.1" />
     <PackageVersion Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawVersion)" />
     <PackageVersion Include="SQLitePCLRaw.bundle_sqlite3" Version="$(SQLitePCLRawBundleSqlite3Version)" />
