@@ -2124,6 +2124,14 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .Where(o => o.Customer.City == "London"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Entire_Entity_Select_referenced_twice(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                .Select(g => g.OrderBy(o => o.OrderID).First())
+                .Select(o => new { First = o, Second = o }));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Select_Entire_Entity_Join(bool async) // #28125
         => AssertQuery(
             async,

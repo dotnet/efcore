@@ -128,6 +128,10 @@ public class NorthwindGroupByQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noo
         => base.GroupBy_Select_Entire_Entity_Where_navigation(async);
 
     [Theory(Skip = "Issue#31209")]
+    public override Task GroupBy_Select_Entire_Entity_Select_referenced_twice(bool async)
+        => base.GroupBy_Select_Entire_Entity_Select_referenced_twice(async);
+
+    [Theory(Skip = "Issue#31209")]
     public override Task GroupBy_Select_Entire_Entity_Join(bool async)
         => base.GroupBy_Select_Entire_Entity_Join(async);
 }

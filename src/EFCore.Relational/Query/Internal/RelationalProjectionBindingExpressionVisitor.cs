@@ -27,6 +27,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     private bool _rootIsTransparentIdentifier;
     private Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>? _projectionBindingCache;
     private List<Expression>? _clientProjections;
+    private Dictionary<object, Expression>? _loweredSingleResultSubqueries;
 
     private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private readonly Stack<ProjectionMember> _projectionMembers = new();
@@ -75,6 +76,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             _projectionBindingCache = new Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
             _clientProjections = [];
+            _loweredSingleResultSubqueries = null;
 
             result = Visit(expression);
 
@@ -140,7 +142,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 {
                                     ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault
                                 } singleResultSubquery
-                                => _selectExpression.LowerSingleResultSubquery(singleResultSubquery, _clientProjections!),
+                                => LowerSingleResultSubquery(projectionBindingExpression, singleResultSubquery),
                             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
                         };
 
@@ -840,6 +842,24 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         }
 
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
+    }
+
+    private Expression LowerSingleResultSubquery(
+        ProjectionBindingExpression projectionBindingExpression,
+        ShapedQueryExpression singleResultSubquery)
+    {
+        // The lowering mutates the select expression (pushdown + to-one join), so it must run
+        // once per projection slot — a second reference to the same slot reuses the shaper
+        // produced by the first, instead of adding a duplicate join.
+        _loweredSingleResultSubqueries ??= new Dictionary<object, Expression>();
+        var key = projectionBindingExpression.Index is int index ? index : (object)projectionBindingExpression.ProjectionMember!;
+        if (!_loweredSingleResultSubqueries.TryGetValue(key, out var loweredShaper))
+        {
+            loweredShaper = _selectExpression.LowerSingleResultSubquery(singleResultSubquery, _clientProjections!);
+            _loweredSingleResultSubqueries[key] = loweredShaper;
+        }
+
+        return loweredShaper;
     }
 
     /// <summary>
