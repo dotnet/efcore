@@ -39,6 +39,10 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
     public override Expression Process(Expression query)
     {
         var result = base.Process(query);
+
+        // Fold single-table filter subqueries in LEFT/INNER joins back into the join condition, removing needless subqueries.
+        result = new SqliteSubqueryToJoinRewriter(RelationalDependencies.SqlExpressionFactory).Visit(result);
+
         _applyValidator.Visit(result);
 
         return result;
