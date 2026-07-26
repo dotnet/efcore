@@ -505,7 +505,24 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(float value)
-        => value.ToString(CultureInfo.InvariantCulture) + "f";
+    {
+        if (float.IsNaN(value))
+        {
+            return $"float.{nameof(float.NaN)}";
+        }
+
+        if (float.IsNegativeInfinity(value))
+        {
+            return $"float.{nameof(float.NegativeInfinity)}";
+        }
+
+        if (float.IsPositiveInfinity(value))
+        {
+            return $"float.{nameof(float.PositiveInfinity)}";
+        }
+
+        return value.ToString(CultureInfo.InvariantCulture) + "f";
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
