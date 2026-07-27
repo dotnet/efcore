@@ -77,7 +77,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <remarks>
     ///     <para>
     ///         This method only registers the trigger in the EF model; it does not create the trigger in the database.
-    ///         The trigger DDL must be added manually to the migration using <c>migrationBuilder.Sql</c>.
+    ///         The trigger must be created separately (for example, by adding trigger DDL to a migration using <c>migrationBuilder.Sql(...)</c>).
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
