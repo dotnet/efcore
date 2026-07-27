@@ -171,6 +171,21 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             Dependencies.OperationReporter.WriteWarning(DesignStrings.DestructiveOperation);
         }
 
+        var currentRelationalModel = Dependencies.Model.GetRelationalModel();
+        var lastModelTriggerNames = lastModel == null
+            ? new HashSet<string>()
+            : lastModel.Tables.SelectMany(t => t.Triggers).Select(t => t.ModelName).ToHashSet();
+        var newTriggerNames = currentRelationalModel.Tables
+            .SelectMany(t => t.Triggers)
+            .Select(t => t.ModelName)
+            .Where(n => !lastModelTriggerNames.Contains(n))
+            .ToList();
+        if (newTriggerNames.Count > 0)
+        {
+            Dependencies.OperationReporter.WriteWarning(
+                DesignStrings.TriggersNotCreatedAutomatically(string.Join(", ", newTriggerNames)));
+        }
+
         var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
         var migrationCode = codeGenerator.GenerateMigration(
             migrationNamespace,
