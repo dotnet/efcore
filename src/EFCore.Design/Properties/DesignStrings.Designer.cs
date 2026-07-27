@@ -816,14 +816,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SequencesRequireName");
 
         /// <summary>
-        ///     The following triggers are defined in the model but will not be created automatically by EF Core migrations. Ensure the trigger DDL is added manually to the migration using 'migrationBuilder.Sql': {triggerNames}
-        /// </summary>
-        public static string TriggersNotCreatedAutomatically(object? triggerNames)
-            => string.Format(
-                GetString("TriggersNotCreatedAutomatically", nameof(triggerNames)),
-                triggerNames);
-
-        /// <summary>
         ///     Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.
         /// </summary>
         public static string UnableToGenerateEntityType(object? tableName)

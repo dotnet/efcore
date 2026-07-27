@@ -449,9 +449,6 @@ Change your target project to the migrations project by using the Package Manage
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be 'null' or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
-  <data name="TriggersNotCreatedAutomatically" xml:space="preserve">
-    <value>The following triggers are defined in the model but will not be created automatically by EF Core migrations. Ensure the trigger DDL is added manually to the migration using 'migrationBuilder.Sql': {triggerNames}</value>
-  </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}' since its primary key could not be scaffolded.</value>
   </data>

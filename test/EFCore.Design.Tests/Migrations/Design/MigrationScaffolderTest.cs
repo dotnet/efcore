@@ -63,41 +63,7 @@ public class MigrationsScaffolderTest
         Assert.Contains($"[Migration(\"{migration.MigrationId}\")]", migration.MetadataCode);
     }
 
-    [Fact]
-    public void ScaffoldMigration_warns_when_new_trigger_added()
-    {
-        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<Animal>(e => e.ToTable("Animals", t => t.HasTrigger("Animal_Trigger")));
-        var model = modelBuilder.FinalizeModel(designTime: true);
-
-        var (scaffolder, reporter) = CreateMigrationScaffolder<ContextWithSnapshot>(model);
-
-        scaffolder.ScaffoldMigration("TriggerMigration", "WebApplication1");
-
-        Assert.Contains(
-            reporter.Messages,
-            m => m.Level == LogLevel.Warning
-                && m.Message.Contains("Animal_Trigger"));
-    }
-
-    [Fact]
-    public void ScaffoldMigration_does_not_warn_when_no_new_triggers()
-    {
-        var (scaffolder, reporter) = CreateMigrationScaffolder<ContextWithSnapshot>(model: null);
-
-        scaffolder.ScaffoldMigration("EmptyMigration2", "WebApplication1");
-
-        Assert.DoesNotContain(
-            reporter.Messages,
-            m => m.Level == LogLevel.Warning && m.Message.Contains("migrationBuilder.Sql"));
-    }
-
     private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
-        where TContext : DbContext, new()
-        => CreateMigrationScaffolder<TContext>(model: null).Scaffolder;
-
-    private (IMigrationsScaffolder Scaffolder, TestOperationReporter Reporter) CreateMigrationScaffolder<TContext>(
-        IModel model)
         where TContext : DbContext, new()
     {
         var currentContext = new CurrentDbContext(new TContext());
@@ -119,14 +85,10 @@ public class MigrationsScaffolderTest
         var historyRepository = new MockHistoryRepository();
 
         var services = FakeRelationalTestHelpers.Instance.CreateContextServices();
-        if (model == null)
-        {
-            var emptyModel = new Model().FinalizeModel();
-            emptyModel.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, new RelationalModel(emptyModel));
-            model = emptyModel;
-        }
+        var model = new Model().FinalizeModel();
+        model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, new RelationalModel(model));
 
-        return (new MigrationsScaffolder(
+        return new MigrationsScaffolder(
             new MigrationsScaffolderDependencies(
                 currentContext,
                 model,
@@ -177,19 +139,13 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<IMigrationsModelDiffer>(),
                     services.GetRequiredService<IDesignTimeModel>(),
                     services.GetRequiredService<IDbContextOptions>(),
-                    services.GetRequiredService<IExecutionStrategy>()))), reporter);
+                    services.GetRequiredService<IExecutionStrategy>())));
     }
 
     // ReSharper disable once UnusedTypeParameter
     private class GenericContext<T> : DbContext;
 
     private class ContextWithSnapshot : DbContext;
-
-    private class Animal
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = null!;
-    }
 
     [DbContext(typeof(ContextWithSnapshot))]
     private class ContextWithSnapshotModelSnapshot : ModelSnapshot
