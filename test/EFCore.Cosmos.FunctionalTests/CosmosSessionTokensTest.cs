@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -136,7 +137,7 @@ public class CosmosSessionTokensTest(CosmosSessionTokensTest.CosmosFixture fixtu
 
         foreach (var ex in exes)
         {
-            Assert.Contains("The session token provided 'invalidtoken' is", ex.ResponseBody);
+            Assert.Equal(HttpStatusCode.BadRequest, ex.StatusCode);
         }
     }
 
