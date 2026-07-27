@@ -1050,4 +1050,55 @@ public static class SqlServerPropertyExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the property's column is sparse.</returns>
     public static ConfigurationSource? GetIsSparseConfigurationSource(this IConventionProperty property)
         => property.FindAnnotation(SqlServerAnnotationNames.Sparse)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag,
+    ///     which excludes the column from <c>SELECT *</c> results.
+    /// </summary>
+    /// <remarks>
+    ///     This applies to columns defined with <c>GENERATED ALWAYS AS</c>, including SQL Server temporal table
+    ///     period columns. The default for temporal period columns is <see langword="true" />; for other columns
+    ///     this annotation has no effect unless the column is generated.
+    /// </remarks>
+    /// <param name="property">The property.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the property's column is hidden. Defaults to <see langword="true" /> when not
+    ///     explicitly configured, since temporal period columns are hidden by default.
+    /// </returns>
+    public static bool IsHidden(this IReadOnlyProperty property)
+        => (property is RuntimeProperty)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)property[SqlServerAnnotationNames.IsHidden] ?? true;
+
+    /// <summary>
+    ///     Sets a value indicating whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="hidden">The value to set; <see langword="null" /> to remove the explicit configuration.</param>
+    public static void SetIsHidden(this IMutableProperty property, bool? hidden)
+        => property.SetOrRemoveAnnotation(SqlServerAnnotationNames.IsHidden, hidden);
+
+    /// <summary>
+    ///     Sets a value indicating whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="hidden">The value to set; <see langword="null" /> to remove the explicit configuration.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetIsHidden(
+        this IConventionProperty property,
+        bool? hidden,
+        bool fromDataAnnotation = false)
+        => (bool?)property.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.IsHidden,
+            hidden,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for whether the property's column is hidden.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for whether the property's column is hidden.</returns>
+    public static ConfigurationSource? GetIsHiddenConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(SqlServerAnnotationNames.IsHidden)?.GetConfigurationSource();
 }

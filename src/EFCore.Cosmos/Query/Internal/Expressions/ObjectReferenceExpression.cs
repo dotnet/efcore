@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class ObjectReferenceExpression(IEntityType entityType, string name) : Expression, IPrintableExpression, IAccessExpression
+public class ObjectReferenceExpression(ITypeBase structuralType, string name) : Expression, IPrintableExpression, IAccessExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +33,7 @@ public class ObjectReferenceExpression(IEntityType entityType, string name) : Ex
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => EntityType.ClrType;
+        => StructuralType.ClrType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +45,7 @@ public class ObjectReferenceExpression(IEntityType entityType, string name) : Ex
     // TODO: (CosmosProjectionBindingRemovingExpressionVisitorBase._projectionBindings has IAccessExpressions as keys, and so entity types
     // TODO: need to participate in the equality etc.). Long-term, this should be a server-side SQL expression that knows nothing about
     // TODO: the shaper side.
-    public virtual IEntityType EntityType { get; } = entityType;
+    public virtual ITypeBase StructuralType { get; } = structuralType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -105,7 +105,7 @@ public class ObjectReferenceExpression(IEntityType entityType, string name) : Ex
 
     private bool Equals(ObjectReferenceExpression objectReferenceExpression)
         => Name == objectReferenceExpression.Name
-            && EntityType.Equals(objectReferenceExpression.EntityType);
+            && StructuralType.Equals(objectReferenceExpression.StructuralType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

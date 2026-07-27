@@ -43,8 +43,15 @@ public class StringToNumberConverter<TNumber> : StringNumberConverter<string, TN
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static StringToNumberConverter<TNumber> Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(TNumber), i => new StringToNumberConverter<TNumber>(i.MappingHints), DefaultHints);
+        = new(typeof(string), typeof(TNumber),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToNumberConverter<TNumber>(i.MappingHints),
+            DefaultHints);
 }

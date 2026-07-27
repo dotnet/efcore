@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class TableSplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : TableSplittingTestBase(fixture, testOutputHelper)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     public override async Task Can_use_with_redundant_relationships()
@@ -192,6 +192,7 @@ ORDER BY [v].[Name]
             """
 @p='1'
 
+SET NOCOUNT OFF;
 UPDATE [v]
 SET [v].[SeatingCapacity] = @p
 FROM [Vehicles] AS [v]

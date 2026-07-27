@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -18,12 +18,12 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     #region 32911
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Two_similar_complex_properties_projected_with_split_query1()
     {
-        var contextFactory = await InitializeAsync<Context32911>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context32911>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Offers
             .Include(e => e.Variations)
             .ThenInclude(v => v.Nested)
@@ -38,12 +38,12 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Two_similar_complex_properties_projected_with_split_query2()
     {
-        var contextFactory = await InitializeAsync<Context32911>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context32911>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Offers
             .Include(e => e.Variations)
             .ThenInclude(v => v.Nested)
@@ -57,12 +57,12 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_one_of_two_similar_complex_types_picks_the_correct_one()
     {
-        var contextFactory = await InitializeAsync<Context32911_2>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context32911_2>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Cs
             .Where(x => x.B.AId.Value == 1)
@@ -161,7 +161,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
             public Payment Payment { get; set; } = new(0, 0);
         }
 
-        public record Payment(decimal Netto, decimal Brutto);
+        public record Payment(double Netto, double Brutto);
     }
 
     protected class Context32911_2(DbContextOptions options) : DbContext(options)
@@ -229,7 +229,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
 
     #endregion
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling_TPC(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(
             async,
@@ -242,7 +242,7 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
                 mb.Entity<Context28196.FarmAnimal>().ToTable("FarmAnimals");
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling_TPT(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(
             async,
@@ -254,4 +254,80 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
                 mb.Entity<Context28196.Dog>().ToTable("Dogs");
                 mb.Entity<Context28196.FarmAnimal>().ToTable("FarmAnimals");
             });
+
+    #region 35727
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task TPC_query_with_generic_derived_types_returns_correct_types(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35727>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var entities = async
+            ? await context.Set<Context35727.BaseEntity>().OrderBy(e => e.Id).ToListAsync()
+            : context.Set<Context35727.BaseEntity>().OrderBy(e => e.Id).ToList();
+
+        Assert.Equal(4, entities.Count);
+        Assert.IsType<Context35727.ReproEntity<int>>(entities[0]);
+        Assert.IsType<Context35727.ReproEntity<int>>(entities[1]);
+        Assert.IsType<Context35727.ReproEntity<string>>(entities[2]);
+        Assert.IsType<Context35727.ReproEntity<string>>(entities[3]);
+    }
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task TPC_query_with_generic_derived_types_OfType_returns_correct_types(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context35727>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
+
+        var intEntities = async
+            ? await context.Set<Context35727.BaseEntity>().OfType<Context35727.ReproEntity<int>>().OrderBy(e => e.Id).ToListAsync()
+            : context.Set<Context35727.BaseEntity>().OfType<Context35727.ReproEntity<int>>().OrderBy(e => e.Id).ToList();
+
+        Assert.Equal(2, intEntities.Count);
+        Assert.All(intEntities, e => Assert.IsType<Context35727.ReproEntity<int>>(e));
+
+        var stringEntities = async
+            ? await context.Set<Context35727.BaseEntity>().OfType<Context35727.ReproEntity<string>>().OrderBy(e => e.Id).ToListAsync()
+            : context.Set<Context35727.BaseEntity>().OfType<Context35727.ReproEntity<string>>().OrderBy(e => e.Id).ToList();
+
+        Assert.Equal(2, stringEntities.Count);
+        Assert.All(stringEntities, e => Assert.IsType<Context35727.ReproEntity<string>>(e));
+    }
+
+    protected class Context35727(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BaseEntity>()
+                .UseTpcMappingStrategy()
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<ReproEntity<int>>();
+            modelBuilder.Entity<ReproEntity<string>>();
+        }
+
+        public Task SeedAsync()
+        {
+            Set<BaseEntity>().AddRange(
+                new ReproEntity<int> { Id = 1, Value = 1 },
+                new ReproEntity<int> { Id = 2, Value = 2 },
+                new ReproEntity<string> { Id = 3, Value = "3" },
+                new ReproEntity<string> { Id = 4, Value = "4" });
+
+            return SaveChangesAsync();
+        }
+
+        public abstract class BaseEntity
+        {
+            public int Id { get; set; }
+        }
+
+        public class ReproEntity<T> : BaseEntity
+        {
+            public T Value { get; set; }
+        }
+    }
+
+    #endregion
 }

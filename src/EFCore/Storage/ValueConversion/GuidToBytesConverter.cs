@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
 {
     private static readonly ConverterMappingHints DefaultHints
-        = new(size: 16, valueGeneratorFactory: (_, _) => new SequentialGuidValueGenerator());
+        = new(size: 16);
 
     /// <summary>
     ///     Creates a new instance of this converter.
@@ -58,8 +58,15 @@ public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static GuidToBytesConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Guid), typeof(byte[]), i => new GuidToBytesConverter(i.MappingHints), DefaultHints);
+        = new(typeof(Guid), typeof(byte[]),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new GuidToBytesConverter(i.MappingHints),
+            DefaultHints);
 }

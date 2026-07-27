@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
 
 public class IEntityTypeConfigurationTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Configure_entity_not_already_in_model()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -17,7 +17,7 @@ public class IEntityTypeConfigurationTest
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Configure_entity_already_in_model()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -29,7 +29,7 @@ public class IEntityTypeConfigurationTest
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Override_config_in_entity_type_configuration()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -41,7 +41,7 @@ public class IEntityTypeConfigurationTest
         Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Override_config_after_entity_type_configuration()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -53,7 +53,7 @@ public class IEntityTypeConfigurationTest
         Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Apply_multiple_entity_type_configurations()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

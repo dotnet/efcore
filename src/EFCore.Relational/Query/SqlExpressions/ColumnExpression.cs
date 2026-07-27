@@ -88,7 +88,7 @@ public class ColumnExpression : SqlExpression
     /// </summary>
     /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
     public virtual ColumnExpression MakeNullable()
-        => IsNullable ? this : new ColumnExpression(Name, TableAlias, Type, TypeMapping, true);
+        => IsNullable ? this : new ColumnExpression(Name, TableAlias, Column, Type, TypeMapping, true);
 
     /// <summary>
     ///     Applies supplied type mapping to this expression.
@@ -96,7 +96,7 @@ public class ColumnExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new ColumnExpression(Name, TableAlias, Type, typeMapping, IsNullable);
+        => new ColumnExpression(Name, TableAlias, Column, Type, typeMapping, IsNullable);
 
     /// <inheritdoc />
     public override Expression Quote()

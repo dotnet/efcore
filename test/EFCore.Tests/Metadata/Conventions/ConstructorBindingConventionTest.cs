@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ConstructorBindingConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_bind_parameterless_constructor()
     {
         var constructorBinding = GetBinding<BlogParameterless>();
@@ -28,7 +28,7 @@ public class ConstructorBindingConventionTest
 
     private class BlogParameterless : Blog;
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_parameterless_constructor_if_no_services()
     {
         var constructorBinding = GetBinding<BlogSeveralNoServices>();
@@ -61,7 +61,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_least_parameters_if_no_services()
     {
         var constructorBinding = GetBinding<BlogSeveral>();
@@ -96,7 +96,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_zero_scalars_one_service()
     {
         var constructorBinding = GetBinding<BlogOneService>();
@@ -147,7 +147,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_least_scalars_one_service()
     {
         var constructorBinding = GetBinding<BlogSeveralOneService>();
@@ -199,7 +199,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_zero_scalars_two_services()
     {
         var constructorBinding = GetBinding<BlogTwoServices>();
@@ -283,7 +283,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_least_scalars_two_services()
     {
         var constructorBinding = GetBinding<BlogSeveralTwoServices>();
@@ -360,7 +360,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_two_constructors_with_same_number_of_parameters_could_be_used()
         => Assert.Equal(
             CoreStrings.ConstructorConflict(
@@ -368,7 +368,7 @@ public class ConstructorBindingConventionTest
                 "BlogConflict(string, Guid?)"),
             Assert.Throws<InvalidOperationException>(() => GetBinding<BlogConflict>()).Message);
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_if_explicit_binding_has_been_set()
     {
         var constructorBinding = GetBinding<BlogConflict>(e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
@@ -409,7 +409,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Resolves_properties_with_different_kinds_of_name()
     {
         var constructorBinding = GetBinding<BlogSpanner>();
@@ -464,7 +464,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_partial_set_of_parameters_that_resolve()
     {
         var constructorBinding = GetBinding<BlogWeirdScience>();
@@ -488,7 +488,7 @@ public class ConstructorBindingConventionTest
     private class BlogWeirdScience(string content, int follows) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_context()
     {
         var constructorBinding = GetBinding<BlogWithContext>();
@@ -516,7 +516,7 @@ public class ConstructorBindingConventionTest
     private class BlogWithContext(int id, DbContext context) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_context_typed()
     {
         var constructorBinding = GetBinding<BlogWithTypedContext>();
@@ -540,7 +540,7 @@ public class ConstructorBindingConventionTest
     private class BlogWithTypedContext(TypedContext context) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_ILazyLoader()
     {
         var constructorBinding = GetBinding<BlogWithLazyLoader>();
@@ -564,7 +564,7 @@ public class ConstructorBindingConventionTest
     private class BlogWithLazyLoader(ILazyLoader loader) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_delegate_parameter_called_lazyLoader()
     {
         var constructorBinding = GetBinding<BlogWithLazyLoaderMethod>();
@@ -588,7 +588,7 @@ public class ConstructorBindingConventionTest
     private class BlogWithLazyLoaderMethod(Action<object, string> lazyLoader) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Binds_to_IEntityType()
     {
         var constructorBinding = GetBinding<BlogWithEntityType>();
@@ -611,7 +611,7 @@ public class ConstructorBindingConventionTest
     private class BlogWithEntityType(IEntityType entityType) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_bind_to_delegate_parameter_not_called_lazyLoader()
     {
         var constructorBinding = GetBinding<BlogWithOtherMethod>();
@@ -638,7 +638,7 @@ public class ConstructorBindingConventionTest
 
     private class TypedContext : DbContext;
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_no_usable_constructor()
     {
         var constructors = new[]
@@ -678,7 +678,7 @@ public class ConstructorBindingConventionTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_no_usable_constructor_due_to_bad_type()
         => Assert.Equal(
             CoreStrings.ConstructorNotFound(
@@ -693,7 +693,7 @@ public class ConstructorBindingConventionTest
     private class BlogBadType(Guid shadow, int id) : Blog;
 #pragma warning restore CS9113
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_in_validation_if_field_not_found()
     {
         using var context = new NoFieldContext();

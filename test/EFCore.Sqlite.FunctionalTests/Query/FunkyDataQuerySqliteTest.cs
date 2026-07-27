@@ -29,10 +29,6 @@ WHERE instr("f"."FirstName", @s) > 0 OR "f"."LastName" LIKE @s_startswith ESCAPE
 """);
     }
 
-    protected override QueryAsserter CreateQueryAsserter(FunkyDataQuerySqliteFixture fixture)
-        => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
-
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

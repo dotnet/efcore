@@ -375,14 +375,14 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 && !(conditionalExpression.Type.IsNullableValueType()
                     && visitedMemberExpression.Member.Name is nameof(Nullable<>.HasValue) or nameof(Nullable<>.Value)))
             {
-                var isLeftNullConstant = IsNullConstant(binaryTest.Left);
-                var isRightNullConstant = IsNullConstant(binaryTest.Right);
+                var isLeftNullConstant = binaryTest.Left is ConstantExpression { Value: null };
+                var isRightNullConstant = binaryTest.Right is ConstantExpression { Value: null };
 
                 if (isLeftNullConstant != isRightNullConstant
                     && ((binaryTest.NodeType == ExpressionType.Equal
-                            && IsNullConstant(conditionalExpression.IfTrue))
+                            && conditionalExpression.IfTrue is ConstantExpression { Value: null })
                         || (binaryTest.NodeType == ExpressionType.NotEqual
-                            && IsNullConstant(conditionalExpression.IfFalse))))
+                            && conditionalExpression.IfFalse is ConstantExpression { Value: null })))
                 {
                     var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
                         ? conditionalExpression.IfFalse
@@ -418,7 +418,4 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         return null;
     }
-
-    private static bool IsNullConstant(Expression expression)
-        => expression is ConstantExpression { Value: null };
 }

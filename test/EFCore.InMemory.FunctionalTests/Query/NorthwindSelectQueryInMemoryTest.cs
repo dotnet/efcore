@@ -11,4 +11,7 @@ public class NorthwindSelectQueryInMemoryTest(NorthwindQueryInMemoryFixture<Noop
         => Assert.ThrowsAsync<NotImplementedException>(() => base
             .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
                 async));
+
+    public override Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+        => AssertTranslationFailed(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
 }

@@ -43,8 +43,15 @@ public class DateTimeToStringConverter : StringDateTimeConverter<DateTime, strin
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static DateTimeToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTime), typeof(string), i => new DateTimeToStringConverter(i.MappingHints), DefaultHints);
+        = new(typeof(DateTime), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateTimeToStringConverter(i.MappingHints),
+            DefaultHints);
 }

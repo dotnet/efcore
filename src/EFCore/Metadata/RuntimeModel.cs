@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
 {
-    private bool _skipDetectChanges;
-    private Guid _modelId;
+    private readonly bool _skipDetectChanges;
+    private readonly Guid _modelId;
     private readonly Dictionary<string, RuntimeEntityType> _entityTypes;
     private readonly Dictionary<Type, List<RuntimeEntityType>> _sharedTypes = new();
     private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations;
@@ -39,19 +39,6 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
     private readonly ConcurrentDictionary<Type, RuntimeEntityType> _adHocEntityTypes = new();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal, Obsolete("Use a constructor with parameters")]
-    public RuntimeModel()
-    {
-        _entityTypes = new Dictionary<string, RuntimeEntityType>(StringComparer.Ordinal);
-        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>();
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,24 +56,8 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         _skipDetectChanges = skipDetectChanges;
         _modelId = modelId;
         _entityTypes = new Dictionary<string, RuntimeEntityType>(entityTypeCount, StringComparer.Ordinal);
-        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>(typeConfigurationCount);
+        _typeConfigurations = [with(typeConfigurationCount)];
     }
-
-    /// <summary>
-    ///     Sets a value indicating whether <see cref="ChangeTracker.DetectChanges" /> should be called.
-    /// </summary>
-    [Obsolete("This is set in the constructor now")]
-    public virtual void SetSkipDetectChanges(bool skipDetectChanges)
-        => _skipDetectChanges = skipDetectChanges;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal, Obsolete("This is set in the constructor now")]
-    public virtual Guid ModelId { get => _modelId; set => _modelId = value; }
 
     /// <summary>
     ///     Adds an entity type with a defining navigation to the model.

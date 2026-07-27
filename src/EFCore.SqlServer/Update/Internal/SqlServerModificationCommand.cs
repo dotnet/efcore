@@ -43,17 +43,34 @@ public class SqlServerModificationCommand : ModificationCommand
     /// </summary>
     protected override void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
-        // TODO: Move more of this logic to the type mapping. Issue #34432
+        // TODO: Move more of this logic to the type mapping. Issue #38036
         var property = parameters.Property!;
         var mapping = property.GetRelationalTypeMapping();
         var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         var value = parameters.Value;
 
-        // JSON-compatible non-string values (bool, numeric, null) are sent directly as non-string parameters.
-        if (value is null
-            || ((propertyProviderClrType == typeof(bool)
+        // A null value is sent as a NULL parameter. JSON_MODIFY rejects parameters whose type can't be implicitly
+        // converted to nvarchar (e.g. date/time types), even when the value itself is null. Since the value is null the
+        // parameter type doesn't affect the result, so keep the property's mapping only for types that JSON_MODIFY
+        // accepts directly (string, bool, numeric) and otherwise fall back to a string mapping.
+        if (value is null)
+        {
+            parameters = parameters with
+            {
+                TypeMapping = propertyProviderClrType == typeof(string)
+                    || propertyProviderClrType == typeof(bool)
+                    || propertyProviderClrType.IsNumeric()
+                        ? mapping
+                        : SqlServerStringTypeMapping.UnicodeDefault
+            };
+
+            return;
+        }
+
+        // JSON-compatible non-string values (bool, numeric) are sent directly as non-string parameters.
+        if ((propertyProviderClrType == typeof(bool)
                 || propertyProviderClrType.IsNumeric())
-                && !property.IsPrimitiveCollection))
+            && !property.IsPrimitiveCollection)
         {
             parameters = parameters with { Value = value, TypeMapping = mapping };
 

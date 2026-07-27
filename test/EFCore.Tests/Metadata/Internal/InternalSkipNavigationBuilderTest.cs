@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class InternalSkipNavigationBuilderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_SkipNavigation()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -26,7 +26,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Empty(skipNavigation.DeclaringEntityType.GetSkipNavigations());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_HasField()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -62,7 +62,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_HasField_string()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -98,7 +98,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(metadata.GetFieldInfoConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_PropertyAccessMode()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -137,7 +137,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(metadata.GetPropertyAccessModeConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_ForeignKey()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -180,7 +180,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(metadata.GetForeignKeyConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_Inverse()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -226,7 +226,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(inverse.GetInverseConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_IsEagerLoaded()
     {
         var builder = CreateInternalSkipNavigationBuilder();
@@ -262,7 +262,7 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_only_override_lower_or_equal_source_LazyLoadingEnabled()
     {
         var builder = CreateInternalSkipNavigationBuilder();

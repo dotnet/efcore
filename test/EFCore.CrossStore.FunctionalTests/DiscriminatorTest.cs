@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DiscriminatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_save_entities_with_discriminators()
     {
         using (var context = new Context4285())
@@ -29,7 +29,7 @@ public class DiscriminatorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_entities_with_int_discriminators()
     {
         using (var context = new Context4285())

@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ConfigPatternsInMemoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_save_and_query_with_implicit_services_and_OnConfiguring()
     {
         using (var context = new ImplicitServicesAndConfigBlogContext())
@@ -39,7 +39,7 @@ public class ConfigPatternsInMemoryTest
                 .UseInMemoryDatabase(nameof(ImplicitServicesAndConfigBlogContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_and_query_with_implicit_services_and_explicit_config()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -72,7 +72,7 @@ public class ConfigPatternsInMemoryTest
         public DbSet<Blog> Blogs { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_and_query_with_explicit_services_and_OnConfiguring()
     {
         var services = new ServiceCollection();
@@ -113,7 +113,7 @@ public class ConfigPatternsInMemoryTest
                 .UseInMemoryDatabase(nameof(ExplicitServicesImplicitConfigBlogContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_save_and_query_with_explicit_services_and_explicit_config()
     {
         var optionsBuilder = new DbContextOptionsBuilder()
@@ -149,7 +149,7 @@ public class ConfigPatternsInMemoryTest
         public DbSet<Blog> Blogs { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_attempt_to_use_context_with_no_store()
         => Assert.Equal(
             CoreStrings.NoProviderConfigured,
@@ -170,7 +170,7 @@ public class ConfigPatternsInMemoryTest
             => optionsBuilder.EnableServiceProviderCaching(false);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_on_attempt_to_use_store_with_no_store_services()
     {
         var serviceCollection = new ServiceCollection();
@@ -201,7 +201,7 @@ public class ConfigPatternsInMemoryTest
                 .UseInternalServiceProvider(_serviceProvider);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_context_with_DI_container_and_have_it_injected()
     {
         var services = new ServiceCollection();
@@ -257,7 +257,7 @@ public class ConfigPatternsInMemoryTest
         public DbSet<Blog> Blogs { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_context_and_configuration_with_DI_container_and_have_both_injected()
     {
         var optionsBuilder = new DbContextOptionsBuilder()
@@ -307,7 +307,7 @@ public class ConfigPatternsInMemoryTest
         public DbSet<Blog> Blogs { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_configuration_with_DI_container_and_have_it_injected()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -363,7 +363,7 @@ public class ConfigPatternsInMemoryTest
         public DbSet<Blog> Blogs { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_inject_different_configurations_into_different_contexts()
     {
         var blogOptions = new DbContextOptionsBuilder<InjectDifferentConfigurationsBlogContext>()

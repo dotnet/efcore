@@ -3,7 +3,9 @@
 
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -79,6 +81,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo MaterializeJsonEntityCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonEntityCollection))!;
 
+        private static readonly MethodInfo ReadPrimitiveCollectionFromJsonMethodInfo
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ReadPrimitiveCollectionFromJson))!;
+
         private static readonly MethodInfo InverseCollectionFixupMethod
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InverseCollectionFixup))!;
 
@@ -128,16 +133,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             throw new InvalidOperationException(message, exception);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue ThrowExtractJsonPropertyException<TValue>(Exception exception, IProperty property)
-        {
-            var entityType = property.DeclaringType.DisplayName();
-            var propertyName = property.Name;
-
-            throw new InvalidOperationException(
+        [EntityFrameworkInternal]
+        public static TValue ThrowExtractJsonPropertyException<TValue>(Exception exception, string entityType, string propertyName) => throw new InvalidOperationException(
                 RelationalStrings.JsonErrorExtractingJsonProperty(entityType, propertyName),
                 exception);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -180,6 +186,30 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                         }
                     }
+                }
+            }
+            else if (trackingQuery
+                && entity is null
+                && relatedEntity != null
+                && navigation is INavigation { ForeignKey.IsOwnership: true })
+            {
+                // The owner entity is null (e.g. due to a null required property), but the owned entity was
+                // materialized and tracked. Detach it and log a warning about inconsistent data.
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var entry = queryContext.TryGetEntry(relatedEntity);
+                if (entry != null)
+                {
+                    entry.SetEntityState(EntityState.Detached);
+                }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                if (queryContext.QueryLogger.ShouldLogSensitiveData())
+                {
+                    queryContext.QueryLogger.InconsistentOwnedDataSensitive(navigation, entry);
+                }
+                else
+                {
+                    queryContext.QueryLogger.InconsistentOwnedDataWarning(navigation);
                 }
             }
         }
@@ -953,6 +983,45 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             dataReaderContext.HasNext = false;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static object? ReadPrimitiveCollectionFromJson(
+            string? json,
+            JsonValueReaderWriter readerWriter,
+            bool nullable,
+            string propertyName)
+        {
+            if (json == null)
+            {
+                return null;
+            }
+
+            // Preserve the diagnostics of the converter path (JsonValueReaderWriter.FromJsonString), which rejects
+            // empty/whitespace JSON strings before tokenizing.
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                throw new InvalidOperationException(CoreStrings.EmptyJsonString);
+            }
+
+            // A primitive collection mapped to a column is read by parsing the JSON string with the collection's
+            // JsonValueReaderWriter (which doesn't handle the 'null' token). The stored value may be a JSON 'null'
+            // token (e.g. the literal string "null"), which must be materialized as null for an optional property,
+            // rather than letting the reader/writer throw. See issues #34881 and #38454.
+            var manager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
+            manager.MoveNext();
+
+            return manager.CurrentReader.TokenType == JsonTokenType.Null
+                ? nullable
+                    ? null
+                    : throw new InvalidOperationException(RelationalStrings.NullValueInRequiredJsonProperty(propertyName))
+                : readerWriter.FromJson(ref manager);
         }
 
         /// <summary>

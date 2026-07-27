@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.AspNetCore.OData.Extensions;
@@ -40,7 +40,7 @@ public class NorthwindODataQueryTestFixture : NorthwindQuerySqlServerFixture<Noo
 
     public IHttpClientFactory ClientFactory { get; }
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (_selfHostServer != null)
         {

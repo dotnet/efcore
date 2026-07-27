@@ -12,22 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
+public class SqlExpressionSimplifyingExpressionVisitor(
+    ISqlExpressionFactory _sqlExpressionFactory,
+    bool _useRelationalNulls) : ExpressionVisitor
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly bool _useRelationalNulls;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlExpressionSimplifyingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-        _useRelationalNulls = useRelationalNulls;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,50 +25,65 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+        switch (extensionExpression)
         {
-            var newQueryExpression = Visit(shapedQueryExpression.QueryExpression);
-            var newShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
-
-            return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
-        }
-
-        if (extensionExpression is SqlBinaryExpression sqlBinaryExpression)
-        {
-            return SimplifySqlBinary(sqlBinaryExpression);
-        }
-
-        if (extensionExpression is SqlFunctionExpression sqlFunctionExpression
-            && IsCoalesce(sqlFunctionExpression))
-        {
-            var arguments = new List<SqlExpression>();
-            foreach (var argument in sqlFunctionExpression.Arguments!)
+            case ShapedQueryExpression shapedQueryExpression:
             {
-                var newArgument = (SqlExpression)Visit(argument);
-                if (IsCoalesce(newArgument))
-                {
-                    arguments.AddRange(((SqlFunctionExpression)newArgument).Arguments!);
-                }
-                else
-                {
-                    arguments.Add(newArgument);
-                }
+                var newQueryExpression = Visit(shapedQueryExpression.QueryExpression);
+                var newShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
+
+                return shapedQueryExpression.Update(newQueryExpression, newShaperExpression);
             }
 
-            var distinctArguments = arguments.Distinct().ToList();
+            // Strip no-op SQL CASTs: when the Convert's store type matches the operand's store type,
+            // the CAST would be a no-op in SQL (e.g. CAST(column AS nvarchar(max)) when column is already nvarchar(max)).
+            // This can occur in various situations, e.g. when a C# implicit conversion exists for a value-converted type
+            // (see #36247 for more context on why we don't refrain from creating the CAST node during translation).
+            // However, CASTs around constants are preserved: they serve to explicitly type the constant in SQL
+            // (e.g. CAST(100 AS int)), which is important for some queries.
+            case SqlUnaryExpression
+            {
+                OperatorType: ExpressionType.Convert,
+                Operand: not SqlConstantExpression and { TypeMapping.StoreType: var operandStoreType } operand,
+                TypeMapping.StoreType: var convertStoreType
+            } when convertStoreType == operandStoreType:
+                return Visit(operand);
 
-            return distinctArguments.Count > 1
-                ? new SqlFunctionExpression(
-                    sqlFunctionExpression.Name,
-                    distinctArguments,
-                    sqlFunctionExpression.IsNullable,
-                    argumentsPropagateNullability: distinctArguments.Select(_ => false).ToArray(),
-                    sqlFunctionExpression.Type,
-                    sqlFunctionExpression.TypeMapping)
-                : distinctArguments[0];
+            case SqlBinaryExpression sqlBinaryExpression:
+                return SimplifySqlBinary(sqlBinaryExpression);
+
+            case SqlFunctionExpression sqlFunctionExpression when IsCoalesce(sqlFunctionExpression):
+            {
+                var arguments = new List<SqlExpression>();
+                foreach (var argument in sqlFunctionExpression.Arguments!)
+                {
+                    var newArgument = (SqlExpression)Visit(argument);
+                    if (IsCoalesce(newArgument))
+                    {
+                        arguments.AddRange(((SqlFunctionExpression)newArgument).Arguments!);
+                    }
+                    else
+                    {
+                        arguments.Add(newArgument);
+                    }
+                }
+
+                var distinctArguments = arguments.Distinct().ToList();
+
+                return distinctArguments.Count > 1
+                    ? new SqlFunctionExpression(
+                        sqlFunctionExpression.Name,
+                        distinctArguments,
+                        sqlFunctionExpression.IsNullable,
+                        argumentsPropagateNullability: distinctArguments.Select(_ => false).ToArray(),
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping)
+                    : distinctArguments[0];
+            }
+
+            default:
+                return base.VisitExtension(extensionExpression);
         }
-
-        return base.VisitExtension(extensionExpression);
 
         static bool IsCoalesce(SqlExpression sqlExpression)
             => sqlExpression is SqlFunctionExpression { IsBuiltIn: true, Instance: null } sqlFunctionExpression

@@ -78,7 +78,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </summary>
     /// <param name="mappingInfo">The mapping info to use to create the mapping.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none could be found.</returns>
-    protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+    protected override RelationalTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
         => throw new InvalidOperationException(
             RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
@@ -226,21 +226,31 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         Type modelType,
         Type? providerType,
         CoreTypeMapping? elementMapping)
-        => TryFindJsonCollectionMapping(
-            info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
-            ? (RelationalTypeMapping)FindMapping(
-                    info.WithConverter(
-                        // Note that the converter info is only used temporarily here and never creates an instance.
-                        new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
-                .WithComposedConverter(
-                    (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
-                    comparer,
-                    comparer,
-                    elementMapping,
-                    collectionReaderWriter)
-            : null;
+    {
+        if (!TryFindJsonCollectionMapping(
+                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter))
+        {
+            return null;
+        }
+
+        var mapping = FindMapping(
+            info.WithConverter(
+                // Note that the converter info is only used temporarily here and never creates an instance.
+                new ValueConverterInfo(modelType, typeof(string), _ => null!)));
+        if (mapping is null)
+        {
+            return null;
+        }
+
+        return (RelationalTypeMapping)mapping.WithComposedConverter(
+            (ValueConverter)Activator.CreateInstance(
+                typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                    modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
+            comparer,
+            comparer,
+            elementMapping,
+            collectionReaderWriter);
+    }
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.
@@ -250,7 +260,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </remarks>
     /// <param name="property">The property.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    public override CoreTypeMapping? FindMapping(IProperty property)
+    public override RelationalTypeMapping? FindMapping(IProperty property)
     {
         var principals = property.GetPrincipals();
 
@@ -291,7 +301,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// </remarks>
     /// <param name="elementType">The collection element.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    public override CoreTypeMapping? FindMapping(IElementType elementType)
+    public override RelationalTypeMapping? FindMapping(IElementType elementType)
     {
         var storeTypeName = (string?)elementType[RelationalAnnotationNames.StoreType];
         var isFixedLength = elementType.IsFixedLength();

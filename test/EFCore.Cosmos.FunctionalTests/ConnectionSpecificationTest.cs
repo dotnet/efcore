@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -7,10 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
+[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class ConnectionSpecificationTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_specify_connection_string_in_OnConfiguring()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
@@ -32,7 +32,7 @@ public class ConnectionSpecificationTest
         public DbSet<Blog> Blogs { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Throws_for_missing_connection_info()
     {
         using var context = new NoConnectionContext();

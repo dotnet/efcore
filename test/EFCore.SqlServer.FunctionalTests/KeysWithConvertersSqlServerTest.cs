@@ -15,6 +15,6 @@ public class KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerTest.Key
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlServer(b => b.MinBatchSize(1));
+            => base.AddOptions(builder).UseSqlServer(b => b.MinBatchSize(1));
     }
 }

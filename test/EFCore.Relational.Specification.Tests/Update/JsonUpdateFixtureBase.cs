@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
+
 public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryContext>
 {
     protected override string StoreName
@@ -14,6 +15,9 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
 
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

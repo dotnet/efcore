@@ -15,7 +15,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
-    [ConditionalFact] // Issue #1093
+    [Fact] // Issue #1093
     public virtual void Include_with_null_FKs_and_nullable_PK()
     {
         using var context = CreateContext();
@@ -41,7 +41,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Skip(2).Select(e => e.Principal.Id));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Include_with_non_nullable_FKs_and_nullable_PK()
     {
         using var context = CreateContext();
@@ -63,7 +63,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
             results.Select(e => e.Principal.Id).ToArray());
     }
 
-    [ConditionalFact] // Issue #1093
+    [Fact] // Issue #1093
     public virtual void Include_with_null_fKs_and_non_nullable_PK()
     {
         using var context = CreateContext();
@@ -88,7 +88,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
         Assert.Null(results[5].Principal);
     }
 
-    [ConditionalFact] // Issue #1093
+    [Fact] // Issue #1093
     public virtual void Include_with_null_fKs_and_nullable_PK()
     {
         using var context = CreateContext();
@@ -113,7 +113,7 @@ public abstract class NullKeysTestBase<TFixture>(TFixture fixture) : IClassFixtu
         Assert.Null(results[5].Principal);
     }
 
-    [ConditionalFact] // Issue #1292
+    [Fact] // Issue #1292
     public virtual void One_to_one_self_ref_Include()
     {
         using var context = CreateContext();

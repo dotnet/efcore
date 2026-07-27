@@ -40,12 +40,6 @@ public class RelationalParameterProcessor : ExpressionVisitor
     private ParametersCacheDecorator _parametersDecorator;
     private ParameterNameGenerator _parameterNameGenerator;
 
-    private static readonly bool UseOldBehavior37189 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37189", out var enabled37189) && enabled37189;
-
-    private static readonly bool UseOldBehavior37409 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37409", out var enabled37409) && enabled37409;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -126,7 +120,7 @@ public class RelationalParameterProcessor : ExpressionVisitor
             && (existingTypeMapping.Converter is null && typeMapping.Converter is null
                 || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)))
         {
-            return UseOldBehavior37189 ? parameter : existingParameter;
+            return existingParameter;
         }
 
         var uniquifiedName = UniquifyParameterName(parameter.Name);
@@ -208,28 +202,15 @@ public class RelationalParameterProcessor : ExpressionVisitor
         }
 
         object ProcessConstantValue(object? existingConstantValue)
-        {
-            if (existingConstantValue is DbParameter dbParameter)
-            {
-                return ProcessDbParameter(dbParameter);
-            }
-
-            return _sqlExpressionFactory.Constant(
-                existingConstantValue,
-                existingConstantValue?.GetType() ?? typeof(object),
-                _typeMappingSource.GetMappingForValue(existingConstantValue));
-        }
+            => existingConstantValue is DbParameter dbParameter
+                ? ProcessDbParameter(dbParameter)
+                : _sqlExpressionFactory.Constant(
+                    existingConstantValue,
+                    existingConstantValue?.GetType() ?? typeof(object),
+                    _typeMappingSource.GetMappingForValue(existingConstantValue));
 
         RawRelationalParameter ProcessDbParameter(DbParameter dbParameter)
         {
-            if (UseOldBehavior37409)
-            {
-                dbParameter.ParameterName = string.IsNullOrEmpty(dbParameter.ParameterName)
-                    ? GenerateNewParameterName()
-                    : UniquifyParameterName(dbParameter.ParameterName);
-                return new RawRelationalParameter(dbParameter.ParameterName, dbParameter);
-            }
-
             _processedDbParameters ??= [];
 
             // In some situations, we duplicate SQL tree fragments (e.g. in GroupBy translation).

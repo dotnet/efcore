@@ -12,42 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteObjectToStringTranslator : IMethodCallTranslator
+public class SqliteObjectToStringTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly HashSet<Type> TypeMapping =
-    [
-        typeof(bool),
-        typeof(byte),
-        typeof(byte[]),
-        typeof(char),
-        typeof(DateOnly),
-        typeof(DateTime),
-        typeof(DateTimeOffset),
-        typeof(decimal),
-        typeof(double),
-        typeof(float),
-        typeof(Guid),
-        typeof(int),
-        typeof(long),
-        typeof(sbyte),
-        typeof(short),
-        typeof(TimeOnly),
-        typeof(TimeSpan),
-        typeof(uint),
-        typeof(ushort)
-    ];
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteObjectToStringTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -74,34 +40,54 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         {
             if (instance is not ColumnExpression { IsNullable: false })
             {
-                return _sqlExpressionFactory.Case(
+                return sqlExpressionFactory.Case(
                     instance,
                     [
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Constant(false),
-                            _sqlExpressionFactory.Constant(false.ToString())),
+                            sqlExpressionFactory.Constant(false),
+                            sqlExpressionFactory.Constant(false.ToString())),
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Constant(true),
-                            _sqlExpressionFactory.Constant(true.ToString()))
+                            sqlExpressionFactory.Constant(true),
+                            sqlExpressionFactory.Constant(true.ToString()))
                     ],
-                    _sqlExpressionFactory.Constant(string.Empty));
+                    sqlExpressionFactory.Constant(string.Empty));
             }
 
-            return _sqlExpressionFactory.Case(
+            return sqlExpressionFactory.Case(
                 [
                     new CaseWhenClause(
                         instance,
-                        _sqlExpressionFactory.Constant(true.ToString()))
+                        sqlExpressionFactory.Constant(true.ToString()))
                 ],
-                _sqlExpressionFactory.Constant(false.ToString()));
+                sqlExpressionFactory.Constant(false.ToString()));
         }
 
         // Enums are handled by EnumMethodTranslator
 
-        return TypeMapping.Contains(instance.Type)
-            ? _sqlExpressionFactory.Coalesce(
-                _sqlExpressionFactory.Convert(instance, typeof(string)),
-                _sqlExpressionFactory.Constant(string.Empty))
+        return IsSupportedType(instance.Type)
+            ? sqlExpressionFactory.Coalesce(
+                sqlExpressionFactory.Convert(instance, typeof(string)),
+                sqlExpressionFactory.Constant(string.Empty))
             : null;
     }
+
+    private static bool IsSupportedType(Type type)
+        => type == typeof(byte)
+            || type == typeof(byte[])
+            || type == typeof(char)
+            || type == typeof(DateOnly)
+            || type == typeof(DateTime)
+            || type == typeof(DateTimeOffset)
+            || type == typeof(decimal)
+            || type == typeof(double)
+            || type == typeof(float)
+            || type == typeof(Guid)
+            || type == typeof(int)
+            || type == typeof(long)
+            || type == typeof(sbyte)
+            || type == typeof(short)
+            || type == typeof(TimeOnly)
+            || type == typeof(TimeSpan)
+            || type == typeof(uint)
+            || type == typeof(ushort);
 }

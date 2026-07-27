@@ -13,107 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo IndexOfMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string)])!;
-
-    private static readonly MethodInfo IndexOfMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char)])!;
-
-    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionString
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string), typeof(int)])!;
-
-    private static readonly MethodInfo IndexOfMethodInfoWithStartingPositionChar
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(char), typeof(int)])!;
-
-    private static readonly MethodInfo ReplaceMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(string), typeof(string)])!;
-
-    private static readonly MethodInfo ReplaceMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(char), typeof(char)])!;
-
-    private static readonly MethodInfo ContainsMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
-
-    private static readonly MethodInfo ContainsMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char)])!;
-
-    private static readonly MethodInfo ContainsWithStringComparisonMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string), typeof(StringComparison)])!;
-
-    private static readonly MethodInfo ContainsWithStringComparisonMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char), typeof(StringComparison)])!;
-
-    private static readonly MethodInfo StartsWithMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
-
-    private static readonly MethodInfo StartsWithMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(char)])!;
-
-    private static readonly MethodInfo StartsWithWithStringComparisonMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string), typeof(StringComparison)])!;
-
-    private static readonly MethodInfo EndsWithMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
-
-    private static readonly MethodInfo EndsWithMethodInfoChar
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(char)])!;
-
-    private static readonly MethodInfo EndsWithWithStringComparisonMethodInfoString
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string), typeof(StringComparison)])!;
-
-    private static readonly MethodInfo ToLowerMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.ToLower), [])!;
-
-    private static readonly MethodInfo ToUpperMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.ToUpper), [])!;
-
-    private static readonly MethodInfo TrimStartMethodInfoWithoutArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [])!;
-
-    private static readonly MethodInfo TrimEndMethodInfoWithoutArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [])!;
-
-    private static readonly MethodInfo TrimMethodInfoWithoutArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.Trim), [])!;
-
-    private static readonly MethodInfo TrimStartMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char[])])!;
-
-    private static readonly MethodInfo TrimEndMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char[])])!;
-
-    private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Trim), [typeof(char[])])!;
-
-    private static readonly MethodInfo SubstringMethodInfoWithOneArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int)])!;
-
-    private static readonly MethodInfo SubstringMethodInfoWithTwoArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int), typeof(int)])!;
-
-    private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.FirstOrDefault)
-            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
-
-    private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
-        = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.LastOrDefault)
-            && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
-
-    private static readonly MethodInfo StringConcatWithTwoArguments =
-        typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(string), typeof(string)])!;
-
-    private static readonly MethodInfo StringConcatWithThreeArguments =
-        typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(string), typeof(string), typeof(string)])!;
-
-    private static readonly MethodInfo StringConcatWithFourArguments =
-        typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(string), typeof(string), typeof(string), typeof(string)])!;
-
-    private static readonly MethodInfo StringComparisonWithComparisonTypeArgumentInstance
-        = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(StringComparison)])!;
-
-    private static readonly MethodInfo StringComparisonWithComparisonTypeArgumentStatic
-        = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(string), typeof(StringComparison)])!;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -126,210 +25,135 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (instance != null)
+        if (method.DeclaringType == typeof(string))
         {
-            if (IndexOfMethodInfoString.Equals(method) || IndexOfMethodInfoChar.Equals(method))
+            if (instance is not null)
             {
-                return TranslateSystemFunction("INDEX_OF", typeof(int), instance, arguments[0]);
-            }
-
-            if (IndexOfMethodInfoWithStartingPositionString.Equals(method) || IndexOfMethodInfoWithStartingPositionChar.Equals(method))
-            {
-                return TranslateSystemFunction("INDEX_OF", typeof(int), instance, arguments[0], arguments[1]);
-            }
-
-            if (ReplaceMethodInfoString.Equals(method) || ReplaceMethodInfoChar.Equals(method))
-            {
-                return TranslateSystemFunction("REPLACE", method.ReturnType, instance, arguments[0], arguments[1]);
-            }
-
-            if (ContainsMethodInfoString.Equals(method) || ContainsMethodInfoChar.Equals(method))
-            {
-                return TranslateSystemFunction("CONTAINS", typeof(bool), instance, arguments[0]);
-            }
-
-            if (ContainsWithStringComparisonMethodInfoString.Equals(method) || ContainsWithStringComparisonMethodInfoChar.Equals(method))
-            {
-                if (arguments[1] is SqlConstantExpression { Value: StringComparison comparisonType })
+                return method.Name switch
                 {
-                    return comparisonType switch
+                    nameof(string.IndexOf) when arguments is [var arg]
+                        => TranslateSystemFunction("INDEX_OF", typeof(int), instance, arg),
+                    nameof(string.IndexOf) when arguments is [var arg, var startIndex]
+                        => TranslateSystemFunction("INDEX_OF", typeof(int), instance, arg, startIndex),
+                    nameof(string.Replace) when arguments is [var oldValue, var newValue]
+                        => TranslateSystemFunction("REPLACE", method.ReturnType, instance, oldValue, newValue),
+                    nameof(string.Contains) when arguments is [var arg]
+                        => TranslateSystemFunction("CONTAINS", typeof(bool), instance, arg),
+                    nameof(string.Contains) when arguments is [var arg, SqlConstantExpression { Value: StringComparison comparisonType }]
+                        => comparisonType switch
+                        {
+                            StringComparison.Ordinal
+                                => TranslateSystemFunction("CONTAINS", typeof(bool), instance, arg, sqlExpressionFactory.Constant(false)),
+                            StringComparison.OrdinalIgnoreCase
+                                => TranslateSystemFunction("CONTAINS", typeof(bool), instance, arg, sqlExpressionFactory.Constant(true)),
+                            _ => null
+                        },
+                    nameof(string.StartsWith) when arguments is [var arg] && arg.Type is { } t && (t == typeof(string) || t == typeof(char))
+                        => TranslateSystemFunction("STARTSWITH", typeof(bool), instance, arg),
+                    nameof(string.StartsWith) when arguments is [var arg, SqlConstantExpression { Value: StringComparison comparisonType }]
+                        && arg.Type == typeof(string)
+                        => comparisonType switch
+                        {
+                            StringComparison.Ordinal
+                                => TranslateSystemFunction(
+                                    "STARTSWITH", typeof(bool), instance, arg, sqlExpressionFactory.Constant(false)),
+                            StringComparison.OrdinalIgnoreCase
+                                => TranslateSystemFunction(
+                                    "STARTSWITH", typeof(bool), instance, arg, sqlExpressionFactory.Constant(true)),
+                            _ => null
+                        },
+                    nameof(string.EndsWith) when arguments is [var arg] && arg.Type is { } t && (t == typeof(string) || t == typeof(char))
+                        => TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arg),
+                    nameof(string.EndsWith) when arguments is [var arg, SqlConstantExpression { Value: StringComparison comparisonType }]
+                        && arg.Type == typeof(string)
+                        => comparisonType switch
+                        {
+                            StringComparison.Ordinal
+                                => TranslateSystemFunction(
+                                    "ENDSWITH", typeof(bool), instance, arg, sqlExpressionFactory.Constant(false)),
+                            StringComparison.OrdinalIgnoreCase
+                                => TranslateSystemFunction(
+                                    "ENDSWITH", typeof(bool), instance, arg, sqlExpressionFactory.Constant(true)),
+                            _ => null
+                        },
+                    nameof(string.ToLower) when arguments is []
+                        => TranslateSystemFunction("LOWER", method.ReturnType, instance),
+                    nameof(string.ToUpper) when arguments is []
+                        => TranslateSystemFunction("UPPER", method.ReturnType, instance),
+                    nameof(string.TrimStart) when arguments is []
+                        => TranslateSystemFunction("LTRIM", method.ReturnType, instance),
+                    nameof(string.TrimStart) when arguments is [SqlConstantExpression { Value: char[] { Length: 0 } }]
+                        // Cosmos DB LTRIM does not take arguments
+                        => TranslateSystemFunction("LTRIM", method.ReturnType, instance),
+                    nameof(string.TrimEnd) when arguments is []
+                        => TranslateSystemFunction("RTRIM", method.ReturnType, instance),
+                    nameof(string.TrimEnd) when arguments is [SqlConstantExpression { Value: char[] { Length: 0 } }]
+                        // Cosmos DB RTRIM does not take arguments
+                        => TranslateSystemFunction("RTRIM", method.ReturnType, instance),
+                    nameof(string.Trim) when arguments is []
+                        => TranslateSystemFunction("TRIM", method.ReturnType, instance),
+                    nameof(string.Trim) when arguments is [SqlConstantExpression { Value: char[] { Length: 0 } }]
+                        // Cosmos DB TRIM does not take arguments
+                        => TranslateSystemFunction("TRIM", method.ReturnType, instance),
+                    nameof(string.Substring) when arguments is [var startIndex]
+                        => TranslateSystemFunction(
+                            "SUBSTRING",
+                            method.ReturnType,
+                            instance,
+                            startIndex,
+                            TranslateSystemFunction("LENGTH", typeof(int), instance)),
+                    nameof(string.Substring) when arguments is [SqlConstantExpression { Value: 0 }, var length]
+                        => TranslateSystemFunction("LEFT", method.ReturnType, instance, length),
+                    nameof(string.Substring) when arguments is [var startIndex, var length]
+                        => TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, startIndex, length),
+                    nameof(string.Equals) when arguments is [var other, SqlConstantExpression
+                        {
+                            Value: StringComparison comparisonTypeValue
+                                and (StringComparison.OrdinalIgnoreCase or StringComparison.Ordinal)
+                        }]
+                        => comparisonTypeValue == StringComparison.OrdinalIgnoreCase
+                            ? TranslateSystemFunction(
+                                "STRINGEQUALS", typeof(bool), instance, other, sqlExpressionFactory.Constant(true))
+                            : TranslateSystemFunction("STRINGEQUALS", typeof(bool), instance, other),
+                    _ => null
+                };
+            }
+
+            // Static string methods
+            return method.Name switch
+            {
+                nameof(string.Concat) when arguments is [var a, var b]
+                    => sqlExpressionFactory.Add(a, b),
+                nameof(string.Concat) when arguments is [var a, var b, var c]
+                    => sqlExpressionFactory.Add(a, sqlExpressionFactory.Add(b, c)),
+                nameof(string.Concat) when arguments is [var a, var b, var c, var d]
+                    => sqlExpressionFactory.Add(a, sqlExpressionFactory.Add(b, sqlExpressionFactory.Add(c, d))),
+                nameof(string.Equals) when arguments is [var left, var right, SqlConstantExpression
                     {
-                        StringComparison.Ordinal
-                            => TranslateSystemFunction(
-                                "CONTAINS", typeof(bool), instance, arguments[0], sqlExpressionFactory.Constant(false)),
-                        StringComparison.OrdinalIgnoreCase
-                            => TranslateSystemFunction(
-                                "CONTAINS", typeof(bool), instance, arguments[0], sqlExpressionFactory.Constant(true)),
-
-                        _ => null // TODO: Explicit translation error for unsupported StringComparison argument (depends on #26410)
-                    };
-                }
-
-                // TODO: Explicit translation error for non-constant StringComparison argument (depends on #26410)
-                return null;
-            }
-
-            if (StartsWithMethodInfoString.Equals(method) || StartsWithMethodInfoChar.Equals(method))
-            {
-                return TranslateSystemFunction("STARTSWITH", typeof(bool), instance, arguments[0]);
-            }
-
-            if (StartsWithWithStringComparisonMethodInfoString.Equals(method))
-            {
-                if (arguments[1] is SqlConstantExpression { Value: StringComparison comparisonType })
-                {
-                    return comparisonType switch
-                    {
-                        StringComparison.Ordinal
-                            => TranslateSystemFunction(
-                                "STARTSWITH", typeof(bool), instance, arguments[0], sqlExpressionFactory.Constant(false)),
-                        StringComparison.OrdinalIgnoreCase
-                            => TranslateSystemFunction(
-                                "STARTSWITH", typeof(bool), instance, arguments[0], sqlExpressionFactory.Constant(true)),
-
-                        _ => null // TODO: Explicit translation error for unsupported StringComparison argument (depends on #26410)
-                    };
-                }
-
-                // TODO: Explicit translation error for non-constant StringComparison argument (depends on #26410)
-                return null;
-            }
-
-            if (EndsWithMethodInfoString.Equals(method) || EndsWithMethodInfoChar.Equals(method))
-            {
-                return TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arguments[0]);
-            }
-
-            if (EndsWithWithStringComparisonMethodInfoString.Equals(method))
-            {
-                if (arguments[1] is SqlConstantExpression { Value: StringComparison comparisonType })
-                {
-                    return comparisonType switch
-                    {
-                        StringComparison.Ordinal
-                            => TranslateSystemFunction(
-                                "ENDSWITH", typeof(bool), instance, arguments[0], sqlExpressionFactory.Constant(false)),
-                        StringComparison.OrdinalIgnoreCase
-                            => TranslateSystemFunction(
-                                "ENDSWITH", typeof(bool), instance, arguments[0], sqlExpressionFactory.Constant(true)),
-
-                        _ => null // TODO: Explicit translation error for unsupported StringComparison argument (depends on #26410)
-                    };
-                }
-
-                // TODO: Explicit translation error for non-constant StringComparison argument (depends on #26410)
-                return null;
-            }
-
-            if (ToLowerMethodInfo.Equals(method))
-            {
-                return TranslateSystemFunction("LOWER", method.ReturnType, instance);
-            }
-
-            if (ToUpperMethodInfo.Equals(method))
-            {
-                return TranslateSystemFunction("UPPER", method.ReturnType, instance);
-            }
-
-            if (TrimStartMethodInfoWithoutArgs.Equals(method)
-                || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
-                    // Cosmos DB LTRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
-            {
-                return TranslateSystemFunction("LTRIM", method.ReturnType, instance);
-            }
-
-            if (TrimEndMethodInfoWithoutArgs.Equals(method)
-                || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
-                    // Cosmos DB RTRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
-            {
-                return TranslateSystemFunction("RTRIM", method.ReturnType, instance);
-            }
-
-            if (TrimMethodInfoWithoutArgs.Equals(method)
-                || (TrimMethodInfoWithCharArrayArg.Equals(method)
-                    // Cosmos DB TRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
-            {
-                return TranslateSystemFunction("TRIM", method.ReturnType, instance);
-            }
-
-            if (SubstringMethodInfoWithOneArg.Equals(method))
-            {
-                return TranslateSystemFunction(
-                    "SUBSTRING",
-                    method.ReturnType,
-                    instance,
-                    arguments[0],
-                    TranslateSystemFunction("LENGTH", typeof(int), instance));
-            }
-
-            if (SubstringMethodInfoWithTwoArgs.Equals(method))
-            {
-                return arguments[0] is SqlConstantExpression { Value: 0 }
-                    ? TranslateSystemFunction("LEFT", method.ReturnType, instance, arguments[1])
-                    : TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, arguments[0], arguments[1]);
-            }
-        }
-
-        if (FirstOrDefaultMethodInfoWithoutArgs.Equals(method))
-        {
-            return TranslateSystemFunction("LEFT", typeof(char), arguments[0], sqlExpressionFactory.Constant(1));
-        }
-
-        if (LastOrDefaultMethodInfoWithoutArgs.Equals(method))
-        {
-            return TranslateSystemFunction("RIGHT", typeof(char), arguments[0], sqlExpressionFactory.Constant(1));
-        }
-
-        if (StringConcatWithTwoArguments.Equals(method))
-        {
-            return sqlExpressionFactory.Add(
-                arguments[0],
-                arguments[1]);
-        }
-
-        if (StringConcatWithThreeArguments.Equals(method))
-        {
-            return sqlExpressionFactory.Add(
-                arguments[0],
-                sqlExpressionFactory.Add(
-                    arguments[1],
-                    arguments[2]));
-        }
-
-        if (StringConcatWithFourArguments.Equals(method))
-        {
-            return sqlExpressionFactory.Add(
-                arguments[0],
-                sqlExpressionFactory.Add(
-                    arguments[1],
-                    sqlExpressionFactory.Add(
-                        arguments[2],
-                        arguments[3])));
-        }
-
-        if (StringComparisonWithComparisonTypeArgumentInstance.Equals(method)
-            || StringComparisonWithComparisonTypeArgumentStatic.Equals(method))
-        {
-            var comparisonTypeArgument = arguments[^1];
-
-            if (comparisonTypeArgument is SqlConstantExpression
-                {
-                    Value: StringComparison comparisonTypeArgumentValue and (StringComparison.OrdinalIgnoreCase or StringComparison.Ordinal)
-                })
-            {
-                return StringComparisonWithComparisonTypeArgumentInstance.Equals(method)
-                    ? comparisonTypeArgumentValue == StringComparison.OrdinalIgnoreCase
+                        Value: StringComparison comparisonTypeValue
+                            and (StringComparison.OrdinalIgnoreCase or StringComparison.Ordinal)
+                    }]
+                    => comparisonTypeValue == StringComparison.OrdinalIgnoreCase
                         ? TranslateSystemFunction(
-                            "STRINGEQUALS", typeof(bool), instance!, arguments[0], sqlExpressionFactory.Constant(true))
-                        : TranslateSystemFunction("STRINGEQUALS", typeof(bool), instance!, arguments[0])
-                    : comparisonTypeArgumentValue == StringComparison.OrdinalIgnoreCase
-                        ? TranslateSystemFunction(
-                            "STRINGEQUALS", typeof(bool), arguments[0], arguments[1], sqlExpressionFactory.Constant(true))
-                        : TranslateSystemFunction("STRINGEQUALS", typeof(bool), arguments[0], arguments[1]);
-            }
+                            "STRINGEQUALS", typeof(bool), left, right, sqlExpressionFactory.Constant(true))
+                        : TranslateSystemFunction("STRINGEQUALS", typeof(bool), left, right),
+                _ => null
+            };
+        }
+
+        if (method.DeclaringType == typeof(Enumerable)
+            && method.IsGenericMethod
+            && method.GetGenericArguments()[0] == typeof(char)
+            && arguments is [var source])
+        {
+            return method.Name switch
+            {
+                nameof(Enumerable.FirstOrDefault)
+                    => TranslateSystemFunction("LEFT", typeof(char), source, sqlExpressionFactory.Constant(1)),
+                nameof(Enumerable.LastOrDefault)
+                    => TranslateSystemFunction("RIGHT", typeof(char), source, sqlExpressionFactory.Constant(1)),
+                _ => null
+            };
         }
 
         return null;

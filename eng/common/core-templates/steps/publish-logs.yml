@@ -33,7 +33,6 @@ steps:
       '$(publishing-dnceng-devdiv-code-r-build-re)'
       '$(dn-bot-all-orgs-artifact-feeds-rw)'
       '$(akams-client-id)'
-      '$(dn-bot-all-orgs-build-rw-code-rw)'
       '$(System.AccessToken)'
       ${{parameters.CustomSensitiveDataList}}
   continueOnError: true
@@ -58,3 +57,4 @@ steps:
       condition: always()
       retryCountOnTaskFailure: 10 # for any files being locked
       isProduction: false # logs are non-production artifacts
+

@@ -1,12 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
@@ -19,32 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 /// </summary>
 public static class CosmosLoggerExtensions
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static void SyncNotSupported(
-        this IDiagnosticsLogger<DbLoggerCategory.Database> diagnostics)
-    {
-        var definition = CosmosResources.LogSyncNotSupported(diagnostics);
-
-        if (diagnostics.ShouldLog(definition))
-        {
-            definition.Log(diagnostics);
-        }
-
-        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = new EventData(
-                definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
-
-            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-        }
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -79,7 +50,7 @@ public static class CosmosLoggerExtensions
                 ExecutingSqlQuery,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, (object?)p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -193,7 +164,7 @@ public static class CosmosLoggerExtensions
                 activityId,
                 containerId,
                 partitionKeyValue,
-                cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                cosmosSqlQuery.Parameters.Select(p => (p.Name, (object?)p.ToJsonString())).ToList(),
                 cosmosSqlQuery.Query,
                 diagnostics.ShouldLogSensitiveData());
 
@@ -271,11 +242,70 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
             p.LogSensitiveData ? p.ResourceId : "?",
+            p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void ExecutedTransactionalBatch(this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+        TimeSpan elapsed,
+        double requestCharge,
+        string activityId,
+        string containerId,
+        PartitionKey partitionKeyValue,
+        string documentIds)
+    {
+        var definition = CosmosResources.LogExecutedTransactionalBatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+            definition.Log(
+                diagnostics,
+                elapsed.TotalMilliseconds.ToString(),
+                requestCharge.ToString(),
+                activityId,
+                containerId,
+                logSensitiveData ? partitionKeyValue.ToString() : "?",
+                logSensitiveData ? documentIds : "?");
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new CosmosTransactionalBatchExecutedEventData(
+                definition,
+                ExecutedTransactionalBatch,
+                elapsed,
+                requestCharge,
+                activityId,
+                containerId,
+                partitionKeyValue,
+                documentIds,
+                diagnostics.ShouldLogSensitiveData());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ExecutedTransactionalBatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string, string, string, string?>)definition;
+        var p = (CosmosTransactionalBatchExecutedEventData)payload;
+        return d.GenerateMessage(
+            p.Elapsed.TotalMilliseconds.ToString(),
+            p.RequestCharge.ToString(),
+            p.ActivityId,
+            p.ContainerId,
+            p.LogSensitiveData ? p.DocumentIds.ToString() : "?",
             p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
     }
 
@@ -331,7 +361,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -391,7 +421,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -451,7 +481,7 @@ public static class CosmosLoggerExtensions
         var d = (EventDefinition<string, string, string, string, string, string?>)definition;
         var p = (CosmosItemCommandExecutedEventData)payload;
         return d.GenerateMessage(
-            p.Elapsed.Milliseconds.ToString(),
+            p.Elapsed.TotalMilliseconds.ToString(),
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
@@ -514,24 +544,66 @@ public static class CosmosLoggerExtensions
         }
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void BulkExecutionWithTransactionalBatch(
+        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+        AutoTransactionBehavior autoTransactionBehavior)
+    {
+        var definition = CosmosResources.LogBulkExecutionWithTransactionalBatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new AutoTransactionBehaviorEventData(
+                definition,
+                (d, b) => ((EventDefinition)d).GenerateMessage(),
+                autoTransactionBehavior);
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
     private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
-        => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
+        => parameters.Count == 0
+            ? ""
+            : string.Join(
+                ", ",
+                parameters.Select(p => FormatParameter(p.Name, shouldLogParameterValues ? (string)p.Value! : null)));
 
     private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
         => parameters.Count == 0
             ? ""
-            : string.Join(", ", parameters.Select(e => FormatParameter(e, shouldLogParameterValues)));
+            : string.Join(
+                ", ",
+                parameters.Select(p => FormatParameter(p.Name, shouldLogParameterValues ? p.ToJsonString() : null)));
 
-    private static string FormatParameter(SqlParameter parameter, bool shouldLogParameterValue)
+    private static string FormatParameter(string name, string? jsonString)
     {
         var builder = new StringBuilder();
         builder
-            .Append(parameter.Name)
+            .Append(name)
             .Append('=');
 
-        if (shouldLogParameterValue)
+        if (jsonString is not null)
         {
-            FormatParameterValue(builder, parameter.Value);
+            if ("null".Equals(jsonString, StringComparison.OrdinalIgnoreCase))
+            {
+                builder.Append("null");
+            }
+            else
+            {
+                builder.Append('\'');
+                builder.Append(jsonString.Trim('"'));
+                builder.Append('\'');
+            }
         }
         else
         {
@@ -539,37 +611,5 @@ public static class CosmosLoggerExtensions
         }
 
         return builder.ToString();
-    }
-
-    private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
-    {
-        if (parameterValue == null)
-        {
-            builder.Append("null");
-            return;
-        }
-
-        builder.Append('\'');
-
-        switch (parameterValue)
-        {
-            case JToken jTokenValue:
-                builder.Append(jTokenValue.ToString(Formatting.None).Trim('"'));
-                break;
-            case DateTime dateTimeValue:
-                builder.Append(dateTimeValue.ToString("s"));
-                break;
-            case DateTimeOffset dateTimeOffsetValue:
-                builder.Append(dateTimeOffsetValue.ToString("o"));
-                break;
-            case byte[] binaryValue:
-                builder.AppendBytes(binaryValue);
-                break;
-            default:
-                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
-                break;
-        }
-
-        builder.Append('\'');
     }
 }

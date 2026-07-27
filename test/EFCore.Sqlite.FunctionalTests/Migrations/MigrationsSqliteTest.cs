@@ -42,7 +42,7 @@ CREATE TABLE "People" (
     -- Employer ID comment
     "EmployerId" INTEGER NOT NULL,
 
-    "SSN" TEXT COLLATE NOCASE NOT NULL,
+    "SSN" TEXT COLLATE "NOCASE" NOT NULL,
     CONSTRAINT "AK_People_SSN" UNIQUE ("SSN"),
     CONSTRAINT "CK_People_EmployerId" CHECK ("EmployerId" > 0),
     CONSTRAINT "FK_People_Employers_EmployerId" FOREIGN KEY ("EmployerId") REFERENCES "Employers" ("Id") ON DELETE CASCADE
@@ -530,7 +530,7 @@ PRAGMA foreign_keys = 1;
 
         AssertSql(
             """
-ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
+ALTER TABLE "People" ADD "Name" TEXT COLLATE "NOCASE" NULL;
 """);
     }
 
@@ -540,8 +540,8 @@ ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
 
         AssertSql(
             stored
-                ? """ALTER TABLE "People" ADD "Name" AS ('hello') STORED COLLATE NOCASE;"""
-                : """ALTER TABLE "People" ADD "Name" AS ('hello') COLLATE NOCASE;""");
+                ? """ALTER TABLE "People" ADD "Name" AS ('hello') STORED COLLATE "NOCASE";"""
+                : """ALTER TABLE "People" ADD "Name" AS ('hello') COLLATE "NOCASE";""");
     }
 
     public override async Task Add_column_with_check_constraint()
@@ -1037,7 +1037,7 @@ PRAGMA foreign_keys = 1;
         AssertSql(
             """
 CREATE TABLE "ef_temp_People" (
-    "Name" TEXT COLLATE NOCASE NULL
+    "Name" TEXT COLLATE "NOCASE" NULL
 );
 """,
             //
@@ -1091,6 +1091,41 @@ DROP TABLE "People";
             //
             """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_owned_entity_with_no_schema_to_regular_entity()
+    {
+        await base.Convert_owned_entity_with_no_schema_to_regular_entity();
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Owned" (
+    "EntityId" INTEGER NOT NULL CONSTRAINT "PK_Owned" PRIMARY KEY,
+    "Date" TEXT NOT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Owned" ("EntityId", "Date")
+SELECT "EntityId", "Date"
+FROM "Owned";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Owned";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Owned" RENAME TO "Owned";
 """,
             //
             """
@@ -1775,6 +1810,16 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Add_foreign_key_excluded_from_migrations()
+    {
+        await base.Add_foreign_key_excluded_from_migrations();
+
+        AssertSql(
+            """
+CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
+""");
+    }
+
     public override async Task Add_unique_constraint()
     {
         await base.Add_unique_constraint();
@@ -1990,7 +2035,7 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task ValueGeneratedOnAdd_on_properties()
     {
         await Test(
@@ -2097,7 +2142,7 @@ CREATE TABLE "Suppliers" (
             base.Multiop_rename_table_and_drop,
             SqliteStrings.InvalidMigrationOperation(nameof(DropPrimaryKeyOperation)));
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
         await base.Add_required_primitve_collection_to_existing_table();
@@ -2108,7 +2153,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
@@ -2119,7 +2164,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
@@ -2130,7 +2175,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
@@ -2141,7 +2186,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -2152,7 +2197,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_to_existing_table()
     {
         await base.Add_required_primitive_collection_to_existing_table();
@@ -2163,7 +2208,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
@@ -2174,7 +2219,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
@@ -2185,7 +2230,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
 
-    [ConditionalFact(Skip = "issue #33038")]
+    [Fact(Skip = "issue #33038")]
     public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
@@ -2196,7 +2241,7 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
@@ -2207,7 +2252,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Add_optional_primitive_collection_to_existing_table()
     {
         await base.Add_optional_primitive_collection_to_existing_table();
@@ -2218,7 +2263,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_required_primitive_collection()
     {
         await base.Create_table_with_required_primitive_collection();
@@ -2233,7 +2278,7 @@ CREATE TABLE "Customers" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public override async Task Create_table_with_optional_primitive_collection()
     {
         await base.Create_table_with_optional_primitive_collection();
@@ -2275,7 +2320,7 @@ CREATE TABLE "Customers" (
     protected override string NonDefaultCollation
         => "NOCASE";
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Replace_string_primary_key_with_autoincrement_identity()
     {
         await Test(
@@ -2299,7 +2344,7 @@ CREATE TABLE "Customers" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("Person", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });
@@ -2348,7 +2393,7 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter()
     {
         await Test(
@@ -2367,7 +2412,7 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("ProductWithStrongId", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });
@@ -2381,7 +2426,7 @@ CREATE TABLE "ProductWithStrongId" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_autoincrement_and_value_converter_by_convention()
     {
         await Test(
@@ -2400,7 +2445,7 @@ CREATE TABLE "ProductWithStrongId" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("ProductWithStrongId", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });
@@ -2414,7 +2459,7 @@ CREATE TABLE "ProductWithStrongId" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Create_table_with_composite_primary_key_ignores_autoincrement()
     {
         await Test(
@@ -2432,7 +2477,7 @@ CREATE TABLE "ProductWithStrongId" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("CompositeEntity", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var id1Column = Assert.Single(table.Columns, c => c.Name == "Id1");
                 Assert.False(id1Column.IsNullable);
                 var id2Column = Assert.Single(table.Columns, c => c.Name == "Id2");
@@ -2449,7 +2494,7 @@ CREATE TABLE "CompositeEntity" (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Alter_column_remove_autoincrement()
     {
         await Test(
@@ -2474,7 +2519,7 @@ CREATE TABLE "CompositeEntity" (
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("Product", table.Name);
                 Assert.Equal(2, table.Columns.Count());
-                
+
                 var idColumn = Assert.Single(table.Columns, c => c.Name == "Id");
                 Assert.False(idColumn.IsNullable);
             });

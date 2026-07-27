@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage;
 
 public class CosmosTransactionManagerTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task CosmosTransactionManager_does_not_support_transactions()
     {
         var transactionManager = new CosmosTransactionManager();

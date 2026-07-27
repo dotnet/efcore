@@ -68,7 +68,7 @@ public class DateOnlyTranslationsCosmosTest : DateOnlyTranslationsTestBase<Basic
     public override Task ToDateTime_with_complex_TimeOnly()
         => AssertTranslationFailed(() => base.ToDateTime_with_complex_TimeOnly());
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

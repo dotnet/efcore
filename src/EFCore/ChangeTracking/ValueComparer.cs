@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -25,12 +26,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
 {
-    private static readonly MethodInfo DoubleEqualsMethodInfo
-        = typeof(double).GetRuntimeMethod(nameof(double.Equals), [typeof(double)])!;
-
-    private static readonly MethodInfo FloatEqualsMethodInfo
-        = typeof(float).GetRuntimeMethod(nameof(float.Equals), [typeof(float)])!;
-
     internal static readonly MethodInfo EqualityComparerHashCodeMethod
         = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), [typeof(object)])!;
 
@@ -255,6 +250,9 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     implements it. This is usually used when byte arrays act as keys.
     /// </param>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
+    [RequiresDynamicCode(
+        "Creating a default value comparer for the given type requires calling MakeGenericMethod, which is not compatible with NativeAOT. "
+        + "Use the generic CreateDefault<T> overload instead.")]
     public static ValueComparer CreateDefault(
         [DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicMethods
@@ -291,20 +289,26 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         // The equality operator returns false for NaNs, but the Equals methods returns true
         if (nonNullableType == typeof(double))
         {
-            return new DefaultDoubleValueComparer(favorStructuralComparisons);
+            return favorStructuralComparisons
+                ? DefaultDoubleValueComparer.DefaultWithStructuralComparisons
+                : DefaultDoubleValueComparer.Default;
         }
 
         if (nonNullableType == typeof(float))
         {
-            return new DefaultFloatValueComparer(favorStructuralComparisons);
+            return favorStructuralComparisons
+                ? DefaultFloatValueComparer.DefaultWithStructuralComparisons
+                : DefaultFloatValueComparer.Default;
         }
 
         if (nonNullableType == typeof(DateTimeOffset))
         {
-            return new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons);
+            return favorStructuralComparisons
+                ? DefaultDateTimeOffsetValueComparer.DefaultWithStructuralComparisons
+                : DefaultDateTimeOffsetValueComparer.Default;
         }
 
-        return nonNullableType.IsInteger()
+        if (nonNullableType.IsInteger()
             || nonNullableType == typeof(decimal)
             || nonNullableType == typeof(bool)
             || nonNullableType == typeof(string)
@@ -312,68 +316,15 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             || nonNullableType == typeof(DateOnly)
             || nonNullableType == typeof(Guid)
             || nonNullableType == typeof(TimeSpan)
-            || nonNullableType == typeof(TimeOnly)
-                ? new DefaultValueComparer<T>(favorStructuralComparisons)
-                : new ValueComparer<T>(favorStructuralComparisons);
-    }
-
-    // PublicMethods is required to preserve e.g. GetHashCode
-    internal class DefaultValueComparer
-    <[DynamicallyAccessedMembers(
-            DynamicallyAccessedMemberTypes.PublicMethods
-            | DynamicallyAccessedMemberTypes.PublicProperties)]
-        T> : ValueComparer<T>
-    {
-        public DefaultValueComparer(bool favorStructuralComparisons)
-            : base(favorStructuralComparisons)
+            || nonNullableType == typeof(TimeOnly))
         {
+            return favorStructuralComparisons
+                ? DefaultValueComparer<T>.DefaultWithStructuralComparisons
+                : DefaultValueComparer<T>.Default;
         }
 
-        public DefaultValueComparer(Expression<Func<T?, T?, bool>> equalsExpression, bool favorStructuralComparisons)
-            : base(
-                equalsExpression,
-                CreateDefaultHashCodeExpression(favorStructuralComparisons),
-                CreateDefaultSnapshotExpression(favorStructuralComparisons))
-        {
-        }
-
-        public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Equal(leftExpression, rightExpression);
-
-        public override Expression ExtractSnapshotBody(Expression expression)
-            => expression;
-
-        public override object? Snapshot(object? instance)
-            => instance;
-
-        public override T Snapshot(T instance)
-            => instance;
-    }
-
-    internal sealed class DefaultDoubleValueComparer(bool favorStructuralComparisons)
-        : DefaultValueComparer<double>((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
-    {
-        public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Call(leftExpression, DoubleEqualsMethodInfo, rightExpression);
-    }
-
-    internal sealed class DefaultFloatValueComparer(bool favorStructuralComparisons)
-        : DefaultValueComparer<float>((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
-    {
-        public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Call(leftExpression, FloatEqualsMethodInfo, rightExpression);
-    }
-
-    internal sealed class DefaultDateTimeOffsetValueComparer(bool favorStructuralComparisons)
-        : DefaultValueComparer<DateTimeOffset>((v1, v2) => v1.EqualsExact(v2), favorStructuralComparisons)
-    {
-        private static readonly MethodInfo EqualsExactMethodInfo
-            = typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.EqualsExact), [typeof(DateTimeOffset)])!;
-
-        // In .NET, two DateTimeOffset instances are considered equal if they represent the same point in time but with different
-        // time zone offsets. This comparer uses EqualsExact, which considers such DateTimeOffset as non-equal.
-
-        public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Call(leftExpression, EqualsExactMethodInfo, rightExpression);
+        return favorStructuralComparisons
+            ? ValueComparer<T>.DefaultWithStructuralComparisons
+            : ValueComparer<T>.Default;
     }
 }

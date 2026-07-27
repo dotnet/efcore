@@ -45,11 +45,12 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
     private static readonly MethodInfo EntityTypeToTableMethodInfo
         = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
-            nameof(RelationalEntityTypeBuilderExtensions.ToTable), [typeof(EntityTypeBuilder), typeof(string)])!;
+            nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+            [typeof(EntityTypeBuilder), typeof(string), typeof(Action<TableBuilder>)])!;
 
-    private static readonly MethodInfo EntityTypeIsMemoryOptimizedMethodInfo
-        = typeof(SqlServerEntityTypeBuilderExtensions).GetRuntimeMethod(
-            nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), [typeof(EntityTypeBuilder), typeof(bool)])!;
+    private static readonly MethodInfo TableIsMemoryOptimizedMethodInfo
+        = typeof(SqlServerTableBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerTableBuilderExtensions.IsMemoryOptimized), [typeof(TableBuilder), typeof(bool)])!;
 
     private static readonly MethodInfo PropertyIsSparseMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
@@ -147,6 +148,22 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
             nameof(TemporalPeriodPropertyBuilder.HasColumnName), [typeof(string)])!;
 
+    private static readonly MethodInfo TemporalPropertyIsHiddenMethodInfo
+        = typeof(TemporalPeriodPropertyBuilder).GetRuntimeMethod(
+            nameof(TemporalPeriodPropertyBuilder.IsHidden), [typeof(bool)])!;
+
+    private static readonly MethodInfo ModelHasFullTextCatalogMethodInfo
+        = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerModelBuilderExtensions.HasFullTextCatalog), [typeof(ModelBuilder), typeof(string)])!;
+
+    private static readonly MethodInfo FullTextCatalogIsDefaultMethodInfo
+        = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextCatalogBuilder.IsDefault), [typeof(bool)])!;
+
+    private static readonly MethodInfo FullTextCatalogIsAccentSensitiveMethodInfo
+        = typeof(SqlServerFullTextCatalogBuilder).GetRuntimeMethod(
+            nameof(SqlServerFullTextCatalogBuilder.IsAccentSensitive), [typeof(bool)])!;
+
     #endregion MethodInfos
 
     /// <summary>
@@ -191,6 +208,28 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             annotations,
             SqlServerAnnotationNames.PerformanceLevelSql, ModelHasPerformanceLevelSqlMethodInfo,
             fragments);
+
+        if (annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs, out var catalogsAnnotation)
+            && catalogsAnnotation.Value is Dictionary<string, SqlServerFullTextCatalog> catalogs)
+        {
+            foreach (var catalog in catalogs.Values.OrderBy(c => c.Name))
+            {
+                var catalogCall = new MethodCallCodeFragment(ModelHasFullTextCatalogMethodInfo, catalog.Name);
+
+                if (catalog.IsDefault)
+                {
+                    catalogCall = catalogCall.Chain(new MethodCallCodeFragment(FullTextCatalogIsDefaultMethodInfo));
+                }
+
+                if (!catalog.IsAccentSensitive)
+                {
+                    catalogCall = catalogCall.Chain(
+                        new MethodCallCodeFragment(FullTextCatalogIsAccentSensitiveMethodInfo, false));
+                }
+
+                fragments.Add(catalogCall);
+            }
+        }
 
         return fragments;
     }
@@ -269,6 +308,11 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                     : new MethodCallCodeFragment(methodInfo, false));
         }
 
+        // The HIDDEN flag on temporal period columns is emitted via the temporal table builder
+        // (ttb.HasPeriodStart(...).IsHidden(false)), so remove it here to avoid also emitting it as a
+        // raw property-level annotation in the snapshot.
+        annotations.Remove(SqlServerAnnotationNames.IsHidden);
+
         return fragments;
     }
 
@@ -286,10 +330,15 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
         if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.MemoryOptimized) is { } isMemoryOptimized)
         {
+            // ToTable(tb => tb.IsMemoryOptimized())
             fragments.Add(
-                isMemoryOptimized
-                    ? new MethodCallCodeFragment(EntityTypeIsMemoryOptimizedMethodInfo)
-                    : new MethodCallCodeFragment(EntityTypeIsMemoryOptimizedMethodInfo, false));
+                new MethodCallCodeFragment(
+                    EntityTypeToTableMethodInfo,
+                    new NestedClosureCodeFragment(
+                        "tb",
+                        isMemoryOptimized
+                            ? new MethodCallCodeFragment(TableIsMemoryOptimizedMethodInfo)
+                            : new MethodCallCodeFragment(TableIsMemoryOptimizedMethodInfo, false))));
         }
 
         if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)
@@ -304,7 +353,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 : null;
 
             // for the RevEng path, we avoid adding period properties to the entity
-            // because we don't want code for them to be generated - they need to be in shadow state
+            // because we don't want code for them to be generated - they are created as shadow properties
             // so if we don't find property on the entity, we know it's this scenario
             // and in that case period column name is actually the same as the period property name annotation
             // since in RevEng scenario there can't be custom column mapping
@@ -331,19 +380,17 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         : new MethodCallCodeFragment(TemporalTableUseHistoryTableMethodInfo2, historyTableName));
             }
 
-            // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart")
+            // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart").IsHidden(false)
+            // IsHidden(false) is only chained when the user explicitly configured the column visible —
+            // the default is HIDDEN, so omitting matches the legacy snapshot output.
             temporalTableBuilderCalls.Add(
-                periodStartColumnName != null
-                    ? new MethodCallCodeFragment(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName)
-                        .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
-                    : new MethodCallCodeFragment(TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName));
+                BuildPeriodPropertyCall(
+                    TemporalTableHasPeriodStartMethodInfo, periodStartPropertyName, periodStartColumnName, periodStartProperty));
 
-            // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd")
+            // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd").IsHidden(false)
             temporalTableBuilderCalls.Add(
-                periodEndColumnName != null
-                    ? new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName)
-                        .Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodEndColumnName))
-                    : new MethodCallCodeFragment(TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName));
+                BuildPeriodPropertyCall(
+                    TemporalTableHasPeriodEndMethodInfo, periodEndPropertyName, periodEndColumnName, periodEndProperty));
 
             // ToTable(tb => tb.IsTemporal(ttb => { ... }))
             var toTemporalTableCall = new MethodCallCodeFragment(
@@ -366,6 +413,27 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         }
 
         return fragments;
+
+        static MethodCallCodeFragment BuildPeriodPropertyCall(
+            MethodInfo hasPeriodMethod,
+            string? periodPropertyName,
+            string? periodColumnName,
+            IReadOnlyProperty? periodProperty)
+        {
+            var call = new MethodCallCodeFragment(hasPeriodMethod, periodPropertyName);
+
+            if (periodColumnName != null)
+            {
+                call = call.Chain(new MethodCallCodeFragment(TemporalPropertyHasColumnNameMethodInfo, periodColumnName));
+            }
+
+            if (periodProperty?.IsHidden() == false)
+            {
+                call = call.Chain(new MethodCallCodeFragment(TemporalPropertyIsHiddenMethodInfo, false));
+            }
+
+            return call;
+        }
     }
 
     /// <summary>
@@ -432,10 +500,14 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 ? new MethodCallCodeFragment(IndexIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(IndexIsClusteredMethodInfo),
 
-            SqlServerAnnotationNames.Include => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.SortInTempDb => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.DataCompression => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.Include
+                => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.FillFactor
+                => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.SortInTempDb
+                => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.DataCompression
+                => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
 
             _ => null
         };

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
-    [ConditionalTheory, InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges),
+    [Theory, InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.OnSaveChanges),
@@ -209,7 +209,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges),
@@ -417,7 +417,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Fk, CascadeTiming.OnSaveChanges),
@@ -518,7 +518,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges),
      InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges),
      InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges),
@@ -643,7 +643,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -731,7 +731,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -838,7 +838,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -927,7 +927,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -1031,7 +1031,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -1128,7 +1128,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
@@ -1229,7 +1229,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
      InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),

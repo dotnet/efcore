@@ -19,7 +19,7 @@ public abstract class TPTTableSplittingTestBase(NonSharedFixture fixture, ITestO
     public override Task ExecuteDelete_throws_for_table_sharing(bool async)
         => Task.CompletedTask;
 
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "TPTTableSplittingTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

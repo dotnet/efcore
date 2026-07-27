@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations;
 public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : AssociationsQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_associates()
         => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate == e.OptionalAssociate),
@@ -14,7 +14,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 .Where(e => e.RequiredAssociate.Equals(
                     e.OptionalAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_nested_associates()
         => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
@@ -22,7 +22,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
                     e.OptionalAssociate!.RequiredNestedAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Not_equals()
         => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate != e.OptionalAssociate),
@@ -30,11 +30,11 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 .Where(e => !e.RequiredAssociate.Equals(
                     e.OptionalAssociate))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Associate_with_inline_null()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate == null));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Associate_with_parameter_null()
     {
         AssociateType? related = null;
@@ -42,11 +42,11 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
         await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.OptionalAssociate == related));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nested_associate_with_inline_null()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == null));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nested_associate_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()
@@ -70,7 +70,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         Ints = new() { 1, 2, 3 }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_associate_with_parameter()
     {
         var nested = Fixture.Data.RootEntities.Single(e => e.Id == 1).RequiredAssociate.RequiredNestedAssociate;
@@ -82,7 +82,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                     .Equals(nested))); // TODO: Rewrite equality to Equals for the entire test suite for complex
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_nested_collections()
         => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection == e.OptionalAssociate!.NestedCollection),
@@ -91,7 +91,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 && e.RequiredAssociate.NestedCollection.SequenceEqual(
                     e.OptionalAssociate!.NestedCollection))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nested_collection_with_inline()
         => AssertQuery(
             ss => ss.Set<RootEntity>()
@@ -137,7 +137,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                         }
                     }))); // TODO: Rewrite equality to Equals for the entire test suite for complex
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Nested_collection_with_parameter()
     {
         var nestedCollection = new List<NestedAssociateType>
@@ -169,7 +169,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
 
     #region Contains
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Contains_with_inline()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
             e.RequiredAssociate.NestedCollection.Contains(
@@ -182,7 +182,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                     Ints = new() { 1, 2, 3 }
                 })));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_with_parameter()
     {
         var nested = new NestedAssociateType
@@ -197,7 +197,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
         await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection.Contains(nested)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_with_operators_composed_on_the_collection()
     {
         var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").RequiredAssociate.NestedCollection;
@@ -207,7 +207,7 @@ public abstract class AssociationsStructuralEqualityTestBase<TFixture>(TFixture 
                 e => e.RequiredAssociate.NestedCollection.Where(n => n.Int > collection[0].Int).Contains(collection[1])));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Contains_with_nested_and_composed_operators()
     {
         var collection = Fixture.Data.RootEntities.Single(e => e.Name == "Root3_With_different_values").AssociateCollection;

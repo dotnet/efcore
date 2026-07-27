@@ -31,7 +31,7 @@ public class ExecutionStrategyTest : IDisposable
                 return null;
             });
 
-    [ConditionalFact]
+    [Fact]
     public void GetNextDelay_returns_the_expected_default_sequence()
     {
         var strategy = new TestExecutionStrategy(Context);
@@ -63,7 +63,7 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void RetriesOnFailure_returns_true()
     {
         var mockExecutionStrategy = new TestExecutionStrategy(Context);
@@ -71,11 +71,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.True(mockExecutionStrategy.RetriesOnFailure);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_throws_for_an_existing_transaction()
         => Execute_throws_for_an_existing_transaction(e => e.Execute(() => { }));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_throws_for_an_existing_transaction()
         => Execute_throws_for_an_existing_transaction(e => e.Execute(() => 1));
 
@@ -92,11 +92,11 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_throws_for_an_ambient_transaction()
         => Execute_throws_for_an_ambient_transaction(e => e.Execute(() => { }));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_throws_for_an_ambient_transaction()
         => Execute_throws_for_an_ambient_transaction(e => e.Execute(() => 1));
 
@@ -113,11 +113,11 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_throws_for_an_enlisted_transaction()
         => Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => { }));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_throws_for_an_enlisted_transaction()
         => Execute_throws_for_an_enlisted_transaction(e => e.Execute(() => 1));
 
@@ -134,11 +134,11 @@ public class ExecutionStrategyTest : IDisposable
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_does_not_throw_when_invoked_twice()
         => Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_does_not_throw_when_invoked_twice()
         => Execute_does_not_throw_when_invoked_twice((e, f) => e.Execute(f));
 
@@ -169,11 +169,11 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
         => Execute_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
         => Execute_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f) => e.Execute(f));
 
@@ -213,11 +213,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.True(executed2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_doesnt_retry_if_successful()
         => Execute_doesnt_retry_if_successful((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_doesnt_retry_if_successful()
         => Execute_doesnt_retry_if_successful((e, f) => e.Execute(f));
 
@@ -229,11 +229,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(1, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_retries_until_successful()
         => Execute_retries_until_successful((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_retries_until_successful()
         => Execute_retries_until_successful((e, f) => e.Execute(f));
 
@@ -260,11 +260,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_retries_until_not_retriable_exception_is_thrown()
         => Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_retries_until_not_retriable_exception_is_thrown()
         => Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(f));
 
@@ -292,11 +292,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Action_retries_until_limit_is_reached()
         => Execute_retries_until_limit_is_reached((e, f) => e.Execute(() => f()));
 
-    [ConditionalFact]
+    [Fact]
     public void Execute_Func_retries_until_limit_is_reached()
         => Execute_retries_until_limit_is_reached((e, f) => e.Execute(f));
 
@@ -328,11 +328,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(3, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_throws_for_an_existing_transaction()
         => ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_throws_for_an_existing_transaction()
         => ExecuteAsync_throws_for_an_existing_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
 
@@ -348,11 +348,11 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Action_throws_for_an_ambient_transaction()
         => await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Func_throws_for_an_ambient_transaction()
         => await ExecuteAsync_throws_for_an_ambient_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
 
@@ -369,11 +369,11 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Action_throws_for_an_enlisted_transaction()
         => await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(() => (Task)Task.FromResult(1)));
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Func_throws_for_an_enlisted_transaction()
         => await ExecuteAsync_throws_for_an_enlisted_transaction(e => e.ExecuteAsync(ct => Task.FromResult(1), CancellationToken.None));
 
@@ -390,11 +390,11 @@ public class ExecutionStrategyTest : IDisposable
             .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_does_not_throw_when_invoked_twice()
         => ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_does_not_throw_when_invoked_twice()
         => ExecuteAsync_does_not_throw_when_invoked_twice((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -426,12 +426,12 @@ public class ExecutionStrategyTest : IDisposable
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Action_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
         => await ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f)
             => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_Func_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled()
         => await ExecuteAsync_does_not_throw_for_an_existing_transaction_if_RetryOnFailure_disabled((e, f)
             => e.ExecuteAsync(f, CancellationToken.None));
@@ -472,11 +472,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.True(executed2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_doesnt_retry_if_successful()
         => ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_doesnt_retry_if_successful()
         => ExecuteAsync_doesnt_retry_if_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -489,11 +489,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(1, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_retries_until_successful()
         => ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_retries_until_successful()
         => ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -521,12 +521,12 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_retries_until_not_retrieable_exception_is_thrown()
         => ExecuteAsync_retries_until_not_retrieable_exception_is_thrown((e, f) => e.ExecuteAsync(
             ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_retries_until_not_retrieable_exception_is_thrown()
         => ExecuteAsync_retries_until_not_retrieable_exception_is_thrown((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -554,11 +554,11 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(4, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Action_retries_until_limit_is_reached()
         => ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
 
-    [ConditionalFact]
+    [Fact]
     public Task ExecuteAsync_Func_retries_until_limit_is_reached()
         => ExecuteAsync_retries_until_limit_is_reached((e, f) => e.ExecuteAsync(f, CancellationToken.None));
 
@@ -591,7 +591,7 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(3, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ShouldRetryOn_does_not_get_null_on_DbUpdateConcurrencyException()
     {
         var executionStrategyMock = new TestExecutionStrategy(
@@ -616,7 +616,7 @@ public class ExecutionStrategyTest : IDisposable
         Assert.Equal(2, executionCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task ExecuteAsync_preserves_synchronization_context_across_retries()
     {
         var mockExecutionStrategy = new TestExecutionStrategy(Context, shouldRetryOn: e => e is DbUpdateConcurrencyException);

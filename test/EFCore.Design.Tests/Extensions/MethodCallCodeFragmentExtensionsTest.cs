@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Extensions.Namespace1;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 {
     public class MethodCallCodeFragmentExtensionsTest
     {
-        [ConditionalFact]
+        [Fact]
         public void GetRequiredUsings_works()
         {
             var methodCall = new MethodCallCodeFragment(

@@ -60,6 +60,17 @@ public interface IReadOnlyForeignKey : IReadOnlyAnnotatable
     bool IsRequired { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether the relationship is constrained, that is, backed by a guarantee
+    ///     (such as a database foreign key constraint) that a matching principal key exists for every set
+    ///     foreign key value. When <see langword="false" />, no database foreign key constraint is created and
+    ///     queries treat the relationship as optional even when the foreign key properties are non-nullable —
+    ///     the principal is loaded with a left join and is never assumed to exist. This does not affect change
+    ///     tracking: a required (<see cref="IsRequired" />) relationship still cascades or produces a conceptual
+    ///     null when severed, regardless of this value.
+    /// </summary>
+    bool IsConstrained { get; }
+
+    /// <summary>
     ///     Gets a value indicating whether the dependent entity is required.
     ///     If <see langword="true" />, the principal entity must always have a valid dependent entity assigned.
     /// </summary>
@@ -129,6 +140,17 @@ public interface IReadOnlyForeignKey : IReadOnlyAnnotatable
         return primaryKey == PrincipalKey
             && Properties.SequenceEqual(primaryKey.Properties);
     }
+
+    /// <summary>
+    ///     Returns a value indicating whether a set value for this foreign key is guaranteed to reference an
+    ///     existing principal — that is, the relationship is both required (<see cref="IsRequired" />) and
+    ///     constrained (<see cref="IsConstrained" />). Query consults this to decide whether a dependent-to-principal
+    ///     navigation can be expanded with an inner join (and whether such a join can be pruned); an unconstrained
+    ///     relationship is always treated as optional even when its foreign key properties are non-nullable.
+    /// </summary>
+    /// <returns><see langword="true" /> if the relationship is both required and constrained.</returns>
+    bool IsEffectivelyRequired()
+        => IsRequired && IsConstrained;
 
     /// <summary>
     ///     <para>

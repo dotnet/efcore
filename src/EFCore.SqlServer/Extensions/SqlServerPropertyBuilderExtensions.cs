@@ -814,6 +814,52 @@ public static class SqlServerPropertyBuilderExtensions
         => property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
 
     /// <summary>
+    ///     Configures whether the property's column is defined with the SQL Server <c>HIDDEN</c> flag, which excludes the
+    ///     column from <c>SELECT *</c> results. This applies to generated columns such as temporal table period columns.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="hidden">A value indicating whether the property's column is hidden.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public static IConventionPropertyBuilder? IsHidden(
+        this IConventionPropertyBuilder propertyBuilder,
+        bool? hidden,
+        bool fromDataAnnotation = false)
+    {
+        if (propertyBuilder.CanSetIsHidden(hidden, fromDataAnnotation))
+        {
+            propertyBuilder.Metadata.SetIsHidden(hidden, fromDataAnnotation);
+
+            return propertyBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the property's column can be configured with the SQL Server <c>HIDDEN</c> flag.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="hidden">A value indicating whether the property's column is hidden.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     <see langword="true" /> if the property's column can be configured with the <c>HIDDEN</c> flag.
+    /// </returns>
+    public static bool CanSetIsHidden(
+        this IConventionPropertyBuilder propertyBuilder,
+        bool? hidden,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.IsHidden, hidden, fromDataAnnotation);
+
+    /// <summary>
     ///     Configures the default value for the column that the property maps to when targeting SQL Server.
     /// </summary>
     /// <remarks>

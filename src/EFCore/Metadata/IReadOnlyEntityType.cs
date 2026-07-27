@@ -36,13 +36,6 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IReadOnlyCollection<IQueryFilter> GetDeclaredQueryFilters();
 
     /// <summary>
-    ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
-    /// </summary>
-    /// <returns>The LINQ expression filter.</returns>
-    [Obsolete("Use GetDeclaredQueryFilters() instead.")]
-    LambdaExpression? GetQueryFilter();
-
-    /// <summary>
     ///     Retrieves the query filter associated with the specified key.
     /// </summary>
     /// <param name="filterKey">The key identifying the query filter to retrieve.</param>
@@ -530,7 +523,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <param name="properties">The properties to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    IReadOnlyIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
+    IReadOnlyIndex? FindIndex(IReadOnlyList<IReadOnlyPropertyBase> properties);
 
     /// <summary>
     ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
@@ -547,7 +540,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
-    IReadOnlyIndex? FindIndex(IReadOnlyProperty property)
+    IReadOnlyIndex? FindIndex(IReadOnlyPropertyBase property)
         => FindIndex([property]);
 
     /// <summary>

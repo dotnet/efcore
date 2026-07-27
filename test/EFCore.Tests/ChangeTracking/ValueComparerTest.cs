@@ -13,7 +13,7 @@ public class ValueComparerTest
         public int Bar { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_comparer_with_wrong_type()
     {
         using var context = new InvalidDbContext();
@@ -32,7 +32,7 @@ public class ValueComparerTest
             => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>(new FakeValueComparer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_provider_comparer_with_wrong_type()
     {
         using var context = new InvalidProviderDbContext();
@@ -51,14 +51,24 @@ public class ValueComparerTest
             => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>((ValueComparer)null, new FakeValueComparer());
     }
 
-    [ConditionalTheory, InlineData(typeof(byte), (byte)1, (byte)2, 1), InlineData(typeof(ushort), (ushort)1, (ushort)2, 1),
-     InlineData(typeof(uint), (uint)1, (uint)2, 1), InlineData(typeof(ulong), (ulong)1, (ulong)2, null),
-     InlineData(typeof(sbyte), (sbyte)1, (sbyte)2, 1), InlineData(typeof(short), (short)1, (short)2, 1), InlineData(typeof(int), 1, 2, 1),
-     InlineData(typeof(long), (long)1, (long)2, null), InlineData(typeof(char), 'A', 'B', (int)'A'),
-     InlineData(typeof(string), "A", "B", null), InlineData(typeof(bool), true, false, null), InlineData(typeof(object), 1, "B", null),
-     InlineData(typeof(float), (float)1, (float)2, null), InlineData(typeof(double), (double)1, (double)2, null),
-     InlineData(typeof(JustAnEnum), JustAnEnum.A, JustAnEnum.B, null), InlineData(typeof(int[]), new[] { 1, 2 }, new[] { 3, 4 }, null)]
-    public ValueComparer Default_comparer_works_for_normal_types(Type type, object value1, object value2, int? hashCode)
+    [Theory,
+     InlineData(typeof(byte), (byte)1, (byte)2, 1), 
+     InlineData(typeof(ushort), (ushort)1, (ushort)2, 1),
+     InlineData(typeof(uint), (uint)1, (uint)2, 1), 
+     InlineData(typeof(ulong), (ulong)1, (ulong)2, null),
+     InlineData(typeof(sbyte), (sbyte)1, (sbyte)2, 1), 
+     InlineData(typeof(short), (short)1, (short)2, 1), 
+     InlineData(typeof(int), 1, 2, 1),
+     InlineData(typeof(long), (long)1, (long)2, null), 
+     InlineData(typeof(char), 'A', 'B', (int)'A'),
+     InlineData(typeof(string), "A", "B", null), 
+     InlineData(typeof(bool), true, false, null), 
+     InlineData(typeof(object), 1, "B", null),
+     InlineData(typeof(float), (float)1, (float)2, null), 
+     InlineData(typeof(double), (double)1, (double)2, null),
+     InlineData(typeof(JustAnEnum), JustAnEnum.A, JustAnEnum.B, null), 
+     InlineData(typeof(int[]), new[] { 1, 2 }, new[] { 3, 4 }, null)]
+    public void Default_comparer_works_for_normal_types(Type type, object value1, object value2, int? hashCode)
         => CompareTest(type, value1, value2, hashCode);
 
     private static ValueComparer CompareTest(Type type, object value1, object value2, int? hashCode = null)
@@ -142,11 +152,11 @@ public class ValueComparerTest
         B
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_decimals()
         => CompareTest(typeof(decimal), (decimal)1, (decimal)2);
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_structs()
     {
         CompareTest(
@@ -166,7 +176,7 @@ public class ValueComparerTest
         public string B { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_structs_with_equality()
         => CompareTest(
             typeof(JustAStructWithEquality),
@@ -188,7 +198,7 @@ public class ValueComparerTest
             => A;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_structs_with_equality_operators()
         => CompareTest(
             typeof(JustAStructWithEqualityOperators),
@@ -210,7 +220,7 @@ public class ValueComparerTest
             => !(left == right);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_classes()
         => CompareTest(
             typeof(JustAClass), // Reference equality
@@ -222,7 +232,7 @@ public class ValueComparerTest
         public int A { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_classes_with_equality_members()
     {
         var comparer = CompareTest(
@@ -253,7 +263,7 @@ public class ValueComparerTest
             => A;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_classes_with_equality_operators()
     {
         var comparer = CompareTest(
@@ -341,7 +351,7 @@ public class ValueComparerTest
         Assert.Equal(hashCode ?? value1.GetHashCode(), getKeyHashCode(value1));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_raw_comparer_works_for_non_null_normal_types()
     {
         GenericCompareTest<byte>(1, 2, 1);
@@ -363,7 +373,7 @@ public class ValueComparerTest
         GenericCompareTest(new JustAStructWithEqualityOperators { A = 1 }, new JustAStructWithEqualityOperators { A = 2 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_raw_comparer_works_for_reference_types()
     {
         GenericCompareTestWithNulls<object>(1, "A");
@@ -372,7 +382,7 @@ public class ValueComparerTest
         GenericCompareTestWithNulls(new JustAClassWithEqualityOperators { A = 1 }, new JustAClassWithEqualityOperators { A = 2 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_normal_types_mixing_nullables()
     {
         CompareTest(typeof(byte), (byte)1, (byte?)2, 1);
@@ -405,7 +415,7 @@ public class ValueComparerTest
             new JustAStructWithEqualityOperators { A = 2 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_comparer_works_for_normal_nullable_types_mixing_nullables()
     {
         CompareTest(typeof(byte?), (byte)1, (byte?)2, 1);
@@ -438,7 +448,7 @@ public class ValueComparerTest
             new JustAStructWithEqualityOperators { A = 2 });
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_clone_to_nullable()
     {
         CompareTest(typeof(byte), (byte)1, (byte?)2, 1, true);
@@ -477,7 +487,7 @@ public class ValueComparerTest
             true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Structural_objects_get_deep_key_comparer_by_default()
     {
         var comparer = new ValueComparer<byte[]>(false);
@@ -520,7 +530,7 @@ public class ValueComparerTest
         public byte Value1 { get; } = value1;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_define_different_custom_equals_for_key_and_non_key()
     {
         var comparer = new ValueComparer<Binary>(
@@ -564,7 +574,7 @@ public class ValueComparerTest
     private static readonly MethodInfo _getValue1Method
         = typeof(DeepBinary).GetProperty(nameof(DeepBinary.Value1)).GetMethod;
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_new_comparer_composing_existing_comparers()
     {
         var bytesComparer = new ValueComparer<byte[]>(false);

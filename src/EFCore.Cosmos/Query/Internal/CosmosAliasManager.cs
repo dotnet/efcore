@@ -226,7 +226,7 @@ public class CosmosAliasManager
                 ScalarReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
                     => new ScalarReferenceExpression(newAlias, reference.Type, reference.TypeMapping),
                 ObjectReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
-                    => new ObjectReferenceExpression(reference.EntityType, newAlias),
+                    => new ObjectReferenceExpression(reference.StructuralType, newAlias),
 
                 _ => base.VisitExtension(node)
             };

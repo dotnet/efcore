@@ -7,10 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 using VerifyCS = CSharpAnalyzerVerifier<UninitializedDbSetDiagnosticSuppressor>;
 
-//Issue #37106
-internal class UninitializedDbSetDiagnosticSuppressorTests
+public class UninitializedDbSetDiagnosticSuppressorTests
 {
-    [ConditionalFact]
+    [Fact]
     public Task DbSet_property_on_DbContext_is_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -25,7 +24,7 @@ public class Blog
 }
 """);
 
-    [ConditionalFact]
+    [Fact]
     public Task Non_public_DbSet_property_on_DbContext_is_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -40,7 +39,7 @@ public class Blog
 }
 """);
 
-    [ConditionalFact]
+    [Fact]
     public Task DbSet_property_with_non_public_setter_on_DbContext_is_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -55,7 +54,7 @@ public class Blog
 }
 """);
 
-    [ConditionalFact]
+    [Fact]
     public Task DbSet_property_without_setter_on_DbContext_is_not_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -70,7 +69,7 @@ public class Blog
 }
 """, isSuppressed: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task Static_DbSet_property_on_DbContext_is_not_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -85,7 +84,7 @@ public class Blog
 }
 """, isSuppressed: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task Non_DbSet_property_on_DbContext_is_not_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -95,7 +94,7 @@ public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 }
 """, isSuppressed: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task DbSet_property_on_non_DbContext_is_not_suppressed()
         => VerifySingleSuppressionAsync(
             """
@@ -110,7 +109,7 @@ public class Blog
 }
 """, isSuppressed: false);
 
-    [ConditionalFact]
+    [Fact]
     public async Task DbSet_property_on_DbContext_with_ctor_is_suppressed()
     {
         var source = """
@@ -141,7 +140,7 @@ public class Blog
         }.RunAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task DbSet_property_on_DbContext_with_ctors_is_suppressed()
     {
         var source = """

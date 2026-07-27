@@ -53,24 +53,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             var runtimeEntityType = Create(entityType, runtimeModel);
             entityTypePairs.Add((entityType, runtimeEntityType));
 
-            foreach (var property in entityType.GetDeclaredProperties())
-            {
-                var runtimeProperty = Create(property, runtimeEntityType);
-                CreateAnnotations(
-                    property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
-
-                var elementType = property.GetElementType();
-                if (elementType != null)
-                {
-                    Check.DebugAssert(
-                        property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
-                    var runtimeElementType = Create(runtimeProperty, elementType);
-                    CreateAnnotations(
-                        elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
-                }
-            }
+            CreateProperties(entityType, runtimeEntityType);
 
             foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
             {
@@ -80,14 +63,6 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                         convention.ProcessServicePropertyAnnotations(annotations, source, target, runtime));
                 runtimeServiceProperty.ParameterBinding =
                     (ServiceParameterBinding)Create(serviceProperty.ParameterBinding, runtimeEntityType);
-            }
-
-            foreach (var property in entityType.GetDeclaredComplexProperties())
-            {
-                var runtimeProperty = Create(property, runtimeEntityType);
-                CreateAnnotations(
-                    property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
             }
 
             foreach (var key in entityType.GetDeclaredKeys())
@@ -353,6 +328,36 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
+    private void CreateProperties(ITypeBase structuralType, RuntimeTypeBase runtimeType)
+    {
+        foreach (var property in structuralType.GetDeclaredProperties())
+        {
+            var runtimeProperty = Create(property, runtimeType);
+            CreateAnnotations(
+                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
+
+            var elementType = property.GetElementType();
+            if (elementType != null)
+            {
+                Check.DebugAssert(
+                    property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
+                var runtimeElementType = Create(runtimeProperty, elementType);
+                CreateAnnotations(
+                    elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
+                        convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
+            }
+        }
+
+        foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
+        {
+            var runtimeComplexProperty = Create(complexProperty, runtimeType);
+            CreateAnnotations(
+                complexProperty, runtimeComplexProperty, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
+        }
+    }
+
     private static RuntimeProperty Create(IProperty property, RuntimeTypeBase runtimeType)
         => runtimeType is RuntimeEntityType runtimeEntityType
             ? runtimeEntityType.AddProperty(
@@ -378,7 +383,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 providerValueComparer: property.GetProviderValueComparer(),
                 jsonValueReaderWriter: property.GetJsonValueReaderWriter(),
                 typeMapping: property.GetTypeMapping(),
-                sentinel: property.Sentinel)
+                sentinel: property.Sentinel,
+                autoLoaded: property.IsAutoLoaded)
             : ((RuntimeComplexType)runtimeType).AddProperty(
                 property.Name,
                 property.ClrType,
@@ -402,7 +408,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 providerValueComparer: property.GetProviderValueComparer(),
                 jsonValueReaderWriter: property.GetJsonValueReaderWriter(),
                 typeMapping: property.GetTypeMapping(),
-                sentinel: property.Sentinel);
+                sentinel: property.Sentinel,
+                autoLoaded: property.IsAutoLoaded);
 
     private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element)
         => runtimeProperty.SetElementType(
@@ -524,32 +531,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
         var runtimeComplexType = runtimeComplexProperty.ComplexType;
 
-        foreach (var property in complexType.GetProperties())
-        {
-            var runtimeProperty = Create(property, runtimeComplexType);
-            CreateAnnotations(
-                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
-                    convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
-
-            var elementType = property.GetElementType();
-            if (elementType != null)
-            {
-                Check.DebugAssert(
-                    property.IsPrimitiveCollection, $"{property.Name} has an element type, but it's not a primitive collection.");
-                var runtimeElementType = Create(runtimeProperty, elementType);
-                CreateAnnotations(
-                    elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
-            }
-        }
-
-        foreach (var property in complexType.GetComplexProperties())
-        {
-            var runtimeProperty = Create(property, runtimeComplexType);
-            CreateAnnotations(
-                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
-                    convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
-        }
+        CreateProperties(complexType, runtimeComplexType);
 
         CreateAnnotations(
             complexType, runtimeComplexType, static (convention, annotations, source, target, runtime) =>
@@ -608,7 +590,46 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     }
 
     private static RuntimeKey Create(IKey key, RuntimeEntityType runtimeEntityType)
-        => runtimeEntityType.AddKey(runtimeEntityType.FindProperties(key.Properties.Select(p => p.Name))!);
+        => runtimeEntityType.AddKey(
+            key.Properties.Select(p => FindRuntimeProperty(runtimeEntityType, p)).ToArray());
+
+    private static RuntimeProperty FindRuntimeProperty(RuntimeEntityType runtimeEntityType, IProperty property)
+        => (RuntimeProperty)FindRuntimePropertyBase(runtimeEntityType, property);
+
+    private static RuntimePropertyBase FindRuntimePropertyBase(RuntimeEntityType runtimeEntityType, IPropertyBase property)
+    {
+        if (property.DeclaringType is IEntityType)
+        {
+            if (property is IComplexProperty)
+            {
+                return (RuntimePropertyBase)runtimeEntityType.FindComplexProperty(property.Name)!;
+            }
+
+            return runtimeEntityType.FindProperty(property.Name)!;
+        }
+
+        // Build the chain of complex property names from entity down to the property's declaring type.
+        var chain = new List<string>();
+        var typeBase = (IReadOnlyTypeBase)property.DeclaringType;
+        while (typeBase is IReadOnlyComplexType complexType)
+        {
+            chain.Insert(0, complexType.ComplexProperty.Name);
+            typeBase = complexType.ComplexProperty.DeclaringType;
+        }
+
+        ITypeBase currentType = runtimeEntityType;
+        foreach (var complexPropertyName in chain)
+        {
+            currentType = currentType.FindComplexProperty(complexPropertyName)!.ComplexType;
+        }
+
+        if (property is IComplexProperty)
+        {
+            return (RuntimePropertyBase)currentType.FindComplexProperty(property.Name)!;
+        }
+
+        return (RuntimePropertyBase)currentType.FindProperty(property.Name)!;
+    }
 
     /// <summary>
     ///     Updates the key annotations that will be set on the read-only object.
@@ -637,7 +658,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
     private static RuntimeIndex Create(IIndex index, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddIndex(
-            runtimeEntityType.FindProperties(index.Properties.Select(p => p.Name))!,
+            index.Properties.Select(p => FindRuntimePropertyBase(runtimeEntityType, p)).ToArray(),
             index.Name,
             index.IsUnique);
 
@@ -677,7 +698,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             foreignKey.IsUnique,
             foreignKey.IsRequired,
             foreignKey.IsRequiredDependent,
-            foreignKey.IsOwnership);
+            foreignKey.IsOwnership,
+            foreignKey.IsConstrained);
     }
 
     private static RuntimeTrigger Create(ITrigger trigger, RuntimeEntityType runtimeEntityType)

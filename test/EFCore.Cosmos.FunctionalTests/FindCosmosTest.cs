@@ -11,17 +11,17 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
         : base(fixture)
         => fixture.TestSqlLoggerFactory.Clear();
 
-    [ConditionalFact(Skip = "#25886")]
+    [Fact(Skip = "#25886")]
     public override void Find_base_type_using_derived_set_tracked() { }
 
-    [ConditionalTheory(Skip = "#25886")]
+    [Theory(Skip = "#25886")]
     public override Task Find_base_type_using_derived_set_tracked_async(CancellationType cancellationType)
         => Task.CompletedTask;
 
-    [ConditionalFact(Skip = "#25886")]
+    [Fact(Skip = "#25886")]
     public override void Find_derived_using_base_set_type_from_store() { }
 
-    [ConditionalTheory(Skip = "#25886")]
+    [Theory(Skip = "#25886")]
     public override Task Find_derived_using_base_set_type_from_store_async(CancellationType cancellationType)
         => Task.CompletedTask;
 

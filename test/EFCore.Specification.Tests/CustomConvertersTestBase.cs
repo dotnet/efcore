@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_nullable_converter_on_unique_index()
     {
         using (var context = CreateContext())
@@ -102,7 +102,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public SocialSecurityNumber? SSN { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_nullable_converter_on_primary_key()
     {
         using (var context = CreateContext())
@@ -154,7 +154,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public NullablePrincipal Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_conversion_for_custom_type()
     {
         Guid id;
@@ -206,7 +206,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => email._value;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_and_update_with_conversion_for_custom_struct()
     {
         using (var context = CreateContext())
@@ -238,7 +238,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public double Volume { get; } = volume;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_case_insensitive_string_key()
     {
         using (var context = CreateContext())
@@ -279,7 +279,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_read_back_with_string_list()
     {
         using (var context = CreateContext())
@@ -305,7 +305,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public IList<string> Strings { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_insert_and_query_struct_to_string_converter_for_pk()
     {
         using (var context = CreateContext())
@@ -352,7 +352,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => orderId.StringValue;
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
     {
         using (var context = CreateContext())
@@ -383,7 +383,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public IDictionary<string, string> Discriminator { get; set; } = new Dictionary<string, string>();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Field_on_derived_type_retrieved_via_cast_applies_value_converter()
     {
         using var context = CreateContext();
@@ -400,7 +400,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com/rss", result.RssUrl);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
         using var context = CreateContext();
@@ -426,7 +426,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
         using var context = CreateContext();
@@ -455,7 +455,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -465,7 +465,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -475,7 +475,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
     {
         using var context = CreateContext();
@@ -489,7 +489,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://rssblog.com", result2.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -500,7 +500,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Contains(false, result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_conditional_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -510,7 +510,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Select_conditional_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
@@ -521,7 +521,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Contains("Bar", result);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         using var context = CreateContext();
@@ -531,7 +531,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         using var context = CreateContext();
@@ -541,7 +541,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Assert.Equal("http://blog.com", result.Url);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_conversion_with_property_named_value()
     {
         using var context = CreateContext();
@@ -549,7 +549,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_conversion_on_enum_collection_contains()
     {
         using var context = CreateContext();
@@ -630,7 +630,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public string Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Collection_property_as_scalar_Any()
     {
         using var context = CreateContext();
@@ -640,7 +640,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                 .Message.Replace("\r", "").Replace("\n", ""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Collection_property_as_scalar_Count_member()
     {
         using var context = CreateContext();
@@ -657,7 +657,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public List<string> Tags { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Collection_enum_as_string_Contains()
     {
         using var context = CreateContext();
@@ -683,13 +683,13 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
     public override Task Object_to_string_conversion()
         => Task.CompletedTask;
 
-    [ConditionalFact]
-    public virtual void Optional_owned_with_converter_reading_non_nullable_column()
+    [Fact]
+    public virtual async Task Optional_owned_with_converter_reading_non_nullable_column()
     {
         using var context = CreateContext();
         Assert.Equal(
             "Nullable object must have a value.",
-            Assert.Throws<InvalidOperationException>(() => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToList())
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToListAsync()))
                 .Message);
     }
 
@@ -704,7 +704,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         public int Value { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Id_object_as_entity_key()
     {
         using var context = CreateContext();
@@ -731,7 +731,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
             => Id.GetHashCode();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Composition_over_collection_of_complex_mapped_as_scalar()
     {
         using var context = CreateContext();
@@ -772,7 +772,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         Value2
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void GroupBy_converted_enum()
     {
         using var context = CreateContext();
@@ -804,7 +804,7 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
         No
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Infer_type_mapping_from_in_subquery_to_item()
     {
         using var context = CreateContext();
@@ -912,212 +912,6 @@ public abstract class CustomConvertersTestBase<TFixture>(TFixture fixture) : Bui
                     new ValueConverter<double, decimal>(
                         v => (decimal)v,
                         v => (double)v,
-                        new ConverterMappingHints(precision: 26, scale: 16)));
-            });
-
-            modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
-            {
-                b.Property(e => e.PartitionId).HasConversion(v => (long)v, v => (int)v);
-                b.Property(e => e.TestNullableInt16).HasConversion(v => (long?)v, v => (short?)v);
-                b.Property(e => e.TestNullableInt32).HasConversion(v => (long?)v, v => (int?)v);
-                b.Property(e => e.TestNullableInt64).HasConversion(v => v, v => v);
-                b.Property(e => e.TestNullableDecimal).HasConversion(NumberToBytesConverter<decimal?>.DefaultInfo.Create());
-                b.Property(e => e.TestNullableSingle).HasConversion(new CastingConverter<float?, double?>());
-                b.Property(e => e.TestNullableBoolean).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
-                b.Property(e => e.TestNullableByte).HasConversion(v => (ushort?)v, v => (byte?)v);
-                b.Property(e => e.TestNullableUnsignedInt16).HasConversion(v => (ulong?)v, v => (ushort?)v);
-                b.Property(e => e.TestNullableUnsignedInt32).HasConversion(v => (ulong?)v, v => (uint?)v);
-                b.Property(e => e.TestNullableUnsignedInt64).HasConversion(v => (long?)v, v => (ulong?)v);
-                b.Property(e => e.TestNullableCharacter).HasConversion(v => (int?)v, v => (char?)v);
-                b.Property(e => e.TestNullableSignedByte).HasConversion(v => (decimal?)v, v => (sbyte?)v);
-                b.Property(e => e.Enum64).HasConversion(v => (long?)v, v => (Enum64?)v);
-                b.Property(e => e.Enum32).HasConversion(v => (long?)v, v => (Enum32?)v);
-                b.Property(e => e.Enum16).HasConversion(v => (long?)v, v => (Enum16?)v);
-                b.Property(e => e.EnumU64).HasConversion(v => (ulong?)v, v => (EnumU64?)v);
-                b.Property(e => e.EnumU32).HasConversion(v => (ulong?)v, v => (EnumU32?)v);
-                b.Property(e => e.EnumU16).HasConversion(v => (ulong?)v, v => (EnumU16?)v);
-
-                b.Property(e => e.TestNullableDateTime).HasConversion(
-                    v => v.Value.ToBinary(),
-                    v => DateTime.FromBinary(v));
-
-                b.Property(e => e.TestNullableDateOnly).HasConversion(
-                    v => v.Value.ToShortDateString(),
-                    v => DateOnly.Parse(v));
-
-                b.Property(e => e.TestNullableTimeSpan).HasConversion(
-                    v => v.Value.TotalMilliseconds,
-                    v => TimeSpan.FromMilliseconds(v));
-
-                b.Property(e => e.TestNullableTimeOnly).HasConversion(
-                    v => v.Value.Ticks,
-                    v => new TimeOnly(v));
-
-                b.Property(e => e.EnumS8).HasConversion(
-                    v => v.ToString(),
-                    v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : null);
-
-                b.Property(e => e.Enum8).HasConversion(
-                    v => v.ToString(),
-                    v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : null);
-
-                b.Property(e => e.TestNullableDateTimeOffset).HasConversion(
-                    v => v.Value.ToUnixTimeMilliseconds(),
-                    v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0)));
-
-                b.Property(e => e.TestNullableDouble).HasConversion(
-                    new ValueConverter<double?, decimal?>(
-                        v => (decimal?)v, v => (double?)v,
-                        new ConverterMappingHints(precision: 26, scale: 16)));
-            });
-
-            modelBuilder.Entity<BuiltInDataTypesShadow>(b =>
-            {
-                b.Property(nameof(BuiltInDataTypes.PartitionId))
-                    .HasConversion(new ValueConverter<int, long>(v => v, v => (int)v));
-                b.Property(nameof(BuiltInDataTypes.TestInt16))
-                    .HasConversion(new ValueConverter<short, long>(v => v, v => (short)v));
-                b.Property(nameof(BuiltInDataTypes.TestInt32))
-                    .HasConversion(new ValueConverter<int, long>(v => v, v => (int)v));
-                b.Property(nameof(BuiltInDataTypes.TestInt64)).HasConversion(new ValueConverter<long, long>(v => v, v => v));
-                b.Property(nameof(BuiltInDataTypes.TestDecimal))
-                    .HasConversion(NumberToBytesConverter<decimal>.DefaultInfo.Create());
-                b.Property(nameof(BuiltInDataTypes.TestDateOnly)).HasConversion(
-                    new ValueConverter<DateOnly, string>(v => v.ToShortDateString(), v => DateOnly.Parse(v)));
-                b.Property(nameof(BuiltInDataTypes.TestDateTime)).HasConversion(
-                    new ValueConverter<DateTime, long>(v => v.ToBinary(), v => DateTime.FromBinary(v)));
-                b.Property(nameof(BuiltInDataTypes.TestTimeSpan)).HasConversion(
-                    new ValueConverter<TimeSpan, double>(v => v.TotalMilliseconds, v => TimeSpan.FromMilliseconds(v)));
-                b.Property(nameof(BuiltInDataTypes.TestTimeOnly)).HasConversion(
-                    new ValueConverter<TimeOnly, long>(v => v.Ticks, v => new TimeOnly(v)));
-                b.Property(nameof(BuiltInDataTypes.TestSingle)).HasConversion(new CastingConverter<float, double>());
-                b.Property(nameof(BuiltInDataTypes.TestBoolean)).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
-                b.Property(nameof(BuiltInDataTypes.TestByte))
-                    .HasConversion(new ValueConverter<byte, ushort>(v => v, v => (byte)v));
-                b.Property(nameof(BuiltInDataTypes.TestUnsignedInt16))
-                    .HasConversion(new ValueConverter<ushort, ulong>(v => v, v => (ushort)v));
-                b.Property(nameof(BuiltInDataTypes.TestUnsignedInt32))
-                    .HasConversion(new ValueConverter<uint, ulong>(v => v, v => (uint)v));
-                b.Property(nameof(BuiltInDataTypes.TestUnsignedInt64))
-                    .HasConversion(new ValueConverter<ulong, long>(v => (long)v, v => (ulong)v));
-                b.Property(nameof(BuiltInDataTypes.TestCharacter))
-                    .HasConversion(new ValueConverter<char, int>(v => v, v => (char)v));
-                b.Property(nameof(BuiltInDataTypes.TestSignedByte))
-                    .HasConversion(new ValueConverter<sbyte, decimal>(v => v, v => (sbyte)v));
-                b.Property(nameof(BuiltInDataTypes.Enum64))
-                    .HasConversion(new ValueConverter<Enum64, long>(v => (long)v, v => (Enum64)v));
-                b.Property(nameof(BuiltInDataTypes.Enum32))
-                    .HasConversion(new ValueConverter<Enum32, long>(v => (long)v, v => (Enum32)v));
-                b.Property(nameof(BuiltInDataTypes.Enum16))
-                    .HasConversion(new ValueConverter<Enum16, long>(v => (long)v, v => (Enum16)v));
-                b.Property(nameof(BuiltInDataTypes.EnumU64))
-                    .HasConversion(new ValueConverter<EnumU64, ulong>(v => (ulong)v, v => (EnumU64)v));
-                b.Property(nameof(BuiltInDataTypes.EnumU32))
-                    .HasConversion(new ValueConverter<EnumU32, ulong>(v => (ulong)v, v => (EnumU32)v));
-                b.Property(nameof(BuiltInDataTypes.EnumU16))
-                    .HasConversion(new ValueConverter<EnumU16, ulong>(v => (ulong)v, v => (EnumU16)v));
-
-                b.Property(nameof(BuiltInDataTypes.EnumS8)).HasConversion(
-                    new ValueConverter<EnumS8, string>(
-                        v => v.ToString(),
-                        v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : default));
-
-                b.Property(nameof(BuiltInDataTypes.Enum8)).HasConversion(
-                    new ValueConverter<Enum8, string>(
-                        v => v.ToString(),
-                        v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : default));
-
-                b.Property(nameof(BuiltInDataTypes.TestDateTimeOffset)).HasConversion(
-                    new ValueConverter<DateTimeOffset, long>(
-                        v => v.ToUnixTimeMilliseconds(),
-                        v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0))));
-
-                b.Property(nameof(BuiltInDataTypes.TestDouble)).HasConversion(
-                    new ValueConverter<double, decimal>(
-                        v => (decimal)v,
-                        v => (double)v,
-                        new ConverterMappingHints(precision: 26, scale: 16)));
-            });
-
-            modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
-            {
-                b.Property(nameof(BuiltInNullableDataTypes.PartitionId))
-                    .HasConversion(new ValueConverter<int, long>(v => v, v => (int)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableInt16))
-                    .HasConversion(new ValueConverter<short?, long?>(v => v, v => (short?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableInt32))
-                    .HasConversion(new ValueConverter<int?, long?>(v => v, v => (int?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableInt64))
-                    .HasConversion(new ValueConverter<long?, long?>(v => v, v => v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableDecimal))
-                    .HasConversion(NumberToBytesConverter<decimal?>.DefaultInfo.Create());
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableSingle))
-                    .HasConversion(new CastingConverter<float?, double?>());
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableBoolean))
-                    .HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableByte))
-                    .HasConversion(new ValueConverter<byte?, ushort?>(v => v, v => (byte?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableUnsignedInt16))
-                    .HasConversion(new ValueConverter<ushort?, ulong?>(v => v, v => (ushort?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableUnsignedInt32))
-                    .HasConversion(new ValueConverter<uint?, ulong?>(v => v, v => (uint?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableUnsignedInt64))
-                    .HasConversion(new ValueConverter<ulong?, long?>(v => (long?)v, v => (ulong?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableCharacter))
-                    .HasConversion(new ValueConverter<char?, int?>(v => v, v => (char?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableSignedByte)).HasConversion(
-                    new ValueConverter<sbyte?, decimal?>(v => v, v => (sbyte?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.Enum64))
-                    .HasConversion(new ValueConverter<Enum64?, long?>(v => (long?)v, v => (Enum64?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.Enum32))
-                    .HasConversion(new ValueConverter<Enum32?, long?>(v => (long?)v, v => (Enum32?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.Enum16))
-                    .HasConversion(new ValueConverter<Enum16?, long?>(v => (long?)v, v => (Enum16?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.EnumU64))
-                    .HasConversion(new ValueConverter<EnumU64?, ulong?>(v => (ulong?)v, v => (EnumU64?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.EnumU32))
-                    .HasConversion(new ValueConverter<EnumU32?, ulong?>(v => (ulong?)v, v => (EnumU32?)v));
-                b.Property(nameof(BuiltInNullableDataTypes.EnumU16))
-                    .HasConversion(new ValueConverter<EnumU16?, ulong?>(v => (ulong?)v, v => (EnumU16?)v));
-
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateTime)).HasConversion(
-                    new ValueConverter<DateTime?, long>(
-                        v => v.Value.ToBinary(),
-                        v => DateTime.FromBinary(v)));
-
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateOnly)).HasConversion(
-                    new ValueConverter<DateOnly?, string>(
-                        v => v.Value.ToShortDateString(),
-                        v => DateOnly.Parse(v)));
-
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableTimeSpan)).HasConversion(
-                    new ValueConverter<TimeSpan?, double>(
-                        v => v.Value.TotalMilliseconds,
-                        v => TimeSpan.FromMilliseconds(v)));
-
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableTimeOnly)).HasConversion(
-                    new ValueConverter<TimeOnly?, long>(
-                        v => v.Value.Ticks,
-                        v => new TimeOnly(v)));
-
-                b.Property(nameof(BuiltInNullableDataTypes.EnumS8)).HasConversion(
-                    new ValueConverter<EnumS8?, string>(
-                        v => v.ToString(),
-                        v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : null));
-
-                b.Property(nameof(BuiltInNullableDataTypes.Enum8)).HasConversion(
-                    new ValueConverter<Enum8?, string>(
-                        v => v.ToString(),
-                        v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : null));
-
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateTimeOffset)).HasConversion(
-                    new ValueConverter<DateTimeOffset?, long>(
-                        v => v.Value.ToUnixTimeMilliseconds(),
-                        v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0))));
-
-                b.Property(nameof(BuiltInNullableDataTypes.TestNullableDouble)).HasConversion(
-                    new ValueConverter<double?, decimal?>(
-                        v => (decimal?)v, v => (double?)v,
                         new ConverterMappingHints(precision: 26, scale: 16)));
             });
 

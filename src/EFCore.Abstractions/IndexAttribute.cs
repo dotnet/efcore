@@ -35,19 +35,6 @@ public sealed class IndexAttribute : Attribute
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
-    /// </summary>
-    /// <param name="propertyNames">The properties which constitute the index, in order (there must be at least one).</param>
-    [Obsolete("Use the other constructor")]
-    public IndexAttribute(params string[] propertyNames)
-    {
-        Check.NotEmpty(propertyNames);
-        Check.HasNoEmptyElements(propertyNames);
-
-        PropertyNames = propertyNames.ToList();
-    }
-
-    /// <summary>
     ///     The properties which constitute the index, in order.
     /// </summary>
     public IReadOnlyList<string> PropertyNames { get; }

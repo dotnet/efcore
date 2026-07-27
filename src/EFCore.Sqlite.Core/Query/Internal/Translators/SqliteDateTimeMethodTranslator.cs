@@ -14,25 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo AddMilliseconds
-        = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), [typeof(double)])!;
-
-    private static readonly MethodInfo AddTicks
-        = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddTicks), [typeof(long)])!;
-
-    private static readonly Dictionary<MethodInfo, string> MethodInfoToUnitSuffix = new()
-    {
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), [typeof(int)])!, " years" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), [typeof(int)])!, " months" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), [typeof(double)])!, " days" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), [typeof(double)])!, " hours" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), [typeof(double)])!, " minutes" },
-        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), [typeof(double)])!, " seconds" },
-        { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddYears), [typeof(int)])!, " years" },
-        { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddMonths), [typeof(int)])!, " months" },
-        { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddDays), [typeof(int)])!, " days" }
-    };
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -55,60 +36,61 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments)
     {
-        SqlExpression? modifier = null;
-        if (AddMilliseconds.Equals(method))
+        if (instance is null || arguments is not [var arg])
         {
-            modifier = sqlExpressionFactory.Add(
-                sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Divide(
-                        arguments[0],
-                        sqlExpressionFactory.Constant(1000.0)),
-                    typeof(string)),
-                sqlExpressionFactory.Constant(" seconds"));
-        }
-        else if (AddTicks.Equals(method))
-        {
-            modifier = sqlExpressionFactory.Add(
-                sqlExpressionFactory.Convert(
-                    sqlExpressionFactory.Divide(
-                        arguments[0],
-                        sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
-                    typeof(string)),
-                sqlExpressionFactory.Constant(" seconds"));
-        }
-        else if (MethodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
-        {
-            modifier = sqlExpressionFactory.Add(
-                sqlExpressionFactory.Convert(arguments[0], typeof(string)),
-                sqlExpressionFactory.Constant(unitSuffix));
+            return null;
         }
 
-        if (modifier != null)
+        var modifier = method.Name switch
         {
-            return sqlExpressionFactory.Function(
-                "rtrim",
-                [
-                    sqlExpressionFactory.Function(
-                        "rtrim",
-                        [
-                            sqlExpressionFactory.Strftime(
-                                method.ReturnType,
-                                "%Y-%m-%d %H:%M:%f",
-                                instance!,
-                                modifiers: [modifier]),
-                            sqlExpressionFactory.Constant("0")
-                        ],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.TrueFalse,
-                        method.ReturnType),
-                    sqlExpressionFactory.Constant(".")
-                ],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueFalse,
-                method.ReturnType);
+            nameof(DateTime.AddMilliseconds) => sqlExpressionFactory.Add(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Divide(arg, sqlExpressionFactory.Constant(1000.0)),
+                    typeof(string)),
+                sqlExpressionFactory.Constant(" seconds")),
+
+            nameof(DateTime.AddTicks) => sqlExpressionFactory.Add(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Divide(arg, sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
+                    typeof(string)),
+                sqlExpressionFactory.Constant(" seconds")),
+
+            nameof(DateTime.AddYears) => MakeModifier(arg, " years"),
+            nameof(DateTime.AddMonths) => MakeModifier(arg, " months"),
+            nameof(DateTime.AddDays) => MakeModifier(arg, " days"),
+            nameof(DateTime.AddHours) => MakeModifier(arg, " hours"),
+            nameof(DateTime.AddMinutes) => MakeModifier(arg, " minutes"),
+            nameof(DateTime.AddSeconds) => MakeModifier(arg, " seconds"),
+
+            _ => (SqlExpression?)null
+        };
+
+        if (modifier is null)
+        {
+            return null;
         }
 
-        return null;
+        return sqlExpressionFactory.Function(
+            "rtrim",
+            [
+                sqlExpressionFactory.Function(
+                    "rtrim",
+                    [
+                        sqlExpressionFactory.Strftime(
+                            method.ReturnType,
+                            "%Y-%m-%d %H:%M:%f",
+                            instance,
+                            modifiers: [modifier]),
+                        sqlExpressionFactory.Constant("0")
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueFalse,
+                    method.ReturnType),
+                sqlExpressionFactory.Constant(".")
+            ],
+            nullable: true,
+            argumentsPropagateNullability: Statics.TrueFalse,
+            method.ReturnType);
     }
 
     private SqlExpression? TranslateDateOnly(
@@ -116,19 +98,29 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments)
     {
-        if (instance is not null && MethodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
+        if (instance is null || arguments is not [var arg])
         {
-            return sqlExpressionFactory.Date(
-                method.ReturnType,
-                instance,
-                modifiers:
-                [
-                    sqlExpressionFactory.Add(
-                        sqlExpressionFactory.Convert(arguments[0], typeof(string)),
-                        sqlExpressionFactory.Constant(unitSuffix))
-                ]);
+            return null;
         }
 
-        return null;
+        var unitSuffix = method.Name switch
+        {
+            nameof(DateOnly.AddYears) => " years",
+            nameof(DateOnly.AddMonths) => " months",
+            nameof(DateOnly.AddDays) => " days",
+            _ => (string?)null
+        };
+
+        return unitSuffix is not null
+            ? sqlExpressionFactory.Date(
+                method.ReturnType,
+                instance,
+                modifiers: [MakeModifier(arg, unitSuffix)])
+            : null;
     }
+
+    private SqlExpression MakeModifier(SqlExpression argument, string unitSuffix)
+        => sqlExpressionFactory.Add(
+            sqlExpressionFactory.Convert(argument, typeof(string)),
+            sqlExpressionFactory.Constant(unitSuffix));
 }

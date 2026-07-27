@@ -998,6 +998,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                 foreignKey.DeleteBehavior = DeleteBehavior.SetNull;
                 break;
 
+            case ReferentialAction.SetDefault:
+                foreignKey.DeleteBehavior = DeleteBehavior.SetDefault;
+                break;
+
             case ReferentialAction.Restrict:
                 foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
                 break;

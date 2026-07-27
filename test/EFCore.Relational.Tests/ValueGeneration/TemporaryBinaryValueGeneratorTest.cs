@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class TemporaryBinaryValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Creates_GUID_arrays()
     {
         var generator = new TemporaryBinaryValueGenerator();
@@ -23,7 +23,7 @@ public class TemporaryBinaryValueGeneratorTest
         Assert.Equal(100, values.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Generates_temp_values()
         => Assert.True(new TemporaryBinaryValueGenerator().GeneratesTemporaryValues);
 }

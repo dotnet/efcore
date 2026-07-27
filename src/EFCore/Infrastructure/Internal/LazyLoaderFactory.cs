@@ -13,7 +13,16 @@ public class LazyLoaderFactory : ILazyLoaderFactory
 {
     private readonly ICurrentDbContext _currentContext;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
-    private readonly List<ILazyLoader> _loaders = [];
+
+    // Use WeakReference to allow ILazyLoader instances to be GC'ed during enumeration,
+    // preventing them from being rooted by the factory.
+    //
+    // List<WeakReference> is chosen over ConditionalWeakTable to avoid a 30-50%
+    // performance regression.
+    //
+    // While the list does not self-compact, it is explicitly cleared during
+    // ResetState/Dispose to prevent memory accumulation in pooled contexts.
+    private readonly List<WeakReference<ILazyLoader>> _loaders = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +47,7 @@ public class LazyLoaderFactory : ILazyLoaderFactory
     public virtual ILazyLoader Create()
     {
         var loader = new LazyLoader(_currentContext, _logger);
-        _loaders.Add(loader);
+        _loaders.Add(new WeakReference<ILazyLoader>(loader));
         return loader;
     }
 
@@ -50,9 +59,10 @@ public class LazyLoaderFactory : ILazyLoaderFactory
     /// </summary>
     public void Dispose()
     {
-        foreach (var loader in _loaders)
+        foreach (var weakReference in _loaders)
         {
-            loader.Dispose();
+            if(weakReference.TryGetTarget(out var loader)) 
+                loader.Dispose();
         }
 
         _loaders.Clear();

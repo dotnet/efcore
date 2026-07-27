@@ -45,10 +45,17 @@ public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byt
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static DateTimeOffsetToBytesConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTimeOffset), typeof(byte[]), i => new DateTimeOffsetToBytesConverter(i.MappingHints), DefaultHints);
+        = new(typeof(DateTimeOffset), typeof(byte[]),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateTimeOffsetToBytesConverter(i.MappingHints),
+            DefaultHints);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

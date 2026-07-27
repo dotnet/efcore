@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
@@ -20,6 +21,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     private readonly IDatabase _database;
     private readonly ICurrentDbContext _currentContext;
     private readonly IDbContextOptions _contextOptions;
+    private readonly IExecutionStrategy _executionStrategy;
+    private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +36,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         IUpdateAdapterFactory updateAdapterFactory,
         IDatabase database,
         ICurrentDbContext currentContext,
-        IDbContextOptions contextOptions)
+        IDbContextOptions contextOptions,
+        IExecutionStrategy executionStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
     {
         _cosmosClient = cosmosClient;
         _designTimeModel = designTimeModel;
@@ -41,6 +46,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         _database = database;
         _currentContext = currentContext;
         _contextOptions = contextOptions;
+        _executionStrategy = executionStrategy;
+        _logger = logger;
     }
 
     /// <summary>
@@ -49,52 +56,53 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool EnsureCreated()
+    public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
-        var model = _designTimeModel.Model;
-        var created = _cosmosClient.CreateDatabaseIfNotExists(model.GetThroughput());
-
-        foreach (var container in GetContainersToCreate(model))
+        if (_currentContext.Context.ChangeTracker.Entries().Any(
+                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {
-            created |= _cosmosClient.CreateContainerIfNotExists(container);
+            _logger.EnsureCreatedWithTrackedEntitiesWarning();
         }
 
-        if (created)
-        {
-            InsertData();
-        }
+        var created = new StrongBox<bool>(false);
+        var dataInserted = new StrongBox<bool>(false);
+        var seeded = new StrongBox<bool>(false);
+        return _executionStrategy.ExecuteAsync(
+            (Creator: this, Created: created, DataInserted: dataInserted, Seeded: seeded),
+            static async (_, state, ct) =>
+            {
+                var creator = state.Creator;
 
-        SeedData(created);
+                if (!state.DataInserted.Value)
+                {
+                    var model = creator._designTimeModel.Model;
+                    state.Created.Value |= await creator._cosmosClient
+                        .CreateDatabaseIfNotExistsAsync(model.GetThroughput(), ct)
+                        .ConfigureAwait(false);
 
-        return created;
-    }
+                    foreach (var container in GetContainersToCreate(model))
+                    {
+                        state.Created.Value |= await creator._cosmosClient
+                            .CreateContainerIfNotExistsAsync(container, ct)
+                            .ConfigureAwait(false);
+                    }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-    {
-        var model = _designTimeModel.Model;
-        var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(model.GetThroughput(), cancellationToken)
-            .ConfigureAwait(false);
+                    if (state.Created.Value)
+                    {
+                        await creator.InsertDataAsync(ct).ConfigureAwait(false);
+                        state.DataInserted.Value = true;
+                    }
+                }
 
-        foreach (var container in GetContainersToCreate(model))
-        {
-            created |= await _cosmosClient.CreateContainerIfNotExistsAsync(container, cancellationToken)
-                .ConfigureAwait(false);
-        }
+                if (!state.Seeded.Value)
+                {
+                    await creator.SeedDataAsync(state.Created.Value, cancellationToken: ct)
+                        .ConfigureAwait(false);
+                    state.Seeded.Value = true;
+                }
 
-        if (created)
-        {
-            await InsertDataAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        await SeedDataAsync(created, cancellationToken).ConfigureAwait(false);
-
-        return created;
+                return state.Created.Value;
+            }, verifySucceeded: null, cancellationToken);
     }
 
     private static IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
@@ -127,6 +135,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             var indexes = new List<IIndex>();
             var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
             var fullTextProperties = new List<(IProperty Property, string? Language)>();
+            IReadOnlyList<string>? automaticIndexingExceptions = null;
+            bool? automaticIndexingEnabled = null;
 
             foreach (var entityType in mappedTypes)
             {
@@ -138,6 +148,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
+                automaticIndexingExceptions ??= entityType.GetAutomaticIndexingExceptions();
+                automaticIndexingEnabled ??= entityType.GetAutomaticIndexingEnabled();
 
                 ProcessEntityType(entityType, indexes, vectors, fullTextProperties);
             }
@@ -151,7 +163,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 indexes,
                 vectors,
                 defaultFullTextLanguage ?? "en-US",
-                fullTextProperties);
+                fullTextProperties,
+                automaticIndexingExceptions,
+                automaticIndexingEnabled);
         }
 
         static void ProcessEntityType(
@@ -190,19 +204,6 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void InsertData()
-    {
-        var updateAdapter = AddModelData();
-
-        _database.SaveChanges(updateAdapter.GetEntriesToSave());
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual Task InsertDataAsync(CancellationToken cancellationToken = default)
     {
         var updateAdapter = AddModelData();
@@ -218,7 +219,16 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             foreach (var targetSeed in entityType.GetSeedData())
             {
                 var runtimeEntityType = updateAdapter.Model.FindEntityType(entityType.Name)!;
-                var entry = updateAdapter.CreateEntry(targetSeed, runtimeEntityType);
+                var values = new Dictionary<IProperty, object?>();
+                foreach (var (name, value) in targetSeed)
+                {
+                    if (runtimeEntityType.FindProperty(name) is { } property)
+                    {
+                        values[property] = value;
+                    }
+                }
+
+                var entry = updateAdapter.CreateEntry(values, runtimeEntityType);
                 entry.EntityState = EntityState.Added;
             }
         }
@@ -232,54 +242,21 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void SeedData(bool created)
+    public virtual async Task SeedDataAsync(
+        bool created, CancellationToken cancellationToken = default)
     {
         var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
+            _contextOptions.FindExtension<CoreOptionsExtension>();
 
-        var seed = coreOptionsExtension.Seeder;
-        if (seed != null)
+        if (coreOptionsExtension?.AsyncSeeder is not null)
         {
-            seed(_currentContext.Context, created);
+            await coreOptionsExtension.AsyncSeeder(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
-        else if (coreOptionsExtension.AsyncSeeder != null)
+        else if (coreOptionsExtension?.Seeder is not null)
         {
             throw new InvalidOperationException(CoreStrings.MissingSeeder);
         }
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual async Task SeedDataAsync(bool created, CancellationToken cancellationToken = default)
-    {
-        var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
-
-        var seedAsync = coreOptionsExtension.AsyncSeeder;
-        if (seedAsync != null)
-        {
-            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
-        }
-        else if (coreOptionsExtension.Seeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool EnsureDeleted()
-        => _cosmosClient.DeleteDatabase();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -289,15 +266,6 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     /// </summary>
     public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
         => _cosmosClient.DeleteDatabaseAsync(cancellationToken);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool CanConnect()
-        => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -326,4 +294,55 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             ? properties.Select(p => p.GetJsonPropertyName()).ToList()
             : [CosmosClientWrapper.DefaultPartitionKey];
     }
+
+    #region Unsupported sync methods
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool EnsureCreated()
+        => throw new InvalidOperationException(CosmosStrings.SyncNotSupported);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool EnsureDeleted()
+        => throw new InvalidOperationException(CosmosStrings.SyncNotSupported);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanConnect()
+        => throw new InvalidOperationException(CosmosStrings.SyncNotSupported);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SeedData(bool created)
+        => throw new InvalidOperationException(CosmosStrings.SyncNotSupported);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [Obsolete("Azure Cosmos DB does not support synchronous I/O, use InsertDataAsync.", error: true)]
+    public virtual void InsertData()
+    {
+    }
+
+    #endregion
 }

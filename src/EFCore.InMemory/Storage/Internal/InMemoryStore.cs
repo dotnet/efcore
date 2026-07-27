@@ -74,7 +74,7 @@ public class InMemoryStore : IInMemoryStore
                     foreach (var targetSeed in entityType.GetSeedData())
                     {
                         targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
-                        var entry = updateAdapter.CreateEntry(targetSeed, targetEntityType);
+                        var entry = updateAdapter.CreateEntry(GetValues(targetSeed, targetEntityType), targetEntityType);
                         entry.EntityState = EntityState.Added;
                         entries.Add(entry);
                     }
@@ -85,6 +85,20 @@ public class InMemoryStore : IInMemoryStore
 
             return valuesSeeded;
         }
+    }
+
+    private static Dictionary<IProperty, object?> GetValues(IDictionary<string, object?> seed, IEntityType entityType)
+    {
+        var values = new Dictionary<IProperty, object?>();
+        foreach (var (name, value) in seed)
+        {
+            if (entityType.FindProperty(name) is { } property)
+            {
+                values[property] = value;
+            }
+        }
+
+        return values;
     }
 
     /// <summary>

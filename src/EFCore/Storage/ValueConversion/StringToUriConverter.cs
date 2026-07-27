@@ -43,8 +43,14 @@ public class StringToUriConverter : StringUriConverter<string?, Uri?>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static StringToUriConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(Uri), i => new StringToUriConverter(i.MappingHints));
+        = new(typeof(string), typeof(Uri),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToUriConverter(i.MappingHints));
 }

@@ -25,7 +25,7 @@ public abstract class
     protected virtual bool HasForeignKeyIndexes
         => true;
 
-    [ConditionalFact]
+    [Fact]
     public void Can_build_identity_model()
     {
         using (var context = CreateContext())
@@ -38,7 +38,7 @@ public abstract class
 
     protected abstract List<EntityTypeMapping> ExpectedMappings { get; }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_FindByNameAsync()
     {
         var user = new TUser { NormalizedUserName = "wendy" };
@@ -57,7 +57,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_FindByEmailAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -76,7 +76,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetRolesAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -98,7 +98,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_ReplaceClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -133,7 +133,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_RemoveClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -164,7 +164,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetLoginsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -186,7 +186,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetUsersForClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -207,7 +207,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserStore_GetUsersInRoleAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -228,7 +228,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_FindByNameAsync()
     {
         var user = new TUser { NormalizedUserName = "wendy" };
@@ -246,7 +246,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_FindByEmailAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -264,7 +264,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -289,7 +289,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_ReplaceClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -322,7 +322,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_RemoveClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -351,7 +351,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetLoginsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -372,7 +372,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_UserOnlyStore_GetUsersForClaimAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };
@@ -392,7 +392,7 @@ public abstract class
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_call_RoleStore_GetClaimsAsync()
     {
         var user = new TUser { NormalizedEmail = "wendy@example.com" };

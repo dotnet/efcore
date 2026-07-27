@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
@@ -12,7 +14,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 public class EntityReferenceMap
 {
     private readonly bool _hasSubMap;
-    private Dictionary<object, InternalEntityEntry>? _detachedReferenceMap;
+
+    // Detached entries are held weakly: an InternalEntityEntry can be created for an untracked entity
+    // (e.g. by DbContext.Entry) and cached so the same entry is returned for the same instance, but the
+    // context must not keep the entity alive once nothing else references it (issue #33557).
+    private ConditionalWeakTable<object, InternalEntityEntry>? _detachedReferenceMap;
     private Dictionary<object, InternalEntityEntry>? _unchangedReferenceMap;
     private Dictionary<object, InternalEntityEntry>? _addedReferenceMap;
     private Dictionary<object, InternalEntityEntry>? _modifiedReferenceMap;
@@ -68,8 +74,8 @@ public class EntityReferenceMap
                 switch (state)
                 {
                     case EntityState.Detached:
-                        _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
-                        _detachedReferenceMap[mapKey] = entry;
+                        _detachedReferenceMap ??= new ConditionalWeakTable<object, InternalEntityEntry>();
+                        _detachedReferenceMap.AddOrUpdate(mapKey, entry);
                         break;
                     case EntityState.Unchanged:
                         _unchangedReferenceMap ??=

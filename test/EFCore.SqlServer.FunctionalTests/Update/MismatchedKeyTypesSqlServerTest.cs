@@ -8,7 +8,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 {
     public MismatchedKeyTypesSqlServerFixture Fixture { get; } = fixture;
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_with_bigint_FK_and_int_PK()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -81,7 +81,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_with_tinyint_FK_and_smallint_PK()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -154,7 +154,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_with_string_FK_and_GUID_PK()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -227,7 +227,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact] // Issue #28392
+    [Fact] // Issue #28392
     public virtual void Can_update_and_delete_composite_keys_mismatched_in_store()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -300,7 +300,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                 .Include(e => e.RequiredSingle);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Queries_work_but_SaveChanges_fails_when_composite_keys_incompatible_in_store()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -328,7 +328,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Queries_work_but_SaveChanges_fails_when_keys_incompatible_in_store()
     {
         using var context = new MismatchedKeyTypesContext(Fixture);
@@ -774,7 +774,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 
         public SqlServerTestStore Store { get; set; } = null!;
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
         {
             Store = await SqlServerTestStore.CreateInitializedAsync("MismatchedKeyTypes");
 
@@ -786,7 +786,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
             await SeedAsync();
         }
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
             if (Store != null)
             {

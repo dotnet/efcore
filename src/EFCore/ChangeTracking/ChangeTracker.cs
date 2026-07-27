@@ -215,6 +215,73 @@ public class ChangeTracker : IResettableService
             .Select(e => new EntityEntry<TEntity>(e));
     }
 
+    /// <summary>
+    ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context that has the given state(s).
+    ///     The entries provide access to change tracking information and operations for each entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method does not call <see cref="DetectChanges" /> and returns entries based on the current state
+    ///         of the change tracker. This makes it suitable for use in high-performance scenarios or in contexts
+    ///         that track many entities, where calling <see cref="DetectChanges" /> may be expensive.
+    ///     </para>
+    ///     <para>
+    ///         Note that modification of entity state while iterating over the returned enumeration may result in
+    ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+    ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="added">If <see langword="true" />, entries with <see cref="EntityState.Added" /> state are included.</param>
+    /// <param name="modified">If <see langword="true" />, entries with <see cref="EntityState.Modified" /> state are included.</param>
+    /// <param name="deleted">If <see langword="true" />, entries with <see cref="EntityState.Deleted" /> state are included.</param>
+    /// <param name="unchanged">If <see langword="true" />, entries with <see cref="EntityState.Unchanged" /> state are included.</param>
+    /// <returns>An entry for each entity that has the given state(s).</returns>
+    public virtual IEnumerable<EntityEntry> GetEntriesForState(
+        bool added = false,
+        bool modified = false,
+        bool deleted = false,
+        bool unchanged = false)
+        => StateManager.GetEntriesForState(added, modified, deleted, unchanged, returnSharedIdentity: true)
+            .Select(e => new EntityEntry(e));
+
+    /// <summary>
+    ///     Gets an <see cref="EntityEntry{TEntity}" /> for each entity of a given type being tracked by the context
+    ///     that has the given state(s). The entries provide access to change tracking information and operations for each entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method does not call <see cref="DetectChanges" /> and returns entries based on the current state
+    ///         of the change tracker. This makes it suitable for use in high-performance scenarios or in contexts
+    ///         that track many entities, where calling <see cref="DetectChanges" /> may be expensive.
+    ///     </para>
+    ///     <para>
+    ///         Note that modification of entity state while iterating over the returned enumeration may result in
+    ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+    ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entities to get entries for.</typeparam>
+    /// <param name="added">If <see langword="true" />, entries with <see cref="EntityState.Added" /> state are included.</param>
+    /// <param name="modified">If <see langword="true" />, entries with <see cref="EntityState.Modified" /> state are included.</param>
+    /// <param name="deleted">If <see langword="true" />, entries with <see cref="EntityState.Deleted" /> state are included.</param>
+    /// <param name="unchanged">If <see langword="true" />, entries with <see cref="EntityState.Unchanged" /> state are included.</param>
+    /// <returns>An entry for each entity of the given type that has the given state(s).</returns>
+    public virtual IEnumerable<EntityEntry<TEntity>> GetEntriesForState<TEntity>(
+        bool added = false,
+        bool modified = false,
+        bool deleted = false,
+        bool unchanged = false)
+        where TEntity : class
+        => StateManager.GetEntriesForState(added, modified, deleted, unchanged, returnSharedIdentity: true)
+            .Where(e => e.Entity is TEntity)
+            .Select(e => new EntityEntry<TEntity>(e));
+
     private void TryDetectChanges()
     {
         if (AutoDetectChangesEnabled)

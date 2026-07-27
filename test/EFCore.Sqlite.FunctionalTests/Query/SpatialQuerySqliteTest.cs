@@ -1,11 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-[SpatialiteRequired]
+[ConditionalClass(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.SpatialiteAvailable))]
 public class SpatialQuerySqliteTest : SpatialQueryRelationalTestBase<SpatialQuerySqliteFixture>
 {
     public SpatialQuerySqliteTest(SpatialQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
@@ -128,10 +128,7 @@ FROM "PointEntity" AS "p"
 
         AssertSql(
             """
-SELECT "p"."Id", CASE
-    WHEN "p"."Point" IS NULL THEN NULL
-    ELSE AsBinary("p"."Point")
-END AS "Binary"
+SELECT "p"."Id", AsBinary("p"."Point") AS "Binary"
 FROM "PointEntity" AS "p"
 """);
     }

@@ -16,7 +16,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class NonRelationshipTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public void Can_set_model_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -28,7 +28,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Ro", model.FindAnnotation("Fus")!.Value);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Model_is_readonly_after_Finalize()
         {
             var modelBuilder = CreateModelBuilder();
@@ -38,7 +38,7 @@ public abstract partial class ModelBuilderTest
             Assert.ThrowsAny<Exception>(() => modelBuilder.HasAnnotation("Fus", "Ro"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_get_entity_builder_for_clr_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -50,7 +50,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(typeof(Customer).FullName, model.FindEntityType(typeof(Customer))!.Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_entity_key_from_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -64,7 +64,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Customer.IdProperty.Name, entity.FindPrimaryKey()!.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Entity_key_on_shadow_property_is_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -78,7 +78,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Id", entity.FindPrimaryKey()!.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Entity_key_on_secondary_property_is_discovered_by_convention_when_first_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -93,7 +93,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(SelfRef.SelfRefId), entity.FindPrimaryKey()!.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_entity_key_from_property_name_when_no_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -113,7 +113,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Customer.IdProperty.Name + 1, entity.FindPrimaryKey()!.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_entity_key_from_clr_property_when_property_ignored_on_keyless()
         {
             var modelBuilder = CreateModelBuilder();
@@ -131,7 +131,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Customer.IdProperty.Name, entity.FindPrimaryKey()!.Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_composite_entity_key_from_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -148,7 +148,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Customer.NameProperty.Name, entity.FindPrimaryKey()!.Properties.Last().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_composite_entity_key_from_property_names_when_mixed_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -169,7 +169,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Customer.NameProperty.Name + "Shadow", entity.FindPrimaryKey()!.Properties.Last().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_entity_key_with_annotations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -190,7 +190,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("V2", keyBuilder.Metadata["A2"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_upgrade_candidate_key_to_primary_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -215,7 +215,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_alternate_key_from_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -230,7 +230,7 @@ public abstract partial class ModelBuilderTest
                 entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_alternate_key_from_property_name_when_no_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -249,7 +249,7 @@ public abstract partial class ModelBuilderTest
                 entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_alternate_key_from_clr_property_when_property_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -266,7 +266,7 @@ public abstract partial class ModelBuilderTest
                 entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Setting_alternate_key_makes_properties_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -281,7 +281,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(alternateKeyProperty.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_entity_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -293,7 +293,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", entityBuilder.Metadata["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_property_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -308,7 +308,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", property["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_property_annotation_when_no_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -323,7 +323,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", property["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_property_annotation_by_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveAnnotation("foo", "bar"));
@@ -338,7 +338,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", property["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_are_required_by_default_only_if_CLR_type_is_nullable()
         {
             var modelBuilder = CreateModelBuilder();
@@ -363,7 +363,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(entityType.FindProperty("Bottom")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -385,7 +385,7 @@ public abstract partial class ModelBuilderTest
             Assert.DoesNotContain(nameof(Quarks.Down), entityType.GetProperties().Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_ignored_by_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.IgnoreAny<Guid>());
@@ -397,7 +397,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty(nameof(Customer.AlternateKey)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conventions_can_be_added()
         {
             var modelBuilder = CreateModelBuilder(c => c.Conventions.Add(s => new TestConvention()));
@@ -407,7 +407,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", model["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conventions_can_be_removed()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -421,7 +421,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conventions_can_be_removed_by_generic_method()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -435,7 +435,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conventions_can_be_replaced()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -464,19 +464,19 @@ public abstract partial class ModelBuilderTest
                 => modelBuilder.HasAnnotation("foo", "bar");
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Int32_cannot_be_ignored()
             => Assert.Equal(
                 CoreStrings.UnconfigurableType("int?", "Ignored", "Property", "int"),
                 Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<int>())).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Object_cannot_be_ignored()
             => Assert.Equal(
                 CoreStrings.UnconfigurableType("string", "Ignored", "Property", "object"),
                 Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<object>())).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -488,7 +488,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityBuilder.Metadata.FindProperty(Customer.IdProperty.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
         {
             var modelBuilder = CreateModelBuilder();
@@ -500,7 +500,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityBuilder.Metadata.FindProperty("Shadow"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_shadow_properties_when_they_have_been_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -517,7 +517,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(model.FindEntityType(typeof(Customer))!.FindProperty("Shadow"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_override_navigations_as_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -533,7 +533,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(customer.FindProperty(nameof(Customer.Orders)));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Ignoring_a_navigation_property_removes_discovered_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
@@ -549,7 +549,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(model.GetEntityTypes());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Ignoring_a_navigation_property_removes_discovered_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -568,7 +568,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, model.GetEntityTypes().Count());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Ignoring_a_base_type_removes_relationships()
         {
             var modelBuilder = CreateModelBuilder(c => c.IgnoreAny<INotifyPropertyChanged>());
@@ -580,7 +580,25 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(model.GetEntityTypes().Single().GetForeignKeys());
         }
 
-        [ConditionalFact]
+        [Fact]
+        public virtual void Foreign_key_can_be_configured_as_unconstrained()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<Customer>();
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer).WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId)
+                .IsConstrained(false);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys().Single();
+            Assert.False(foreignKey.IsConstrained);
+        }
+
+        [Fact]
         public virtual void Properties_can_be_made_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -606,7 +624,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Bottom")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_made_optional()
         {
             var modelBuilder = CreateModelBuilder();
@@ -626,7 +644,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(entityType.FindProperty("Bottom")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Key_properties_cannot_be_made_optional()
             => Assert.Equal(
                 CoreStrings.KeyPropertyCannotBeNullable(nameof(Quarks.Down), nameof(Quarks), "{'" + nameof(Quarks.Down) + "'}"),
@@ -637,7 +655,7 @@ public abstract partial class ModelBuilderTest
                         b.Property(e => e.Down).IsRequired(false);
                     })).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Non_nullable_properties_cannot_be_made_optional()
         {
             var modelBuilder = CreateModelBuilder();
@@ -665,7 +683,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Top")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -693,7 +711,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotEqual(entityType.FindProperty("Gluon")!.GetShadowIndex(), entityType.FindProperty("Photon")!.GetShadowIndex());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_made_concurrency_tokens()
         {
             var modelBuilder = CreateModelBuilder();
@@ -731,7 +749,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_access_mode_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -753,7 +771,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, entityType.FindProperty("Strange")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Access_mode_can_be_overridden_at_entity_and_property_levels()
         {
             var modelBuilder = CreateModelBuilder();
@@ -786,7 +804,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_provider_type_set()
             => Properties_can_have_provider_type_set<byte[]>();
 
@@ -833,7 +851,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<string>>(top.GetProviderValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_provider_type_set_for_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
@@ -855,7 +873,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(typeof(byte[]), entityType.FindProperty("Strange")!.GetProviderClrType());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_non_generic_value_converter_set()
             => Properties_can_have_non_generic_value_converter_set<byte[]>();
 
@@ -893,7 +911,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty("Strange")!.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_custom_type_value_converter_type_set()
             => Properties_can_have_custom_type_value_converter_type_set<byte[]>();
 
@@ -940,7 +958,7 @@ public abstract partial class ModelBuilderTest
 
         protected class CustomValueComparer<T>() : ValueComparer<T>(false);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_value_converter_set_inline()
         {
             var modelBuilder = CreateModelBuilder();
@@ -979,7 +997,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_value_converter_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1021,7 +1039,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void IEnumerable_properties_with_value_converter_set_are_not_discovered_as_navigations()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1058,7 +1076,7 @@ public abstract partial class ModelBuilderTest
 
         private class ExpandoObjectComparer() : ValueComparer<ExpandoObject>((v1, v2) => v1!.SequenceEqual(v2!), v => v.GetHashCode());
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_value_converter_configured_by_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1080,7 +1098,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<ValueComparer<WrappedString>>(wrappedProperty.GetValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
         {
             var modelBuilder = CreateModelBuilder(c
@@ -1100,7 +1118,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<NullableValueComparer<int>>(wierd.GetValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Value_converter_configured_on_nullable_type_overrides_non_nullable()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1129,7 +1147,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<string>>(wierd.GetProviderValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Value_converter_configured_on_base_type_is_not_applied()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1150,7 +1168,7 @@ public abstract partial class ModelBuilderTest
         private class WrappedStringToStringConverter()
             : ValueConverter<WrappedString, string>(v => v.Value!, v => new WrappedString { Value = v });
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_conflicting_base_configurations_by_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1166,7 +1184,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<WrappedStringEntity>()).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Value_converter_type_is_checked()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1184,7 +1202,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty("Up")!.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_have_field_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1204,7 +1222,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("_forWierd", entityType.FindProperty("_forWierd")!.GetFieldName());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasField_throws_if_field_is_not_found()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1217,7 +1235,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasField_throws_if_field_is_wrong_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1230,7 +1248,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_be_set_to_generate_values_on_Add()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1257,7 +1275,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ValueGenerated.OnUpdate, entityType.FindProperty("Bottom")!.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Properties_can_set_row_version()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1283,7 +1301,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(entityType.FindProperty("Charm")!.IsConcurrencyToken);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_max_length_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1310,7 +1328,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(100, entityType.FindProperty("Bottom")!.GetMaxLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_max_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1339,7 +1357,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(100, entityType.FindProperty("Bottom")!.GetMaxLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_sentinel_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1366,7 +1384,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty("Bottom")!.Sentinel);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Setting_sentinel_throws_for_null_on_nonnullable()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1381,7 +1399,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Setting_sentinel_throws_for_noncompatible()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1395,7 +1413,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_sentinel_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1424,7 +1442,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("100", entityType.FindProperty("Bottom")!.Sentinel);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_unbounded_max_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1453,7 +1471,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(-1, entityType.FindProperty("Bottom")!.GetMaxLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_precision_and_scale_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1487,7 +1505,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(10, entityType.FindProperty("Bottom")!.GetScale());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_precision_and_scale_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1523,7 +1541,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(10, entityType.FindProperty("Bottom")!.GetScale());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_custom_value_generator_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1566,7 +1584,7 @@ public abstract partial class ModelBuilderTest
                 => new CustomValueGenerator();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_value_generator_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1579,7 +1597,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_value_generator_that_cannot_be_constructed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1617,13 +1635,13 @@ public abstract partial class ModelBuilderTest
             public ICollection<string>? Property { get; set; }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Object_cannot_be_configured_as_property()
             => Assert.Equal(
                 CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "object"),
                 Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<object>())).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Property_bag_cannot_be_configured_as_property()
         {
             Assert.Equal(
@@ -1639,7 +1657,7 @@ public abstract partial class ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_ignores_ignored_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1651,7 +1669,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(OneDee))!.FindProperty("One"));
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_ignores_ignored_two_dimensional_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1663,7 +1681,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(TwoDee))!.FindProperty("Two"));
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_throws_for_non_ignored_three_dimensional_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1676,7 +1694,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_ignores_ignored_three_dimensional_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1688,7 +1706,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(ThreeDee))!.FindProperty("Three"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Private_property_is_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1703,7 +1721,7 @@ public abstract partial class ModelBuilderTest
                 p => p.Name == "PrivateProperty");
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Throws_for_int_keyed_dictionary()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1722,7 +1740,7 @@ public abstract partial class ModelBuilderTest
             public Dictionary<int, string>? Notes { get; set; }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_unicode_for_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1749,7 +1767,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Bottom")!.IsUnicode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_unicode_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(c =>
@@ -1778,7 +1796,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Bottom")!.IsUnicode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PropertyBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<Quarks>()
@@ -1801,7 +1819,7 @@ public abstract partial class ModelBuilderTest
                 .HasValueGenerator((_, __) => null!)
                 .IsRequired();
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1818,7 +1836,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(Customer.NameProperty.Name, index.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_index_when_no_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1838,7 +1856,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Index", index.Properties.Single().Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_multiple_indexes()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1869,7 +1887,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal([], descendingIndex.IsDescending);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_contained_indexes()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1887,7 +1905,261 @@ public abstract partial class ModelBuilderTest
             Assert.False(secondIndexBuilder.Metadata.IsUnique);
         }
 
-        [ConditionalFact]
+        // Common setup for the complex-index tests below. Configures ComplexProperties with Customer (single
+        // complex) and Customers (complex collection) and ignores everything else so conventions stay quiet.
+        private static TestModelBuilder ConfigureComplexIndexEntity(
+            TestModelBuilder modelBuilder,
+            Action<TestEntityTypeBuilder<ComplexProperties>> configure)
+            => modelBuilder
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.CollectionQuarks);
+                    b.Ignore(e => e.QuarksCollection);
+                    b.Ignore(e => e.DoubleProperty);
+                    b.Ignore(e => e.Quarks);
+                    b.ComplexProperty(e => e.Customer!, cb =>
+                    {
+                        cb.Ignore(c => c.Details);
+                        cb.Ignore(c => c.Orders);
+                    });
+                    b.ComplexCollection(e => e.Customers, cb =>
+                    {
+                        cb.Ignore(c => c.Details);
+                        cb.Ignore(c => c.Orders);
+                    });
+                    configure(b);
+                });
+
+        [Fact]
+        public virtual void HasIndex_through_complex_property_resolves_leaf_with_no_collection_indices()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customer!.Name));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            var leaf = index.Properties.Single();
+            Assert.Equal(nameof(Customer.Name), leaf.Name);
+            Assert.Equal(typeof(Customer), leaf.DeclaringType.ClrType);
+            Assert.Null(index.CollectionIndices);
+        }
+
+        [Fact]
+        public virtual void HasIndex_over_complex_collection_records_null_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers.Select(c => c.Name)));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            var leaf = index.Properties.Single();
+            Assert.Equal(nameof(Customer.Name), leaf.Name);
+            Assert.Equal(typeof(Customer), leaf.DeclaringType.ClrType);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            var entry = Assert.Single(collectionIndices);
+            Assert.NotNull(entry);
+            Assert.Equal(new int?[] { null }, entry);
+        }
+
+        [Fact]
+        public virtual void HasIndex_with_constant_indexer_records_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers[0].Name));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Name), index.Properties.Single().Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(new int?[] { 0 }, Assert.Single(collectionIndices));
+        }
+
+        [Fact]
+        public virtual void HasIndex_with_multiple_leaves_mixing_complex_and_collection_paths()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder,
+                b => b.HasIndex(e => new { e.Customer!.Name, Titles = e.Customers.Select(c => c.Title) }));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+
+            Assert.Equal(2, index.Properties.Count);
+            Assert.Equal(nameof(Customer.Name), index.Properties[0].Name);
+            Assert.Equal(nameof(Customer.Title), index.Properties[1].Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(2, collectionIndices.Count);
+            Assert.Null(collectionIndices[0]);
+            Assert.Equal(new int?[] { null }, collectionIndices[1]);
+        }
+
+        [Fact]
+        public virtual void HasIndex_with_different_collection_indices_creates_distinct_indexes()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers[0].Name);
+                    b.HasIndex(e => e.Customers.Select(c => c.Name));
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var indexes = entityType.GetIndexes().ToList();
+            Assert.Equal(2, indexes.Count);
+
+            Assert.Single(
+                indexes, i => i.CollectionIndices is { Count: 1 } ci
+                    && ci[0] is { } entry
+                    && entry.SequenceEqual(new int?[] { 0 }));
+            Assert.Single(
+                indexes, i => i.CollectionIndices is { Count: 1 } ci
+                    && ci[0] is { } entry
+                    && entry.SequenceEqual(new int?[] { null }));
+        }
+
+        [Fact]
+        public virtual void ForeignKeyIndexConvention_does_not_treat_JSON_path_indexes_as_redundant_coverage()
+        {
+            // A regular index on a scalar shouldn't be considered as covering a JSON-path index over a complex
+            // collection leaf, and vice versa. Both should survive.
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers.Select(c => c.Name));
+                    b.HasIndex(e => e.Id);
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var indexes = entityType.GetIndexes().ToList();
+
+            Assert.Equal(2, indexes.Count);
+            Assert.Single(indexes, i => i.CollectionIndices is not null);
+            Assert.Single(indexes, i => i.CollectionIndices is null);
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_dotted_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customer!.Name));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Name), index.Properties.Single().Name);
+            Assert.Null(index.CollectionIndices);
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_empty_bracket_yields_null_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers.Select(c => c.Title)));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Title), index.Properties.Single().Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(new int?[] { null }, Assert.Single(collectionIndices));
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_numeric_bracket_yields_byte_collection_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers[3].Title));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal(nameof(Customer.Title), index.Properties.Single().Name);
+
+            var collectionIndices = index.CollectionIndices;
+            Assert.NotNull(collectionIndices);
+            Assert.Equal(new int?[] { 3 }, Assert.Single(collectionIndices));
+        }
+
+        [Fact]
+        public virtual void HasIndex_string_path_with_name_uses_named_overload()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(modelBuilder, b => b.HasIndex(e => e.Customers[0].Name, "IX_FirstCustomerName"));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var index = entityType.GetIndexes().Single();
+            Assert.Equal("IX_FirstCustomerName", index.Name);
+            Assert.Equal(nameof(Customer.Name), index.Properties.Single().Name);
+            Assert.Equal(new int?[] { 0 }, Assert.Single(index.CollectionIndices!));
+        }
+
+        [Fact]
+        public virtual void HasIndex_named_with_conflicting_collection_indices_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var caught = Assert.Throws<InvalidOperationException>(
+                () => ConfigureComplexIndexEntity(
+                    modelBuilder, b =>
+                    {
+                        b.HasIndex(e => e.Customers[0].Name, "MyIdx");
+                        b.HasIndex(e => e.Customers.Select(c => c.Name), "MyIdx");
+                    }));
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            Assert.Equal(
+                CoreStrings.ConflictingNamedIndex(
+                    "MyIdx",
+                    entityType.DisplayName(),
+                    entityType.FindIndex("MyIdx")!.Properties.Format()),
+                caught.Message);
+        }
+
+        [Fact]
+        public virtual void HasIndex_unnamed_plain_and_json_path_on_same_property_coexist()
+        {
+            // Same leaf Property (Customers.Name), but distinct CollectionIndices identities — both should
+            // survive without triggering DuplicateIndex.
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers.Select(c => c.Name));
+                    b.HasIndex(e => e.Customers[0].Name);
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            var indexes = entityType.GetIndexes().ToList();
+            Assert.Equal(2, indexes.Count);
+            Assert.Single(indexes, i => i.CollectionIndices![0]!.SequenceEqual(new int?[] { null }));
+            Assert.Single(indexes, i => i.CollectionIndices![0]!.SequenceEqual(new int?[] { 0 }));
+        }
+
+        [Fact]
+        public virtual void HasIndex_idempotent_for_same_json_path_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers[0].Name);
+                    b.HasIndex(e => e.Customers[0].Name);
+                });
+
+            var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
+            Assert.Single(entityType.GetIndexes());
+        }
+
+        [Fact]
         public virtual void Can_set_primary_key_by_convention_for_user_specified_shadow_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1905,7 +2177,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(["Id"], entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_explicit_interface_implementation_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1922,7 +2194,7 @@ public abstract partial class ModelBuilderTest
                 modelBuilder.Model.FindEntityType(typeof(EntityBase))!.GetProperties().Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_key_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1939,7 +2211,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_composite_key_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1960,7 +2232,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(second.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_alternate_key_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1979,7 +2251,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(properties, key.Properties);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_composite_alternate_key_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2001,7 +2273,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(second.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_call_Property_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2016,7 +2288,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_index_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2031,7 +2303,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_composite_index_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2053,7 +2325,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(second.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_a_field_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2068,7 +2340,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(EntityWithFields.Id), property.Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_ignore_a_field_on_a_keyless_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2084,7 +2356,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(KeylessEntityWithFields.LastName), property.Name);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_seed_data_objects()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2109,7 +2381,7 @@ public abstract partial class ModelBuilderTest
             var _ = finalModel.ToDebugString();
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_seed_data_anonymous_objects()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2131,7 +2403,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(-2, data.Last().Values.Single());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_seed_data_objects_indexed_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2153,7 +2425,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(data["Optional"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_seed_data_anonymous_objects_indexed_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2174,7 +2446,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(data.ContainsKey("Optional"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_seed_data_objects_indexed_property_dictionary()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2195,7 +2467,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(data["Optional"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_seed_data_anonymous_objects_indexed_property_dictionary()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2215,7 +2487,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(data.ContainsKey("Optional"));
         }
 
-        [ConditionalFact, UseCulture("de-DE")] //Issue#12617
+        [Fact, UseCulture("de-DE")] //Issue#12617
         public virtual void EntityType_name_is_stored_culture_invariantly()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2241,7 +2513,7 @@ public abstract partial class ModelBuilderTest
             public Entityß? Navigationss { get; set; }
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_add_shared_type_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2283,7 +2555,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(indexer, shared2.FindIndexerPropertyInfo());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Cannot_add_shared_type_when_non_shared_exists()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2295,7 +2567,7 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.SharedTypeEntity<Customer>("Shared1")).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_primitive_collection_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2310,7 +2582,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", property["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_primitive_collection_annotation_when_no_clr_property()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2325,7 +2597,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", property["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_primitive_collection_annotation_by_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveAnnotation("foo", "bar"));
@@ -2340,7 +2612,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", property["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_are_required_by_default_only_if_CLR_type_is_nullable()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2361,7 +2633,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(entityType.FindProperty("Strange")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_be_ignored()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2380,7 +2652,7 @@ public abstract partial class ModelBuilderTest
             Assert.DoesNotContain(nameof(CollectionQuarks.Down), entityType.GetProperties().Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_override_navigations_as_primitive_collections()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2398,7 +2670,25 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.GetElementType());
         }
 
-        [ConditionalFact]
+        [Fact]
+        public virtual void Can_override_primitive_collection_as_scalar_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<CollectionQuarks>().PrimitiveCollection(e => e.Up);
+
+            var entityType = model.FindEntityType(typeof(CollectionQuarks))!;
+            Assert.NotNull(entityType.FindProperty(nameof(CollectionQuarks.Up))!.GetElementType());
+
+            modelBuilder.Entity<CollectionQuarks>().Property(e => e.Up);
+
+            var property = entityType.FindProperty(nameof(CollectionQuarks.Up));
+            Assert.NotNull(property);
+            Assert.Null(property.GetElementType());
+        }
+
+        [Fact]
         public virtual void Primitive_collections_can_be_made_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2420,7 +2710,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Strange")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_be_made_optional()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2442,7 +2732,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(entityType.FindProperty("Strange")!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PrimitiveCollection_Key_properties_cannot_be_made_optional()
             => Assert.Equal(
                 CoreStrings.KeyPropertyCannotBeNullable(
@@ -2454,7 +2744,7 @@ public abstract partial class ModelBuilderTest
                         b.PrimitiveCollection(e => e.Down).IsRequired(false);
                     })).Message);
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2481,7 +2771,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotEqual(-1, entityType.FindProperty("Strange")!.GetShadowIndex());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_be_made_concurrency_tokens()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2506,7 +2796,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_have_access_mode_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2529,7 +2819,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, entityType.FindProperty("Strange")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Access_mode_can_be_overridden_at_entity_and_primitive_collection_levels()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2552,7 +2842,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(PropertyAccessMode.Property, collectionQuarksType.FindProperty("Up")!.GetPropertyAccessMode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_have_field_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2572,7 +2862,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("_forWierd", entityType.FindProperty("_forWierd")!.GetFieldName());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasField_for_primitive_collection_throws_if_field_is_not_found()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2585,7 +2875,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasField_for_primitive_collection_throws_if_field_is_wrong_type()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2600,7 +2890,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_be_set_to_generate_values_on_Add()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2626,7 +2916,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(ValueGenerated.OnUpdate, entityType.FindProperty("Bottom")!.ValueGenerated);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_max_length_for_primitive_collections()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2653,7 +2943,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(100, entityType.FindProperty("Bottom")!.GetMaxLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_sentinel_for_primitive_collections()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2680,7 +2970,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(new List<string> { "" }, entityType.FindProperty("Bottom")!.Sentinel);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_custom_value_generator_for_primitive_collections()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2706,7 +2996,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueGenerator>(entityType.FindProperty("Bottom")!.GetValueGeneratorFactory()!(null!, null!));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_bad_value_generator_type_for_primitive_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2720,7 +3010,7 @@ public abstract partial class ModelBuilderTest
             });
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Throws_for_primitive_collection_for_value_generator_that_cannot_be_constructed()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2745,7 +3035,7 @@ public abstract partial class ModelBuilderTest
                     .Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Nested_primitive_collection_are_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2760,7 +3050,7 @@ public abstract partial class ModelBuilderTest
                 p => p.Name == "PrivateCollection");
         }
 
-        [ConditionalFact]
+        [Fact]
         protected virtual void Mapping_for_primitive_collection_ignores_ignored_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2772,7 +3062,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(OneDee))!.FindProperty("One"));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Private_primitive_collection_is_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2787,7 +3077,7 @@ public abstract partial class ModelBuilderTest
                 p => p.Name == "PrivateCollection");
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_unicode_for_primitive_collections()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2814,7 +3104,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Bottom")!.IsUnicode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void PrimitiveCollectionBuilder_methods_can_be_chained()
             => CreateModelBuilder()
                 .Entity<CollectionQuarks>()
@@ -2851,7 +3141,7 @@ public abstract partial class ModelBuilderTest
                 .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
                 .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory));
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_primary_key_by_convention_for_user_specified_shadow_primitive_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2869,7 +3159,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(["Id"], entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_key_for_primitive_collection_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2886,7 +3176,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.FieldInfo);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_composite_key_for_primitive_collection_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2914,7 +3204,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(second.GetElementType());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_alternate_key_for_primitive_collection_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2939,7 +3229,7 @@ public abstract partial class ModelBuilderTest
             Assert.Single(keys, k => k.Properties.All(p => p == property));
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_call_PrimitiveCollection_on_an_entity_with_fields()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2955,7 +3245,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.GetElementType());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Can_set_element_type_annotation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2975,7 +3265,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", elementType["foo"]);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_are_nullable_by_default_if_the_type_is_nullable()
         {
             var modelBuilder = CreateModelBuilder();
@@ -2998,7 +3288,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(entityType.FindProperty("Stranger")!.GetElementType()!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_be_made_required()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3022,7 +3312,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Stranger")!.GetElementType()!.IsNullable);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_have_no_max_length_by_default()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3043,7 +3333,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty("Stranger")!.GetElementType()!.GetMaxLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_have_max_length()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3065,7 +3355,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(int.MaxValue, entityType.FindProperty("Stranger")!.GetElementType()!.GetMaxLength());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_have_default_precision_and_scale()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3096,7 +3386,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(property.GetElementType()!.GetScale());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_have_precision_and_scale()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3131,7 +3421,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(elementType.GetScale());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_have_default_unicode()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3152,7 +3442,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty("Stranger")!.GetElementType()!.IsUnicode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_have_unicode_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3174,7 +3464,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(entityType.FindProperty("Stranger")!.GetElementType()!.IsUnicode());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conversion_on_base_property_prevents_primitive_collection()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3193,7 +3483,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Conversion_on_base_property_prevents_primitive_collection_when_base_first()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3216,7 +3506,7 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_have_provider_type_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3253,7 +3543,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<byte[]>>(top.GetValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_have_non_generic_value_converter_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3286,7 +3576,7 @@ public abstract partial class ModelBuilderTest
             Assert.Null(entityType.FindProperty("Strange")!.GetElementType()!.GetValueConverter());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Element_types_can_have_custom_type_value_converter_type_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3329,7 +3619,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<string>>(top.GetValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Primitive_collections_can_have_value_converter_set()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3366,7 +3656,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void Value_converter_type_on_primitive_collection_is_checked()
         {
             var modelBuilder = CreateModelBuilder();

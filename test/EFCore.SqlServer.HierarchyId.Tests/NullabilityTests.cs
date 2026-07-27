@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Xunit;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class NullabilityTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Null_against_null()
     {
         Assert.True(null == (HierarchyId)null);
@@ -18,7 +18,7 @@ public class NullabilityTests
         Assert.True(null <= (HierarchyId)null);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Null_against_nonNull()
     {
         var hid = HierarchyId.GetRoot();
@@ -41,7 +41,7 @@ public class NullabilityTests
         Assert.True(null <= hid);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void NullOnly_aggregates_equalTo_null()
     {
         var hid = (HierarchyId)null;
@@ -60,7 +60,7 @@ public class NullabilityTests
         Assert.False(max != hid);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Aggregates_including_nulls_equalTo_nonNull()
     {
         var hid = HierarchyId.GetRoot();

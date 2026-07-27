@@ -45,10 +45,17 @@ public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress?,
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static PhysicalAddressToStringConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(PhysicalAddress), typeof(string), i => new PhysicalAddressToStringConverter(i.MappingHints), DefaultHints);
+        = new(typeof(PhysicalAddress), typeof(string),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new PhysicalAddressToStringConverter(i.MappingHints),
+            DefaultHints);
 
     private static new Expression<Func<PhysicalAddress?, string?>> ToString()
         => v => v!.ToString();

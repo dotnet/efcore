@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class InternalEntityEntryFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Creates_CLR_only_entry_when_entity_has_no_shadow_properties()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -29,7 +29,7 @@ public class InternalEntityEntryFactoryTest
         Assert.Same(entity, entry.Entity);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Creates_mixed_entry_when_entity_CLR_entity_type_and_shadow_properties()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

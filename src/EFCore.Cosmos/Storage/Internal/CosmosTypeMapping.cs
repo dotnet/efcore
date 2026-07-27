@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -86,11 +86,23 @@ public class CosmosTypeMapping : CoreTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string GenerateConstant(object? value)
-    {
-        var jToken = GenerateJToken(value);
+    public virtual SqlParameter CreateParameter(string name, object? value)
+        => new SqlValueParameter(name, ConvertToProviderValue(value));
 
-        return jToken is null ? "null" : jToken.ToString(Formatting.None);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object? ConvertToProviderValue(object? value)
+    {
+        value = NormalizeValue(value);
+        if (Converter != null && (value is not null || Converter.ConvertsNulls))
+        {
+            value = Converter.ConvertToProvider(value);
+        }
+        return value;
     }
 
     /// <summary>
@@ -99,26 +111,59 @@ public class CosmosTypeMapping : CoreTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual JToken? GenerateJToken(object? value)
+    public virtual string GenerateSqlLiteral(object? value)
     {
-        if (value?.GetType().IsInteger() == true)
+        value = NormalizeValue(value);
+        return value is not null || JsonValueReaderWriter!.HandlesNullWrites
+                ? ToCosmosJsonString(value)
+                : "null";
+    }
+
+    private string ToCosmosJsonString(object? value)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream, CosmosClientWrapper.JsonWriterOptions);
+
+        JsonValueReaderWriter!.ToJson(writer, value);
+
+        writer.Flush();
+
+        return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
+    }
+
+    private object? NormalizeValue(object? value)
+    {
+        if (value is null)
         {
-            var unwrappedType = ClrType.UnwrapNullableType();
-            value = unwrappedType.IsEnum
-                ? Enum.ToObject(unwrappedType, value)
-                : unwrappedType == typeof(char)
-                    ? Convert.ChangeType(value, unwrappedType)
-                    : value;
+            return value;
         }
 
-        var converter = Converter;
-        if (converter != null)
+        var type = value.GetType();
+        var unwrappedClrType = ClrType.UnwrapNullableType();
+
+        // When Enum column is compared to constant the C# compiler put a constant of integer there
+        // In some unknown cases for parameter we also see integer value.
+        // So if CLR type is enum we need to convert integer value to enum value
+        if (type.IsInteger()
+            && unwrappedClrType.IsEnum)
         {
-            value = converter.ConvertToProvider(value);
+            return Enum.ToObject(unwrappedClrType, value);
         }
 
-        return value == null
-            ? null
-            : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+        // When Enum is cast manually our logic of removing implicit convert gives us enum value here
+        // So if CLR type is integer we need to convert enum value to integer value
+        if (type.IsEnum
+            && unwrappedClrType.IsInteger())
+        {
+            return Convert.ChangeType(value, unwrappedClrType);
+        }
+
+        // Handle implicit conversions here to ensure the boxed value has the type expected by JsonValueReaderWriter. Otherwise, unboxing it will throw if the boxed type does not match (for example, value = (char)boxedInt).
+        if (type != unwrappedClrType && value is IConvertible)
+        {
+            return Convert.ChangeType(value, unwrappedClrType);
+        }
+
+        return value;
     }
 }

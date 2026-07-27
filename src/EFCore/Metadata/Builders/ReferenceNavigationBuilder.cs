@@ -238,8 +238,8 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
             && ReferenceName == referenceName)
         {
             throw new InvalidOperationException(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
+                CoreStrings.ConflictingPropertyOrNavigationWithKind(
+                    referenceName, RelatedEntityType.DisplayName(), "navigation"));
         }
 
         var pointsToPrincipal = !foreignKey.IsSelfReferencing()

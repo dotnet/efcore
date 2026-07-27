@@ -231,6 +231,70 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.CompiledModelProviderMismatchWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="compiledProviderName">The provider name stored in the compiled model.</param>
+    /// <param name="currentProviderName">The provider name currently configured.</param>
+    public static void CompiledModelProviderMismatchWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+        string compiledProviderName,
+        string currentProviderName)
+    {
+        var definition = CoreResources.LogCompiledModelProviderMismatch(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                compiledProviderName,
+                currentProviderName);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ProviderMismatchEventData(
+                definition,
+                CompiledModelProviderMismatch,
+                compiledProviderName,
+                currentProviderName);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string CompiledModelProviderMismatch(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (ProviderMismatchEventData)payload;
+        return d.GenerateMessage(p.MismatchedProviderName, p.CurrentProviderName);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.EnsureCreatedWithTrackedEntitiesWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void EnsureCreatedWithTrackedEntitiesWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics)
+    {
+        var definition = CoreResources.LogEnsureCreatedWithTrackedEntities(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                (d, _) => ((EventDefinition)d).GenerateMessage());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -1362,6 +1426,40 @@ public static class CoreLoggerExtensions
     }
 
     private static string ShadowPropertyCreated(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (PropertyEventData)payload;
+        return d.GenerateMessage(p.Property.DeclaringType.DisplayName(), p.Property.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.ShadowPropertyNameNotValidIdentifierWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="property">The property.</param>
+    public static void ShadowPropertyNameNotValidIdentifierWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IProperty property)
+    {
+        var definition = CoreResources.LogShadowPropertyNameNotValidIdentifier(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new PropertyEventData(
+                definition,
+                ShadowPropertyNameNotValidIdentifier,
+                property);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ShadowPropertyNameNotValidIdentifier(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyEventData)payload;
@@ -2831,6 +2929,91 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string>)definition;
         var p = (TypeEventData)payload;
         return d.GenerateMessage(p.ClrType.ShortDisplayName());
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.InconsistentOwnedDataWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="navigation">The ownership navigation.</param>
+    public static void InconsistentOwnedDataWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        INavigationBase navigation)
+    {
+        var definition = CoreResources.LogInconsistentOwnedData(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                navigation.TargetEntityType.DisplayName(),
+                navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new NavigationBaseEventData(
+                definition,
+                InconsistentOwnedDataWarning,
+                navigation);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string InconsistentOwnedDataWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (NavigationBaseEventData)payload;
+        return d.GenerateMessage(
+            p.NavigationBase.TargetEntityType.DisplayName(),
+            p.NavigationBase.DeclaringEntityType.ShortName() + "." + p.NavigationBase.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.InconsistentOwnedDataWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="navigation">The ownership navigation.</param>
+    /// <param name="entry">The tracked owned entity entry, or <see langword="null" /> if not tracked.</param>
+    public static void InconsistentOwnedDataSensitive(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        INavigationBase navigation,
+        InternalEntityEntry? entry)
+    {
+        var definition = CoreResources.LogInconsistentOwnedDataSensitive(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                navigation.TargetEntityType.DisplayName(),
+                entry?.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties) ?? "<unknown>",
+                navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+        }
+
+        if (entry != null
+            && diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityEntryEventData(
+                definition,
+                InconsistentOwnedDataSensitive,
+                new EntityEntry(entry));
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string InconsistentOwnedDataSensitive(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var p = (EntityEntryEventData)payload;
+        var internalEntry = p.EntityEntry.GetInfrastructure();
+        var ownership = internalEntry.EntityType.GetForeignKeys().Single(fk => fk.IsOwnership);
+        return d.GenerateMessage(
+            internalEntry.EntityType.DisplayName(),
+            internalEntry.BuildCurrentValuesString(internalEntry.EntityType.FindPrimaryKey()!.Properties),
+            ownership.PrincipalEntityType.ShortName() + "." + ownership.PrincipalToDependent!.Name);
     }
 
     /// <summary>

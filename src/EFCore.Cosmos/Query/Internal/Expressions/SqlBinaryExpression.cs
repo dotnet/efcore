@@ -22,8 +22,8 @@ public class SqlBinaryExpression : SqlExpression
     /// </summary>
     public SqlBinaryExpression(
         ExpressionType operatorType,
-        SqlExpression left,
-        SqlExpression right,
+        Expression left,
+        Expression right,
         Type type,
         CoreTypeMapping? typeMapping)
         : base(type, typeMapping)
@@ -54,7 +54,7 @@ public class SqlBinaryExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Left { get; }
+    public virtual Expression Left { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +62,7 @@ public class SqlBinaryExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Right { get; }
+    public virtual Expression Right { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,8 +72,8 @@ public class SqlBinaryExpression : SqlExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var left = (SqlExpression)visitor.Visit(Left);
-        var right = (SqlExpression)visitor.Visit(Right);
+        var left = visitor.Visit(Left);
+        var right = visitor.Visit(Right);
 
         return Update(left, right);
     }
@@ -84,7 +84,7 @@ public class SqlBinaryExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
+    public virtual SqlBinaryExpression Update(Expression left, Expression right)
         => left != Left || right != Right
             ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
             : this;
@@ -166,7 +166,7 @@ public class SqlBinaryExpression : SqlExpression
             expressionPrinter.Append(")");
         }
 
-        static bool RequiresBrackets(SqlExpression expression)
+        static bool RequiresBrackets(Expression expression)
             => expression is SqlBinaryExpression;
     }
 

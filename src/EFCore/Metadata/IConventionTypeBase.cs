@@ -229,6 +229,47 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Adds a primitive collection property to this entity type.
+    /// </summary>
+    /// <param name="name">The name of the property to add.</param>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="elementType">The element type of the primitive collection.</param>
+    /// <param name="setTypeConfigurationSource">Indicates whether the type configuration source should be set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The newly created property.</returns>
+    IConventionProperty? AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        Type elementType,
+        bool setTypeConfigurationSource = true,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Adds a primitive collection property to this entity type.
+    /// </summary>
+    /// <param name="name">The name of the property to add.</param>
+    /// <param name="propertyType">The type of value the property will hold.</param>
+    /// <param name="memberInfo">
+    ///     <para>
+    ///         The corresponding CLR type member.
+    ///     </para>
+    ///     <para>
+    ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
+    ///     </para>
+    /// </param>
+    /// <param name="elementType">The element type of the primitive collection.</param>
+    /// <param name="setTypeConfigurationSource">Indicates whether the type configuration source should be set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The newly created property.</returns>
+    IConventionProperty? AddPrimitiveCollection(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo memberInfo,
+        Type elementType,
+        bool setTypeConfigurationSource = true,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Adds a property backed by and indexer to this entity type.
     /// </summary>
     /// <param name="name">The name of the property to add.</param>

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : AdHocQuerySplittingQueryTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
@@ -43,7 +43,7 @@ public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : A
 
     protected override TestStore CreateTestStore25225()
     {
-        var testStore = SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true);
+        var testStore = SqlServerTestStore.Create(NonSharedStoreName, multipleActiveResultSets: true);
         testStore.UseConnectionString = true;
         return testStore;
     }
@@ -270,14 +270,14 @@ ORDER BY [p1].[Id]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Using_AsSplitQuery_without_multiple_active_result_sets_works()
     {
-        var contextFactory = await InitializeAsync<Context21355>(
+        var contextFactory = await InitializeNonSharedTest<Context21355>(
             seed: c => c.SeedAsync(),
-            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: false));
+            createTestStore: () => SqlServerTestStore.Create(NonSharedStoreName, multipleActiveResultSets: false));
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
         AssertSql(
@@ -313,4 +313,143 @@ FROM [Tests] AS [t]
 ORDER BY [t].[Id]
 """);
     }
+
+    public override async Task NoTrackingWithIdentityResolution_split_query_basic(bool async)
+    {
+        await base.NoTrackingWithIdentityResolution_split_query_basic(async);
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [Tests] AS [t]
+ORDER BY [t].[Id]
+""");
+    }
+
+    public override async Task NoTrackingWithIdentityResolution_split_query_complex(bool async)
+    {
+        await base.NoTrackingWithIdentityResolution_split_query_complex(async);
+
+        AssertSql(
+            """
+SELECT [t].[Id]
+FROM [Tests] AS [t]
+ORDER BY [t].[Id]
+""");
+    }
+
+    public override async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async()
+    {
+        await base.Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async();
+
+        Assert.Equal(400, TestSqlLoggerFactory.SqlStatements.Count);
+
+        AssertContainsSql(
+            """
+@parentId='e79c82f4-3ae7-4c65-85db-04e08cba6fa7'
+
+SELECT TOP(2) [p].[Id]
+FROM [Parents] AS [p]
+WHERE [p].[Id] = @parentId
+ORDER BY [p].[Id]
+""",
+            //
+            """
+@parentId='d6457b52-690a-419e-8982-a1a8551b4572'
+
+SELECT TOP(2) [p].[Id]
+FROM [Parents] AS [p]
+WHERE [p].[Id] = @parentId
+ORDER BY [p].[Id]
+""",
+            //
+            """
+@parentId='e79c82f4-3ae7-4c65-85db-04e08cba6fa7'
+
+SELECT [c2].[Id], [c2].[ParentId], [p0].[Id]
+FROM (
+    SELECT TOP(1) [p].[Id]
+    FROM [Parents] AS [p]
+    WHERE [p].[Id] = @parentId
+    ORDER BY [p].[Id]
+) AS [p0]
+INNER JOIN [Collection] AS [c2] ON [p0].[Id] = [c2].[ParentId]
+ORDER BY [p0].[Id]
+""",
+            //
+            """
+@parentId='d6457b52-690a-419e-8982-a1a8551b4572'
+
+SELECT [c2].[Id], [c2].[ParentId], [p0].[Id]
+FROM (
+    SELECT TOP(1) [p].[Id]
+    FROM [Parents] AS [p]
+    WHERE [p].[Id] = @parentId
+    ORDER BY [p].[Id]
+) AS [p0]
+INNER JOIN [Collection] AS [c2] ON [p0].[Id] = [c2].[ParentId]
+ORDER BY [p0].[Id]
+""");
+    }
+
+    public override async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
+    {
+        await base.Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync();
+
+        Assert.Equal(40, TestSqlLoggerFactory.SqlStatements.Count);
+
+        AssertContainsSql(
+            """
+@parentId='e79c82f4-3ae7-4c65-85db-04e08cba6fa7'
+
+SELECT TOP(2) [p].[Id]
+FROM [Parents] AS [p]
+WHERE [p].[Id] = @parentId
+ORDER BY [p].[Id]
+""",
+            //
+            """
+@parentId='d6457b52-690a-419e-8982-a1a8551b4572'
+
+SELECT TOP(2) [p].[Id]
+FROM [Parents] AS [p]
+WHERE [p].[Id] = @parentId
+ORDER BY [p].[Id]
+""",
+            //
+            """
+@parentId='e79c82f4-3ae7-4c65-85db-04e08cba6fa7'
+
+SELECT [c2].[Id], [c2].[ParentId], [p0].[Id]
+FROM (
+    SELECT TOP(1) [p].[Id]
+    FROM [Parents] AS [p]
+    WHERE [p].[Id] = @parentId
+    ORDER BY [p].[Id]
+) AS [p0]
+INNER JOIN [Collection] AS [c2] ON [p0].[Id] = [c2].[ParentId]
+ORDER BY [p0].[Id]
+""",
+            //
+            """
+@parentId='d6457b52-690a-419e-8982-a1a8551b4572'
+
+SELECT [c2].[Id], [c2].[ParentId], [p0].[Id]
+FROM (
+    SELECT TOP(1) [p].[Id]
+    FROM [Parents] AS [p]
+    WHERE [p].[Id] = @parentId
+    ORDER BY [p].[Id]
+) AS [p0]
+INNER JOIN [Collection] AS [c2] ON [p0].[Id] = [c2].[ParentId]
+ORDER BY [p0].[Id]
+""");
+    }
+
+    private void AssertContainsSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

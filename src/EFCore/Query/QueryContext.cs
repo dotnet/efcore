@@ -114,12 +114,24 @@ public abstract class QueryContext
     /// </summary>
     [EntityFrameworkInternal]
     public virtual InternalEntityEntry? TryGetEntry(
-            IKey key,
-            object[] keyValues,
-            bool throwOnNullKey,
-            out bool hasNullKey)
+        IKey key,
+        object[] keyValues,
+        bool throwOnNullKey,
+        out bool hasNullKey)
+    {
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+        var entry = _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+
+        // An entity returned by a tracking query provably exists in the store, so an entry that is being tracked as
+        // Added (e.g. a new entity whose key matches an existing row, possibly created during an Add graph traversal)
+        // must be corrected to Unchanged. Otherwise it would be re-inserted, causing a duplicate key. See #35762.
+        if (entry is { EntityState: EntityState.Added })
+        {
+            entry.SetEntityState(EntityState.Unchanged);
+        }
+
+        return entry;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,4 +146,15 @@ public abstract class QueryContext
             in ISnapshot snapshot)
         // InitializeStateManager will populate the field before calling here
         => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual InternalEntityEntry? TryGetEntry(object entity)
+        // InitializeStateManager will populate the field before calling here
+        => _stateManager!.TryGetEntry(entity, throwOnNonUniqueness: false);
 }

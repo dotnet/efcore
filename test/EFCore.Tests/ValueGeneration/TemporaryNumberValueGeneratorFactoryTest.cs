@@ -15,7 +15,7 @@ public class TemporaryNumberValueGeneratorFactoryTest
         return (IModel)builder.Model;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_factories_for_all_integer_types()
     {
         var entityType = _model.FindEntityType(typeof(AnEntity));
@@ -41,7 +41,7 @@ public class TemporaryNumberValueGeneratorFactoryTest
     private static object CreateAndUseFactory(IProperty property)
         => new TemporaryNumberValueGeneratorFactory().Create(property, property.DeclaringType).Next(null);
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_non_integer_property()
     {
         var entityType = _model.FindEntityType(typeof(AnEntity));

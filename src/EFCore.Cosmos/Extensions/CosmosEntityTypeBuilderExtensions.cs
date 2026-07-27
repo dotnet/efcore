@@ -274,46 +274,6 @@ public static class CosmosEntityTypeBuilderExtensions
     }
 
     /// <summary>
-    ///     Configures the property that is used to store the partition key.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the partition key property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    [Obsolete("Use HasPartitionKey(IReadOnlyList<string>, bool)")]
-    public static IConventionEntityTypeBuilder? HasPartitionKey(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => entityTypeBuilder.HasPartitionKey(name == null ? null : [name], fromDataAnnotation);
-
-    /// <summary>
-    ///     Returns a value indicating whether the property that is used to store the partition key can be set
-    ///     from the current configuration source
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-    /// <param name="name">The name of the partition key property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    [Obsolete("Use HasPartitionKey(IReadOnlyList<string>, bool)")]
-    public static bool CanSetPartitionKey(
-        this IConventionEntityTypeBuilder entityTypeBuilder,
-        string? name,
-        bool fromDataAnnotation = false)
-        => entityTypeBuilder.CanSetPartitionKey(name == null ? null : [name], fromDataAnnotation);
-
-    /// <summary>
     ///     Configures the properties that are used to store the parts of a
     ///     <see href="https://aka.ms/efcore-cosmos-hpkdocs">hierarchical partition key</see>.
     /// </summary>
@@ -489,6 +449,152 @@ public static class CosmosEntityTypeBuilderExtensions
         Check.NotNull(entityTypeBuilder);
 
         return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation);
+    }
+
+    /// <summary>
+    ///     Configures whether Cosmos's automatic indexing (the default <c>/*</c> included path) is emitted in the
+    ///     container's indexing policy. The returned builder allows individual paths to be excluded via
+    ///     <see cref="CosmosAutomaticIndexingBuilder.Except(string)" /> (only meaningful when <paramref name="enabled" />
+    ///     is <see langword="true" />).
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When <paramref name="enabled" /> is <see langword="true" />, the indexing policy includes <c>/*</c>, so all
+    ///         properties are indexed by default. Any paths configured via <see cref="CosmosAutomaticIndexingBuilder.Except(string)" />
+    ///         are emitted as excluded paths, and explicit single-property <c>HasIndex</c> declarations are redundant and so
+    ///         are not emitted as separate included paths. Composite, vector and full-text indexes are always emitted.
+    ///     </para>
+    ///     <para>
+    ///         When <paramref name="enabled" /> is <see langword="false" />, <c>/*</c> is not emitted and only the paths from
+    ///         explicit <c>HasIndex</c> declarations are indexed; in that case excluded paths have no effect.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///         for more information.
+    ///     </para>
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing (the default), <see langword="false" /> to disable it.
+    /// </param>
+    /// <returns>A builder for further configuration of the automatic-indexing policy.</returns>
+    public static CosmosAutomaticIndexingBuilder HasAutomaticIndexing(this EntityTypeBuilder entityTypeBuilder, bool enabled = true)
+    {
+        entityTypeBuilder.Metadata.SetAutomaticIndexingEnabled(enabled);
+        return new CosmosAutomaticIndexingBuilder(entityTypeBuilder);
+    }
+
+    /// <summary>
+    ///     Configures whether Cosmos's automatic indexing (the default <c>/*</c> included path) is emitted in the
+    ///     container's indexing policy. The returned builder allows individual paths to be excluded via
+    ///     <see cref="CosmosAutomaticIndexingBuilder{TEntity}.Except(string)" /> (only meaningful when
+    ///     <paramref name="enabled" /> is <see langword="true" />).
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When <paramref name="enabled" /> is <see langword="true" />, the indexing policy includes <c>/*</c>, so all
+    ///         properties are indexed by default. Any paths configured via <see cref="CosmosAutomaticIndexingBuilder{TEntity}.Except(string)" />
+    ///         are emitted as excluded paths, and explicit single-property <c>HasIndex</c> declarations are redundant and so
+    ///         are not emitted as separate included paths. Composite, vector and full-text indexes are always emitted.
+    ///     </para>
+    ///     <para>
+    ///         When <paramref name="enabled" /> is <see langword="false" />, <c>/*</c> is not emitted and only the paths from
+    ///         explicit <c>HasIndex</c> declarations are indexed; in that case excluded paths have no effect.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///         for more information.
+    ///     </para>
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing (the default), <see langword="false" /> to disable it.
+    /// </param>
+    /// <returns>A builder for further configuration of the automatic-indexing policy.</returns>
+    public static CosmosAutomaticIndexingBuilder<TEntity> HasAutomaticIndexing<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        bool enabled = true)
+        where TEntity : class
+    {
+        entityTypeBuilder.Metadata.SetAutomaticIndexingEnabled(enabled);
+        return new CosmosAutomaticIndexingBuilder<TEntity>(entityTypeBuilder);
+    }
+
+    /// <summary>
+    ///     Configures whether Cosmos's automatic indexing (the default <c>/*</c> included path) is emitted in the
+    ///     container's indexing policy.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When <paramref name="enabled" /> is <see langword="true" />, the indexing policy includes <c>/*</c> along with
+    ///         any excluded paths; explicit single-property <c>HasIndex</c> declarations are redundant and not emitted. When
+    ///         <see langword="false" />, <c>/*</c> is not emitted and only explicitly declared paths are indexed.
+    ///     </para>
+    ///     <para>
+    ///         When left unconfigured (<see langword="null" />), automatic indexing defaults to enabled, unless explicit
+    ///         single-property indexes were declared, in which case it is treated as disabled so those declarations are not
+    ///         overridden by <c>/*</c>.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://learn.microsoft.com/azure/cosmos-db/index-policy">Indexing policies in Azure Cosmos DB</see>
+    ///         for more information.
+    ///     </para>
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="enabled">
+    ///     <see langword="true" /> to enable automatic indexing, <see langword="false" /> to disable it,
+    ///     <see langword="null" /> to remove the setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public static IConventionEntityTypeBuilder? HasAutomaticIndexing(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? enabled,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetAutomaticIndexing(enabled, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetAutomaticIndexingEnabled(enabled, fromDataAnnotation);
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the automatic-indexing enabled flag can be configured from the current source.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="enabled">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetAutomaticIndexing(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? enabled,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotNull(entityTypeBuilder);
+
+        return entityTypeBuilder.CanSetAnnotation(
+            CosmosAnnotationNames.AutomaticIndexingEnabled, enabled, fromDataAnnotation);
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the automatic-indexing exceptions can be configured from the current source.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="exceptions">The excluded paths to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetAutomaticIndexingExceptions(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        IReadOnlyList<string>? exceptions,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotNull(entityTypeBuilder);
+
+        return entityTypeBuilder.CanSetAnnotation(
+            CosmosAnnotationNames.AutomaticIndexingExceptions, exceptions, fromDataAnnotation);
     }
 
     /// <summary>

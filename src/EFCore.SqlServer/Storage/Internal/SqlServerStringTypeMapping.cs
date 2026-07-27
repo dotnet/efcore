@@ -40,14 +40,6 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqlServerStringTypeMapping JsonTypeDefault { get; } = new("json", sqlDbType: SqlDbType.Json);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static SqlServerStringTypeMapping UnicodeDefault { get; } = new(
         "nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
@@ -118,8 +110,9 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             _maxSize = AnsiMax;
         }
 
-        _isUtf16 = parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase);
         _sqlDbType = sqlDbType;
+        _isUtf16 = _sqlDbType == SqlDbType.Xml
+            || (parameters.Unicode && parameters.StoreType.StartsWith("n", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -157,13 +150,28 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var value = parameter.Value;
         var length = (value as string)?.Length;
 
-        var sqlDbType = _sqlDbType
-            ?? (StoreType == "json" ? SqlDbType.Json : null);
-
-        if (sqlDbType.HasValue
+        if (_sqlDbType.HasValue
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
-            sqlParameter.SqlDbType = sqlDbType.Value;
+            sqlParameter.SqlDbType = _sqlDbType.Value;
+        }
+
+        if (_sqlDbType == SqlDbType.Xml)
+        {
+            // xml is a max-length type; pin the size to unbounded so SqlClient does not infer it from the
+            // value length (which would otherwise vary per value in logs and the query cache).
+            parameter.Size = -1;
+
+            // SqlClient sends a string parameter as 'nvarchar(max)' even when its SqlDbType is 'xml', which makes
+            // SQL Server reject an XML prolog that declares a non-UTF-16 encoding (e.g. utf-8) with "unable to switch
+            // the encoding". Only the XML declaration conflicts, and it can only appear at the very start, so it is
+            // sliced off and the rest of the value is sent verbatim.
+            if (value is string xml)
+            {
+                parameter.Value = RemoveXmlProlog(xml);
+            }
+
+            return;
         }
 
         if ((value == null
@@ -203,6 +211,30 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         }
     }
 
+    private static string RemoveXmlProlog(string xml)
+    {
+        var start = 0;
+        while (start < xml.Length && char.IsWhiteSpace(xml[start]))
+        {
+            start++;
+        }
+
+        // An XML declaration starts with "<?xml" followed by mandatory whitespace. If present, remove everything
+        // up to and including the closing "?>" and return the remainder verbatim.
+        if (start + 5 < xml.Length
+            && string.CompareOrdinal(xml, start, "<?xml", 0, 5) == 0
+            && char.IsWhiteSpace(xml[start + 5]))
+        {
+            var end = xml.IndexOf("?>", start + 6, StringComparison.Ordinal);
+            if (end >= 0)
+            {
+                return xml[(end + 2)..];
+            }
+        }
+
+        return xml;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -222,7 +254,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var concatCount = 1;
         var concatStartList = new List<int>();
         var insideConcat = false;
-        for (i = 0; i < stringValue.Length; i++)
+
+        for (i = start; i < stringValue.Length; i++)
         {
             var lineFeed = stringValue[i] == '\n';
             var carriageReturn = stringValue[i] == '\r';

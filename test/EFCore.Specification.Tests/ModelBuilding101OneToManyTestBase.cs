@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ModelBuilding101TestBase
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredTest()
         => Model101Test();
 
@@ -98,7 +98,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalTest()
         => Model101Test();
 
@@ -185,7 +185,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkTest()
         => Model101Test();
 
@@ -297,7 +297,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkTest()
         => Model101Test();
 
@@ -380,7 +380,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -461,7 +461,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -542,7 +542,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -623,7 +623,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToPrincipalTest()
         => Model101Test();
 
@@ -702,7 +702,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -785,7 +785,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -868,7 +868,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -974,7 +974,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationToDependentsTest()
         => Model101Test();
 
@@ -1053,7 +1053,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredNoNavigationsTest()
         => Model101Test();
 
@@ -1107,7 +1107,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalNoNavigationsTest()
         => Model101Test();
 
@@ -1161,7 +1161,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkAndNoNavigationsTest()
         => Model101Test();
 
@@ -1215,7 +1215,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkAndNoNavigationsTest()
         => Model101Test();
 
@@ -1268,7 +1268,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithAlternateKeyTest()
         => Model101Test();
 
@@ -1390,7 +1390,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithAlternateKeyTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1483,7 +1483,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithAlternateKeyTest()
         => Model101Test();
 
@@ -1603,7 +1603,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithAlternateKeyTest()
         => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
 
@@ -1692,7 +1692,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithCompositeKeyTest()
         => Model101Test();
 
@@ -1825,7 +1825,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithCompositeKeyTest()
         => Model101Test();
 
@@ -1957,7 +1957,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithShadowFkWithCompositeKeyTest()
         => Model101Test();
 
@@ -2094,7 +2094,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyOptionalWithShadowFkWithCompositeKeyTest()
         => Model101Test();
 
@@ -2220,7 +2220,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManySelfReferencingTest()
         => Model101Test();
 
@@ -2281,7 +2281,7 @@ public abstract partial class ModelBuilding101TestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void OneToManyRequiredWithoutCascadeDeleteTest()
         => Model101Test();
 

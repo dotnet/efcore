@@ -10,13 +10,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported))]
 public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture fixture)
     : IClassFixture<MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture>
 {
     protected MemoryOptimizedTablesFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_create_memoryOptimized_table()
     {
         await using (await CreateTestStoreAsync())

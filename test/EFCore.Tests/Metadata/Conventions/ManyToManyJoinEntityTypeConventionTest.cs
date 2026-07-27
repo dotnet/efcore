@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ManyToManyJoinEntityTypeConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_created_for_self_join()
     {
         var modelBuilder = CreateInternalModeBuilder();
@@ -41,7 +41,7 @@ public class ManyToManyJoinEntityTypeConventionTest
         Assert.Equal("ManyToManySelfManyToManySelf", joinEntityType.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_not_created_when_no_inverse_skip_navigation()
     {
         var modelBuilder = CreateInternalModeBuilder();
@@ -69,7 +69,7 @@ public class ManyToManyJoinEntityTypeConventionTest
             et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_not_created_when_skip_navigation_is_not_collection()
     {
         var modelBuilder = CreateInternalModeBuilder();
@@ -98,7 +98,7 @@ public class ManyToManyJoinEntityTypeConventionTest
             et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_not_created_when_inverse_skip_navigation_is_not_collection()
     {
         var modelBuilder = CreateInternalModeBuilder();
@@ -127,7 +127,7 @@ public class ManyToManyJoinEntityTypeConventionTest
             et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_not_created_when_skip_navigation_already_in_use()
     {
         var modelBuilder = CreateInternalModeBuilder();
@@ -163,7 +163,7 @@ public class ManyToManyJoinEntityTypeConventionTest
             et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_not_created_when_inverse_skip_navigation_already_in_use()
     {
         var modelBuilder = CreateInternalModeBuilder();
@@ -199,7 +199,7 @@ public class ManyToManyJoinEntityTypeConventionTest
             et => et.IsImplicitlyCreatedJoinEntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Join_entity_type_is_created()
     {
         var modelBuilder = CreateInternalModeBuilder();

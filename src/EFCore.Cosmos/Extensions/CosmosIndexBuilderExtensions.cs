@@ -24,21 +24,19 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="indexType">The type of vector index to create.</param>
-    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
+    /// <param name="indexType">The type of vector index to create, or <see langword="null" /> to remove the vector index configuration.</param>
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder IsVectorIndex(
         this IndexBuilder indexBuilder,
-        VectorIndexType? indexType,
-        bool vectorIndex = true)
+        VectorIndexType? indexType)
     {
-        indexBuilder.Metadata.SetVectorIndexType(indexType, vectorIndex);
+        indexBuilder.Metadata.SetVectorIndexType(indexType);
 
         return indexBuilder;
     }
 
     /// <summary>
-    ///     Configures whether the index as a vector index with the given vector index type, such as "flat", "diskANN", or "quantizedFlat".
+    ///     Configures the index as a vector index with the given vector index type, such as "flat", "diskANN", or "quantizedFlat".
     ///     See <see href="https://aka.ms/ef-cosmos-vectors">Vector Search in Azure Cosmos DB for NoSQL</see> for more information.
     /// </summary>
     /// <remarks>
@@ -46,17 +44,15 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="indexType">The type of vector index to create.</param>
-    /// <param name="vectorIndex">The value indicating whether the index is configured as a vector index.</param>
+    /// <param name="indexType">The type of vector index to create, or <see langword="null" /> to remove the vector index configuration.</param>
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder<TEntity> IsVectorIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
-        VectorIndexType? indexType,
-        bool vectorIndex = true)
+        VectorIndexType? indexType)
         => (IndexBuilder<TEntity>)IsVectorIndex((IndexBuilder)indexBuilder, indexType);
 
     /// <summary>
-    ///     Configures whether the index as a vector index with the given vector index type, such as "flat", "diskANN", or "quantizedFlat".
+    ///     Configures the index as a vector index with the given vector index type, such as "flat", "diskANN", or "quantizedFlat".
     ///     See <see href="https://aka.ms/ef-cosmos-vectors">Vector Search in Azure Cosmos DB for NoSQL</see> for more information.
     /// </summary>
     /// <remarks>
@@ -64,7 +60,7 @@ public static class CosmosIndexBuilderExtensions
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="indexType">The type of vector index to create.</param>
+    /// <param name="indexType">The type of vector index to create, or <see langword="null" /> to remove the vector index configuration.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The same builder instance if the configuration was applied,

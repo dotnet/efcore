@@ -12,21 +12,21 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
         : base(fixture)
         => fixture.ListLoggerFactory.Clear();
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(IsAsyncData))]
     // public virtual Task Filter_on_property_inside_complex_type(bool async)
     //     => AssertQuery(
     //         async,
     //         ss => ss.Set<Customer>().Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    // [ConditionalTheory]
+    // [Theory]
     // [MemberData(nameof(IsAsyncData))]
     // public virtual Task Filter_on_property_inside_nested_complex_type(bool async)
     //     => AssertQuery(
     //         async,
     //         ss => ss.Set<Customer>().Where(c => c.ShippingAddress.Country.Code == "DE"));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_complex_type_after_subquery(bool async)
         => AssertQuery(
             async,
@@ -36,7 +36,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Distinct()
                 .Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_nested_complex_type_after_subquery(bool async)
         => AssertQuery(
             async,
@@ -46,32 +46,32 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Distinct()
                 .Where(c => c.ShippingAddress.Country.Code == "DE"));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_required_property_inside_required_complex_type_on_optional_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<CustomerGroup>().Where(cg => cg.OptionalCustomer!.ShippingAddress.ZipCode != 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_required_property_inside_required_complex_type_on_required_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<CustomerGroup>().Where(cg => cg.RequiredCustomer.ShippingAddress.ZipCode != 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_complex_type_via_optional_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<CustomerGroup>().Select(cg => cg.OptionalCustomer!.ShippingAddress),
             ss => ss.Set<CustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : default));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_complex_type_via_required_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<CustomerGroup>().Select(cg => cg.RequiredCustomer.ShippingAddress));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Load_complex_type_after_subquery_on_entity_type(bool async)
         => AssertQuery(
             async,
@@ -80,43 +80,43 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Skip(1)
                 .Distinct());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_nested_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress.Country));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_single_property_on_nested_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress.Country.FullName));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_type_Where(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_complex_type_Distinct(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Distinct());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_type_equals_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ShippingAddress == c.BillingAddress));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_type_equals_constant(bool async)
         => AssertQuery(
             async,
@@ -134,7 +134,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 && c.ShippingAddress.Country == new Country { FullName = "United States", Code = "US" }
                 && c.ShippingAddress.Tags.SequenceEqual(new List<string> { "foo", "bar" })));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Complex_type_equals_parameter(bool async)
     {
         var address = new Address
@@ -155,7 +155,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 && c.ShippingAddress.Tags.SequenceEqual(new List<string> { "foo", "bar" })));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Subquery_over_complex_type(bool async)
     {
         var address = new Address
@@ -171,7 +171,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Where(c => ss.Set<Customer>().Select(c => c.ShippingAddress).OrderBy(a => a.ZipCode).First() == address));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_over_complex_type(bool async)
     {
         var address = new Address
@@ -192,71 +192,71 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 && a.Tags.SequenceEqual(new List<string> { "foo", "bar" }))));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_entity_type_containing_complex_property(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Id == 1).Concat(ss.Set<Customer>().Where(c => c.Id == 2)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_entity_type_containing_complex_property(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Id == 1).Union(ss.Set<Customer>().Where(c => c.Id == 2)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Id == 1).Select(c => c.ShippingAddress)
                 .Concat(ss.Set<Customer>().Where(c => c.Id == 2).Select(c => c.ShippingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Id == 1).Select(c => c.ShippingAddress)
                 .Union(ss.Set<Customer>().Where(c => c.Id == 2).Select(c => c.ShippingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_property_in_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress.AddressLine1)
                 .Concat(ss.Set<Customer>().Select(c => c.BillingAddress.AddressLine1)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_property_in_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress.AddressLine1)
                 .Union(ss.Set<Customer>().Select(c => c.BillingAddress.AddressLine1)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_two_different_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Concat(ss.Set<Customer>().Select(c => c.BillingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_two_different_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Union(ss.Set<Customer>().Select(c => c.BillingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_nested_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.ShippingAddress.Country.Code == "DE"));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_struct_complex_type_after_subquery(bool async)
         => AssertQuery(
             async,
@@ -266,7 +266,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Distinct()
                 .Where(c => c.ShippingAddress.ZipCode == 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_property_inside_nested_struct_complex_type_after_subquery(bool async)
         => AssertQuery(
             async,
@@ -276,7 +276,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Distinct()
                 .Where(c => c.ShippingAddress.Country.Code == "DE"));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_required_property_inside_required_struct_complex_type_on_optional_navigation(bool async)
         => AssertQuery(
             async,
@@ -284,32 +284,32 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<ValuedCustomerGroup>()
                 .Where(cg => cg.OptionalCustomer == null || cg.OptionalCustomer.ShippingAddress.ZipCode != 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_on_required_property_inside_required_struct_complex_type_on_required_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomerGroup>().Where(cg => cg.RequiredCustomer.ShippingAddress.ZipCode != 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_struct_complex_type_via_optional_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer!.ShippingAddress),
             ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : default));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_nullable_struct_complex_type_via_optional_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : (AddressStruct?)null));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_struct_complex_type_via_required_navigation(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.RequiredCustomer.ShippingAddress));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Load_struct_complex_type_after_subquery_on_entity_type(bool async)
         => AssertQuery(
             async,
@@ -318,43 +318,43 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .Skip(1)
                 .Distinct());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_nested_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress.Country));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_single_property_on_nested_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress.Country.FullName));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_struct_complex_type_Where(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_struct_complex_type_Distinct(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress).Distinct());
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Struct_complex_type_equals_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.ShippingAddress == c.BillingAddress));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Struct_complex_type_equals_constant(bool async)
         => AssertQuery(
             async,
@@ -366,7 +366,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                     Country = new CountryStruct { FullName = "United States", Code = "US" }
                 }));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Struct_complex_type_equals_parameter(bool async)
     {
         var address = new AddressStruct
@@ -381,7 +381,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<ValuedCustomer>().Where(c => c.ShippingAddress == address));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Subquery_over_struct_complex_type(bool async)
     {
         var address = new AddressStruct
@@ -397,7 +397,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress).OrderBy(a => a.ZipCode).First() == address));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_over_struct_complex_type(bool async)
     {
         var address = new AddressStruct
@@ -412,59 +412,59 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<ValuedCustomer>().Where(c => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress).Contains(address)));
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_entity_type_containing_struct_complex_property(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.Id == 1).Concat(ss.Set<ValuedCustomer>().Where(c => c.Id == 2)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_entity_type_containing_struct_complex_property(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.Id == 1).Union(ss.Set<ValuedCustomer>().Where(c => c.Id == 2)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.Id == 1).Select(c => c.ShippingAddress)
                 .Concat(ss.Set<ValuedCustomer>().Where(c => c.Id == 2).Select(c => c.ShippingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Where(c => c.Id == 1).Select(c => c.ShippingAddress)
                 .Union(ss.Set<ValuedCustomer>().Where(c => c.Id == 2).Select(c => c.ShippingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_property_in_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress.AddressLine1)
                 .Concat(ss.Set<ValuedCustomer>().Select(c => c.BillingAddress.AddressLine1)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_property_in_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress.AddressLine1)
                 .Union(ss.Set<ValuedCustomer>().Select(c => c.BillingAddress.AddressLine1)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_two_different_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress).Concat(ss.Set<ValuedCustomer>().Select(c => c.BillingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_two_different_struct_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<ValuedCustomer>().Select(c => c.ShippingAddress).Union(ss.Set<ValuedCustomer>().Select(c => c.BillingAddress)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_nested_complex_type_twice_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -480,7 +480,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.BA2, a.BA2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_entity_with_nested_complex_type_twice_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -496,7 +496,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_nested_complex_type_twice_with_double_pushdown(bool async)
         => AssertQuery(
             async,
@@ -514,7 +514,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.BA2, a.BA2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_entity_with_nested_complex_type_twice_with_double_pushdown(bool async)
         => AssertQuery(
             async,
@@ -532,7 +532,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_struct_nested_complex_type_twice_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -548,7 +548,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.BA2, a.BA2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_entity_with_struct_nested_complex_type_twice_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -564,7 +564,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_struct_nested_complex_type_twice_with_double_pushdown(bool async)
         => AssertQuery(
             async,
@@ -582,7 +582,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.BA2, a.BA2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_same_entity_with_struct_nested_complex_type_twice_with_double_pushdown(bool async)
         => AssertQuery(
             async,
@@ -600,7 +600,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_of_same_entity_with_nested_complex_type_projected_twice_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -623,7 +623,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_of_same_entity_with_nested_complex_type_projected_twice_with_double_pushdown(bool async)
         => AssertQuery(
             async,
@@ -650,7 +650,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.c2, a.c2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_of_same_nested_complex_type_projected_twice_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -673,7 +673,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.BA2, a.BA2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_of_same_nested_complex_type_projected_twice_with_double_pushdown(bool async)
         => AssertQuery(
             async,
@@ -700,7 +700,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.BA2, a.BA2);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Same_entity_with_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => AssertQuery(
             async,
@@ -720,7 +720,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.Complex?.Two, a.Complex?.Two);
             });
 
-    [ConditionalTheory(Skip = "issue #31376"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => AssertQuery(
             async,
@@ -742,14 +742,14 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     #region GroupBy
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_over_property_in_nested_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().GroupBy(x => x.ShippingAddress.Country.Code).Select(g => new { Code = g.Key, Count = g.Count() }),
             elementSorter: g => g.Code);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_over_complex_type(bool async)
         => AssertQuery(
             async,
@@ -761,14 +761,14 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 Assert.Equal(e.Count, a.Count);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_over_nested_complex_type(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().GroupBy(x => x.ShippingAddress.Country).Select(g => new { Country = g.Key, Count = g.Count() }),
             elementSorter: g => g.Country.Code);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_with_complex_type_with_group_by_and_first(bool async)
         => AssertQuery(
             async,
@@ -776,7 +776,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     #endregion GroupBy
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_property_of_complex_type_using_left_join_with_pushdown(bool async)
         => AssertQuery(
             async,
@@ -784,7 +784,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 .LeftJoin(ss.Set<Customer>().Where(x => x.Id > 5), cg => cg.Id, c => c.Id, (cg, c) => c)
                 .Select(c => c == null ? null : (int?)c.BillingAddress.ZipCode));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_complex_from_optional_navigation_using_conditional(bool async)
         => AssertQuery(
             async,
@@ -793,7 +793,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<CustomerGroup>().Select(x => x.OptionalCustomer == null ? null : x.OptionalCustomer.ShippingAddress)
                 .OrderBy(x => x.MaybeScalar(xx => xx!.ZipCode)).Take(20).Distinct().Select(x => x.MaybeScalar(xx => xx!.ZipCode)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
         => AssertQuery(
             async,

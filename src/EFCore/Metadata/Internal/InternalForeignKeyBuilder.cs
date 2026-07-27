@@ -890,6 +890,39 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalForeignKeyBuilder? IsConstrained(bool? constrained, ConfigurationSource configurationSource)
+    {
+        if (!CanSetIsConstrained(constrained, configurationSource))
+        {
+            return null;
+        }
+
+        IConventionForeignKey? foreignKey = Metadata;
+
+        Metadata.DeclaringEntityType.Model.ConventionDispatcher.Track(
+            () => Metadata.SetIsConstrained(constrained, configurationSource), ref foreignKey);
+
+        return foreignKey != null
+            ? ((ForeignKey)foreignKey).Builder
+            : this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetIsConstrained(bool? constrained, ConfigurationSource? configurationSource)
+        => Metadata.IsConstrained == constrained
+            || configurationSource.Overrides(Metadata.GetIsConstrainedConfigurationSource());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalForeignKeyBuilder? IsRequiredDependent(bool? required, ConfigurationSource configurationSource)
     {
         if (!CanSetIsRequiredDependent(required, configurationSource))
@@ -1404,8 +1437,15 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()),
                 "configurationSource does not override Metadata.GetPrincipalKeyConfigurationSource");
 
-            principalEntityType = principalEntityType.LeastDerivedType(Metadata.DeclaringEntityType)!;
-            dependentEntityType = dependentEntityType.LeastDerivedType(Metadata.PrincipalEntityType)!;
+            // When inverting, the new principal/dependent ends take the place of the old dependent/principal
+            // ends. If the requested type is a base of the old opposite end, keep the old (more derived) type
+            // so that an identifying relationship isn't moved to a base type. See #15898.
+            principalEntityType = principalEntityType.IsAssignableFrom(Metadata.DeclaringEntityType)
+                ? Metadata.DeclaringEntityType
+                : principalEntityType.LeastDerivedType(Metadata.DeclaringEntityType)!;
+            dependentEntityType = dependentEntityType.IsAssignableFrom(Metadata.PrincipalEntityType)
+                ? Metadata.PrincipalEntityType
+                : dependentEntityType.LeastDerivedType(Metadata.PrincipalEntityType)!;
         }
         else
         {
@@ -1681,7 +1721,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                     dependentProperties: []);
         }
 
-        properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource)!;
+        properties = dependentEntityType.Builder.GetActualProperties(
+            properties, configurationSource, Metadata.PrincipalKey.Properties)!;
         if (Metadata.Properties.SequenceEqual(properties))
         {
             Metadata.UpdateConfigurationSource(configurationSource);
@@ -2555,6 +2596,18 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             newRelationshipBuilder = newRelationshipBuilder.OnDelete(
                     Metadata.DeleteBehavior,
                     deleteBehaviorConfigurationSource)
+                ?? newRelationshipBuilder;
+        }
+
+        // IsConstrained is a property of the relationship as a whole, not of either end, so (unlike
+        // IsUnique/IsRequired/DeleteBehavior above) carry it across the rebuild regardless of whether
+        // the relationship was inverted.
+        if (Metadata.GetIsConstrainedConfigurationSource() is { } isConstrainedConfigurationSource
+            && !newRelationshipBuilder.Metadata.GetIsConstrainedConfigurationSource().HasValue)
+        {
+            newRelationshipBuilder = newRelationshipBuilder.IsConstrained(
+                    Metadata.IsConstrained,
+                    isConstrainedConfigurationSource)
                 ?? newRelationshipBuilder;
         }
 
@@ -3447,13 +3500,21 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalForeignKeyBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
+    public virtual InternalForeignKeyBuilder? Attach(
+        InternalEntityTypeBuilder entityTypeBuilder,
+        EntityType? principalEntityType = null)
     {
         var configurationSource = Metadata.GetConfigurationSource();
         var model = Metadata.DeclaringEntityType.Model;
         InternalEntityTypeBuilder principalEntityTypeBuilder;
-        EntityType? principalEntityType;
-        if (Metadata.PrincipalEntityType.IsInModel)
+        if (principalEntityType is { IsInModel: true }
+            && (Metadata.PrincipalEntityType.Name == principalEntityType.Name
+                || (!principalEntityType.HasSharedClrType
+                    && Metadata.PrincipalEntityType.ClrType == principalEntityType.ClrType)))
+        {
+            principalEntityTypeBuilder = principalEntityType.Builder;
+        }
+        else if (Metadata.PrincipalEntityType.IsInModel)
         {
             principalEntityTypeBuilder = Metadata.PrincipalEntityType.Builder;
             principalEntityType = Metadata.PrincipalEntityType;
@@ -3600,7 +3661,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         }
         else
         {
-            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(Metadata.Properties, configurationSource)
+            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(
+                Metadata.Properties,
+                configurationSource,
+                principalProperties.Count != 0 ? principalProperties : Metadata.PrincipalKey.Properties)
                 ?? new List<Property>();
         }
 
@@ -4170,6 +4234,18 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     [DebuggerStepThrough]
     bool IConventionForeignKeyBuilder.CanSetIsRequired(bool? required, bool fromDataAnnotation)
         => CanSetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionForeignKeyBuilder? IConventionForeignKeyBuilder.IsConstrained(bool? constrained, bool fromDataAnnotation)
+        => IsConstrained(
+            constrained, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionForeignKeyBuilder.CanSetIsConstrained(bool? constrained, bool fromDataAnnotation)
+        => CanSetIsConstrained(
+            constrained, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

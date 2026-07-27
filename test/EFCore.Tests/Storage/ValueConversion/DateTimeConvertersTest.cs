@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
@@ -9,7 +9,7 @@ public class DateTimeConvertersTest
 {
     private static readonly DateTimeToTicksConverter _dateTimeToTicks = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_ticks()
     {
         var converter = _dateTimeToTicks.ConvertToProviderExpression.Compile();
@@ -19,7 +19,7 @@ public class DateTimeConvertersTest
         Assert.Equal(0, converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ticks_to_DateTime()
     {
         var converter = _dateTimeToTicks.ConvertFromProviderExpression.Compile();
@@ -30,7 +30,7 @@ public class DateTimeConvertersTest
         Assert.Equal(new DateTime(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_ticks_object()
     {
         var converter = _dateTimeToTicks.ConvertToProvider;
@@ -41,7 +41,7 @@ public class DateTimeConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_ticks_to_DateTime_object()
     {
         var converter = _dateTimeToTicks.ConvertFromProvider;
@@ -55,7 +55,7 @@ public class DateTimeConvertersTest
 
     private static readonly DateTimeToBinaryConverter _dateTimeToBinary = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_binary()
     {
         var converter = _dateTimeToBinary.ConvertToProviderExpression.Compile();
@@ -65,7 +65,7 @@ public class DateTimeConvertersTest
         Assert.Equal(0, converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_binary_to_DateTime()
     {
         var converter = _dateTimeToBinary.ConvertFromProviderExpression.Compile();
@@ -78,7 +78,7 @@ public class DateTimeConvertersTest
         Assert.Equal(new DateTime(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_binary_object()
     {
         var converter = _dateTimeToBinary.ConvertToProvider;
@@ -89,7 +89,7 @@ public class DateTimeConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_binary_to_DateTime_object()
     {
         var converter = _dateTimeToBinary.ConvertFromProvider;
@@ -107,7 +107,7 @@ public class DateTimeConvertersTest
         = (CompositeValueConverter<DateTime, long, ulong>)new DateTimeToTicksConverter().ComposeWith(
             new CastingConverter<long, ulong>());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_unsigned_ticks()
     {
         var converter = _dateTimeToUTicks.ConvertToProviderExpression.Compile();
@@ -117,7 +117,7 @@ public class DateTimeConvertersTest
         Assert.Equal((ulong)0, converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_unsigned_ticks_to_DateTime()
     {
         var converter = _dateTimeToUTicks.ConvertFromProviderExpression.Compile();
@@ -126,7 +126,7 @@ public class DateTimeConvertersTest
         Assert.Equal(new DateTime(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_unsigned_ticks_object()
     {
         var converter = _dateTimeToUTicks.ConvertToProvider;
@@ -137,7 +137,7 @@ public class DateTimeConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_unsigned_ticks_to_DateTime_object()
     {
         var converter = _dateTimeToUTicks.ConvertFromProvider;
@@ -151,7 +151,7 @@ public class DateTimeConvertersTest
         = (CompositeValueConverter<DateTime, long, ulong>)new DateTimeToBinaryConverter().ComposeWith(
             new CastingConverter<long, ulong>());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_unsigned_binary()
     {
         var converter = _dateTimeToUBinary.ConvertToProviderExpression.Compile();
@@ -161,7 +161,7 @@ public class DateTimeConvertersTest
         Assert.Equal((ulong)0, converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_unsigned_binary_to_DateTime()
     {
         var converter = _dateTimeToUBinary.ConvertFromProviderExpression.Compile();
@@ -173,7 +173,7 @@ public class DateTimeConvertersTest
         Assert.Equal(new DateTime(), converter(0));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_unsigned_binary_object()
     {
         var converter = _dateTimeToUBinary.ConvertToProvider;
@@ -184,7 +184,7 @@ public class DateTimeConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_unsigned_binary_to_DateTime_object()
     {
         var converter = _dateTimeToUBinary.ConvertFromProvider;
@@ -199,7 +199,7 @@ public class DateTimeConvertersTest
 
     private static readonly DateTimeToStringConverter _dateTimeToString = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_string()
     {
         var converter = _dateTimeToString.ConvertToProviderExpression.Compile();
@@ -209,7 +209,7 @@ public class DateTimeConvertersTest
         Assert.Equal("0001-01-01 00:00:00", converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateTime()
     {
         var converter = _dateTimeToString.ConvertFromProviderExpression.Compile();
@@ -224,7 +224,7 @@ public class DateTimeConvertersTest
         Assert.Throws<FormatException>(() => converter("Not a DateTime"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_string_object()
     {
         var converter = _dateTimeToString.ConvertToProvider;
@@ -235,7 +235,7 @@ public class DateTimeConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_string_to_DateTime_object()
     {
         var converter = _dateTimeToString.ConvertFromProvider;
@@ -254,7 +254,7 @@ public class DateTimeConvertersTest
         = (CompositeValueConverter<DateTime, long, byte[]>)new DateTimeToBinaryConverter().ComposeWith(
             new NumberToBytesConverter<long>());
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_bytes()
     {
         var converter = _dateTimeToBytes.ConvertToProviderExpression.Compile();
@@ -272,7 +272,7 @@ public class DateTimeConvertersTest
             converter(new DateTime()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_DateTime()
     {
         var converter = _dateTimeToBytes.ConvertFromProviderExpression.Compile();
@@ -288,7 +288,7 @@ public class DateTimeConvertersTest
         Assert.Equal(new DateTime(), converter([0, 0, 0, 0, 0, 0, 0, 0]));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_DateTime_to_bytes_object()
     {
         var converter = _dateTimeToBytes.ConvertToProvider;
@@ -308,7 +308,7 @@ public class DateTimeConvertersTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_DateTime_object()
     {
         var converter = _dateTimeToBytes.ConvertFromProvider;

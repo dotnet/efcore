@@ -38,7 +38,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(
+    private SelectExpression(
         List<SourceExpression> sources,
         SqlExpression? predicate,
         List<ProjectionExpression> projections,
@@ -256,6 +256,82 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public int[]? MoveRootKeyProjectionsFirst(IEntityType rootEntityType, IReadOnlyList<IProperty> primaryKeyProperties)
+    {
+        if (_projection.Count < 2)
+        {
+            return null;
+        }
+
+        var keyProjectionIndexes = new List<int>();
+        foreach (var primaryKeyProperty in primaryKeyProperties)
+        {
+            for (var i = 0; i < _projection.Count; i++)
+            {
+                if (!keyProjectionIndexes.Contains(i)
+                    && IsRootKeyProjection(_projection[i], rootEntityType, primaryKeyProperty))
+                {
+                    keyProjectionIndexes.Add(i);
+                    break;
+                }
+            }
+        }
+
+        if (keyProjectionIndexes.Count == 0
+            || keyProjectionIndexes.SequenceEqual(Enumerable.Range(0, keyProjectionIndexes.Count)))
+        {
+            return null;
+        }
+
+        var keyProjectionIndexSet = keyProjectionIndexes.ToHashSet();
+        var newIndexToOldIndex = keyProjectionIndexes
+            .Concat(Enumerable.Range(0, _projection.Count).Where(i => !keyProjectionIndexSet.Contains(i)))
+            .ToArray();
+
+        var oldIndexToNewIndex = new int[_projection.Count];
+        for (var i = 0; i < newIndexToOldIndex.Length; i++)
+        {
+            oldIndexToNewIndex[newIndexToOldIndex[i]] = i;
+        }
+
+        var projections = newIndexToOldIndex.Select(i => _projection[i]).ToArray();
+        _projection.Clear();
+        _projection.AddRange(projections);
+
+        var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+        foreach (var (projectionMember, expression) in _projectionMapping)
+        {
+            projectionMapping[projectionMember] = expression is ConstantExpression { Value: int index }
+                && index >= 0
+                && index < oldIndexToNewIndex.Length
+                    ? Constant(oldIndexToNewIndex[index])
+                    : expression;
+        }
+
+        _projectionMapping = projectionMapping;
+
+        return oldIndexToNewIndex;
+    }
+
+    private static bool IsRootKeyProjection(ProjectionExpression projection, IEntityType rootEntityType, IProperty primaryKeyProperty)
+        => projection.Expression is ScalarAccessExpression
+            {
+                Object: ObjectReferenceExpression { StructuralType: IEntityType entityType },
+                PropertyName: var propertyName
+            }
+            && IsRootEntityType(entityType, rootEntityType)
+            && string.Equals(primaryKeyProperty.GetJsonPropertyName(), propertyName, StringComparison.Ordinal);
+
+    private static bool IsRootEntityType(IEntityType entityType, IEntityType rootEntityType)
+        => entityType == rootEntityType
+            || entityType.GetRootType() == rootEntityType.GetRootType();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
     {
         _projectionMapping.Clear();
@@ -280,8 +356,8 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public int AddToProjection(EntityProjectionExpression entityProjection)
-        => AddToProjection(entityProjection, null);
+    public int AddToProjection(StructuralTypeProjectionExpression structuralTypeProjection)
+        => AddToProjection(structuralTypeProjection, null);
 
     private int AddToProjection(Expression expression, string? alias)
     {
@@ -504,7 +580,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                 projectionToAdd = expression switch
                 {
                     SqlExpression e => new ScalarReferenceExpression(joinSource.Alias, e.Type, e.TypeMapping),
-                    EntityProjectionExpression e => e.Update(new ObjectReferenceExpression(e.EntityType, joinSource.Alias)),
+                    StructuralTypeProjectionExpression e => e.Update(new ObjectReferenceExpression(e.StructuralType, joinSource.Alias)),
 
                     _ => throw new UnreachableException(
                         $"Unexpected expression type in projection when adding join: {expression.GetType().Name}")

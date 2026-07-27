@@ -45,8 +45,15 @@ public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, 
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static PhysicalAddressToBytesConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(PhysicalAddress), typeof(byte[]), i => new PhysicalAddressToBytesConverter(i.MappingHints), DefaultHints);
+        = new(typeof(PhysicalAddress), typeof(byte[]),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new PhysicalAddressToBytesConverter(i.MappingHints),
+            DefaultHints);
 }

@@ -11,7 +11,7 @@ public class AutoincrementTest(AutoincrementTest.AutoincrementFixture fixture) :
 {
     protected AutoincrementFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Autoincrement_prevents_reusing_rowid()
     {
         using var context = CreateContext();

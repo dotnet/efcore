@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void StoredProcedureConcurrencyTokenNotMapped_throws_by_default()
     {
         using var context = new StoredProcedureConcurrencyTokenNotMappedContext(CreateOptionsBuilder(new ServiceCollection()));

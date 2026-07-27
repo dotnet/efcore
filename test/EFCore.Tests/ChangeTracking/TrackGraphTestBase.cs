@@ -24,7 +24,7 @@ public abstract class TrackGraphTestBase
             return traversal;
         }
 
-        [ConditionalTheory, InlineData(false), InlineData(true)] // Issue #26461
+        [Theory, InlineData(false), InlineData(true)] // Issue #26461
         public async Task Can_iterate_over_graph_using_public_surface(bool async)
         {
             using var context = new EarlyLearningCenter(GetType().Name);
@@ -150,7 +150,7 @@ public abstract class TrackGraphTestBase
             + ":"
             + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_nullable_PK_parent_with_child_collection(bool useAttach, bool setKeys)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -218,7 +218,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(categoryId, product2Entry.Property("CategoryId").CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_nullable_PK_parent_with_one_to_one_children(bool useAttach, bool setKeys)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -254,7 +254,7 @@ public abstract class TrackGraphTestBase
         Assert.Same(category, category.Info.Category);
     }
 
-    [ConditionalTheory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
+    [Theory, InlineData(false, false, false), InlineData(false, true, false), InlineData(true, false, false),
      InlineData(true, true, false), InlineData(false, false, true), InlineData(false, true, true), InlineData(true, false, true),
      InlineData(true, true, true)]
     public void Can_attach_parent_with_owned_dependent(bool useAttach, bool setPrincipalKey, bool setDependentKey)
@@ -323,7 +323,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_attach_owned_dependent_with_reference_to_parent(bool useAttach, bool setDependentKey)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -384,7 +384,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_parent_with_child_collection()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -430,7 +430,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(category.Id, category.Products[2].CategoryId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_child_with_reference_to_parent()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -454,7 +454,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(product.Category.Id, product.CategoryId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_parent_with_one_to_one_children()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -484,7 +484,7 @@ public abstract class TrackGraphTestBase
         Assert.Same(product.Details, product.Details.Tag.Details);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_child_with_one_to_one_parents()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -514,7 +514,7 @@ public abstract class TrackGraphTestBase
         Assert.Same(tag.Details, tag.Details.Product.Details);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_entity_with_one_to_one_parent_and_child()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -549,7 +549,7 @@ public abstract class TrackGraphTestBase
         Assert.Same(details, details.Product.Details);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entities_that_are_already_tracked_will_not_get_attached()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -597,7 +597,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(category.Id, category.Products[2].CategoryId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Further_graph_traversal_stops_if_an_entity_is_not_attached()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -674,7 +674,7 @@ public abstract class TrackGraphTestBase
         Assert.Same(category.Products[2], category.Products[2].Details.Product);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Graph_iterator_does_not_go_visit_Apple()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -693,7 +693,7 @@ public abstract class TrackGraphTestBase
         Assert.False(context.ChangeTracker.HasChanges());
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public void Can_add_owned_dependent_with_reference_to_parent(bool useAdd, bool setDependentKey)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -757,7 +757,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #12590
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)] // Issue #12590
     public void Dependents_are_detached_not_deleted_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -903,7 +903,7 @@ public abstract class TrackGraphTestBase
                 node => node.Entry.State = EntityState.Modified);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TrackGraph_overload_can_visit_a_graph_without_attaching()
     {
         using var context = new EarlyLearningCenter(GetType().Name);
@@ -977,7 +977,7 @@ public abstract class TrackGraphTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_parent_with_some_new_and_some_existing_entities()
         => KeyValueAttachTest(
             GetType().Name,
@@ -999,7 +999,7 @@ public abstract class TrackGraphTestBase
                             : EntityState.Unchanged));
             });
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_graph_using_built_in_tracker()
     {
         var tracker = new KeyValueEntityTracker(updateExistingEntities: false);
@@ -1009,7 +1009,7 @@ public abstract class TrackGraphTestBase
             (category, changeTracker) => changeTracker.TrackGraph(category, tracker.TrackEntity));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_update_graph_using_built_in_tracker()
     {
         var tracker = new KeyValueEntityTracker(updateExistingEntities: true);
@@ -1060,7 +1060,7 @@ public abstract class TrackGraphTestBase
         Assert.Equal(category.Id, category.Products[2].CategoryId);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_attach_graph_using_custom_delegate()
     {
         var tracker = new MyTracker(updateExistingEntities: false);
@@ -1113,7 +1113,7 @@ public abstract class TrackGraphTestBase
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TrackGraph_does_not_call_DetectChanges()
     {
         var provider =
@@ -1133,7 +1133,7 @@ public abstract class TrackGraphTestBase
         Assert.True(changeDetector.DetectChangesCalled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TrackGraph_overload_can_visit_an_already_attached_graph()
     {
         using var context = new EarlyLearningCenter(GetType().Name);

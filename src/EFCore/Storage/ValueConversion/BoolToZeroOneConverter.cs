@@ -38,10 +38,16 @@ public class BoolToZeroOneConverter<TProvider> : BoolToTwoValuesConverter<TProvi
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static BoolToZeroOneConverter<TProvider> Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(bool), typeof(TProvider), i => new BoolToZeroOneConverter<TProvider>(i.MappingHints));
+        = new(typeof(bool), typeof(TProvider),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new BoolToZeroOneConverter<TProvider>(i.MappingHints));
 
     private static TProvider Zero()
     {

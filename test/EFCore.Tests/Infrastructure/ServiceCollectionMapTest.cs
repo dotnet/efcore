@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class ServiceCollectionMapTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_add_delegate_services()
     {
 #pragma warning disable IDE0039 // Use local function
@@ -39,7 +39,7 @@ public class ServiceCollectionMapTest
         Assert.Equal(lifetime, descriptor.Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_concrete_services()
     {
         AddServiceConcreteTest(m => m.TryAddTransient<IFakeService, DerivedFakeService>(), ServiceLifetime.Transient);
@@ -63,7 +63,7 @@ public class ServiceCollectionMapTest
         Assert.Equal(lifetime, descriptor.Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_instance_services()
     {
         var instance = new FakeService();
@@ -85,7 +85,7 @@ public class ServiceCollectionMapTest
         Assert.Equal(ServiceLifetime.Singleton, descriptor.Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Existing_services_are_not_replaced()
     {
         ExistingServiceTest(m => m.TryAddTransient<IFakeService, FakeService>());
@@ -120,7 +120,7 @@ public class ServiceCollectionMapTest
         Assert.Same(descriptor, serviceCollection.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_multiple_concrete_services()
     {
         AddServiceConcreteEnumerableTest(
@@ -173,7 +173,7 @@ public class ServiceCollectionMapTest
         Assert.Equal(lifetime, serviceCollection[1].Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_multiple_delegate_services()
     {
 #pragma warning disable IDE0039 // Use local function
@@ -218,7 +218,7 @@ public class ServiceCollectionMapTest
         Assert.Equal(lifetime, serviceCollection[1].Lifetime);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add_multiple_instance_services()
     {
         var instance1 = new FakeService();

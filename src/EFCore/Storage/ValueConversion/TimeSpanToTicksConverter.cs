@@ -38,8 +38,14 @@ public class TimeSpanToTicksConverter : ValueConverter<TimeSpan, long>
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static TimeSpanToTicksConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TimeSpan), typeof(long), i => new TimeSpanToTicksConverter(i.MappingHints));
+        = new(typeof(TimeSpan), typeof(long),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new TimeSpanToTicksConverter(i.MappingHints));
 }

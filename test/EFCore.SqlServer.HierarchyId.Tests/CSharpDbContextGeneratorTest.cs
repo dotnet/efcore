@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer;
 
 public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Generates_context_with_UseHierarchyId()
         => Test(
             modelBuilder =>

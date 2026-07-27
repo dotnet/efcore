@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class IntegerValueGeneratorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Each_property_gets_its_own_generator()
     {
         var macs = new Mac[4];
@@ -77,7 +77,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(4, toasts[3].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Each_property_gets_its_own_generator_with_seeding()
     {
         var macs = new Mac[4];
@@ -166,7 +166,7 @@ public class IntegerValueGeneratorTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Generators_are_associated_with_database_root()
     {
         var serviceProvider1 = new ServiceCollection()
@@ -210,7 +210,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(2, toasts[1].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Mixing_explicit_values_with_generated_values_with_care_works()
     {
         var macs = new Mac[4];
@@ -248,7 +248,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(201, toasts[3].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Each_database_gets_its_own_generators()
     {
         var macs = new List<Mac>();
@@ -282,7 +282,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(1, toasts[1].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Each_root_gets_its_own_generators()
     {
         var macs = new List<Mac>();
@@ -316,7 +316,7 @@ public class IntegerValueGeneratorTest
         Assert.Equal(1, toasts[1].Id);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnsureDeleted_resets_generators()
     {
         var macs = new List<Mac>();

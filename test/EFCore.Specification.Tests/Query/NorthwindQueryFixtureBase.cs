@@ -7,18 +7,15 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IFilteredQueryFixtureBase
+public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixtureBase<NorthwindContext>
     where TModelCustomizer : ITestModelCustomizer, new()
 {
-    public Func<DbContext> GetContextCreator()
-        => CreateContext;
-
     private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new();
 
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => NorthwindData.Instance;
 
-    public virtual ISetSource GetFilteredExpectedData(DbContext context)
+    public override ISetSource GetFilteredExpectedData(DbContext context)
     {
         var applyFilters = typeof(TModelCustomizer) == typeof(NorthwindQueryFiltersCustomizer);
         var tenantPrefix = applyFilters ? ((NorthwindContext)context).TenantPrefix : null;
@@ -73,7 +70,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
         return expectedData;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(Customer), e => ((Customer)e)?.CustomerID },
         { typeof(CustomerQuery), e => ((CustomerQuery)e)?.CompanyName },
@@ -87,7 +84,7 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
         { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(Customer), (e, a) =>

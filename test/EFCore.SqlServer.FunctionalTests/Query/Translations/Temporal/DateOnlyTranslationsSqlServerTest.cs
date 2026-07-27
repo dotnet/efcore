@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+
 namespace Microsoft.EntityFrameworkCore.Query.Translations.Temporal;
 
 public class DateOnlyTranslationsSqlServerTest : DateOnlyTranslationsTestBase<BasicTypesQuerySqlServerFixture>
@@ -217,7 +219,35 @@ WHERE DATETIME2FROMPARTS(1990, 11, 10, DATEPART(hour, [b].[TimeOnly]), DATEPART(
         AssertSql();
     }
 
-    [ConditionalFact]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
+    public virtual async Task DateTrunc_year()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("year", b.DateOnly)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new DateOnly(b.DateOnly.Year, 1, 1)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(year, [b].[DateOnly])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsFunctions2022Supported))]
+    public virtual async Task DateTrunc_month()
+    {
+        await AssertQueryScalar(
+            actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("month", b.DateOnly)),
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new DateOnly(b.DateOnly.Year, b.DateOnly.Month, 1)));
+
+        AssertSql(
+            """
+SELECT DATETRUNC(month, [b].[DateOnly])
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

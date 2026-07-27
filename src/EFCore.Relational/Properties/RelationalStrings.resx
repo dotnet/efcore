@@ -120,6 +120,9 @@
   <data name="AbstractTpc" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be instantiated because its corresponding CLR type is abstract, but the entity type was mapped to '{storeObject}' using the 'TPC' mapping strategy. Only instantiable types should be mapped. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
+  <data name="AutoLoadedJsonProperty" xml:space="preserve">
+    <value>The property '{property}' on type '{type}' is mapped to a JSON entity and cannot be configured as not auto-loaded. JSON-mapped entities are always loaded as a unit.</value>
+  </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize a sequence from model metadata. See inner exception for details.</value>
     <comment>Obsolete</comment>
@@ -129,6 +132,9 @@
   </data>
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
+  </data>
+  <data name="CannotCompareJsonComplexTypeToNonJson" xml:space="preserve">
+    <value>Cannot compare complex type '{jsonComplexType}', which is mapped to JSON, to complex type '{nonJsonComplexType}', which is not.</value>
   </data>
   <data name="CannotSetAliasOnJoin" xml:space="preserve">
     <value>Aliases cannot be set on join expressions; set the alias on the enclosed table expression.</value>
@@ -325,6 +331,9 @@
   <data name="DuplicateForeignKeyDeleteBehaviorMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but configured with different delete behavior ('{deleteBehavior1}' and '{deleteBehavior2}').</value>
   </data>
+  <data name="DuplicateForeignKeyExcludedFromMigrationsMismatch" xml:space="preserve">
+    <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different migration exclusion configurations.</value>
+  </data>
   <data name="DuplicateForeignKeyPrincipalColumnMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but referencing different principal columns ({principalColumnNames1} and {principalColumnNames2}).</value>
   </data>
@@ -436,11 +445,11 @@
   <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
     <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, file an issue at https://aka.ms/efcorefeedback.</value>
   </data>
-  <data name="ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn" xml:space="preserve">
-    <value>'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.</value>
-  </data>
   <data name="ExecuteUpdateCannotSetJsonPropertyToArbitraryExpression" xml:space="preserve">
     <value>'ExecuteUpdate' cannot currently set a property in a JSON column to arbitrary expressions; only constants, parameters and other JSON properties are supported; see https://github.com/dotnet/efcore/issues/36688.</value>
+  </data>
+  <data name="ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn" xml:space="preserve">
+    <value>'ExecuteUpdate' cannot currently set a property in a JSON column to a regular, non-JSON column; see https://github.com/dotnet/efcore/issues/36688.</value>
   </data>
   <data name="ExecuteUpdateDeleteOnEntityNotMappedToTable" xml:space="preserve">
     <value>'ExecuteUpdate' or 'ExecuteDelete' was called on entity type '{entityType}', but that entity type is not mapped to a table.</value>
@@ -469,6 +478,12 @@
   <data name="ImplicitDefaultNamesNotSupportedForTpcWhenNamesClash" xml:space="preserve">
     <value>Named default constraints cannot be used with TPC or entity splitting if they result in non-unique constraint names. Constraint name: '{constraintNameCandidate}'.</value>
   </data>
+  <data name="IncompatibleComplexTypesInAssignment" xml:space="preserve">
+    <value>The complex types '{complexType1}' and '{complexType2}' are being assigned, but the latter is lacking property '{property}' of the former.</value>
+  </data>
+  <data name="IncompatibleComplexTypesInComparison" xml:space="preserve">
+    <value>The complex types '{complexType1}' and '{complexType2}' are being compared, but the latter is lacking property '{property}' of the former.</value>
+  </data>
   <data name="IncompatibleTableCommentMismatch" xml:space="preserve">
     <value>The table '{table}' cannot be used for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.</value>
   </data>
@@ -495,6 +510,12 @@
   </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Default value '{value}' of type '{valueType}' cannot be set on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
+  </data>
+  <data name="IndexOnNonJsonComplexProperty" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot contain the complex property '{property}' because it's mapped to multiple columns. Reference each scalar property of the complex type individually instead.</value>
+  </data>
+  <data name="IndexPropertiesMixedJsonAndNonJsonMapping" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because some of its properties are contained within a complex property mapped to a JSON column while others are not. All properties of an index must either all be mapped to JSON or all be mapped to regular columns.</value>
   </data>
   <data name="InsertDataOperationNoModel" xml:space="preserve">
     <value>The data insertion operation on '{table}' is not associated with a model. Either add a model to the migration, or specify the column types in all data operations.</value>
@@ -553,6 +574,9 @@
   <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
     <value>Navigation from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}' is not supported. Entities mapped to JSON can only navigate to their children.</value>
   </data>
+  <data name="JsonElementMappingNotFound" xml:space="preserve">
+    <value>No JSON element mapping was found for '{structuralType}.{name}' on column '{columnName}'.</value>
+  </data>
   <data name="JsonEmptyString" xml:space="preserve">
     <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
@@ -598,11 +622,26 @@
   <data name="JsonErrorExtractingJsonProperty" xml:space="preserve">
     <value>An error occurred while reading a JSON value for property '{entityType}.{propertyName}'. See the inner exception for more information.</value>
   </data>
+  <data name="JsonExecuteUpdateNotSupportedWithOwnedEntities" xml:space="preserve">
+    <value>ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.</value>
+  </data>
   <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
     <value>This node should be handled by provider-specific SQL generator.</value>
   </data>
   <data name="JsonObjectWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
     <value>Both '{property1}' and '{property2}' on '{type}' are configured to use the same JSON property name '{jsonPropertyName}'. Each property within a JSON-mapped type must have a unique JSON property name.</value>
+  </data>
+  <data name="JsonPartialExecuteUpdateNotSupportedByProvider" xml:space="preserve">
+    <value>The provider in use does not support partial updates with ExecuteUpdate within JSON columns.</value>
+  </data>
+  <data name="JsonPathIndexElementsCollectionIndicesMismatch" xml:space="preserve">
+    <value>The number of elements ({elementCount}) must match the number of collection-index entries ({collectionIndicesCount}) when creating a RelationalJsonIndex.</value>
+  </data>
+  <data name="JsonPathIndexPropertiesInDifferentJsonColumns" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because its properties are mapped to different JSON columns ('{firstColumn}' and '{secondColumn}'). All leaves of a JSON-path index (an index whose properties traverse a complex collection) must be contained in a single JSON column.</value>
+  </data>
+  <data name="JsonPathIndexPropertyMissingJsonColumn" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured because its property '{property}' traverses a complex collection but is not mapped to a JSON column.</value>
   </data>
   <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
     <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>
@@ -616,6 +655,9 @@
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
   </data>
+  <data name="JsonQueryExpressionWithoutUnderlyingColumn" xml:space="preserve">
+    <value>The JSON query expression for '{structuralType}' has no underlying column.</value>
+  </data>
   <data name="JsonQueryLinqOperatorsNotSupported" xml:space="preserve">
     <value>Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.</value>
   </data>
@@ -627,6 +669,9 @@
   </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
+  <data name="KeyPropertyInJsonComplexType" xml:space="preserve">
+    <value>The key {keyProperties} on the entity type '{entityType}' cannot be configured because the property '{property}' is contained in a complex type mapped to a JSON column. Keys cannot reference properties that are stored inside a JSON document.</value>
   </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
@@ -831,9 +876,9 @@
     <value>Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.</value>
     <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
   </data>
-  <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
+  <data name="LogNamedIndexAllPropertiesNotMappedToAnyTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
-    <comment>Warning RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string? string string</comment>
+    <comment>Warning RelationalEventId.AllIndexPropertiesNotMappedToAnyTable string? string string</comment>
   </data>
   <data name="LogNamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties must be mapped for the index to be created in the database.</value>
@@ -849,7 +894,7 @@
   </data>
   <data name="LogNoMigrationsFound" xml:space="preserve">
     <value>No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.</value>
-    <comment>Information RelationalEventId.MigrationsNotFound string</comment>
+    <comment>Error RelationalEventId.MigrationsNotFound string</comment>
   </data>
   <data name="LogNoModelSnapshotFound" xml:space="preserve">
     <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>
@@ -862,6 +907,10 @@
   <data name="LogNonTransactionalMigrationOperationWarning" xml:space="preserve">
     <value>The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.</value>
     <comment>Warning RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
+  </data>
+  <data name="LogOldMigrationVersion" xml:space="preserve">
+    <value>Pending model changes were detected for context '{contextType}', but the model snapshot was created with EF Core version '{efVersion}'. These changes may be caused by improvements in snapshot generation in newer versions of EF Core. Consider adding an empty migration to regenerate the snapshot.</value>
+    <comment>Warning RelationalEventId.OldMigrationVersionWarning string string</comment>
   </data>
   <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
@@ -882,6 +931,10 @@
   <data name="LogOptionalDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared column that could be used to identify whether the entity exists. If all nullable properties contain a 'null' value in database then an object instance won't be created in the query. Add a required property to create instances with 'null' values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
+  </data>
+  <data name="LogOwnedEntityMappedToJsonCollection" xml:space="preserve">
+    <value>The entity type '{entityType}' is an owned entity type mapped to JSON as a collection, which uses a synthesized ordinal key. Mapping owned entity collections to JSON is obsolete; map it as a complex type collection or configure a non-shadow key instead. See https://aka.ms/efcore-docs-json-owned-entities for more information.</value>
+    <comment>Warning RelationalEventId.OwnedEntityMappedToJsonCollectionWarning string</comment>
   </data>
   <data name="LogPendingModelChanges" xml:space="preserve">
     <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.</value>
@@ -939,9 +992,9 @@
     <value>An unexpected trailing result set was found when reading the results of a SaveChanges operation; this may indicate that a stored procedure returned a result set without being configured for it in the EF model. Check your stored procedure definitions.</value>
     <comment>Warning RelationalEventId.UnexpectedTrailingResultSetWhenSaving</comment>
   </data>
-  <data name="LogUnnamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
+  <data name="LogUnnamedIndexAllPropertiesNotMappedToAnyTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
-    <comment>Warning RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string</comment>
+    <comment>Warning RelationalEventId.AllIndexPropertiesNotMappedToAnyTable string string</comment>
   </data>
   <data name="LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties must be mapped for the index to be created in the database.</value>
@@ -988,9 +1041,6 @@
   <data name="MissingResultSetWhenSaving" xml:space="preserve">
     <value>A result set was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
   </data>
-  <data name="MultipleColumnsWithSameJsonContainerName" xml:space="preserve">
-    <value>Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.</value>
-  </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
     <value>Commands cannot be added to a completed 'ModificationCommandBatch'.</value>
   </data>
@@ -1002,6 +1052,12 @@
   </data>
   <data name="ModificationCommandInvalidEntityStateSensitive" xml:space="preserve">
     <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, file an issue at https://aka.ms/efcorefeedback.</value>
+  </data>
+  <data name="MultipleAnnotationConflict" xml:space="preserve">
+    <value>The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.</value>
+  </data>
+  <data name="MultipleColumnsWithSameJsonContainerName" xml:space="preserve">
+    <value>Entity type '{entityType}' is mapped to multiple columns with name '{columnName}', and one of them is configured as a JSON column. Assign different names to the columns.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -1087,12 +1143,6 @@
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.</value>
   </data>
-  <data name="JsonPartialExecuteUpdateNotSupportedByProvider" xml:space="preserve">
-    <value>The provider in use does not support partial updates with ExecuteUpdate within JSON columns.</value>
-  </data>
-  <data name="JsonExecuteUpdateNotSupportedWithOwnedEntities" xml:space="preserve">
-    <value>ExecuteUpdate over JSON columns is not supported when the column is mapped as an owned entity. Map the column as a complex type instead.</value>
-  </data>
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
@@ -1104,6 +1154,9 @@
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
     <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="PropertyNotMappedSpatial" xml:space="preserve">
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped because it is a spatial type and the required spatial services have not been configured. Install the appropriate spatial NuGet package for your provider (e.g. 'Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite' or 'Microsoft.EntityFrameworkCore.Sqlite.NetTopologySuite') and call 'UseNetTopologySuite' in your provider configuration. See https://aka.ms/efcore-docs-spatial for more information.</value>
   </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.</value>
@@ -1302,6 +1355,9 @@
   </data>
   <data name="UnhandledExpressionInVisitor" xml:space="preserve">
     <value>Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.</value>
+  </data>
+  <data name="UniqueIndexOnComplexProperty" xml:space="preserve">
+    <value>The index {indexProperties} on the entity type '{entityType}' cannot be configured as unique because it contains the complex property '{property}'. Unique indexes are not supported on complex properties.</value>
   </data>
   <data name="UnknownOperation" xml:space="preserve">
     <value>The current migration SQL generator '{sqlGeneratorType}' is unable to generate SQL for operations of type '{operationType}'.</value>

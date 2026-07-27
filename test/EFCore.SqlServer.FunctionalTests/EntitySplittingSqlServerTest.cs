@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : EntitySplittingTestBase(fixture, testOutputHelper)
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_roundtrip_with_triggers()
     {
         await InitializeAsync(
@@ -91,6 +91,6 @@ INNER JOIN [MeterReadingDetails] AS [m0] ON [m].[Id] = [m0].[Id]
 """);
     }
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

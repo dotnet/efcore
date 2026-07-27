@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class DbSetInitializerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Initializes_all_entity_set_properties_with_setters()
     {
         var setFinder = new FakeSetFinder();

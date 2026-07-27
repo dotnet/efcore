@@ -90,6 +90,28 @@ public class EntityEntry<TEntity> : EntityEntry
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.
     /// </remarks>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to access information and operations for.
+    /// </param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual ComplexPropertyEntry<TEntity, TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TEntity, TProperty?>> propertyExpression)
+        where TProperty : struct
+    {
+        Check.NotNull(propertyExpression);
+
+        return new ComplexPropertyEntry<TEntity, TProperty>(
+            InternalEntry,
+            Metadata.GetComplexProperty(propertyExpression.GetMemberAccess().GetSimpleMemberName()));
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given complex type property of this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
     /// <typeparam name="TElement">The element type.</typeparam>
     /// <param name="propertyExpression">
     ///     A lambda expression representing the property to access information and operations for.

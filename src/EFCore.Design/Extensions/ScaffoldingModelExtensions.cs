@@ -678,7 +678,7 @@ public static class ScaffoldingModelExtensions
     /// </summary>
     /// <param name="foreignKey">The foreign key.</param>
     /// <param name="annotationCodeGenerator">The provider's annotation code generator.</param>
-    /// <param name="useStrings">A value indicating wheter to use string fluent API overloads instead of ones that take a property accessor lambda.</param>
+    /// <param name="useStrings">A value indicating whether to use string fluent API overloads instead of ones that take a property accessor lambda.</param>
     /// <returns>The fluent API calls.</returns>
     public static FluentApiCodeFragment? GetFluentApiCalls(
         this IForeignKey foreignKey,

@@ -43,8 +43,15 @@ public class StringToDateTimeOffsetConverter : StringDateTimeOffsetConverter<str
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static StringToDateTimeOffsetConverter Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(DateTimeOffset), i => new StringToDateTimeOffsetConverter(i.MappingHints), DefaultHints);
+        = new(typeof(string), typeof(DateTimeOffset),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new StringToDateTimeOffsetConverter(i.MappingHints),
+            DefaultHints);
 }

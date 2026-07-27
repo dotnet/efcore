@@ -63,10 +63,17 @@ public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvi
     }
 
     /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static CastingConverter<TModel, TProvider> Instance { get; } = new();
+
+    /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), DefaultHints);
+        = new(typeof(TModel), typeof(TProvider),
+            i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new CastingConverter<TModel, TProvider>(i.MappingHints),
+            DefaultHints);
 
     private static Expression<Func<TIn, TOut>> Convert<TIn, TOut>()
     {

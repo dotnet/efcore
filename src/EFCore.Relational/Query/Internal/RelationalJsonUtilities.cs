@@ -89,8 +89,10 @@ public static class RelationalJsonUtilities
                 Check.DebugAssert(jsonPropertyName is not null);
                 writer.WritePropertyName(jsonPropertyName);
 
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+
                 var propertyValue = property.GetGetter().GetClrValue(objectValue);
-                if (propertyValue is null)
+                if (propertyValue is null && jsonValueReaderWriter?.HandlesNullWrites != true)
                 {
                     if (!property.IsNullable)
                     {
@@ -101,7 +103,6 @@ public static class RelationalJsonUtilities
                 }
                 else
                 {
-                    var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
                     Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
                     jsonValueReaderWriter.ToJson(writer, propertyValue);
                 }

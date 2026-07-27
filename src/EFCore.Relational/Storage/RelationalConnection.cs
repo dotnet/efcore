@@ -1040,9 +1040,6 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
         _commandTimeout = _defaultCommandTimeout;
 
-        _openedCount = 0;
-        _openedInternally = false;
-
         if (_connectionOwned
             && _connection is not null)
         {

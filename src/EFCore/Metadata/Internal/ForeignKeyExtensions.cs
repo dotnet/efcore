@@ -187,8 +187,8 @@ public static class ForeignKeyExtensions
         for (var i = 0; i < count; i++)
         {
             var dependentProperty = foreignKey.Properties[i];
-
-            if (dependentProperty.GetContainingForeignKeys().Count() > 1)
+            if (dependentProperty.GetContainingForeignKeys().Count() > 1
+                || dependentProperty.IsKey())
             {
                 if (ReferenceEquals(foreignKeyProperties, foreignKey.Properties))
                 {

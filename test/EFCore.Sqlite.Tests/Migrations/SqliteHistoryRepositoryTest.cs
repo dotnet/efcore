@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class SqliteHistoryRepositoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void GetCreateScript_works()
     {
         var sql = CreateHistoryRepository().GetCreateScript();
@@ -23,7 +23,7 @@ CREATE TABLE "__EFMigrationsHistory" (
 """, sql, ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetCreateIfNotExistsScript_works()
     {
         var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
 """, sql, ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetDeleteScript_works()
     {
         var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
@@ -51,7 +51,7 @@ WHERE "MigrationId" = 'Migration1';
 """, sql, ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetInsertScript_works()
     {
         var sql = CreateHistoryRepository().GetInsertScript(
@@ -65,7 +65,7 @@ VALUES ('Migration1', '7.0.0');
 """, sql, ignoreLineEndingDifferences: true);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetBeginIfNotExistsScript_works()
     {
         var repository = CreateHistoryRepository();
@@ -74,7 +74,7 @@ VALUES ('Migration1', '7.0.0');
         Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetBeginIfExistsScript_works()
     {
         var repository = CreateHistoryRepository();
@@ -83,7 +83,7 @@ VALUES ('Migration1', '7.0.0');
         Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEndIfScript_works()
     {
         var repository = CreateHistoryRepository();
