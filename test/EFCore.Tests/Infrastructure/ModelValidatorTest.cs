@@ -1219,17 +1219,9 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        var exception = Record.Exception(() => modelBuilder.Entity(typeof(UnionEntity)));
-        if (exception is null)
-        {
-            VerifyError(
-                CoreStrings.UnionTypeNotSupported(nameof(UnionEntity)),
-                modelBuilder);
-        }
-        else
-        {
-            Assert.Equal(CoreStrings.InvalidEntityType(typeof(UnionEntity)), Assert.IsType<ArgumentException>(exception).Message);
-        }
+        Assert.Equal(
+            CoreStrings.InvalidEntityType(typeof(UnionEntity)),
+            Assert.Throws<ArgumentException>(() => modelBuilder.Entity(typeof(UnionEntity))).Message);
     }
 
     [Fact]
@@ -1239,22 +1231,15 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         modelBuilder.Entity<WithUnionComplexProperty>().ComplexProperty(e => e.Union);
 
-        var expectedUnionError = CoreStrings.UnionTypeNotSupported(
-            nameof(WithUnionComplexProperty) + "." + nameof(WithUnionComplexProperty.Union) + "#" + nameof(UnionEntity));
-        var message = Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message;
+        var typeName = $"{nameof(WithUnionComplexProperty)}.{nameof(WithUnionComplexProperty.Union)}#{nameof(UnionEntity)}";
+        var expectedConstructorError = CoreStrings.ConstructorNotFound(
+            typeName,
+            Environment.NewLine
+            + "    "
+            + CoreStrings.ConstructorBindingFailed("value", typeName + "(int value)")
+            + Environment.NewLine);
 
-        if (message != expectedUnionError)
-        {
-            var typeName = nameof(WithUnionComplexProperty) + "." + nameof(WithUnionComplexProperty.Union) + "#" + nameof(UnionEntity);
-            var expectedConstructorError = CoreStrings.ConstructorNotFound(
-                typeName,
-                Environment.NewLine
-                + "    "
-                + CoreStrings.ConstructorBindingFailed("value", typeName + "(int value)")
-                + Environment.NewLine);
-
-            Assert.Equal(expectedConstructorError, message);
-        }
+        Assert.Equal(expectedConstructorError, Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }
 
     protected union UnionEntity(int);
