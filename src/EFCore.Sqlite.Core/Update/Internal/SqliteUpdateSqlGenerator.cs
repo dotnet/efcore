@@ -87,8 +87,8 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     /// <param name="columnModification">The column for which the condition is being generated.</param>
     protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
     {
-        Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-        Check.NotNull(columnModification, nameof(columnModification));
+        Check.NotNull(commandStringBuilder);
+        Check.NotNull(columnModification);
 
         SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, "rowid");
         commandStringBuilder.Append(" = ")
@@ -109,8 +109,8 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
         string? schema,
         int commandPosition)
     {
-        Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-        Check.NotEmpty(name, nameof(name));
+        Check.NotNull(commandStringBuilder);
+        Check.NotEmpty(name);
 
         commandStringBuilder
             .Append("SELECT changes()")
@@ -127,7 +127,7 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     /// <param name="expectedRowsAffected">The expected number of rows affected.</param>
     protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
     {
-        Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
+        Check.NotNull(commandStringBuilder);
 
         commandStringBuilder.Append("changes() = ").Append(expectedRowsAffected);
     }

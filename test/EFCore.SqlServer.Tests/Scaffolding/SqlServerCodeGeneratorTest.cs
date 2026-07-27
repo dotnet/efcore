@@ -13,7 +13,7 @@ public class SqlServerCodeGeneratorTest
     {
         var codeGenerator = new SqlServerCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions: null);
 
@@ -29,7 +29,7 @@ public class SqlServerCodeGeneratorTest
     {
         var codeGenerator = new SqlServerCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
+                []));
 
         var providerOptions = new MethodCallCodeFragment(_setProviderOptionMethodInfo);
 
@@ -54,7 +54,7 @@ public class SqlServerCodeGeneratorTest
     {
         var codeGenerator = new SqlServerCodeGenerator(
             new ProviderCodeGeneratorDependencies(
-                new[] { new SqlServerNetTopologySuiteCodeGeneratorPlugin() }));
+                [new SqlServerNetTopologySuiteCodeGeneratorPlugin()]));
 
         var result = ((IProviderConfigurationCodeGenerator)codeGenerator).GenerateUseProvider("Data Source=Test");
 

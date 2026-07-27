@@ -44,17 +44,11 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     void SetQueryFilter(LambdaExpression? queryFilter);
 
     /// <summary>
-    ///     Returns the property that will be used for storing a discriminator value.
+    ///     Sets the query filter automatically applied to queries for this entity type.
     /// </summary>
-    /// <returns>The property that will be used for storing a discriminator value.</returns>
-    new IMutableProperty? FindDiscriminatorProperty()
-        => (IMutableProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-    /// <summary>
-    ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
-    /// </summary>
-    /// <param name="property">The property to set.</param>
-    void SetDiscriminatorProperty(IReadOnlyProperty? property);
+    /// <param name="filterKey">The filter key.</param>
+    /// <param name="filter">The LINQ predicate expression.</param>
+    void SetQueryFilter(string filterKey, LambdaExpression? filter);
 
     /// <summary>
     ///     Sets the value indicating whether the discriminator mapping is complete.
@@ -62,19 +56,6 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="complete">The value indicating whether the discriminator mapping is complete.</param>
     void SetDiscriminatorMappingComplete(bool? complete)
         => SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
-
-    /// <summary>
-    ///     Sets the discriminator value for this entity type.
-    /// </summary>
-    /// <param name="value">The value to set.</param>
-    void SetDiscriminatorValue(object? value)
-        => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, value);
-
-    /// <summary>
-    ///     Removes the discriminator value for this entity type.
-    /// </summary>
-    void RemoveDiscriminatorValue()
-        => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue);
 
     /// <summary>
     ///     Gets all types in the model from which this entity type derives, starting with the root.
@@ -113,21 +94,21 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDerivedTypes()
-        => ((IReadOnlyEntityType)this).GetDerivedTypes().Cast<IMutableEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Returns all derived types of this entity type, including the type itself.
     /// </summary>
     /// <returns>Derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDerivedTypesInclusive()
-        => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDerivedTypesInclusive().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this entity type.
     /// </summary>
     /// <returns>The derived types.</returns>
     new IEnumerable<IMutableEntityType> GetDirectlyDerivedTypes()
-        => ((IReadOnlyEntityType)this).GetDirectlyDerivedTypes().Cast<IMutableEntityType>();
+        => ((IReadOnlyTypeBase)this).GetDirectlyDerivedTypes().Cast<IMutableEntityType>();
 
     /// <summary>
     ///     Gets the root base type for a given entity type.
@@ -189,7 +170,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to use as an alternate key.</param>
     /// <returns>The newly created key.</returns>
     IMutableKey AddKey(IMutableProperty property)
-        => AddKey(new[] { property });
+        => AddKey([property]);
 
     /// <summary>
     ///     Adds a new alternate key to this entity type.
@@ -205,7 +186,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property that the key is defined on.</param>
     /// <returns>The key, or null if none is defined.</returns>
     new IMutableKey? FindKey(IReadOnlyProperty property)
-        => FindKey(new[] { property });
+        => FindKey([property]);
 
     /// <summary>
     ///     Gets the primary or alternate key that is defined on the given properties.
@@ -262,7 +243,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         IMutableProperty property,
         IMutableKey principalKey,
         IMutableEntityType principalEntityType)
-        => AddForeignKey(new[] { property }, principalKey, principalEntityType);
+        => AddForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Adds a new relationship to this entity type.
@@ -287,7 +268,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to find the foreign keys on.</param>
     /// <returns>The foreign keys.</returns>
     new IEnumerable<IMutableForeignKey> FindForeignKeys(IReadOnlyProperty property)
-        => FindForeignKeys(new[] { property });
+        => FindForeignKeys([property]);
 
     /// <summary>
     ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -314,7 +295,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
         IReadOnlyProperty property,
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
-        => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+        => FindForeignKey([property], principalKey, principalEntityType);
 
     /// <summary>
     ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
@@ -419,7 +400,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="memberInfo">The navigation property on the entity class.</param>
     /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
     new IMutableNavigation? FindNavigation(MemberInfo memberInfo)
-        => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
@@ -595,7 +576,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to be indexed.</param>
     /// <returns>The newly created index.</returns>
     IMutableIndex AddIndex(IMutableProperty property)
-        => AddIndex(new[] { property });
+        => AddIndex([property]);
 
     /// <summary>
     ///     Adds an unnamed index to this entity type.
@@ -611,7 +592,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="name">The name of the index.</param>
     /// <returns>The newly created index.</returns>
     IMutableIndex AddIndex(IMutableProperty property, string name)
-        => AddIndex(new[] { property }, name);
+        => AddIndex([property], name);
 
     /// <summary>
     ///     Adds a named index to this entity type.
@@ -627,7 +608,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to find the index on.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     new IMutableIndex? FindIndex(IReadOnlyProperty property)
-        => FindIndex(new[] { property });
+        => FindIndex([property]);
 
     /// <summary>
     ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
@@ -762,6 +743,13 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     ///     Returns the declared triggers on the entity type.
     /// </summary>
     new IEnumerable<IMutableTrigger> GetDeclaredTriggers();
+
+    /// <summary>
+    ///     Gets all triggers defined on this entity type.
+    /// </summary>
+    /// <returns>The triggers defined on this entity type.</returns>
+    new IEnumerable<IMutableTrigger> GetTriggers()
+        => (BaseType?.GetTriggers() ?? []).Concat(GetDeclaredTriggers());
 
     /// <summary>
     ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same

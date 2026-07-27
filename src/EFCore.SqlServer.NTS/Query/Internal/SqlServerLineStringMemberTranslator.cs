@@ -70,10 +70,10 @@ public class SqlServerLineStringMemberTranslator : IMemberTranslator
             return _sqlExpressionFactory.Function(
                 instance,
                 functionName,
-                Enumerable.Empty<SqlExpression>(),
+                [],
                 nullable: true,
                 instancePropagatesNullability: true,
-                argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                argumentsPropagateNullability: [],
                 returnType,
                 resultTypeMapping);
         }

@@ -28,29 +28,6 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
     /// <inheritdoc />
-    public override void ProcessModelFinalizing(
-        IConventionModelBuilder modelBuilder,
-        IConventionContext<IConventionModelBuilder> context)
-    {
-        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-        {
-            var queryFilter = entityType.GetQueryFilter();
-            if (queryFilter != null)
-            {
-                entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
-            }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var definingQuery = ((IEntityType)entityType).GetDefiningQuery();
-            if (definingQuery != null)
-            {
-                entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-    }
-
-    /// <inheritdoc />
     protected class RelationalDbSetAccessRewritingExpressionVisitor : DbSetAccessRewritingExpressionVisitor
     {
         /// <summary>

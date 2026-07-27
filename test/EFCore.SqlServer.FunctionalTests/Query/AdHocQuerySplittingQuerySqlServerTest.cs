@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTestBase
+public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : AdHocQuerySplittingQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -41,8 +41,12 @@ public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTes
         return optionsBuilder;
     }
 
-    protected override async Task<TestStore> CreateTestStore25225()
-        => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true);
+    protected override TestStore CreateTestStore25225()
+    {
+        var testStore = SqlServerTestStore.Create(StoreName, multipleActiveResultSets: true);
+        testStore.UseConnectionString = true;
+        return testStore;
+    }
 
     public override async Task Can_configure_SingleQuery_at_context_level()
     {
@@ -271,7 +275,7 @@ ORDER BY [p1].[Id]
     {
         var contextFactory = await InitializeAsync<Context21355>(
             seed: c => c.SeedAsync(),
-            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: false));
+            createTestStore: () => SqlServerTestStore.Create(StoreName, multipleActiveResultSets: false));
 
         using var context = contextFactory.CreateContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();

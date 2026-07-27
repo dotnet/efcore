@@ -53,14 +53,23 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             ExpressionType.Modulo
         ];
 
-    private static readonly MethodInfo StringStartsWithMethodInfo
+    private static readonly MethodInfo StringStartsWithMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
-    private static readonly MethodInfo StringEndsWithMethodInfo
+    private static readonly MethodInfo StringStartsWithMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(char)])!;
+
+    private static readonly MethodInfo StringEndsWithMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
 
-    private static readonly MethodInfo StringContainsMethodInfo
+    private static readonly MethodInfo StringEndsWithMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(char)])!;
+
+    private static readonly MethodInfo StringContainsMethodInfoString
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
+
+    private static readonly MethodInfo StringContainsMethodInfoChar
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(char)])!;
 
     private static readonly MethodInfo StringJoinMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.Join), [typeof(string), typeof(string[])])!;
@@ -154,9 +163,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
             var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
                 "DATALENGTH",
-                new[] { sqlExpression },
+                [sqlExpression],
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: Statics.TrueArrays[1],
                 isBinaryMaxDataType ? typeof(long) : typeof(int));
 
             return isBinaryMaxDataType
@@ -187,21 +196,21 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 methodCallExpression.Type);
         }
 
-        if (method == StringStartsWithMethodInfo
+        if ((method == StringStartsWithMethodInfoString || method == StringStartsWithMethodInfoChar)
             && TryTranslateStartsEndsWithContains(
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.StartsWith, out var translation1))
         {
             return translation1;
         }
 
-        if (method == StringEndsWithMethodInfo
+        if ((method == StringEndsWithMethodInfoString || method == StringEndsWithMethodInfoChar)
             && TryTranslateStartsEndsWithContains(
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.EndsWith, out var translation2))
         {
             return translation2;
         }
 
-        if (method == StringContainsMethodInfo
+        if ((method == StringContainsMethodInfoString || method == StringContainsMethodInfoChar)
             && TryTranslateStartsEndsWithContains(
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.Contains, out var translation3))
         {
@@ -312,7 +321,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
                         // Azure Synapse does not support ESCAPE clause in LIKE
                         // fallback to translation like with column/expression
-                        string s when _sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse
+                        string when _sqlServerSingletonOptions.EngineType is SqlServerEngineType.AzureSynapse
                             => TranslateWithoutLike(patternIsNonEmptyConstantString: true),
 
                         string s => _sqlExpressionFactory.Like(
@@ -328,17 +337,42 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                 }),
                             _sqlExpressionFactory.Constant(LikeEscapeString)),
 
+                        char s when !IsLikeWildChar(s)
+                            => _sqlExpressionFactory.Like(
+                                translatedInstance,
+                                _sqlExpressionFactory.Constant(
+                                    methodType switch
+                                    {
+                                        StartsEndsWithContains.StartsWith => s + "%",
+                                        StartsEndsWithContains.EndsWith => "%" + s,
+                                        StartsEndsWithContains.Contains => $"%{s}%",
+
+                                        _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
+                                    })),
+
+                        char s => _sqlExpressionFactory.Like(
+                            translatedInstance,
+                            _sqlExpressionFactory.Constant(
+                                methodType switch
+                                {
+                                    StartsEndsWithContains.StartsWith => LikeEscapeChar + s + "%",
+                                    StartsEndsWithContains.EndsWith => "%" + LikeEscapeChar + s,
+                                    StartsEndsWithContains.Contains => $"%{LikeEscapeChar}{s}%",
+
+                                    _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
+                                }),
+                            _sqlExpressionFactory.Constant(LikeEscapeString)),
+
                         _ => throw new UnreachableException()
                     };
 
                     return true;
                 }
 
+                // Azure Synapse does not support ESCAPE clause in LIKE
+                // fall through to translation like with column/expression
                 case SqlParameterExpression patternParameter
-                    when patternParameter.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                        // Azure Synapse does not support ESCAPE clause in LIKE
-                        // fall through to translation like with column/expression
-                        && _sqlServerSingletonOptions.EngineType != SqlServerEngineType.AzureSynapse:
+                    when _sqlServerSingletonOptions.EngineType is not SqlServerEngineType.AzureSynapse:
                 {
                     // The pattern is a parameter, register a runtime parameter that will contain the rewritten LIKE pattern, where
                     // all special characters have been escaped.
@@ -386,18 +420,17 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                 _sqlExpressionFactory.Equal(
                                     _sqlExpressionFactory.Function(
                                         methodType is StartsEndsWithContains.StartsWith ? "LEFT" : "RIGHT",
-                                        new[]
-                                        {
-                                                translatedInstance,
-                                                _sqlExpressionFactory.Function(
-                                                    "LEN",
-                                                    new[] { translatedPattern },
-                                                    nullable: true,
-                                                    argumentsPropagateNullability: new[] { true },
-                                                    typeof(int))
-                                        },
+                                        [
+                                            translatedInstance,
+                                            _sqlExpressionFactory.Function(
+                                                "LEN",
+                                                [translatedPattern],
+                                                nullable: true,
+                                                argumentsPropagateNullability: Statics.TrueArrays[1],
+                                                typeof(int))
+                                        ],
                                         nullable: true,
-                                        argumentsPropagateNullability: new[] { true, true },
+                                        argumentsPropagateNullability: Statics.TrueArrays[2],
                                         typeof(string),
                                         stringTypeMapping),
                                     translatedPattern))),
@@ -428,9 +461,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     => _sqlExpressionFactory.GreaterThan(
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
-                            new[] { translatedPattern, translatedInstance },
+                            [translatedPattern, translatedInstance],
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
+                            argumentsPropagateNullability: Statics.TrueArrays[2],
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0));
             }
@@ -448,7 +481,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         QueryContext queryContext,
         string baseParameterName,
         StartsEndsWithContains methodType)
-        => queryContext.ParameterValues[baseParameterName] switch
+        => queryContext.Parameters[baseParameterName] switch
         {
             null => null,
 
@@ -461,6 +494,22 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 StartsEndsWithContains.StartsWith => EscapeLikePattern(s) + '%',
                 StartsEndsWithContains.EndsWith => '%' + EscapeLikePattern(s),
                 StartsEndsWithContains.Contains => $"%{EscapeLikePattern(s)}%",
+                _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
+            },
+
+            char s when !IsLikeWildChar(s) => methodType switch
+            {
+                StartsEndsWithContains.StartsWith => s + "%",
+                StartsEndsWithContains.EndsWith => "%" + s,
+                StartsEndsWithContains.Contains => $"%{s}%",
+                _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
+            },
+
+            char s => methodType switch
+            {
+                StartsEndsWithContains.StartsWith => LikeEscapeChar + s + "%",
+                StartsEndsWithContains.EndsWith => "%" + LikeEscapeChar + s,
+                StartsEndsWithContains.Contains => $"%{LikeEscapeChar}{s}%",
                 _ => throw new ArgumentOutOfRangeException(nameof(methodType), methodType, null)
             },
 
@@ -618,16 +667,15 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 ? Dependencies.SqlExpressionFactory.Convert(
                     Dependencies.SqlExpressionFactory.Function(
                         "SUBSTRING",
-                        new[]
-                        {
+                        [
                             sqlArray,
                             Dependencies.SqlExpressionFactory.Add(
                                 Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(sqlIndex),
                                 Dependencies.SqlExpressionFactory.Constant(1)),
                             Dependencies.SqlExpressionFactory.Constant(1)
-                        },
+                        ],
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true, true },
+                        argumentsPropagateNullability: Statics.TrueArrays[3],
                         typeof(byte[])),
                     resultType)
                 : QueryCompilationContext.NotTranslatedExpression;

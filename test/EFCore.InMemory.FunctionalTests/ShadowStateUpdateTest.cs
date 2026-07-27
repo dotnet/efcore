@@ -12,8 +12,6 @@ public class ShadowStateUpdateTest(InMemoryFixture fixture) : IClassFixture<InMe
         var entityTypeBuilder = modelBuilder.Entity<Customer>();
         entityTypeBuilder.Property<string>("Name");
 
-        var customerType = (IEntityType)entityTypeBuilder.Metadata;
-
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseModel(modelBuilder.FinalizeModel())
             .UseInMemoryDatabase(nameof(ShadowStateUpdateTest))
@@ -45,7 +43,7 @@ public class ShadowStateUpdateTest(InMemoryFixture fixture) : IClassFixture<InMe
         using (var context = new DbContext(optionsBuilder.Options))
         {
             var customerEntry = context.Entry(customer).GetInfrastructure();
-            customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
+            customerEntry[customerEntry.EntityType.FindProperty("Name")] = "Daenerys Targaryen";
 
             context.Update(customer);
 

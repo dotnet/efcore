@@ -104,7 +104,7 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
             AddNamespace(methodName.Namespace);
             Result = InvocationExpression(
                 IdentifierName(methodName.Name),
-                ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(memberExpression.Expression)) })));
+                ArgumentList(SeparatedList([Argument(Translate<ExpressionSyntax>(memberExpression.Expression))])));
         }
         else
         {
@@ -139,11 +139,10 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
                     IdentifierName(methodName.Name),
                     ArgumentList(
                         SeparatedList(
-                            new[]
-                            {
-                                Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
-                                Argument(Translate<ExpressionSyntax>(value))
-                            })));
+                        [
+                            Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
+                            Argument(Translate<ExpressionSyntax>(value))
+                        ])));
             }
             else
             {
@@ -151,7 +150,7 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
                     assignmentKind,
                     InvocationExpression(
                         IdentifierName(methodName.Name),
-                        ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(memberExpression.Expression)) }))),
+                        ArgumentList(SeparatedList([Argument(Translate<ExpressionSyntax>(memberExpression.Expression))]))),
                     Translate<ExpressionSyntax>(value));
             }
         }

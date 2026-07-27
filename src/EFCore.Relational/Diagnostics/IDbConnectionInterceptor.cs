@@ -261,7 +261,7 @@ public interface IDbConnectionInterceptor : IInterceptor
         => Task.CompletedTask;
 
     /// <summary>
-    ///     Called when closing of a connection has failed with an exception.
+    ///     Called when a connection operation (e.g. open) has failed with an exception.
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -270,7 +270,7 @@ public interface IDbConnectionInterceptor : IInterceptor
     }
 
     /// <summary>
-    ///     Called when closing of a connection has failed with an exception.
+    ///     Called when a connection operation (e.g. open) has failed with an exception.
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="eventData">Contextual information about the connection.</param>
@@ -278,5 +278,25 @@ public interface IDbConnectionInterceptor : IInterceptor
     /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task ConnectionFailedAsync(DbConnection connection, ConnectionErrorEventData eventData, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <summary>
+    ///     Called when the opening of a connection was canceled.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    void ConnectionCanceled(DbConnection connection, ConnectionEndEventData eventData)
+    {
+    }
+
+    /// <summary>
+    ///     Called when the opening of a connection was canceled.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="eventData">Contextual information about the connection.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    Task ConnectionCanceledAsync(DbConnection connection, ConnectionEndEventData eventData, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 }

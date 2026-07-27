@@ -44,8 +44,8 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
         Expression materializationExpression,
         Expression bindingInfoExpression)
     {
-        Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
+        Check.NotNull(materializationExpression);
+        Check.NotNull(bindingInfoExpression);
 
         return Expression.Call(
             GetServiceMethod.MakeGenericMethod(ServiceType),

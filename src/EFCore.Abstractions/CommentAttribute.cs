@@ -20,7 +20,7 @@ public sealed class CommentAttribute : Attribute
     /// <param name="comment">The comment.</param>
     public CommentAttribute(string comment)
     {
-        Check.NotEmpty(comment, nameof(comment));
+        Check.NotEmpty(comment);
 
         Comment = comment;
     }

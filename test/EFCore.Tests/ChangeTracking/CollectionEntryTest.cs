@@ -318,17 +318,11 @@ public class CollectionEntryTest
         Assert.False(collection.IsModified);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached, EntityState.Added)]
-    [InlineData(EntityState.Added, EntityState.Added)]
-    [InlineData(EntityState.Modified, EntityState.Added)]
-    [InlineData(EntityState.Deleted, EntityState.Added)]
-    [InlineData(EntityState.Unchanged, EntityState.Added)]
-    [InlineData(EntityState.Detached, EntityState.Deleted)]
-    [InlineData(EntityState.Added, EntityState.Deleted)]
-    [InlineData(EntityState.Modified, EntityState.Deleted)]
-    [InlineData(EntityState.Deleted, EntityState.Deleted)]
-    [InlineData(EntityState.Unchanged, EntityState.Deleted)]
+    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Added), InlineData(EntityState.Added, EntityState.Added),
+     InlineData(EntityState.Modified, EntityState.Added), InlineData(EntityState.Deleted, EntityState.Added),
+     InlineData(EntityState.Unchanged, EntityState.Added), InlineData(EntityState.Detached, EntityState.Deleted),
+     InlineData(EntityState.Added, EntityState.Deleted), InlineData(EntityState.Modified, EntityState.Deleted),
+     InlineData(EntityState.Deleted, EntityState.Deleted), InlineData(EntityState.Unchanged, EntityState.Deleted)]
     public void IsModified_can_set_fk_to_modified_principal_with_Added_or_Deleted_dependents(
         EntityState principalState,
         EntityState dependentState)
@@ -378,12 +372,9 @@ public class CollectionEntryTest
         Assert.False(context.Entry(chunky2).Property(e => e.GarciaId).IsModified);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached, EntityState.Unchanged)]
-    [InlineData(EntityState.Added, EntityState.Unchanged)]
-    [InlineData(EntityState.Modified, EntityState.Unchanged)]
-    [InlineData(EntityState.Deleted, EntityState.Unchanged)]
-    [InlineData(EntityState.Unchanged, EntityState.Unchanged)]
+    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Unchanged), InlineData(EntityState.Added, EntityState.Unchanged),
+     InlineData(EntityState.Modified, EntityState.Unchanged), InlineData(EntityState.Deleted, EntityState.Unchanged),
+     InlineData(EntityState.Unchanged, EntityState.Unchanged)]
     public void IsModified_can_set_fk_to_modified_principal_with_Unchanged_dependents(
         EntityState principalState,
         EntityState dependentState)
@@ -417,12 +408,9 @@ public class CollectionEntryTest
         Assert.Equal(dependentState, context.Entry(chunky2).State);
     }
 
-    [ConditionalTheory]
-    [InlineData(EntityState.Detached, EntityState.Modified)]
-    [InlineData(EntityState.Added, EntityState.Modified)]
-    [InlineData(EntityState.Modified, EntityState.Modified)]
-    [InlineData(EntityState.Deleted, EntityState.Modified)]
-    [InlineData(EntityState.Unchanged, EntityState.Modified)]
+    [ConditionalTheory, InlineData(EntityState.Detached, EntityState.Modified), InlineData(EntityState.Added, EntityState.Modified),
+     InlineData(EntityState.Modified, EntityState.Modified), InlineData(EntityState.Deleted, EntityState.Modified),
+     InlineData(EntityState.Unchanged, EntityState.Modified)]
     public void IsModified_can_set_fk_to_modified_principal_with_Modified_dependents(
         EntityState principalState,
         EntityState dependentState)

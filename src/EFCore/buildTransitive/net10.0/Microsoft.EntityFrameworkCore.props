@@ -1,0 +1,9 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--
+         MAUI (and other size-conscient profiles) trim the nullability attributes, causing the EF Core NRT support to break.
+         This prevents the attributes from being trimmed.
+    -->
+    <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
+  </PropertyGroup>
+</Project>

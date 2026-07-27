@@ -34,12 +34,10 @@ public class Customer
 
     public DateTime ModifiedDate { get; set; }
 
-    [Required]
-    [MaxLength(128)]
+    [Required, MaxLength(128)]
     public string PasswordHash { get; set; }
 
-    [Required]
-    [MaxLength(10)]
+    [Required, MaxLength(10)]
     public string PasswordSalt { get; set; }
 
     [MaxLength(256)]

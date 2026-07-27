@@ -31,6 +31,21 @@ public static class RelationalCommandBuilderExtensions
     }
 
     /// <summary>
+    ///     Appends an object to the command text on a new line.
+    /// </summary>
+    /// <param name="commandBuilder">The command builder.</param>
+    /// <param name="value">The object to be written.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static IRelationalCommandBuilder AppendLine(
+        this IRelationalCommandBuilder commandBuilder,
+        FormattableString value)
+    {
+        commandBuilder.Append(value).AppendLine();
+
+        return commandBuilder;
+    }
+
+    /// <summary>
     ///     Appends an object, that contains multiple lines of text, to the command text.
     ///     Each line read from the object is appended on a new line.
     /// </summary>

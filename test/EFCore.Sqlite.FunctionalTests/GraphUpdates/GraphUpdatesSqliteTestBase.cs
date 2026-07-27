@@ -64,79 +64,71 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture>(TFixture fixture) : G
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<OwnerRoot>(
-                b =>
-                {
-                    b.OwnsMany(
-                        e => e.OptionalChildren, b =>
-                        {
-                            b.HasKey("Id");
-                            b.OwnsMany(
-                                e => e.Children, b =>
-                                {
-                                    b.HasKey("Id");
-                                });
-                        });
-                    b.OwnsMany(
-                        e => e.RequiredChildren, b =>
-                        {
-                            b.HasKey("Id");
-                            b.OwnsMany(
-                                e => e.Children, b =>
-                                {
-                                    b.HasKey("Id");
-                                });
-                        });
-                });
+            modelBuilder.Entity<OwnerRoot>(b =>
+            {
+                b.OwnsMany(
+                    e => e.OptionalChildren, b =>
+                    {
+                        b.HasKey("Id");
+                        b.OwnsMany(
+                            e => e.Children, b =>
+                            {
+                                b.HasKey("Id");
+                            });
+                    });
+                b.OwnsMany(
+                    e => e.RequiredChildren, b =>
+                    {
+                        b.HasKey("Id");
+                        b.OwnsMany(
+                            e => e.Children, b =>
+                            {
+                                b.HasKey("Id");
+                            });
+                    });
+            });
 
-            modelBuilder.Entity<AccessState>(
-                b =>
-                {
-                    b.Property(e => e.AccessStateId).ValueGeneratedNever();
-                    b.HasData(new AccessState { AccessStateId = 1 });
-                });
+            modelBuilder.Entity<AccessState>(b =>
+            {
+                b.Property(e => e.AccessStateId).ValueGeneratedNever();
+                b.HasData(new AccessState { AccessStateId = 1 });
+            });
 
-            modelBuilder.Entity<Cruiser>(
-                b =>
-                {
-                    b.Property(e => e.IdUserState).HasDefaultValue(1);
-                    b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
-                });
+            modelBuilder.Entity<Cruiser>(b =>
+            {
+                b.Property(e => e.IdUserState).HasDefaultValue(1);
+                b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
+            });
 
-            modelBuilder.Entity<AccessStateWithSentinel>(
-                b =>
-                {
-                    b.Property(e => e.AccessStateWithSentinelId).ValueGeneratedNever();
-                    b.HasData(new AccessStateWithSentinel { AccessStateWithSentinelId = 1 });
-                });
+            modelBuilder.Entity<AccessStateWithSentinel>(b =>
+            {
+                b.Property(e => e.AccessStateWithSentinelId).ValueGeneratedNever();
+                b.HasData(new AccessStateWithSentinel { AccessStateWithSentinelId = 1 });
+            });
 
-            modelBuilder.Entity<CruiserWithSentinel>(
-                b =>
-                {
-                    b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
-                    b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
-                });
+            modelBuilder.Entity<CruiserWithSentinel>(b =>
+            {
+                b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
+                b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
+            });
 
             modelBuilder.Entity<SomethingOfCategoryA>().Property<int>("CategoryId").HasDefaultValue(1);
             modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);
 
-            modelBuilder.Entity<CompositeKeyWith<int>>(
-                b =>
-                {
-                    b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1);
-                });
+            modelBuilder.Entity<CompositeKeyWith<int>>(b =>
+            {
+                b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1);
+            });
 
-            modelBuilder.Entity<CompositeKeyWith<bool>>(
-                b =>
-                {
-                    b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
-                });
+            modelBuilder.Entity<CompositeKeyWith<bool>>(b =>
+            {
+                b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
+            });
 
-            modelBuilder.Entity<CompositeKeyWith<bool?>>(
-                b =>
-                {
-                    b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
-                });
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(b =>
+            {
+                b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
+            });
         }
     }
 }
