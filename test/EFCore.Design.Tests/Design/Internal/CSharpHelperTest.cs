@@ -79,6 +79,24 @@ public class CSharpHelperTest
     }
 
     [Fact]
+    public void Literal_escapes_unicode_line_and_paragraph_separators_in_string()
+    {
+        // U+2028 (LINE SEPARATOR), U+2029 (PARAGRAPH SEPARATOR) and U+0085 (NEXT LINE) are treated as
+        // new-line characters by the C# compiler, so leaving them unescaped produces code that does not compile.
+        Assert.Equal("\"a\\u2028b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x2028 + "b"));
+        Assert.Equal("\"a\\u2029b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x2029 + "b"));
+        Assert.Equal("\"a\\u0085b\"", new CSharpHelper(TypeMappingSource).Literal("a" + (char)0x0085 + "b"));
+    }
+
+    [Fact]
+    public void Literal_escapes_unicode_line_and_paragraph_separators_in_char()
+    {
+        Assert.Equal("'\\u2028'", new CSharpHelper(TypeMappingSource).Literal((char)0x2028));
+        Assert.Equal("'\\u2029'", new CSharpHelper(TypeMappingSource).Literal((char)0x2029));
+        Assert.Equal("'\\u0085'", new CSharpHelper(TypeMappingSource).Literal((char)0x0085));
+    }
+
+    [Fact]
     public void Literal_works_when_empty_ByteArray()
         => Literal_works(
             Array.Empty<byte>(),
