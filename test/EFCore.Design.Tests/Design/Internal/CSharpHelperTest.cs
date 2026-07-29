@@ -97,6 +97,18 @@ public class CSharpHelperTest
             "new byte[] { 1, 2 }");
 
     [Fact]
+    public void Literal_works_when_nullable_value_type_array()
+        => Literal_works(
+            new int?[] { 1, 2 },
+            "new int?[] { 1, 2 }");
+
+    [Fact]
+    public void Literal_works_when_nullable_value_type_array_with_null_element()
+        => Literal_works(
+            new int?[] { 1, null, 3 },
+            "new int?[] { 1, null, 3 }");
+
+    [Fact]
     public void Literal_works_when_empty_list()
         => Literal_works(
             new List<string>(),
