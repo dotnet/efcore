@@ -42,7 +42,8 @@ internal static class SharedTypeExtensions
         => !type.IsValueType || type.IsNullableValueType();
 
     public static bool IsValidEntityType(this Type type)
-        => type is { IsClass: true, IsArray: false }
+        => type is { IsArray: false }
+            && (type.IsClass || type.IsUnion())
             && type != typeof(string);
 
     public static bool IsValidComplexType(this Type type)
