@@ -701,10 +701,10 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
     #region 38615
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task SelectMany_over_primitive_collection_nested_in_complex_collection_inside_json_column()
     {
-        var contextFactory = await InitializeAsync<Context38615>(
+        var contextFactory = await InitializeNonSharedTest<Context38615>(
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             onModelCreating: m => m.Entity<Context38615.Car>(b =>
             {
@@ -755,7 +755,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 return context.SaveChangesAsync();
             });
 
-        await using var context = contextFactory.CreateContext();
+        await using var context = contextFactory.CreateDbContext();
 
         var partNumbers = await context.Set<Context38615.Car>()
             .Where(c => c.Vin == "1FA6P8TH8J5123456" && c.DealerId == "DEALER-001")

@@ -1000,7 +1000,7 @@ INNER JOIN [OtherTable] AS [o] ON [m].[Id] = [o].[Id]
         switch (JsonColumnType)
         {
             case "json":
-                if (Microsoft.EntityFrameworkCore.TestUtilities.TestEnvironment.IsAzureSql)
+                if (SqlServerTestEnvironment.IsAzureSql)
                 {
                     AssertSql(
                         """
