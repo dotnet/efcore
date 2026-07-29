@@ -99,6 +99,9 @@ public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValue
     public override void Using_complex_property_value_not_list_throws()
         => Assert.Throws<InvalidOperationException>(() => base.Using_complex_property_value_not_list_throws());
 
+    public override void Setting_complex_collection_via_string_indexer_sets_the_value()
+        => Assert.Throws<InvalidOperationException>(() => base.Setting_complex_collection_via_string_indexer_sets_the_value());
+
     public override void Using_non_collection_complex_property_throws()
         => Assert.Throws<ThrowsException>(() => base.Using_non_collection_complex_property_throws());
 
