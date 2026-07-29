@@ -53,22 +53,8 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         var store = (CosmosTestStore)Fixture.TestStore;
         var optionsBuilder = new DbContextOptionsBuilder<TransactionalBatchContext>();
-        if (CosmosTestEnvironment.UseTokenCredential)
-        {
-            optionsBuilder.UseCosmos(store.ConnectionUri, store.TokenCredential, Fixture.TestStore.Name, cfg =>
-            {
-                cfg.ApplyConfiguration();
-                cfg.ExecutionStrategy(d => new RecordingExecutionStrategy(d, recordedExceptions));
-            });
-        }
-        else
-        {
-            optionsBuilder.UseCosmos(store.ConnectionUri, store.AuthToken, Fixture.TestStore.Name, cfg =>
-            {
-                cfg.ApplyConfiguration();
-                cfg.ExecutionStrategy(d => new RecordingExecutionStrategy(d, recordedExceptions));
-            });
-        }
+        store.AddProviderOptions(optionsBuilder);
+        optionsBuilder.UseCosmos(cfg => cfg.ExecutionStrategy(d => new RecordingExecutionStrategy(d, recordedExceptions)));
         var options = optionsBuilder.Options;
 
         using var context = new TransactionalBatchContext(options);
@@ -102,14 +88,7 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         var store = (CosmosTestStore)Fixture.TestStore;
         var optionsBuilder = new DbContextOptionsBuilder<TransactionalBatchContext>();
-        if (CosmosTestEnvironment.UseTokenCredential)
-        {
-            optionsBuilder.UseCosmos(store.ConnectionUri, store.TokenCredential, Fixture.TestStore.Name, cfg => cfg.ApplyConfiguration());
-        }
-        else
-        {
-            optionsBuilder.UseCosmos(store.ConnectionUri, store.AuthToken, Fixture.TestStore.Name, cfg => cfg.ApplyConfiguration());
-        }
+        store.AddProviderOptions(optionsBuilder);
         var options = optionsBuilder
             .AddInterceptors(new ConcurrencySuppressingInterceptor())
             .Options;
