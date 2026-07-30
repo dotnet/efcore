@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Relational database specific extension methods for <see cref="ComplexTypePrimitiveCollectionBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
 /// </remarks>
 public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
 {
@@ -15,7 +15,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures the column that the property maps to when targeting a relational database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <param name="name">The name of the column.</param>
@@ -35,7 +35,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures the column that the property maps to when targeting a relational database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
@@ -79,7 +79,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     This should be the complete type name, including precision, scale, length, etc.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <param name="typeName">The name of the data type of the column.</param>
@@ -100,7 +100,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     This should be the complete type name, including precision, scale, length, etc.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
@@ -116,7 +116,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures the property as capable of storing only fixed-length data, such as strings.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <param name="fixedLength">A value indicating whether the property is constrained to fixed length values.</param>
@@ -134,7 +134,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures the property as capable of storing only fixed-length data, such as strings.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
@@ -440,7 +440,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures a comment to be applied to the column
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <param name="comment">The comment for the column.</param>
@@ -458,7 +458,7 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures a comment to be applied to the column
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>

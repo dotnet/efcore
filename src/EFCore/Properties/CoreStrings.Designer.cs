@@ -679,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, typeName);
 
         /// <summary>
-        ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
+        ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
             => string.Format(
@@ -1323,7 +1323,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 elementType, collectionType, entityType, property);
 
         /// <summary>
-        ///     Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.
+        ///     Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string EmptyComplexType(object? complexType)
             => string.Format(
@@ -1824,7 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, indexProperties, actualCount, expectedCount);
 
         /// <summary>
-        ///     The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type.
+        ///     The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string InvalidComplexType(object? type)
             => string.Format(
@@ -2410,7 +2410,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, navigation, propertyType);
 
         /// <summary>
-        ///     Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string NavigationNotAddedComplexType(object? complexType, object? navigation, object? propertyType)
             => string.Format(
@@ -2704,7 +2704,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.
+        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string NullRequiredComplexProperty(object? type, object? property)
             => string.Format(
