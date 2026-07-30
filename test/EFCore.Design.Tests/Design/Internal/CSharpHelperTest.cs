@@ -79,7 +79,7 @@ public class CSharpHelperTest
     }
 
     [Fact]
-    public void Literal_escapes_unicode_line_and_paragraph_separators_in_string()
+    public void Literal_escapes_unicode_newline_characters_in_string()
     {
         // U+2028 (LINE SEPARATOR), U+2029 (PARAGRAPH SEPARATOR) and U+0085 (NEXT LINE) are treated as
         // new-line characters by the C# compiler, so leaving them unescaped produces code that does not compile.
