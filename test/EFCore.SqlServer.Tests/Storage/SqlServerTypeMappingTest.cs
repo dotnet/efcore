@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -479,6 +480,12 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             new SqlServerVectorTypeMapping(3),
             SqlVector<float>.CreateNull(3),
             "Microsoft.Data.SqlTypes.SqlVector<float>.CreateNull(3)");
+
+    [Fact, UseCulture("de-DE")]
+    public virtual void GenerateSqlLiteral_formats_vector_floats_with_the_invariant_culture()
+        => Assert.Equal(
+            "CAST('[1.5,2.5]' AS VECTOR(2))",
+            new SqlServerVectorTypeMapping(2).GenerateSqlLiteral(new SqlVector<float>(new float[] { 1.5f, 2.5f })));
 
     [Fact]
     public virtual void Vector_default_provider_value_is_zero_vector_of_configured_dimensions()

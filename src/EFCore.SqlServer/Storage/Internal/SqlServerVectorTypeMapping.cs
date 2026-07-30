@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -116,7 +117,7 @@ public class SqlServerVectorTypeMapping : RelationalTypeMapping
                 builder.Append(',');
             }
 
-            builder.Append(floats[i]);
+            builder.Append(floats[i].ToString("R", CultureInfo.InvariantCulture));
         }
 
         builder
