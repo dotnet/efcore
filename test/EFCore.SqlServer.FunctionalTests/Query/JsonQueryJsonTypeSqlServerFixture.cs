@@ -12,6 +12,15 @@ public class JsonQueryJsonTypeSqlServerFixture : JsonQuerySqlServerFixture
     protected override string StoreName
         => "JsonQueryJsonTypeTest";
 
+    // When testing against SQL Server 2025 or later, set the compatibility level to 170 to use the json type instead of nvarchar(max).
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    {
+        var options = base.AddOptions(builder);
+        return SqlServerTestEnvironment.SqlServerMajorVersion < 17
+            ? options
+            : options.UseSqlServerCompatibilityLevel(170);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
