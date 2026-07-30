@@ -50,8 +50,8 @@
     <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
     <AzureResourceManagerCosmosDBVersion>1.5.0</AzureResourceManagerCosmosDBVersion>
     <OpenTelemetryExporterInMemoryVersion>1.17.0</OpenTelemetryExporterInMemoryVersion>
-    <SQLitePCLRawVersion>2.1.12</SQLitePCLRawVersion>
-    <SQLite3MCPCLRawBundleVersion>2.3.5</SQLite3MCPCLRawBundleVersion>
+    <SQLitePCLRawVersion>3.0.5</SQLitePCLRawVersion>
+    <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.0-pre.108</XUnitV3Version>
     <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26376.106</MicrosoftDotNetXUnitV3ExtensionsVersion>
     <MicrosoftTestingPlatformVersion>2.2.3</MicrosoftTestingPlatformVersion>
