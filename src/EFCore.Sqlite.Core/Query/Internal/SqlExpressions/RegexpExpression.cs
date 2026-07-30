@@ -110,8 +110,8 @@ public class RegexpExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is RegexpExpression regexpExpression
-                && Equals(regexpExpression));
+                || (obj is RegexpExpression regexpExpression
+                    && Equals(regexpExpression)));
 
     private bool Equals(RegexpExpression regexpExpression)
         => base.Equals(regexpExpression)

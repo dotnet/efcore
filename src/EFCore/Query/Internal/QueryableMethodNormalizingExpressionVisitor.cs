@@ -349,6 +349,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         _queryCompilationContext.IgnoredQueryFilters ??= [];
                         _queryCompilationContext.IgnoredQueryFilters.UnionWith(filterKeys);
                     }
+
                     return visitedExpression;
                 }
 
@@ -473,9 +474,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         || innerQueryableElementType != genericType)
                     {
                         while (innerArgument is UnaryExpression
-                               {
-                                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                               } unaryExpression
+                            {
+                                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                            } unaryExpression
                                && unaryExpression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
                         {
                             innerArgument = unaryExpression.Operand;
@@ -580,8 +581,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         enumerableType = enumerableType.GetGenericTypeDefinition();
         queryableType = queryableType.GetGenericTypeDefinition();
 
-        return enumerableType == typeof(IEnumerable<>) && queryableType == typeof(IQueryable<>)
-            || enumerableType == typeof(IOrderedEnumerable<>) && queryableType == typeof(IOrderedQueryable<>);
+        return (enumerableType == typeof(IEnumerable<>) && queryableType == typeof(IQueryable<>))
+            || (enumerableType == typeof(IOrderedEnumerable<>) && queryableType == typeof(IOrderedQueryable<>));
     }
 
     private MethodCallExpression TryNormalizeOrderAndOrderDescending(MethodCallExpression methodCallExpression)
@@ -609,19 +610,19 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         switch (methodCallExpression)
         {
             case
-                {
-                    Method: { Name: nameof(Queryable.SelectMany), IsGenericMethod: true } selectManyMethod,
-                    Arguments:
+            {
+                Method: { Name: nameof(Queryable.SelectMany), IsGenericMethod: true } selectManyMethod,
+                Arguments:
                     [
                         MethodCallExpression
-                        {
-                            Method: { Name: nameof(QueryableMethods.GroupJoin), IsGenericMethod: true } groupJoinMethod,
-                            Arguments: { Count: 5 } groupJoinArguments
-                        },
+                    {
+                        Method: { Name: nameof(QueryableMethods.GroupJoin), IsGenericMethod: true } groupJoinMethod,
+                        Arguments: { Count: 5 } groupJoinArguments
+                    },
                         _,
                         _
                     ] selectManyArguments
-                }
+            }
                 when selectManyMethod.GetGenericMethodDefinition() == QueryableMethods.SelectManyWithCollectionSelector
                 && groupJoinMethod.GetGenericMethodDefinition() == QueryableMethods.GroupJoin:
             {
@@ -721,18 +722,18 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             }
 
             case
-                {
-                    Method: { Name: nameof(Queryable.SelectMany), IsGenericMethod: true } selectManyMethod,
-                    Arguments:
+            {
+                Method: { Name: nameof(Queryable.SelectMany), IsGenericMethod: true } selectManyMethod,
+                Arguments:
                     [
                         MethodCallExpression
-                        {
-                            Method: { Name: nameof(QueryableMethods.GroupJoin), IsGenericMethod: true } groupJoinMethod,
-                            Arguments: { Count: 5 } groupJoinArguments
-                        },
+                    {
+                        Method: { Name: nameof(QueryableMethods.GroupJoin), IsGenericMethod: true } groupJoinMethod,
+                        Arguments: { Count: 5 } groupJoinArguments
+                    },
                         _
                     ] selectManyArguments
-                }
+            }
                 when selectManyMethod.GetGenericMethodDefinition() == QueryableMethods.SelectManyWithoutCollectionSelector
                 && groupJoinMethod.GetGenericMethodDefinition() == QueryableMethods.GroupJoin:
             {

@@ -273,9 +273,6 @@ public class ComplexPropertyDiscoveryConvention :
         IConventionTypeBaseBuilder typeBaseBuilder)
     {
         var candidates = GetComplexCandidates(typeBaseBuilder.Metadata);
-        if (candidates != null)
-        {
-            candidates.Remove(name);
-        }
+        candidates?.Remove(name);
     }
 }

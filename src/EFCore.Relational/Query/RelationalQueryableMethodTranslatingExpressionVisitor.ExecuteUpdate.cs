@@ -51,7 +51,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // Providers may override IsValidSelectExpressionForExecuteUpdate to add support for more cases via provider-specific UPDATE syntax.
         if (IsValidSelectExpressionForExecuteUpdate(selectExpression, targetTable, out var tableExpression))
         {
-            selectExpression.ReplaceProjection(new List<Expression>());
+            selectExpression.ReplaceProjection([]);
             selectExpression.ApplyProjection();
 
             return new UpdateExpression(tableExpression, selectExpression, translatedSetters);
@@ -151,7 +151,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // has been pushed down into a subquery).
             var translatedSetters = TranslateSetters(outer, rewrittenSetters, out _);
 
-            outerSelectExpression.ReplaceProjection(new List<Expression>());
+            outerSelectExpression.ReplaceProjection([]);
             outerSelectExpression.ApplyProjection();
             return new UpdateExpression(tableExpression, outerSelectExpression, translatedSetters);
         }
@@ -274,19 +274,19 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 {
                     Method: { Name: nameof(Enumerable.ElementAt), IsGenericMethod: true } elementAtMethod,
                     Arguments:
-                    [
-                        MethodCallExpression
+                        [
+                            MethodCallExpression
                         {
                             Method: { Name: nameof(Queryable.AsQueryable), IsGenericMethod: true } asQueryableMethod,
                             Arguments: [var elementAtSource]
                         },
-                        _
-                    ]
+                            _
+                        ]
                 } methodCall
                     when elementAtMethod.GetGenericMethodDefinition() == QueryableMethods.ElementAt
-                        && asQueryableMethod.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
-                        && TryTranslateMemberAccess(elementAtSource, out var translatedMember, out var tempTargetProperty)
-                        && Visit(methodCall) is Expression tempTarget:
+                    && asQueryableMethod.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+                    && TryTranslateMemberAccess(elementAtSource, out var translatedMember, out var tempTargetProperty)
+                    && Visit(methodCall) is Expression tempTarget:
                     target = tempTarget;
                     targetProperty = tempTargetProperty;
                     break;
@@ -300,7 +300,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         [NotNullWhen(true)] out IPropertyBase? property)
                     {
                         if (IsMemberAccess(expression, QueryCompilationContext.Model, out var baseExpression, out var member)
-                            && _sqlTranslator.TryBindMember(_sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
+                            && _sqlTranslator.TryBindMember(
+                                _sqlTranslator.Visit(baseExpression), member, out var target, out var targetProperty))
                         {
                             translation = target;
                             property = targetProperty;
@@ -324,14 +325,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             // Call TranslateProjection to unwrap it (need to look into getting rid StructuralTypeReferenceExpression altogether).
             if (target is not CollectionResultExpression)
             {
-                if (_sqlTranslator.TranslateProjection(target) is { } unwrappedTarget)
-                {
-                    target = unwrappedTarget;
-                }
-                else
-                {
-                    throw new InvalidOperationException(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
-                }
+                target = _sqlTranslator.TranslateProjection(target) is { } unwrappedTarget
+                    ? unwrappedTarget
+                    : throw new InvalidOperationException(RelationalStrings.InvalidPropertyInSetProperty(propertySelector.Print()));
             }
 
             switch (target)
@@ -344,7 +340,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                     var translatedValue = TranslateScalarSetterValueSelector(source, valueSelector, column.Type, column.TypeMapping);
 
-                    translatedSetters.Add(new(column, translatedValue));
+                    translatedSetters.Add(new ColumnValueSetter(column, translatedValue));
                     break;
                 }
 
@@ -430,12 +426,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
                 if (!ReferenceEquals(modifiedExistingSetterValue, origExistingSetterValue))
                 {
-                    translatedSetters[index] = new(jsonColumn, modifiedExistingSetterValue!);
+                    translatedSetters[index] = new ColumnValueSetter(jsonColumn, modifiedExistingSetterValue!);
                 }
 
                 if (newSetter is not null)
                 {
-                    translatedSetters.Add(new(jsonColumn, newSetter));
+                    translatedSetters.Add(new ColumnValueSetter(jsonColumn, newSetter));
                 }
             }
 
@@ -476,6 +472,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                                     .Select(m => m.Table.FindColumn(containerColumnName))
                                     .SingleOrDefault(c => c is not null);
                             }
+
                             break;
                         }
 
@@ -541,7 +538,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             RelationalStrings.ExecuteUpdateOverJsonIsNotSupported(nestedTargetComplexProperty.ComplexType.DisplayName()));
                     }
 
-                    var nestedTargetExpression = (StructuralTypeShaperExpression)targetProjection.BindComplexProperty(nestedTargetComplexProperty);
+                    var nestedTargetExpression =
+                        (StructuralTypeShaperExpression)targetProjection.BindComplexProperty(nestedTargetComplexProperty);
 
                     // If the value expression is a shaper with its own complex type (as opposed to a constant/parameter), we're assigning
                     // one (modeled) column to another. In that case, find the corresponding property on the value complex type (which is
@@ -549,12 +547,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     // BillingAddress).
                     // Otherwise, if the value expression is a constant/parameter, just use the target complex property.
                     var nestedValueComplexProperty = valueExpression is StructuralTypeShaperExpression
-                        {
-                            StructuralType: IComplexType valueNestedComplexType
-                        }
+                    {
+                        StructuralType: IComplexType valueNestedComplexType
+                    }
                         ? valueNestedComplexType!.FindComplexProperty(nestedTargetComplexProperty.Name)
-                            ?? throw new InvalidOperationException(RelationalStrings.IncompatibleComplexTypesInAssignment(
-                                targetNestedComplexType.DisplayName(), valueNestedComplexType.DisplayName(), nestedTargetComplexProperty.Name))
+                        ?? throw new InvalidOperationException(
+                            RelationalStrings.IncompatibleComplexTypesInAssignment(
+                                targetNestedComplexType.DisplayName(), valueNestedComplexType.DisplayName(),
+                                nestedTargetComplexProperty.Name))
                         : nestedTargetComplexProperty;
 
                     var nestedValueExpression = CreateComplexPropertyAccessExpression(valueExpression, nestedValueComplexProperty);
@@ -621,7 +621,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             }
 
                             case MemberInitExpression memberInitExpression
-                                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is MemberAssignment
+                                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == property.Name) is
+                                    MemberAssignment
                                     memberAssignment:
                                 return memberAssignment.Expression;
 
@@ -945,7 +946,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseValue);
     }
 
-    private static string? ParameterJsonSerializer(QueryContext queryContext, string baseParameterName, JsonValueReaderWriter jsonValueReaderWriter)
+    private static string? ParameterJsonSerializer(
+        QueryContext queryContext,
+        string baseParameterName,
+        JsonValueReaderWriter jsonValueReaderWriter)
     {
         var value = queryContext.Parameters[baseParameterName];
 

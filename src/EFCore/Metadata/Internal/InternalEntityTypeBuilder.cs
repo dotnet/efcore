@@ -181,15 +181,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         }
 
         var previousPrimaryKey = Metadata.FindPrimaryKey();
-        if (previousPrimaryKey != null
-            && previousPrimaryKey.Properties.Select(p => p.Name).SequenceEqual(propertyNames))
-        {
-            return true;
-        }
-
-        return configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource())
-            && (!Metadata.IsKeyless
-                || configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource()));
+        return (previousPrimaryKey != null
+                && previousPrimaryKey.Properties.Select(p => p.Name).SequenceEqual(propertyNames))
+            || (configurationSource.Overrides(Metadata.GetPrimaryKeyConfigurationSource())
+                && (!Metadata.IsKeyless
+                    || configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())));
     }
 
     /// <summary>
@@ -246,7 +242,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalKeyBuilder? HasKey(IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains, ConfigurationSource configurationSource)
+    public virtual InternalKeyBuilder? HasKey(
+        IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains,
+        ConfigurationSource configurationSource)
         => HasKeyInternal(GetOrCreateProperties(memberChains, configurationSource), configurationSource);
 
     /// <summary>
@@ -894,9 +892,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
     private bool CanBeNavigation(Type type, ConfigurationSource configurationSource)
         => configurationSource == ConfigurationSource.Explicit
-            || ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
-            && (type.TryGetSequenceType() is not { } sequenceType
-                || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false);
+            || (ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
+                && (type.TryGetSequenceType() is not { } sequenceType
+                    || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -967,9 +965,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 var navigationConfigurationSource = navigation.GetConfigurationSource();
                 if ((navigation.IsOnDependent
                         && foreignKey.IsOwnership)
-                    || (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
-                    && (navigation.IsOnDependent
-                        || !foreignKey.IsOwnership))
+                    || ((foreignKey.GetConfigurationSource() != navigationConfigurationSource)
+                        && (navigation.IsOnDependent
+                            || !foreignKey.IsOwnership)))
                 {
                     var removedNavigation = foreignKey.Builder.HasNavigation(
                         (MemberInfo?)null, navigation.IsOnDependent, configurationSource);
@@ -1169,14 +1167,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         {
             if (navigation.DeclaringEntityType != Metadata)
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
+                return shouldThrow
+                    ? throw new InvalidOperationException(
                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                            name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
-                }
-
-                return false;
+                            name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()))
+                    : false;
             }
 
             if (!configurationSource.Overrides(navigation.GetConfigurationSource()))
@@ -1191,14 +1186,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             {
                 if (property.DeclaringType != Metadata)
                 {
-                    if (shouldThrow)
-                    {
-                        throw new InvalidOperationException(
+                    return shouldThrow
+                        ? throw new InvalidOperationException(
                             CoreStrings.InheritedPropertyCannotBeIgnored(
-                                name, Metadata.DisplayName(), property.DeclaringType.DisplayName()));
-                    }
-
-                    return false;
+                                name, Metadata.DisplayName(), property.DeclaringType.DisplayName()))
+                        : false;
                 }
 
                 if (!property.DeclaringType.Builder.CanRemoveProperty(
@@ -1214,14 +1206,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 {
                     if (complexProperty.DeclaringType != Metadata)
                     {
-                        if (shouldThrow)
-                        {
-                            throw new InvalidOperationException(
+                        return shouldThrow
+                            ? throw new InvalidOperationException(
                                 CoreStrings.InheritedPropertyCannotBeIgnored(
-                                    name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()));
-                        }
-
-                        return false;
+                                    name, Metadata.DisplayName(), complexProperty.DeclaringType.DisplayName()))
+                            : false;
                     }
 
                     if (!configurationSource.Overrides(complexProperty.GetConfigurationSource()))
@@ -1236,14 +1225,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     {
                         if (skipNavigation.DeclaringEntityType != Metadata)
                         {
-                            if (shouldThrow)
-                            {
-                                throw new InvalidOperationException(
+                            return shouldThrow
+                                ? throw new InvalidOperationException(
                                     CoreStrings.InheritedPropertyCannotBeIgnored(
-                                        name, Metadata.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
-                            }
-
-                            return false;
+                                        name, Metadata.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()))
+                                : false;
                         }
 
                         if (!configurationSource.Overrides(skipNavigation.GetConfigurationSource()))
@@ -1258,14 +1244,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                         {
                             if (serviceProperty.DeclaringEntityType != Metadata)
                             {
-                                if (shouldThrow)
-                                {
-                                    throw new InvalidOperationException(
+                                return shouldThrow
+                                    ? throw new InvalidOperationException(
                                         CoreStrings.InheritedPropertyCannotBeIgnored(
-                                            name, Metadata.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
-                                }
-
-                                return false;
+                                            name, Metadata.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()))
+                                    : false;
                             }
 
                             if (!configurationSource.Overrides(serviceProperty.GetConfigurationSource()))
@@ -1610,7 +1593,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     {
                         if (key.ReferencingForeignKeys == null
                             || !key.ReferencingForeignKeys.Any()
-                            || !key.Properties.Any(p => removedInheritedProperties.Contains(p)))
+                            || !key.Properties.Any(removedInheritedProperties.Contains))
                         {
                             continue;
                         }
@@ -3031,9 +3014,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 }
             }
 
-            if (inverseNavigation == null)
-            {
-                relationship = navigationProperty != null
+            relationship = inverseNavigation == null
+                ? navigationProperty != null
                     ? relationship.HasNavigation(
                         navigationProperty,
                         pointsToPrincipal: true,
@@ -3041,26 +3023,20 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     : relationship.HasNavigation(
                         navigationToTarget!.Value.Name,
                         pointsToPrincipal: true,
-                        configurationSource);
-            }
-            else if (navigationToTarget == null)
-            {
-                relationship = inverseProperty != null
-                    ? relationship.HasNavigation(
-                        inverseProperty,
-                        pointsToPrincipal: false,
                         configurationSource)
-                    : relationship.HasNavigation(
-                        inverseNavigation.Value.Name,
-                        pointsToPrincipal: false,
-                        configurationSource);
-            }
-            else
-            {
-                relationship = navigationProperty != null || inverseProperty != null
-                    ? relationship.HasNavigations(navigationProperty, inverseProperty, configurationSource)
-                    : relationship.HasNavigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
-            }
+                : navigationToTarget == null
+                    ? inverseProperty != null
+                        ? relationship.HasNavigation(
+                            inverseProperty,
+                            pointsToPrincipal: false,
+                            configurationSource)
+                        : relationship.HasNavigation(
+                            inverseNavigation.Value.Name,
+                            pointsToPrincipal: false,
+                            configurationSource)
+                    : navigationProperty != null || inverseProperty != null
+                        ? relationship.HasNavigations(navigationProperty, inverseProperty, configurationSource)
+                        : relationship.HasNavigations(navigationToTarget.Value.Name, inverseNavigation.Value.Name, configurationSource);
 
             if (relationship != null)
             {
@@ -3552,12 +3528,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (!configurationSource.OverridesStrictly(entityType.GetConfigurationSource()))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
-                    }
-
-                    return false;
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()))
+                        : false;
                 }
             }
 
@@ -3566,13 +3539,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 if (!derivedType.IsOwned()
                     && !configurationSource.OverridesStrictly(derivedType.GetConfigurationSource()))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ClashingNonOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()));
-                    }
-
-                    return false;
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
+                            CoreStrings.ClashingNonOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()))
+                        : false;
                 }
             }
         }
@@ -3581,13 +3551,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             if (entityType.IsOwned()
                 && !configurationSource.OverridesStrictly(entityType.GetConfigurationSource()))
             {
-                if (configurationSource == ConfigurationSource.Explicit)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ClashingOwnedEntityType(entityType.DisplayName()));
-                }
-
-                return false;
+                return configurationSource == ConfigurationSource.Explicit
+                    ? throw new InvalidOperationException(
+                        CoreStrings.ClashingOwnedEntityType(entityType.DisplayName()))
+                    : false;
             }
 
             foreach (EntityType derivedType in entityType.GetDerivedTypes())
@@ -3595,13 +3562,10 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 if (derivedType.IsOwned()
                     && !configurationSource.OverridesStrictly(derivedType.GetConfigurationSource()))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.ClashingOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()));
-                    }
-
-                    return false;
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
+                            CoreStrings.ClashingOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()))
+                        : false;
                 }
             }
         }
@@ -3839,14 +3803,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 if (targetEntityType is { IsNamed: true, Type: not null })
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
+                    return configurationSource == ConfigurationSource.Explicit
+                        ? throw new InvalidOperationException(
                             CoreStrings.ClashingNamedOwnedType(
-                                targetTypeName, Metadata.DisplayName(), navigation.Name));
-                    }
-
-                    return null;
+                                targetTypeName, Metadata.DisplayName(), navigation.Name))
+                        : null;
                 }
 
                 if (existingOwnership.Builder.MakeDeclaringTypeShared(configurationSource) == null)

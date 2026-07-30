@@ -24,7 +24,7 @@ public static class TypeExtensions
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         this Type type,
         object? value)
-        => (value?.Equals(type.GetDefaultValue()) != false);
+        => value?.Equals(type.GetDefaultValue()) != false;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

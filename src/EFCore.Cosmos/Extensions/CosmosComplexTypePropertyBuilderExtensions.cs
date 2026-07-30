@@ -54,5 +54,5 @@ public static class CosmosComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> ToJsonProperty<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string name)
-        => (ComplexTypePropertyBuilder<TProperty>)ToJsonProperty((ComplexTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).ToJsonProperty(name);
 }

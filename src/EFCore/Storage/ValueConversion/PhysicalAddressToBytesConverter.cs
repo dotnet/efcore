@@ -53,7 +53,8 @@ public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, 
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(PhysicalAddress), typeof(byte[]),
+        = new(
+            typeof(PhysicalAddress), typeof(byte[]),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new PhysicalAddressToBytesConverter(i.MappingHints),
             DefaultHints);
 }

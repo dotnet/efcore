@@ -139,7 +139,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         Action<TableBuilder<TEntity>> buildAction)
         where TEntity : class
-        => ToTable(entityTypeBuilder, name, null, buildAction);
+        => entityTypeBuilder.ToTable(name, null, buildAction);
 
     /// <summary>
     ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -367,7 +367,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => ToTable(ownedNavigationBuilder, name, null, buildAction);
+        => ownedNavigationBuilder.ToTable(name, null, buildAction);
 
     /// <summary>
     ///     Configures the table that the entity type maps to when targeting a relational database.

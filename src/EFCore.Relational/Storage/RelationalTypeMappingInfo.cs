@@ -195,7 +195,7 @@ public readonly record struct RelationalTypeMappingInfo
         in ValueConverterInfo converter)
     {
         _coreTypeMappingInfo = new TypeMappingInfo(
-            source._coreTypeMappingInfo,
+            source.CoreTypeMappingInfo,
             converter,
             source.IsUnicode,
             source.Size,
@@ -309,8 +309,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public int? Size
     {
-        get => _coreTypeMappingInfo.Size;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { Size = value };
+        get => CoreTypeMappingInfo.Size;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { Size = value };
     }
 
     /// <summary>
@@ -318,8 +318,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public int? Precision
     {
-        get => _coreTypeMappingInfo.Precision;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { Precision = value };
+        get => CoreTypeMappingInfo.Precision;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { Precision = value };
     }
 
     /// <summary>
@@ -327,8 +327,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public int? Scale
     {
-        get => _coreTypeMappingInfo.Scale;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { Scale = value };
+        get => CoreTypeMappingInfo.Scale;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { Scale = value };
     }
 
     /// <summary>
@@ -346,8 +346,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public bool IsKey
     {
-        get => _coreTypeMappingInfo.IsKey;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsKey = value };
+        get => CoreTypeMappingInfo.IsKey;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { IsKey = value };
     }
 
     /// <summary>
@@ -355,8 +355,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public bool IsKeyOrIndex
     {
-        get => _coreTypeMappingInfo.IsKeyOrIndex;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsKeyOrIndex = value };
+        get => CoreTypeMappingInfo.IsKeyOrIndex;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { IsKeyOrIndex = value };
     }
 
     /// <summary>
@@ -364,8 +364,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public bool? IsUnicode
     {
-        get => _coreTypeMappingInfo.IsUnicode;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsUnicode = value };
+        get => CoreTypeMappingInfo.IsUnicode;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { IsUnicode = value };
     }
 
     /// <summary>
@@ -373,8 +373,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public bool? IsRowVersion
     {
-        get => _coreTypeMappingInfo.IsRowVersion;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsRowVersion = value };
+        get => CoreTypeMappingInfo.IsRowVersion;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { IsRowVersion = value };
     }
 
     /// <summary>
@@ -382,8 +382,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public Type? ClrType
     {
-        get => _coreTypeMappingInfo.ClrType;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ClrType = value };
+        get => CoreTypeMappingInfo.ClrType;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { ClrType = value };
     }
 
     /// <summary>
@@ -391,8 +391,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public JsonValueReaderWriter? JsonValueReaderWriter
     {
-        get => _coreTypeMappingInfo.JsonValueReaderWriter;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { JsonValueReaderWriter = value };
+        get => CoreTypeMappingInfo.JsonValueReaderWriter;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { JsonValueReaderWriter = value };
     }
 
     /// <summary>
@@ -400,8 +400,8 @@ public readonly record struct RelationalTypeMappingInfo
     /// </summary>
     public RelationalTypeMapping? ElementTypeMapping
     {
-        get => (RelationalTypeMapping?)_coreTypeMappingInfo.ElementTypeMapping;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ElementTypeMapping = value };
+        get => (RelationalTypeMapping?)CoreTypeMappingInfo.ElementTypeMapping;
+        init => _coreTypeMappingInfo = CoreTypeMappingInfo with { ElementTypeMapping = value };
     }
 
     /// <summary>

@@ -90,7 +90,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     ///     <see cref="IDbContextTransaction" /> that represents a no-op transaction.
     /// </returns>
     public virtual Task<IDbContextTransaction> BeginTransactionAsync(
-        IsolationLevel isolationLevel, 
+        IsolationLevel isolationLevel,
         CancellationToken cancellationToken = default)
         => BeginTransactionAsync(cancellationToken);
 

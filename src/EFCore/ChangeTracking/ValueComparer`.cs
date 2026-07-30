@@ -3,8 +3,8 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 using static System.Linq.Expressions.Expression;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -31,7 +31,7 @@ public class ValueComparer
 <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T> : ValueComparer, IEqualityComparer<T>
+T> : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
@@ -41,7 +41,7 @@ public class ValueComparer
     ///     The default <see cref="ValueComparer{T}" /> for <typeparamref name="T" />, using a shallow copy for snapshots
     ///     and not favoring <see cref="IStructuralEquatable" />.
     /// </summary>
-    public static ValueComparer<T> Default { get; } = new ValueComparer<T>(favorStructuralComparisons: false);
+    public static ValueComparer<T> Default { get; } = new(favorStructuralComparisons: false);
 
     /// <summary>
     ///     The default <see cref="ValueComparer{T}" /> for <typeparamref name="T" />, favoring <see cref="IStructuralEquatable" />
@@ -201,7 +201,7 @@ public class ValueComparer
         var sourceParameter = Parameter(typeof(T), "source");
         var cloneExpression = Call(
             Convert(sourceParameter, typeof(Array)),
-            typeof(Array).GetMethod(nameof(Array.Clone), System.Type.EmptyTypes)!);
+            typeof(Array).GetMethod(nameof(Array.Clone), Type.EmptyTypes)!);
         return Lambda<Func<T, T>>(
             Convert(cloneExpression, typeof(T)),
             sourceParameter);

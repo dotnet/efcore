@@ -213,7 +213,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new PrimitiveCollectionBuilder<TProperty>(innerBuilder.PrimitiveCollection(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new PrimitiveCollectionBuilder<TProperty>(
+            innerBuilder.PrimitiveCollection(typeof(TProperty), leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -237,7 +238,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new PrimitiveCollectionBuilder(innerBuilder.PrimitiveCollection(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
+        return new PrimitiveCollectionBuilder(
+            innerBuilder.PrimitiveCollection(propertyType, leafName, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -299,8 +301,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType: null, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -323,8 +326,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            typeof(TProperty), leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -374,8 +378,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -551,8 +556,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType: null, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType: null, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -577,8 +583,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            typeof(TProperty), leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                typeof(TProperty), leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -628,8 +635,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotEmpty(propertyName);
 
         var (innerBuilder, leafName) = Builder.ResolveComplexChainByName(propertyName);
-        return new(innerBuilder.ComplexProperty(
-            propertyType, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder(
+            innerBuilder.ComplexProperty(
+                propertyType, leafName, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -1446,20 +1454,13 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
                     !.Metadata;
         }
 
-        ForeignKey foreignKey;
-        if (navigationId.MemberInfo != null)
-        {
-            foreignKey = Builder.HasRelationship(
+        var foreignKey = navigationId.MemberInfo != null
+            ? Builder.HasRelationship(
                 relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
-                targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata;
-        }
-        else
-        {
-            foreignKey = Builder.HasRelationship(
+                targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata
+            : Builder.HasRelationship(
                 relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
                 targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata;
-        }
-
         return foreignKey;
     }
 
@@ -1515,17 +1516,14 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
         var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
 
-        if (elementType == null)
-        {
-            throw new InvalidOperationException(
+        return elementType == null
+            ? throw new InvalidOperationException(
                 CoreStrings.NavigationCollectionWrongClrType(
                     navigationName,
                     Metadata.DisplayName(),
                     memberType.ShortDisplayName(),
-                    "T"));
-        }
-
-        return HasMany(elementType, navigationName);
+                    "T"))
+            : HasMany(elementType, navigationName);
     }
 
     /// <summary>

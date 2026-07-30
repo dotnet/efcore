@@ -15,7 +15,7 @@ internal class SqliteParameterBinder(sqlite3_stmt stmt, sqlite3 handle, int inde
         var blob = value;
         if (ShouldTruncate(value.Length))
         {
-            blob = value.Slice(0, size!.Value);
+            blob = value[..size!.Value];
         }
 
         var rc = sqlite3_bind_blob(stmt, index, blob);
@@ -50,7 +50,7 @@ internal class SqliteParameterBinder(sqlite3_stmt stmt, sqlite3 handle, int inde
             stmt,
             index,
             ShouldTruncate(value.Length)
-                ? value.Substring(0, size!.Value)
+                ? value[..size!.Value]
                 : value);
 
         SqliteException.ThrowExceptionForRC(rc, handle);

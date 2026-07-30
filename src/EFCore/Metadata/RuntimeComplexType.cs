@@ -123,13 +123,11 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     {
         get => !ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(
-                ref _constructorBinding, this, static complexType =>
-                {
-                    ((IModel)complexType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                ref _constructorBinding, this, static complexType => ((IModel)complexType.Model).GetModelDependencies()
+                    .ConstructorBindingFactory.GetBindings(
                         complexType,
                         out complexType._constructorBinding,
-                        out complexType._serviceOnlyConstructorBinding);
-                })
+                        out complexType._serviceOnlyConstructorBinding))
             : _constructorBinding;
 
         [DebuggerStepThrough]

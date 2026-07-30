@@ -91,7 +91,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
         codeOptions.ConnectionString ??= connectionString;
 
         var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
-        var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
+        var modelConnectionString = (string?)databaseModel[ScaffoldingAnnotationNames.ConnectionString];
         if (!string.IsNullOrEmpty(modelConnectionString))
         {
             codeOptions.ConnectionString = modelConnectionString;

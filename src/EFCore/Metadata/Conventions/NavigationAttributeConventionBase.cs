@@ -308,12 +308,11 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     }
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
-    {
-        return Dependencies.MemberClassifier.IsCandidateNavigationProperty(propertyInfo, model, useAttributes: true, out var elementType, out _, out _)
+        => Dependencies.MemberClassifier.IsCandidateNavigationProperty(
+                propertyInfo, model, useAttributes: true, out var elementType, out _, out _)
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? elementType ?? propertyInfo.GetMemberType()
                 : null;
-    }
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
         => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true)
@@ -350,16 +349,11 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
 
     private static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(MemberInfo? memberInfo)
         where TCustomAttribute : Attribute
-    {
-        if (memberInfo == null)
-        {
-            return [];
-        }
-
-        return Attribute.IsDefined(memberInfo, typeof(TCustomAttribute), inherit: true)
-            ? memberInfo.GetCustomAttributes<TCustomAttribute>(true)
-            : [];
-    }
+        => memberInfo == null
+            ? []
+            : Attribute.IsDefined(memberInfo, typeof(TCustomAttribute), inherit: true)
+                ? memberInfo.GetCustomAttributes<TCustomAttribute>(true)
+                : [];
 
     /// <summary>
     ///     Called for every navigation property that has an attribute after an entity type is ignored.

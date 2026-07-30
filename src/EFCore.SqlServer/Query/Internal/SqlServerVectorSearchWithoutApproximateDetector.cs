@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -39,16 +38,15 @@ public class SqlServerVectorSearchWithoutApproximateDetector(SqlServerQueryCompi
 
                 foreach (var table in select.Tables)
                 {
-#pragma warning disable EF9105 // IsVectorIndex is experimental
                     if (table is TableValuedFunctionExpression
                         {
                             Name: "VECTOR_SEARCH",
                             Arguments: [TableExpression tableExpr, ColumnExpression columnExpr, ..]
                         }
                         && relationalModel.FindTable(tableExpr.Name, tableExpr.Schema) is { } relationalTable
-                        && relationalTable.Indexes.Any(
-                            i => i.Columns is [{ Name: var c }] && c == columnExpr.Name
-                                && i.MappedIndexes.Any(mi => mi.IsVectorIndex())))
+                        && relationalTable.Indexes.Any(i => i.Columns is [{ Name: var c }]
+                            && c == columnExpr.Name
+                            && i.MappedIndexes.Any(mi => mi.IsVectorIndex())))
                     {
                         var entityType = relationalTable.EntityTypeMappings.FirstOrDefault()?.TypeBase;
 
@@ -56,7 +54,6 @@ public class SqlServerVectorSearchWithoutApproximateDetector(SqlServerQueryCompi
                             columnExpr.Name,
                             entityType?.DisplayName() ?? tableExpr.Name);
                     }
-#pragma warning restore EF9105
                 }
 
                 return base.VisitExtension(node);

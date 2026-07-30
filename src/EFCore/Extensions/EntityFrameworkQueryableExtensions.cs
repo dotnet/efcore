@@ -1039,7 +1039,7 @@ public static class EntityFrameworkQueryableExtensions
     #region MinBy
 
     /// <summary>
-    ///     Asynchronously returns the minimum value in a generic <see cref="IQueryable{T}"/> according to a specified key selector function.
+    ///     Asynchronously returns the minimum value in a generic <see cref="IQueryable{T}" /> according to a specified key selector function.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -1086,7 +1086,7 @@ public static class EntityFrameworkQueryableExtensions
     #region MaxBy
 
     /// <summary>
-    ///     Asynchronously returns the maximum value in a generic <see cref="IQueryable{T}"/> according to a specified key selector function.
+    ///     Asynchronously returns the maximum value in a generic <see cref="IQueryable{T}" /> according to a specified key selector function.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -2755,7 +2755,8 @@ public static class EntityFrameworkQueryableExtensions
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(
                         instance: null,
-                        method: new Func<IQueryable<TEntity>, Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(NotQuiteInclude).Method,
+                        method: new Func<IQueryable<TEntity>, Expression<Func<TEntity, TProperty>>, IQueryable<TEntity>>(NotQuiteInclude)
+                            .Method,
                         arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
 
@@ -3253,7 +3254,7 @@ public static class EntityFrameworkQueryableExtensions
         Func<TSource, TKey> keySelector,
         CancellationToken cancellationToken = default)
         where TKey : notnull
-        => ToDictionaryAsync(source, keySelector, e => e, comparer: null, cancellationToken);
+        => source.ToDictionaryAsync(keySelector, e => e, comparer: null, cancellationToken);
 
     /// <summary>
     ///     Creates a <see cref="Dictionary{TKey, TValue}" /> from an <see cref="IQueryable{T}" /> by enumerating it
@@ -3290,7 +3291,7 @@ public static class EntityFrameworkQueryableExtensions
         IEqualityComparer<TKey> comparer,
         CancellationToken cancellationToken = default)
         where TKey : notnull
-        => ToDictionaryAsync(source, keySelector, e => e, comparer, cancellationToken);
+        => source.ToDictionaryAsync(keySelector, e => e, comparer, cancellationToken);
 
     /// <summary>
     ///     Creates a <see cref="Dictionary{TKey, TValue}" /> from an <see cref="IQueryable{T}" /> by enumerating it
@@ -3329,7 +3330,7 @@ public static class EntityFrameworkQueryableExtensions
         Func<TSource, TElement> elementSelector,
         CancellationToken cancellationToken = default)
         where TKey : notnull
-        => ToDictionaryAsync(source, keySelector, elementSelector, comparer: null, cancellationToken);
+        => source.ToDictionaryAsync(keySelector, elementSelector, comparer: null, cancellationToken);
 
     /// <summary>
     ///     Creates a <see cref="Dictionary{TKey, TValue}" /> from an <see cref="IQueryable{T}" /> by enumerating it
@@ -3446,14 +3447,9 @@ public static class EntityFrameworkQueryableExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source" /> is not a <see cref="IAsyncEnumerable{T}" />.</exception>
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(
         this IQueryable<TSource> source)
-    {
-        if (source is IAsyncEnumerable<TSource> asyncEnumerable)
-        {
-            return asyncEnumerable;
-        }
-
-        throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
-    }
+        => source is IAsyncEnumerable<TSource> asyncEnumerable
+            ? asyncEnumerable
+            : throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
 
     #endregion
 
@@ -3464,16 +3460,16 @@ public static class EntityFrameworkQueryableExtensions
         IQueryable<TSource> source,
         Expression? additionalArgument,
         CancellationToken cancellationToken = default)
-            => source.Provider is IAsyncQueryProvider provider
-                ? provider.ExecuteAsync<TResult>(
-                    Expression.Call(
-                        instance: null,
-                        method: method,
-                        arguments: additionalArgument is null
-                            ? [source.Expression]
-                            : [source.Expression, additionalArgument]),
-                    cancellationToken)
-                : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+        => source.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<TResult>(
+                Expression.Call(
+                    instance: null,
+                    method: method,
+                    arguments: additionalArgument is null
+                        ? [source.Expression]
+                        : [source.Expression, additionalArgument]),
+                cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
 
     private static TResult ExecuteAsync<TSource, TResult>(
         MethodInfo method,

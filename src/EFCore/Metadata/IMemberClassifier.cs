@@ -50,13 +50,13 @@ public interface IMemberClassifier
             return navigationCandidates;
         }
 
-        navigationCandidates = new Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
+        navigationCandidates = [];
 
         var model = entityType.Model;
         if (model.FindAnnotation(inverseAnnotationName)?.Value
             is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup)
         {
-            inverseCandidatesLookup = new Dictionary<Type, SortedSet<Type>>();
+            inverseCandidatesLookup = [];
             model.SetAnnotation(inverseAnnotationName, inverseCandidatesLookup);
         }
 
@@ -74,7 +74,7 @@ public interface IMemberClassifier
 
             if (!inverseCandidatesLookup.TryGetValue(targetType, out var inverseCandidates))
             {
-                inverseCandidates = new SortedSet<Type>(TypeFullNameComparer.Instance);
+                inverseCandidates = [with(TypeFullNameComparer.Instance)];
                 inverseCandidatesLookup[targetType] = inverseCandidates;
             }
 
@@ -104,14 +104,11 @@ public interface IMemberClassifier
         var annotationName = useAttributes
             ? CoreAnnotationNames.InverseNavigations
             : CoreAnnotationNames.InverseNavigationsNoAttribute;
-        if (entityType.Model.FindAnnotation(annotationName)?.Value
+        return entityType.Model.FindAnnotation(annotationName)?.Value
                 is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
-            || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates))
-        {
-            return Type.EmptyTypes;
-        }
-
-        return inverseCandidates;
+            || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates)
+            ? Type.EmptyTypes
+            : inverseCandidates;
     }
 
     /// <summary>

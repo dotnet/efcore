@@ -58,8 +58,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     /// </summary>
     public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
-        if (_currentContext.Context.ChangeTracker.Entries().Any(
-                e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        if (_currentContext.Context.ChangeTracker.Entries()
+            .Any(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {
             _logger.EnsureCreatedWithTrackedEntitiesWarning();
         }
@@ -243,7 +243,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task SeedDataAsync(
-        bool created, CancellationToken cancellationToken = default)
+        bool created,
+        CancellationToken cancellationToken = default)
     {
         var coreOptionsExtension =
             _contextOptions.FindExtension<CoreOptionsExtension>();

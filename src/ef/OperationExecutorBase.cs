@@ -134,20 +134,12 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     public void DropDatabase(string? contextType, string? connectionString)
         => InvokeOperation(
             "DropDatabase",
-            new Dictionary<string, object?>
-            {
-                ["contextType"] = contextType,
-                ["connectionString"] = connectionString
-            });
+            new Dictionary<string, object?> { ["contextType"] = contextType, ["connectionString"] = connectionString });
 
     public IDictionary GetContextInfo(string? name, string? connectionString = null)
         => InvokeOperation<IDictionary>(
             "GetContextInfo",
-            new Dictionary<string, object?>
-            {
-                ["contextType"] = name,
-                ["connectionString"] = connectionString
-            });
+            new Dictionary<string, object?> { ["contextType"] = name, ["connectionString"] = connectionString });
 
     public void UpdateDatabase(string? migration, string? connectionString, string? contextType)
         => InvokeOperation(
@@ -159,7 +151,12 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["contextType"] = contextType
             });
 
-    public IDictionary AddAndApplyMigration(string name, string? outputDir, string? contextType, string? @namespace, string? connectionString)
+    public IDictionary AddAndApplyMigration(
+        string name,
+        string? outputDir,
+        string? contextType,
+        string? @namespace,
+        string? connectionString)
         => InvokeOperation<IDictionary>(
             "AddAndApplyMigration",
             new Dictionary<string, object?>

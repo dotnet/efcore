@@ -13,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 // PublicMethods is required to preserve e.g. GetHashCode
 public class DefaultValueComparer
-    <[DynamicallyAccessedMembers(
-            DynamicallyAccessedMemberTypes.PublicMethods
-            | DynamicallyAccessedMemberTypes.PublicProperties)]
-        T> : ValueComparer<T>
+<[DynamicallyAccessedMembers(
+        DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
+T> : ValueComparer<T>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -197,7 +197,8 @@ public sealed class DefaultDateTimeOffsetValueComparer(bool favorStructuralCompa
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static new ValueComparer<DateTimeOffset> Default { get; } = new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons: false);
+    public static new ValueComparer<DateTimeOffset> Default { get; } =
+        new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

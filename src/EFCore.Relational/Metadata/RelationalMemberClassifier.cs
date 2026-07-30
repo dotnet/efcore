@@ -53,7 +53,8 @@ public class RelationalMemberClassifier : MemberClassifier
             return false;
         }
 
-        return base.IsCandidateNavigationProperty(memberInfo, model, useAttributes, out elementType, out shouldBeOwned, out explicitlyConfigured);
+        return base.IsCandidateNavigationProperty(
+            memberInfo, model, useAttributes, out elementType, out shouldBeOwned, out explicitlyConfigured);
     }
 
     /// <inheritdoc />

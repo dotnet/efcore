@@ -383,17 +383,15 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
 
         // Resolve the array type mapping for the given element mapping.
-        if (_typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not { } arrayMapping)
-        {
-            throw new UnreachableException($"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}");
-        }
-
-        return new JsonScalarExpression(
-            ApplyTypeMapping(array, arrayMapping),
-            newPath,
-            jsonScalarExpression.Type,
-            elementMapping,
-            jsonScalarExpression.IsNullable);
+        return _typeMappingSource.FindMapping(array.Type, Dependencies.Model, elementMapping) is not { } arrayMapping
+            ? throw new UnreachableException(
+                $"Couldn't find collection type mapping for element type mapping {elementMapping.ClrType.Name}")
+            : (SqlExpression)new JsonScalarExpression(
+                ApplyTypeMapping(array, arrayMapping),
+                newPath,
+                jsonScalarExpression.Type,
+                elementMapping,
+                jsonScalarExpression.IsNullable);
     }
 
     /// <inheritdoc />
@@ -491,14 +489,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return Constant(false);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
     }
 
     /// <inheritdoc />
@@ -535,14 +530,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return Constant(true);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
     }
 
     /// <inheritdoc />
@@ -663,23 +655,23 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 => AndAlso(Not(binary.Left), Not(binary.Right)),
 
             SqlBinaryExpression
-                {
-                    OperatorType: ExpressionType.Equal,
-                    Right: SqlConstantExpression { Value: bool },
-                    Left: SqlConstantExpression { Value: bool }
+            {
+                OperatorType: ExpressionType.Equal,
+                Right: SqlConstantExpression { Value: bool },
+                Left: SqlConstantExpression { Value: bool }
                     or SqlParameterExpression { IsNullable: false }
                     or ColumnExpression { IsNullable: false }
-                } binary
+            } binary
                 => Equal(binary.Left, Not(binary.Right)),
 
             SqlBinaryExpression
-                {
-                    OperatorType: ExpressionType.Equal,
-                    Left: SqlConstantExpression { Value: bool },
-                    Right: SqlConstantExpression { Value: bool }
+            {
+                OperatorType: ExpressionType.Equal,
+                Left: SqlConstantExpression { Value: bool },
+                Right: SqlConstantExpression { Value: bool }
                     or SqlParameterExpression { IsNullable: false }
                     or ColumnExpression { IsNullable: false }
-                } binary
+            } binary
                 => Equal(Not(binary.Left), binary.Right),
 
             // !(a == b) -> a != b

@@ -434,7 +434,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>()
+    TConversion>()
         => HasConversion(typeof(TConversion));
 
     /// <summary>
@@ -477,7 +477,7 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>(
+    TConversion>(
         ValueComparer? valueComparer)
         => HasConversion(typeof(TConversion), valueComparer);
 
@@ -579,9 +579,9 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer));
 
@@ -595,11 +595,11 @@ public class ComplexTypePropertyBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer,
+    TComparer,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TProviderComparer>()
+    TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer), typeof(TProviderComparer));

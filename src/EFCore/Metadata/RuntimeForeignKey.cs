@@ -287,6 +287,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
                 // The principal key value factory creates the dependent key value factory
                 _ = ((IKey)PrincipalKey).GetPrincipalKeyValueFactory();
             }
+
             return _dependentKeyValueFactory!;
         }
 

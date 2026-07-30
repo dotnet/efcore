@@ -7,8 +7,8 @@ using System.IO;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-using static SQLitePCL.raw;
 using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
 
@@ -85,7 +85,7 @@ internal class SqliteConnectionInternal
         {
             if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
             {
-                filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
+                filename = Path.Combine(dataDirectory, filename[DataDirectoryMacro.Length..]);
             }
             else if (!Path.IsPathRooted(filename))
             {

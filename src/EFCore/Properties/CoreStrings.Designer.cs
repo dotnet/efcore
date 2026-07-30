@@ -869,20 +869,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertyList, entityType, principalEntityType);
 
         /// <summary>
-        ///     The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.
-        /// </summary>
-        public static string ConflictingNamedIndex(object? indexName, object? entityType, object? propertyList)
-            => string.Format(
-                GetString("ConflictingNamedIndex", nameof(indexName), nameof(entityType), nameof(propertyList)),
-                indexName, entityType, propertyList);
-
-        /// <summary>
         ///     The entity type '{entity}' has both [Keyless] and [PrimaryKey] attributes; one must be removed.
         /// </summary>
         public static string ConflictingKeylessAndPrimaryKeyAttributes(object? entity)
             => string.Format(
                 GetString("ConflictingKeylessAndPrimaryKeyAttributes", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.
+        /// </summary>
+        public static string ConflictingNamedIndex(object? indexName, object? entityType, object? propertyList)
+            => string.Format(
+                GetString("ConflictingNamedIndex", nameof(indexName), nameof(entityType), nameof(propertyList)),
+                indexName, entityType, propertyList);
 
         /// <summary>
         ///     The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.
@@ -1187,14 +1187,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.
-        /// </summary>
-        public static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? firstOwnerType, object? secondNavigation, object? secondOwnerType)
-            => string.Format(
-                GetString("DuplicateOwnedEntityInstance", nameof(entityType), nameof(firstNavigation), nameof(firstOwnerType), nameof(secondNavigation), nameof(secondOwnerType)),
-                entityType, firstNavigation, firstOwnerType, secondNavigation, secondOwnerType);
-
-        /// <summary>
         ///     The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.
         /// </summary>
         public static string DuplicateForeignKey(object? foreignKeyProperties, object? entityType, object? duplicateEntityType, object? keyProperties, object? principalType)
@@ -1225,6 +1217,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateNamedIndex", nameof(indexName), nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
                 indexName, indexProperties, entityType, duplicateEntityType);
+
+        /// <summary>
+        ///     The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.
+        /// </summary>
+        public static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? firstOwnerType, object? secondNavigation, object? secondOwnerType)
+            => string.Format(
+                GetString("DuplicateOwnedEntityInstance", nameof(entityType), nameof(firstNavigation), nameof(firstOwnerType), nameof(secondNavigation), nameof(secondOwnerType)),
+                entityType, firstNavigation, firstOwnerType, secondNavigation, secondOwnerType);
 
         /// <summary>
         ///     The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are in conflict.
@@ -4298,56 +4298,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
-        /// </summary>
-        public static EventDefinition<string, string> LogInconsistentOwnedData(IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData,
-                    logger,
-                    static logger => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.InconsistentOwnedDataWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.InconsistentOwnedDataWarning",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.InconsistentOwnedDataWarning,
-                            _resourceManager.GetString("LogInconsistentOwnedData")!)));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.
-        /// </summary>
-        public static EventDefinition<string, string, string> LogInconsistentOwnedDataSensitive(IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive,
-                    logger,
-                    static logger => new EventDefinition<string, string, string>(
-                        logger.Options,
-                        CoreEventId.InconsistentOwnedDataWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.InconsistentOwnedDataWarning",
-                        level => LoggerMessage.Define<string, string, string>(
-                            level,
-                            CoreEventId.InconsistentOwnedDataWarning,
-                            _resourceManager.GetString("LogInconsistentOwnedDataSensitive")!)));
-            }
-
-            return (EventDefinition<string, string, string>)definition;
-        }
-
-        /// <summary>
         ///     The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance(IDiagnosticsLogger logger)
@@ -4620,6 +4570,56 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        /// </summary>
+        public static EventDefinition<string, string> LogInconsistentOwnedData(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.InconsistentOwnedDataWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.InconsistentOwnedDataWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.InconsistentOwnedDataWarning,
+                            _resourceManager.GetString("LogInconsistentOwnedData")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogInconsistentOwnedDataSensitive(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.InconsistentOwnedDataWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.InconsistentOwnedDataWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.InconsistentOwnedDataWarning,
+                            _resourceManager.GetString("LogInconsistentOwnedDataSensitive")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
         }
 
         /// <summary>

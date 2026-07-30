@@ -117,5 +117,4 @@ public class SqlServerDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilder
     /// <param name="compatibilityLevel">The compatibility level to use for the database.</param>
     public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
         => WithOption(e => e.WithSqlServerCompatibilityLevel(compatibilityLevel));
-
 }

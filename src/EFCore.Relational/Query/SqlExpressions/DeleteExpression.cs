@@ -124,8 +124,8 @@ public sealed class DeleteExpression : Expression, IRelationalQuotableExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is DeleteExpression deleteExpression
-                && Equals(deleteExpression));
+                || (obj is DeleteExpression deleteExpression
+                    && Equals(deleteExpression)));
 
     private bool Equals(DeleteExpression deleteExpression)
         => Table == deleteExpression.Table

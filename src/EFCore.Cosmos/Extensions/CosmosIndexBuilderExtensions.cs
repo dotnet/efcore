@@ -49,7 +49,7 @@ public static class CosmosIndexBuilderExtensions
     public static IndexBuilder<TEntity> IsVectorIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         VectorIndexType? indexType)
-        => (IndexBuilder<TEntity>)IsVectorIndex((IndexBuilder)indexBuilder, indexType);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).IsVectorIndex(indexType);
 
     /// <summary>
     ///     Configures the index as a vector index with the given vector index type, such as "flat", "diskANN", or "quantizedFlat".
@@ -131,7 +131,7 @@ public static class CosmosIndexBuilderExtensions
     public static IndexBuilder<TEntity> IsFullTextIndex<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
         bool fullTextIndex = true)
-        => (IndexBuilder<TEntity>)IsFullTextIndex((IndexBuilder)indexBuilder, fullTextIndex);
+        => (IndexBuilder<TEntity>)((IndexBuilder)indexBuilder).IsFullTextIndex(fullTextIndex);
 
     /// <summary>
     ///     Configures the index as a full-text index.

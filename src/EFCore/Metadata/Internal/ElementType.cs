@@ -187,14 +187,9 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetMaxLength(int? maxLength, ConfigurationSource configurationSource)
-    {
-        if (maxLength is < -1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxLength));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource)?.Value;
-    }
+        => maxLength is < -1
+            ? throw new ArgumentOutOfRangeException(nameof(maxLength))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -248,14 +243,9 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetPrecision(int? precision, ConfigurationSource configurationSource)
-    {
-        if (precision != null && precision < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(precision));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource)?.Value;
-    }
+        => precision is not null and < 0
+            ? throw new ArgumentOutOfRangeException(nameof(precision))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -282,14 +272,9 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetScale(int? scale, ConfigurationSource configurationSource)
-    {
-        if (scale != null && scale < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(scale));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource)?.Value;
-    }
+        => scale is not null and < 0
+            ? throw new ArgumentOutOfRangeException(nameof(scale))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -436,13 +421,11 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     /// </summary>
     [DisallowNull]
     public virtual CoreTypeMapping? TypeMapping
-    {
-        get => IsReadOnly
+        => IsReadOnly
             ? NonCapturingLazyInitializer.EnsureInitialized(
                 ref _typeMapping, (IElementType)this, static elementType =>
                     elementType.CollectionProperty.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(elementType)!)
             : _typeMapping;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

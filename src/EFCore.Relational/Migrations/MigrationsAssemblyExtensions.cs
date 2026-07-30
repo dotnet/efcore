@@ -32,11 +32,6 @@ public static class MigrationsAssemblyExtensions
         Check.NotEmpty(nameOrId);
 
         var id = assembly.FindMigrationId(nameOrId);
-        if (id == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.MigrationNotFound(nameOrId));
-        }
-
-        return id;
+        return id ?? throw new InvalidOperationException(RelationalStrings.MigrationNotFound(nameOrId));
     }
 }

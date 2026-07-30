@@ -31,91 +31,98 @@ public class SqlServerMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
         var declaringType = method.DeclaringType;
 
-        if (declaringType != typeof(Math)
+        return declaringType != typeof(Math)
             && declaringType != typeof(MathF)
             && declaringType != typeof(double)
-            && declaringType != typeof(float))
-        {
-            return null;
-        }
+            && declaringType != typeof(float)
+                ? null
+                : method.Name switch
+                {
+                    nameof(Math.Abs) when arguments is [var arg]
+                        && (arg.Type == typeof(decimal)
+                            || arg.Type == typeof(double)
+                            || arg.Type == typeof(float)
+                            || arg.Type == typeof(int)
+                            || arg.Type == typeof(long)
+                            || arg.Type == typeof(sbyte)
+                            || arg.Type == typeof(short))
+                        => TranslateFunction("ABS", arg),
+                    nameof(Math.Ceiling) when arguments is [var arg]
+                        && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("CEILING", arg),
+                    nameof(Math.Floor) when arguments is [var arg]
+                        && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("FLOOR", arg),
+                    nameof(Math.Exp) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("EXP", arg),
+                    nameof(Math.Log10) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("LOG10", arg),
+                    nameof(Math.Log) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("LOG", arg),
+                    nameof(Math.Log) when arguments is [var arg1, var arg2]
+                        && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
+                        => TranslateBinaryFunction("LOG", arg1, arg2),
+                    nameof(Math.Sqrt) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("SQRT", arg),
+                    nameof(Math.Acos) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("ACOS", arg),
+                    nameof(Math.Asin) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("ASIN", arg),
+                    nameof(Math.Atan) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("ATAN", arg),
+                    nameof(Math.Atan2) when arguments is [var arg1, var arg2]
+                        && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
+                        => TranslateBinaryFunction("ATN2", arg1, arg2),
+                    nameof(Math.Cos) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("COS", arg),
+                    nameof(Math.Sin) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("SIN", arg),
+                    nameof(Math.Tan) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("TAN", arg),
+                    nameof(Math.Pow) when arguments is [var arg1, var arg2]
+                        && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
+                        => TranslateBinaryFunction("POWER", arg1, arg2),
+                    nameof(Math.Sign) when arguments is [var arg]
+                        && (arg.Type == typeof(decimal)
+                            || arg.Type == typeof(double)
+                            || arg.Type == typeof(float)
+                            || arg.Type == typeof(int)
+                            || arg.Type == typeof(long)
+                            || arg.Type == typeof(sbyte)
+                            || arg.Type == typeof(short))
+                        // T-SQL SIGN returns the same type as its input, but Math.Sign always returns int;
+                        // wrap with a CAST to avoid InvalidCastException at materialization time.
+                        => TranslateSign(arg),
+                    nameof(double.DegreesToRadians) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("RADIANS", arg),
+                    nameof(double.RadiansToDegrees) when arguments is [var arg]
+                        && (arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateFunction("DEGREES", arg),
 
-        return method.Name switch
-        {
-            nameof(Math.Abs) when arguments is [var arg]
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float)
-                    || arg.Type == typeof(int) || arg.Type == typeof(long) || arg.Type == typeof(sbyte) || arg.Type == typeof(short))
-                => TranslateFunction("ABS", arg),
-            nameof(Math.Ceiling) when arguments is [var arg]
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("CEILING", arg),
-            nameof(Math.Floor) when arguments is [var arg]
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("FLOOR", arg),
-            nameof(Math.Exp) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("EXP", arg),
-            nameof(Math.Log10) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("LOG10", arg),
-            nameof(Math.Log) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("LOG", arg),
-            nameof(Math.Log) when arguments is [var arg1, var arg2]
-                && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
-                => TranslateBinaryFunction("LOG", arg1, arg2),
-            nameof(Math.Sqrt) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("SQRT", arg),
-            nameof(Math.Acos) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("ACOS", arg),
-            nameof(Math.Asin) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("ASIN", arg),
-            nameof(Math.Atan) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("ATAN", arg),
-            nameof(Math.Atan2) when arguments is [var arg1, var arg2]
-                && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
-                => TranslateBinaryFunction("ATN2", arg1, arg2),
-            nameof(Math.Cos) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("COS", arg),
-            nameof(Math.Sin) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("SIN", arg),
-            nameof(Math.Tan) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("TAN", arg),
-            nameof(Math.Pow) when arguments is [var arg1, var arg2]
-                && (arg1.Type == typeof(double) || arg1.Type == typeof(float))
-                => TranslateBinaryFunction("POWER", arg1, arg2),
-            nameof(Math.Sign) when arguments is [var arg]
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float)
-                    || arg.Type == typeof(int) || arg.Type == typeof(long) || arg.Type == typeof(sbyte) || arg.Type == typeof(short))
-                // T-SQL SIGN returns the same type as its input, but Math.Sign always returns int;
-                // wrap with a CAST to avoid InvalidCastException at materialization time.
-                => TranslateSign(arg),
-            nameof(double.DegreesToRadians) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("RADIANS", arg),
-            nameof(double.RadiansToDegrees) when arguments is [var arg]
-                && (arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateFunction("DEGREES", arg),
+                    nameof(Math.Truncate) when arguments is [var arg]
+                        && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateTruncate(arg),
+                    nameof(Math.Round) when arguments is [var arg]
+                        && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateRound(arg, digits: null),
+                    nameof(Math.Round) when arguments is [var arg, var digits]
+                        && digits.Type == typeof(int)
+                        && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
+                        => TranslateRound(arg, digits),
 
-            nameof(Math.Truncate) when arguments is [var arg]
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateTruncate(arg),
-            nameof(Math.Round) when arguments is [var arg]
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateRound(arg, digits: null),
-            nameof(Math.Round) when arguments is [var arg, var digits]
-                && digits.Type == typeof(int)
-                && (arg.Type == typeof(decimal) || arg.Type == typeof(double) || arg.Type == typeof(float))
-                => TranslateRound(arg, digits),
-
-            _ => null
-        };
+                    _ => null
+                };
 
         SqlExpression TranslateSign(SqlExpression arg)
         {

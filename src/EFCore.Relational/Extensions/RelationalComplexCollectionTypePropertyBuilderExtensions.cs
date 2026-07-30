@@ -41,6 +41,6 @@ public static class RelationalComplexCollectionTypePropertyBuilderExtensions
     public static ComplexCollectionTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         string? name)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)HasJsonPropertyName(
-            (ComplexCollectionTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).HasJsonPropertyName(
+            name);
 }

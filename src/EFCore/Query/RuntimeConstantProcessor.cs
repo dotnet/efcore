@@ -13,8 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class RuntimeConstantProcessor : ExpressionVisitor
 {
     private readonly List<RuntimeConstantExpression> _foundRuntimeConstants = [];
+
     private readonly Dictionary<Expression, RuntimeConstantExpression> _runtimeConstantsByExpression =
-        new(ExpressionEqualityComparer.Instance);
+        [with(ExpressionEqualityComparer.Instance)];
+
     private readonly Dictionary<object, RuntimeConstantExpression> _runtimeConstantsByValue = [];
 
     /// <summary>
@@ -38,9 +40,10 @@ public class RuntimeConstantProcessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<RuntimeConstantExpression> LastProcessFoundRuntimeConstants => _foundRuntimeConstants;
+    public virtual IReadOnlyList<RuntimeConstantExpression> LastProcessFoundRuntimeConstants
+        => _foundRuntimeConstants;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override Expression VisitExtension(Expression node)
     {
         if (node is RuntimeConstantExpression runtimeConstant)
@@ -51,7 +54,7 @@ public class RuntimeConstantProcessor : ExpressionVisitor
             }
 
             if (_runtimeConstantsByValue.TryGetValue(runtimeConstant.Value, out var existing)
-             || _runtimeConstantsByExpression.TryGetValue(runtimeConstant.InitializeExpression, out existing))
+                || _runtimeConstantsByExpression.TryGetValue(runtimeConstant.InitializeExpression, out existing))
             {
                 runtimeConstant = existing;
             }

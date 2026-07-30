@@ -256,7 +256,8 @@ public static class CosmosLoggerExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static void ExecutedTransactionalBatch(this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+    public static void ExecutedTransactionalBatch(
+        this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         TimeSpan elapsed,
         double requestCharge,
         string activityId,
@@ -305,7 +306,7 @@ public static class CosmosLoggerExtensions
             p.RequestCharge.ToString(),
             p.ActivityId,
             p.ContainerId,
-            p.LogSensitiveData ? p.DocumentIds.ToString() : "?",
+            p.LogSensitiveData ? p.DocumentIds : "?",
             p.LogSensitiveData ? p.PartitionKeyValue.ToString() : "?");
     }
 

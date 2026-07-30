@@ -290,12 +290,9 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         }
 
         var type = value.GetType().UnwrapNullableType().UnwrapEnumType();
-        if (_sqliteTypeMapping.TryGetValue(type, out var sqliteType))
-        {
-            return sqliteType;
-        }
-
-        throw new InvalidOperationException(Resources.UnknownDataType(type));
+        return _sqliteTypeMapping.TryGetValue(type, out var sqliteType)
+            ? sqliteType
+            : throw new InvalidOperationException(Resources.UnknownDataType(type));
     }
 
     private static double ToJulianDate(DateTime dateTime)
@@ -321,14 +318,14 @@ internal abstract class SqliteValueBinder(object? value, SqliteType? sqliteType)
         var X2 = 306001 * (M + 1) / 10000;
         var iJD = (long)((X1 + X2 + D + B - 1524.5) * 86400000);
 
-        iJD += hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
+        iJD += (hour * 3600000) + (minute * 60000) + (long)((second + (millisecond / 1000.0)) * 1000);
 
         return iJD / 86400000.0;
     }
 
     private static double GetTotalDays(int hour, int minute, int second, int millisecond)
     {
-        var iJD = hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
+        var iJD = (hour * 3600000) + (minute * 60000) + (long)((second + (millisecond / 1000.0)) * 1000);
 
         return iJD / 86400000.0;
     }

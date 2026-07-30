@@ -49,6 +49,7 @@ public class BytesToStringConverter : ValueConverter<byte[]?, string?>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(byte[]), typeof(string),
+        = new(
+            typeof(byte[]), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new BytesToStringConverter(i.MappingHints));
 }
