@@ -78,8 +78,10 @@ public class SqliteApplyFlatteningExpressionVisitor(ISqlExpressionFactory sqlExp
 
         var inliner = new ProjectionInliningVisitor(inlinedProjections!);
 
+        // The table list is inlined too: a sibling table referencing a flattened APPLY's alias (e.g. a nested json_each keyed off
+        // it) must be remapped onto the underlying columns, otherwise it would point at a now-removed alias.
         return select.Update(
-            newTables,
+            newTables.Select(t => (TableExpressionBase)inliner.Visit(t)).ToList(),
             (SqlExpression?)inliner.Visit(select.Predicate),
             select.GroupBy.Select(g => (SqlExpression)inliner.Visit(g)).ToList(),
             (SqlExpression?)inliner.Visit(select.Having),
