@@ -251,7 +251,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         => new(
             runtimeEntityType,
             entityTypeMappingFragment.StoreObject,
-            entityTypeMappingFragment.IsTableExcludedFromMigrations);
+            entityTypeMappingFragment.IsTableExcludedFromMigrations,
+            entityTypeMappingFragment.IsOptional);
 
     /// <summary>
     ///     Updates the relational property overrides annotations that will be set on the read-only object.
