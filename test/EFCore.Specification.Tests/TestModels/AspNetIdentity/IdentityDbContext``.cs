@@ -33,10 +33,7 @@ public abstract class
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.Entity<TUser>(b =>
-        {
-            b.HasMany<TUserRole>().WithOne().HasForeignKey(ur => ur.UserId).IsRequired();
-        });
+        builder.Entity<TUser>(b => b.HasMany<TUserRole>().WithOne().HasForeignKey(ur => ur.UserId).IsRequired());
 
         builder.Entity<TRole>(b =>
         {
@@ -51,14 +48,8 @@ public abstract class
             b.HasMany<TRoleClaim>().WithOne().HasForeignKey(rc => rc.RoleId).IsRequired();
         });
 
-        builder.Entity<TRoleClaim>(b =>
-        {
-            b.HasKey(rc => rc.Id);
-        });
+        builder.Entity<TRoleClaim>(b => b.HasKey(rc => rc.Id));
 
-        builder.Entity<TUserRole>(b =>
-        {
-            b.HasKey(r => new { r.UserId, r.RoleId });
-        });
+        builder.Entity<TUserRole>(b => b.HasKey(r => new { r.UserId, r.RoleId }));
     }
 }

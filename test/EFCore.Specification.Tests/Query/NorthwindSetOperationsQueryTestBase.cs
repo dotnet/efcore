@@ -283,17 +283,10 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
         public string Id { get; set; }
 
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                ? true
-                : obj.GetType() == GetType()
-                && string.Equals(Id, ((CustomerDeets)obj).Id);
-        }
+            => obj is not null
+                && (ReferenceEquals(this, obj)
+                    || (obj.GetType() == GetType()
+                        && string.Equals(Id, ((CustomerDeets)obj).Id)));
 
         public override int GetHashCode()
             => Id != null ? Id.GetHashCode() : 0;
@@ -813,10 +806,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                         .Where(c => c.CustomerID.StartsWith("F"))
                         .Select(c => new { c.Orders })),
             elementSorter: a => a.Orders.FirstOrDefault().Maybe(e => e.CustomerID),
-            elementAsserter: (e, a) =>
-            {
-                AssertCollection(e.Orders, a.Orders);
-            });
+            elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_with_one_side_being_GroupBy_aggregate(bool async)
@@ -830,10 +820,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                         .GroupBy(e => e.CustomerID)
                         .Select(g => new { OrderDate = g.Max(e => e.OrderDate) })),
             elementSorter: a => a.OrderDate,
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.OrderDate, a.OrderDate);
-            });
+            elementAsserter: (e, a) => AssertEqual(e.OrderDate, a.OrderDate));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_on_entity_with_correlated_collection(bool async)
@@ -844,10 +831,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture>(TFixture fix
                 .OrderBy(c => c.CustomerID)
                 .Select(c => c.Orders),
             assertOrder: true,
-            elementAsserter: (e, a) =>
-            {
-                AssertCollection(e, a);
-            });
+            elementAsserter: (e, a) => AssertCollection(e, a));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_on_entity_plus_other_column_with_correlated_collection(bool async)

@@ -573,7 +573,8 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(() => QueryAsserter.AssertMinBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertMinBy(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertMaxBy<TResult, TSelector>(
         bool async,
@@ -589,7 +590,8 @@ public abstract class QueryTestBase<TFixture> : NonSharedModelTestBase, IClassFi
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TResult?, TResult?>? asserter = null)
-        => TestOutputWrapper(() => QueryAsserter.AssertMaxBy(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
+        => TestOutputWrapper(() => QueryAsserter.AssertMaxBy(
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async));
 
     protected Task AssertSum(
         bool async,

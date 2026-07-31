@@ -1,12 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
-
 
 public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryContext>
 {
@@ -182,17 +184,17 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
                 b.Property(x => x.BoolConvertedToStringYN).HasConversion(new BoolToStringConverter("N", "Y"));
                 b.Property(x => x.IntZeroOneConvertedToBool).HasConversion(
                     new ValueConverter<int, bool>(
-                        x => x == 0 ? false : true,
+                        x => x != 0,
                         x => x == false ? 0 : 1));
 
                 b.Property(x => x.StringTrueFalseConvertedToBool).HasConversion(
                     new ValueConverter<string, bool>(
-                        x => x == "True" ? true : false,
+                        x => x == "True",
                         x => x == true ? "True" : "False"));
 
                 b.Property(x => x.StringYNConvertedToBool).HasConversion(
                     new ValueConverter<string, bool>(
-                        x => x == "Y" ? true : false,
+                        x => x == "Y",
                         x => x == true ? "Y" : "N"));
             });
 

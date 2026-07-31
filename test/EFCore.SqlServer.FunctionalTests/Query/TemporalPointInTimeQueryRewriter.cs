@@ -21,18 +21,13 @@ public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> t
     private readonly List<Type> _temporalEntityTypes = temporalEntityTypes;
 
     protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        if (extensionExpression is EntityQueryRootExpression queryRootExpression
-            && queryRootExpression.EntityType.GetRootType().IsTemporal())
-        {
-            return new TemporalAsOfQueryRootExpression(
-                queryRootExpression.QueryProvider,
-                queryRootExpression.EntityType,
-                _pointInTime);
-        }
-
-        return base.VisitExtension(extensionExpression);
-    }
+        => extensionExpression is EntityQueryRootExpression queryRootExpression
+            && queryRootExpression.EntityType.GetRootType().IsTemporal()
+                ? new TemporalAsOfQueryRootExpression(
+                    queryRootExpression.QueryProvider,
+                    queryRootExpression.EntityType,
+                    _pointInTime)
+                : base.VisitExtension(extensionExpression);
 
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {

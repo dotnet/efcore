@@ -1974,10 +1974,7 @@ GROUP BY [o].[Id]
             foreach (var barton in bartons)
             {
                 barton.Simple = "Modified" + barton.Simple;
-                if (barton.Throned != null)
-                {
-                    barton.Throned.Property = "Modified" + barton.Throned.Property;
-                }
+                barton.Throned?.Property = "Modified" + barton.Throned.Property;
             }
 
             await context.SaveChangesAsync();

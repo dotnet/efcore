@@ -94,7 +94,7 @@ public class EntityFrameworkMetricsTest
 
         using (var scope2 = serviceProvider.CreateScope())
         {
-            _ = scope2.ServiceProvider.GetRequiredService<SomeDbContext>();            
+            _ = scope2.ServiceProvider.GetRequiredService<SomeDbContext>();
         }
 
         // Disposing the second scope releases its context, filling the single-slot pool; it stays counted while idle.

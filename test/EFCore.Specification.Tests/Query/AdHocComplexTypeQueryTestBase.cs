@@ -47,11 +47,12 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             => modelBuilder.Entity<EntityType>(b =>
             {
                 b.Property(b => b.Id).ValueGeneratedNever();
-                b.ComplexProperty(b => b.ComplexContainer, x =>
-                {
-                    x.ComplexProperty(c => c.Containee1);
-                    x.ComplexProperty(c => c.Containee2);
-                });
+                b.ComplexProperty(
+                    b => b.ComplexContainer, x =>
+                    {
+                        x.ComplexProperty(c => c.Containee1);
+                        x.ComplexProperty(c => c.Containee2);
+                    });
             });
 
         public class EntityType
@@ -138,19 +139,16 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                     new ContextShadowDiscriminator.EntityType
                     {
                         Id = 1,
-                        AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
+                        AllOptionalsComplexType =
+                            new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = "Non-null" }
                     },
                     new ContextShadowDiscriminator.EntityType
                     {
                         Id = 2,
                         AllOptionalsComplexType = new ContextShadowDiscriminator.AllOptionalsComplexType { OptionalProperty = null }
                     },
-                    new ContextShadowDiscriminator.EntityType
-                    {
-                        Id = 3,
-                        AllOptionalsComplexType = null
-                    }
-                    );
+                    new ContextShadowDiscriminator.EntityType { Id = 3, AllOptionalsComplexType = null }
+                );
                 return context.SaveChangesAsync();
             });
 
@@ -263,11 +261,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                         Id = 1,
                         Children =
                         [
-                            new Context37304.Child
-                            {
-                                Id = 1,
-                                ComplexType = new Context37304.ComplexTypeWithAllNulls()
-                            }
+                            new Context37304.Child { Id = 1, ComplexType = new Context37304.ComplexTypeWithAllNulls() }
                         ]
                     });
                 return context.SaveChangesAsync();
@@ -287,10 +281,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Parent>(b =>
-            {
-                b.Property(p => p.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<Parent>(b => b.Property(p => p.Id).ValueGeneratedNever());
 
             modelBuilder.Entity<Child>(b =>
             {
@@ -336,10 +327,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 var entity = new Context37337.EntityType
                 {
                     Id = Guid.NewGuid(),
-                    Prop = new Context37337.OptionalComplexProperty
-                    {
-                        OptionalValue = true
-                    }
+                    Prop = new Context37337.OptionalComplexProperty { OptionalValue = true }
                 };
                 context.Add(entity);
                 context.Entry(entity).Property(Issue37337CreatedByShadowPropertyName).CurrentValue = "Seeder";
@@ -612,11 +600,8 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             entity.Property(p => p.Id).ValueGeneratedNever();
 
             entity.ComplexProperty(
-                p => p.Outer, outer =>
-                {
-                    outer.ComplexProperty(
-                        p => p.Inner, inner => inner.HasDiscriminator());
-                });
+                p => p.Outer, outer => outer.ComplexProperty(
+                    p => p.Inner, inner => inner.HasDiscriminator()));
         }
 
         public class EntityType
@@ -650,10 +635,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
                 var entity = new Context37337.EntityType
                 {
                     Id = Guid.NewGuid(),
-                    Prop = new Context37337.OptionalComplexProperty
-                    {
-                        OptionalValue = true
-                    }
+                    Prop = new Context37337.OptionalComplexProperty { OptionalValue = true }
                 };
                 context.Add(entity);
                 context.Entry(entity).Property(Issue37337CreatedByShadowPropertyName).CurrentValue = "Seeder";
@@ -672,10 +654,7 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
         var updatedEntity = new Context37337.EntityType
         {
             Id = id,
-            Prop = new Context37337.OptionalComplexProperty
-            {
-                OptionalValue = false
-            }
+            Prop = new Context37337.OptionalComplexProperty { OptionalValue = false }
         };
 
         context.Update(updatedEntity);
@@ -701,8 +680,16 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             seed: context =>
             {
                 context.AddRange(
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(1),
+                        Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" }
+                    },
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(2),
+                        Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" }
+                    });
                 return context.SaveChangesAsync();
             });
 
@@ -732,7 +719,11 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             seed: context =>
             {
                 context.Add(
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } });
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(1),
+                        Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" }
+                    });
                 return context.SaveChangesAsync();
             });
 
@@ -757,7 +748,11 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             seed: context =>
             {
                 context.Add(
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } });
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(1),
+                        Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" }
+                    });
                 return context.SaveChangesAsync();
             });
 
@@ -781,8 +776,16 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             seed: context =>
             {
                 context.AddRange(
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(1),
+                        Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" }
+                    },
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(2),
+                        Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" }
+                    });
                 return context.SaveChangesAsync();
             });
 
@@ -799,8 +802,16 @@ public abstract class AdHocComplexTypeQueryTestBase(NonSharedFixture fixture)
             seed: context =>
             {
                 context.AddRange(
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(1),
+                        Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" }
+                    },
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(2),
+                        Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" }
+                    });
                 return context.SaveChangesAsync();
             });
 

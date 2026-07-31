@@ -53,7 +53,7 @@ public class InternalForeignKeyBuilderTest
             .HasForeignKey(
             [
                 dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
             ], ConfigurationSource.Explicit);
 
         Assert.Null(

@@ -359,7 +359,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             async,
             ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point.Distance(point) }),
             ss => ss.Set<PointEntity>()
-                .Select(e => new { e.Id, Distance = (e.Point == null ? (double?)null : e.Point.Distance(point)) }),
+                .Select(e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(point) }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -503,7 +503,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             async,
             ss => ss.Set<GeoPointEntity>().Select(e => new { e.Id, Distance = e.Location.Distance(point) }),
             elementSorter: e => e.Id,
-            elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
+            elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -515,7 +515,7 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             async,
             ss => ss.Set<GeoPointEntity>().Select(e => new { e.Id, Distance = point.Distance(e.Location) }),
             elementSorter: e => e.Id,
-            elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); });
+            elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -609,7 +609,8 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
             async,
             ss => ss.Set<MultiLineStringEntity>().Select(e => new
             {
-                e.Id, Geometry0 = e.MultiLineString.GetGeometryN(ss.Set<MultiLineStringEntity>().Where(ee => false).Max(ee => ee.Id))
+                e.Id,
+                Geometry0 = e.MultiLineString.GetGeometryN(ss.Set<MultiLineStringEntity>().Where(ee => false).Max(ee => ee.Id))
             }),
             ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = default(Geometry) }),
             elementSorter: x => x.Id);
@@ -1121,25 +1122,21 @@ public abstract class SpatialQueryTestBase<TFixture>(TFixture fixture) : QueryTe
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsEmpty_equal_to_null(bool async)
-    {
-        return AssertQueryScalar(
+        => AssertQueryScalar(
             async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<PointEntity>().Where(e => e.Point.IsEmpty == null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<PointEntity>().Where(e => e.Point == null).Select(e => e.Id));
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task IsEmpty_not_equal_to_null(bool async)
-    {
-        return AssertQueryScalar(
+        => AssertQueryScalar(
             async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<PointEntity>().Where(e => e.Point.IsEmpty != null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             ss => ss.Set<PointEntity>().Where(e => e.Point != null).Select(e => e.Id));
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Intersects_equal_to_null(bool async)

@@ -6,7 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 public class ComplexPropertiesSetOperationsCosmosTest
     : ComplexPropertiesSetOperationsTestBase<ComplexPropertiesCosmosFixture>
 {
-    public ComplexPropertiesSetOperationsCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
+    public ComplexPropertiesSetOperationsCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);

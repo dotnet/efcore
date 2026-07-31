@@ -139,7 +139,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            await context.AddAsync(new Person { Id = 1, Addresses = [ new Address { Street = "First", City = "Village" }] });
+            await context.AddAsync(new Person { Id = 1, Addresses = [new Address { Street = "First", City = "Village" }] });
             await context.SaveChangesAsync();
         }
 
@@ -176,19 +176,19 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             existingAddress1Person2 = new Address { Street = "Second", City = "Village" };
             if (useIds)
             {
-                existingAddress1Person2.IdNotes = new List<NoteWithId>
-                {
+                existingAddress1Person2.IdNotes =
+                [
                     new() { Id = 4, Content = "First note" }, new() { Id = 3, Content = "Second note" }
-                };
+                ];
             }
             else
             {
-                existingAddress1Person2.Notes = new List<Note> { new() { Content = "First note" }, new() { Content = "Second note" } };
+                existingAddress1Person2.Notes = [new() { Content = "First note" }, new() { Content = "Second note" }];
             }
 
             var existingAddress2Person2 = new Address { Street = "First", City = "Village" };
             await context.AddAsync(
-                new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2, existingAddress2Person2 } });
+                new Person { Id = 2, Addresses = [existingAddress1Person2, existingAddress2Person2] });
             existingAddress1Person3 = new Address
             {
                 Street = "First",
@@ -197,11 +197,11 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             };
             if (useIds)
             {
-                existingAddress1Person3.IdNotes = new List<NoteWithId> { new() { Id = 2, Content = "First City note" } };
+                existingAddress1Person3.IdNotes = [new() { Id = 2, Content = "First City note" }];
             }
             else
             {
-                existingAddress1Person3.Notes = new List<Note> { new() { Content = "First City note" } };
+                existingAddress1Person3.Notes = [new() { Content = "First City note" }];
             }
 
             existingAddress2Person3 = new Address
@@ -212,7 +212,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             };
 
             await context.AddAsync(
-                new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
+                new Person { Id = 3, Addresses = [existingAddress1Person3, existingAddress2Person3] });
 
             await context.SaveChangesAsync();
             var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
@@ -281,11 +281,11 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             };
             if (useIds)
             {
-                addedAddress3.IdNotes = new List<NoteWithId> { new() { Id = -1, Content = "Another note" } };
+                addedAddress3.IdNotes = [new() { Id = -1, Content = "Another note" }];
             }
             else
             {
-                addedAddress3.Notes = new List<Note> { new() { Content = "Another note" } };
+                addedAddress3.Notes = [new() { Content = "Another note" }];
             }
 
             var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
@@ -300,11 +300,11 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             if (useIds)
             {
-                existingAddress1Person3.IdNotes = new List<NoteWithId> { new() { Id = 1, Content = "Some City note" } };
+                existingAddress1Person3.IdNotes = [new() { Id = 1, Content = "Some City note" }];
             }
             else
             {
-                existingAddress1Person3.Notes = new List<Note> { new() { Content = "Some City note" } };
+                existingAddress1Person3.Notes = [new() { Content = "Some City note" }];
             }
 
             if (useIds)
@@ -315,6 +315,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 existingAddress2Person3.Notes.Add(new Note { Content = "City note" });
             }
+
             await context.SaveChangesAsync();
 
             await AssertState(context, useIds);
@@ -325,7 +326,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             await AssertState(context, useIds);
         }
 
-        async Task AssertState(EmbeddedTransportationContext context, bool useIds)
+        static async Task AssertState(EmbeddedTransportationContext context, bool useIds)
         {
             var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
             var firstAddress = people[0].Addresses.Single();
@@ -446,8 +447,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 new Person
                 {
                     Id = 1,
-                    Addresses = new List<Address>
-                    {
+                    Addresses =
+                    [
                         new()
                         {
                             Street = "Second",
@@ -455,7 +456,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                             Notes = [new() { Content = "First note" }, new() { Content = "Second note" }],
                             IdNotes = [new() { Id = 3, Content = "Third note" }, new() { Id = 4, Content = "Fourth note" }]
                         }
-                    }
+                    ]
                 });
 
             await context.SaveChangesAsync();
@@ -502,38 +503,33 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     {
         var options = await Fixture.CreateOptions(seed: false);
 
-        using (var context = new EmbeddedTransportationContext(options))
+        using var context = new EmbeddedTransportationContext(options);
+        var address = new Address
         {
-            var address = new Address
-            {
-                Street = "First",
-                City = "City",
-                AddressTitle = new AddressTitle()
-            };
+            Street = "First",
+            City = "City",
+            AddressTitle = new AddressTitle()
+        };
 
-            await context.AddAsync(new Person { Id = 1, Addresses = new List<Address> { address } });
-            Assert.Equal("DefaultTitle", address.AddressTitle.Title);
+        await context.AddAsync(new Person { Id = 1, Addresses = [address] });
+        Assert.Equal("DefaultTitle", address.AddressTitle.Title);
 
-            await context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
-            var people = await context.Set<Person>().ToListAsync();
-            Assert.Same(address, people[0].Addresses.Single());
-        }
+        var people = await context.Set<Person>().ToListAsync();
+        Assert.Same(address, people[0].Addresses.Single());
     }
 
     [Fact]
     public virtual async Task Can_use_non_int_keys_for_embedded_entities()
     {
         var options = await Fixture.CreateOptions(
-            modelBuilder =>
-            {
-                modelBuilder.Entity<Person>(eb => eb.OwnsMany(
-                    v => v.Addresses, b =>
-                    {
-                        b.Property<Guid>("Id");
-                        b.Ignore(a => a.IdNotes);
-                    }));
-            },
+            modelBuilder => modelBuilder.Entity<Person>(eb => eb.OwnsMany(
+                v => v.Addresses, b =>
+                {
+                    b.Property<Guid>("Id");
+                    b.Ignore(a => a.IdNotes);
+                })),
             seed: false);
 
         Address address;
@@ -714,23 +710,13 @@ OFFSET 0 LIMIT 1
     public virtual async Task Can_use_non_persisted_properties_owned()
     {
         var options = await Fixture.CreateOptions(
-            modelBuilder =>
-            {
-                modelBuilder.Entity<Vehicle>(eb => eb.OwnsOne(
-                    v => v.Operator, b =>
-                    {
-                        b.Property(x => x.Name).ToJsonProperty("");
-                    }));
-            },
+            modelBuilder => modelBuilder.Entity<Vehicle>(eb => eb.OwnsOne(
+                v => v.Operator, b => b.Property(x => x.Name).ToJsonProperty(""))),
             seed: false);
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            var vehicle = new Vehicle
-            {
-                Name = "Test Vehicle",
-                Operator = new Operator { Name = "Test Operator" }
-            };
+            var vehicle = new Vehicle { Name = "Test Vehicle", Operator = new Operator { Name = "Test Operator" } };
             await context.AddAsync(vehicle);
             await context.SaveChangesAsync();
 
@@ -754,34 +740,22 @@ OFFSET 0 LIMIT 1
         }
     }
 
-
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
     [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public virtual async Task Can_use_non_persisted_properties_complex()
     {
         var options = await Fixture.CreateOptions(
-
-            modelBuilder =>
+            modelBuilder => modelBuilder.Entity<Vehicle>(eb =>
             {
-                modelBuilder.Entity<Vehicle>(eb =>
-                {
-                    eb.Ignore(x => x.Operator);
-                    eb.ComplexProperty(
-                        v => v.Operator, b =>
-                        {
-                            b.Property(x => x.Name).ToJsonProperty("");
-                        });
-                });
-            },
+                eb.Ignore(x => x.Operator);
+                eb.ComplexProperty(
+                    v => v.Operator, b => b.Property(x => x.Name).ToJsonProperty(""));
+            }),
             seed: false);
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            var vehicle = new Vehicle
-            {
-                Name = "Test Vehicle",
-                Operator = new Operator { Name = "Test Operator" }
-            };
+            var vehicle = new Vehicle { Name = "Test Vehicle", Operator = new Operator { Name = "Test Operator" } };
             await context.AddAsync(vehicle);
             await context.SaveChangesAsync();
 
@@ -856,7 +830,8 @@ OFFSET 0 LIMIT 2
             => ((EmbeddedTransportationContext)context).Options.OnModelCreating?.Invoke(modelBuilder);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedNavigationIgnoredWarning));
+            => base.AddOptions(builder).ConfigureWarnings(w
+                => w.Ignore(CosmosEventId.NoPartitionKeyDefined).Ignore(CoreEventId.MappedNavigationIgnoredWarning));
 
         protected override object GetAdditionalModelCacheKey(DbContext context)
         {
@@ -919,11 +894,12 @@ OFFSET 0 LIMIT 2
             modelBuilder.Entity<PersonBase>();
             modelBuilder.Entity<Person>(eb =>
             {
-                eb.OwnsMany(v => v.Addresses, b =>
-                {
-                    b.ToJsonProperty("Stored Addresses");
-                    b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
-                });
+                eb.OwnsMany(
+                    v => v.Addresses, b =>
+                    {
+                        b.ToJsonProperty("Stored Addresses");
+                        b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
+                    });
                 eb.OwnsOne(x => x.MainAddress);
             });
         }
@@ -946,7 +922,7 @@ OFFSET 0 LIMIT 2
     private class Person : PersonBase
     {
         public Address MainAddress { get; set; }
-        public ICollection<Address> Addresses { get; set; } = new List<Address>();
+        public ICollection<Address> Addresses { get; set; } = [];
     }
 
     public class Address
@@ -954,8 +930,8 @@ OFFSET 0 LIMIT 2
         public string Street { get; set; }
         public string City { get; set; }
         public AddressTitle AddressTitle { get; set; }
-        public ICollection<Note> Notes { get; set; } = new List<Note>();
-        public ICollection<NoteWithId> IdNotes { get; set; } = new List<NoteWithId>();
+        public ICollection<Note> Notes { get; set; } = [];
+        public ICollection<NoteWithId> IdNotes { get; set; } = [];
     }
 
     public class AddressTitle

@@ -804,15 +804,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_using_parameter(bool async)
+    public override async Task Json_collection_index_in_projection_using_parameter(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_using_parameter(async);
@@ -826,15 +823,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_using_column(bool async)
+    public override async Task Json_collection_index_in_projection_using_column(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_using_column(async);
@@ -904,15 +898,12 @@ ORDER BY [j].[Id]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_nested(bool async)
+    public override async Task Json_collection_index_in_projection_nested(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_nested(async);
@@ -926,15 +917,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_nested_project_scalar(bool async)
+    public override async Task Json_collection_index_in_projection_nested_project_scalar(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_nested_project_scalar(async);
@@ -948,15 +936,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_nested_project_reference(bool async)
+    public override async Task Json_collection_index_in_projection_nested_project_reference(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_nested_project_reference(async);
@@ -970,15 +955,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_nested_project_collection(bool async)
+    public override async Task Json_collection_index_in_projection_nested_project_collection(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_nested_project_collection(async);
@@ -993,15 +975,12 @@ ORDER BY [j].[Id]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
+    public override async Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_nested_project_collection_anonymous_projection(async);
@@ -1027,15 +1006,12 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[0].Name' RETURNING nvarchar(max))
 """);
     }
 
-        public override async Task Json_collection_index_in_predicate_using_variable(bool async)
+    public override async Task Json_collection_index_in_predicate_using_variable(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_predicate_using_variable(async);
@@ -1050,15 +1026,12 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST(@prm AS nvarchar(max)) +
 """);
     }
 
-        public override async Task Json_collection_index_in_predicate_using_column(bool async)
+    public override async Task Json_collection_index_in_predicate_using_column(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_predicate_using_column(async);
@@ -1071,15 +1044,12 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST([j].[Id] AS nvarchar(max
 """);
     }
 
-        public override async Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
+    public override async Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_predicate_using_complex_expression1(async);
@@ -1095,15 +1065,12 @@ END AS nvarchar(max)) + '].Name' RETURNING nvarchar(max)) = N'e1_c1'
 """);
     }
 
-        public override async Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
+    public override async Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_predicate_using_complex_expression2(async);
@@ -1130,15 +1097,12 @@ WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[1].Name' RETURNING nvarchar(max))
 """);
     }
 
-        public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
+    public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_predicate_nested_mix(async);
@@ -1262,7 +1226,7 @@ WHERE (
         else
         {
             AssertSql(
- """
+                """
  SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
  FROM [JsonEntitiesBasic] AS [j]
  WHERE (
@@ -1365,7 +1329,7 @@ WHERE EXISTS (
         else
         {
             AssertSql(
-            """
+                """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
@@ -1397,7 +1361,7 @@ ORDER BY [j].[Id]
         await base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async);
 
         AssertSql(
- """
+            """
  SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key]
  FROM [JsonEntitiesBasic] AS [j]
  OUTER APPLY OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
@@ -1482,7 +1446,7 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
         await base.Json_nested_collection_anonymous_projection_in_projection(async);
 
         AssertSql(
- """
+            """
  SELECT [j].[Id], [s].[key], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[c], [s].[Id], [s].[c0], [s].[key0]
  FROM [JsonEntitiesBasic] AS [j]
  OUTER APPLY (
@@ -1499,7 +1463,7 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
         await base.Json_collection_skip_take_in_projection(async);
 
         AssertSql(
- """
+            """
  SELECT [j].[Id], [o0].[Id], [o0].[Id0], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[c0], [o0].[key]
  FROM [JsonEntitiesBasic] AS [j]
  OUTER APPLY (
@@ -1517,7 +1481,7 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
         await base.Json_collection_skip_take_in_projection_project_into_anonymous_type(async);
 
         AssertSql(
- """
+            """
  SELECT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[c], [o0].[Id], [o0].[c0], [o0].[key]
  FROM [JsonEntitiesBasic] AS [j]
  OUTER APPLY (
@@ -1535,7 +1499,7 @@ ORDER BY [j].[Id], [s].[c1], [s].[key], [s].[c10]
         await base.Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(async);
 
         AssertSql(
- """
+            """
  SELECT [j].[Id], [o0].[c], [o0].[Id], [o0].[key]
  FROM [JsonEntitiesBasic] AS [j]
  OUTER APPLY (
@@ -1884,15 +1848,12 @@ WHERE JSON_CONTAINS(JSON_QUERY([j].[OwnedReferenceRoot], '$.Names'), N'e1_r1') =
 """);
     }
 
-        public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
+    public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_with_parameter_Select_ElementAt(async);
@@ -1910,15 +1871,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
+    public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_with_expression_Select_ElementAt(async);
@@ -2000,15 +1958,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
+    public override async Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_projection_deduplication_with_collection_indexer_in_target(async);
@@ -2022,15 +1977,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
+    public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(async);
@@ -2066,15 +2018,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
+    public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_using_parameter_when_owner_is_present(async);
@@ -2088,15 +2037,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
+    public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
@@ -2132,15 +2078,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
+    public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(async);
@@ -2154,15 +2097,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
+    public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
@@ -2176,15 +2116,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_when_owner_is_present_misc1(async);
@@ -2198,15 +2135,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc1(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc1(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_when_owner_is_not_present_misc1(async);
@@ -2242,15 +2176,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_when_owner_is_present_multiple(async);
@@ -2264,15 +2195,12 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Json_collection_index_in_projection_when_owner_is_not_present_multiple(async);
@@ -2662,7 +2590,7 @@ FROM [JsonEntitiesAllTypes] AS [j]
         await base.Json_all_types_projection_individual_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT JSON_VALUE([j].[Reference], '$.TestDefaultString' RETURNING nvarchar(max)) AS [TestDefaultString], JSON_VALUE([j].[Reference], '$.TestMaxLengthString' RETURNING nvarchar(5)) AS [TestMaxLengthString], JSON_VALUE([j].[Reference], '$.TestBoolean' RETURNING bit) AS [TestBoolean], JSON_VALUE([j].[Reference], '$.TestByte' RETURNING tinyint) AS [TestByte], JSON_VALUE([j].[Reference], '$.TestCharacter' RETURNING nvarchar(1)) AS [TestCharacter], JSON_VALUE([j].[Reference], '$.TestDateTime' RETURNING datetime2) AS [TestDateTime], JSON_VALUE([j].[Reference], '$.TestDateTimeOffset' RETURNING datetimeoffset) AS [TestDateTimeOffset], JSON_VALUE([j].[Reference], '$.TestDecimal' RETURNING decimal(18,3)) AS [TestDecimal], JSON_VALUE([j].[Reference], '$.TestDouble' RETURNING float) AS [TestDouble], CAST(JSON_VALUE([j].[Reference], '$.TestGuid') AS uniqueidentifier) AS [TestGuid], JSON_VALUE([j].[Reference], '$.TestInt16' RETURNING smallint) AS [TestInt16], JSON_VALUE([j].[Reference], '$.TestInt32' RETURNING int) AS [TestInt32], JSON_VALUE([j].[Reference], '$.TestInt64' RETURNING bigint) AS [TestInt64], JSON_VALUE([j].[Reference], '$.TestSignedByte' RETURNING smallint) AS [TestSignedByte], JSON_VALUE([j].[Reference], '$.TestSingle' RETURNING real) AS [TestSingle], JSON_VALUE([j].[Reference], '$.TestTimeSpan' RETURNING time) AS [TestTimeSpan], JSON_VALUE([j].[Reference], '$.TestDateOnly' RETURNING date) AS [TestDateOnly], JSON_VALUE([j].[Reference], '$.TestTimeOnly' RETURNING time) AS [TestTimeOnly], JSON_VALUE([j].[Reference], '$.TestUnsignedInt16' RETURNING int) AS [TestUnsignedInt16], JSON_VALUE([j].[Reference], '$.TestUnsignedInt32' RETURNING bigint) AS [TestUnsignedInt32], JSON_VALUE([j].[Reference], '$.TestUnsignedInt64' RETURNING decimal(20,0)) AS [TestUnsignedInt64], JSON_VALUE([j].[Reference], '$.TestEnum' RETURNING int) AS [TestEnum], JSON_VALUE([j].[Reference], '$.TestEnumWithIntConverter' RETURNING int) AS [TestEnumWithIntConverter], JSON_VALUE([j].[Reference], '$.TestNullableEnum' RETURNING int) AS [TestNullableEnum], JSON_VALUE([j].[Reference], '$.TestNullableEnumWithIntConverter' RETURNING int) AS [TestNullableEnumWithIntConverter], JSON_VALUE([j].[Reference], '$.TestNullableEnumWithConverterThatHandlesNulls' RETURNING nvarchar(max)) AS [TestNullableEnumWithConverterThatHandlesNulls]
 FROM [JsonEntitiesAllTypes] AS [j]
 """);
@@ -3359,7 +3287,7 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async);
 
         AssertSql(
- """
+            """
  SELECT [j].[Id], [s].[key], [s].[Date], [s].[Enum], [s].[Enums], [s].[Fraction], [s].[key0]
  FROM [JsonEntitiesBasic] AS [j]
  OUTER APPLY (
@@ -3398,17 +3326,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task
+    public override async Task
         Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base
@@ -3439,17 +3364,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task
+    public override async Task
         Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base
@@ -3492,17 +3414,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-        public override async Task
+    public override async Task
         Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(
             bool async)
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base

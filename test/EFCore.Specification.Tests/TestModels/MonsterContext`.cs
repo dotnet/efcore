@@ -495,17 +495,20 @@ public class MonsterContext<
         var suspiciousActivity1 = Add(
             new TSuspiciousActivity
             {
-                Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                Activity = "Pig prints on keyboard",
+                Username = Entry(login3).Property(e => e.Username).CurrentValue
             }).Entity;
         var suspiciousActivity2 = Add(
             new TSuspiciousActivity
             {
-                Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                Activity = "Crumbs in the cupboard",
+                Username = Entry(login3).Property(e => e.Username).CurrentValue
             }).Entity;
         var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 })
             .Entity;
 
@@ -717,12 +720,14 @@ public class MonsterContext<
         var productDetail1 = Add(
             new TProductDetail
             {
-                Details = "A Waffle Cart specialty!", ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
+                Details = "A Waffle Cart specialty!",
+                ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue
             }).Entity;
         var productDetail2 = Add(
                 new TProductDetail
                 {
-                    Details = "Eeky Bear's favorite!", ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
+                    Details = "Eeky Bear's favorite!",
+                    ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
                 })
             .Entity;
 
@@ -732,7 +737,8 @@ public class MonsterContext<
         var productReview2 = Add(
                 new TProductReview
                 {
-                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Good with maple syrup."
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
+                    Review = "Good with maple syrup."
                 })
             .Entity;
         var productReview3 = Add(
@@ -778,7 +784,8 @@ public class MonsterContext<
         var supplierInfo1 = Add(
             new TSupplierInfo
             {
-                SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Information = "Seems a bit dodgy."
+                SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue,
+                Information = "Seems a bit dodgy."
             }).Entity;
         var supplierInfo2 = Add(
                 new TSupplierInfo { SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Information = "Orange fur?" })
@@ -786,19 +793,22 @@ public class MonsterContext<
         var supplierInfo3 = Add(
                 new TSupplierInfo
                 {
-                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue, Information = "Very expensive!"
+                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue,
+                    Information = "Very expensive!"
                 })
             .Entity;
 
         var customerInfo1 = Add(
             new TCustomerInfo
             {
-                CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue, Information = "Really likes tea."
+                CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
+                Information = "Really likes tea."
             }).Entity;
         var customerInfo2 = Add(
             new TCustomerInfo
             {
-                CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue, Information = "Mrs Bossy Pants!"
+                CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
+                Information = "Mrs Bossy Pants!"
             }).Entity;
 
         var computer1 = Add(
@@ -1033,17 +1043,20 @@ public class MonsterContext<
         var suspiciousActivity1 = Add(
             new TSuspiciousActivity
             {
-                Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                Activity = "Pig prints on keyboard",
+                Username = Entry(login3).Property(e => e.Username).CurrentValue
             }).Entity;
         var suspiciousActivity2 = Add(
             new TSuspiciousActivity
             {
-                Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                Activity = "Crumbs in the cupboard",
+                Username = Entry(login3).Property(e => e.Username).CurrentValue
             }).Entity;
         var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
                 {
-                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                    Activity = "Donuts gone missing",
+                    Username = Entry(login3).Property(e => e.Username).CurrentValue
                 })
             .Entity;
 
@@ -1387,7 +1400,8 @@ public class MonsterContext<
         var supplierLogo1 = Add(
             new TSupplierLogo
             {
-                SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0, Logo = [201, 202]
+                SupplierId = !principalNavs ? Entry(supplier1).Property(e => e.SupplierId).CurrentValue : 0,
+                Logo = [201, 202]
             }).Entity;
         if (principalNavs)
         {
@@ -1404,12 +1418,14 @@ public class MonsterContext<
         var customerInfo1 = Add(
             new TCustomerInfo
             {
-                CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue, Information = "Really likes tea."
+                CustomerInfoId = Entry(customer1).Property(e => e.CustomerId).CurrentValue,
+                Information = "Really likes tea."
             }).Entity;
         var customerInfo2 = Add(
             new TCustomerInfo
             {
-                CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue, Information = "Mrs Bossy Pants!"
+                CustomerInfoId = Entry(customer2).Property(e => e.CustomerId).CurrentValue,
+                Information = "Mrs Bossy Pants!"
             }).Entity;
         if (principalNavs)
         {
@@ -1615,12 +1631,14 @@ public class MonsterContext<
         var suspiciousActivity1 = toAdd[2].AddEx(
             new TSuspiciousActivity
             {
-                Activity = "Pig prints on keyboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                Activity = "Pig prints on keyboard",
+                Username = Entry(login3).Property(e => e.Username).CurrentValue
             });
         var suspiciousActivity2 = toAdd[2].AddEx(
             new TSuspiciousActivity
             {
-                Activity = "Crumbs in the cupboard", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                Activity = "Crumbs in the cupboard",
+                Username = Entry(login3).Property(e => e.Username).CurrentValue
             });
         var suspiciousActivity3 = toAdd[2].AddEx(
             new TSuspiciousActivity { Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue });

@@ -225,10 +225,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.False(eventRaised);
@@ -245,10 +242,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.False(eventRaised);
@@ -265,10 +259,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.True(eventRaised);
@@ -285,10 +276,7 @@ public class ChangeDetectionProxyTests
 
         var eventRaised = false;
 
-        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
-        {
-            eventRaised = true;
-        };
+        ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) => eventRaised = true;
 
         proxy.Value = 10;
         Assert.True(eventRaised);
@@ -367,7 +355,7 @@ public class ChangeDetectionProxyTests
 
     public class ChangeNonVirtualIndexer
     {
-        private readonly Dictionary<string, object> _keyValuePairs = new();
+        private readonly Dictionary<string, object> _keyValuePairs = [];
 
         public virtual int Id { get; set; }
 
@@ -380,7 +368,7 @@ public class ChangeDetectionProxyTests
 
     public class ChangeNonVirtualIndexerNotUsed
     {
-        private readonly Dictionary<string, object> _keyValuePairs = new();
+        private readonly Dictionary<string, object> _keyValuePairs = [];
 
         public virtual int Id { get; set; }
 

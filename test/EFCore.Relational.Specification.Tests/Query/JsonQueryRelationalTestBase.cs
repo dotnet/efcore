@@ -393,7 +393,8 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                     .OrderBy(x => x.Id)
                     .Select(x => new
                     {
-                        First = x.EntityCollection.ToList(), Second = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList()
+                        First = x.EntityCollection.ToList(),
+                        Second = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList()
                     })
                     .AsNoTrackingWithIdentityResolution(),
                 assertOrder: true,

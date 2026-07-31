@@ -227,15 +227,9 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
             b.Property(e => e.Name);
         });
 
-        modelBuilder.Entity<EntityBranch>(b =>
-        {
-            b.Property(e => e.Number);
-        });
+        modelBuilder.Entity<EntityBranch>(b => b.Property(e => e.Number));
 
-        modelBuilder.Entity<EntityLeaf>(b =>
-        {
-            b.Property(e => e.IsGreen);
-        });
+        modelBuilder.Entity<EntityLeaf>(b => b.Property(e => e.IsGreen));
 
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.Collection)

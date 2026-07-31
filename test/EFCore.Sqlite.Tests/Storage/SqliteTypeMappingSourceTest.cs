@@ -117,7 +117,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("DISCOMBOBULATED", typeof(byte[]), DbType.Binary)]
     public void Does_mappings_for_store_type(string storeType, Type clrType, DbType? dbType)
     {
-        foreach (var type in new[] { storeType, storeType.ToLower(), storeType.Substring(0, 1) + storeType.Substring(1).ToLower() })
+        foreach (var type in new[] { storeType, storeType.ToLower(), storeType[..1] + storeType[1..].ToLower() })
         {
             var mapping = CreateRelationalTypeMappingSource(CreateModel()).FindMapping(type)!;
             Assert.Equal(storeType.ToLower(), mapping.StoreType.ToLower());
@@ -282,7 +282,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("RUBBISH", typeof(ULongEnum?), DbType.UInt64)]
     public void Does_mappings_for_both_store_and_CLR_type(string storeType, Type clrType, DbType? dbType)
     {
-        foreach (var type in new[] { storeType, storeType.ToLower(), storeType.Substring(0, 1) + storeType.Substring(1).ToLower() })
+        foreach (var type in new[] { storeType, storeType.ToLower(), storeType[..1] + storeType[1..].ToLower() })
         {
             var mapping = GetTypeMapping(clrType, storeTypeName: type);
             Assert.Equal(storeType.ToLower(), mapping.StoreType.ToLower());

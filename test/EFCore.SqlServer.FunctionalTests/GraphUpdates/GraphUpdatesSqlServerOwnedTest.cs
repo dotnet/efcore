@@ -499,13 +499,10 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<SharedFkParent>(builder =>
-            {
-                builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                    .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                    .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+            modelBuilder.Entity<SharedFkParent>(builder => builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                .OnDelete(DeleteBehavior.ClientSetNull));
 
             modelBuilder.Entity<SharedFkDependant>();
 
@@ -594,10 +591,7 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
             {
                 b.HasAlternateKey(e => e.AlternateId);
                 b.OwnsOne(
-                    x => x.Child, b =>
-                    {
-                        b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId);
-                    });
+                    x => x.Child, b => b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId));
             });
         }
     }

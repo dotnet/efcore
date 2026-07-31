@@ -90,10 +90,7 @@ public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder
-                .Entity<CustomerWithCompositeKey>(b =>
-                {
-                    b.HasKey(e => new { e.Id1, e.Id2 });
-                });
+                .Entity<CustomerWithCompositeKey>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
             var property1 = modelBuilder.Entity<CustomerWithCompositeKey>().Property(e => e.Id1).Metadata;
             var property2 = modelBuilder.Entity<CustomerWithCompositeKey>().Property(e => e.Id2).Metadata;

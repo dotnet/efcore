@@ -1879,89 +1879,89 @@ GROUP BY [b].[Id]
 
     // SqlServerOpenJsonExpression is covered by PrecompiledQueryRelationalTestBase.Contains_with_parameterized_collection
 
-//     [Fact]
-//     public virtual Task TableValuedFunctionExpression_toplevel()
-//         => Test(
-//             "_ = context.GetBlogsWithAtLeast(9).ToList();",
-//             modelSourceCode: providerOptions => $$"""
-// public class BlogContext : DbContext
-// {
-//     public DbSet<Blog> Blogs { get; set; }
-//
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//         => optionsBuilder
-//             {{providerOptions}}
-//             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
-//
-//     protected override void OnModelCreating(ModelBuilder modelBuilder)
-//     {
-//         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetBlogsWithAtLeast)));
-//     }
-//
-//     public IQueryable<Blog> GetBlogsWithAtLeast(int minBlogId) => FromExpression(() => GetBlogsWithAtLeast(minBlogId));
-// }
-//
-// public class Blog
-// {
-//     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-//     public int Id { get; set; }
-//     public string StringProperty { get; set; }
-// }
-// """,
-//             setupSql: """
-// CREATE FUNCTION dbo.GetBlogsWithAtLeast(@minBlogId int)
-// RETURNS TABLE AS RETURN
-// (
-//     SELECT [b].[Id], [b].[Name] FROM [Blogs] AS [b] WHERE [b].[Id] >= @minBlogId
-// )
-// """,
-//             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
-//
-//     [Fact]
-//     public virtual Task TableValuedFunctionExpression_non_toplevel()
-//         => Test(
-//             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
-//             modelSourceCode: providerOptions => $$"""
-// public class BlogContext : DbContext
-// {
-//     public DbSet<Blog> Blogs { get; set; }
-//
-//     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//         => optionsBuilder
-//             {{providerOptions}}
-//             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
-//
-//     protected override void OnModelCreating(ModelBuilder modelBuilder)
-//     {
-//         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetPosts)));
-//     }
-//
-//     public IQueryable<Post> GetPosts(int blogId) => FromExpression(() => GetPosts(blogId));
-// }
-//
-// public class Blog
-// {
-//     public int Id { get; set; }
-//     public string StringProperty { get; set; }
-//     public List<Post> Post { get; set; }
-// }
-//
-// public class Post
-// {
-//     public int Id { get; set; }
-//     public string Title { get; set; }
-//
-//     public Blog Blog { get; set; }
-// }
-// """,
-//             setupSql: """
-// CREATE FUNCTION dbo.GetPosts(@blogId int)
-// RETURNS TABLE AS RETURN
-// (
-//     SELECT [p].[Id], [p].[Title], [p].[BlogId] FROM [Posts] AS [p] WHERE [p].[BlogId] = @blogId
-// )
-// """,
-//             cleanupSql: "DROP FUNCTION dbo.GetPosts;");
+    //     [Fact]
+    //     public virtual Task TableValuedFunctionExpression_toplevel()
+    //         => Test(
+    //             "_ = context.GetBlogsWithAtLeast(9).ToList();",
+    //             modelSourceCode: providerOptions => $$"""
+    // public class BlogContext : DbContext
+    // {
+    //     public DbSet<Blog> Blogs { get; set; }
+    //
+    //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //         => optionsBuilder
+    //             {{providerOptions}}
+    //             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
+    //
+    //     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    //     {
+    //         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetBlogsWithAtLeast)));
+    //     }
+    //
+    //     public IQueryable<Blog> GetBlogsWithAtLeast(int minBlogId) => FromExpression(() => GetBlogsWithAtLeast(minBlogId));
+    // }
+    //
+    // public class Blog
+    // {
+    //     [DatabaseGenerated(DatabaseGeneratedOption.None)]
+    //     public int Id { get; set; }
+    //     public string StringProperty { get; set; }
+    // }
+    // """,
+    //             setupSql: """
+    // CREATE FUNCTION dbo.GetBlogsWithAtLeast(@minBlogId int)
+    // RETURNS TABLE AS RETURN
+    // (
+    //     SELECT [b].[Id], [b].[Name] FROM [Blogs] AS [b] WHERE [b].[Id] >= @minBlogId
+    // )
+    // """,
+    //             cleanupSql: "DROP FUNCTION dbo.GetBlogsWithAtLeast;");
+    //
+    //     [Fact]
+    //     public virtual Task TableValuedFunctionExpression_non_toplevel()
+    //         => Test(
+    //             "_ = context.Blogs.Where(b => context.GetPosts(b.Id).Count() == 2).ToList();",
+    //             modelSourceCode: providerOptions => $$"""
+    // public class BlogContext : DbContext
+    // {
+    //     public DbSet<Blog> Blogs { get; set; }
+    //
+    //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //         => optionsBuilder
+    //             {{providerOptions}}
+    //             .ReplaceService<IQueryCompiler, Microsoft.EntityFrameworkCore.Query.NonCompilingQueryCompiler>();
+    //
+    //     protected override void OnModelCreating(ModelBuilder modelBuilder)
+    //     {
+    //         modelBuilder.HasDbFunction(typeof(BlogContext).GetMethod(nameof(GetPosts)));
+    //     }
+    //
+    //     public IQueryable<Post> GetPosts(int blogId) => FromExpression(() => GetPosts(blogId));
+    // }
+    //
+    // public class Blog
+    // {
+    //     public int Id { get; set; }
+    //     public string StringProperty { get; set; }
+    //     public List<Post> Post { get; set; }
+    // }
+    //
+    // public class Post
+    // {
+    //     public int Id { get; set; }
+    //     public string Title { get; set; }
+    //
+    //     public Blog Blog { get; set; }
+    // }
+    // """,
+    //             setupSql: """
+    // CREATE FUNCTION dbo.GetPosts(@blogId int)
+    // RETURNS TABLE AS RETURN
+    // (
+    //     SELECT [p].[Id], [p].[Title], [p].[BlogId] FROM [Posts] AS [p] WHERE [p].[BlogId] = @blogId
+    // )
+    // """,
+    //             cleanupSql: "DROP FUNCTION dbo.GetPosts;");
 
     #endregion SQL expression quotability
 

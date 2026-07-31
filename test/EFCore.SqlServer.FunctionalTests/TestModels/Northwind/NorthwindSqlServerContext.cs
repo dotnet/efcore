@@ -17,10 +17,7 @@ public class NorthwindSqlServerContext(DbContextOptions options) : NorthwindRela
             b.Property(e => e.ReportsTo).HasColumnType("int");
         });
 
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.Property(e => e.CustomerID).IsFixedLength();
-        });
+        modelBuilder.Entity<Customer>(b => b.Property(e => e.CustomerID).IsFixedLength());
 
         modelBuilder.Entity<Order>(b =>
         {

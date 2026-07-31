@@ -58,7 +58,7 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         var expectedMessage = CoreResources.LogTypeLoadingErrorWarning(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("A", "B");
         var actualMessage = loggerFactory.Log[0].Message;
 
-        Assert.StartsWith(expectedMessage.Substring(0, 10), actualMessage);
+        Assert.StartsWith(expectedMessage[..10], actualMessage);
         Assert.Contains(nameof(ReflectionTypeLoadException), actualMessage);
     }
 

@@ -101,11 +101,8 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             }
         });
 
-        modelBuilder.Entity<DependentDerived<byte?>>(eb =>
-        {
-            eb.Property<string>("Data")
-                .IsFixedLength();
-        });
+        modelBuilder.Entity<DependentDerived<byte?>>(eb => eb.Property<string>("Data")
+            .IsFixedLength());
 
         modelBuilder.Entity<ManyTypes>(b =>
         {
@@ -373,11 +370,12 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 var jsonArray = Assert.IsAssignableFrom<IRelationalJsonArray>(column.JsonElement);
                 Assert.Same((RelationalTypeMapping)property.GetTypeMapping(), jsonArray.StoreTypeMapping);
                 Assert.NotEmpty(jsonArray.PropertyMappings);
-                Assert.All(jsonArray.PropertyMappings, m =>
-                {
-                    Assert.Same(property, m.Property);
-                    Assert.Same(jsonArray, m.Element);
-                });
+                Assert.All(
+                    jsonArray.PropertyMappings, m =>
+                    {
+                        Assert.Same(property, m.Property);
+                        Assert.Same(jsonArray, m.Element);
+                    });
 
                 Assert.Empty(jsonArray.ElementType.PropertyMappings);
                 Assert.Same((RelationalTypeMapping)property.GetTypeMapping().ElementTypeMapping!, jsonArray.ElementType.StoreTypeMapping);
@@ -396,42 +394,46 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             Assert.NotEmpty(ownedJsonObject.Properties);
 
             Assert.NotEmpty(ownedJsonRoot.PropertyMappings);
-            Assert.All(ownedJsonRoot.PropertyMappings, m =>
-            {
-                Assert.Same(referenceOwnedNavigation, m.Property);
-                Assert.Same(ownedJsonRoot, m.Element);
-            });
+            Assert.All(
+                ownedJsonRoot.PropertyMappings, m =>
+                {
+                    Assert.Same(referenceOwnedNavigation, m.Property);
+                    Assert.Same(ownedJsonRoot, m.Element);
+                });
 
             // Verify GetJsonElementMappings for the owned navigation
             var ownedMappings = referenceOwnedNavigation.GetJsonElementMappings().ToList();
             Assert.NotEmpty(ownedMappings);
-            Assert.All(ownedMappings, m =>
-            {
-                Assert.Same(referenceOwnedNavigation, m.Property);
-                Assert.IsAssignableFrom<IRelationalJsonObject>(m.Element);
-                Assert.Same(referenceOwnedNavigation.TargetEntityType, m.TableMapping.TypeBase);
-            });
+            Assert.All(
+                ownedMappings, m =>
+                {
+                    Assert.Same(referenceOwnedNavigation, m.Property);
+                    Assert.IsAssignableFrom<IRelationalJsonObject>(m.Element);
+                    Assert.Same(referenceOwnedNavigation.TargetEntityType, m.TableMapping.TypeBase);
+                });
 
             // Verify scalar properties inside the owned entity have JSON element mappings
             var ownedDetailsProperty = referenceOwnedType.FindProperty(nameof(OwnedType.Details))!;
             var detailsMappings = ownedDetailsProperty.GetJsonElementMappings().ToList();
             Assert.NotEmpty(detailsMappings);
-            Assert.All(detailsMappings, m =>
-            {
-                Assert.Same(ownedDetailsProperty, m.Property);
-                Assert.Equal("Details", m.Element.PropertyName);
-                Assert.Same((RelationalTypeMapping)ownedDetailsProperty.GetTypeMapping(), m.Element.StoreTypeMapping);
-                Assert.NotNull(m.TableMapping);
-            });
+            Assert.All(
+                detailsMappings, m =>
+                {
+                    Assert.Same(ownedDetailsProperty, m.Property);
+                    Assert.Equal("Details", m.Element.PropertyName);
+                    Assert.Same((RelationalTypeMapping)ownedDetailsProperty.GetTypeMapping(), m.Element.StoreTypeMapping);
+                    Assert.NotNull(m.TableMapping);
+                });
 
             // Verify ManyOwned collection navigation has mappings
             var manyOwnedMappings = ownedCollectionNavigation.GetJsonElementMappings().ToList();
             Assert.NotEmpty(manyOwnedMappings);
-            Assert.All(manyOwnedMappings, m =>
-            {
-                Assert.Same(ownedCollectionNavigation, m.Property);
-                Assert.NotNull(m.TableMapping);
-            });
+            Assert.All(
+                manyOwnedMappings, m =>
+                {
+                    Assert.Same(ownedCollectionNavigation, m.Property);
+                    Assert.NotNull(m.TableMapping);
+                });
 
             // Verify FindColumn works for navigation
             var foundColumn = principalBaseTable.FindColumn(referenceOwnedNavigation);
@@ -460,15 +462,12 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
         {
             eb.Property("FlagsEnum2");
             eb.ComplexProperty(
-                e => e.Owned, eb =>
-                {
-                    eb.Property(c => c.Details)
-                        .IsRowVersion()
-                        .HasColumnName("Deets")
-                        .HasColumnOrder(1)
-                        .HasColumnType("varchar")
-                        .HasComment("Dt");
-                });
+                e => e.Owned, eb => eb.Property(c => c.Details)
+                    .IsRowVersion()
+                    .HasColumnName("Deets")
+                    .HasColumnOrder(1)
+                    .HasColumnType("varchar")
+                    .HasComment("Dt"));
 
             eb.ToTable("PrincipalBase");
             eb.ToView("PrincipalBaseView");
@@ -532,7 +531,6 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             BuildComplexTypesModel,
             AssertComplexTypes,
             c =>
-            {
                 // Sprocs not supported with complex types, see #31235
                 //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
                 //    new PrincipalDerived<DependentBase<byte?>>
@@ -544,9 +542,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 //    });
 
                 //c.SaveChanges();
-
-                return Task.CompletedTask;
-            },
+                Task.CompletedTask,
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override void AssertComplexTypes(IModel model)
@@ -647,11 +643,12 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                 // Verify GetJsonElementMappings works for the complex property
                 var mappings = manyOwnedComplexProperty.GetJsonElementMappings().ToList();
                 Assert.NotEmpty(mappings);
-                Assert.All(mappings, m =>
-                {
-                    Assert.Same(manyOwnedComplexProperty, m.Property);
-                    Assert.Same(rootElement, m.Element);
-                });
+                Assert.All(
+                    mappings, m =>
+                    {
+                        Assert.Same(manyOwnedComplexProperty, m.Property);
+                        Assert.Same(rootElement, m.Element);
+                    });
 
                 // Verify scalar properties inside the collection element have mappings
                 var detailsProp = manyOwnedComplexProperty.ComplexType.FindProperty(nameof(OwnedType.Details));
@@ -816,10 +813,7 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
                     .HasOriginalValueParameter(p => p.Id));
         });
 
-        modelBuilder.Entity<DependentBase<byte?>>(eb =>
-        {
-            eb.Property<byte?>("Id");
-        });
+        modelBuilder.Entity<DependentBase<byte?>>(eb => eb.Property<byte?>("Id"));
     }
 
     protected virtual bool UseSprocReturnValue
@@ -1551,7 +1545,7 @@ public partial class DbContextModel
     {
         public int Id { get; set; }
 
-        public ICollection<Post> Posts { get; set; } = new List<Post>();
+        public ICollection<Post> Posts { get; set; } = [];
     }
 
     public class Post
@@ -1576,8 +1570,7 @@ public partial class DbContextModel
 
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
         => base.AddNonSharedOptions(builder)
-            .ConfigureWarnings(
-                w => w.Ignore(
-                    RelationalEventId.ForeignKeyTpcPrincipalWarning,
-                    RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
+            .ConfigureWarnings(w => w.Ignore(
+                RelationalEventId.ForeignKeyTpcPrincipalWarning,
+                RelationalEventId.OwnedEntityMappedToJsonCollectionWarning));
 }

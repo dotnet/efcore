@@ -44,44 +44,37 @@ public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) :
 
     protected class Blog : NotificationEntity
     {
-        private int _id;
-        private ICollection<Post> _posts;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public ICollection<Post> Posts
         {
-            get => _posts;
-            set => SetWithNotify(value, ref _posts);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class Post : NotificationEntity
     {
-        private int _id;
-        private int _postId;
-        private Blog _blog;
-
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int PostId
         {
-            get => _postId;
-            set => SetWithNotify(value, ref _postId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public Blog Blog
         {
-            get => _blog;
-            set => SetWithNotify(value, ref _blog);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
@@ -119,7 +112,7 @@ public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) :
         protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Add(
-                new Blog { Id = 1, Posts = new List<Post> { new() { Id = 1 }, new() { Id = 2 } } });
+                new Blog { Id = 1, Posts = [new() { Id = 1 }, new() { Id = 2 }] });
 
             return context.SaveChangesAsync();
         }

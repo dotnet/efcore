@@ -66,17 +66,10 @@ public class Employee
         => EmployeeID == other.EmployeeID;
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj)
-            ? true
-            : obj.GetType() == GetType()
-            && Equals((Employee)obj);
-    }
+        => obj is not null
+            && (ReferenceEquals(this, obj)
+                || (obj.GetType() == GetType()
+                    && Equals((Employee)obj)));
 
     public override int GetHashCode()
         => EmployeeID.GetHashCode();

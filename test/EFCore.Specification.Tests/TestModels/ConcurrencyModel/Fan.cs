@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public interface ISuperFan
 {
-    string Name { get; set; }
-    SwagBag Swag { get; set; }
+    public string Name { get; set; }
+    public SwagBag Swag { get; set; }
 }
 
 public abstract class Fan

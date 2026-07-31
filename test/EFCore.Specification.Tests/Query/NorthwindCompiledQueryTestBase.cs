@@ -804,8 +804,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
     [Fact]
     public virtual void Compiled_query_with_EF_Constant_throws()
     {
-        var query = EF.CompileQuery(
-            (NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Constant("ALFKI")));
+        var query = EF.CompileQuery((NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Constant("ALFKI")));
 
         using var context = CreateContext();
 
@@ -818,8 +817,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture>(TFixture fixture)
     {
         var customerID = "ALFKI";
 
-        var query = EF.CompileQuery(
-            (NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Parameter(customerID)));
+        var query = EF.CompileQuery((NorthwindContext context) => context.Customers.Where(c => c.CustomerID == EF.Parameter(customerID)));
 
         using var context = CreateContext();
 

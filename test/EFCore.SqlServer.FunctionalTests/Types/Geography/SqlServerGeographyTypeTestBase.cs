@@ -13,11 +13,7 @@ public abstract class SqlServerGeographyTypeTestBase<T, TFixture>(TFixture fixtu
     public abstract class SqlServerGeographyTypeFixture : SqlServerSpatialTypeFixture
     {
         // SQL Server default to geography
-        public override string? StoreType => null;
+        public override string? StoreType
+            => null;
     }
 }
-
-
-
-
-

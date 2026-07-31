@@ -427,7 +427,7 @@ WHERE [b].[Float] > CAST(0 AS real) AND LOG10([b].[Float]) <> CAST(0 AS real)
     }
 
     public override async Task Log2()
-        => await AssertTranslationFailed(() => base.Log2());
+        => await AssertTranslationFailed(base.Log2);
 
     public override async Task Sqrt()
     {
@@ -536,7 +536,7 @@ WHERE GREATEST([b].[Int], [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
         }
         else
         {
-            await AssertTranslationFailed(() => base.Max());
+            await AssertTranslationFailed(base.Max);
         }
     }
 
@@ -555,7 +555,7 @@ WHERE GREATEST([b].[Short] - CAST(3 AS smallint), [b].[Int], 1) = [b].[Int]
         }
         else
         {
-            await AssertTranslationFailed(() => base.Max_nested());
+            await AssertTranslationFailed(base.Max_nested);
         }
     }
 
@@ -574,7 +574,7 @@ WHERE GREATEST(1, [b].[Int], 2, [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
         }
         else
         {
-            await AssertTranslationFailed(() => base.Max_nested_twice());
+            await AssertTranslationFailed(base.Max_nested_twice);
         }
     }
 
@@ -593,7 +593,7 @@ WHERE LEAST([b].[Int], [b].[Short] + CAST(3 AS smallint)) = [b].[Int]
         }
         else
         {
-            await AssertTranslationFailed(() => base.Min());
+            await AssertTranslationFailed(base.Min);
         }
     }
 
@@ -612,7 +612,7 @@ WHERE LEAST([b].[Short] + CAST(3 AS smallint), [b].[Int], 99999) = [b].[Int]
         }
         else
         {
-            await AssertTranslationFailed(() => base.Min_nested());
+            await AssertTranslationFailed(base.Min_nested);
         }
     }
 
@@ -631,7 +631,7 @@ WHERE LEAST(99999, [b].[Int], 99998, [b].[Short] + CAST(3 AS smallint)) = [b].[I
         }
         else
         {
-            await AssertTranslationFailed(() => base.Min_nested_twice());
+            await AssertTranslationFailed(base.Min_nested_twice);
         }
     }
 
@@ -710,7 +710,7 @@ WHERE [b].[Float] >= CAST(-1 AS real) AND [b].[Float] <= CAST(1 AS real) AND ACO
     }
 
     public override async Task Acosh()
-        => await AssertTranslationFailed(() => base.Acosh());
+        => await AssertTranslationFailed(base.Acosh);
 
     public override async Task Asin()
     {
@@ -737,7 +737,7 @@ WHERE [b].[Float] >= CAST(-1 AS real) AND [b].[Float] <= CAST(1 AS real) AND CAS
     }
 
     public override async Task Asinh()
-        => await AssertTranslationFailed(() => base.Asinh());
+        => await AssertTranslationFailed(base.Asinh);
 
     public override async Task Atan()
     {
@@ -764,7 +764,7 @@ WHERE ATAN([b].[Float]) > CAST(0 AS real)
     }
 
     public override async Task Atanh()
-        => await AssertTranslationFailed(() => base.Atanh());
+        => await AssertTranslationFailed(base.Atanh);
 
     public override async Task Atan2()
     {
@@ -815,7 +815,7 @@ WHERE COS([b].[Float]) > CAST(0 AS real)
     }
 
     public override async Task Cosh()
-        => await AssertTranslationFailed(() => base.Cosh());
+        => await AssertTranslationFailed(base.Cosh);
 
     public override async Task Sin()
     {
@@ -842,7 +842,7 @@ WHERE SIN([b].[Float]) > CAST(0 AS real)
     }
 
     public override async Task Sinh()
-        => await AssertTranslationFailed(() => base.Sinh());
+        => await AssertTranslationFailed(base.Sinh);
 
     public override async Task Tan()
     {
@@ -869,7 +869,7 @@ WHERE TAN([b].[Float]) > CAST(0 AS real)
     }
 
     public override async Task Tanh()
-        => await AssertTranslationFailed(() => base.Tanh());
+        => await AssertTranslationFailed(base.Tanh);
 
     #endregion Trigonometry
 

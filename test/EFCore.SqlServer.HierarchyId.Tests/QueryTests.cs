@@ -46,7 +46,7 @@ public class QueryTests : IDisposable
                 @"SELECT [p].[Id].IsDescendantOf([p].[Id].GetAncestor(1)) FROM [Patriarchy] AS [p] WHERE [p].[Id].GetLevel() = CAST(3 AS smallint)"),
             Condense(_db.Sql));
 
-        Assert.All(results, b => Assert.True(b));
+        Assert.All(results, Assert.True);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class QueryTests : IDisposable
                 @"SELECT hierarchyid::Parse('/1/1/11.1/').IsDescendantOf([p].[Id]) FROM [Patriarchy] AS [p] WHERE [p].[Id].GetLevel() = CAST(1 AS smallint)"),
             Condense(_db.Sql));
 
-        Assert.All(results, b => Assert.True(b));
+        Assert.All(results, Assert.True);
     }
 
     [Fact]

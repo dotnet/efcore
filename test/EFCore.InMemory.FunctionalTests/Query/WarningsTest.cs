@@ -27,7 +27,7 @@ public class WarningsTest
                 InMemoryEventId.TransactionIgnoredWarning,
                 InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                 "InMemoryEventId.TransactionIgnoredWarning"),
-            Assert.Throws<InvalidOperationException>(() => context.Database.BeginTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.BeginTransaction).Message);
     }
 
     [Fact]
@@ -273,7 +273,6 @@ public class WarningsTest
     private class WarningAsErrorEntity
     {
         private readonly Action<object, string> _loader;
-        private IncludedEntity _nav;
 
         public WarningAsErrorEntity()
         {
@@ -284,8 +283,8 @@ public class WarningsTest
 
         public IncludedEntity Nav
         {
-            get => _loader.Load(this, ref _nav);
-            set => _nav = value;
+            get => _loader.Load(this, ref field);
+            set;
         }
 
         public string Id { get; set; }

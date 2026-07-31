@@ -609,10 +609,7 @@ public abstract class MigrationsInfrastructureFixtureBase
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
-            .UseSeeding((context, migrated) =>
-            {
-                SeedCallCount++;
-            })
+            .UseSeeding((context, migrated) => SeedCallCount++)
             .UseAsyncSeeding((context, migrated, token) =>
             {
                 SeedAsyncCallCount++;

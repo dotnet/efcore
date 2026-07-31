@@ -90,7 +90,7 @@ public abstract class AdHocManyToManyQueryTestBase(NonSharedFixture fixture)
             var m = new ManyM_DB();
             var n = new ManyN_DB();
             context.AddRange(m, n);
-            m.ManyN_DB = new List<ManyN_DB> { n };
+            m.ManyN_DB = [n];
 
             context.SaveChanges();
 

@@ -70,7 +70,8 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
             .Take(10)
             .Select(x => new
             {
-                x.B.A.Id, x.B.Info.Created,
+                x.B.A.Id,
+                x.B.Info.Created,
             }).ToList();
 
         Assert.Equal(new DateTime(2000, 1, 1), query[0].Created);
@@ -128,12 +129,12 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase(NonSharedFixt
                 new Offer
                 {
                     Id = 1,
-                    Variations = new List<Variation>
-                    {
+                    Variations =
+                    [
                         v1,
                         v2,
                         v3
-                    }
+                    ]
                 });
 
             await SaveChangesAsync();

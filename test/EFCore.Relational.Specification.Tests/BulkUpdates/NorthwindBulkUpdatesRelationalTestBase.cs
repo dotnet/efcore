@@ -35,7 +35,7 @@ public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : Northwi
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_FromSql_converted_to_subquery(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => Fixture.CreateContext(),
+            Fixture.CreateContext,
             (facade, transaction) => Fixture.UseTransaction(facade, transaction),
             async context =>
             {
@@ -79,7 +79,7 @@ WHERE [OrderID] < 10300"));
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Update_FromSql_set_constant(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => Fixture.CreateContext(),
+            Fixture.CreateContext,
             (facade, transaction) => Fixture.UseTransaction(facade, transaction),
             async context =>
             {
@@ -102,7 +102,7 @@ WHERE [CustomerID] LIKE 'A%'"));
     [Theory, MemberData(nameof(IsAsyncData))] // #37771
     public virtual Task Update_with_select_mixed_entity_scalar_anonymous_projection(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => Fixture.CreateContext(),
+            Fixture.CreateContext,
             (facade, transaction) => Fixture.UseTransaction(facade, transaction),
             async context =>
             {
@@ -121,7 +121,7 @@ WHERE [CustomerID] LIKE 'A%'"));
     [Theory, MemberData(nameof(IsAsyncData))] // #37771
     public virtual Task Update_with_select_scalar_anonymous_projection(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => Fixture.CreateContext(),
+            Fixture.CreateContext,
             (facade, transaction) => Fixture.UseTransaction(facade, transaction),
             async context =>
             {
@@ -140,7 +140,7 @@ WHERE [CustomerID] LIKE 'A%'"));
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
-        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[..^1], exception.Message);
         var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
         Assert.Equal(details, innerException.Message);
     }

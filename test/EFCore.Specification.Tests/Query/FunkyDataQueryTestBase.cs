@@ -446,7 +446,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             async,
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(r => r.fn.EndsWith(r.ln) ? true : false),
+                .Where(r => r.fn.EndsWith(r.ln)),
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                 .Where(r => r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true),
@@ -463,12 +463,10 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             async,
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(r => !r.fn.EndsWith(r.ln) ? true : false),
+                .Where(r => !r.fn.EndsWith(r.ln)),
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)
-                    ? true
-                    : false));
+                .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_equals_nullable_column(bool async)
@@ -510,7 +508,8 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 => new { first = (char?)e.FirstName.FirstOrDefault(), last = (char?)e.FirstName.LastOrDefault() }),
             ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
             {
-                first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()), last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+                first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()),
+                last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
             }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -540,7 +539,6 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
 
     public abstract class FunkyDataQueryFixtureBase : QueryFixtureBase<FunkyDataContext>
     {
-
         public override ISetSource GetExpectedData()
             => FunkyDataData.Instance;
 

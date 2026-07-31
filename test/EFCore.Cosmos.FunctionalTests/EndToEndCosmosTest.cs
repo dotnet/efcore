@@ -13,9 +13,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Can_add_update_delete_end_to_end(bool transactionalBatch)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
@@ -384,7 +382,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     }
 
     [Theory, InlineData(false), InlineData(true)]
-    public async Task Entities_with_null_PK_can_be_added_with_normal_use_of_DbContext_methods_and_have_id_shadow_value_and_PK_created(bool transactionalBatch)
+    public async Task Entities_with_null_PK_can_be_added_with_normal_use_of_DbContext_methods_and_have_id_shadow_value_and_PK_created(
+        bool transactionalBatch)
     {
         var contextFactory = await InitializeNonSharedTest<IdentifierShadowValuePresenceTestContext>(
             usePooling: false,
@@ -408,7 +407,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     }
 
     [Theory, InlineData(false), InlineData(true)]
-    public async Task Entities_can_be_tracked_with_normal_use_of_DbContext_methods_and_have_correct_resultant_state_and_id_shadow_value(bool transactionalBatch)
+    public async Task Entities_can_be_tracked_with_normal_use_of_DbContext_methods_and_have_correct_resultant_state_and_id_shadow_value(
+        bool transactionalBatch)
     {
         var contextFactory = await InitializeNonSharedTest<IdentifierShadowValuePresenceTestContext>(
             usePooling: false,
@@ -467,33 +467,29 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         await Can_add_update_delete_with_collection<IList<byte?>>(
             transactionalBatch,
-            new List<byte?>(),
+            [],
             c =>
             {
                 c.Collection.Clear();
                 c.Collection.Add(3);
                 c.Collection.Add(null);
             },
-            new List<byte?> { 3, null });
+            [3, null]);
 
         await Can_add_update_delete_with_collection<IReadOnlyList<string>>(
             transactionalBatch,
             ["1", null],
-            c =>
-            {
-                c.Collection = new List<string>
-                {
-                    "3",
-                    "2",
-                    "1"
-                };
-            },
-            new List<string>
-            {
+            c => c.Collection =
+            [
                 "3",
                 "2",
                 "1"
-            });
+            ],
+            [
+                "3",
+                "2",
+                "1"
+            ]);
 
         // See #34026
         await Can_add_update_delete_with_collection(
@@ -519,28 +515,19 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             [1f, 2],
-            c =>
-            {
-                c.Collection[0] = 3f;
-            },
+            c => c.Collection[0] = 3f,
             new[] { 3f, 2 });
 
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             [1, null],
-            c =>
-            {
-                c.Collection[0] = 3;
-            },
+            c => c.Collection[0] = 3,
             new decimal?[] { 3, null });
 
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             new Dictionary<string, int> { { "1", 1 } },
-            c =>
-            {
-                c.Collection["2"] = 3;
-            },
+            c => c.Collection["2"] = 3,
             new Dictionary<string, int> { { "1", 1 }, { "2", 3 } });
 
         await Can_add_update_delete_with_collection<IDictionary<string, long?>>(
@@ -557,10 +544,7 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             transactionalBatch,
             ImmutableDictionary<string, short?>.Empty
                 .Add("2", 2).Add("1", 1),
-            c =>
-            {
-                c.Collection = ImmutableDictionary<string, short?>.Empty.Add("1", 1).Add("2", null);
-            },
+            c => c.Collection = ImmutableDictionary<string, short?>.Empty.Add("1", 1).Add("2", null),
             new Dictionary<string, short?> { { "1", 1 }, { "2", null } });
     }
 
@@ -579,58 +563,46 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         await Can_add_update_delete_with_collection<IList<byte?[]>>(
             transactionalBatch,
-            new List<byte?[]>(),
+            [],
             c =>
             {
                 c.Collection.Add([3, null]);
                 c.Collection.Add(null);
             },
-            new List<byte?[]> { new byte?[] { 3, null }, null });
+            [new byte?[] { 3, null }, null]);
 
         await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
             transactionalBatch,
-            [new() { { "1", null } }],
+            [new Dictionary<string, string> { { "1", null } }],
             c =>
             {
                 var dictionary = c.Collection[0]["3"] = "2";
             },
-            new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } });
+            [new Dictionary<string, string> { { "1", null }, { "3", "2" } }]);
 
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             [[1f], [2]],
-            c =>
-            {
-                c.Collection[1][0] = 3f;
-            },
+            c => c.Collection[1][0] = 3f,
             new List<float>[] { [1f], [3f] });
 
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             [[1, null]],
-            c =>
-            {
-                c.Collection[0][1] = 3;
-            },
+            c => c.Collection[0][1] = 3,
             new[] { new decimal?[] { 1, 3 } });
 
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             new Dictionary<string, List<int>> { { "1", [1] } },
-            c =>
-            {
-                c.Collection["2"] = [3];
-            },
+            c => c.Collection["2"] = [3],
             new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
 
         // Issue #34105
         await Can_add_update_delete_with_collection(
             transactionalBatch,
             new Dictionary<string, string[]> { { "1", ["1"] } },
-            c =>
-            {
-                c.Collection["2"] = ["3"];
-            },
+            c => c.Collection["2"] = ["3"],
             new Dictionary<string, string[]> { { "1", ["1"] }, { "2", ["3"] } });
 
         await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
@@ -659,12 +631,9 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             {
                 { "2", new Dictionary<string, short?> { { "value", 2 } } }, { "1", new Dictionary<string, short?> { { "value", 1 } } }
             },
-            c =>
+            c => c.Collection = new Dictionary<string, Dictionary<string, short?>>
             {
-                c.Collection = new Dictionary<string, Dictionary<string, short?>>
-                {
-                    { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
-                };
+                { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
             },
             new Dictionary<string, Dictionary<string, short?>>
             {
@@ -676,11 +645,8 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
             ImmutableDictionary<string, Dictionary<string, short?>>.Empty
                 .Add("2", new Dictionary<string, short?> { { "value", 2 } })
                 .Add("1", new Dictionary<string, short?> { { "value", 1 } }),
-            c =>
-            {
-                c.Collection = ImmutableDictionary<string, Dictionary<string, short?>>.Empty
-                    .Add("1", new Dictionary<string, short?> { { "value", 1 } }).Add("2", null);
-            },
+            c => c.Collection = ImmutableDictionary<string, Dictionary<string, short?>>.Empty
+                .Add("1", new Dictionary<string, short?> { { "value", 1 } }).Add("2", null),
             new Dictionary<string, Dictionary<string, short?>>
             {
                 { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
@@ -688,21 +654,51 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
 
         await Can_add_update_delete_with_collection<Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>>>(
             transactionalBatch,
-            new() {
-                { "2", new() { { "value", new() { { "1", ["1", "2"] } } } } },
-                { "1", new() { { "value", new() { { "2", ["3", "4"] } } } } }
+            new Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>>
+            {
+                {
+                    "2",
+                    new Dictionary<string, Dictionary<string, List<string>>>
+                    {
+                        { "value", new Dictionary<string, List<string>> { { "1", ["1", "2"] } } }
+                    }
                 },
+                {
+                    "1",
+                    new Dictionary<string, Dictionary<string, List<string>>>
+                    {
+                        { "value", new Dictionary<string, List<string>> { { "2", ["3", "4"] } } }
+                    }
+                }
+            },
             c =>
             {
-                c.Collection.Add("3", new() { { "value", new() { { "3", ["5", "6"] } } } });
+                c.Collection.Add(
+                    "3",
+                    new Dictionary<string, Dictionary<string, List<string>>>
+                    {
+                        { "value", new Dictionary<string, List<string>> { { "3", ["5", "6"] } } }
+                    });
                 c.Collection.Remove("1");
                 c.Collection["2"].Remove("value");
-                c.Collection["2"].Add("value2", new() { { "4", ["7", "8"] } });
+                c.Collection["2"].Add("value2", new Dictionary<string, List<string>> { { "4", ["7", "8"] } });
             },
-            new()
+            new Dictionary<string, Dictionary<string, Dictionary<string, List<string>>>>
             {
-                { "2", new() { { "value2", new() { { "4", ["7", "8"] } } } } },
-                { "3", new() { { "value", new() { { "3", ["5", "6"] } } } } }
+                {
+                    "2",
+                    new Dictionary<string, Dictionary<string, List<string>>>
+                    {
+                        { "value2", new Dictionary<string, List<string>> { { "4", ["7", "8"] } } }
+                    }
+                },
+                {
+                    "3",
+                    new Dictionary<string, Dictionary<string, List<string>>>
+                    {
+                        { "value", new Dictionary<string, List<string>> { { "3", ["5", "6"] } } }
+                    }
+                }
             });
     }
 
@@ -852,14 +848,14 @@ public class EndToEndCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBa
     {
         var contextFactory = await InitializeNonSharedTest<PartitionKeyContextWithResourceId>(shouldLogCategory: _ => true);
 
-        using (var context = CreateContext(contextFactory, transactionalBatch))
-        {
-            await context.Database.EnsureCreatedAsync();
+        using var context = CreateContext(contextFactory, transactionalBatch);
+        await context.Database.EnsureCreatedAsync();
 
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.Set<CustomerWithResourceId>().FindAsync(1, 3.15m, ""));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(async ()
+                => await context.Set<CustomerWithResourceId>().FindAsync(1, 3.15m, ""));
 
-            Assert.Equal(CosmosStrings.InvalidResourceId, exception.Message);
-        }
+        Assert.Equal(CosmosStrings.InvalidResourceId, exception.Message);
     }
 
     [Fact]
@@ -1386,6 +1382,7 @@ OFFSET 0 LIMIT 1
             {
                 context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
             }
+
             await context.AddAsync(customer);
 
             Assert.StartsWith(
@@ -1623,6 +1620,7 @@ OFFSET 0 LIMIT 1
         {
             context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
         }
+
         return context;
     }
 

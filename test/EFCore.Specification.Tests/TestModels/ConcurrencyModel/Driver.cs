@@ -58,7 +58,7 @@ public class Driver
         FastestLaps = fastestLaps;
         TeamId = teamId;
 
-        Assert.True(this is DriverProxy || this is TestDriver);
+        Assert.True(this is DriverProxy or TestDriver);
     }
 
     public int Id { get; set; }

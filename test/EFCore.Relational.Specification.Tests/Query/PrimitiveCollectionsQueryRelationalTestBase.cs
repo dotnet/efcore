@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture) : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
+public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
     protected abstract DbContextOptionsBuilder SetParameterizedCollectionMode(
@@ -15,7 +16,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
     [Fact]
     public override async Task Inline_collection_Count_with_zero_values()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Count_with_zero_values());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.Inline_collection_Count_with_zero_values);
 
         Assert.Equal(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot, exception.Message);
     }
@@ -252,7 +253,7 @@ public abstract class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFix
         // subquery. In this case, the CAST operand gets the default CLR type mapping, but that's object in this case.
         // We should apply the default type mapping to the parameter, but need to figure out the exact rules when to do this.
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Parameter_collection_in_subquery_and_Convert_as_compiled_query());
+            Assert.Throws<InvalidOperationException>(base.Parameter_collection_in_subquery_and_Convert_as_compiled_query);
 
         Assert.Contains("in the SQL tree does not have a type mapping assigned", exception.Message);
     }

@@ -162,8 +162,7 @@ public class ReverseEngineerScaffolderTest
     public void ScaffoldModel_works_with_overridden_connection_string()
     {
         var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
-        var databaseModelFactory = new TestDatabaseModelFactory();
-        databaseModelFactory.ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString";
+        var databaseModelFactory = new TestDatabaseModelFactory { ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString" };
         var scaffolder = new DesignTimeServicesBuilder(
                 typeof(ReverseEngineerScaffolderTest).Assembly,
                 typeof(ReverseEngineerScaffolderTest).Assembly,

@@ -485,11 +485,11 @@ public class RelationalScaffoldingModelFactoryTest
             }
         };
         foreach (var column in keyProps.Select(k => new DatabaseColumn
-                 {
-                     Table = Table,
-                     Name = k,
-                     StoreType = "int"
-                 }))
+        {
+            Table = Table,
+            Name = k,
+            StoreType = "int"
+        }))
         {
             info.Tables[0].Columns.Add(column);
             info.Tables[0].PrimaryKey.Columns.Add(column);
@@ -2696,10 +2696,11 @@ public class RelationalScaffoldingModelFactoryTest
                         new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
                         new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
                     },
-                    PrimaryKey = new DatabasePrimaryKey
-                    {
-                        Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
-                    }
+                    PrimaryKey =
+                        new DatabasePrimaryKey
+                        {
+                            Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
+                        }
                 },
                 new DatabaseTable
                 {
@@ -2707,8 +2708,18 @@ public class RelationalScaffoldingModelFactoryTest
                     Columns =
                     {
                         new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
-                        new DatabaseColumn { Name = "AcademicYearDesc", StoreType = "varchar(150)", IsNullable = true },
-                        new DatabaseColumn { Name = "AcademicYearDesc2", StoreType = "varchar(100)", IsNullable = true }
+                        new DatabaseColumn
+                        {
+                            Name = "AcademicYearDesc",
+                            StoreType = "varchar(150)",
+                            IsNullable = true
+                        },
+                        new DatabaseColumn
+                        {
+                            Name = "AcademicYearDesc2",
+                            StoreType = "varchar(100)",
+                            IsNullable = true
+                        }
                     },
                     PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("AcademicYear") } }
                 },
@@ -2721,15 +2732,16 @@ public class RelationalScaffoldingModelFactoryTest
                         new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
                         new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
                     },
-                    PrimaryKey = new DatabasePrimaryKey
-                    {
-                        Columns =
+                    PrimaryKey =
+                        new DatabasePrimaryKey
                         {
-                            new DatabaseColumnRef("AcademicYear"),
-                            new DatabaseColumnRef("LearnAimRef"),
-                            new DatabaseColumnRef("EffectiveFrom")
-                        }
-                    },
+                            Columns =
+                            {
+                                new DatabaseColumnRef("AcademicYear"),
+                                new DatabaseColumnRef("LearnAimRef"),
+                                new DatabaseColumnRef("EffectiveFrom")
+                            }
+                        },
                     ForeignKeys =
                     {
                         new DatabaseForeignKey

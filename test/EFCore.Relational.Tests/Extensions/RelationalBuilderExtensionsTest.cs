@@ -901,21 +901,17 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.HasEmbeddedDiscriminatorName("Terminator");
-        modelBuilder.Entity<JsonContainer>(
-            b =>
-            {
-                b.OwnsOne(
-                    e => e.JsonOwned, bb =>
-                    {
-                        bb.ToJson();
-                    });
-                b.ComplexProperty(
-                    e => e.JsonComplex, bb =>
-                    {
-                        bb.ToJson();
-                        bb.HasDiscriminator<string>("ComplexDiscriminator");
-                    });
-            });
+        modelBuilder.Entity<JsonContainer>(b =>
+        {
+            b.OwnsOne(
+                e => e.JsonOwned, bb => bb.ToJson());
+            b.ComplexProperty(
+                e => e.JsonComplex, bb =>
+                {
+                    bb.ToJson();
+                    bb.HasDiscriminator<string>("ComplexDiscriminator");
+                });
+        });
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(JsonContainer))!;
         var ownedEntityType = entityType.FindNavigation(nameof(JsonContainer.JsonOwned))!.TargetEntityType;
@@ -1101,13 +1097,10 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .HasSequence<int>(
-                "Snook", b =>
-                {
-                    b.IncrementsBy(11)
-                        .StartsAt(1729)
-                        .HasMin(111)
-                        .HasMax(2222);
-                });
+                "Snook", b => b.IncrementsBy(11)
+                    .StartsAt(1729)
+                    .HasMin(111)
+                    .HasMax(2222));
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
 
@@ -1121,13 +1114,10 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .HasSequence(
-                typeof(int), "Snook", b =>
-                {
-                    b.IncrementsBy(11)
-                        .StartsAt(1729)
-                        .HasMin(111)
-                        .HasMax(2222);
-                });
+                typeof(int), "Snook", b => b.IncrementsBy(11)
+                    .StartsAt(1729)
+                    .HasMin(111)
+                    .HasMax(2222));
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
 

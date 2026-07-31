@@ -20,7 +20,8 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
     [Fact]
     public async Task Validate_composite_full_text_index_throws()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextCompositeFullTextIndex>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextCompositeFullTextIndex>()))
+            .Message;
 
         Assert.Equal(
             CosmosStrings.CompositeFullTextIndex(
@@ -104,7 +105,8 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
     [Fact]
     public async Task Validate_full_text_on_non_string_property()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextFullTextOnNonStringProperty>()))
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => InitializeNonSharedTest<ContextFullTextOnNonStringProperty>()))
             .Message;
 
         Assert.Equal(
@@ -140,17 +142,17 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
 
     #region SettingDefaultFullTextSearchLanguage
 
-
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/162 (Full-text search not supported)
     [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public async Task Set_unsupported_full_text_search_default_language()
     {
-        var exception = (await Assert.ThrowsAsync<CosmosException>(() => InitializeNonSharedTest<ContextSettingDefaultFullTextSearchLanguage>()));
+        var exception =
+            await Assert.ThrowsAsync<CosmosException>(() => InitializeNonSharedTest<ContextSettingDefaultFullTextSearchLanguage>());
 
         Assert.Contains(
             CosmosTestEnvironment.IsEmulator
-             ? "The Full Text Policy contains an unsupported language xx-YY."
-             : "The language specified in the full-text policy, 'xx-YY', is invalid.", exception.Message);
+                ? "The Full Text Policy contains an unsupported language xx-YY."
+                : "The language specified in the full-text policy, 'xx-YY', is invalid.", exception.Message);
     }
 
     protected class ContextSettingDefaultFullTextSearchLanguage(DbContextOptions options) : DbContext(options)
@@ -234,8 +236,8 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
         Explicitly_setting_default_full_text_language_doesnt_clash_with_not_setting_it_on_other_entity_for_the_same_container()
     {
         var exception =
-            (await Assert.ThrowsAsync<CosmosException>(()
-                => InitializeNonSharedTest<ContextDefaultFullTextSearchLanguageNoMismatchWhenNotSpecified>()));
+            await Assert.ThrowsAsync<CosmosException>(()
+                => InitializeNonSharedTest<ContextDefaultFullTextSearchLanguageNoMismatchWhenNotSpecified>());
 
         Assert.Contains(
             CosmosTestEnvironment.IsEmulator
@@ -307,13 +309,12 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
 
     #region DefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly
 
-
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/162 (Full-text search not supported)
     [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public async Task Default_full_text_language_is_used_for_full_text_properties_if_they_dont_specify_language_themselves()
     {
-        var exception = (await Assert.ThrowsAsync<CosmosException>(()
-            => InitializeNonSharedTest<ContextDefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly>()));
+        var exception = await Assert.ThrowsAsync<CosmosException>(()
+            => InitializeNonSharedTest<ContextDefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly>());
 
         Assert.Contains(
             CosmosTestEnvironment.IsEmulator
@@ -351,7 +352,6 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
     #endregion
 
     #region ExplicitFullTextLanguageOverridesTheDefault
-
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/162 (Full-text search not supported)
     [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
@@ -399,7 +399,8 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
     [Fact]
     public async Task Enable_full_text_search_for_property_then_disable_it()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextEnableThenDisable>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextEnableThenDisable>()))
+            .Message;
 
         Assert.Equal(
             CosmosStrings.FullTextIndexOnNonFullTextProperty(

@@ -1786,7 +1786,7 @@ public class InternalEntityTypeBuilderTest
         var principalKey = principalEntityBuilder.HasKey(
         [
             principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit).Metadata,
-                principalEntityBuilder.Property(typeof(int), "AlternateId", ConfigurationSource.Explicit).Metadata
+            principalEntityBuilder.Property(typeof(int), "AlternateId", ConfigurationSource.Explicit).Metadata
         ], ConfigurationSource.Explicit).Metadata;
         var dependentEntityBuilder = modelBuilder.Entity(nameof(Order), ConfigurationSource.Explicit);
         var foreignKey = dependentEntityBuilder.HasRelationship(
@@ -1815,7 +1815,7 @@ public class InternalEntityTypeBuilderTest
         var principalKey = principalEntityBuilder.HasKey(
         [
             principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit).Metadata,
-                principalEntityBuilder.Property(typeof(Guid), "AlternateId", ConfigurationSource.Explicit).Metadata
+            principalEntityBuilder.Property(typeof(Guid), "AlternateId", ConfigurationSource.Explicit).Metadata
         ], ConfigurationSource.Explicit).Metadata;
         var dependentEntityBuilder = modelBuilder.Entity(nameof(Order), ConfigurationSource.Explicit);
         var foreignKey = dependentEntityBuilder.HasRelationship(
@@ -1844,7 +1844,7 @@ public class InternalEntityTypeBuilderTest
         var principalKey = principalEntityBuilder.HasKey(
         [
             principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit).Metadata,
-                principalEntityBuilder.Property(typeof(int), "Unique", ConfigurationSource.Explicit).Metadata
+            principalEntityBuilder.Property(typeof(int), "Unique", ConfigurationSource.Explicit).Metadata
         ], ConfigurationSource.Explicit).Metadata;
         var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
         var foreignKey = dependentEntityBuilder.HasRelationship(
@@ -2037,7 +2037,7 @@ public class InternalEntityTypeBuilderTest
                 .HasForeignKey(
                 [
                     dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
                 ], ConfigurationSource.DataAnnotation)
                 .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.DataAnnotation)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
@@ -2261,7 +2261,7 @@ public class InternalEntityTypeBuilderTest
             .HasForeignKey(
             [
                 dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
             ], ConfigurationSource.Convention)
             .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.Convention)
             .Metadata;
@@ -3507,7 +3507,7 @@ public class InternalEntityTypeBuilderTest
         // Public API should be able to override it
         var publicBuilder = new EntityTypeBuilder(entityBuilder.Metadata);
         publicBuilder.HasQueryFilter(filterKey, explicitFilter);
-        
+
         // Verify the filter was replaced with the explicit one
         Assert.Same(explicitFilter, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
         Assert.Equal(ConfigurationSource.Explicit, entityBuilder.Metadata.GetQueryFilterConfigurationSource(filterKey));

@@ -60,7 +60,7 @@ WHERE ((
     public override async Task OrderBy_ElementAt()
     {
         // 'ORDER BY' is not supported in subqueries.
-        await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt());
+        await Assert.ThrowsAsync<CosmosException>(base.OrderBy_ElementAt);
 
         AssertSql(
             """
@@ -134,7 +134,7 @@ WHERE (c["AssociateCollection"][@i]["Int"] = 8)
     public override async Task Index_column()
     {
         // The specified query includes 'member indexer' which is currently not supported
-        await Assert.ThrowsAsync<CosmosException>(() => base.Index_column());
+        await Assert.ThrowsAsync<CosmosException>(base.Index_column);
 
         AssertSql(
             """

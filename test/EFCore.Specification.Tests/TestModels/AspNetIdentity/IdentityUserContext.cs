@@ -77,10 +77,7 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
             b.HasMany<TUserToken>().WithOne().HasForeignKey(ut => ut.UserId).IsRequired();
         });
 
-        builder.Entity<TUserClaim>(b =>
-        {
-            b.HasKey(uc => uc.Id);
-        });
+        builder.Entity<TUserClaim>(b => b.HasKey(uc => uc.Id));
 
         builder.Entity<TUserLogin>(b =>
         {

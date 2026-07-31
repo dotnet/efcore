@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Ownership;
 
@@ -209,14 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ((Model)model).SetProductVersion("9.0.0");
 
             var entityType = builder.Entity<EntityWithComplexProperty>();
-            entityType.ComplexProperty(e => e.StructComplexProperty, b =>
-            {
-                b.Property(c => c.Value);
-            });
+            entityType.ComplexProperty(e => e.StructComplexProperty, b => b.Property(c => c.Value));
 
             var complexProperty = entityType.Metadata.GetComplexProperties().Single();
             Assert.Equal(typeof(StructComplexType), complexProperty.ClrType);
-            
+
             var complexPropertyInternal = (ComplexProperty)complexProperty;
             Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
             Assert.False(complexProperty.IsNullable);
@@ -238,14 +234,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ((Model)model).SetProductVersion("10.0.0");
 
             var entityType = builder.Entity<EntityWithComplexProperty>();
-            entityType.ComplexProperty(e => e.StructComplexProperty, b =>
-            {
-                b.Property(c => c.Value);
-            });
+            entityType.ComplexProperty(e => e.StructComplexProperty, b => b.Property(c => c.Value));
 
             var complexProperty = entityType.Metadata.GetComplexProperties().Single();
             var complexPropertyInternal = (ComplexProperty)complexProperty;
-            
+
             Assert.Null(complexPropertyInternal.GetIsNullableConfigurationSource());
 
             var reporter = new TestOperationReporter();
@@ -264,21 +257,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ((Model)model).SetProductVersion("9.0.0");
 
             var entityType = builder.Entity<EntityWithNestedComplexProperty>();
-            entityType.ComplexProperty(e => e.OuterComplexProperty, b =>
-            {
-                b.Property(c => c.Value);
-                b.ComplexProperty(c => c.InnerComplexProperty, b2 =>
+            entityType.ComplexProperty(
+                e => e.OuterComplexProperty, b =>
                 {
-                    b2.Property(c2 => c2.Value);
+                    b.Property(c => c.Value);
+                    b.ComplexProperty(c => c.InnerComplexProperty, b2 => b2.Property(c2 => c2.Value));
                 });
-            });
 
             var outerComplexProperty = entityType.Metadata.GetComplexProperties().Single();
             var innerComplexProperty = outerComplexProperty.ComplexType.GetComplexProperties().Single();
 
             var outerComplexPropertyInternal = (ComplexProperty)outerComplexProperty;
             var innerComplexPropertyInternal = (ComplexProperty)innerComplexProperty;
-            
+
             Assert.Null(outerComplexPropertyInternal.GetIsNullableConfigurationSource());
             Assert.Null(innerComplexPropertyInternal.GetIsNullableConfigurationSource());
 
@@ -306,10 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     b.Property<int>("Id");
                     b.HasKey("Id");
 
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Value", "TestEntity.Value#StructValue", b1 =>
-                    {
-                        b1.Property<int>("Value");
-                    });
+                    b.ComplexProperty(
+                        typeof(Dictionary<string, object>), "Value", "TestEntity.Value#StructValue", b1 => b1.Property<int>("Value"));
                 });
 
             var entityType = model.GetEntityTypes().Single();
@@ -390,15 +379,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             property.SetValueGenerated(null, ConfigurationSource.Explicit);
                         }
 
-                        if (Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property) != SqlServerValueGenerationStrategy.None)
+                        if (SqlServerPropertyExtensions.GetValueGenerationStrategy(property) != SqlServerValueGenerationStrategy.None)
                         {
-                            Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.SetValueGenerationStrategy(property, null);
+                            SqlServerPropertyExtensions.SetValueGenerationStrategy(property, null);
                         }
                     }
-                    else if (Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property) is var strategy
+                    else if (SqlServerPropertyExtensions.GetValueGenerationStrategy(property) is var strategy
                              && strategy != SqlServerValueGenerationStrategy.None)
                     {
-                        Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.SetValueGenerationStrategy(property, strategy);
+                        property.SetValueGenerationStrategy(strategy);
                     }
                 }
             }
@@ -414,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                              && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
                              && a.IndexOf(':') > 0)
-                         .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
+                         .Select(a => "Unicorn" + a[(RelationalAnnotationNames.Prefix.Length - 1)..]))
             {
                 element[annotationName] = "Value";
             }
@@ -1573,30 +1562,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private class SequenceModelSnapshot2_2 : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
-            {
+                =>
 #pragma warning disable 612, 618
-                modelBuilder
-                    .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
-                    .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
-                    .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
-                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    modelBuilder
+                        .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
+                        .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
+                        .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                        .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618
-            }
         }
 
         private class SequenceModelSnapshot3_1 : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
-            {
+                =>
 #pragma warning disable 612, 618
-                modelBuilder
-                    .HasAnnotation("ProductVersion", "3.1.1")
-                    .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
-                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    modelBuilder
+                        .HasAnnotation("ProductVersion", "3.1.1")
+                        .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                        .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618
-            }
         }
 
         private class SequenceContext : DbContext

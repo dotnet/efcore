@@ -290,7 +290,7 @@ public partial class ModelValidatorTest
 
     protected interface INavigationEntity
     {
-        PrimitivePropertyEntity Navigation { get; set; }
+        public PrimitivePropertyEntity Navigation { get; set; }
     }
 
     protected class ExplicitNavigationEntity : INavigationEntity

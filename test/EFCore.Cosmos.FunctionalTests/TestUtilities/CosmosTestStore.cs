@@ -32,14 +32,13 @@ public class CosmosTestStore : TestStore
     private static readonly ConcurrentDictionary<string, CosmosTestStore> _deferredStores = new();
 
     static CosmosTestStore()
-    {
-        AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
+        => AppDomain.CurrentDomain.ProcessExit += static (_, _) =>
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             try
             {
-                Task.WhenAll(_deferredStores.Select(
-                    async entry =>
+                Task.WhenAll(
+                    _deferredStores.Select(async entry =>
                     {
                         var store = entry.Value;
                         try
@@ -59,7 +58,6 @@ public class CosmosTestStore : TestStore
             {
             }
         };
-    }
 
     public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
@@ -201,7 +199,7 @@ public class CosmosTestStore : TestStore
         => exception switch
         {
             HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
-                || re.InnerException is IOException { InnerException: SocketException }, // Exception in Windows
+                or IOException { InnerException: SocketException }, // Exception in Windows
             _ => exception.Message.Contains(
                 "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                 StringComparison.Ordinal),
@@ -258,7 +256,8 @@ public class CosmosTestStore : TestStore
         {
             sqlDatabaseCreateUpdateContent.Options = new CosmosDBCreateUpdateConfig
             {
-                Throughput = modelThroughput.Throughput, AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
+                Throughput = modelThroughput.Throughput,
+                AutoscaleMaxThroughput = modelThroughput.AutoscaleMaxThroughput
             };
         }
 
@@ -277,7 +276,7 @@ public class CosmosTestStore : TestStore
 
         var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
-        var database = (await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false));
+        var database = await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false);
         if (database == null
             || !database.HasValue)
         {
@@ -311,7 +310,7 @@ public class CosmosTestStore : TestStore
                 state.Retrying.Value = true;
                 await CleanAsyncImpl(state.context, state.createTables).ConfigureAwait(false);
                 return true;
-            }, null, default);
+            }, null);
     }
 
     private async Task CleanAsyncImpl(DbContext context, bool createTables)
@@ -460,7 +459,8 @@ public class CosmosTestStore : TestStore
             {
                 content.Options = new CosmosDBCreateUpdateConfig
                 {
-                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput, Throughput = container.Throughput.Throughput
+                    AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput,
+                    Throughput = container.Throughput.Throughput
                 };
             }
 
@@ -527,7 +527,8 @@ public class CosmosTestStore : TestStore
                 vectors,
                 fullTextDefaultLanguage ?? "en-US",
                 fullTextProperties,
-                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions()).FirstOrDefault(e => e is not null),
+                AutomaticIndexingExceptions: mappedTypes.Select(et => et.GetAutomaticIndexingExceptions())
+                    .FirstOrDefault(e => e is not null),
                 AutomaticIndexingEnabled: mappedTypes.Select(et => et.GetAutomaticIndexingEnabled()).FirstOrDefault(e => e is not null));
         }
 

@@ -840,26 +840,23 @@ CREATE TABLE [myDefaultSchema].[Customers] (
     {
         await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                        e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
 
-                        e.ToTable(
-                            "Customers", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.UseHistoryTable("HistoryTable", "historySchema");
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
-                    });
-            },
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
+                            ttb.HasPeriodStart("SystemTimeStart");
+                            ttb.HasPeriodEnd("SystemTimeEnd");
+                        }));
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -916,10 +913,7 @@ CREATE TABLE [Customers] (
                     }));
                 }),
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -956,10 +950,7 @@ DROP TABLE [CustomerHistory];
                     }));
                 }),
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -996,10 +987,7 @@ DROP TABLE [HistoryTable];
                     }));
                 }),
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -1036,15 +1024,9 @@ DROP TABLE [historySchema].[HistoryTable];
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers");
-                }),
+                "Customer", e => e.ToTable("Customers")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("RenamedCustomers");
-                }),
+                "Customer", e => e.ToTable("RenamedCustomers")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1207,15 +1189,9 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers");
-                }),
+                "Customer", e => e.ToTable("Customers")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("RenamedCustomers");
-                }),
+                "Customer", e => e.ToTable("RenamedCustomers")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1278,10 +1254,7 @@ ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [his
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers", "mySchema2");
-                }),
+                "Customer", e => e.ToTable("Customers", "mySchema2")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1347,10 +1320,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers", "mySchema2");
-                }),
+                "Customer", e => e.ToTable("Customers", "mySchema2")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1403,27 +1373,21 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable2");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable2");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1484,27 +1448,21 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     });
             },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable2");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable2");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1578,16 +1536,13 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.ToTable("Customers", "modifiedSchema");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable2");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable2");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1660,15 +1615,12 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.ToTable("Customers", "mySchema");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", "mySchema2", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1725,27 +1677,21 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("RenamedHistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("RenamedHistoryTable");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1784,27 +1730,21 @@ EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable', 'OBJECT';
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "historySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable", "historySchema");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "Customers", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1861,16 +1801,13 @@ ALTER SCHEMA [modifiedHistorySchema] TRANSFER [historySchema].[HistoryTable];
                     e.ToTable("Customers");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable(
-                        "RenamedCustomers", "newSchema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-                }),
+                "Customer", e => e.ToTable(
+                    "RenamedCustomers", "newSchema", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
+                        ttb.HasPeriodStart("Start");
+                        ttb.HasPeriodEnd("End");
+                    }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3403,25 +3340,19 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
                     e.HasKey("Id");
                 }),
             builder => builder.Entity(
-                "Customer", e =>
+                "Customer", e => e.ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start");
-                        ttb.HasPeriodEnd("End");
-                    }));
-                }),
+                    ttb.UseHistoryTable("HistoryTable");
+                    ttb.HasPeriodStart("Start");
+                    ttb.HasPeriodEnd("End");
+                }))),
             builder => builder.Entity(
-                "Customer", e =>
+                "Customer", e => e.ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    e.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.UseHistoryTable("HistoryTable");
-                        ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
-                        ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
-                    }));
-                }),
+                    ttb.UseHistoryTable("HistoryTable");
+                    ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
+                    ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
+                }))),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3520,15 +3451,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description1, 'SCHEMA', @defaultS
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name");
-                }),
+                "Customer", e => e.Property<string>("Name")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("FullName");
-                }),
+                "Customer", e => e.Property<string>("FullName")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3579,15 +3504,9 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', 'COLUMN';
                         new { Id = 3, IsVip = (bool?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<bool?>("IsVip");
-                }),
+                "Customer", e => e.Property<bool?>("IsVip")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<bool>("IsVip");
-                }),
+                "Customer", e => e.Property<bool>("IsVip")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3903,10 +3822,7 @@ EXEC(N'CREATE TABLE [Customer] (
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -3965,10 +3881,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Five").HasComputedColumnSql("5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int>("Five").HasComputedColumnSql("5 PERSISTED")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4026,10 +3939,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED")),
             builder => { },
             model =>
             {
@@ -4097,15 +4007,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 5 PERSISTED")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 10 PERSISTED");
-                }),
+                "Customer", e => e.Property<int?>("IdPlusFive").HasComputedColumnSql("Id + 10 PERSISTED")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4154,10 +4058,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                 {
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number");
-                }),
+                "Customer", e => e.Property<int>("Number")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4204,10 +4105,7 @@ ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number");
-                }),
+                "Customer", e => e.Property<int>("Number")),
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -4280,15 +4178,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number");
-                }),
+                "Customer", e => e.Property<int>("Number")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("RenamedNumber");
-                }),
+                "Customer", e => e.Property<int>("RenamedNumber")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4335,10 +4227,7 @@ EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', 'COLUMN';
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4404,10 +4293,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                 }),
             builder => { },
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4476,15 +4362,9 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
                         new { MyColumn = (int?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn");
-                }),
+                "Customer", e => e.Property<int?>("MyColumn")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4562,15 +4442,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                         new { MyColumn = (int?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn").IsSparse();
-                }),
+                "Customer", e => e.Property<int?>("MyColumn").IsSparse()),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int?>("MyColumn");
-                }),
+                "Customer", e => e.Property<int?>("MyColumn")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -4617,10 +4491,7 @@ ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
                         new { MyColumn = (int?)null });
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.ToTable("Customers");
-                }),
+                "Customer", e => e.ToTable("Customers")),
             builder => builder.Entity(
                 "Customer", e =>
                 {
@@ -5043,26 +4914,23 @@ CREATE INDEX [IX_Customers_Start] ON [Customers] ([Start]);
     {
         await Test(
             builder => { },
-            builder =>
-            {
-                builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.Property<string>("Name");
-                        e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
-                        e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
-                        e.HasKey("Id");
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("SystemTimeStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
 
-                        e.ToTable(
-                            "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("MyHistoryTable", "mySchema2");
-                            }));
-                    });
-            },
+                    e.ToTable(
+                        "Customers", "mySchema", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.HasPeriodStart("SystemTimeStart");
+                            ttb.HasPeriodEnd("SystemTimeEnd");
+                            ttb.UseHistoryTable("MyHistoryTable", "mySchema2");
+                        }));
+                }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -5136,7 +5004,7 @@ CREATE TABLE [mySchema].[Customers] (
             {
                 Assert.Equal(2, model.Tables.Count);
                 Assert.True(model.Tables.All(x => x.Schema == "mySchema"));
-                Assert.True(model.Tables.All(x => x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string == "mySchema"));
+                Assert.True(model.Tables.All(x => (x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string) == "mySchema"));
             });
 
         AssertSql(
@@ -5214,7 +5082,7 @@ CREATE TABLE [mySchema].[Orders] (
             {
                 Assert.Equal(2, model.Tables.Count);
                 Assert.True(model.Tables.All(x => x.Schema == "mySchema"));
-                Assert.True(model.Tables.All(x => x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string == "mySchema2"));
+                Assert.True(model.Tables.All(x => (x[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string) == "mySchema2"));
             });
 
         AssertSql(
@@ -5390,26 +5258,17 @@ ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
     public virtual async Task Temporal_table_with_default_global_schema_changing_global_schema()
     {
         await Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.Property<string>("Name");
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
 
-                        e.ToTable(
-                            "Customers", tb => tb.IsTemporal());
-                    });
-            },
-            builder =>
-            {
-                builder.HasDefaultSchema("myDefaultSchema");
-            },
-            builder =>
-            {
-                builder.HasDefaultSchema("myModifiedDefaultSchema");
-            },
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal());
+                }),
+            builder => builder.HasDefaultSchema("myDefaultSchema"),
+            builder => builder.HasDefaultSchema("myModifiedDefaultSchema"),
             model =>
             {
                 Assert.Equal(1, model.Tables.Count);
@@ -7514,10 +7373,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + 
                         .Annotation("SqlServer:TemporalPeriodEndColumnName", "PeriodEnd")
                         .Annotation("SqlServer:TemporalPeriodStartColumnName", "PeriodStart")
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Customers", x => x.Id);
-                })
+                constraints: table => table.PrimaryKey("PK_Customers", x => x.Id))
             .Annotation("SqlServer:IsTemporal", true)
             .Annotation("SqlServer:TemporalHistoryTableName", "CustomersHistory")
             .Annotation("SqlServer:TemporalHistoryTableSchema", null)
@@ -10207,15 +10063,9 @@ CREATE TABLE [Customers] (
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName");
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(100); // Remove default value
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(100)),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10282,15 +10132,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50);
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50)),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName"); // Add default value
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("DefaultName")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10339,15 +10183,9 @@ ALTER TABLE [Customer] ADD DEFAULT N'DefaultName' FOR [Name];
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("OldDefault");
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("OldDefault")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("NewDefault"); // Change default value
-                }),
+                "Customer", e => e.Property<string>("Name").HasMaxLength(50).HasDefaultValue("NewDefault")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10396,15 +10234,9 @@ ALTER TABLE [Customer] ADD DEFAULT N'NewDefault' FOR [Name];
                     }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<DateTime>("CreatedDate").HasDefaultValueSql("GETDATE()");
-                }),
+                "Customer", e => e.Property<DateTime>("CreatedDate").HasDefaultValueSql("GETDATE()")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<DateTime>("CreatedDate"); // Remove default value SQL
-                }),
+                "Customer", e => e.Property<DateTime>("CreatedDate")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -10471,15 +10303,9 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = ' + @
                         }));
                 }),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<string>("Name");
-                }),
+                "Customer", e => e.Property<string>("Name")),
             builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Number").UseIdentityColumn();
-                }),
+                "Customer", e => e.Property<int>("Number").UseIdentityColumn()),
             model =>
             {
                 var table = Assert.Single(model.Tables);

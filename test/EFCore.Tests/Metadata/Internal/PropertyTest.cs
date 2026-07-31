@@ -549,8 +549,8 @@ public class PropertyTest
                 typeof(Random).ShortDisplayName(),
                 entityType.DisplayName(),
                 "Random"),
-            Assert.Throws<InvalidOperationException>(
-                () => entityType.AddPrimitiveCollection("Random", typeof(Random), typeof(int))).Message);
+            Assert.Throws<InvalidOperationException>(() => entityType.AddPrimitiveCollection("Random", typeof(Random), typeof(int)))
+                .Message);
     }
 
     private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>

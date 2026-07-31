@@ -851,10 +851,8 @@ public abstract partial class ModelBuilderTest
         [Fact(Skip = "Issue #35613")]
         public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
         {
-            var modelBuilder = CreateModelBuilder(c =>
-            {
-                c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
-            });
+            var modelBuilder = CreateModelBuilder(c
+                => c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>());
 
             modelBuilder
                 .Ignore<Order>()
@@ -862,10 +860,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        b.Property<int?>("Wierd");
-                    });
+                    b => b.Property<int?>("Wierd"));
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
@@ -895,10 +890,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        b.Property<int?>("Wierd");
-                    });
+                    b => b.Property<int?>("Wierd"));
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
@@ -928,13 +920,10 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.ConverterPropertyMismatch("string", "ComplexProperties.Quarks#Quarks", "Up", "int"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).HasConversion(
-                                new StringToBytesConverter(Encoding.UTF8))).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.ConverterPropertyMismatch("string", "ComplexProperties.Quarks#Quarks", "Up", "int"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).HasConversion(
+                            new StringToBytesConverter(Encoding.UTF8))).Message));
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
@@ -976,12 +965,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.Quarks#Quarks"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.Quarks#Quarks"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message));
         }
 
         [Fact]
@@ -993,12 +979,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message));
         }
 
         [Fact]
@@ -1386,12 +1369,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                            Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message));
         }
 
         [Fact]
@@ -1978,13 +1958,10 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.CollectionQuarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.MissingBackingField(
-                                "_notFound", nameof(CollectionQuarks.Down), "ComplexProperties.CollectionQuarks#CollectionQuarks"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.MissingBackingField(
+                            "_notFound", nameof(CollectionQuarks.Down), "ComplexProperties.CollectionQuarks#CollectionQuarks"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message));
         }
 
         [Fact]
@@ -1996,14 +1973,11 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.CollectionQuarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadBackingFieldType(
-                                "_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down),
-                                "ObservableCollection<string>"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadBackingFieldType(
+                            "_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down),
+                            "ObservableCollection<string>"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message));
         }
 
         [Fact(Skip = "Issue #35613")]
@@ -2143,12 +2117,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.CollectionQuarks,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                            Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message));
         }
 
         [Fact(Skip = "Issue #35613")]
@@ -2275,10 +2246,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
                     e => e.Quarks,
-                    b =>
-                    {
-                        b.HasDiscriminator<BasicEnum>("EnumType").HasValue(BasicEnum.Two);
-                    });
+                    b => b.HasDiscriminator<BasicEnum>("EnumType").HasValue(BasicEnum.Two));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -2495,11 +2463,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.Ignore(c => c.Details);
-                    });
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
+                        {
+                            cb.Ignore(c => c.Orders);
+                            cb.Ignore(c => c.Details);
+                        });
                     b.Property(e => e.Customer.Name).IsRequired();
                 });
 
@@ -2521,14 +2490,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.ComplexProperty(c => c.Details, db =>
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
                         {
-                            db.Ignore(d => d.Customer);
+                            cb.Ignore(c => c.Orders);
+                            cb.ComplexProperty(c => c.Details, db => db.Ignore(d => d.Customer));
                         });
-                    });
                     b.Property(e => e.Customer.Details.CustomerId).HasMaxLength(50);
                 });
 
@@ -2551,15 +2518,13 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                    });
-                    b.ComplexProperty(e => e.Customer.Details, cb =>
-                    {
-                        cb.Ignore(c => c.Customer);
-                        cb.Property(c => c.CustomerId).HasMaxLength(3);
-                    });
+                    b.ComplexProperty(e => e.Customer, cb => cb.Ignore(c => c.Orders));
+                    b.ComplexProperty(
+                        e => e.Customer.Details, cb =>
+                        {
+                            cb.Ignore(c => c.Customer);
+                            cb.Property(c => c.CustomerId).HasMaxLength(3);
+                        });
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -2581,14 +2546,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.ComplexProperty(c => c.Details, db =>
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
                         {
-                            db.Ignore(d => d.Customer);
+                            cb.Ignore(c => c.Orders);
+                            cb.ComplexProperty(c => c.Details, db => db.Ignore(d => d.Customer));
                         });
-                    });
                     b.Ignore(e => e.Customer.Details);
                 });
 
@@ -2610,15 +2573,13 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.ComplexProperty(c => c.Details, db =>
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
                         {
-                            db.Ignore(d => d.Customer);
+                            cb.Ignore(c => c.Orders);
+                            cb.ComplexProperty(c => c.Details, db => db.Ignore(d => d.Customer));
+                            cb.Property(c => c.Details.CustomerId).HasMaxLength(50);
                         });
-                        cb.Property(c => c.Details.CustomerId).HasMaxLength(50);
-                    });
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -2640,15 +2601,13 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.ComplexProperty(c => c.Details, db =>
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
                         {
-                            db.Ignore(d => d.Customer);
+                            cb.Ignore(c => c.Orders);
+                            cb.ComplexProperty(c => c.Details, db => db.Ignore(d => d.Customer));
+                            cb.Ignore(c => c.Details.CustomerId);
                         });
-                        cb.Ignore(c => c.Details.CustomerId);
-                    });
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -2669,11 +2628,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.Ignore(c => c.Details);
-                    });
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
+                        {
+                            cb.Ignore(c => c.Orders);
+                            cb.Ignore(c => c.Details);
+                        });
                     b.PrimitiveCollection(e => e.Customer.Notes).HasMaxLength(50);
                 });
 
@@ -2694,13 +2654,12 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainIntermediateNotFound("MissingComplex", nameof(ComplexProperties)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Ignore(e => e.Customer);
-                        b.Ignore(e => e.Customers);
-                        b.Property<string>("MissingComplex.Foo");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customer);
+                    b.Ignore(e => e.Customers);
+                    b.Property<string>("MissingComplex.Foo");
+                })).Message);
         }
 
         [Fact]
@@ -2712,13 +2671,12 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidSegment("Customer..Name"),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Ignore(e => e.Customers);
-                        b.ComplexProperty(e => e.Customer);
-                        b.Property<string>("Customer..Name");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer);
+                    b.Property<string>("Customer..Name");
+                })).Message);
         }
 
         [Fact]
@@ -2730,13 +2688,12 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidSegment("Customer.Name."),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Ignore(e => e.Customers);
-                        b.ComplexProperty(e => e.Customer);
-                        b.Property<string>("Customer.Name.");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer);
+                    b.Property<string>("Customer.Name.");
+                })).Message);
         }
 
         [Fact]
@@ -2748,13 +2705,12 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidSegment(".Customer.Name"),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Ignore(e => e.Customers);
-                        b.ComplexProperty(e => e.Customer);
-                        b.Property<string>(".Customer.Name");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ComplexProperties>(b =>
+                {
+                    b.Ignore(e => e.Customers);
+                    b.ComplexProperty(e => e.Customer);
+                    b.Property<string>(".Customer.Name");
+                })).Message);
         }
 
         [Fact]
@@ -2771,11 +2727,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidMember("Customer", nameof(ComplexProperties)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Property<string>("Customer.Name");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.Entity<ComplexProperties>(b => b.Property<string>("Customer.Name"))).Message);
         }
 
         [Fact]
@@ -2793,11 +2746,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidMember("Id", nameof(ComplexProperties)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Property<string>("Id.Something");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.Entity<ComplexProperties>(b => b.Property<string>("Id.Something"))).Message);
         }
 
         [Fact]
@@ -2814,11 +2764,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidMember("Customers", nameof(ComplexProperties)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Property<string>("Customers.Name");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.Entity<ComplexProperties>(b => b.Property<string>("Customers.Name"))).Message);
         }
 
         [Fact]
@@ -2838,11 +2785,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidMember("Customer", nameof(ComplexProperties)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<ComplexProperties>(b =>
-                    {
-                        b.Property<string>("Customer.Name");
-                    })).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.Entity<ComplexProperties>(b => b.Property<string>("Customer.Name"))).Message);
         }
     }
 }

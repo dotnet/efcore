@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NameSpace1;
+using UniqueConstraint = Microsoft.EntityFrameworkCore.Metadata.Internal.UniqueConstraint;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -32,9 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [InlineData(DeleteBehavior.ClientNoAction, ReferentialAction.NoAction)]
         [InlineData(DeleteBehavior.ClientSetDefault, ReferentialAction.NoAction)]
         public void ToReferentialAction_maps_DeleteBehavior_correctly(DeleteBehavior deleteBehavior, ReferentialAction expected)
-        {
-            Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
-        }
+            => Assert.Equal(expected, RelationalModel.ToReferentialAction(deleteBehavior));
 
         [Fact]
         public void Both_design_and_runtime_RelationalModels_are_built_for_external_model()
@@ -203,7 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal([nameof(Order), nameof(OrderDetails)], ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
                 [
-                    nameof(OrderDetails.Active), nameof(Order.AlternateId), nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number), nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value), nameof(Order.CustomerId), nameof(Order.Id),
+                    nameof(OrderDetails.Active), nameof(Order.AlternateId),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Number),
+                    nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value), nameof(Order.CustomerId), nameof(Order.Id),
                     nameof(OrderDetails.OrderDate), nameof(OrderDetails.OrderId)
                 ],
                 ordersTable.Columns.Select(m => m.Name));
@@ -1029,7 +1030,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Null(abstractCustomerType.GetTableName());
                     Assert.Equal(nameof(SpecialCustomer), specialCustomerType.GetTableName());
 
-                    Assert.Equal(idProperty.GetTableColumnMappings().Select(m => m.TableMapping.Table).OrderBy(t => t.Name),
+                    Assert.Equal(
+                        idProperty.GetTableColumnMappings().Select(m => m.TableMapping.Table).OrderBy(t => t.Name),
                         complexType.GetTableMappings().Select(m => m.Table).OrderBy(t => t.Name));
 
                     Assert.False(specialCustomerTypeMapping.IncludesDerivedTypes);
@@ -2284,11 +2286,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .HasForeignKey<Order>(o => o.OrderDate).HasPrincipalKey<DateDetails>(o => o.Date)
                     .HasConstraintName("FK_DateDetails");
 
-                ob.ComplexProperty(c => c.ComplexProperty, b =>
-                {
-                    b.Property(c => c.Number).HasColumnName("ComplexProperty_Number");
-                    b.Property(c => c.Value).HasColumnName("ComplexProperty_Value");
-                });
+                ob.ComplexProperty(
+                    c => c.ComplexProperty, b =>
+                    {
+                        b.Property(c => c.Number).HasColumnName("ComplexProperty_Number");
+                        b.Property(c => c.Value).HasColumnName("ComplexProperty_Value");
+                    });
 
                 ob.HasIndex(o => o.OrderDate).HasDatabaseName("IX_OrderDate");
 
@@ -2430,10 +2433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 if (mapToViews)
                 {
                     cb.ToView(
-                        "CustomerView", tb =>
-                        {
-                            tb.Property(c => c.AbstractString);
-                        });
+                        "CustomerView", tb => tb.Property(c => c.AbstractString));
 
                     cb.SplitToView(
                         "CustomerDetailsView", tb =>
@@ -2446,10 +2446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 else
                 {
                     cb.ToTable(
-                        "Customer", tb =>
-                        {
-                            tb.Property(c => c.AbstractString);
-                        });
+                        "Customer", tb => tb.Property(c => c.AbstractString));
 
                     cb.SplitToTable(
                         "CustomerDetails", tb =>
@@ -2468,18 +2465,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             db.ToView("CustomerView");
 
                             db.SplitToView(
-                                "CustomerDetailsView", tb =>
-                                {
-                                    tb.Property(d => d.BirthDay);
-                                });
+                                "CustomerDetailsView", tb => tb.Property(d => d.BirthDay));
                         }
                         else
                         {
                             db.SplitToTable(
-                                "CustomerDetails", tb =>
-                                {
-                                    tb.Property(d => d.BirthDay);
-                                });
+                                "CustomerDetails", tb => tb.Property(d => d.BirthDay));
                         }
 
                         db.Property("SpecialCustomerId").HasColumnName("Id");
@@ -2617,10 +2608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.RelatedCustomer);
 
                 cb.ToTable(
-                    "Customer", tb =>
-                    {
-                        tb.Property(c => c.AbstractString);
-                    });
+                    "Customer", tb => tb.Property(c => c.AbstractString));
 
                 cb.SplitToTable(
                     "CustomerSpecialty", tb =>
@@ -2634,10 +2622,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     c => c.Details, db =>
                     {
                         db.SplitToTable(
-                            "CustomerDetails", tb =>
-                            {
-                                tb.Property(d => d.BirthDay);
-                            });
+                            "CustomerDetails", tb => tb.Property(d => d.BirthDay));
                         db.Property("SpecialCustomerId").HasColumnName("Id");
                     });
                 cb.Navigation(c => c.Details).IsRequired();
@@ -2737,10 +2722,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.Ignore(c => c.RelatedCustomer);
 
                 cb.ToTable(
-                    "Customer", tb =>
-                    {
-                        tb.Property(c => c.AbstractString);
-                    });
+                    "Customer", tb => tb.Property(c => c.AbstractString));
 
                 cb.SplitToTable(
                     "CustomerDetails", tb =>
@@ -2756,10 +2738,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         db.ToTable("CustomerDetails");
 
                         db.SplitToTable(
-                            "Details", tb =>
-                            {
-                                tb.Property(d => d.BirthDay);
-                            });
+                            "Details", tb => tb.Property(d => d.BirthDay));
                         db.Property("SpecialCustomerId").HasColumnName("Id");
                     });
                 cb.Navigation(c => c.Details).IsRequired();
@@ -3004,15 +2983,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<EntityWithComplexProperty>(eb =>
-            {
-                eb.ComplexProperty(
-                    e => e.ComplexProperty, cb =>
-                    {
-                        cb.ToJson("complex_data");
-                        cb.HasColumnType("some_json_mapping");
-                    });
-            });
+            modelBuilder.Entity<EntityWithComplexProperty>(eb => eb.ComplexProperty(
+                e => e.ComplexProperty, cb =>
+                {
+                    cb.ToJson("complex_data");
+                    cb.HasColumnType("some_json_mapping");
+                }));
 
             var model = Finalize(modelBuilder);
 
@@ -3032,15 +3008,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<EntityWithComplexCollection>(eb =>
-            {
-                eb.ComplexCollection(
-                    e => e.ComplexCollection, cb =>
-                    {
-                        cb.ToJson("collection_data");
-                        cb.HasColumnType("some_json_mapping");
-                    });
-            });
+            modelBuilder.Entity<EntityWithComplexCollection>(eb => eb.ComplexCollection(
+                e => e.ComplexCollection, cb =>
+                {
+                    cb.ToJson("collection_data");
+                    cb.HasColumnType("some_json_mapping");
+                }));
 
             var model = Finalize(modelBuilder);
 
@@ -3060,14 +3033,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<EntityWithComplexProperty>(eb =>
-            {
-                eb.ComplexProperty(
-                    e => e.ComplexProperty, cb =>
-                    {
-                        cb.ToJson("complex_data");
-                    });
-            });
+            modelBuilder.Entity<EntityWithComplexProperty>(eb => eb.ComplexProperty(
+                e => e.ComplexProperty, cb => cb.ToJson("complex_data")));
 
             var model = Finalize(modelBuilder);
 
@@ -3087,14 +3054,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<EntityWithComplexCollection>(eb =>
-            {
-                eb.ComplexCollection(
-                    e => e.ComplexCollection, cb =>
-                    {
-                        cb.ToJson("collection_data");
-                    });
-            });
+            modelBuilder.Entity<EntityWithComplexCollection>(eb => eb.ComplexCollection(
+                e => e.ComplexCollection, cb => cb.ToJson("collection_data")));
 
             var model = Finalize(modelBuilder);
 
@@ -3268,7 +3229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 cb.HasNoKey();
             });
 
-            var sqlQueryOnly = (IEntityType)modelBuilder.Model.AddEntityType(typeof(NameSpace1.SameEntityType));
+            var sqlQueryOnly = (IEntityType)modelBuilder.Model.AddEntityType(typeof(SameEntityType));
             modelBuilder.Entity(sqlQueryOnly.ClrType).HasNoKey().ToSqlQuery("SELECT 1 AS Id");
 
             // Table + view: view wins (table mappings are not returned).
@@ -3297,7 +3258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.IsAssignableFrom<ITableMapping>(orderMappings[0]);
 
             // SqlQuery-only -> SQL query mappings.
-            var sqlQueryEntity = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var sqlQueryEntity = model.Model.FindEntityType(typeof(SameEntityType));
             var sqlQueryMappings = sqlQueryEntity.GetQueryMappings().ToList();
             Assert.Single(sqlQueryMappings);
             Assert.IsAssignableFrom<ISqlQueryMapping>(sqlQueryMappings[0]);
@@ -3648,12 +3609,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dateDetailsMappings = dateDetailsNavigation.GetJsonElementMappings().ToList();
             Assert.NotEmpty(dateDetailsMappings);
             Assert.Contains(dateDetailsMappings, m => m.Element == dateDetailsRoot);
-            Assert.All(dateDetailsMappings, m =>
-            {
-                Assert.Same(dateDetailsNavigation, m.Property);
-                Assert.NotNull(m.TableMapping);
-                Assert.Same(dateDetailsNavigation.TargetEntityType, m.TableMapping.TypeBase);
-            });
+            Assert.All(
+                dateDetailsMappings, m =>
+                {
+                    Assert.Same(dateDetailsNavigation, m.Property);
+                    Assert.NotNull(m.TableMapping);
+                    Assert.Same(dateDetailsNavigation.TargetEntityType, m.TableMapping.TypeBase);
+                });
 
             // Validate scalar property has JSON element mappings
             var dateDetailsEntityType = dateDetailsNavigation.TargetEntityType;
@@ -3702,10 +3664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Entity<EntityWithComplexProperty>()
                 .ComplexProperty(
-                    e => e.ComplexProperty, b =>
-                    {
-                        b.ToJson("complex_data");
-                    });
+                    e => e.ComplexProperty, b => b.ToJson("complex_data"));
 
             var model = Finalize(modelBuilder);
             var table = model.Tables.Single();
@@ -3764,28 +3723,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Entity<EntityWithJsonOwnedWithCollection>(eb =>
-            {
-                eb.OwnsOne(
-                    e => e.OwnedWithTags,
-                    b =>
-                    {
-                        b.ToJson("owned_with_tags");
+            modelBuilder.Entity<EntityWithJsonOwnedWithCollection>(eb => eb.OwnsOne(
+                e => e.OwnedWithTags,
+                b =>
+                {
+                    b.ToJson("owned_with_tags");
 
-                        var tags = b.PrimitiveCollection(e => e.Tags);
-                        tags.Metadata.SetTypeMapping(
-                            (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
-                                converter: new ValueConverter<List<string>, string>(v => null!, v => null!),
-                                elementMapping: new StringTypeMapping("nvarchar(max)", null)));
+                    var tags = b.PrimitiveCollection(e => e.Tags);
+                    tags.Metadata.SetTypeMapping(
+                        new StringTypeMapping("json", null).Clone(
+                            converter: new ValueConverter<List<string>, string>(v => null!, v => null!),
+                            elementMapping: new StringTypeMapping("nvarchar(max)", null)));
 
-                        var enumValues = b.PrimitiveCollection(e => e.EnumValues);
-                        enumValues.Metadata.SetTypeMapping(
-                            (RelationalTypeMapping)new StringTypeMapping("json", null).Clone(
-                                converter: new ValueConverter<List<PrimitiveCollectionEnum>, string>(v => null!, v => null!),
-                                elementMapping: new IntTypeMapping("int")));
-                        enumValues.ElementType(b => b.HasConversion<int>());
-                    });
-            });
+                    var enumValues = b.PrimitiveCollection(e => e.EnumValues);
+                    enumValues.Metadata.SetTypeMapping(
+                        new StringTypeMapping("json", null).Clone(
+                            converter: new ValueConverter<List<PrimitiveCollectionEnum>, string>(v => null!, v => null!),
+                            elementMapping: new IntTypeMapping("int")));
+                    enumValues.ElementType(b => b.HasConversion<int>());
+                }));
 
             var model = Finalize(modelBuilder);
             var entityType = model.Model.FindEntityType(typeof(EntityWithJsonOwnedWithCollection))!;
@@ -3815,11 +3771,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 var mappings = property.GetJsonElementMappings().ToList();
                 Assert.NotEmpty(mappings);
-                Assert.All(mappings, m =>
-                {
-                    Assert.Same(property, m.Property);
-                    Assert.IsAssignableFrom<IRelationalJsonArray>(m.Element);
-                });
+                Assert.All(
+                    mappings, m =>
+                    {
+                        Assert.Same(property, m.Property);
+                        Assert.IsAssignableFrom<IRelationalJsonArray>(m.Element);
+                    });
 
                 var mapping = Assert.Single(mappings, m => ReferenceEquals(m.TableMapping.Table, table));
                 var jsonArray = Assert.IsAssignableFrom<IRelationalJsonArray>(mapping.Element);
@@ -3863,7 +3820,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var storeFunction = functionMappings[0].StoreFunction;
             Assert.Equal(
-                [nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "addresses", "date_details"],
+                [
+                    nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "addresses",
+                    "date_details"
+                ],
                 storeFunction.Columns.Select(m => m.Name));
             Assert.NotNull(storeFunction.FindColumn("date_details"));
             Assert.NotNull(storeFunction.FindColumn("addresses"));
@@ -3877,10 +3837,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.Ignore<DateDetails>();
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Address>();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.HasAlternateKey("ComplexProperty.Value");
-            });
+            modelBuilder.Entity<Order>(b => b.HasAlternateKey("ComplexProperty.Value"));
 
             var model = Finalize(modelBuilder);
             var orderType = model.Model.FindEntityType(typeof(Order))!;
@@ -3888,7 +3845,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var expectedColumnName = nameof(Order.ComplexProperty) + "_" + nameof(ComplexData.Value);
 
             var alternateKey = orderType.GetKeys().Single(k => !k.IsPrimaryKey());
-            var uniqueConstraints = (SortedSet<Microsoft.EntityFrameworkCore.Metadata.Internal.UniqueConstraint>)alternateKey
+            var uniqueConstraints = (SortedSet<UniqueConstraint>)alternateKey
                 .FindRuntimeAnnotationValue(RelationalAnnotationNames.UniqueConstraintMappings)!;
             var uniqueConstraint = Assert.Single(uniqueConstraints);
             var column = Assert.Single(uniqueConstraint.Columns);
@@ -3904,10 +3861,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.Ignore<DateDetails>();
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Address>();
-            modelBuilder.Entity<Order>(b =>
-            {
-                b.HasIndex("ComplexProperty.Number").IsUnique();
-            });
+            modelBuilder.Entity<Order>(b => b.HasIndex("ComplexProperty.Number").IsUnique());
 
             var model = Finalize(modelBuilder);
             var orderType = model.Model.FindEntityType(typeof(Order))!;
@@ -3960,7 +3914,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             // Simulates the lookup performed by compiled-model code generation, which uses property paths.
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            var resolved = Microsoft.EntityFrameworkCore.Metadata.Internal.RelationalModel.GetIndex(
+            var resolved = RelationalModel.GetIndex(
                 model.Model, orderType.Name, [nameof(Order.ComplexProperty)]);
 #pragma warning restore EF1001 // Internal EF Core API usage.
             Assert.Same(index, resolved);
@@ -3976,11 +3930,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     e => e.ComplexProperty, cb =>
                     {
                         cb.ToJson();
-                        cb.ComplexProperty(c => c.Nested, nb =>
-                        {
-                            nb.HasJsonPropertyName("nested_json");
-                            nb.Property(n => n.Number).HasJsonPropertyName("number_json");
-                        });
+                        cb.ComplexProperty(
+                            c => c.Nested, nb =>
+                            {
+                                nb.HasJsonPropertyName("nested_json");
+                                nb.Property(n => n.Number).HasJsonPropertyName("number_json");
+                            });
                     });
                 b.HasIndex("ComplexProperty.Nested.Number");
                 b.HasIndex("ComplexProperty.Nested");

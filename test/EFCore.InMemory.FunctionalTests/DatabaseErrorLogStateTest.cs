@@ -33,16 +33,9 @@ public class DatabaseErrorLogStateTest
         context.SaveChanges();
         context.ChangeTracker.Entries().Single().State = EntityState.Added;
 
-        Exception ex;
-        if (async)
-        {
-            ex = await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync());
-        }
-        else
-        {
-            ex = Assert.Throws<ArgumentException>(() => context.SaveChanges());
-        }
-
+        var ex = async
+            ? await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync())
+            : (Exception)Assert.Throws<ArgumentException>(() => context.SaveChanges());
         Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
         Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
         Assert.EndsWith(

@@ -51,7 +51,7 @@ public class RelationalConnectionTest
         using var context = new ConstructorTestContext1A(options);
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class RelationalConnectionTest
         using var context = new ConstructorTestContextNoConfiguration();
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     private class ConstructorTestContext1A(DbContextOptions options) : DbContext(options);
@@ -999,7 +999,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             RelationalStrings.NoActiveTransaction,
-            Assert.Throws<InvalidOperationException>(() => connection.CommitTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(connection.CommitTransaction).Message);
     }
 
     [Fact]
@@ -1011,7 +1011,7 @@ public class RelationalConnectionTest
 
         Assert.Equal(
             RelationalStrings.NoActiveTransaction,
-            Assert.Throws<InvalidOperationException>(() => connection.RollbackTransaction()).Message);
+            Assert.Throws<InvalidOperationException>(connection.RollbackTransaction).Message);
     }
 
     [Fact]

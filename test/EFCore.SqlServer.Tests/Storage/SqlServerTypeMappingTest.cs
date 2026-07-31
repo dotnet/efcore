@@ -379,18 +379,16 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(DbType.String, parameter.DbType);
     }
 
-    [Theory]
-    [InlineData("<r>a</r>", "<r>a</r>")]
+    [Theory, InlineData("<r>a</r>", "<r>a</r>"), InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>", "<r>a</r>"),
+     InlineData(" <?xml version=\"1.0\" encoding=\"utf-8\" ?> <r>a</r>", " <r>a</r>"),
+     InlineData(
+         "<?xml version=\"1.1\" encoding=\"utf-8\"?><?xml-stylesheet href=\"s.xsl\"?><r>a</r>",
+         "<?xml-stylesheet href=\"s.xsl\"?><r>a</r>"), InlineData("", ""), InlineData("text fragment", "text fragment"),
+     InlineData("<a/><b/>", "<a/><b/>")]
     // The XML declaration is removed so the value can be sent as a string without an encoding conflict.
-    [InlineData("<?xml version=\"1.0\" encoding=\"utf-8\"?><r>a</r>", "<r>a</r>")]
     // The declaration's closing '>' is found even when a space precedes it, and any leading whitespace is dropped too.
-    [InlineData(" <?xml version=\"1.0\" encoding=\"utf-8\" ?> <r>a</r>", " <r>a</r>")]
     // Only the declaration is removed; a following stylesheet PI and the rest are kept verbatim.
-    [InlineData("<?xml version=\"1.1\" encoding=\"utf-8\"?><?xml-stylesheet href=\"s.xsl\"?><r>a</r>", "<?xml-stylesheet href=\"s.xsl\"?><r>a</r>")]
-    [InlineData("", "")]
-    [InlineData("text fragment", "text fragment")]
     // Content after the prolog is sent verbatim, so the original formatting is preserved.
-    [InlineData("<a/><b/>", "<a/><b/>")]
     public virtual void Xml_parameter_is_sent_as_string_with_prolog_removed(string value, string expected)
     {
         var mapping = GetMapping("xml");

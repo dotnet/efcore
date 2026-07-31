@@ -144,38 +144,36 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     [Fact]
     public virtual void Can_define_a_backing_field_for_a_navigation_and_query_and_update_it()
     {
-        using (var context = CreateContext())
+        using var context = CreateContext();
+        var principal = context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).First();
+        var dependent1 = new NavDependent
         {
-            var principal = context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).First();
-            var dependent1 = new NavDependent
-            {
-                Id = 1,
-                Name = "FirstName",
-                OneToOneFieldNavPrincipal = principal
-            };
-            context.Set<NavDependent>().Add(dependent1);
-            context.SaveChanges();
+            Id = 1,
+            Name = "FirstName",
+            OneToOneFieldNavPrincipal = principal
+        };
+        context.Set<NavDependent>().Add(dependent1);
+        context.SaveChanges();
 
-            var dependentName =
-                context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).Select(p => p.Dependent.Name).First();
+        var dependentName =
+            context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).Select(p => p.Dependent.Name).First();
 
-            Assert.Equal("FirstName", dependentName);
+        Assert.Equal("FirstName", dependentName);
 
-            // use the backing field directly
-            var dependent2 = new NavDependent
-            {
-                Id = 2,
-                Name = "SecondName",
-                OneToOneFieldNavPrincipal = principal
-            };
-            principal._unconventionalDependent = dependent2;
-            context.SaveChanges();
+        // use the backing field directly
+        var dependent2 = new NavDependent
+        {
+            Id = 2,
+            Name = "SecondName",
+            OneToOneFieldNavPrincipal = principal
+        };
+        principal._unconventionalDependent = dependent2;
+        context.SaveChanges();
 
-            dependentName =
-                context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).Select(p => p.Dependent.Name).First();
+        dependentName =
+            context.Set<OneToOneFieldNavPrincipal>().OrderBy(e => e.Id).Select(p => p.Dependent.Name).First();
 
-            Assert.Equal("SecondName", dependentName);
-        }
+        Assert.Equal("SecondName", dependentName);
     }
 
     [Theory, InlineData(false), InlineData(true)]

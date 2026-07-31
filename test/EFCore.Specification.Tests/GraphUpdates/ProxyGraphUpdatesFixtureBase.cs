@@ -332,20 +332,14 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<SharedFkParent>(builder =>
-            {
-                builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                    .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                    .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+            modelBuilder.Entity<SharedFkParent>(builder => builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                .OnDelete(DeleteBehavior.ClientSetNull));
 
             modelBuilder.Entity<SharedFkDependant>();
 
-            modelBuilder.Entity<Person>(p =>
-            {
-                p.HasKey(tp => tp.Id);
-            });
+            modelBuilder.Entity<Person>(p => p.HasKey(tp => tp.Id));
 
             modelBuilder.Entity<Car>(c =>
             {
@@ -366,20 +360,16 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixtu
 
                 e.RequiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
                 {
-                    context.CreateProxy<Required1>(e =>
-                    {
-                        e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
+                    context.CreateProxy<Required1>(e
+                        => e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
                         {
                             context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
-                        };
-                    }),
-                    context.CreateProxy<Required1>(e =>
-                    {
-                        e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
+                        }),
+                    context.CreateProxy<Required1>(e
+                        => e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
                         {
                             context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
-                        };
-                    })
+                        })
                 };
 
                 e.OptionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)

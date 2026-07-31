@@ -121,25 +121,20 @@ public class DotNetEfConfigTest
         Assert.Equal(startupProjectPath, config.StartupProject);
     }
 
-    [Theory]
-    [InlineData("", "Fix the JSON and try again.")]
-    [InlineData("{", "Fix the JSON and try again.")]
-    [InlineData("null", "must contain a JSON object")]
-    [InlineData("[]", "must contain a JSON object")]
-    [InlineData("""{ "framework": 1 }""", "must be a non-empty JSON string")]
-    [InlineData("""{ "framework": "" }""", "must be a non-empty JSON string")]
-    [InlineData("""{ "framework": "   " }""", "must be a non-empty JSON string")]
-    [InlineData("""{ "extra": "value" }""", "Remove the unsupported 'extra' property")]
-    [InlineData("""{ "extra": 1 }""", "Remove the unsupported 'extra' property")]
-    [InlineData("""{ "connection": "Data Source=test.db" }""", "Remove the unsupported")]
-    [InlineData("""{ "connection": 1 }""", "Remove the unsupported")]
-    [InlineData("""{ "connectionString": "Data Source=test.db" }""", "Remove the unsupported")]
-    [InlineData("""{ "provider": "SqlServer" }""", "Remove the unsupported")]
-    [InlineData("""{ "runtime": 1 }""", "must be a non-empty JSON string")]
-    [InlineData("""{ "runtime": "" }""", "must be a non-empty JSON string")]
-    [InlineData("""{ "verbose": "true" }""", "must be a boolean")]
-    [InlineData("""{ "noColor": "false" }""", "must be a boolean")]
-    [InlineData("""{ "prefixOutput": 1 }""", "must be a boolean")]
+    [Theory, InlineData("", "Fix the JSON and try again."), InlineData("{", "Fix the JSON and try again."),
+     InlineData("null", "must contain a JSON object"), InlineData("[]", "must contain a JSON object"),
+     InlineData("""{ "framework": 1 }""", "must be a non-empty JSON string"),
+     InlineData("""{ "framework": "" }""", "must be a non-empty JSON string"),
+     InlineData("""{ "framework": "   " }""", "must be a non-empty JSON string"),
+     InlineData("""{ "extra": "value" }""", "Remove the unsupported 'extra' property"),
+     InlineData("""{ "extra": 1 }""", "Remove the unsupported 'extra' property"),
+     InlineData("""{ "connection": "Data Source=test.db" }""", "Remove the unsupported"),
+     InlineData("""{ "connection": 1 }""", "Remove the unsupported"),
+     InlineData("""{ "connectionString": "Data Source=test.db" }""", "Remove the unsupported"),
+     InlineData("""{ "provider": "SqlServer" }""", "Remove the unsupported"),
+     InlineData("""{ "runtime": 1 }""", "must be a non-empty JSON string"),
+     InlineData("""{ "runtime": "" }""", "must be a non-empty JSON string"), InlineData("""{ "verbose": "true" }""", "must be a boolean"),
+     InlineData("""{ "noColor": "false" }""", "must be a boolean"), InlineData("""{ "prefixOutput": 1 }""", "must be a boolean")]
     public void Load_rejects_invalid_config(string contents, string messageFragment)
     {
         using var directory = new TestDirectory();
@@ -173,10 +168,8 @@ public class DotNetEfConfigTest
         Assert.Equal("AppDbContext", context);
     }
 
-    [Theory]
-    [InlineData("migrations", "add", "-c", "ExplicitContext")]
-    [InlineData("migrations", "add", "--context", "ExplicitContext")]
-    [InlineData("dbcontext", "scaffold", "--provider", "SqlServer")]
+    [Theory, InlineData("migrations", "add", "-c", "ExplicitContext"), InlineData("migrations", "add", "--context", "ExplicitContext"),
+     InlineData("dbcontext", "scaffold", "--provider", "SqlServer")]
     public void Resolve_context_does_not_apply_when_explicit_or_unsupported(
         string command,
         string subcommand,
@@ -188,11 +181,8 @@ public class DotNetEfConfigTest
         Assert.Null(context);
     }
 
-    [Theory]
-    [InlineData("--context=ExplicitContext")]
-    [InlineData("--context:ExplicitContext")]
-    [InlineData("-c=ExplicitContext")]
-    [InlineData("-c:ExplicitContext")]
+    [Theory, InlineData("--context=ExplicitContext"), InlineData("--context:ExplicitContext"), InlineData("-c=ExplicitContext"),
+     InlineData("-c:ExplicitContext")]
     public void Resolve_context_does_not_apply_when_context_is_explicit_inline(string option)
     {
         var context = RootCommand.ResolveContext(["migrations", "add", option], "AppDbContext");
@@ -200,12 +190,9 @@ public class DotNetEfConfigTest
         Assert.Null(context);
     }
 
-    [Theory]
-    [InlineData("dbcontext", "optimize", "MyContext")]
-    [InlineData("dbcontext", "optimize", "--precompile-queries")]
-    [InlineData("dbcontext", "optimize", "--context:MyContext")]
-    [InlineData("dbcontext", "optimize", "--context=MyContext")]
-    [InlineData("dbcontext", "optimize", "--context", "MyContext")]
+    [Theory, InlineData("dbcontext", "optimize", "MyContext"), InlineData("dbcontext", "optimize", "--precompile-queries"),
+     InlineData("dbcontext", "optimize", "--context:MyContext"), InlineData("dbcontext", "optimize", "--context=MyContext"),
+     InlineData("dbcontext", "optimize", "--context", "MyContext")]
     public void Should_skip_optimization_for_dbcontext_optimize_with_extra_user_args(params string[] args)
         => Assert.True(RootCommand.ShouldSkipOptimization(args));
 
@@ -222,10 +209,8 @@ public class DotNetEfConfigTest
         Assert.Equal(["dbcontext", "optimize", "--context", "MyContext"], args);
     }
 
-    [Theory]
-    [InlineData("dbcontext", "optimize", "--no-scaffold")]
-    [InlineData("dbcontext", "optimize", "--no-scaffold", "--context", "MyContext")]
-    [InlineData("migrations", "add", "InitialCreate")]
+    [Theory, InlineData("dbcontext", "optimize", "--no-scaffold"),
+     InlineData("dbcontext", "optimize", "--no-scaffold", "--context", "MyContext"), InlineData("migrations", "add", "InitialCreate")]
     public void Should_not_skip_optimization_when_conditions_are_not_met(params string[] args)
         => Assert.False(RootCommand.ShouldSkipOptimization(args));
 

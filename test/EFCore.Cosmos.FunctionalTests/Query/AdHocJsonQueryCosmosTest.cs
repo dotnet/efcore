@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -13,26 +14,28 @@ public class AdHocJsonQueryCosmosTest(NonSharedFixture fixture) : AdHocJsonQuery
     #region 21006
 
     public override Task Project_root_with_missing_scalars(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_root_with_missing_scalars(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_root_with_missing_scalars(async);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Id"] < 4)
 """);
-    });
+            });
 
     [Theory(Skip = "issue #35702")]
     public override Task Project_top_level_json_entity_with_missing_scalars(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_top_level_json_entity_with_missing_scalars(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_top_level_json_entity_with_missing_scalars(async);
 
-        AssertSql();
-    });
+                AssertSql();
+            });
 
     public override async Task Project_nested_json_entity_with_missing_scalars(bool async)
     {
@@ -46,17 +49,18 @@ WHERE (c["Id"] < 4)
     }
 
     public override Task Project_top_level_entity_with_null_value_required_scalars(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_top_level_entity_with_null_value_required_scalars(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_top_level_entity_with_null_value_required_scalars(async);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 SELECT c["Id"], c["RequiredReference"]
 FROM root c
 WHERE (c["Id"] = 4)
 """);
-    });
+            });
 
     [Fact]
     public virtual async Task Project_entity_with_null_value_required_scalars()
@@ -86,20 +90,22 @@ WHERE (c["Id"] = 4)
         await using var context = contextFactory.CreateDbContext();
 
         // Same as in 10.0
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Context21006.Entity>().Where(x => x.Id == 4).Select(x => x.RequiredReference.Number).ToListAsync());
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<Context21006.Entity>().Where(x => x.Id == 4).Select(x => x.RequiredReference.Number).ToListAsync());
         Assert.Equal("Nullable object must have a value.", ex.Message);
     }
 
     public override Task Project_root_entity_with_missing_required_navigation(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_root_entity_with_missing_required_navigation(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_root_entity_with_missing_required_navigation(async);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 ReadItem(?, ?)
 """);
-    });
+            });
 
     public override async Task Project_missing_required_navigation(bool async)
     {
@@ -120,28 +126,30 @@ WHERE (c["Id"] = 5)
     }
 
     public override Task Project_root_entity_with_null_required_navigation(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_root_entity_with_null_required_navigation(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_root_entity_with_null_required_navigation(async);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 ReadItem(?, ?)
 """);
-    });
+            });
 
     public override Task Project_null_required_navigation(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_null_required_navigation(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_null_required_navigation(async);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 SELECT VALUE c["RequiredReference"]
 FROM root c
 WHERE (c["Id"] = 6)
 """);
-    });
+            });
 
     public override async Task Project_missing_required_scalar(bool async)
     {
@@ -163,17 +171,18 @@ WHERE (c["Id"] = 2)
     }
 
     public override Task Project_null_required_scalar(bool async)
-    => CosmosTestHelpers.Instance.NoSyncTest(async, async async =>
-    {
-        await base.Project_null_required_scalar(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async async =>
+            {
+                await base.Project_null_required_scalar(async);
 
-        AssertSql(
-            """
+                AssertSql(
+                    """
 SELECT c["Id"], c["RequiredReference"]["Number"]
 FROM root c
 WHERE (c["Id"] = 4)
 """);
-    });
+            });
 
     protected override void OnModelCreating21006(ModelBuilder modelBuilder)
     {
@@ -1342,10 +1351,8 @@ WHERE (c["Id"] = 4)
 
             b.OwnsOne(
                 x => x.ReferenceWithCtor, b =>
-                {
                     //    b.ToJson().HasColumnType(JsonColumnType);
-                    b.Property<int>("Shadow_Int").ToJsonProperty("ShadowInt");
-                });
+                    b.Property<int>("Shadow_Int").ToJsonProperty("ShadowInt"));
 
             //b.OwnsMany(
             //    x => x.Collection, b =>
@@ -1494,10 +1501,10 @@ WHERE (c["Id"] = 4)
 
     // Insertion of the bad data fails thanks to json validation by Cosmos DB
     public override Task Bad_json_properties_null_navigations(bool noTracking)
-       => Task.CompletedTask;
+        => Task.CompletedTask;
 
     public override Task Bad_json_properties_null_scalars(bool noTracking)
-       => Task.CompletedTask;
+        => Task.CompletedTask;
 
     // Insertion of the bad data is deduplicated by Cosmos DB
     public override Task Bad_json_properties_duplicated_navigations(bool noTracking)
@@ -1647,9 +1654,7 @@ WHERE (c["Id"] = 4)
     // The workaround for old providers is:
     // For missing implicit PK properties on embedded collection entities, use ordinal
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Primary_key_baseline(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -1659,29 +1664,29 @@ WHERE (c["Id"] = 4)
                 var entity = new ContextBadPrimaryKeyJsonProperties.Entity
                 {
                     Id = 1,
-                    Associate = new() { Id = 2 },
-                    KeyedAssociate = new() { Id = 3 }, // Overwritten to 1 (entity id)
+                    Associate = new ContextBadPrimaryKeyJsonProperties.AssociateEntity { Id = 2 },
+                    KeyedAssociate = new ContextBadPrimaryKeyJsonProperties.AssociateEntity { Id = 3 }, // Overwritten to 1 (entity id)
                     AssociateCollection =
                     [
-                        new() { Id = 4 },
-                        new() { Id = 5 }
+                        new ContextBadPrimaryKeyJsonProperties.AssociateEntity { Id = 4 },
+                        new ContextBadPrimaryKeyJsonProperties.AssociateEntity { Id = 5 }
                     ],
                     KeyedAssociateCollection =
                     [
-                        new() { Id = 6 },
-                        new() { Id = 7 }
+                        new ContextBadPrimaryKeyJsonProperties.AssociateEntity { Id = 6 },
+                        new ContextBadPrimaryKeyJsonProperties.AssociateEntity { Id = 7 }
                     ],
-                    ForeignKeyAssociate = new() { Id = 8 },
-                    KeyedForeignKeyAssociate = new() { Id = 9 },
+                    ForeignKeyAssociate = new ContextBadPrimaryKeyJsonProperties.ForeignKeyAssociateEntity { Id = 8 },
+                    KeyedForeignKeyAssociate = new ContextBadPrimaryKeyJsonProperties.ForeignKeyAssociateEntity { Id = 9 },
                     ForeignKeyAssociateCollection =
                     [
-                        new() { Id = 10 },
-                        new() { Id = 11 }
+                        new ContextBadPrimaryKeyJsonProperties.ForeignKeyAssociateEntity { Id = 10 },
+                        new ContextBadPrimaryKeyJsonProperties.ForeignKeyAssociateEntity { Id = 11 }
                     ],
                     KeyedForeignKeyAssociateCollection =
                     [
-                        new() { Id = 12 },
-                        new() { Id = 13 }
+                        new ContextBadPrimaryKeyJsonProperties.ForeignKeyAssociateEntity { Id = 12 },
+                        new ContextBadPrimaryKeyJsonProperties.ForeignKeyAssociateEntity { Id = 13 }
                     ]
                 };
 
@@ -1693,7 +1698,8 @@ WHERE (c["Id"] = 4)
         var client = context.Database.GetCosmosClient();
         var container = client.GetContainer(context.Database.GetCosmosDatabaseId(), containerId: "Entities");
 
-        var entityJson = JsonNode.Parse("""
+        var entityJson = JsonNode.Parse(
+            """
 {
   "$type": "Entity",
   "Id": 1,
@@ -1749,8 +1755,8 @@ WHERE (c["Id"] = 4)
 """)!.AsObject();
 
         var dbJson = JsonNode.Parse(
-                new StreamReader(
-                    (await container.ReadItemStreamAsync("1", Azure.Cosmos.PartitionKey.None)).Content).ReadToEnd())!.AsObject();
+            new StreamReader(
+                (await container.ReadItemStreamAsync("1", PartitionKey.None)).Content).ReadToEnd())!.AsObject();
         foreach (var property in dbJson.Where(x => x.Key.StartsWith("_")).ToList())
         {
             dbJson.Remove(property.Key);
@@ -1774,9 +1780,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(12, entity.KeyedForeignKeyAssociateCollection.First().Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Root_null_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -1857,9 +1861,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Root_missing_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -1940,9 +1942,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Associate_null_non_primary_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2023,9 +2023,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(0, result.Associate.Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task Associate_missing_non_primary_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2105,9 +2103,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(0, result.Associate.Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociate_null_primary_key_uses_implicit(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2190,9 +2186,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(1, result.KeyedAssociate.Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociate_incorrect_primary_key_uses_implicit(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2275,9 +2269,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(1, result.KeyedAssociate.Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task AssociateCollection_null_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2358,9 +2350,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.AssociateCollection#AssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task AssociateCollection_missing_primary_key_doesnt_throw_and_uses_ordinal_workaround(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2440,9 +2430,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(2, result.AssociateCollection.Last().Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociateCollection_null_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2523,9 +2511,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.KeyedAssociateCollection#AssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociateCollection_missing_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2604,9 +2590,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.KeyedAssociateCollection#AssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociateCollection_null_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2695,9 +2679,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociateCollection_missing_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2784,9 +2766,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedAssociateCollection_incorrect_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2875,9 +2855,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ForeignKeyAssociate_null_non_primary_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -2958,9 +2936,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(0, result.ForeignKeyAssociate.Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ForeignKeyAssociate_missing_non_primary_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3041,9 +3017,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(0, result.ForeignKeyAssociate.Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociate_null_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3124,9 +3098,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.KeyedForeignKeyAssociate#ForeignKeyAssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociate_missing_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3206,9 +3178,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.KeyedForeignKeyAssociate#ForeignKeyAssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociate_null_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3298,9 +3268,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociate_missing_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3390,9 +3358,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociate_incorrect_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3482,9 +3448,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ForeignKeyAssociateCollection_null_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3565,9 +3529,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.ForeignKeyAssociateCollection#ForeignKeyAssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ForeignKeyAssociateCollection_missing_primary_key_doesnt_throw_and_uses_ordinal_workaround(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3647,9 +3609,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(2, result.ForeignKeyAssociateCollection.Last().Id);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociateCollection_null_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3730,9 +3690,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.KeyedForeignKeyAssociateCollection#ForeignKeyAssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociateCollection_missing_primary_key_throws(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3811,9 +3769,7 @@ WHERE (c["Id"] = 4)
         Assert.Equal(CoreStrings.InvalidKeyValue("Entity.KeyedForeignKeyAssociateCollection#ForeignKeyAssociateEntity", "Id"), ex.Message);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociateCollection_null_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3904,9 +3860,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociateCollection_missing_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -3995,9 +3949,7 @@ WHERE (c["Id"] = 4)
         }
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task KeyedForeignKeyAssociateCollection_incorrect_foreign_key_doesnt_throw(bool tracking)
     {
         var contextFactory = await InitializeNonSharedTest<ContextBadPrimaryKeyJsonProperties>(
@@ -4095,7 +4047,7 @@ WHERE (c["Id"] = 4)
         {
         }
 
-        public DbSet<Entity> Entities { get; set; } = null!;
+        public DbSet<Entity> Entities { get; } = null!;
 
         public class Entity
         {
@@ -4104,14 +4056,14 @@ WHERE (c["Id"] = 4)
             public AssociateEntity Associate { get; set; } = null!;
             public AssociateEntity KeyedAssociate { get; set; } = null!;
 
-            public List<AssociateEntity> AssociateCollection { get; set; } = new();
-            public List<AssociateEntity> KeyedAssociateCollection { get; set; } = new();
+            public List<AssociateEntity> AssociateCollection { get; set; } = [];
+            public List<AssociateEntity> KeyedAssociateCollection { get; set; } = [];
 
             public ForeignKeyAssociateEntity ForeignKeyAssociate { get; set; } = null!;
             public ForeignKeyAssociateEntity KeyedForeignKeyAssociate { get; set; } = null!;
 
-            public List<ForeignKeyAssociateEntity> ForeignKeyAssociateCollection { get; set; } = new();
-            public List<ForeignKeyAssociateEntity> KeyedForeignKeyAssociateCollection { get; set; } = new();
+            public List<ForeignKeyAssociateEntity> ForeignKeyAssociateCollection { get; set; } = [];
+            public List<ForeignKeyAssociateEntity> KeyedForeignKeyAssociateCollection { get; set; } = [];
         }
 
         public class AssociateEntity

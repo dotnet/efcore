@@ -701,7 +701,8 @@ WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
         {
             Assert.Equal(
                 CosmosStrings.OffsetRequiresLimit,
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_in_a_subquery_should_be_liftable(async))).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_in_a_subquery_should_be_liftable(async)))
+                .Message);
 
             AssertSql();
         }
@@ -1086,7 +1087,9 @@ WHERE STARTSWITH(c["id"], "A")
     public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async));
 
         Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
 
@@ -1627,7 +1630,8 @@ ORDER BY c["OrderID"]
 
     public override async Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
     {
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(

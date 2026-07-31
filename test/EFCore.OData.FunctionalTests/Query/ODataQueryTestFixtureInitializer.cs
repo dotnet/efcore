@@ -54,10 +54,7 @@ public class ODataQueryTestFixtureInitializer
                 .Configure(app =>
                 {
                     app.UseRouting();
-                    app.UseEndpoints(endpoints =>
-                    {
-                        endpoints.MapControllers();
-                    });
+                    app.UseEndpoints(endpoints => endpoints.MapControllers());
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                     {

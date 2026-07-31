@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -55,10 +58,7 @@ public class NorthwindODataContext(DbContextOptions options) : PoolableDbContext
             e.Ignore(o => o.ShippedDate);
         });
 
-        modelBuilder.Entity<OrderDetail>(e =>
-        {
-            e.HasKey(od => new { od.OrderID, od.ProductID });
-        });
+        modelBuilder.Entity<OrderDetail>(e => e.HasKey(od => new { od.OrderID, od.ProductID }));
 
         modelBuilder.Entity<Customer>()
             .Property(c => c.CustomerID)

@@ -20,7 +20,8 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
     [Fact]
     public async Task Validate_composite_vector_index_throws()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextCompositeVectorIndex>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<ContextCompositeVectorIndex>()))
+            .Message;
 
         Assert.Equal(
             CosmosStrings.CompositeVectorIndex(
@@ -60,7 +61,8 @@ public class AdHocVectorSearchCosmosTest(NonSharedFixture fixture) : NonSharedMo
     public async Task Validate_vector_property_on_collection_navigation_container_creation()
     {
         var message =
-            (await Assert.ThrowsAsync<NotSupportedException>(() => InitializeNonSharedTest<ContextVectorPropertyOnCollectionNavigation>())).Message;
+            (await Assert.ThrowsAsync<NotSupportedException>(() => InitializeNonSharedTest<ContextVectorPropertyOnCollectionNavigation>()))
+            .Message;
 
         Assert.Equal(
             CosmosStrings.CreatingContainerWithFullTextOrVectorOnCollectionNotSupported("/Collection"),

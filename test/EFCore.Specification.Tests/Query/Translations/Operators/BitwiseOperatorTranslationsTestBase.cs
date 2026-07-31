@@ -64,7 +64,7 @@ public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fix
 
     [Fact]
     public virtual Task And_or_over_boolean()
-        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 & b.Short == 12 | b.String == "Seattle"));
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == 12 & b.Short == 12) | b.String == "Seattle"));
 
     [Fact]
     public virtual Task Or_with_logical_or()

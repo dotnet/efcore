@@ -62,10 +62,7 @@ public abstract class MigrationsModelDifferTestBase
             targetOptionsBuilder = targetOptionsBuilder.EnableSensitiveDataLogging();
         }
 
-        if (builderOptionsAction != null)
-        {
-            builderOptionsAction(targetOptionsBuilder);
-        }
+        builderOptionsAction?.Invoke(targetOptionsBuilder);
 
         var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 

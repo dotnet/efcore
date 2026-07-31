@@ -1241,14 +1241,9 @@ public class StateManagerTest
         Assert.Equal(
             CoreStrings.PropertyDoesNotBelong(
                 foreignProperty.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => stateManager.CreateEntry(
-                    new Dictionary<IProperty, object>
-                    {
-                        { id, 1 },
-                        { foreignProperty, "Mars" }
-                    },
-                    entityType)).Message);
+            Assert.Throws<InvalidOperationException>(() => stateManager.CreateEntry(
+                new Dictionary<IProperty, object> { { id, 1 }, { foreignProperty, "Mars" } },
+                entityType)).Message);
     }
 
     [Fact]
@@ -1266,14 +1261,9 @@ public class StateManagerTest
         Assert.Equal(
             CoreStrings.PropertyDoesNotBelong(
                 foreignLatitude.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => stateManager.CreateEntry(
-                    new Dictionary<IProperty, object>
-                    {
-                        { id, 1 },
-                        { foreignLatitude, 11 }
-                    },
-                    entityType)).Message);
+            Assert.Throws<InvalidOperationException>(() => stateManager.CreateEntry(
+                new Dictionary<IProperty, object> { { id, 1 }, { foreignLatitude, 11 } },
+                entityType)).Message);
     }
 
     public class Widget

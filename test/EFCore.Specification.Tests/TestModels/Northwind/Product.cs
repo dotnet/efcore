@@ -41,17 +41,10 @@ public class Product
         => Equals(ProductID, other.ProductID);
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj)
-            ? true
-            : obj.GetType() == GetType()
-            && Equals((Product)obj);
-    }
+        => obj is not null
+            && (ReferenceEquals(this, obj)
+                || (obj.GetType() == GetType()
+                    && Equals((Product)obj)));
 
     public override int GetHashCode()
         => ProductID.GetHashCode();

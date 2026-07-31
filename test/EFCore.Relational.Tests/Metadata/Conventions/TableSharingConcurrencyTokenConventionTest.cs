@@ -214,14 +214,12 @@ public class TableSharingConcurrencyTokenConventionTest
             b.HasDiscriminator<string>("Type")
                 .HasValue<DerivedEntity>(nameof(DerivedEntity));
         });
-        modelBuilder.Entity<DerivedEntity>(b =>
-        {
-            b.OwnsOne(x => x.Owned, ob =>
+        modelBuilder.Entity<DerivedEntity>(b => b.OwnsOne(
+            x => x.Owned, ob =>
             {
                 ob.ToJson();
                 ob.Property(o => o.Description).HasMaxLength(200).IsRequired();
-            });
-        });
+            }));
 
         var model = modelBuilder.Model;
         model.FinalizeModel();

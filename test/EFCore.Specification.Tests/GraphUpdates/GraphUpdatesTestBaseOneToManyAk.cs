@@ -582,13 +582,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                             context.ChangeTracker.DetectChanges();
                             return Task.CompletedTask;
                         }
-                        : deleteOrphansTiming == null
+                    : deleteOrphansTiming == null
                             ? () =>
                             {
                                 context.ChangeTracker.CascadeChanges();
                                 return Task.CompletedTask;
                             }
-                            : (Func<Task>)(() => context.SaveChangesAsync());
+                    : (Func<Task>)(() => context.SaveChangesAsync());
 
                     var message = (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message;
 

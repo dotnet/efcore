@@ -1723,8 +1723,8 @@ WHERE [c].[CustomerID] = @customerId OR [c].[CustomerID] = @customerId1
     {
         await base.Two_parameters_with_same_case_insensitive_name_get_uniquified(async);
 
-AssertSql(
-"""
+        AssertSql(
+            """
 @customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 @customerId0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 

@@ -16,14 +16,8 @@ public class EntitySplittingSqlServerTest(NonSharedFixture fixture, ITestOutputH
             {
                 OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<MeterReading>(ob =>
-                {
-                    ob.SplitToTable(
-                        "MeterReadingDetails", t =>
-                        {
-                            t.HasTrigger("MeterReadingsDetails_Trigger");
-                        });
-                });
+                modelBuilder.Entity<MeterReading>(ob => ob.SplitToTable(
+                    "MeterReadingDetails", t => t.HasTrigger("MeterReadingsDetails_Trigger")));
             },
             sensitiveLogEnabled: false,
             seed: c => c.Database.ExecuteSqlRawAsync(

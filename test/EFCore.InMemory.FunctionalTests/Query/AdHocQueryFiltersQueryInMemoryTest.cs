@@ -51,10 +51,10 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CustomerFilter19708>()
-                .HasQueryFilter(e => (from a in (from c in Customers
-                                                 join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
-                                                 from cm in g.DefaultIfEmpty()
-                                                 select new { c.Id, CustomerMembershipId = (int?)cm.Id })
+                .HasQueryFilter(e => (from a in from c in Customers
+                                                join cm in CustomerMemberships on c.Id equals cm.CustomerId into g
+                                                from cm in g.DefaultIfEmpty()
+                                                select new { c.Id, CustomerMembershipId = (int?)cm.Id }
                                       where a.CustomerMembershipId != null && a.Id == e.CustomerId
                                       select a).Count()
                     > 0)

@@ -15,12 +15,13 @@ public abstract class ComplexPropertiesCollectionTestBase<TFixture>(TFixture fix
         var contextFactory = await InitializeNonSharedTest<Context37926>(
             seed: async context =>
             {
-                context.Add(new Context37926.Parent
-                {
-                    Id = 1,
-                    Coords = new Context37926.Coords { X = 1, Y = 2 },
-                    Children = [new() { Id = 1, Name = "Child1" }]
-                });
+                context.Add(
+                    new Context37926.Parent
+                    {
+                        Id = 1,
+                        Coords = new Context37926.Coords { X = 1, Y = 2 },
+                        Children = [new Context37926.Child { Id = 1, Name = "Child1" }]
+                    });
                 await context.SaveChangesAsync();
             });
 

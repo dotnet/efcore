@@ -178,7 +178,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     private class Context
     {
-        public readonly Dictionary<string, object> Arguments = new();
+        public readonly Dictionary<string, object> Arguments = [];
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -264,15 +264,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_equality_self(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from c in ss.Set<Customer>()
 #pragma warning disable CS1718 // Comparison made to same variable
                   where c == c
 #pragma warning restore CS1718 // Comparison made to same variable
                   select c.CustomerID);
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_equality_local(bool async)
@@ -494,7 +492,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
     public virtual Task Queryable_nested_simple(bool async)
         => AssertQuery(
             async,
-            ss => from c1 in (from c2 in (from c3 in ss.Set<Customer>() select c3) select c2) select c1);
+            ss => from c1 in from c2 in from c3 in ss.Set<Customer>() select c3 select c2 select c1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Take_simple(bool async)
@@ -656,7 +654,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             ss => ss.Set<Order>().Select(o => new
             {
                 // ReSharper disable SimplifyConditionalTernaryExpression
-                Data1 = param != null ? o.OrderDate == param.Value : true, Data2 = param == null ? true : o.OrderDate == param.Value
+                Data1 = param == null || o.OrderDate == param.Value,
+                Data2 = param == null || o.OrderDate == param.Value
                 // ReSharper restore SimplifyConditionalTernaryExpression
             }));
     }
@@ -1067,11 +1066,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         => AssertQuery(
             async,
             ss =>
-                from t in (
+                from t in
                     from e in ss.Set<Employee>().OrderBy(ee => ee.EmployeeID).Take(3).Select(e => new { e })
                         .Where(e => e.e.City == "Seattle")
                     from o in ss.Set<Order>().OrderBy(oo => oo.OrderID).Take(5).Select(o => new { o })
-                    select new { e, o })
+                    select new { e, o }
                 from c in ss.Set<Customer>().OrderBy(cc => cc.CustomerID).Take(2).Select(c => new { c })
                 select new
                 {
@@ -1278,14 +1277,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         }
 
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((OrderCountDTO)obj);
-        }
+            => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((OrderCountDTO)obj)));
 
         private bool Equals(OrderCountDTO other)
             => string.Equals(Id, other.Id) && Count == other.Count;
@@ -1816,11 +1808,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             ss =>
                 from c in ss.Set<Customer>()
                 from c1 in
-                    (from c2 in (from c3 in ss.Set<Customer>() select c3) select c2)
+                    from c2 in from c3 in ss.Set<Customer>() select c3 select c2
                 orderby c1.CustomerID
                 select c1,
             ss => ss.Set<Customer>().SelectMany(
-                    c => (from c2 in (from c3 in ss.Set<Customer>() select c3) select c2),
+                    c => (from c2 in from c3 in ss.Set<Customer>() select c3 select c2),
                     (c, c1) => new { c, c1 }).OrderBy(t => t.c1.CustomerID, StringComparer.Ordinal)
                 .Select(t => t.c1),
             assertOrder: true);
@@ -1852,16 +1844,15 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
     // (same happens for DefaultIfEmpty().Select() at the toplevel without SelectMany)
     [Theory, MemberData(nameof(IsAsyncData))] // #35950
     public virtual Task SelectMany_correlated_with_DefaultIfEmpty_and_Select_value_type_in_selector_throws(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    from o in c.Orders
-                        .Where(x => x.CustomerID == "NONEXISTENT") // Produce empty set for DefaultIfEmpty
-                        .DefaultIfEmpty()
-                        .Select(x => x.OrderID)
-                    select o));
+        => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+            async,
+            ss =>
+                from c in ss.Set<Customer>()
+                from o in c.Orders
+                    .Where(x => x.CustomerID == "NONEXISTENT") // Produce empty set for DefaultIfEmpty
+                    .DefaultIfEmpty()
+                    .Select(x => x.OrderID)
+                select o));
 
     // DefaultIfEmpty() after Select() to a non-nullable type - should add a COALESCE to the CLR default (0 here).
     // Note that within the SelectMany selector, DIE is lifted out (and the INNER JOIN/CROSS APPLY is converted to
@@ -2483,15 +2474,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_conditional_operator(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Customer>()
 #pragma warning disable IDE0029 // Use coalesce expression
                 .OrderBy(c => c.Region == null ? "ZZ" : c.Region).ThenBy(c => c.CustomerID),
 #pragma warning restore IDE0029 // Use coalesce expression
             assertOrder: true);
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_conditional_operator_where_condition_false(bool async)
@@ -2926,20 +2915,20 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         await AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID < 10400)
-                && (dateFilter.HasValue)
-                && (o.OrderDate.HasValue
-                    && o.OrderDate.Value.Month == dateFilter.Value.Month
-                    && o.OrderDate.Value.Year == dateFilter.Value.Year)));
+                && dateFilter.HasValue
+                && o.OrderDate.HasValue
+                && o.OrderDate.Value.Month == dateFilter.Value.Month
+                && o.OrderDate.Value.Year == dateFilter.Value.Year));
 
         dateFilter = null;
 
         await AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID < 10400)
-                && (dateFilter.HasValue)
-                && (o.OrderDate.HasValue
-                    && o.OrderDate.Value.Month == dateFilter.Value.Month
-                    && o.OrderDate.Value.Year == dateFilter.Value.Year)),
+                && dateFilter.HasValue
+                && o.OrderDate.HasValue
+                && o.OrderDate.Value.Month == dateFilter.Value.Month
+                && o.OrderDate.Value.Year == dateFilter.Value.Year),
             assertEmpty: true);
     }
 
@@ -3527,14 +3516,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         public T Property { get; set; }
 
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((DTO<T>)obj);
-        }
+            => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((DTO<T>)obj)));
 
         private bool Equals(DTO<T> other)
             => EqualityComparer<T>.Default.Equals(Property, other.Property);
@@ -4012,7 +3994,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
                 .Select(c => new
                 {
-                    c.CustomerID, OuterOrders = c.Orders.Select(o => new { InnerOrder = c.Orders.Count(), Id = c.CustomerID }).ToList()
+                    c.CustomerID,
+                    OuterOrders = c.Orders.Select(o => new { InnerOrder = c.Orders.Count(), Id = c.CustomerID }).ToList()
                 }),
             elementAsserter: (e, a) =>
             {
@@ -4116,8 +4099,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Let_entity_equality_to_other_entity(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
                   let o = c.Orders.OrderBy(e => e.OrderDate).FirstOrDefault()
@@ -4126,10 +4108,9 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                   {
                       c.CustomerID,
 #pragma warning disable IDE0031 // Use null propagation
-                      A = (o != null ? o.OrderDate : null)
+                      A = o != null ? o.OrderDate : null
 #pragma warning restore IDE0031 // Use null propagation
                   });
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_after_client_method(bool async)
@@ -4160,7 +4141,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         => order.OrderID > 10000;
 
     protected internal uint ClientEvalSelector(Order order)
-        => order.EmployeeID % 10 ?? 0;
+        => (order.EmployeeID % 10) ?? 0;
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_navigation_equal_to_null_for_subquery(bool async)
@@ -4491,7 +4472,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
                     .Where(w => w.Quantity + 1 == 5 && w.Quantity - 1 == 3 && w.Quantity * 1 == w.Quantity)
                     .OrderBy(o => o.OrderID),
                 assertOrder: true,
-                elementAsserter: (e, a) => { AssertEqual(e, a); });
+                elementAsserter: (e, a) => AssertEqual(e, a));
         }
     }
 
@@ -4615,10 +4596,10 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
     {
         using var context = CreateContext();
 
-        var query = (from c in context.Customers.Where(c => c.CustomerID.StartsWith("A"))
-                     join o in context.Orders.Where(o => o.OrderID < 10500).Include(o => o.Customer)
-                         on c.CustomerID equals o.CustomerID
-                     select new { c, o });
+        var query = from c in context.Customers.Where(c => c.CustomerID.StartsWith("A"))
+                    join o in context.Orders.Where(o => o.OrderID < 10500).Include(o => o.Customer)
+                        on c.CustomerID equals o.CustomerID
+                    select new { c, o };
 
         query = useAsTracking
             ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)

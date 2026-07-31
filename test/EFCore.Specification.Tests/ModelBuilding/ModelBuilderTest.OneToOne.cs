@@ -3430,7 +3430,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(Nob) + "." + nameof(Nob.Hob),
                     nameof(Hob) + "." + nameof(Hob.Nob)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4013,12 +4013,9 @@ public abstract partial class ModelBuilderTest
             // For NonGenericStringTest
             modelBuilder.Entity<Alpha>();
 
-            modelBuilder.Entity<Beta>(b =>
-            {
-                b.HasOne(e => e.FirstNav)
-                    .WithOne()
-                    .HasForeignKey<Beta>("ShadowId");
-            });
+            modelBuilder.Entity<Beta>(b => b.HasOne(e => e.FirstNav)
+                .WithOne()
+                .HasForeignKey<Beta>("ShadowId"));
 
             Assert.Equal(
                 "ShadowId",
@@ -4256,7 +4253,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(OneToOnePrincipalEntity) + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                     nameof(OneToOneDependentEntity) + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4283,7 +4280,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(OneToOnePrincipalEntity) + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                     nameof(OneToOneDependentEntity) + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4300,7 +4297,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(OneToOnePrincipalEntity) + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                     nameof(OneToOneDependentEntity) + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4317,7 +4314,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(OneToOnePrincipalEntity) + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                     nameof(OneToOneDependentEntity) + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4334,7 +4331,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(OneToOnePrincipalEntity) + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                     nameof(OneToOneDependentEntity) + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4365,7 +4362,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     nameof(OneToOnePrincipalEntity) + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                     nameof(OneToOneDependentEntity) + "." + OneToOneDependentEntity.NavigationProperty.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4493,7 +4490,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.AmbiguousOneToOneRelationship("User.CreatedBy", "User.UpdatedBy"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -4530,7 +4527,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.NonConfiguredNavigationToSharedType("Navigation", nameof(ReferenceNavigationToSharedType)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]

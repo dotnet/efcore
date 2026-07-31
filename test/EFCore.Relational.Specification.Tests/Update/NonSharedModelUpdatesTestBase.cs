@@ -18,12 +18,12 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             onModelCreating: mb =>
             {
                 mb.Entity<Author>(b => b.HasOne(a => a.AuthorsClub)
-                        .WithMany()
-                        .HasForeignKey(a => a.AuthorsClubId));
+                    .WithMany()
+                    .HasForeignKey(a => a.AuthorsClubId));
 
                 mb.Entity<Book>(b => b.HasOne(book => book.Author)
-                        .WithMany()
-                        .HasForeignKey(book => book.AuthorId));
+                    .WithMany()
+                    .HasForeignKey(book => book.AuthorId));
             });
 
         await ExecuteWithStrategyInTransactionAsync(
@@ -87,7 +87,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     [Theory, MemberData(nameof(IsAsyncData))] // Issue #29379
     public virtual async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
     {
-        var contextFactory = await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+        var contextFactory =
+            await InitializeNonSharedTest<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
 
         await ExecuteWithStrategyInTransactionAsync(
             contextFactory,
@@ -122,8 +123,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Update_entity_with_not_loaded_property_excludes_column_from_SQL(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithDescription>(
-                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
             seed: async context =>
             {
                 context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Original description" });
@@ -171,12 +171,11 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Save_and_query_with_partially_loaded_primitive_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithTags>(
-                    b =>
-                    {
-                        b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
-                        b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
-                    }),
+            onModelCreating: mb => mb.Entity<BlogWithTags>(b =>
+            {
+                b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
+                b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
+            }),
             seed: async context =>
             {
                 context.Add(new BlogWithTags { Name = "EF Blog", Tags = ["efcore", "dotnet"] });
@@ -216,8 +215,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Query_with_not_auto_loaded_property_tracked(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithDescription>(
-                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
             seed: async context =>
             {
                 context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
@@ -245,8 +243,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Query_with_not_auto_loaded_property_no_tracking(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithDescription>(
-                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
             seed: async context =>
             {
                 context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
@@ -270,8 +267,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Explicit_select_of_not_auto_loaded_property(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithDescription>(
-                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
             seed: async context =>
             {
                 context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
@@ -295,8 +291,7 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Where_on_not_auto_loaded_property(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithDescription>(
-                    b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
+            onModelCreating: mb => mb.Entity<BlogWithDescription>(b => b.Property(e => e.Description).Metadata.IsAutoLoaded = false),
             seed: async context =>
             {
                 context.Add(new BlogWithDescription { Name = "EF Blog", Description = "Some description" });
@@ -323,12 +318,11 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
     public virtual async Task Query_with_not_auto_loaded_primitive_collection(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<DbContext>(
-            onModelCreating: mb => mb.Entity<BlogWithTags>(
-                    b =>
-                    {
-                        b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
-                        b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
-                    }),
+            onModelCreating: mb => mb.Entity<BlogWithTags>(b =>
+            {
+                b.Property(e => e.Tags).Metadata.IsAutoLoaded = false;
+                b.Property(e => e.Tags).Metadata.Sentinel = new List<string>();
+            }),
             seed: async context =>
             {
                 context.Add(new BlogWithTags { Name = "EF Blog", Tags = ["efcore", "dotnet"] });
@@ -368,7 +362,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         var contextFactory = await InitializeNonSharedTest<DbContext>(
             onModelCreating: mb =>
             {
-                mb.Entity<Document36059>(b => b.OwnsOne(d => d.File, fb =>
+                mb.Entity<Document36059>(b => b.OwnsOne(
+                    d => d.File, fb =>
                     {
                         fb.Property(f => f.Id).ValueGeneratedNever();
                         fb.HasOne(f => f.Content)
@@ -391,17 +386,18 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
             contextFactory,
             async context =>
             {
-                context.Add(new Document36059
-                {
-                    Id = documentId,
-                    File = new File36059
+                context.Add(
+                    new Document36059
                     {
-                        Id = oldFileId,
-                        Name = "old.jpg",
-                        ContentId = oldContentId,
-                        Content = new Content36059 { Id = oldContentId, Data = "initial" }
-                    }
-                });
+                        Id = documentId,
+                        File = new File36059
+                        {
+                            Id = oldFileId,
+                            Name = "old.jpg",
+                            ContentId = oldContentId,
+                            Content = new Content36059 { Id = oldContentId, Data = "initial" }
+                        }
+                    });
 
                 await context.SaveChangesAsync();
             },
@@ -473,7 +469,8 @@ public abstract class NonSharedModelUpdatesTestBase(NonSharedFixture fixture)
         Func<DbContext, Task>? nestedTestOperation2 = null,
         Func<DbContext, Task>? nestedTestOperation3 = null)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            contextFactory.CreateDbContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            contextFactory.CreateDbContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2,
+            nestedTestOperation3);
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

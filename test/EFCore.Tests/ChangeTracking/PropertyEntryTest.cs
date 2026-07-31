@@ -4514,10 +4514,10 @@ public class PropertyEntryTest
 
     private interface IWotty
     {
-        int Id { get; set; }
-        string? Primate { get; set; }
-        string RequiredPrimate { get; set; }
-        string? Marmate { get; set; }
+        public int Id { get; set; }
+        public string? Primate { get; set; }
+        public string RequiredPrimate { get; set; }
+        public string? Marmate { get; set; }
     }
 
     private class ObjectWotty : IWotty
@@ -4892,8 +4892,7 @@ public class PropertyEntryTest
     private static void TrackEntity(DbContext context, object entity, EntityState state)
         => context.Entry(entity).State = state;
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void Not_auto_loaded_property_initial_state(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -4912,8 +4911,7 @@ public class PropertyEntryTest
         Assert.False(descEntry.IsModified);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void Setting_value_on_not_loaded_property_marks_loaded_and_modified(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -4942,8 +4940,7 @@ public class PropertyEntryTest
         }
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void DetectChanges_skips_not_loaded_property_detects_loaded_change(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -4968,8 +4965,7 @@ public class PropertyEntryTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void DetectChanges_marks_not_loaded_property_as_loaded_when_value_is_no_longer_sentinel(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -4994,8 +4990,7 @@ public class PropertyEntryTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void SetEntityState_Modified_skips_not_loaded_properties(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -5013,8 +5008,7 @@ public class PropertyEntryTest
         Assert.False(entry.Property(e => e.Description).IsLoaded);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void Not_auto_loaded_property_starts_unloaded(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -5026,7 +5020,12 @@ public class PropertyEntryTest
         Assert.False(context.Entry(entity1).Property(e => e.Description).IsModified);
 
         // Entity where the not-auto-loaded property has a non-sentinel value
-        var entity2 = new AutoLoadBlog { Id = 2, Name = "Blog2", Description = "Has value" };
+        var entity2 = new AutoLoadBlog
+        {
+            Id = 2,
+            Name = "Blog2",
+            Description = "Has value"
+        };
         TrackEntity(context, entity2, state);
 
         // Non-sentinel value: sentinel check detects a real value, so property is loaded
@@ -5034,8 +5033,7 @@ public class PropertyEntryTest
         Assert.Equal(state == EntityState.Modified, context.Entry(entity2).Property(e => e.Description).IsModified);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void AcceptChanges_preserves_not_loaded_flag(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -5059,8 +5057,7 @@ public class PropertyEntryTest
         }
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void PropertyEntry_IsLoaded_setter_controls_loaded_state(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -5077,8 +5074,7 @@ public class PropertyEntryTest
         Assert.False(descEntry.IsLoaded);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void Setting_IsModified_true_on_not_loaded_marks_loaded(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -5096,8 +5092,7 @@ public class PropertyEntryTest
         Assert.Equal(state is not EntityState.Added and not EntityState.Deleted, descEntry.IsModified);
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void Shadow_property_not_auto_loaded_tracked_correctly(EntityState state)
     {
         using var context = new AutoLoadShadowContext();
@@ -5127,8 +5122,7 @@ public class PropertyEntryTest
         }
     }
 
-    [Theory]
-    [MemberData(nameof(TrackingMethodData))]
+    [Theory, MemberData(nameof(TrackingMethodData))]
     public void Reject_changes_with_not_loaded_property(EntityState state)
     {
         using var context = new AutoLoadContext();
@@ -5168,12 +5162,11 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AutoLoadBlog>(
-                b =>
-                {
-                    b.Property(e => e.Name);
-                    b.Property(e => e.Description).Metadata.IsAutoLoaded = false;
-                });
+            => modelBuilder.Entity<AutoLoadBlog>(b =>
+            {
+                b.Property(e => e.Name);
+                b.Property(e => e.Description).Metadata.IsAutoLoaded = false;
+            });
     }
 
     private class AutoLoadShadowEntity
@@ -5190,12 +5183,11 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AutoLoadShadowEntity>(
-                b =>
-                {
-                    b.Property(e => e.Name);
-                    b.Property<string?>("ShadowDesc").Metadata.IsAutoLoaded = false;
-                });
+            => modelBuilder.Entity<AutoLoadShadowEntity>(b =>
+            {
+                b.Property(e => e.Name);
+                b.Property<string?>("ShadowDesc").Metadata.IsAutoLoaded = false;
+            });
     }
 
     [Fact]
@@ -5245,18 +5237,17 @@ public class PropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<AutoLoadComplexEntity>(
-                b =>
-                {
-                    b.Property(e => e.Name);
-                    b.ComplexProperty(
-                        e => e.Address, ab =>
-                        {
-                            ab.IsRequired(false);
-                            ab.Property(a => a.Street);
-                            ab.Property(a => a.ZipCode).Metadata.IsAutoLoaded = false;
-                        });
-                });
+            => modelBuilder.Entity<AutoLoadComplexEntity>(b =>
+            {
+                b.Property(e => e.Name);
+                b.ComplexProperty(
+                    e => e.Address, ab =>
+                    {
+                        ab.IsRequired(false);
+                        ab.Property(a => a.Street);
+                        ab.Property(a => a.ZipCode).Metadata.IsAutoLoaded = false;
+                    });
+            });
     }
 
     #endregion

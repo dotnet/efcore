@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -20,10 +23,7 @@ public class GearsOfWarODataContext(DbContextOptions options) : PoolableDbContex
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<City>(b =>
-        {
-            b.HasKey(c => c.Name);
-        });
+        modelBuilder.Entity<City>(b => b.HasKey(c => c.Name));
 
         modelBuilder.Entity<Gear>(b =>
         {

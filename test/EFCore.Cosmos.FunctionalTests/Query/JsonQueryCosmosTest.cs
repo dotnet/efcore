@@ -4,6 +4,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
@@ -40,7 +41,7 @@ WHERE (c["$type"] = "Basic")
             await AssertQuery(
                 async,
                 ss => ss.Set<JsonEntityBasic>()
-                    .Select(x => new { x.Id, OwnedCollectionBranch = x.OwnedReferenceRoot.OwnedCollectionBranch })
+                    .Select(x => new { x.Id, x.OwnedReferenceRoot.OwnedCollectionBranch })
                     .AsNoTrackingWithIdentityResolution(),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -104,7 +105,7 @@ WHERE (c["$type"] = "Basic")
                 await AssertQuery(
                     asyncQuery,
                     ss => ss.Set<JsonEntityBasic>()
-                        .Select(x => new { x.Id, OwnedReferenceBranch = x.OwnedReferenceRoot.OwnedReferenceBranch })
+                        .Select(x => new { x.Id, x.OwnedReferenceRoot.OwnedReferenceBranch })
                         .AsNoTrackingWithIdentityResolution(),
                     elementSorter: e => e.Id,
                     elementAsserter: (e, a) =>
@@ -379,8 +380,8 @@ WHERE (c["$type"] = "CustomNaming")
 
     public override async Task Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(async))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(async))).Message;
 
         Assert.Equal(
             CosmosStrings.NonEmbeddedIncludeNotSupported(
@@ -391,8 +392,8 @@ WHERE (c["$type"] = "CustomNaming")
     public override async Task Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(
         bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(async)))
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(async)))
             .Message;
 
         Assert.Equal(
@@ -714,7 +715,7 @@ ORDER BY c["Id"]
         // Always throws for sync.
         if (async)
         {
-            var exception = (await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_column(async)));
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_column(async));
         }
     }
 
@@ -724,7 +725,7 @@ ORDER BY c["Id"]
         if (async)
         {
             var exception =
-                (await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_complex_expression1(async)));
+                await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_complex_expression1(async));
         }
     }
 
@@ -1877,16 +1878,13 @@ WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 100
             });
 
     public override Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async));
+        => AssertTranslationFailed(() => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_original(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async));
+        => AssertTranslationFailed(() => base.Json_projection_deduplication_with_collection_indexer_in_original(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
-        => AssertTranslationFailed(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async));
+        => AssertTranslationFailed(() => base.Json_projection_deduplication_with_collection_indexer_in_target(async));
 
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
@@ -1996,8 +1994,8 @@ WHERE (c["$type"] = "Basic")
 
     public override Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(
         bool async)
-        => AssertTranslationFailed(
-            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async));
+        => AssertTranslationFailed(()
+            => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async));
 
     [Theory(Skip = "issue #34350")]
     public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
@@ -2164,7 +2162,11 @@ WHERE (c["$type"] = "Basic")
             });
 
     public override async Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
-        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_collection_and_entity_collection(async))).Message);
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_collection_and_entity_collection(async))).Message);
 
     public override Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
@@ -2172,13 +2174,25 @@ WHERE (c["$type"] = "Basic")
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
     public override async Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
-        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async))).Message);
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async))).Message);
 
     public override async Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
-        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_reference_and_entity_collection(async))).Message);
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_reference_and_entity_collection(async))).Message);
 
     public override async Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
-        => Assert.Equal(CosmosStrings.NonEmbeddedIncludeNotSupported("Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"), (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async))).Message);
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async))).Message);
 
     public override Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(

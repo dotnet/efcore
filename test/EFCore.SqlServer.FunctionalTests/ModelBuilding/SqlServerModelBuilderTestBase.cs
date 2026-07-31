@@ -4,10 +4,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using Microsoft.Data.SqlTypes;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -291,15 +288,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<FullTextEntity>(b =>
-            {
-                b.HasFullTextIndex(e => e.Title)
-                    .HasDatabaseName("FTI_FullTextEntity")
-                    .UseKeyIndex("PK_FullTextEntity")
-                    .UseCatalog("MyCatalog")
-                    .HasChangeTracking(FullTextChangeTracking.Manual)
-                    .UseLanguage("Title", "English");
-            });
+            modelBuilder.Entity<FullTextEntity>(b => b.HasFullTextIndex(e => e.Title)
+                .HasDatabaseName("FTI_FullTextEntity")
+                .UseKeyIndex("PK_FullTextEntity")
+                .UseCatalog("MyCatalog")
+                .HasChangeTracking(FullTextChangeTracking.Manual)
+                .UseLanguage("Title", "English"));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(FullTextEntity))!;
@@ -319,13 +313,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<FullTextEntity>(b =>
-            {
-                b.HasFullTextIndex(e => new { e.Title, e.Body })
-                    .UseKeyIndex("PK_FullTextEntity")
-                    .UseLanguage("Title", "English")
-                    .UseLanguage("Body", "French");
-            });
+            modelBuilder.Entity<FullTextEntity>(b => b.HasFullTextIndex(e => new { e.Title, e.Body })
+                .UseKeyIndex("PK_FullTextEntity")
+                .UseLanguage("Title", "English")
+                .UseLanguage("Body", "French"));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(FullTextEntity))!;
@@ -348,12 +339,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 .IsDefault()
                 .IsAccentSensitive(false);
 
-            modelBuilder.Entity<FullTextEntity>(b =>
-            {
-                b.HasFullTextIndex(e => e.Title)
-                    .UseKeyIndex("PK_FullTextEntity")
-                    .UseCatalog("MyCatalog");
-            });
+            modelBuilder.Entity<FullTextEntity>(b => b.HasFullTextIndex(e => e.Title)
+                .UseKeyIndex("PK_FullTextEntity")
+                .UseCatalog("MyCatalog"));
 
             var model = modelBuilder.FinalizeModel();
             var catalogs = model.GetFullTextCatalogs().ToList();
@@ -368,12 +356,9 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<FullTextEntity>(b =>
-            {
-                b.HasFullTextIndex(e => e.Title)
-                    .UseKeyIndex("PK_FullTextEntity")
-                    .HasChangeTracking(FullTextChangeTracking.OffNoPopulation);
-            });
+            modelBuilder.Entity<FullTextEntity>(b => b.HasFullTextIndex(e => e.Title)
+                .UseKeyIndex("PK_FullTextEntity")
+                .HasChangeTracking(FullTextChangeTracking.OffNoPopulation));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(FullTextEntity))!;
@@ -547,10 +532,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 b.ToTable("Buns");
                 b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
             });
-            modelBuilder.Entity<SesameBun>(b =>
-            {
-                b.ToTable("SesameBuns");
-            });
+            modelBuilder.Entity<SesameBun>(b => b.ToTable("SesameBuns"));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -612,10 +594,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
                 b.UseTpcMappingStrategy();
             });
-            modelBuilder.Entity<SesameBun>(b =>
-            {
-                b.ToTable("SesameBuns");
-            });
+            modelBuilder.Entity<SesameBun>(b => b.ToTable("SesameBuns"));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1249,44 +1228,49 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             modelBuilder.Entity<JsonEntityWithNesting>(b =>
             {
-                b.OwnsOne(x => x.OwnedReference1, bb =>
-                {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                b.OwnsOne(
+                    x => x.OwnedReference1, bb =>
+                    {
+                        bb.OwnsOne(x => x.Reference1);
+                        bb.OwnsOne(x => x.Reference2);
+                        bb.OwnsMany(x => x.Collection1);
+                        bb.OwnsMany(x => x.Collection2);
+                    });
 
-                b.OwnsOne(x => x.OwnedReference2, bb =>
-                {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                b.OwnsOne(
+                    x => x.OwnedReference2, bb =>
+                    {
+                        bb.OwnsOne(x => x.Reference1);
+                        bb.OwnsOne(x => x.Reference2);
+                        bb.OwnsMany(x => x.Collection1);
+                        bb.OwnsMany(x => x.Collection2);
+                    });
 
-                b.OwnsMany(x => x.OwnedCollection1, bb =>
-                {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                b.OwnsMany(
+                    x => x.OwnedCollection1, bb =>
+                    {
+                        bb.OwnsOne(x => x.Reference1);
+                        bb.OwnsOne(x => x.Reference2);
+                        bb.OwnsMany(x => x.Collection1);
+                        bb.OwnsMany(x => x.Collection2);
+                    });
 
-                b.OwnsMany(x => x.OwnedCollection2, bb =>
-                {
-                    bb.OwnsOne(x => x.Reference1);
-                    bb.OwnsOne(x => x.Reference2);
-                    bb.OwnsMany(x => x.Collection1);
-                    bb.OwnsMany(x => x.Collection2);
-                });
+                b.OwnsMany(
+                    x => x.OwnedCollection2, bb =>
+                    {
+                        bb.OwnsOne(x => x.Reference1);
+                        bb.OwnsOne(x => x.Reference2);
+                        bb.OwnsMany(x => x.Collection1);
+                        bb.OwnsMany(x => x.Collection2);
+                    });
             });
 
-            Assert.Equal(RelationalStrings.IncompatibleTableNoRelationship(
-                "JsonEntityWithNesting_Collection1",
-                "JsonEntityWithNesting.OwnedReference2#OwnedEntityExtraLevel.Collection1#OwnedEntity",
-                "JsonEntityWithNesting.OwnedReference1#OwnedEntityExtraLevel.Collection1#OwnedEntity"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            Assert.Equal(
+                RelationalStrings.IncompatibleTableNoRelationship(
+                    "JsonEntityWithNesting_Collection1",
+                    "JsonEntityWithNesting.OwnedReference2#OwnedEntityExtraLevel.Collection1#OwnedEntity",
+                    "JsonEntityWithNesting.OwnedReference1#OwnedEntityExtraLevel.Collection1#OwnedEntity"),
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]

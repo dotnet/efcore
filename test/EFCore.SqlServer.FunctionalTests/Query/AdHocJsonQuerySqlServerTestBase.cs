@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 
@@ -511,8 +509,8 @@ VALUES(
 
         // An empty/whitespace JSON string in the column isn't valid JSON; the diagnostics here match the converter
         // path (JsonValueReaderWriter.FromJsonString), which rejects it with CoreStrings.EmptyJsonString.
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 4).ToListAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 4).ToListAsync());
 
         Assert.Equal(CoreStrings.EmptyJsonString, exception.Message);
     }
@@ -529,8 +527,8 @@ VALUES(
 
         // The required primitive collection column holds the JSON 'null' token. Since the property is required, the
         // materializer throws a clear, property-named error rather than silently materializing null. See #34881.
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 5).ToListAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 5).ToListAsync());
 
         Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredTags"), exception.Message);
     }
@@ -653,20 +651,21 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
         {
             b.ToTable("Entities");
             b.Property(x => x.Id).ValueGeneratedNever();
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-                b.Property(x => x.ConvertedHandlingNulls).HasConversion(
-                    new ValueConverter<string, string>(
-                        v => v,
-                        v => v ?? "FROM_DB_NULL",
-                        convertsNulls: true));
-                b.Property(x => x.ConvertedNotHandlingNulls).HasConversion(
-                    new ValueConverter<string, string>(
-                        v => v,
-                        v => "FROM_CONVERTER:" + v,
-                        convertsNulls: false));
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.Property(x => x.ConvertedHandlingNulls).HasConversion(
+                        new ValueConverter<string, string>(
+                            v => v,
+                            v => v ?? "FROM_DB_NULL",
+                            convertsNulls: true));
+                    b.Property(x => x.ConvertedNotHandlingNulls).HasConversion(
+                        new ValueConverter<string, string>(
+                            v => v,
+                            v => "FROM_CONVERTER:" + v,
+                            convertsNulls: false));
+                });
         });
 
     protected class ContextJsonPropertyWithConverters(DbContextOptions options) : DbContext(options)
@@ -724,8 +723,8 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
 
         // A required primitive collection nested in a JSON document whose value is a 'null' token yields a clear,
         // property-named error rather than the cryptic reader/writer "Invalid token type: 'Null'".
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInJson.MyEntity>().Where(x => x.Id == 3).ToListAsync());
 
         Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredStrings"), exception.Message);
     }
@@ -759,12 +758,13 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
         {
             b.ToTable("Entities");
             b.Property(x => x.Id).ValueGeneratedNever();
-            b.OwnsOne(x => x.Reference, b =>
-            {
-                b.ToJson().HasColumnType(JsonColumnType);
-                b.PrimitiveCollection(x => x.NullableStrings).IsRequired(false);
-                b.PrimitiveCollection(x => x.RequiredStrings).IsRequired();
-            });
+            b.OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson().HasColumnType(JsonColumnType);
+                    b.PrimitiveCollection(x => x.NullableStrings).IsRequired(false);
+                    b.PrimitiveCollection(x => x.RequiredStrings).IsRequired();
+                });
         });
 
     protected class ContextPrimitiveCollectionInJson(DbContextOptions options) : DbContext(options)

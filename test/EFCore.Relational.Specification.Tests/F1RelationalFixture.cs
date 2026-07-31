@@ -27,10 +27,7 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
         modelBuilder.Entity<Gearbox>().ToTable("Gearboxes");
         modelBuilder.Entity<Sponsor>().ToTable("Sponsors");
 
-        modelBuilder.Entity<Fan>(b =>
-        {
-            b.Property(e => e.Id).ValueGeneratedNever();
-        });
+        modelBuilder.Entity<Fan>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
         modelBuilder.Entity<FanTpt>(b =>
         {
@@ -65,10 +62,7 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
             b.Property(e => e.Id).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<StreetCircuitTpt>(b =>
-        {
-            b.ToTable("StreetCircuitsTpt");
-        });
+        modelBuilder.Entity<StreetCircuitTpt>(b => b.ToTable("StreetCircuitsTpt"));
 
         modelBuilder.Entity<CityTpt>(b =>
         {
@@ -83,10 +77,7 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
             b.Property(e => e.Id).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<StreetCircuitTpc>(b =>
-        {
-            b.ToTable("StreetCircuitsTpc");
-        });
+        modelBuilder.Entity<StreetCircuitTpc>(b => b.ToTable("StreetCircuitsTpc"));
 
         modelBuilder.Entity<CityTpc>(b =>
         {

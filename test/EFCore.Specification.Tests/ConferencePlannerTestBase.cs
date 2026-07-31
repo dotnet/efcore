@@ -753,10 +753,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
                     var roomId = roomJson.GetProperty("id").GetInt32();
                     if (!tracks.TryGetValue(roomId, out var track))
                     {
-                        track = new Track
-                        {
-                            Name = roomJson.GetProperty("name").GetString(), Sessions = new List<TestModels.ConferencePlanner.Session>()
-                        };
+                        track = new Track { Name = roomJson.GetProperty("name").GetString(), Sessions = [] };
 
                         tracks[roomId] = track;
                     }

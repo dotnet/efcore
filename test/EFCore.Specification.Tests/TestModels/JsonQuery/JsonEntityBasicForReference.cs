@@ -1,27 +1,25 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 #nullable disable
 
 public class JsonEntityBasicForReference
 {
-    private int _id;
-    private string _name;
+    public int Id { get; private set; }
 
-    public int Id
-        => _id;
-
-    public string Name
-        => _name;
+    public string Name { get; private set; }
 
     public int? ParentId { get; set; }
     public JsonEntityBasic Parent { get; set; }
 
     public void SetIdAndName(int id, string name)
     {
-        _id = id;
-        _name = name;
+        Id = id;
+        Name = name;
     }
 }

@@ -154,7 +154,7 @@ GROUP BY [o].[CustomerID]
         await base.GroupBy_Property_Select_MaxBy(async);
 
         AssertSql(
-"""
+            """
 SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
 FROM (
     SELECT [o].[CustomerID]
@@ -189,7 +189,7 @@ GROUP BY [o].[CustomerID]
         await base.GroupBy_Property_Select_MinBy(async);
 
         AssertSql(
-"""
+            """
 SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate]
 FROM (
     SELECT [o].[CustomerID]
@@ -3182,7 +3182,7 @@ INNER JOIN [Customers] AS [c] ON [o0].[Key] = [c].[CustomerID]
         await base.GroupBy_Select_Entire_Entity_Where(async);
 
         AssertSql(
-"""
+            """
 SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
 FROM (
     SELECT [o].[CustomerID]
@@ -3209,7 +3209,7 @@ LEFT JOIN (
         await base.GroupBy_Select_Entire_Entity_Where_Select(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o1].[EmployeeID]
     FROM [Orders] AS [o1]
@@ -3228,7 +3228,7 @@ HAVING (
         await base.GroupBy_Select_Entire_Entity_Select(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o0].[EmployeeID]
     FROM [Orders] AS [o0]
@@ -3243,7 +3243,7 @@ GROUP BY [o].[OrderID]
         await base.GroupBy_Select_Entire_Entity_FirstOrDefault_Where(async);
 
         AssertSql(
-"""
+            """
 SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
 FROM (
     SELECT [o].[CustomerID]
@@ -3271,7 +3271,7 @@ LEFT JOIN (
         await base.GroupBy_ResultSelector_Entire_Entity_Where(async);
 
         AssertSql(
-"""
+            """
 SELECT [o4].[OrderID], [o4].[CustomerID], [o4].[EmployeeID], [o4].[OrderDate]
 FROM (
     SELECT [o].[CustomerID]
@@ -3299,7 +3299,7 @@ LEFT JOIN (
         await base.GroupBy_Select_Entire_Entity_GroupBy(async);
 
         AssertSql(
-"""
+            """
 SELECT [o2].[Key], COUNT(*) AS [Count]
 FROM (
     SELECT (
@@ -3321,7 +3321,7 @@ GROUP BY [o2].[Key]
         await base.GroupBy_Select_Entire_Entity_composite_key_Select(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o0].[OrderID]
     FROM [Orders] AS [o0]
@@ -3473,7 +3473,7 @@ LEFT JOIN (
         await base.GroupBy_Select_Entire_Entity_Order(async);
 
         AssertSql(
-"""
+            """
 SELECT [o5].[OrderID], [o5].[CustomerID], [o5].[EmployeeID], [o5].[OrderDate]
 FROM (
     SELECT [o].[CustomerID], (
@@ -3497,6 +3497,7 @@ LEFT JOIN (
 ORDER BY [o3].[c], [o3].[c0]
 """);
     }
+
     public override async Task GroupBy_aggregate_join_with_group_result(bool async)
     {
         await base.GroupBy_aggregate_join_with_group_result(async);

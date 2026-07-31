@@ -207,11 +207,15 @@ _ = await context.Blogs.Select(b => new[] { b.Id, b.Id + i }).ToListAsync();
             """
 await context.Blogs.ToListAsync();
 """,
-        interceptorCodeAsserter: code =>
-        {
-            Assert.Matches(@"\bprivate\s+static\s+readonly\b(?=[^;]*\bNumberBytes\b)[^;=]*\bNumberBytes\s*=\s*[^;]+;", code); // Expected a private static readonly field named NumberBytes with an initializer.
-            Assert.True(Regex.Matches(code, @"\bNumberBytes\b").Count > 1, "Expected at least 1 reference to NumberBytes excluding the initializer.");
-        });
+            interceptorCodeAsserter: code =>
+            {
+                Assert.Matches(
+                    @"\bprivate\s+static\s+readonly\b(?=[^;]*\bNumberBytes\b)[^;=]*\bNumberBytes\s*=\s*[^;]+;",
+                    code); // Expected a private static readonly field named NumberBytes with an initializer.
+                Assert.True(
+                    Regex.Matches(code, @"\bNumberBytes\b").Count > 1,
+                    "Expected at least 1 reference to NumberBytes excluding the initializer.");
+            });
 
     #endregion Expression types
 

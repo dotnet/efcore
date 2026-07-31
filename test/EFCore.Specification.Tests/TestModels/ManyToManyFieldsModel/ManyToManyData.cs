@@ -76,17 +76,11 @@ public class ManyToManyData : ISetSource
             return (IQueryable<TEntity>)_roots.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(EntityBranch))
-        {
-            return (IQueryable<TEntity>)_roots.OfType<EntityBranch>().AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(EntityLeaf))
-        {
-            return (IQueryable<TEntity>)_roots.OfType<EntityLeaf>().AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(EntityBranch)
+            ? (IQueryable<TEntity>)_roots.OfType<EntityBranch>().AsQueryable()
+            : typeof(TEntity) == typeof(EntityLeaf)
+                ? (IQueryable<TEntity>)_roots.OfType<EntityLeaf>().AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     private EntityOne[] CreateOnes(ManyToManyContext context)

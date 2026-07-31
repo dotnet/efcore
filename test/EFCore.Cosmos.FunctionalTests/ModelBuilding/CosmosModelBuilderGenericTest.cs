@@ -763,13 +763,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         : ComplexCollectionTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
         public override void Properties_can_have_custom_type_value_converter_type_set()
-            => Properties_can_have_custom_type_value_converter_type_set<string>();
+            => Properties_can_have_custom_type_value_converter_type_set_implementation<string>();
 
         public override void Properties_can_have_non_generic_value_converter_set()
-            => Properties_can_have_non_generic_value_converter_set<string>();
+            => Properties_can_have_non_generic_value_converter_set_implementation<string>();
 
         public override void Properties_can_have_provider_type_set()
-            => Properties_can_have_provider_type_set<string>();
+            => Properties_can_have_provider_type_set_implementation<string>();
 
         public override void Can_set_complex_property_annotation()
         {
