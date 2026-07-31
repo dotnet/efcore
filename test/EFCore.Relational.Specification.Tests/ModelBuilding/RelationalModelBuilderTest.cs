@@ -91,6 +91,72 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
 
         [Fact]
+        public virtual void Can_use_optional_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.IsOptional();
+                    s.Property(o => o.CustomerId);
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.True(fragment.IsOptional);
+        }
+
+        [Fact]
+        public virtual void Can_revert_optional_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.IsOptional();
+                    s.IsOptional(false);
+                    s.Property(o => o.CustomerId);
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.False(fragment.IsOptional);
+        }
+
+        [Fact]
+        public virtual void Table_splitting_fragment_is_not_optional_by_default()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s => s.Property(o => o.CustomerId));
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+            var fragment = entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo"))!;
+
+            Assert.False(fragment.IsOptional);
+        }
+
+        [Fact]
         public virtual void Can_use_view_splitting()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1854,6 +1920,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
 
+        public abstract TestSplitTableBuilder<TEntity> IsOptional(bool optional = true);
+
         public abstract TestTriggerBuilder HasTrigger(string name);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
@@ -1885,6 +1953,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestSplitTableBuilder<TEntity> IsOptional(bool optional = true)
+            => Wrap(TableBuilder.IsOptional(optional));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
@@ -1919,6 +1990,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestSplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestSplitTableBuilder<TEntity> IsOptional(bool optional = true)
+            => Wrap(TableBuilder.IsOptional(optional));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
