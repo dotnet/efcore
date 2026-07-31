@@ -1774,7 +1774,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append($"{tableVariable}, {additionalParameter ?? ""}{code.Literal(tableMapping.IncludesDerivedTypes)}");
 
         if (tableMapping.IsSharedTablePrincipal.HasValue
-            || tableMapping.IsSplitEntityTypePrincipal.HasValue)
+            || tableMapping.IsSplitEntityTypePrincipal.HasValue
+            || tableMapping.IsSplitFragmentOptional)
         {
             mainBuilder.AppendLine(")")
                 .AppendLine("{").IncrementIndent();
