@@ -95,6 +95,15 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     public virtual IColumnBase? RowsAffectedColumn { get; private set; }
 
     /// <summary>
+    ///     Gets a value indicating whether this command targets an optional entity-splitting fragment table, i.e. a table
+    ///     for which a row is only expected to exist when at least one non-key property mapped to it is non-<see langword="null" />.
+    /// </summary>
+    public virtual bool IsOptionalSplitFragment
+        => StoreStoredProcedure is null
+            && _entries.Count > 0
+            && GetTableMapping(_entries[0].EntityType) is { IsSplitFragmentOptional: true };
+
+    /// <summary>
     ///     The list of <see cref="IColumnModification" /> needed to perform the insert, update, or delete.
     /// </summary>
     public virtual IReadOnlyList<IColumnModification> ColumnModifications

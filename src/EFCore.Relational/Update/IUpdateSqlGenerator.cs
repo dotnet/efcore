@@ -174,4 +174,36 @@ public interface IUpdateSqlGenerator
         IReadOnlyModificationCommand command,
         int commandPosition,
         out bool requiresTransaction);
+
+    /// <summary>
+    ///     Appends SQL that atomically updates the row for an optional entity-splitting fragment if it exists, inserts it if it
+    ///     doesn't and at least one non-key value being written is non-<see langword="null" />, or leaves the row absent if it
+    ///     doesn't exist and every non-key value being written is <see langword="null" />.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="command">The command that represents the update operation.</param>
+    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    ResultSetMapping AppendOptionalFragmentUpsertOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+        => throw new NotSupportedException(RelationalStrings.OptionalEntitySplittingNotSupported);
+
+    /// <summary>
+    ///     Appends SQL that deletes the row for an optional entity-splitting fragment, tolerating the row already being absent.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="command">The command that represents the delete operation.</param>
+    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    ResultSetMapping AppendOptionalFragmentDeleteOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+        => throw new NotSupportedException(RelationalStrings.OptionalEntitySplittingNotSupported);
 }

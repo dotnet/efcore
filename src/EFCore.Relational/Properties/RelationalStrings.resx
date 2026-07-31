@@ -1146,6 +1146,9 @@
   <data name="OptionalDependentWithDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a 'null' value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with 'null' values for other properties or mark the incoming navigation as required to always create an instance.</value>
   </data>
+  <data name="OptionalEntitySplittingNotSupported" xml:space="preserve">
+    <value>Saving changes to an optional entity-splitting fragment is not supported by the current database provider. Either configure the fragment as required by removing the call to 'IsOptional()', or use a provider that supports optional entity-splitting fragments for 'SaveChanges'.</value>
+  </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.</value>
   </data>

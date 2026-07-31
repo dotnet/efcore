@@ -1,9 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -243,4 +245,220 @@ WHERE [Id] = @p0 AND [ConcurrencyToken] IS NULL;
 
     private void AssertBaseline(string expected, string actual)
         => Assert.Equal(expected, actual.TrimEnd(), ignoreLineEndingDifferences: true);
+
+    [Fact]
+    public void AppendOptionalFragmentUpsertOperation_generates_update_then_conditional_insert()
+    {
+        var stringBuilder = new StringBuilder();
+        var command = CreateOptionalFragmentCommand(EntityState.Modified, concurrencyToken: false);
+
+        CreateSqlGenerator().AppendOptionalFragmentUpsertOperation(stringBuilder, command, 0, out var requiresTransaction);
+
+        AssertBaseline(
+            """
+DECLARE @_fragmentRowsAffected0 int;
+
+UPDATE [dbo].[CustomerDetails] SET [Description] = @p0, [Score] = @p1
+WHERE [Id] = @p2;
+SET @_fragmentRowsAffected0 = @@ROWCOUNT;
+
+IF @_fragmentRowsAffected0 = 0
+BEGIN
+    IF (@p0 IS NOT NULL OR @p1 IS NOT NULL)
+    BEGIN
+        INSERT INTO [dbo].[CustomerDetails] ([Id], [Description], [Score])
+        VALUES (@p2, @p0, @p1);
+        SET @_fragmentRowsAffected0 = @@ROWCOUNT;
+    END
+    ELSE
+    BEGIN
+        SET @_fragmentRowsAffected0 = 1;
+    END
+END
+
+SELECT @_fragmentRowsAffected0;
+""",
+            stringBuilder.ToString());
+        Assert.True(requiresTransaction);
+    }
+
+    [Fact]
+    public void AppendOptionalFragmentUpsertOperation_distinguishes_absence_from_conflict_with_concurrency_token()
+    {
+        var stringBuilder = new StringBuilder();
+        var command = CreateOptionalFragmentCommand(EntityState.Modified, concurrencyToken: true);
+
+        CreateSqlGenerator().AppendOptionalFragmentUpsertOperation(stringBuilder, command, 0, out var requiresTransaction);
+
+        AssertBaseline(
+            """
+DECLARE @_fragmentRowsAffected0 int;
+
+UPDATE [dbo].[CustomerDetails] SET [Description] = @p0, [Score] = @p1
+WHERE [Id] = @p2 AND [Version] IS NULL;
+SET @_fragmentRowsAffected0 = @@ROWCOUNT;
+
+IF @_fragmentRowsAffected0 = 0
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [dbo].[CustomerDetails] WHERE [Id] = @p2)
+    BEGIN
+        IF (@p0 IS NOT NULL OR @p1 IS NOT NULL)
+        BEGIN
+            INSERT INTO [dbo].[CustomerDetails] ([Id], [Description], [Score])
+            VALUES (@p2, @p0, @p1);
+            SET @_fragmentRowsAffected0 = @@ROWCOUNT;
+        END
+        ELSE
+        BEGIN
+            SET @_fragmentRowsAffected0 = 1;
+        END
+    END
+END
+
+SELECT @_fragmentRowsAffected0;
+""",
+            stringBuilder.ToString());
+        Assert.True(requiresTransaction);
+    }
+
+    [Fact]
+    public void AppendOptionalFragmentDeleteOperation_generates_tolerant_delete()
+    {
+        var stringBuilder = new StringBuilder();
+        var command = CreateOptionalFragmentCommand(EntityState.Deleted, concurrencyToken: false);
+
+        CreateSqlGenerator().AppendOptionalFragmentDeleteOperation(stringBuilder, command, 0, out var requiresTransaction);
+
+        AssertBaseline(
+            """
+DECLARE @_fragmentRowsAffected0 int;
+
+DELETE FROM [dbo].[CustomerDetails]
+WHERE [Id] = @p0;
+SET @_fragmentRowsAffected0 = @@ROWCOUNT;
+
+IF @_fragmentRowsAffected0 = 0
+BEGIN
+    SET @_fragmentRowsAffected0 = 1;
+END
+
+SELECT @_fragmentRowsAffected0;
+""",
+            stringBuilder.ToString());
+        Assert.True(requiresTransaction);
+    }
+
+    [Fact]
+    public void AppendOptionalFragmentDeleteOperation_distinguishes_absence_from_conflict_with_concurrency_token()
+    {
+        var stringBuilder = new StringBuilder();
+        var command = CreateOptionalFragmentCommand(EntityState.Deleted, concurrencyToken: true);
+
+        CreateSqlGenerator().AppendOptionalFragmentDeleteOperation(stringBuilder, command, 0, out var requiresTransaction);
+
+        AssertBaseline(
+            """
+DECLARE @_fragmentRowsAffected0 int;
+
+DELETE FROM [dbo].[CustomerDetails]
+WHERE [Id] = @p0 AND [Version] IS NULL;
+SET @_fragmentRowsAffected0 = @@ROWCOUNT;
+
+IF @_fragmentRowsAffected0 = 0
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM [dbo].[CustomerDetails] WHERE [Id] = @p0)
+    BEGIN
+        SET @_fragmentRowsAffected0 = 1;
+    END
+END
+
+SELECT @_fragmentRowsAffected0;
+""",
+            stringBuilder.ToString());
+        Assert.True(requiresTransaction);
+    }
+
+    [Fact]
+    public void AppendOptionalFragmentUpsertOperation_throws_for_generated_values()
+    {
+        var stringBuilder = new StringBuilder();
+        var command = CreateOptionalFragmentCommand(EntityState.Modified, concurrencyToken: false, generatedValue: true);
+
+        Assert.Throws<NotSupportedException>(
+            () => CreateSqlGenerator().AppendOptionalFragmentUpsertOperation(stringBuilder, command, 0, out _));
+    }
+
+    private IModificationCommand CreateOptionalFragmentCommand(
+        EntityState entityState,
+        bool concurrencyToken,
+        bool generatedValue = false)
+    {
+        var model = GetOptionalFragmentModel();
+        var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
+        var entry = stateManager.GetOrCreateEntry(new OptionalFragmentDetail());
+        entry.SetEntityState(entityState);
+        var generator = new ParameterNameGenerator();
+
+        var detailType = entry.EntityType;
+        var idProperty = detailType.FindProperty(nameof(OptionalFragmentDetail.Id));
+        var descriptionProperty = detailType.FindProperty(nameof(OptionalFragmentDetail.Description));
+        var scoreProperty = detailType.FindProperty(nameof(OptionalFragmentDetail.Score));
+        var versionProperty = detailType.FindProperty(nameof(OptionalFragmentDetail.Version));
+
+        var columnModifications = new List<ColumnModificationParameters>
+        {
+            new(
+                entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true)
+        };
+
+        if (entityState != EntityState.Deleted)
+        {
+            columnModifications.Add(
+                new(
+                    entry, descriptionProperty, descriptionProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    descriptionProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true));
+            columnModifications.Add(
+                new(
+                    entry, scoreProperty, scoreProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    scoreProperty.GetTableColumnMappings().Single().TypeMapping, generatedValue, !generatedValue, false, false, true));
+        }
+
+        if (concurrencyToken)
+        {
+            columnModifications.Add(
+                new(
+                    entry, versionProperty, versionProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                    versionProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, true, true));
+        }
+
+        var modificationCommandParameters = new ModificationCommandParameters(
+            entry.EntityType.GetTableMappings().Single().Table, sensitiveLoggingEnabled: false);
+        var modificationCommand = CreateMutableModificationCommandFactory().CreateModificationCommand(modificationCommandParameters);
+
+        modificationCommand.AddEntry(entry, mainEntry: true);
+
+        foreach (var columnModification in columnModifications)
+        {
+            ((INonTrackedModificationCommand)modificationCommand).AddColumnModification(columnModification);
+        }
+
+        return modificationCommand;
+    }
+
+    private IModel GetOptionalFragmentModel()
+    {
+        var modelBuilder = TestHelpers.CreateConventionBuilder();
+        modelBuilder.Entity<OptionalFragmentDetail>().ToTable("CustomerDetails", Schema)
+            .Property(e => e.Id).ValueGeneratedNever();
+        return modelBuilder.Model.FinalizeModel();
+    }
+
+    private class OptionalFragmentDetail
+    {
+        public int Id { get; set; }
+        public string Description { get; set; }
+        public int? Score { get; set; }
+        public int? Version { get; set; }
+    }
 }
