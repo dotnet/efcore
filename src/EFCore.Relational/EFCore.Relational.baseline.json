@@ -3896,7 +3896,13 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();"
         },
         {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsOptionalConfigurationSource();"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource();"
+        },
+        {
+          "Member": "bool? SetIsOptional(bool? optional, bool fromDataAnnotation = false);"
         },
         {
           "Member": "bool? SetIsTableExcludedFromMigrations(bool? excluded, bool fromDataAnnotation = false);"
@@ -5011,6 +5017,9 @@
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType EntityType { get; }"
         },
         {
+          "Member": "bool IsOptional { get; set; }"
+        },
+        {
           "Member": "bool? IsTableExcludedFromMigrations { get; set; }"
         }
       ]
@@ -5587,6 +5596,9 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityType EntityType { get; }"
+        },
+        {
+          "Member": "bool IsOptional { get; }"
         },
         {
           "Member": "bool? IsTableExcludedFromMigrations { get; }"
@@ -7172,6 +7184,9 @@
           "Member": "bool? IsSplitEntityTypePrincipal { get; }"
         },
         {
+          "Member": "bool IsSplitFragmentOptional { get; }"
+        },
+        {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.ITableBase Table { get; }"
         },
         {
@@ -7238,6 +7253,12 @@
         },
         {
           "Member": "void AppendObtainNextSequenceValueOperation(System.Text.StringBuilder commandStringBuilder, string name, string? schema);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentUpsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendStoredProcedureCall(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
@@ -8507,6 +8528,9 @@
           "Member": "virtual System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.IUpdateEntry> Entries { get; }"
         },
         {
+          "Member": "virtual bool IsOptionalSplitFragment { get; }"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IColumnBase? RowsAffectedColumn { get; private set; }"
         },
         {
@@ -8817,6 +8841,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TableTriggerBuilder HasTrigger(string modelName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder IsOptional(bool optional = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder Property(string propertyName);"
         },
         {
@@ -8849,6 +8876,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> IsOptional(bool optional = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder<TProperty> Property<TProperty>(System.Linq.Expressions.Expression<System.Func<TDependentEntity, TProperty>> propertyExpression);"
@@ -9987,6 +10017,10 @@
         {
           "Member": "const string DeleteStoredProcedureParameterMappings",
           "Value": "Relational:DeleteStoredProcedureParameterMappings"
+        },
+        {
+          "Member": "const string EntityTypeMappingFragmentIsOptional",
+          "Value": "Relational:EntityTypeMappingFragmentIsOptional"
         },
         {
           "Member": "const string FieldValueGetter",
@@ -16502,6 +16536,12 @@
           "Member": "static string EntitySplittingMissingRequiredPropertiesOptionalDependent(object? entityType, object? storeObject, object? requiredDependentConfig);"
         },
         {
+          "Member": "static string EntitySplittingNonNullablePropertyOnOptionalFragment(object? entityType, object? storeObject, object? property);"
+        },
+        {
+          "Member": "static string EntitySplittingOptionalFragmentSharedTable(object? entityType, object? storeObject, object? principalEntityType);"
+        },
+        {
           "Member": "static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType);"
         },
         {
@@ -17181,6 +17221,9 @@
         },
         {
           "Member": "static string OnlyConstantsSupportedInInlineCollectionQueryRoots { get; }"
+        },
+        {
+          "Member": "static string OptionalEntitySplittingNotSupported { get; }"
         },
         {
           "Member": "static string PendingAmbientTransaction { get; }"
@@ -18347,7 +18390,7 @@
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityTypeMappingFragment : Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IEntityTypeMappingFragment, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyEntityTypeMappingFragment, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "Methods": [
         {
-          "Member": "RuntimeEntityTypeMappingFragment(Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool? isTableExcludedFromMigrations);"
+          "Member": "RuntimeEntityTypeMappingFragment(Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType entityType, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool? isTableExcludedFromMigrations, bool isOptional = false);"
         },
         {
           "Member": "override string ToString();"
@@ -18356,6 +18399,9 @@
       "Properties": [
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeEntityType EntityType { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptional { get; }"
         },
         {
           "Member": "virtual bool? IsTableExcludedFromMigrations { get; }"
@@ -18911,6 +18957,9 @@
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.TableTriggerBuilder HasTrigger(string modelName);"
         },
         {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder IsOptional(bool optional = true);"
+        },
+        {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder Property(string propertyName);"
         },
         {
@@ -18943,6 +18992,9 @@
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.SplitTableBuilder<TEntity> IsOptional(bool optional = true);"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Builders.ColumnBuilder<TProperty> Property<TProperty>(System.Linq.Expressions.Expression<System.Func<TEntity, TProperty>> propertyExpression);"
@@ -20963,6 +21015,12 @@
         },
         {
           "Member": "virtual void AppendObtainNextSequenceValueOperation(System.Text.StringBuilder commandStringBuilder, string name, string? schema);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentUpsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
         },
         {
           "Member": "virtual void AppendReturningClause(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.IColumnModification> operations, string? additionalValues = null);"
