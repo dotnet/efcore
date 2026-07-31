@@ -196,7 +196,10 @@ WHERE instr("b"."String", @pattern) - 1 = 1
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2
+END = 6
 """);
     }
 
@@ -208,7 +211,10 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1)
             """
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2 = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'e') - 1) + 2
+END = 6
 """);
     }
 
@@ -222,7 +228,10 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", 2 + 1), 'e') - 1)
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), 'e') - 1) + @start
+END = 6
 """);
     }
 
@@ -236,7 +245,26 @@ WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e')
 
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
-WHERE length("b"."String") > 2 AND (instr(substr("b"."String", @start + 1), 'e') - 1) + @start = 6
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", @start + 1), 'e') = 0 THEN -1
+    ELSE (instr(substr("b"."String", @start + 1), 'e') - 1) + @start
+END = 6
+""");
+    }
+
+    [Fact]
+    public virtual async Task IndexOf_with_starting_position_returns_negative_one_when_not_found()
+    {
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.String.Length > 2 && b.String.IndexOf("qwxz", 2) == -1));
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE length("b"."String") > 2 AND CASE
+    WHEN instr(substr("b"."String", 2 + 1), 'qwxz') = 0 THEN -1
+    ELSE (instr(substr("b"."String", 2 + 1), 'qwxz') - 1) + 2
+END = -1
 """);
     }
 
