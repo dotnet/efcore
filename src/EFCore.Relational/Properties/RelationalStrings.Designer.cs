@@ -760,6 +760,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject, requiredDependentConfig);
 
         /// <summary>
+        ///     Entity type '{entityType}' has an optional split mapping for '{storeObject}', but the non-nullable property '{property}' is mapped to it. All non-key properties mapped to an optional split fragment must be configured as nullable for '{storeObject}'.
+        /// </summary>
+        public static string EntitySplittingNonNullablePropertyOnOptionalFragment(object? entityType, object? storeObject, object? property)
+            => string.Format(
+                GetString("EntitySplittingNonNullablePropertyOnOptionalFragment", nameof(entityType), nameof(storeObject), nameof(property)),
+                entityType, storeObject, property);
+
+        /// <summary>
+        ///     Entity type '{entityType}' has an optional split mapping for '{storeObject}', but that store object is also shared with entity type '{principalEntityType}' via table splitting. Combining an optional split fragment with table sharing on the same store object is not supported.
+        /// </summary>
+        public static string EntitySplittingOptionalFragmentSharedTable(object? entityType, object? storeObject, object? principalEntityType)
+            => string.Format(
+                GetString("EntitySplittingOptionalFragmentSharedTable", nameof(entityType), nameof(storeObject), nameof(principalEntityType)),
+                entityType, storeObject, principalEntityType);
+
+        /// <summary>
         ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.
         /// </summary>
         public static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType)

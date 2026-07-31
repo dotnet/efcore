@@ -400,6 +400,12 @@
   <data name="EntitySplittingMissingRequiredPropertiesOptionalDependent" xml:space="preserve">
     <value>Entity type '{entityType}' has a split mapping and is an optional dependent sharing a store object, but it doesn't map any required non-shared property to the main store object. Keep at least one required non-shared property mapped to a column on '{storeObject}' or mark '{entityType}' as a required dependent by calling '{requiredDependentConfig}'.</value>
   </data>
+  <data name="EntitySplittingNonNullablePropertyOnOptionalFragment" xml:space="preserve">
+    <value>Entity type '{entityType}' has an optional split mapping for '{storeObject}', but the non-nullable property '{property}' is mapped to it. All non-key properties mapped to an optional split fragment must be configured as nullable for '{storeObject}'.</value>
+  </data>
+  <data name="EntitySplittingOptionalFragmentSharedTable" xml:space="preserve">
+    <value>Entity type '{entityType}' has an optional split mapping for '{storeObject}', but that store object is also shared with entity type '{principalEntityType}' via table splitting. Combining an optional split fragment with table sharing on the same store object is not supported.</value>
+  </data>
   <data name="EntitySplittingUnmappedMainFragment" xml:space="preserve">
     <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.</value>
   </data>
