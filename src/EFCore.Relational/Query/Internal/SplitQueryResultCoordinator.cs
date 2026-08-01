@@ -83,4 +83,26 @@ public sealed class SplitQueryResultCoordinator
 
         Collections[collectionId] = splitQueryCollectionContext;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void VerifyNoOrphanedChildRows()
+    {
+        foreach (var dataReaderContext in DataReaders)
+        {
+            // Split collection queries correlate child rows to parents by consuming, for each parent (in order), the leading child
+            // rows whose parent key matches. HasNext == true here means the split reader is parked on a child row that didn't match
+            // the last parent - and since every parent has now been processed, that row (and any after it) belongs to no parent in
+            // the parent query's results. This can only happen if the data was modified concurrently between the execution of the
+            // parent query and the child query, leaving orphan child rows that would otherwise be silently dropped (see #33826).
+            if (dataReaderContext?.HasNext == true)
+            {
+                throw new DbQueryConcurrencyException(RelationalStrings.SplitQueryConcurrentModification);
+            }
+        }
+    }
 }

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     SQL Server specific extension methods for <see cref="ComplexTypePropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
@@ -20,7 +20,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -61,7 +61,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -81,7 +81,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -115,7 +115,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -135,7 +135,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -165,7 +165,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -184,7 +184,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -204,7 +204,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
@@ -223,7 +223,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
@@ -243,7 +243,7 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples. Also see
     ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for

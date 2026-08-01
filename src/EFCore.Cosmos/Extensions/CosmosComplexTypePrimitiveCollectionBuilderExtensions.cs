@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Cosmos-specific extension methods for <see cref="ComplexTypePrimitiveCollectionBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
 /// </remarks>
 public static class CosmosComplexTypePrimitiveCollectionBuilderExtensions
@@ -20,7 +20,7 @@ public static class CosmosComplexTypePrimitiveCollectionBuilderExtensions
     ///         If an empty string is supplied, the property will not be persisted.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///         See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
@@ -42,7 +42,7 @@ public static class CosmosComplexTypePrimitiveCollectionBuilderExtensions
     ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property being configured.</typeparam>

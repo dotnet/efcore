@@ -871,74 +871,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                         ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault
                     } shapedQueryExpression:
                     {
-                        var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-                        var innerShaperExpression = shapedQueryExpression.ShaperExpression;
-                        if (innerSelectExpression._clientProjections.Count == 0)
-                        {
-                            var mapping = innerSelectExpression.ConvertProjectionMappingToClientProjections(
-                                innerSelectExpression._projectionMapping);
-                            innerShaperExpression =
-                                new ProjectionMemberToIndexConvertingExpressionVisitor(innerSelectExpression, mapping)
-                                    .Visit(innerShaperExpression);
-                        }
-
-                        var innerExpression = RemoveConvert(innerShaperExpression);
-                        if (innerExpression is not (StructuralTypeShaperExpression or IncludeExpression))
-                        {
-                            var sentinelExpression = innerSelectExpression.Limit!;
-                            var sentinelNullableType = sentinelExpression.Type.MakeNullable();
-                            innerSelectExpression._clientProjections.Add(sentinelExpression);
-                            innerSelectExpression._aliasForClientProjections.Add(null);
-                            var dummyProjection = new ProjectionBindingExpression(
-                                innerSelectExpression, innerSelectExpression._clientProjections.Count - 1, sentinelNullableType);
-
-                            var defaultResult = shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
-                                ? (Expression)Default(innerShaperExpression.Type)
-                                : Block(
-                                    Throw(
-                                        New(
-                                            typeof(InvalidOperationException).GetConstructors()
-                                                .Single(ci =>
-                                                {
-                                                    var parameters = ci.GetParameters();
-                                                    return parameters.Length == 1
-                                                        && parameters[0].ParameterType == typeof(string);
-                                                }),
-                                            Constant(CoreStrings.SequenceContainsNoElements))),
-                                    Default(innerShaperExpression.Type));
-
-                            innerShaperExpression = Condition(
-                                Equal(dummyProjection, Default(sentinelNullableType)),
-                                defaultResult,
-                                innerShaperExpression);
-                        }
-
-                        // Single-result (to-one) joins never increase result cardinality, so the outer entity's
-                        // identifiers are already sufficient to uniquely identify rows. We don't need to add the
-                        // inner's identifiers to our own; doing so would cause unnecessary reference table JOINs,
-                        // ORDER BY columns, and projections in split collection queries (#29182).
-                        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _, isToOneJoin: true, isPrunableJoin: true);
-                        var offset = _clientProjections.Count;
-                        var count = innerSelectExpression._clientProjections.Count;
-
-                        _clientProjections.AddRange(
-                            innerSelectExpression._clientProjections.Select(e => MakeNullable(e, nullable: true)));
-
-                        _aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
-                        innerShaperExpression = new ProjectionIndexRemappingExpressionVisitor(
-                                innerSelectExpression,
-                                this,
-                                Enumerable.Range(offset, count).ToArray())
-                            .Visit(innerShaperExpression);
-                        innerShaperExpression = entityShaperNullableMarkingExpressionVisitor!.Visit(innerShaperExpression);
+                        var innerShaperExpression = LowerSingleResultSubqueryCore(
+                            shapedQueryExpression,
+                            (projection, alias) =>
+                            {
+                                _clientProjections.Add(projection);
+                                _aliasForClientProjections.Add(alias);
+                                return _clientProjections.Count - 1;
+                            },
+                            entityShaperNullableMarkingExpressionVisitor!);
                         clientProjectionIndexMap.Add(innerShaperExpression);
                         remappingRequired = true;
                         break;
-
-                        static Expression RemoveConvert(Expression expression)
-                            => expression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
-                                ? RemoveConvert(unaryExpression.Operand)
-                                : expression;
                     }
 
                     case ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQueryExpression:
@@ -3905,6 +3849,126 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     public void PushdownIntoSubquery()
         => PushdownIntoSubqueryInternal();
+
+    // Lowers a single-result subquery held as a client projection (e.g. the group element of
+    // GroupBy(k).Select(g => g.First())) into this SelectExpression as a prunable to-one OUTER APPLY —
+    // the same lowering ApplyProjection defers to the end of translation, but on demand, so that the
+    // result can still be composed over (joined, re-projected) instead of failing with
+    // "ProjectionBindingExpression could not be translated". The inner projections are appended to
+    // `clientProjectionList` (the projection binder's working list, which replaces this
+    // SelectExpression's projections once the binder completes) and the remapped inner shaper is returned.
+    // Internal infrastructure: only called from RelationalProjectionBindingExpressionVisitor.
+    internal Expression LowerSingleResultSubquery(
+        ShapedQueryExpression shapedQueryExpression,
+        List<Expression> clientProjectionList)
+    {
+        // A join is about to be added; contain any shape-altering state first, as ApplyProjection does.
+        // Any expressions the projection binder has already collected reference the pre-pushdown
+        // tables, so they must be remapped alongside this SelectExpression's own state.
+        if (Limit != null
+            || Offset != null
+            || IsDistinct
+            || GroupBy.Count > 0)
+        {
+            var remappingVisitor = PushdownIntoSubqueryInternal();
+            for (var i = 0; i < clientProjectionList.Count; i++)
+            {
+                clientProjectionList[i] = remappingVisitor.Visit(clientProjectionList[i]);
+            }
+        }
+
+        return LowerSingleResultSubqueryCore(
+            shapedQueryExpression,
+            (projection, _) =>
+            {
+                var existingIndex = clientProjectionList.FindIndex(e => e.Equals(projection));
+                if (existingIndex == -1)
+                {
+                    clientProjectionList.Add(projection);
+                    existingIndex = clientProjectionList.Count - 1;
+                }
+
+                return existingIndex;
+            },
+            new EntityShaperNullableMarkingExpressionVisitor());
+    }
+
+    // Shared core of the single-result (to-one) subquery lowering, used both by ApplyProjection
+    // (deferred, at the end of translation) and by the projection binder through
+    // LowerSingleResultSubquery (on demand, when the single result is composed over).
+    // `addProjection` places one lowered projection (with its alias) into the caller's projection
+    // list and returns its index there.
+    private Expression LowerSingleResultSubqueryCore(
+        ShapedQueryExpression shapedQueryExpression,
+        Func<Expression, string?, int> addProjection,
+        EntityShaperNullableMarkingExpressionVisitor entityShaperNullableMarkingExpressionVisitor)
+    {
+        var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+        var innerShaperExpression = shapedQueryExpression.ShaperExpression;
+        if (innerSelectExpression._clientProjections.Count == 0)
+        {
+            var mapping = innerSelectExpression.ConvertProjectionMappingToClientProjections(
+                innerSelectExpression._projectionMapping);
+            innerShaperExpression =
+                new ProjectionMemberToIndexConvertingExpressionVisitor(innerSelectExpression, mapping)
+                    .Visit(innerShaperExpression);
+        }
+
+        var innerExpression = RemoveConvert(innerShaperExpression);
+        if (innerExpression is not (StructuralTypeShaperExpression or IncludeExpression))
+        {
+            var sentinelExpression = innerSelectExpression.Limit!;
+            var sentinelNullableType = sentinelExpression.Type.MakeNullable();
+            innerSelectExpression._clientProjections.Add(sentinelExpression);
+            innerSelectExpression._aliasForClientProjections.Add(null);
+            var dummyProjection = new ProjectionBindingExpression(
+                innerSelectExpression, innerSelectExpression._clientProjections.Count - 1, sentinelNullableType);
+
+            var defaultResult = shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
+                ? (Expression)Default(innerShaperExpression.Type)
+                : Block(
+                    Throw(
+                        New(
+                            typeof(InvalidOperationException).GetConstructors()
+                                .Single(ci =>
+                                {
+                                    var parameters = ci.GetParameters();
+                                    return parameters.Length == 1
+                                        && parameters[0].ParameterType == typeof(string);
+                                }),
+                            Constant(CoreStrings.SequenceContainsNoElements))),
+                    Default(innerShaperExpression.Type));
+
+            innerShaperExpression = Condition(
+                Equal(dummyProjection, Default(sentinelNullableType)),
+                defaultResult,
+                innerShaperExpression);
+        }
+
+        // Single-result (to-one) joins never increase result cardinality, so the outer entity's
+        // identifiers are already sufficient to uniquely identify rows. We don't need to add the
+        // inner's identifiers to our own; doing so would cause unnecessary reference table JOINs,
+        // ORDER BY columns, and projections in split collection queries (#29182).
+        AddJoin(JoinType.OuterApply, ref innerSelectExpression, out _, isToOneJoin: true, isPrunableJoin: true);
+
+        var indexMap = new int[innerSelectExpression._clientProjections.Count];
+        for (var i = 0; i < innerSelectExpression._clientProjections.Count; i++)
+        {
+            indexMap[i] = addProjection(
+                MakeNullable(innerSelectExpression._clientProjections[i], nullable: true),
+                innerSelectExpression._aliasForClientProjections[i]);
+        }
+
+        innerShaperExpression = new ProjectionIndexRemappingExpressionVisitor(innerSelectExpression, this, indexMap)
+            .Visit(innerShaperExpression);
+
+        return entityShaperNullableMarkingExpressionVisitor.Visit(innerShaperExpression);
+
+        static Expression RemoveConvert(Expression expression)
+            => expression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
+                ? RemoveConvert(unaryExpression.Operand)
+                : expression;
+    }
 
     /// <summary>
     ///     Pushes down the <see cref="SelectExpression" /> into a subquery.

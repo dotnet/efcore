@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     SQLite-specific extension methods for <see cref="ComplexTypePropertyBuilder" />.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
 ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
 /// </remarks>
 public static class SqliteComplexTypePropertyBuilderExtensions
@@ -17,7 +17,7 @@ public static class SqliteComplexTypePropertyBuilderExtensions
     ///     when targeting SQLite. This method sets the property's value generation strategy to <see cref="SqliteValueGenerationStrategy.Autoincrement" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -34,7 +34,7 @@ public static class SqliteComplexTypePropertyBuilderExtensions
     ///     when targeting SQLite. This method sets the property's value generation strategy to <see cref="SqliteValueGenerationStrategy.Autoincrement" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="propertyBuilder">The builder for the property being configured.</param>
