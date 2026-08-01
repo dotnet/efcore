@@ -5,10 +5,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-// Sqlite doesn't implement the conditional upsert/delete required to write optional entity-splitting fragments;
-// these tests verify that this is surfaced as a clear provider-capability error rather than silently wrong SQL,
-// and that operations which never need to touch the optional fragment (e.g. inserting/deleting an all-null
-// fragment) keep working, since the "should we touch this fragment at all" decision is provider-neutral.
+// Whether an optional entity-splitting fragment's row needs to be inserted, updated, or left alone when the entity
+// is deleted is decided from the entry's tracked original values rather than from provider-specific SQL, so these
+// scenarios work identically on every relational provider, including ones like Sqlite that have no special support
+// for conditional upserts/deletes.
 public class OptionalEntitySplittingSqliteTest : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
 {
     public OptionalEntitySplittingSqliteTest(NonSharedFixture fixture)
@@ -47,8 +47,8 @@ public class OptionalEntitySplittingSqliteTest : NonSharedModelTestBase, IClassF
         {
             context.Customers.Add(new Customer { Id = 1, Name = "Alice" });
 
-            // No exception: the optional-fragment INSERT is skipped entirely (provider-neutral decision)
-            // because every payload value mapped to it is null.
+            // No exception: the optional-fragment INSERT is skipped entirely because every payload value mapped
+            // to it is null.
             await context.SaveChangesAsync();
         }
 
@@ -61,35 +61,130 @@ public class OptionalEntitySplittingSqliteTest : NonSharedModelTestBase, IClassF
     }
 
     [Fact]
-    public async Task Update_of_optional_fragment_throws_provider_capability_error()
+    public async Task Insert_with_non_null_optional_payload_inserts_fragment_row()
     {
         var contextFactory = await InitializeContextAsync();
 
-        await using var context = contextFactory.CreateDbContext();
-        context.Customers.Add(new Customer { Id = 1, Name = "Alice" });
-        await context.SaveChangesAsync();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice", Description = "Some details" });
 
-        var customer = await context.Customers.SingleAsync();
-        customer.Description = "Some details";
+            await context.SaveChangesAsync();
+        }
 
-        var exception = await Assert.ThrowsAsync<NotSupportedException>(() => context.SaveChangesAsync());
-        Assert.Equal(RelationalStrings.OptionalEntitySplittingNotSupported, exception.Message);
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            Assert.Equal("Some details", customer.Description);
+        }
     }
 
     [Fact]
-    public async Task Delete_of_entity_with_optional_fragment_throws_provider_capability_error()
+    public async Task Setting_previously_absent_optional_fragment_inserts_row()
     {
         var contextFactory = await InitializeContextAsync();
 
-        await using var context = contextFactory.CreateDbContext();
-        context.Customers.Add(new Customer { Id = 1, Name = "Alice" });
-        await context.SaveChangesAsync();
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice" });
+            await context.SaveChangesAsync();
+        }
 
-        var customer = await context.Customers.SingleAsync();
-        context.Customers.Remove(customer);
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            customer.Description = "Some details";
 
-        var exception = await Assert.ThrowsAsync<NotSupportedException>(() => context.SaveChangesAsync());
-        Assert.Equal(RelationalStrings.OptionalEntitySplittingNotSupported, exception.Message);
+            // The fragment row was never inserted, so this is treated as an INSERT rather than an UPDATE.
+            // If it were sent as an UPDATE, it would affect zero rows and throw DbUpdateConcurrencyException.
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            Assert.Equal("Some details", customer.Description);
+        }
+    }
+
+    [Fact]
+    public async Task Updating_previously_present_optional_fragment_updates_row()
+    {
+        var contextFactory = await InitializeContextAsync();
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice", Description = "Some details" });
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            customer.Description = "Other details";
+
+            // The fragment row already exists, so this must be sent as an UPDATE. If it were sent as an INSERT,
+            // it would violate the primary key and throw.
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            Assert.Equal("Other details", customer.Description);
+        }
+    }
+
+    [Fact]
+    public async Task Deleting_entity_with_absent_optional_fragment_completes_without_error()
+    {
+        var contextFactory = await InitializeContextAsync();
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice" });
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            context.Customers.Remove(customer);
+
+            // The fragment row was never inserted, so its DELETE is skipped. If it were sent, it would affect
+            // zero rows and throw DbUpdateConcurrencyException.
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Empty(await context.Customers.ToListAsync());
+        }
+    }
+
+    [Fact]
+    public async Task Deleting_entity_with_present_optional_fragment_deletes_row()
+    {
+        var contextFactory = await InitializeContextAsync();
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice", Description = "Some details" });
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            context.Customers.Remove(customer);
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            Assert.Empty(await context.Customers.ToListAsync());
+        }
     }
 
     protected class CustomerContext(DbContextOptions options) : PoolableDbContext(options)

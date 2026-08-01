@@ -1806,12 +1806,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Saving changes to an optional entity-splitting fragment is not supported by the current database provider. Either configure the fragment as required by removing the call to 'IsOptional()', or use a provider that supports optional entity-splitting fragments for 'SaveChanges'.
-        /// </summary>
-        public static string OptionalEntitySplittingNotSupported
-            => GetString("OptionalEntitySplittingNotSupported");
-
-        /// <summary>
         ///     The value provided for parameter '{parameter}' cannot be used because it isn't assignable to type 'object[]'.
         /// </summary>
         public static string ParameterNotObjectArray(object? parameter)

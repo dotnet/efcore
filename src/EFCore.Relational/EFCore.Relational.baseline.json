@@ -7255,12 +7255,6 @@
           "Member": "void AppendObtainNextSequenceValueOperation(System.Text.StringBuilder commandStringBuilder, string name, string? schema);"
         },
         {
-          "Member": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
-        },
-        {
-          "Member": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentUpsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
-        },
-        {
           "Member": "Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendStoredProcedureCall(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
         },
         {
@@ -8529,6 +8523,9 @@
         },
         {
           "Member": "virtual bool IsOptionalSplitFragment { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptionalSplitFragmentRowAssumedAbsent { get; }"
         },
         {
           "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IColumnBase? RowsAffectedColumn { get; private set; }"
@@ -17223,9 +17220,6 @@
           "Member": "static string OnlyConstantsSupportedInInlineCollectionQueryRoots { get; }"
         },
         {
-          "Member": "static string OptionalEntitySplittingNotSupported { get; }"
-        },
-        {
           "Member": "static string PendingAmbientTransaction { get; }"
         },
         {
@@ -21015,12 +21009,6 @@
         },
         {
           "Member": "virtual void AppendObtainNextSequenceValueOperation(System.Text.StringBuilder commandStringBuilder, string name, string? schema);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentDeleteOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
-        },
-        {
-          "Member": "virtual Microsoft.EntityFrameworkCore.Update.ResultSetMapping AppendOptionalFragmentUpsertOperation(System.Text.StringBuilder commandStringBuilder, Microsoft.EntityFrameworkCore.Update.IReadOnlyModificationCommand command, int commandPosition, out bool requiresTransaction);"
         },
         {
           "Member": "virtual void AppendReturningClause(System.Text.StringBuilder commandStringBuilder, System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Update.IColumnModification> operations, string? additionalValues = null);"

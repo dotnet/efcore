@@ -130,6 +130,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
+            if (modificationCommand.EntityState == EntityState.Deleted
+                && modificationCommand is ModificationCommand { IsOptionalSplitFragmentRowAssumedAbsent: true })
+            {
+                continue;
+            }
+
             if (!batch.TryAddCommand(modificationCommand))
             {
                 if (batch.ModificationCommands.Count == 1

@@ -204,8 +204,6 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         }
         else
         {
-            var isOptionalSplitFragment = modificationCommand is ModificationCommand { IsOptionalSplitFragment: true };
-
             switch (modificationCommand.EntityState)
             {
                 case EntityState.Added:
@@ -215,19 +213,13 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
                     break;
                 case EntityState.Modified:
                     ResultSetMappings.Add(
-                        isOptionalSplitFragment
-                            ? UpdateSqlGenerator.AppendOptionalFragmentUpsertOperation(
-                                SqlBuilder, modificationCommand, commandPosition, out requiresTransaction)
-                            : UpdateSqlGenerator.AppendUpdateOperation(
-                                SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
+                        UpdateSqlGenerator.AppendUpdateOperation(
+                            SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Deleted:
                     ResultSetMappings.Add(
-                        isOptionalSplitFragment
-                            ? UpdateSqlGenerator.AppendOptionalFragmentDeleteOperation(
-                                SqlBuilder, modificationCommand, commandPosition, out requiresTransaction)
-                            : UpdateSqlGenerator.AppendDeleteOperation(
-                                SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
+                        UpdateSqlGenerator.AppendDeleteOperation(
+                            SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
 
                 default:

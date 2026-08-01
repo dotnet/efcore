@@ -433,22 +433,6 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         return resultSetMapping;
     }
 
-    /// <inheritdoc />
-    public virtual ResultSetMapping AppendOptionalFragmentUpsertOperation(
-        StringBuilder commandStringBuilder,
-        IReadOnlyModificationCommand command,
-        int commandPosition,
-        out bool requiresTransaction)
-        => throw new NotSupportedException(RelationalStrings.OptionalEntitySplittingNotSupported);
-
-    /// <inheritdoc />
-    public virtual ResultSetMapping AppendOptionalFragmentDeleteOperation(
-        StringBuilder commandStringBuilder,
-        IReadOnlyModificationCommand command,
-        int commandPosition,
-        out bool requiresTransaction)
-        => throw new NotSupportedException(RelationalStrings.OptionalEntitySplittingNotSupported);
-
     /// <summary>
     ///     Appends a SQL fragment for a <c>VALUES</c>.
     /// </summary>
