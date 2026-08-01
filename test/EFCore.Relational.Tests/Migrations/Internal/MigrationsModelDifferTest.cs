@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable ClassNeverInstantiated.Local
@@ -1587,6 +1589,91 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     var m = Assert.IsType<DropTableOperation>(o);
                     Assert.Equal("Company", m.Name);
                 }));
+
+    [Fact]
+    public void Detects_entity_splitting_fragment_optionality_change()
+    {
+        var (sourceModel, targetModel) = BuildCustomerModels(sourceIsOptional: false, targetIsOptional: true);
+
+        var listLoggerFactory = new ListLoggerFactory(_ => true);
+        var modelDiffer = CreateModelDifferWithLogger(targetModel, listLoggerFactory);
+
+        modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
+
+        var warning = Assert.Single(
+            listLoggerFactory.Log,
+            l => l.Id == RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning);
+        Assert.Contains("CustomerDetails", warning.Message);
+        Assert.Contains("Customer", warning.Message);
+        Assert.Contains("optional", warning.Message);
+    }
+
+    [Fact]
+    public void Does_not_warn_when_entity_splitting_fragment_optionality_is_unchanged()
+    {
+        var (sourceModel, targetModel) = BuildCustomerModels(sourceIsOptional: false, targetIsOptional: false);
+
+        var listLoggerFactory = new ListLoggerFactory(_ => true);
+        var modelDiffer = CreateModelDifferWithLogger(targetModel, listLoggerFactory);
+
+        modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
+
+        Assert.DoesNotContain(
+            listLoggerFactory.Log,
+            l => l.Id == RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning);
+    }
+
+    private (IModel Source, IModel Target) BuildCustomerModels(bool sourceIsOptional, bool targetIsOptional)
+    {
+        IModel BuildModel(bool isOptional)
+        {
+            var modelBuilder = CreateModelBuilder(skipConventions: false);
+            modelBuilder.Entity(
+                "Customer", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<string>("Name");
+                    x.SplitToTable(
+                        "CustomerDetails", t =>
+                        {
+                            if (isOptional)
+                            {
+                                t.IsOptional();
+                            }
+
+                            t.Property<string>("Description");
+                        });
+                });
+
+            return modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+        }
+
+        return (BuildModel(sourceIsOptional), BuildModel(targetIsOptional));
+    }
+
+    private MigrationsModelDiffer CreateModelDifferWithLogger(IModel targetModel, ListLoggerFactory listLoggerFactory)
+    {
+        var options = new LoggingOptions();
+        options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging().Options);
+        var logger = new DiagnosticsLogger<DbLoggerCategory.Migrations>(
+            listLoggerFactory,
+            options,
+            new DiagnosticListener("Fake"),
+            TestHelpers.LoggingDefinitions,
+            new NullDbContextLogger());
+
+        var targetOptions = TestHelpers.AddProviderOptions(new DbContextOptionsBuilder()).UseModel(targetModel).Options;
+
+        return new MigrationsModelDiffer(
+            new TestRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+            new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+            new RelationalAnnotationProvider(new RelationalAnnotationProviderDependencies()),
+            TestServiceFactory.Instance.Create<IRowIdentityMapFactory>(),
+            TestHelpers.CreateContext(targetOptions).GetService<CommandBatchPreparerDependencies>(),
+            logger);
+    }
 
     [Fact]
     public void Add_owned_types()

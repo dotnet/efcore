@@ -2818,6 +2818,25 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.EntityTypeMappingFragmentEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "Methods": [
+        {
+          "Member": "EntityTypeMappingFragmentEventData(Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase eventDefinition, System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, string> messageGenerator, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool optional);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.IEntityType EntityType { get; }"
+        },
+        {
+          "Member": "virtual bool IsOptional { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier StoreObject { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Diagnostics.EntityTypeSchemaEventData : Microsoft.EntityFrameworkCore.Diagnostics.EventData",
       "Methods": [
         {
@@ -12741,6 +12760,9 @@
           "Member": "static readonly Microsoft.Extensions.Logging.EventId DuplicateColumnOrders"
         },
         {
+          "Member": "static readonly Microsoft.Extensions.Logging.EventId EntitySplittingFragmentOptionalityChangedWarning"
+        },
+        {
           "Member": "static readonly Microsoft.Extensions.Logging.EventId ExecuteDeleteFailed"
         },
         {
@@ -13466,6 +13488,9 @@
         },
         {
           "Member": "static void DuplicateColumnOrders(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> diagnostics, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, System.Collections.Generic.IReadOnlyList<string> columns);"
+        },
+        {
+          "Member": "static void EntitySplittingFragmentOptionalityChangedWarning(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Migrations> diagnostics, Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool optional);"
         },
         {
           "Member": "static void ExecuteDeleteFailed(this Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Query> diagnostics, System.Type contextType, System.Exception exception);"

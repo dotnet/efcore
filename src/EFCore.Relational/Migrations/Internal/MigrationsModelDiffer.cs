@@ -56,13 +56,15 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         IMigrationsAnnotationProvider migrationsAnnotationProvider,
         IRelationalAnnotationProvider relationalAnnotationProvider,
         IRowIdentityMapFactory rowIdentityMapFactory,
-        CommandBatchPreparerDependencies commandBatchPreparerDependencies)
+        CommandBatchPreparerDependencies commandBatchPreparerDependencies,
+        IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
     {
         TypeMappingSource = typeMappingSource;
         MigrationsAnnotationProvider = migrationsAnnotationProvider;
         RelationalAnnotationProvider = relationalAnnotationProvider;
         RowIdentityMapFactory = rowIdentityMapFactory;
         CommandBatchPreparerDependencies = commandBatchPreparerDependencies;
+        Logger = logger;
     }
 
     /// <summary>
@@ -104,6 +106,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual CommandBatchPreparerDependencies CommandBatchPreparerDependencies { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IDiagnosticsLogger<DbLoggerCategory.Migrations> Logger { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -594,6 +604,21 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
 
             yield break;
+        }
+
+        foreach (var sourceMapping in source.EntityTypeMappings)
+        {
+            var targetMapping = target.EntityTypeMappings.FirstOrDefault(
+                m => string.Equals(m.TypeBase.Name, sourceMapping.TypeBase.Name, StringComparison.OrdinalIgnoreCase));
+            if (targetMapping != null
+                && sourceMapping.IsSplitFragmentOptional != targetMapping.IsSplitFragmentOptional
+                && targetMapping.TypeBase is IEntityType targetEntityType)
+            {
+                Logger.EntitySplittingFragmentOptionalityChangedWarning(
+                    targetEntityType,
+                    StoreObjectIdentifier.Table(target.Name, target.Schema),
+                    targetMapping.IsSplitFragmentOptional);
+            }
         }
 
         if (source.Schema != target.Schema

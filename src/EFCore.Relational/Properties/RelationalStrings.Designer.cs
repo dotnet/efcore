@@ -3394,6 +3394,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The optionality of the entity-splitting fragment '{storeObject}' for entity type '{entityType}' changed to '{optionality}' since the last migration. This may be a purely behavioral change with no corresponding schema change; review the generated migration to confirm it reflects the intended change.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogEntitySplittingFragmentOptionalityChangedWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogEntitySplittingFragmentOptionalityChangedWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogEntitySplittingFragmentOptionalityChangedWarning,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.EntitySplittingFragmentOptionalityChangedWarning,
+                            _resourceManager.GetString("LogEntitySplittingFragmentOptionalityChangedWarning")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     An exception occurred while executing an 'ExecuteDelete' operation for context type '{contextType}'.{newline}{error}
         /// </summary>
         public static EventDefinition<Type, string, Exception> LogExceptionDuringExecuteDelete(IDiagnosticsLogger logger)
