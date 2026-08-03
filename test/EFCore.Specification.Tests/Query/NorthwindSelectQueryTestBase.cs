@@ -653,7 +653,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
             async,
             ss => from o in ss.Set<Order>()
                   where o.CustomerID == "ALFKI"
-                  select (o.CustomerID == null || o.OrderID < 100));
+                  select o.CustomerID == null ? true : o.OrderID < 100);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_over_10_nested_ternary_condition(bool isAsync)
@@ -723,7 +723,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
         => AssertQueryScalar(
             async,
             ss => from o in ss.Set<Order>()
-                  select (o.OrderID % 2 != 0)
+                  select (o.OrderID % 2 == 0 ? false : true)
                       ? o.OrderID
                       : -o.OrderID);
 
@@ -1097,7 +1097,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture>(TFixture fixture) :
     public virtual Task Select_bool_constant(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Customer>().Select(c => c.CustomerID == "ALFKI"));
+            ss => ss.Set<Customer>().Select(c => c.CustomerID == "ALFKI" ? true : false));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Anonymous_projection_AsNoTracking_Selector(bool async)

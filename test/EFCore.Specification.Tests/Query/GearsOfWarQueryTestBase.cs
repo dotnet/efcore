@@ -4704,7 +4704,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Navigation_based_on_complex_expression1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Faction>().Where(f => f is LocustHorde && (f as LocustHorde).Commander != null));
+            ss => ss.Set<Faction>().Where(f => f is LocustHorde ? (f as LocustHorde).Commander != null : false));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_based_on_complex_expression2(bool async)

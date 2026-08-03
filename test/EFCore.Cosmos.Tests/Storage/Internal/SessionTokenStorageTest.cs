@@ -12,7 +12,7 @@ public class SessionTokenStorageTest
 {
     private readonly string _defaultContainerName = "default";
     private readonly string _otherContainerName = "other";
-    private readonly HashSet<string> _containerNames = [with(["default", "other"])];
+    private readonly HashSet<string> _containerNames = new(["default", "other"]);
 
     [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]

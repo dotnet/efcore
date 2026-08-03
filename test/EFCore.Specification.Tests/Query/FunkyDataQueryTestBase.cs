@@ -446,7 +446,7 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             async,
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(r => r.fn.EndsWith(r.ln)),
+                .Where(r => r.fn.EndsWith(r.ln) ? true : false),
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                 .Where(r => r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true),
@@ -463,10 +463,12 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
             async,
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(r => !r.fn.EndsWith(r.ln)),
+                .Where(r => !r.fn.EndsWith(r.ln) ? true : false),
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)));
+                .Where(r => !(r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true)
+                    ? true
+                    : false));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_ends_with_equals_nullable_column(bool async)

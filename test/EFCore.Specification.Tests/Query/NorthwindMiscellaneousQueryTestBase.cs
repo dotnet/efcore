@@ -2915,20 +2915,20 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
         await AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID < 10400)
-                && dateFilter.HasValue
-                && o.OrderDate.HasValue
-                && o.OrderDate.Value.Month == dateFilter.Value.Month
-                && o.OrderDate.Value.Year == dateFilter.Value.Year));
+                && (dateFilter.HasValue)
+                && (o.OrderDate.HasValue
+                    && o.OrderDate.Value.Month == dateFilter.Value.Month
+                    && o.OrderDate.Value.Year == dateFilter.Value.Year)));
 
         dateFilter = null;
 
         await AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID < 10400)
-                && dateFilter.HasValue
-                && o.OrderDate.HasValue
-                && o.OrderDate.Value.Month == dateFilter.Value.Month
-                && o.OrderDate.Value.Year == dateFilter.Value.Year),
+                && (dateFilter.HasValue)
+                && (o.OrderDate.HasValue
+                    && o.OrderDate.Value.Month == dateFilter.Value.Month
+                    && o.OrderDate.Value.Year == dateFilter.Value.Year)),
             assertEmpty: true);
     }
 

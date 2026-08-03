@@ -1266,7 +1266,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"));
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1286,7 +1286,9 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) && c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE"),
+            #pragma warning disable IDE0047
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")),
+            #pragma warning restore IDE0047
             assertEmpty: true);
     }
 
@@ -1297,7 +1299,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"));
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
