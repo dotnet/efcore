@@ -92,13 +92,13 @@ public class SqlServerTimeOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
             }
 
             // The bounds aren't known when translating, so both cases have to be handled in the SQL.
-            return sqlExpressionFactory.Case(
-                [
-                    new CaseWhenClause(
-                        sqlExpressionFactory.LessThanOrEqual(start, end),
-                        sqlExpressionFactory.AndAlso(isAfterStart, isBeforeEnd))
-                ],
-                sqlExpressionFactory.OrElse(isAfterStart, isBeforeEnd));
+            return sqlExpressionFactory.OrElse(
+                sqlExpressionFactory.AndAlso(
+                    sqlExpressionFactory.LessThanOrEqual(start, end),
+                    sqlExpressionFactory.AndAlso(isAfterStart, isBeforeEnd)),
+                sqlExpressionFactory.AndAlso(
+                    sqlExpressionFactory.GreaterThan(start, end),
+                    sqlExpressionFactory.OrElse(isAfterStart, isBeforeEnd)));
         }
 
         return null;
