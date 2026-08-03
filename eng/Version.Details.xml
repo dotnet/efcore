@@ -29,7 +29,7 @@
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>dcf4a22cf8671c1abe880ebec4cfd906c99588bf</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="8.0.30-servicing.26367.20">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="8.0.30-servicing.26403.5">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>a83db3e0eb2defb6220e15dae2f1a0462fdbf99f</Sha>
     </Dependency>
@@ -54,7 +54,7 @@
       <Sha>a83db3e0eb2defb6220e15dae2f1a0462fdbf99f</Sha>
     </Dependency>
     <!-- NB: Using BrowserDebugHost to represent the nonshipping version of Microsoft.NETCore.App -->
-    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.30-servicing.26367.20">
+    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.30-servicing.26403.5">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
       <Sha>a83db3e0eb2defb6220e15dae2f1a0462fdbf99f</Sha>
     </Dependency>
