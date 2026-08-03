@@ -466,7 +466,7 @@ public class RelationalModelValidator(
     }
 
     /// <summary>
-    ///     Validates the stored procedures for a entity type.
+    ///     Validates the stored procedures for an entity type.
     /// </summary>
     /// <param name="entityType">The entity type to validate.</param>
     /// <param name="logger">The logger to use.</param>

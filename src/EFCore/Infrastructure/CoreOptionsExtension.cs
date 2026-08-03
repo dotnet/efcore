@@ -585,7 +585,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     ///     Adds the services required to make the selected options work. This is used when there
     ///     is no external <see cref="IServiceProvider" /> and EF is maintaining its own service
     ///     provider internally. This allows database providers (and other extensions) to register their
-    ///     required services when EF is creating an service provider.
+    ///     required services when EF is creating a service provider.
     /// </summary>
     /// <param name="services">The collection to add services to.</param>
     public virtual void ApplyServices(IServiceCollection services)
