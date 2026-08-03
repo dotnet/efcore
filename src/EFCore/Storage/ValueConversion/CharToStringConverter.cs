@@ -53,7 +53,8 @@ public class CharToStringConverter : StringCharConverter<char, string>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(char), typeof(string),
+        = new(
+            typeof(char), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new CharToStringConverter(i.MappingHints),
             DefaultHints);
 }

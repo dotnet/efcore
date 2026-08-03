@@ -39,7 +39,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly SqlAliasManager _sqlAliasManager;
 
     internal bool IsMutable { get; private set; } = true;
-    private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private List<Expression> _clientProjections = [];
     private readonly List<string?> _aliasForClientProjections = [];
     private CloningExpressionVisitor? _cloningExpressionVisitor;
@@ -1615,11 +1615,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 // If the intersection is empty then we don't remove predicate so that the filter empty out all results.
                 case SqlBinaryExpression
-                    {
-                        OperatorType: ExpressionType.Equal,
-                        Left: ColumnExpression leftColumn,
-                        Right: SqlConstantExpression { Value: string s1 }
-                    }
+                {
+                    OperatorType: ExpressionType.Equal,
+                    Left: ColumnExpression leftColumn,
+                    Right: SqlConstantExpression { Value: string s1 }
+                }
                     when TryGetTable(leftColumn, out var table, out _)
                     && table is TpcTablesExpression
                     {
@@ -1628,7 +1628,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     } tpcExpression
                     && leftColumn.Equals(discriminatorColumn):
                 {
-                    var newList = discriminatorValues.Intersect(new List<string> { s1 }).ToList();
+                    var newList = discriminatorValues.Intersect([s1]).ToList();
                     if (newList.Count > 0)
                     {
                         tpcExpression.DiscriminatorValues = newList;
@@ -1639,11 +1639,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
 
                 case SqlBinaryExpression
-                    {
-                        OperatorType: ExpressionType.Equal,
-                        Left: SqlConstantExpression { Value: string s2 },
-                        Right: ColumnExpression rightColumn
-                    }
+                {
+                    OperatorType: ExpressionType.Equal,
+                    Left: SqlConstantExpression { Value: string s2 },
+                    Right: ColumnExpression rightColumn
+                }
                     when TryGetTable(rightColumn, out var table, out _)
                     && table is TpcTablesExpression
                     {
@@ -1652,7 +1652,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     } tpcExpression
                     && rightColumn.Equals(discriminatorColumn):
                 {
-                    var newList = discriminatorValues.Intersect(new List<string> { s2 }).ToList();
+                    var newList = discriminatorValues.Intersect([s2]).ToList();
                     if (newList.Count > 0)
                     {
                         tpcExpression.DiscriminatorValues = newList;
@@ -1665,10 +1665,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // Identify application of a predicate which narrows the discriminator (e.g. OfType) for TPC, apply it to
                 // _tpcDiscriminatorValues (which will be handled later) instead of as a WHERE predicate.
                 case InExpression
-                    {
-                        Item: ColumnExpression itemColumn,
-                        Values: { } valueExpressions
-                    }
+                {
+                    Item: ColumnExpression itemColumn,
+                    Values: { } valueExpressions
+                }
                     when TryGetTable(itemColumn, out var table, out _)
                     && table is TpcTablesExpression
                     {
@@ -2076,7 +2076,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         _groupBy.Clear();
         _orderings.Clear();
         _tables.Clear();
-        select1._projectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping);
+        select1._projectionMapping = [with(_projectionMapping)];
         _projectionMapping.Clear();
         select1._identifier.AddRange(_identifier);
         _identifier.Clear();
@@ -3517,11 +3517,11 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                     // We check condition in a separate function to avoid matching structure of condition outside of case block
                     CaseExpression
-                        {
-                            Operand: null,
-                            WhenClauses: [{ Result: ColumnExpression resultColumn } whenClause],
-                            ElseResult: null
-                        }
+                    {
+                        Operand: null,
+                        WhenClauses: [{ Result: ColumnExpression resultColumn } whenClause],
+                        ElseResult: null
+                    }
                         => IsContainedCondition(selectExpression, whenClause.Test)
                         && selectExpression.ContainsReferencedTable(resultColumn),
 
@@ -3612,7 +3612,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return Rewrite(predicate, outerColumnExpressions, keepNullableKeyChecks);
 
                 static SqlExpression? Rewrite(
-                    SqlExpression predicate, List<SqlExpression> outerColumnExpressions, bool keepNullableKeyChecks)
+                    SqlExpression predicate,
+                    List<SqlExpression> outerColumnExpressions,
+                    bool keepNullableKeyChecks)
                 {
                     if (predicate is SqlBinaryExpression sqlBinaryExpression)
                     {
@@ -3639,21 +3641,16 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // Counts the non-null-check conjuncts in the extracted join predicate; when more than one remains the resulting join
                 // predicate is a conjunction subject to C# null semantics expansion.
                 static int CountNonNullCheckConjuncts(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
-                {
-                    if (predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso)
-                    {
-                        return CountNonNullCheckConjuncts(andAlso.Left, outerColumnExpressions)
-                            + CountNonNullCheckConjuncts(andAlso.Right, outerColumnExpressions);
-                    }
-
-                    return predicate is SqlBinaryExpression
-                    {
-                        OperatorType: ExpressionType.NotEqual, Right: SqlConstantExpression { Value: null }
-                    } nullCheck
-                    && outerColumnExpressions.Contains(nullCheck.Left)
-                        ? 0
-                        : 1;
-                }
+                    => predicate is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } andAlso
+                        ? CountNonNullCheckConjuncts(andAlso.Left, outerColumnExpressions)
+                        + CountNonNullCheckConjuncts(andAlso.Right, outerColumnExpressions)
+                        : predicate is SqlBinaryExpression
+                        {
+                            OperatorType: ExpressionType.NotEqual, Right: SqlConstantExpression { Value: null }
+                        } nullCheck
+                        && outerColumnExpressions.Contains(nullCheck.Left)
+                            ? 0
+                            : 1;
             }
         }
     }
@@ -4129,8 +4126,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _orderings.Add(ordering.Update(outerColumn));
             }
             else if (liftOrderings
-                     && (!IsDistinct
-                         && GroupBy.Count == 0
+                     && ((!IsDistinct
+                             && GroupBy.Count == 0)
                          || GroupBy.Contains(orderingExpression)))
             {
                 _orderings.Add(
@@ -4270,7 +4267,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             if (jsonQueryExpression.KeyPropertyMap is not null)
             {
-                newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
+                newKeyPropertyMap = [];
                 var keyProperties = jsonQueryExpression.KeyPropertyMap.Keys.ToList();
                 for (var i = 0; i < keyProperties.Count; i++)
                 {
@@ -4396,7 +4393,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset, limit,
             Tags, Annotations, _sqlAliasManager, IsMutable)
         {
-            _projectionMapping = newProjectionMappings, _clientProjections = newClientProjections,
+            _projectionMapping = newProjectionMappings,
+            _clientProjections = newClientProjections,
         };
 
         foreach (var (column, comparer) in _identifier)
@@ -4587,7 +4585,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     if (newGroupBy == _groupBy)
                     {
-                        newGroupBy = new List<SqlExpression>(_groupBy.Count);
+                        newGroupBy = [with(_groupBy.Count)];
                         for (var j = 0; j < i; j++)
                         {
                             newGroupBy.Add(_groupBy[j]);
@@ -4660,7 +4658,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     if (newGroupBy == _groupBy)
                     {
-                        newGroupBy = new List<SqlExpression>(_groupBy.Count);
+                        newGroupBy = [with(_groupBy.Count)];
                         for (var j = 0; j < i; j++)
                         {
                             newGroupBy.Add(_groupBy[j]);
@@ -4702,7 +4700,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset,
                     limit, _sqlAliasManager, (IReadOnlySet<string>)Tags, Annotations)
                 {
-                    _clientProjections = _clientProjections, _projectionMapping = _projectionMapping
+                    _clientProjections = _clientProjections,
+                    _projectionMapping = _projectionMapping
                 };
 
                 newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
@@ -4818,7 +4817,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             Alias, tables, predicate, groupBy, having, projections, IsDistinct, orderings, offset, limit,
             _sqlAliasManager, (IReadOnlySet<string>)Tags, Annotations)
         {
-            _projectionMapping = projectionMapping, _clientProjections = _clientProjections.ToList()
+            _projectionMapping = projectionMapping,
+            _clientProjections = _clientProjections.ToList()
         };
 
         // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
@@ -4840,7 +4840,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             newAlias, _tables, Predicate, _groupBy, Having, _projection, IsDistinct, _orderings, Offset, Limit, Tags,
             Annotations, _sqlAliasManager, isMutable: false)
         {
-            _projectionMapping = _projectionMapping, _clientProjections = _clientProjections.ToList(),
+            _projectionMapping = _projectionMapping,
+            _clientProjections = _clientProjections.ToList(),
         };
     }
 
@@ -5045,8 +5046,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SelectExpression selectExpression
-                && Equals(selectExpression));
+                || (obj is SelectExpression selectExpression
+                    && Equals(selectExpression)));
 
     // Note that we vary our Equals/GetHashCode logic based on whether the SelectExpression is mutable or not; in the former case we use
     // reference logic, whereas once the expression becomes immutable (after translation), we switch to value logic.
@@ -5057,17 +5058,17 @@ public sealed partial class SelectExpression : TableExpressionBase
             ? ReferenceEquals(this, selectExpression)
             : base.Equals(selectExpression)
             && Tables.SequenceEqual(selectExpression.Tables)
-            && (Predicate is null && selectExpression.Predicate is null
-                || Predicate is not null && Predicate.Equals(selectExpression.Predicate))
+            && ((Predicate is null && selectExpression.Predicate is null)
+                || (Predicate is not null && Predicate.Equals(selectExpression.Predicate)))
             && GroupBy.SequenceEqual(selectExpression.GroupBy)
-            && (Having is null && selectExpression.Having is null
-                || Having is not null && Having.Equals(selectExpression.Having))
+            && ((Having is null && selectExpression.Having is null)
+                || (Having is not null && Having.Equals(selectExpression.Having)))
             && Projection.SequenceEqual(selectExpression.Projection)
             && Orderings.SequenceEqual(selectExpression.Orderings)
-            && (Limit is null && selectExpression.Limit is null
-                || Limit is not null && Limit.Equals(selectExpression.Limit))
-            && (Offset is null && selectExpression.Offset is null
-                || Offset is not null && Offset.Equals(selectExpression.Offset));
+            && ((Limit is null && selectExpression.Limit is null)
+                || (Limit is not null && Limit.Equals(selectExpression.Limit)))
+            && ((Offset is null && selectExpression.Offset is null)
+                || (Offset is not null && Offset.Equals(selectExpression.Offset)));
 
     // ReSharper disable NonReadonlyMemberInGetHashCode
     /// <inheritdoc />

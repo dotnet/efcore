@@ -52,5 +52,6 @@ public static class CosmosComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> ToJsonProperty<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string name)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)ToJsonProperty((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, name);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder)
+            .ToJsonProperty(name);
 }

@@ -78,7 +78,8 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.Property(leafMember, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionTypePropertyBuilder<TProperty>(
+            innerBuilder.Property(leafMember, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -98,7 +99,8 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.PrimitiveCollection(leafMember, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexTypePrimitiveCollectionBuilder<TProperty>(
+            innerBuilder.PrimitiveCollection(leafMember, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -229,8 +231,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -261,8 +264,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -352,8 +356,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -384,8 +389,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexPropertyBuilder<TProperty>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: false, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -577,8 +583,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -602,8 +609,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -672,8 +680,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName: null, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -697,8 +706,9 @@ public class ComplexCollectionBuilder<[DynamicallyAccessedMembers(IEntityType.Dy
 
         var memberChain = propertyExpression.GetMemberAccessChain(nameof(propertyExpression));
         var (innerBuilder, leafMember) = TypeBuilder.ResolveComplexChain(memberChain);
-        return new(innerBuilder.ComplexProperty(
-            leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
+        return new ComplexCollectionBuilder<TElement>(
+            innerBuilder.ComplexProperty(
+                leafMember, complexTypeName, collection: true, ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>

@@ -498,7 +498,10 @@ public static class SqlServerModelExtensions
     /// <param name="model">The model.</param>
     /// <param name="name">The name of the full-text catalog.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The <see cref="IConventionSqlServerFullTextCatalog" /> added to the model, or <see langword="null" /> if the catalog could not be added.</returns>
+    /// <returns>
+    ///     The <see cref="IConventionSqlServerFullTextCatalog" /> added to the model, or <see langword="null" /> if the catalog could not be
+    ///     added.
+    /// </returns>
     public static IConventionSqlServerFullTextCatalog? AddFullTextCatalog(
         this IConventionModel model,
         string name,
@@ -618,7 +621,7 @@ public static class SqlServerModelExtensions
     /// <param name="model">The model.</param>
     /// <returns>All full-text catalogs defined in the model.</returns>
     public static IEnumerable<IMutableSqlServerFullTextCatalog> GetFullTextCatalogs(this IMutableModel model)
-        => SqlServerFullTextCatalog.GetFullTextCatalogs(model).Cast<IMutableSqlServerFullTextCatalog>();
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model);
 
     /// <summary>
     ///     Gets all full-text catalogs defined in the model.
@@ -630,7 +633,7 @@ public static class SqlServerModelExtensions
     /// <param name="model">The model.</param>
     /// <returns>All full-text catalogs defined in the model.</returns>
     public static IEnumerable<IConventionSqlServerFullTextCatalog> GetFullTextCatalogs(this IConventionModel model)
-        => SqlServerFullTextCatalog.GetFullTextCatalogs(model).Cast<IConventionSqlServerFullTextCatalog>();
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model);
 
     /// <summary>
     ///     Gets all full-text catalogs defined in the model.
@@ -642,5 +645,5 @@ public static class SqlServerModelExtensions
     /// <param name="model">The model.</param>
     /// <returns>All full-text catalogs defined in the model.</returns>
     public static IEnumerable<ISqlServerFullTextCatalog> GetFullTextCatalogs(this IModel model)
-        => SqlServerFullTextCatalog.GetFullTextCatalogs(model).Cast<ISqlServerFullTextCatalog>();
+        => SqlServerFullTextCatalog.GetFullTextCatalogs(model);
 }

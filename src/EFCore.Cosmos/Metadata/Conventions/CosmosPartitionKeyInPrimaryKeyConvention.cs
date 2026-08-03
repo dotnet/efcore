@@ -75,9 +75,7 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
-    {
-        ProcessIdProperty(entityTypeBuilder);
-    }
+        => ProcessIdProperty(entityTypeBuilder);
 
     /// <inheritdoc />
     public virtual void ProcessForeignKeyOwnershipChanged(

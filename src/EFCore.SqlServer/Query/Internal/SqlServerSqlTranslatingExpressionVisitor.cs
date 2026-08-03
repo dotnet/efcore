@@ -78,19 +78,16 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                 }
             } when totalMinutesType == typeof(TimeSpan) && offsetType == typeof(DateTimeOffset):
             {
-                if (Visit(dateTimeOffsetExpression) is not SqlExpression translatedInstance)
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
-
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
-                        "DATEPART",
-                        arguments: [_sqlExpressionFactory.Fragment("tz"), translatedInstance],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.FalseTrue,
-                        typeof(int)),
-                    typeof(double));
+                return Visit(dateTimeOffsetExpression) is not SqlExpression translatedInstance
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Convert(
+                        _sqlExpressionFactory.Function(
+                            "DATEPART",
+                            arguments: [_sqlExpressionFactory.Fragment("tz"), translatedInstance],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.FalseTrue,
+                            typeof(int)),
+                        typeof(double));
             }
 
             // For standalone DateTimeOffset.Offset (not followed by TotalMinutes), provide a helpful error message.
@@ -126,8 +123,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
         {
             case { Constructor.DeclaringType: var type, Arguments: [var dateTimeArg, var offsetArg] }
                 when type == typeof(DateTimeOffset)
-                    && dateTimeArg.Type == typeof(DateTime)
-                    && offsetArg.Type == typeof(TimeSpan):
+                && dateTimeArg.Type == typeof(DateTime)
+                && offsetArg.Type == typeof(TimeSpan):
             {
                 if (Visit(dateTimeArg) is not SqlExpression translatedDateTime
                     || Visit(offsetArg) is not SqlExpression translatedOffset)
@@ -136,17 +133,14 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                 }
 
                 var offsetExpression = TranslateTimeSpanToOffsetExpression(translatedOffset);
-                if (offsetExpression is null)
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
-
-                return _sqlExpressionFactory.Function(
-                    "TODATETIMEOFFSET",
-                    [translatedDateTime, offsetExpression],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[2],
-                    typeof(DateTimeOffset));
+                return offsetExpression is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Function(
+                        "TODATETIMEOFFSET",
+                        [translatedDateTime, offsetExpression],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
+                        typeof(DateTimeOffset));
             }
 
             case { Constructor.DeclaringType: var type, Arguments: [var dateTimeArg] }
@@ -193,23 +187,20 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                 }
             }
             else if (DateTimeClrTypes.Contains(translatedBinary.Left.Type)
-                || DateTimeClrTypes.Contains(translatedBinary.Right.Type))
+                     || DateTimeClrTypes.Contains(translatedBinary.Right.Type))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
         }
 
-        if (translation == QueryCompilationContext.NotTranslatedExpression
+        return translation == QueryCompilationContext.NotTranslatedExpression
             && binaryExpression.NodeType == ExpressionType.ArrayIndex
-            && binaryExpression.Left.Type == typeof(byte[]))
-        {
-            return TranslateByteArrayElementAccess(
-                binaryExpression.Left,
-                binaryExpression.Right,
-                binaryExpression.Type);
-        }
-
-        return translation;
+            && binaryExpression.Left.Type == typeof(byte[])
+                ? TranslateByteArrayElementAccess(
+                    binaryExpression.Left,
+                    binaryExpression.Right,
+                    binaryExpression.Type)
+                : translation;
     }
 
     /// <summary>
@@ -274,9 +265,10 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             // https://learn.microsoft.com/dotnet/api/system.linq.enumerable.elementat#system-linq-enumerable-elementat-1(system-collections-generic-ienumerable((-0))-system-int32)
             case nameof(Enumerable.ElementAt)
                 when declaringType == typeof(Enumerable)
-                    && @object is null
-                    && arguments is [Expression source, Expression index]
-                    && source.Type == typeof(byte[]) && index.Type == typeof(int):
+                && @object is null
+                && arguments is [Expression source, Expression index]
+                && source.Type == typeof(byte[])
+                && index.Type == typeof(int):
                 return TranslateByteArrayElementAccess(source, index, methodCallExpression.Type);
 
             // https://learn.microsoft.com/dotnet/api/system.string.startswith#system-string-startswith(system-string)
@@ -287,9 +279,9 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             // https://learn.microsoft.com/dotnet/api/system.string.contains#system-string-contains(system-char)
             case nameof(string.StartsWith) or nameof(string.EndsWith) or nameof(string.Contains)
                 when declaringType == typeof(string)
-                    && @object is not null
-                    && arguments is [Expression value]
-                    && (value.Type == typeof(string) || value.Type == typeof(char)):
+                && @object is not null
+                && arguments is [Expression value]
+                && (value.Type == typeof(string) || value.Type == typeof(char)):
             {
                 return TranslateStartsEndsWithContains(
                     @object,
@@ -307,16 +299,17 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             // https://learn.microsoft.com/dotnet/api/system.string.join#system-string-join(system-string-system-string())
             case nameof(string.Join)
                 when declaringType == typeof(string)
-                    && @object is null
-                    && arguments is [Expression separator, NewArrayExpression value]
-                    && separator.Type == typeof(string) && value.Type == typeof(string[])
-                    && _sqlServerSingletonOptions.EngineType switch
-                    {
-                        SqlServerEngineType.SqlServer => _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140,
-                        SqlServerEngineType.AzureSql => _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140,
-                        SqlServerEngineType.AzureSynapse => true,
-                        _ => throw new UnreachableException()
-                    }:
+                && @object is null
+                && arguments is [Expression separator, NewArrayExpression value]
+                && separator.Type == typeof(string)
+                && value.Type == typeof(string[])
+                && _sqlServerSingletonOptions.EngineType switch
+                {
+                    SqlServerEngineType.SqlServer => _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140,
+                    SqlServerEngineType.AzureSql => _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140,
+                    SqlServerEngineType.AzureSynapse => true,
+                    _ => throw new UnreachableException()
+                }:
             {
                 if (TranslationFailed(separator, Visit(separator), out var translatedSeparator))
                 {
@@ -346,7 +339,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
 
                     // CONCAT_WS filters out nulls, but string.Join treats them as empty strings; so coalesce (which is a no-op for non-nullable
                     // arguments).
-                    translatedArguments[i + 1] = Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty));
+                    translatedArguments[i + 1] = Dependencies.SqlExpressionFactory.Coalesce(
+                        sqlArgument, _sqlExpressionFactory.Constant(string.Empty));
                 }
 
                 // CONCAT_WS never returns null; a null delimiter is interpreted as an empty string, and null arguments are skipped
@@ -364,8 +358,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             // complex and owned JSON properties, which requires special handling.
             case nameof(SqlServerDbFunctionsExtensions.JsonContains)
                 when declaringType == typeof(SqlServerDbFunctionsExtensions)
-                    && @object is null
-                    && arguments is [_, var json, var searchValue, var path, var searchMode]:
+                && @object is null
+                && arguments is [_, var json, var searchValue, var path, var searchMode]:
             {
                 if (Translate(searchValue) is not SqlExpression translatedSearchValue)
                 {
@@ -439,8 +433,8 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             // complex and owned JSON properties, which requires special handling.
             case nameof(RelationalDbFunctionsExtensions.JsonPathExists)
                 when declaringType == typeof(RelationalDbFunctionsExtensions)
-                    && @object is null
-                    && arguments is [_, var json, var path]:
+                && @object is null
+                && arguments is [_, var json, var path]:
             {
                 if (Translate(path) is not SqlExpression translatedPath)
                 {
@@ -478,9 +472,9 @@ public class SqlServerSqlTranslatingExpressionVisitor(
             // https://learn.microsoft.com/dotnet/api/system.datetimeoffset.tooffset
             case nameof(DateTimeOffset.ToOffset)
                 when declaringType == typeof(DateTimeOffset)
-                    && @object is not null
-                    && arguments is [{ Type: var argType } offsetArgument]
-                    && argType == typeof(TimeSpan):
+                && @object is not null
+                && arguments is [{ Type: var argType } offsetArgument]
+                && argType == typeof(TimeSpan):
             {
                 if (Visit(@object) is not SqlExpression translatedInstance
                     || Visit(offsetArgument) is not SqlExpression translatedOffset)
@@ -489,18 +483,15 @@ public class SqlServerSqlTranslatingExpressionVisitor(
                 }
 
                 var offsetExpression = TranslateTimeSpanToOffsetExpression(translatedOffset);
-                if (offsetExpression is null)
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
-
-                return _sqlExpressionFactory.Function(
-                    "SWITCHOFFSET",
-                    [translatedInstance, offsetExpression],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[2],
-                    typeof(DateTimeOffset),
-                    translatedInstance.TypeMapping);
+                return offsetExpression is null
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : _sqlExpressionFactory.Function(
+                        "SWITCHOFFSET",
+                        [translatedInstance, offsetExpression],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
+                        typeof(DateTimeOffset),
+                        translatedInstance.TypeMapping);
             }
 
             default:

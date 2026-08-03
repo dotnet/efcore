@@ -379,9 +379,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         Check.NotEmpty(name);
 
         var property = FindProperty(name);
-        return property == null
-            ? throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, DisplayName()))
-            : property;
+        return property ?? throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, DisplayName()));
     }
 
     /// <summary>

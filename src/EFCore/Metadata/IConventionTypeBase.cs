@@ -284,13 +284,10 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         bool fromDataAnnotation = false)
     {
         var indexerPropertyInfo = FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return AddProperty(name, propertyType, indexerPropertyInfo, setTypeConfigurationSource, fromDataAnnotation);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()))
+            : AddProperty(name, propertyType, indexerPropertyInfo, setTypeConfigurationSource, fromDataAnnotation);
     }
 
     /// <summary>
@@ -482,13 +479,10 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         bool fromDataAnnotation = false)
     {
         var indexerPropertyInfo = FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, fromDataAnnotation);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()))
+            : AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, fromDataAnnotation);
     }
 
     /// <summary>

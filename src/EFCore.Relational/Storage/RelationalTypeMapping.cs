@@ -610,13 +610,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         // When Enum is cast manually our logic of removing implicit convert gives us enum value here
         // So if CLR type is integer we need to convert enum value to integer value
-        if (value?.GetType().IsEnum == true
-            && ClrType.UnwrapNullableType().IsInteger())
-        {
-            return Convert.ChangeType(value, ClrType);
-        }
-
-        return value;
+        return value?.GetType().IsEnum == true
+            && ClrType.UnwrapNullableType().IsInteger()
+                ? Convert.ChangeType(value, ClrType)
+                : value;
     }
 
     /// <summary>
@@ -682,17 +679,14 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
 
         // A primitive collection is serialized to a JSON string in its column, so its default value must be an empty JSON
         // array rather than an empty string (which isn't valid JSON).
-        if (ElementTypeMapping is not null
-            && JsonValueReaderWriter != null)
-        {
-            return "[]";
-        }
-
-        return providerType == typeof(string)
-            ? string.Empty
-            : providerType.IsArray
-                ? Array.CreateInstance(providerType.GetElementType()!, 0)
-                : providerType.GetDefaultValue();
+        return ElementTypeMapping is not null
+            && JsonValueReaderWriter != null
+                ? "[]"
+                : providerType == typeof(string)
+                    ? string.Empty
+                    : providerType.IsArray
+                        ? Array.CreateInstance(providerType.GetElementType()!, 0)
+                        : providerType.GetDefaultValue();
     }
 
     /// <summary>

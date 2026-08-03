@@ -155,22 +155,14 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
     private static bool AreCompatible(IConventionCheckConstraint checkConstraint, IConventionCheckConstraint baseCheckConstraint)
     {
         var baseTable = StoreObjectIdentifier.Create(baseCheckConstraint.EntityType, StoreObjectType.Table);
-        if (baseTable == null)
-        {
-            return true;
-        }
-
-        if (checkConstraint.GetName(baseTable.Value) != baseCheckConstraint.GetName(baseTable.Value)
-            && checkConstraint.GetNameConfigurationSource() is { } nameConfigurationSource
-            && !nameConfigurationSource.OverridesStrictly(baseCheckConstraint.GetNameConfigurationSource()))
-        {
-            return false;
-        }
-
-        return CheckConstraint.AreCompatible(
-            checkConstraint,
-            baseCheckConstraint,
-            baseTable.Value,
-            shouldThrow: false);
+        return baseTable == null
+            || ((checkConstraint.GetName(baseTable.Value) == baseCheckConstraint.GetName(baseTable.Value)
+                    || !(checkConstraint.GetNameConfigurationSource() is { } nameConfigurationSource)
+                    || nameConfigurationSource.OverridesStrictly(baseCheckConstraint.GetNameConfigurationSource()))
+                && CheckConstraint.AreCompatible(
+                    checkConstraint,
+                    baseCheckConstraint,
+                    baseTable.Value,
+                    shouldThrow: false));
     }
 }

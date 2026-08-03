@@ -64,7 +64,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedSet<ITableMappingBase> EntityTypeMappings { get; }
-        = new(TableMappingBaseComparer.Instance);
+        = [with(TableMappingBaseComparer.Instance)];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +73,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedSet<ITableMappingBase> ComplexTypeMappings { get; }
-        = new(TableMappingBaseComparer.Instance);
+        = [with(TableMappingBaseComparer.Instance)];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,7 +82,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedDictionary<string, IColumnBase> Columns { get; protected set; }
-        = new(StringComparer.Ordinal);
+        = [with(StringComparer.Ordinal)];
 
     /// <inheritdoc />
     public virtual IColumnBase? FindColumn(string name)
@@ -192,7 +192,7 @@ public class TableBase : Annotatable, ITableBase
     {
         if (RowInternalForeignKeys == null)
         {
-            RowInternalForeignKeys = new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
+            RowInternalForeignKeys = [with(EntityTypeFullNameComparer.Instance)];
             IsShared = true;
         }
 
@@ -208,7 +208,7 @@ public class TableBase : Annotatable, ITableBase
         if (ReferencingRowInternalForeignKeys == null)
         {
             ReferencingRowInternalForeignKeys =
-                new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
+                [with(EntityTypeFullNameComparer.Instance)];
             IsShared = true;
         }
 

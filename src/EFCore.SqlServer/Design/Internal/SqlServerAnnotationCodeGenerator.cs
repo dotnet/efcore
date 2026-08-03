@@ -251,7 +251,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         // so removing the annotations before calling base
         if (annotations.TryGetValue(RelationalAnnotationNames.DefaultConstraintName, out var defaultConstraintNameAnnotation))
         {
-            if (defaultConstraintNameAnnotation.Value as string != string.Empty)
+            if ((defaultConstraintNameAnnotation.Value as string) != string.Empty)
             {
                 annotations.Remove(RelationalAnnotationNames.DefaultValue, out defaultValueAnnotation);
                 annotations.Remove(RelationalAnnotationNames.DefaultValueSql, out defaultValueSqlAnnotation);
@@ -262,7 +262,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
         var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(property, annotations));
 
-        if (defaultConstraintNameAnnotation != null && defaultConstraintNameAnnotation.Value as string != string.Empty)
+        if (defaultConstraintNameAnnotation != null && (defaultConstraintNameAnnotation.Value as string) != string.Empty)
         {
             if (defaultValueAnnotation != null)
             {
@@ -342,7 +342,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         }
 
         if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)
-            && isTemporalAnnotation.Value as bool? == true)
+            && (isTemporalAnnotation.Value as bool?) == true)
         {
             var historyTableName = annotations.ContainsKey(SqlServerAnnotationNames.TemporalHistoryTableName)
                 ? annotations[SqlServerAnnotationNames.TemporalHistoryTableName].Value as string
@@ -443,15 +443,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsHandledByConvention(IModel model, IAnnotation annotation)
-    {
-        if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
-        {
-            return (string?)annotation.Value == "dbo";
-        }
-
-        return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
+        => annotation.Name == RelationalAnnotationNames.DefaultSchema
+            ? (string?)annotation.Value == "dbo"
+            : annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
             && (SqlServerValueGenerationStrategy)annotation.Value! == SqlServerValueGenerationStrategy.IdentityColumn;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -460,14 +455,9 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override bool IsHandledByConvention(IProperty property, IAnnotation annotation)
-    {
-        if (annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy)
-        {
-            return (SqlServerValueGenerationStrategy)annotation.Value! == property.DeclaringType.Model.GetValueGenerationStrategy();
-        }
-
-        return base.IsHandledByConvention(property, annotation);
-    }
+        => annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
+            ? (SqlServerValueGenerationStrategy)annotation.Value! == property.DeclaringType.Model.GetValueGenerationStrategy()
+            : base.IsHandledByConvention(property, annotation);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -478,7 +468,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     protected override MethodCallCodeFragment? GenerateFluentApi(IKey key, IAnnotation annotation)
         => annotation.Name switch
         {
-            SqlServerAnnotationNames.Clustered => (bool)annotation.Value! == false
+            SqlServerAnnotationNames.Clustered => !(bool)annotation.Value!
                 ? new MethodCallCodeFragment(KeyIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(KeyIsClusteredMethodInfo),
 
@@ -496,7 +486,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     protected override MethodCallCodeFragment? GenerateFluentApi(IIndex index, IAnnotation annotation)
         => annotation.Name switch
         {
-            SqlServerAnnotationNames.Clustered => (bool)annotation.Value! == false
+            SqlServerAnnotationNames.Clustered => !(bool)annotation.Value!
                 ? new MethodCallCodeFragment(IndexIsClusteredMethodInfo, false)
                 : new MethodCallCodeFragment(IndexIsClusteredMethodInfo),
 

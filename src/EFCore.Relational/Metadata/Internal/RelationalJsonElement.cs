@@ -86,16 +86,11 @@ public abstract class RelationalJsonElement : IRelationalJsonElement
         => _propertyMappings;
 
     private RelationalTypeMapping? GetDefaultStoreTypeMapping()
-    {
-        if (PropertyMappings.Select(m => m.Property).OfType<IProperty>().FirstOrDefault()?.GetTypeMapping() is RelationalTypeMapping mapping)
-        {
-            return mapping;
-        }
-
-        return ParentElement is IRelationalJsonArray { StoreTypeMapping: { ElementTypeMapping: RelationalTypeMapping elementTypeMapping } }
-            ? elementTypeMapping
-            : null;
-    }
+        => PropertyMappings.Select(m => m.Property).OfType<IProperty>().FirstOrDefault()?.GetTypeMapping() is RelationalTypeMapping mapping
+            ? mapping
+            : ParentElement is IRelationalJsonArray { StoreTypeMapping.ElementTypeMapping: RelationalTypeMapping elementTypeMapping }
+                ? elementTypeMapping
+                : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

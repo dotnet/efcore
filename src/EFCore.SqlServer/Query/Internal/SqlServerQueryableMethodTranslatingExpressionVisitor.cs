@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -106,7 +105,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         } entityShaper
                     }:
                 {
-#pragma warning disable EF9105 // VectorSearch is experimental
                     if (TranslateLambdaExpression(source, vectorPropertySelector) is not ColumnExpression vectorColumn)
                     {
                         throw new InvalidOperationException(SqlServerStrings.VectorSearchRequiresColumn);
@@ -146,13 +144,17 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     var resultType = methodCallExpression.Method.ReturnType.GetSequenceType();
                     var entityProjection = select.GetProjection(projectionBinding);
                     var valueProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Value))!);
-                    var distanceProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Distance))!);
+                    var distanceProjectionMember =
+                        new ProjectionMember().Append(resultType.GetProperty(nameof(VectorSearchResult<>.Distance))!);
 
-                    select.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
-                    {
-                        [valueProjectionMember] = entityProjection,
-                        [distanceProjectionMember] = new ColumnExpression("Distance", vectorSearchFunction.Alias, typeof(double), _typeMappingSource.FindMapping(typeof(double)), nullable: false)
-                    });
+                    select.ReplaceProjection(
+                        new Dictionary<ProjectionMember, Expression>
+                        {
+                            [valueProjectionMember] = entityProjection,
+                            [distanceProjectionMember] = new ColumnExpression(
+                                "Distance", vectorSearchFunction.Alias, typeof(double), _typeMappingSource.FindMapping(typeof(double)),
+                                nullable: false)
+                        });
 
                     var shaper = Expression.New(
                         resultType.GetConstructors().Single(),
@@ -169,7 +171,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     {
                         return new ShapedQueryExpression(select, shaper);
                     }
-#pragma warning restore EF9105 // VectorSearch is experimental
                 }
 
                 case nameof(SqlServerQueryableExtensions.WithApproximate):
@@ -255,11 +256,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var keyProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Key))!);
         var rankProjectionMember = new ProjectionMember().Append(resultType.GetProperty(nameof(FullTextSearchResult<int>.Rank))!);
 
-        select.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
-        {
-            [keyProjectionMember] = new ColumnExpression("KEY", fullTextTableFunction.Alias, keyType, _typeMappingSource.FindMapping(keyType), nullable: false),
-            [rankProjectionMember] = new ColumnExpression("RANK", fullTextTableFunction.Alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false)
-        });
+        select.ReplaceProjection(
+            new Dictionary<ProjectionMember, Expression>
+            {
+                [keyProjectionMember] =
+                    new ColumnExpression(
+                        "KEY", fullTextTableFunction.Alias, keyType, _typeMappingSource.FindMapping(keyType), nullable: false),
+                [rankProjectionMember] = new ColumnExpression(
+                    "RANK", fullTextTableFunction.Alias, typeof(int), _typeMappingSource.FindMapping(typeof(int)), nullable: false)
+            });
 
         var shaper = Expression.New(
             resultType.GetConstructors().Single(),
@@ -546,8 +551,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     .Where(n => n.ForeignKey.IsOwnership
                         && n.TargetEntityType.IsMappedToJson()
                         && n.ForeignKey.PrincipalToDependent == n)
-                    .Select(n => n.TargetEntityType.GetJsonPropertyName()                    
-                    ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
+                    .Select(n => n.TargetEntityType.GetJsonPropertyName()
+                        ?? throw new UnreachableException("JSON-mapped navigation without a JSON property name.")),
 
             IComplexType complexType
                 => complexType.GetComplexProperties().Select(p => p.ComplexType.GetJsonPropertyName()
@@ -622,12 +627,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 Tables:
                 [
                     SqlServerOpenJsonExpression
-                    {
-                        // JSON_CONTAINS() is only supported over json, not nvarchar
-                        Json: { TypeMapping: SqlServerJsonTypeMapping } json,
-                        Path: null,
-                        ColumnInfos: [{ Name: "value" }]
-                    }
+                {
+                    // JSON_CONTAINS() is only supported over json, not nvarchar
+                    Json: { TypeMapping: SqlServerJsonTypeMapping } json,
+                    Path: null,
+                    ColumnInfos: [{ Name: "value" }]
+                }
                 ],
                 Predicate: null,
                 GroupBy: [],
@@ -647,7 +652,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && (
                 translatedItem is ColumnExpression { IsNullable: false } or SqlConstantExpression { Value: not null }
                 || !translatedItem.Type.IsNullableType()
-                || json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType()))
+                || (json.Type.GetSequenceType() is var elementClrType && !elementClrType.IsNullableType())))
         {
             // JSON_CONTAINS returns 1 if found, 0 if not found. It's a search condition expression.
             var jsonContains = _sqlExpressionFactory.Equal(
@@ -780,7 +785,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 newPath.AddRange(path);
             }
 
-            newPath.Add(new(translatedIndex));
+            newPath.Add(new PathSegment(translatedIndex));
 
             var translation = new JsonScalarExpression(
                 json,
@@ -916,11 +921,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // To work around this limitation, we do a first translation pass which may generate multiple modify invocations on the same JSON column (and
         // which would fail if sent to SQL Server); we then detect this case, populate _columnsWithMultipleSetters with the problematic columns, and then
         // retranslate, using the less efficient JSON_MODIFY() instead for those columns.
-        _columnsWithMultipleSetters = new();
+        _columnsWithMultipleSetters = [];
 
         var translatedSetters = base.TranslateSetters(source, setters, out targetTable);
 
-        _columnsWithMultipleSetters = new(translatedSetters.GroupBy(s => s.Column).Where(g => g.Count() > 1).Select(g => g.Key));
+        _columnsWithMultipleSetters = [with(translatedSetters.GroupBy(s => s.Column).Where(g => g.Count() > 1).Select(g => g.Key))];
         if (_columnsWithMultipleSetters.Count > 0)
         {
             translatedSetters = base.TranslateSetters(source, setters, out targetTable);
@@ -976,16 +981,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     propertyNames: ["v"],
                     propertyValues: [value],
                     SqlServerStructuralJsonTypeMapping.NvarcharMaxDefault),
-                [new("v")],
+                [new PathSegment("v")],
                 typeof(string),
                 _typeMappingSource.FindMapping("nvarchar(max)"),
-                nullable: value is ColumnExpression column ? column.IsNullable : true);
+                nullable: value is not ColumnExpression column || column.IsNullable);
             return true;
         }
-        else
-        {
-            throw new InvalidOperationException(SqlServerStrings.ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer);
-        }
+
+        throw new InvalidOperationException(SqlServerStrings.ExecuteUpdateCannotSetJsonPropertyOnOldSqlServer);
     }
 
     /// <summary>
@@ -1058,7 +1061,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 // If the value expression happens to be JsonScalarExpression (i.e. another JSON property), we don't need to do this.
                 isJsonScalar || value is JsonScalarExpression
                     ? value
-                    : _sqlExpressionFactory.Function("JSON_QUERY", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
+                    : _sqlExpressionFactory.Function(
+                        "JSON_QUERY", [value], nullable: true, argumentsPropagateNullability: [true], typeof(string), value.TypeMapping)
             ],
             nullable: true,
             argumentsPropagateNullability: [true, true, true],
@@ -1069,11 +1073,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             return jsonModify;
         }
-        else
-        {
-            existingSetterValue = jsonModify;
-            return null;
-        }
+
+        existingSetterValue = jsonModify;
+        return null;
     }
 
     #endregion ExecuteUpdate

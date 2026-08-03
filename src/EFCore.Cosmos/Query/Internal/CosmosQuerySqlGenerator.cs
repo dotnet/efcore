@@ -31,7 +31,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
     /// <summary>
     ///     Contains final parameter names (prefixed, uniquified) seen so far, for uniquification purposes.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _prefixedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
@@ -652,8 +652,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
             {
                 Visit(sqlUnaryExpression.Operand);
             }
+
             return sqlUnaryExpression;
         }
+
         var op = sqlUnaryExpression.OperatorType switch
         {
             ExpressionType.UnaryPlus => "+",

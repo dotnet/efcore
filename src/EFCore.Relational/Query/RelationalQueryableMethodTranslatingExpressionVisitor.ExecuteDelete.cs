@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -41,23 +40,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         }
 
         // Find the table model that maps to the entity type; there must be exactly one (e.g. no entity splitting).
-        ITable targetTable;
-        switch (entityType.GetTableMappings().ToList())
+        var targetTable = entityType.GetTableMappings().ToList() switch
         {
-            case []:
-                throw new InvalidOperationException(
-                    RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName()));
-
-            case [var singleTableMapping]:
-                targetTable = singleTableMapping.Table;
-                break;
-
-            default:
-                throw new InvalidOperationException(
-                    RelationalStrings.ExecuteOperationOnEntitySplitting(
-                        nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
-        }
-
+            [] => throw new InvalidOperationException(
+                RelationalStrings.ExecuteUpdateDeleteOnEntityNotMappedToTable(entityType.DisplayName())),
+            [var singleTableMapping] => singleTableMapping.Table,
+            _ => throw new InvalidOperationException(
+                RelationalStrings.ExecuteOperationOnEntitySplitting(
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName())),
+        };
         var selectExpression = (SelectExpression)source.QueryExpression;
 
         // Find the table expression in the SelectExpression that corresponds to the projected entity type.
@@ -110,7 +101,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         RelationalStrings.ExecuteDeleteOnTableSplitting(unwrappedTableExpression.Table.SchemaQualifiedName));
                 }
 
-                selectExpression.ReplaceProjection(new List<Expression>());
+                selectExpression.ReplaceProjection([]);
                 selectExpression.ApplyProjection();
 
                 return new DeleteExpression(unwrappedTableExpression, selectExpression);

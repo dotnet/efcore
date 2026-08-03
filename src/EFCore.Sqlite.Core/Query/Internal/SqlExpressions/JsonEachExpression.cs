@@ -90,10 +90,7 @@ public class JsonEachExpression(
                     }
                 }
 
-                if (visitedPath is not null)
-                {
-                    visitedPath[i] = newSegment;
-                }
+                visitedPath?[i] = newSegment;
             }
         }
 
@@ -110,7 +107,7 @@ public class JsonEachExpression(
         SqlExpression jsonExpression,
         IReadOnlyList<PathSegment>? path)
         => jsonExpression == Json
-            && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
+            && (ReferenceEquals(path, Path) || (path is not null && Path is not null && path.SequenceEqual(Path)))
                 ? this
                 : new JsonEachExpression(Alias, jsonExpression, path);
 

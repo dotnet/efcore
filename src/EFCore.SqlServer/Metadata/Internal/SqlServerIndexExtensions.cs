@@ -31,9 +31,8 @@ public static class SqlServerIndexExtensions
                 || duplicateIndex.GetIncludeProperties() == null
                 || !SameColumnNames(index, duplicateIndex, storeObject))
             {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
+                return shouldThrow
+                    ? throw new InvalidOperationException(
                         SqlServerStrings.DuplicateIndexIncludedMismatch(
                             index.DisplayName(),
                             index.DeclaringEntityType.DisplayName(),
@@ -42,99 +41,72 @@ public static class SqlServerIndexExtensions
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             index.GetDatabaseName(storeObject),
                             FormatInclude(index, storeObject),
-                            FormatInclude(duplicateIndex, storeObject)));
-                }
-
-                return false;
+                            FormatInclude(duplicateIndex, storeObject)))
+                    : false;
             }
         }
 
         if (index.IsCreatedOnline() != duplicateIndex.IsCreatedOnline())
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            return shouldThrow
+                ? throw new InvalidOperationException(
                     SqlServerStrings.DuplicateIndexOnlineMismatch(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
                         duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
+                        index.GetDatabaseName(storeObject)))
+                : false;
         }
 
         if (index.IsClustered(storeObject) != duplicateIndex.IsClustered(storeObject))
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            return shouldThrow
+                ? throw new InvalidOperationException(
                     SqlServerStrings.DuplicateIndexClusteredMismatch(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
                         duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
+                        index.GetDatabaseName(storeObject)))
+                : false;
         }
 
-        if (index.GetFillFactor() != duplicateIndex.GetFillFactor())
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        return index.GetFillFactor() != duplicateIndex.GetFillFactor()
+            ? shouldThrow
+                ? throw new InvalidOperationException(
                     SqlServerStrings.DuplicateIndexFillFactorMismatch(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
                         duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
-        }
-
-        if (index.GetSortInTempDb() != duplicateIndex.GetSortInTempDb())
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    SqlServerStrings.DuplicateIndexSortInTempDbMismatch(
-                        index.DisplayName(),
-                        index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.DisplayName(),
-                        duplicateIndex.DeclaringEntityType.DisplayName(),
-                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
-        }
-
-        if (index.GetDataCompression() != duplicateIndex.GetDataCompression())
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    SqlServerStrings.DuplicateIndexDataCompressionMismatch(
-                        index.DisplayName(),
-                        index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.DisplayName(),
-                        duplicateIndex.DeclaringEntityType.DisplayName(),
-                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
-        }
-
-        return true;
+                        index.GetDatabaseName(storeObject)))
+                : false
+            : index.GetSortInTempDb() != duplicateIndex.GetSortInTempDb()
+                ? shouldThrow
+                    ? throw new InvalidOperationException(
+                        SqlServerStrings.DuplicateIndexSortInTempDbMismatch(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.DisplayName(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetDatabaseName(storeObject)))
+                    : false
+                : index.GetDataCompression() == duplicateIndex.GetDataCompression()
+                || (shouldThrow
+                    ? throw new InvalidOperationException(
+                        SqlServerStrings.DuplicateIndexDataCompressionMismatch(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.DisplayName(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetDatabaseName(storeObject)))
+                    : false);
 
         static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)
 #pragma warning disable EF1001 // Internal EF Core API usage.

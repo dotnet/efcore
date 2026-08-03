@@ -30,7 +30,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     private SelectExpression _selectExpression;
     private bool _clientEval;
 
-    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private readonly Stack<ProjectionMember> _projectionMembers = new();
 
     /// <summary>
@@ -126,7 +126,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 switch (_sqlTranslator.TranslateProjection(expression))
                 {
                     case SqlExpression sqlExpression:
-                        return new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(sqlExpression), expression.Type.MakeNullable());
+                        return new ProjectionBindingExpression(
+                            _selectExpression, _selectExpression.AddToProjection(sqlExpression), expression.Type.MakeNullable());
 
                     case StructuralTypeShaperExpression shaper:
                         return base.Visit(shaper);
@@ -137,8 +138,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         Method: { IsGenericMethod: true } method,
                         Arguments: [var collectionArgument, ..]
                     } methodCallExpression
-                 && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType
-                 && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
+                    && collectionArgument.Type.TryGetElementType(typeof(IQueryable<>)) is { } elementType
+                    && (method.DeclaringType == typeof(Enumerable) || method.DeclaringType == typeof(Queryable)))
                 {
                     if (method is not { Name: nameof(Enumerable.ToList) or nameof(Enumerable.ToArray) })
                     {
@@ -147,7 +148,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
 
                     if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(collectionArgument) is not { } subquery
-                     || !subquery.TryConvertToArray(_typeMappingSource, out var array))
+                        || !subquery.TryConvertToArray(_typeMappingSource, out var array))
                     {
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
                     }
@@ -169,7 +170,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         // "reprojection" subquery, effectively to change the CLR type.
                         if (!(array.Type.IsGenericType && array.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
                         {
-                            Check.DebugAssert(array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
+                            Check.DebugAssert(
+                                array is not ScalarArrayExpression and not ObjectArrayExpression, "ArrayExpression should be IEnumerable");
 
                             if (scalarArray is not { TypeMapping.ElementTypeMapping: CosmosTypeMapping elementTypeMapping })
                             {
@@ -196,7 +198,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     }
 
                     var listType = typeof(List<>).MakeGenericType(elementType);
-                    var collectionCreator = (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
+                    var collectionCreator =
+                        (Func<object>)Expression.Lambda(Expression.New(listType.GetConstructor(Type.EmptyTypes)!)).Compile();
 
                     ProjectionBindingExpression binding;
                     if (_clientEval)
@@ -212,7 +215,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         binding = new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), listType);
                     }
 
-                    Expression shaper = new CollectionShaperExpression(binding, subquery.ShaperExpression, listType, collectionCreator, elementType);
+                    Expression shaper = new CollectionShaperExpression(
+                        binding, subquery.ShaperExpression, listType, collectionCreator, elementType);
 
                     if (method.Name == nameof(Enumerable.ToArray))
                     {
@@ -232,7 +236,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     case SqlExpression:
                         _projectionMapping[_projectionMembers.Peek()] = translation;
-                        return new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
+                        return new ProjectionBindingExpression(
+                            _selectExpression, _projectionMembers.Peek(), expression.Type.MakeNullable());
 
                     case StructuralTypeShaperExpression shaper:
                         return base.Visit(shaper);
@@ -279,7 +284,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 ProjectionBindingExpression projectionBinding;
                 if (_clientEval)
                 {
-                    projectionBinding = new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(structuralTypeProjection), typeof(ValueBuffer));
+                    projectionBinding = new ProjectionBindingExpression(
+                        _selectExpression, _selectExpression.AddToProjection(structuralTypeProjection), typeof(ValueBuffer));
                 }
                 else
                 {
@@ -296,7 +302,9 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     if (complexProperty.IsCollection && structuralTypeShaper.ValueBufferExpression is StructuralTypeProjectionExpression)
                     {
                         // There is no actual binding here because the shaper is over the inner json, and not the actual query result.
-                        structuralTypeShaper = structuralTypeShaper.Update(Expression.Convert(Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
+                        structuralTypeShaper = structuralTypeShaper.Update(
+                            Expression.Convert(
+                                Expression.Convert(structuralTypeShaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                         return new CollectionShaperExpression(
                             projectionBinding,
@@ -355,7 +363,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 ProjectionBindingExpression valueBuffer;
                 if (_clientEval)
                 {
-                    valueBuffer = new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(shaper.ValueBufferExpression), typeof(ValueBuffer));
+                    valueBuffer = new ProjectionBindingExpression(
+                        _selectExpression, _selectExpression.AddToProjection(shaper.ValueBufferExpression), typeof(ValueBuffer));
                 }
                 else
                 {
@@ -364,7 +373,8 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 }
 
                 // There is no actual binding here because the shaper is over the inner json, and not the actual query result.
-                shaper = shaper.Update(Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
+                shaper = shaper.Update(
+                    Expression.Convert(Expression.Convert(shaper.ValueBufferExpression, typeof(object)), typeof(ValueBuffer)));
 
                 return new CollectionShaperExpression(
                     valueBuffer,
@@ -583,11 +593,13 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
+
         var right = Visit(binaryExpression.Right);
         if (right == QueryCompilationContext.NotTranslatedExpression)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
+
         left = MatchTypes(left, binaryExpression.Left.Type);
         right = MatchTypes(right, binaryExpression.Right.Type);
 

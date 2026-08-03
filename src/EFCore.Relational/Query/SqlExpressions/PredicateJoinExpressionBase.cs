@@ -56,8 +56,8 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is PredicateJoinExpressionBase predicateJoinExpressionBase
-                && Equals(predicateJoinExpressionBase));
+                || (obj is PredicateJoinExpressionBase predicateJoinExpressionBase
+                    && Equals(predicateJoinExpressionBase)));
 
     private bool Equals(PredicateJoinExpressionBase predicateJoinExpressionBase)
         => base.Equals(predicateJoinExpressionBase)

@@ -5,7 +5,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using CosmosSqlQuery = Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal.CosmosSqlQuery;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -168,15 +168,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         queryRequestOptions.MaxItemCount = maxItemCount;
                         using var responseMessage = await _cosmosQueryContext.ExecutionStrategy.ExecuteAsync(
                                 (CosmosClient: cosmosClient,
-                                Container: _cosmosContainer,
-                                SqlQuery: sqlQuery,
-                                SessionTokenStorage: _cosmosQueryContext.SessionTokenStorage,
-                                ContinuationToken: continuationToken,
-                                QueryRequestOptions: queryRequestOptions),
+                                    Container: _cosmosContainer,
+                                    SqlQuery: sqlQuery,
+                                    _cosmosQueryContext.SessionTokenStorage,
+                                    ContinuationToken: continuationToken,
+                                    QueryRequestOptions: queryRequestOptions),
                                 static async (_, state, cancellationToken) =>
                                 {
                                     using var feedIterator = state.CosmosClient.CreateQuery(
-                                        state.Container, state.SqlQuery, state.SessionTokenStorage, state.ContinuationToken, state.QueryRequestOptions);
+                                        state.Container, state.SqlQuery, state.SessionTokenStorage, state.ContinuationToken,
+                                        state.QueryRequestOptions);
 
                                     var responseMessage = await feedIterator.ReadNextAsync(cancellationToken).ConfigureAwait(false);
                                     try
@@ -208,12 +209,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         data = ShaperProcessingExpressionVisitor.ExtractDocuments(data);
 
                         while (ShaperProcessingExpressionVisitor.TryMaterializeNextJsonCollectionItem(
-                            _cosmosQueryContext, data,
-                            _shaper, results.Count,
-                            out var bytesConsumed, out var result))
+                                   _cosmosQueryContext, data,
+                                   _shaper, results.Count,
+                                   out var bytesConsumed, out var result))
                         {
                             results.Add(result);
-                            data = data.Slice(bytesConsumed);
+                            data = data[bytesConsumed..];
                             maxItemCount--;
                         }
 

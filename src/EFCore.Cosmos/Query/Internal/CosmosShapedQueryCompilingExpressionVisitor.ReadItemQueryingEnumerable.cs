@@ -91,12 +91,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             resourceId = jsonIdDefinition.GenerateIdString(values);
-            if (string.IsNullOrEmpty(resourceId))
-            {
-                throw new InvalidOperationException(CosmosStrings.InvalidResourceId);
-            }
-
-            return true;
+            return string.IsNullOrEmpty(resourceId) ? throw new InvalidOperationException(CosmosStrings.InvalidResourceId) : true;
         }
 
         private sealed class AsyncEnumerator : IAsyncEnumerator<T>
@@ -198,7 +193,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 Current
                     = hasNext
-                        ? _shaper(_cosmosQueryContext, _response.Value, ordinal: 0, out var _)
+                        ? _shaper(_cosmosQueryContext, _response.Value, ordinal: 0, out _)
                         : default;
 
                 _hasExecuted = true;

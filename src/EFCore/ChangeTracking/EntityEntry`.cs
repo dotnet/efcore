@@ -121,7 +121,7 @@ public class EntityEntry<TEntity> : EntityEntry
         Expression<Func<TEntity, IEnumerable<TElement>?>> propertyExpression)
         where TElement : notnull
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new ComplexCollectionEntry<TEntity, TElement>(
             InternalEntry,
@@ -227,7 +227,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(IComplexProperty complexProperty)
         where TElement : notnull
     {
-        Check.NotNull(complexProperty, nameof(complexProperty));
+        Check.NotNull(complexProperty);
 
         ValidateComplexType<TElement>(complexProperty);
 
@@ -373,7 +373,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(string propertyName)
         where TElement : notnull
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var property = Metadata.GetComplexProperty(propertyName);
 

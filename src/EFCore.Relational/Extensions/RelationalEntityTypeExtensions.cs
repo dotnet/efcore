@@ -32,15 +32,12 @@ public static class RelationalEntityTypeExtensions
     public static string? GetTableName(this IReadOnlyEntityType entityType)
     {
         var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName);
-        if (nameAnnotation != null)
-        {
-            return (string?)nameAnnotation.Value;
-        }
-
-        return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null)
+        return nameAnnotation != null
+            ? (string?)nameAnnotation.Value
+            : ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null)
             && (entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null
             && (entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null
-                ? GetDefaultTableName(entityType)
+                ? entityType.GetDefaultTableName()
                 : null;
     }
 
@@ -138,14 +135,11 @@ public static class RelationalEntityTypeExtensions
         }
 
         var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.Schema);
-        if (schemaAnnotation != null)
-        {
-            return (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema();
-        }
-
-        return entityType.BaseType != null && entityType.BaseType.GetTableName() != null
-            ? entityType.BaseType.GetSchema()
-            : GetDefaultSchema(entityType);
+        return schemaAnnotation != null
+            ? (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema()
+            : entityType.BaseType != null && entityType.BaseType.GetTableName() != null
+                ? entityType.BaseType.GetSchema()
+                : entityType.GetDefaultSchema();
     }
 
     /// <summary>
@@ -164,15 +158,12 @@ public static class RelationalEntityTypeExtensions
         var skipNavigationSchema = entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
             .FirstOrDefault(n => !n.IsOnDependent)
             ?.DeclaringEntityType.GetSchema();
-        if (skipNavigationSchema != null
+        return skipNavigationSchema != null
             && entityType.GetForeignKeys().SelectMany(fk => fk.GetReferencingSkipNavigations())
                 .Where(n => !n.IsOnDependent)
-                .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema))
-        {
-            return skipNavigationSchema;
-        }
-
-        return entityType.Model.GetDefaultSchema();
+                .All(n => n.DeclaringEntityType.GetSchema() == skipNavigationSchema)
+                ? skipNavigationSchema
+                : entityType.Model.GetDefaultSchema();
     }
 
     /// <summary>
@@ -258,14 +249,11 @@ public static class RelationalEntityTypeExtensions
     public static string? GetViewName(this IReadOnlyEntityType entityType)
     {
         var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.ViewName);
-        if (nameAnnotation != null)
-        {
-            return (string?)nameAnnotation.Value;
-        }
-
-        return ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
+        return nameAnnotation != null
+            ? (string?)nameAnnotation.Value
+            : ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
             && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
-                ? GetDefaultViewName(entityType)
+                ? entityType.GetDefaultViewName()
                 : null;
     }
 
@@ -332,14 +320,11 @@ public static class RelationalEntityTypeExtensions
     public static string? GetViewSchema(this IReadOnlyEntityType entityType)
     {
         var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.ViewSchema);
-        if (schemaAnnotation != null)
-        {
-            return (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema();
-        }
-
-        return entityType.BaseType != null
-            ? entityType.GetRootType().GetViewSchema()
-            : GetDefaultViewSchema(entityType);
+        return schemaAnnotation != null
+            ? (string?)schemaAnnotation.Value ?? entityType.Model.GetDefaultSchema()
+            : entityType.BaseType != null
+                ? entityType.GetRootType().GetViewSchema()
+                : entityType.GetDefaultViewSchema();
     }
 
     /// <summary>
@@ -350,14 +335,13 @@ public static class RelationalEntityTypeExtensions
     public static string? GetDefaultViewSchema(this IReadOnlyEntityType entityType)
     {
         var ownership = entityType.FindOwnership();
-        if (ownership != null)
-        {
-            return ownership.PrincipalEntityType.GetViewName() != null
+        return ownership != null
+            ? ownership.PrincipalEntityType.GetViewName() != null
                 ? ownership.PrincipalEntityType.GetViewSchema()
-                : entityType.Model.GetDefaultSchema();
-        }
-
-        return GetViewName(entityType) != null ? entityType.Model.GetDefaultSchema() : null;
+                : entityType.Model.GetDefaultSchema()
+            : entityType.GetViewName() != null
+                ? entityType.Model.GetDefaultSchema()
+                : null;
     }
 
     /// <summary>
@@ -1115,7 +1099,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(
         this IMutableEntityType entityType,
         StoreObjectType storeObjectType)
-        => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IMutableEntityTypeMappingFragment>();
+        => ((IReadOnlyEntityType)entityType).GetMappingFragments(storeObjectType).Cast<IMutableEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1132,7 +1116,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(
         this IConventionEntityType entityType,
         StoreObjectType storeObjectType)
-        => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IConventionEntityTypeMappingFragment>();
+        => ((IReadOnlyEntityType)entityType).GetMappingFragments(storeObjectType).Cast<IConventionEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1149,7 +1133,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(
         this IEntityType entityType,
         StoreObjectType storeObjectType)
-        => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IEntityTypeMappingFragment>();
+        => ((IReadOnlyEntityType)entityType).GetMappingFragments(storeObjectType).Cast<IEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1393,14 +1377,10 @@ public static class RelationalEntityTypeExtensions
         }
 
         var ownership = entityType.FindOwnership();
-        if (ownership is { IsUnique: true }
+        return ownership is { IsUnique: true }
             && ownership.DeclaringEntityType.GetTableName() == entityType.GetTableName()
-            && ownership.DeclaringEntityType.GetSchema() == entityType.GetSchema())
-        {
-            return ownership.PrincipalEntityType.IsTableExcludedFromMigrations();
-        }
-
-        return false;
+            && ownership.DeclaringEntityType.GetSchema() == entityType.GetSchema()
+            && ownership.PrincipalEntityType.IsTableExcludedFromMigrations();
     }
 
     /// <summary>
@@ -1419,18 +1399,12 @@ public static class RelationalEntityTypeExtensions
         }
 
         var overrides = entityType.FindMappingFragment(storeObject);
-        if (overrides != null)
-        {
-            return overrides.IsTableExcludedFromMigrations ?? entityType.IsTableExcludedFromMigrations();
-        }
-
-        if (StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject)
-        {
-            return entityType.IsTableExcludedFromMigrations();
-        }
-
-        throw new InvalidOperationException(
-            RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), storeObject.DisplayName()));
+        return overrides != null
+            ? overrides.IsTableExcludedFromMigrations ?? entityType.IsTableExcludedFromMigrations()
+            : StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
+                ? entityType.IsTableExcludedFromMigrations()
+                : throw new InvalidOperationException(
+                    RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), storeObject.DisplayName()));
     }
 
     /// <summary>

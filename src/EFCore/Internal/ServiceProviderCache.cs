@@ -213,5 +213,6 @@ public class ServiceProviderCache
     ///     unexpected behavior. It should only be called when no contexts are actively being created or used, typically in
     ///     test cleanup scenarios.
     /// </remarks>
-    public virtual void Clear() => _configurations.Clear();
+    public virtual void Clear()
+        => _configurations.Clear();
 }

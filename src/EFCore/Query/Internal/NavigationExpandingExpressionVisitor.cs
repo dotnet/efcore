@@ -56,8 +56,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
     private readonly Dictionary<QueryFiltersCacheKey, LambdaExpression> _parameterizedQueryFilterPredicateCache = [];
 
-    private readonly Dictionary<string, object?> _parameters = new();
-
+    private readonly Dictionary<string, object?> _parameters = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -286,9 +285,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             && memberExpression.Member.Name == nameof(ICollection<>.Count)
             && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
                 .Any(e => e.IsGenericType
-                    && (e.GetGenericTypeDefinition() is var genericTypeDefinition
-                        && (genericTypeDefinition == typeof(ICollection<>)
-                            || genericTypeDefinition == typeof(IReadOnlyCollection<>)))))
+                    && e.GetGenericTypeDefinition() is var genericTypeDefinition
+                    && (genericTypeDefinition == typeof(ICollection<>)
+                        || genericTypeDefinition == typeof(IReadOnlyCollection<>))))
         {
             var innerQueryable = UnwrapCollectionMaterialization(innerExpression);
 
@@ -1366,7 +1365,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         MethodInfo joinMethod)
     {
         Check.DebugAssert(
-            joinMethod == QueryableMethods.Join || joinMethod == QueryableMethods.LeftJoin || joinMethod == QueryableMethods.RightJoin
+            joinMethod == QueryableMethods.Join
+            || joinMethod == QueryableMethods.LeftJoin
+            || joinMethod == QueryableMethods.RightJoin
             || joinMethod == QueryableMethods.FullJoin,
             "Join method required");
 

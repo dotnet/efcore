@@ -13,8 +13,9 @@ namespace Microsoft.EntityFrameworkCore;
 public static class SqliteComplexTypePropertyBuilderExtensions
 {
     /// <summary>
-    ///     Configures the property to use the SQLite AUTOINCREMENT feature to generate values for new entities, 
-    ///     when targeting SQLite. This method sets the property's value generation strategy to <see cref="SqliteValueGenerationStrategy.Autoincrement" />.
+    ///     Configures the property to use the SQLite AUTOINCREMENT feature to generate values for new entities,
+    ///     when targeting SQLite. This method sets the property's value generation strategy to
+    ///     <see cref="SqliteValueGenerationStrategy.Autoincrement" />.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
@@ -30,8 +31,9 @@ public static class SqliteComplexTypePropertyBuilderExtensions
     }
 
     /// <summary>
-    ///     Configures the property to use the SQLite AUTOINCREMENT feature to generate values for new entities, 
-    ///     when targeting SQLite. This method sets the property's value generation strategy to <see cref="SqliteValueGenerationStrategy.Autoincrement" />.
+    ///     Configures the property to use the SQLite AUTOINCREMENT feature to generate values for new entities,
+    ///     when targeting SQLite. This method sets the property's value generation strategy to
+    ///     <see cref="SqliteValueGenerationStrategy.Autoincrement" />.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-complex-types">Complex types</see>, and
@@ -41,7 +43,7 @@ public static class SqliteComplexTypePropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePropertyBuilder<TProperty> UseAutoincrement<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder)
-        => (ComplexTypePropertyBuilder<TProperty>)UseAutoincrement((ComplexTypePropertyBuilder)propertyBuilder);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).UseAutoincrement();
 
     /// <summary>
     ///     Configures the SRID of the column that the property maps to when targeting SQLite.
@@ -73,5 +75,5 @@ public static class SqliteComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasSrid<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         int srid)
-        => (ComplexTypePropertyBuilder<TProperty>)HasSrid((ComplexTypePropertyBuilder)propertyBuilder, srid);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasSrid(srid);
 }

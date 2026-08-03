@@ -37,15 +37,19 @@ public partial class NavigationExpandingExpressionVisitor
 
         Expression Where(Expression c)
             => Expression.Call(QueryableMethods.Where.MakeGenericMethod(elementType), c, subqueryMethod.Arguments[1]);
+
         Expression Skip(Expression c)
             => Expression.Call(QueryableMethods.Skip.MakeGenericMethod(elementType), c, subqueryMethod.Arguments[1]);
+
         Expression Reverse(Expression c)
             => Expression.Call(QueryableMethods.Reverse.MakeGenericMethod(elementType), c);
 
         var oneRow = method switch
         {
-            _ when method == QueryableMethods.FirstWithPredicate || method == QueryableMethods.FirstOrDefaultWithPredicate
-                || method == QueryableMethods.SingleWithPredicate || method == QueryableMethods.SingleOrDefaultWithPredicate
+            _ when method == QueryableMethods.FirstWithPredicate
+                || method == QueryableMethods.FirstOrDefaultWithPredicate
+                || method == QueryableMethods.SingleWithPredicate
+                || method == QueryableMethods.SingleOrDefaultWithPredicate
                 => Where(source),
             _ when method == QueryableMethods.LastWithPredicate || method == QueryableMethods.LastOrDefaultWithPredicate
                 => Reverse(Where(source)),
@@ -74,7 +78,7 @@ public partial class NavigationExpandingExpressionVisitor
             QueryableMethods.ElementAt, QueryableMethods.ElementAtOrDefault
         ];
 
-        private readonly Dictionary<MethodCallExpression, int> _memberAccessCount = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<MethodCallExpression, int> _memberAccessCount = [with(ReferenceEqualityComparer.Instance)];
 
         public IEnumerable<MethodCallExpression> Liftable
             => _memberAccessCount.Where(e => e.Value > 1).Select(e => e.Key);

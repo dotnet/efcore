@@ -60,7 +60,10 @@ internal class Project
             throw new CommandException(Resources.ProjectFileNotFound(file));
         }
 
-        var args = new List<string> { "build", "--no-restore", };
+        var args = new List<string>
+        {
+            "build", "--no-restore",
+        };
 
         if (framework != null)
         {
@@ -184,7 +187,13 @@ internal class Project
 
     private static bool HasMultipleTargetFrameworks(string file)
     {
-        var args = new List<string> { "build", "--no-restore", "/getProperty:TargetFrameworks", file };
+        var args = new List<string>
+        {
+            "build",
+            "--no-restore",
+            "/getProperty:TargetFrameworks",
+            file
+        };
 
         var output = new StringBuilder();
         var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
@@ -214,7 +223,7 @@ internal class Project
         }
 
         var contentFilesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
-            CopyDirectoryRecursive(contentFilesPath, targetDir);
+        CopyDirectoryRecursive(contentFilesPath, targetDir);
     }
 
     private static void CopyDirectoryRecursive(string sourceDir, string targetDir)

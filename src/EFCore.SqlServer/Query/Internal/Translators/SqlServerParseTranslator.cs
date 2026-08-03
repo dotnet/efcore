@@ -28,11 +28,9 @@ public class SqlServerParseTranslator(ISqlExpressionFactory sqlExpressionFactory
 
     private static readonly MethodInfo[] SupportedMethods
         = SupportedClrTypes
-            .SelectMany(
-                t => t.GetTypeInfo().GetDeclaredMethods(nameof(int.Parse))
-                    .Where(
-                        m => m.GetParameters().Length == 1
-                            && m.GetParameters().First().ParameterType == typeof(string)))
+            .SelectMany(t => t.GetTypeInfo().GetDeclaredMethods(nameof(int.Parse))
+                .Where(m => m.GetParameters().Length == 1
+                    && m.GetParameters().First().ParameterType == typeof(string)))
             .ToArray();
 
     /// <summary>

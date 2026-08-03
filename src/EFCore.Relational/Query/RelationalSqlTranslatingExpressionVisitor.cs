@@ -183,8 +183,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         }
 
         if (binaryExpression.NodeType == ExpressionType.Equal
-            || binaryExpression.NodeType == ExpressionType.NotEqual
-            && binaryExpression.Left.Type == typeof(Type))
+            || (binaryExpression.NodeType == ExpressionType.NotEqual
+                && binaryExpression.Left.Type == typeof(Type)))
         {
             if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
                 && IsTypeConstant(binaryExpression.Right, out var type1))
@@ -321,7 +321,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     && !entityType.GetDirectlyDerivedTypes().Any()))
             {
                 // No hierarchy
-                return _sqlExpressionFactory.Constant((typeReference.StructuralType.ClrType == comparisonType) == match);
+                return _sqlExpressionFactory.Constant(typeReference.StructuralType.ClrType == comparisonType == match);
             }
 
             if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
@@ -358,7 +358,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     var predicate = GeneratePredicateTpt(projection);
 
                     subSelectExpression.ApplyPredicate(predicate);
-                    subSelectExpression.ReplaceProjection(new List<Expression>());
+                    subSelectExpression.ReplaceProjection([]);
                     subSelectExpression.ApplyProjection();
                     if (subSelectExpression.Limit == null
                         && subSelectExpression.Offset == null)
@@ -382,7 +382,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                         // TPT case
                         // Most root type doesn't have matching case
                         // All derived types needs to be excluded
-                        var derivedTypeValues = derivedType.GetDerivedTypes().Where(e => !e.IsAbstract()).Select(e => (string)e.GetDiscriminatorValue()!)
+                        var derivedTypeValues = derivedType.GetDerivedTypes().Where(e => !e.IsAbstract())
+                            .Select(e => (string)e.GetDiscriminatorValue()!)
                             .ToList();
                         var predicates = new List<SqlExpression>();
                         foreach (var caseWhenClause in caseExpression.WhenClauses)
@@ -398,7 +399,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                             }
                         }
 
-                        var result = predicates.Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+                        var result = predicates.Aggregate(_sqlExpressionFactory.AndAlso);
 
                         return match ? result : _sqlExpressionFactory.Not(result);
                     }
@@ -586,7 +587,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return sqlExpression;
                 }
 
-                subquery.ReplaceProjection(new List<Expression> { sqlExpression });
+                subquery.ReplaceProjection([sqlExpression]);
                 subquery.ApplyProjection();
 
                 SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
@@ -668,8 +669,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     return _sqlExpressionFactory.IsNotNull(sqlInner);
                 case nameof(Nullable<>.HasValue)
                     when inner is StructuralTypeReferenceExpression
-                        && TryRewriteStructuralTypeEquality(
-                            ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null), equalsMethod: false, out var result):
+                    && TryRewriteStructuralTypeEquality(
+                        ExpressionType.NotEqual, inner, new SqlConstantExpression(null, memberExpression.Expression!.Type, null),
+                        equalsMethod: false, out var result):
                     return result;
             }
         }
@@ -886,11 +888,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var elementClrType = newArray.Type.GetElementType()!.UnwrapNullableType();
 
                 return method.Name switch
-                    {
-                        nameof(RelationalDbFunctionsExtensions.Greatest) => GenerateGreatest(translatedValues, elementClrType),
-                        nameof(RelationalDbFunctionsExtensions.Least) => GenerateLeast(translatedValues, elementClrType),
-                        _ => throw new UnreachableException()
-                    }
+                {
+                    nameof(RelationalDbFunctionsExtensions.Greatest) => GenerateGreatest(translatedValues, elementClrType),
+                    nameof(RelationalDbFunctionsExtensions.Least) => GenerateLeast(translatedValues, elementClrType),
+                    _ => throw new UnreachableException()
+                }
                     ?? QueryCompilationContext.NotTranslatedExpression;
             }
 
@@ -1091,7 +1093,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var predicate = GeneratePredicateTpt(projection);
 
                 subSelectExpression.ApplyPredicate(predicate);
-                subSelectExpression.ReplaceProjection(new List<Expression>());
+                subSelectExpression.ReplaceProjection([]);
                 subSelectExpression.ApplyProjection();
                 if (subSelectExpression.Limit == null
                     && subSelectExpression.Offset == null)
@@ -1181,8 +1183,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             case ExpressionType.ConvertChecked:
             case ExpressionType.TypeAs:
                 // Object convert needs to be converted to explicit cast when mismatching types
-                if (operand.Type.IsInterface
-                    && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                if ((operand.Type.IsInterface
+                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type))
                     || unaryExpression.Type.UnwrapNullableType() == operand.Type.UnwrapNullableType()
                     || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                 {
@@ -1313,9 +1315,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                     entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                 if (allRequiredNonPkProperties.Count > 0)
                 {
-                    condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
+                    condition = allRequiredNonPkProperties.Select(projection.BindProperty)
                         .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+                        .Aggregate(_sqlExpressionFactory.AndAlso);
                 }
 
                 if (nonPrincipalSharedNonPkProperties.Count != 0
@@ -1323,9 +1325,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 {
                     // If all non principal shared properties are nullable then we need additional condition
                     var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                        .Select(p => projection.BindProperty(p))
+                        .Select(projection.BindProperty)
                         .Select(c => _sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
-                        .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
+                        .Aggregate(_sqlExpressionFactory.OrElse);
 
                     condition = condition == null
                         ? atLeastOneNonNullValueInNullableColumnsCondition
@@ -1339,7 +1341,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 }
 
                 return _sqlExpressionFactory.Case(
-                    new List<CaseWhenClause> { new(condition, propertyAccess) },
+                    [new CaseWhenClause(condition, propertyAccess)],
                     elseResult: null);
 
                 // We don't do above processing for subquery entity since it comes from after subquery which has been
@@ -1354,7 +1356,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
                 var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
                 var innerProjection = projection.BindProperty(property);
-                subSelectExpression.ReplaceProjection(new List<Expression> { innerProjection });
+                subSelectExpression.ReplaceProjection([innerProjection]);
                 subSelectExpression.ApplyProjection();
 
                 return new ScalarSubqueryExpression(subSelectExpression);
@@ -1768,18 +1770,13 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             => ExpressionType.Extension;
 
         public Expression Convert(Type type)
-        {
-            if (type == typeof(object) // Ignore object conversion
-                || type.IsAssignableFrom(Type)) // Ignore casting to base type/interface
-            {
-                return this;
-            }
-
-            return StructuralType is IEntityType entityType
-                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
-                    ? new StructuralTypeReferenceExpression(this, derivedEntityType)
-                    : QueryCompilationContext.NotTranslatedExpression;
-        }
+            => type == typeof(object) // Ignore object conversion
+                || type.IsAssignableFrom(Type)
+                    ? this
+                    : StructuralType is IEntityType entityType
+                    && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
+                        ? new StructuralTypeReferenceExpression(this, derivedEntityType)
+                        : QueryCompilationContext.NotTranslatedExpression;
 
         private string DebuggerDisplay()
             => this switch

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -55,7 +54,8 @@ public static class SqlServerQueryableExtensions
             ? queryableSource.Provider.CreateQuery<VectorSearchResult<T>>(
                 Expression.Call(
                     // Note that the method used is the one below, accepting IQueryable<T>, not DbSet<T>
-                    method: new Func<IQueryable<T>, Expression<Func<T, TVector>>, TVector, string, IQueryable<VectorSearchResult<T>>>(VectorSearch).Method,
+                    method: new Func<IQueryable<T>, Expression<Func<T, TVector>>, TVector, string, IQueryable<VectorSearchResult<T>>>(
+                        VectorSearch).Method,
                     root,
                     Expression.Quote(vectorPropertySelector),
                     Expression.Constant(similarTo),
@@ -127,8 +127,11 @@ public static class SqlServerQueryableExtensions
     ///         to retrieve the full entity data.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://learn.microsoft.com/sql/relational-databases/system-functions/freetexttable-transact-sql">
-    ///         SQL Server documentation for <c>FREETEXTTABLE</c></see> for more information.
+    ///         See
+    ///         <see href="https://learn.microsoft.com/sql/relational-databases/system-functions/freetexttable-transact-sql">
+    ///             SQL Server documentation for <c>FREETEXTTABLE</c>
+    ///         </see>
+    ///         for more information.
     ///     </para>
     /// </remarks>
     public static IQueryable<FullTextSearchResult<TKey>> FreeTextTable<T, TKey>(
@@ -142,35 +145,32 @@ public static class SqlServerQueryableExtensions
         var queryableSource = (IQueryable)source;
         var root = (EntityQueryRootExpression)queryableSource.Expression;
 
-        if (queryableSource.Provider is not EntityQueryProvider)
-        {
-            throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(FreeTextTable)));
-        }
-
-        return columnSelector is null
-            ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
-                Expression.Call(
-                    method: new Func<
-                        IQueryable<T>,
-                        string,
-                        string?,
-                        int?,
-                        IQueryable<FullTextSearchResult<TKey>>>(FreeTextTable<T, TKey>).Method,
-                    root,
-                    Expression.Constant(freeText),
-                    Expression.Constant(languageTerm, typeof(string)),
-                    Expression.Constant(topN, typeof(int?))))
-            : queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
-                Expression.Call(
-                    method: new Func<
-                        IQueryable<T>,
-                        Expression<Func<T, object>>, string, string?, int?,
-                        IQueryable<FullTextSearchResult<TKey>>>(FreeTextTable<T, TKey>).Method,
-                    root,
-                    Expression.Quote(columnSelector),
-                    Expression.Constant(freeText),
-                    Expression.Constant(languageTerm, typeof(string)),
-                    Expression.Constant(topN, typeof(int?))));
+        return queryableSource.Provider is not EntityQueryProvider
+            ? throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(FreeTextTable)))
+            : columnSelector is null
+                ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
+                    Expression.Call(
+                        method: new Func<
+                            IQueryable<T>,
+                            string,
+                            string?,
+                            int?,
+                            IQueryable<FullTextSearchResult<TKey>>>(FreeTextTable<T, TKey>).Method,
+                        root,
+                        Expression.Constant(freeText),
+                        Expression.Constant(languageTerm, typeof(string)),
+                        Expression.Constant(topN, typeof(int?))))
+                : queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
+                    Expression.Call(
+                        method: new Func<
+                            IQueryable<T>,
+                            Expression<Func<T, object>>, string, string?, int?,
+                            IQueryable<FullTextSearchResult<TKey>>>(FreeTextTable<T, TKey>).Method,
+                        root,
+                        Expression.Quote(columnSelector),
+                        Expression.Constant(freeText),
+                        Expression.Constant(languageTerm, typeof(string)),
+                        Expression.Constant(topN, typeof(int?))));
     }
 
     // A separate method stub is required since the public method accepts DbSet (to limit to direct usage on DbSets),
@@ -214,8 +214,11 @@ public static class SqlServerQueryableExtensions
     ///         to retrieve the full entity data.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://learn.microsoft.com/sql/relational-databases/system-functions/containstable-transact-sql">
-    ///         SQL Server documentation for <c>CONTAINSTABLE</c></see> for more information.
+    ///         See
+    ///         <see href="https://learn.microsoft.com/sql/relational-databases/system-functions/containstable-transact-sql">
+    ///             SQL Server documentation for <c>CONTAINSTABLE</c>
+    ///         </see>
+    ///         for more information.
     ///     </para>
     /// </remarks>
     public static IQueryable<FullTextSearchResult<TKey>> ContainsTable<T, TKey>(
@@ -229,27 +232,26 @@ public static class SqlServerQueryableExtensions
         var queryableSource = (IQueryable)source;
         var root = (EntityQueryRootExpression)queryableSource.Expression;
 
-        if (queryableSource.Provider is not EntityQueryProvider)
-        {
-            throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(ContainsTable)));
-        }
-
-        return columnSelector is null
-            ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
-                Expression.Call(
-                    method: new Func<IQueryable<T>, string, string?, int?, IQueryable<FullTextSearchResult<TKey>>>(ContainsTable<T, TKey>).Method,
-                    root,
-                    Expression.Constant(searchCondition),
-                    Expression.Constant(languageTerm, typeof(string)),
-                    Expression.Constant(topN, typeof(int?))))
-            : queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
-                Expression.Call(
-                    method: new Func<IQueryable<T>, Expression<Func<T, object>>, string, string?, int?, IQueryable<FullTextSearchResult<TKey>>>(ContainsTable<T, TKey>).Method,
-                    root,
-                    Expression.Quote(columnSelector),
-                    Expression.Constant(searchCondition),
-                    Expression.Constant(languageTerm, typeof(string)),
-                    Expression.Constant(topN, typeof(int?))));
+        return queryableSource.Provider is not EntityQueryProvider
+            ? throw new InvalidOperationException(CoreStrings.FunctionOnNonEfLinqProvider(nameof(ContainsTable)))
+            : columnSelector is null
+                ? queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
+                    Expression.Call(
+                        method: new Func<IQueryable<T>, string, string?, int?, IQueryable<FullTextSearchResult<TKey>>>(
+                            ContainsTable<T, TKey>).Method,
+                        root,
+                        Expression.Constant(searchCondition),
+                        Expression.Constant(languageTerm, typeof(string)),
+                        Expression.Constant(topN, typeof(int?))))
+                : queryableSource.Provider.CreateQuery<FullTextSearchResult<TKey>>(
+                    Expression.Call(
+                        method: new Func<IQueryable<T>, Expression<Func<T, object>>, string, string?, int?,
+                            IQueryable<FullTextSearchResult<TKey>>>(ContainsTable<T, TKey>).Method,
+                        root,
+                        Expression.Quote(columnSelector),
+                        Expression.Constant(searchCondition),
+                        Expression.Constant(languageTerm, typeof(string)),
+                        Expression.Constant(topN, typeof(int?))));
     }
 
     private static IQueryable<FullTextSearchResult<TKey>> ContainsTable<T, TKey>(

@@ -49,7 +49,7 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
     public static ComplexCollectionTypePropertyBuilder<TProperty> ToJsonProperty<TProperty>(
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         string name)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)ToJsonProperty((ComplexCollectionTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).ToJsonProperty(name);
 
     /// <summary>
     ///     Enables full-text search for this property using a specified language.
@@ -95,8 +95,8 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         string? language = null,
         bool enabled = true)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)EnableFullTextSearch(
-            (ComplexCollectionTypePropertyBuilder)propertyBuilder, language, enabled);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).EnableFullTextSearch(
+            language, enabled);
 
     /// <summary>
     ///     Configures the property as a vector for Azure Cosmos DB.
@@ -136,8 +136,8 @@ public static class CosmosComplexCollectionTypePropertyBuilderExtensions
         this ComplexCollectionTypePropertyBuilder<TProperty> propertyBuilder,
         DistanceFunction distanceFunction,
         int dimensions)
-        => (ComplexCollectionTypePropertyBuilder<TProperty>)IsVectorProperty(
-            (ComplexCollectionTypePropertyBuilder)propertyBuilder, distanceFunction, dimensions);
+        => (ComplexCollectionTypePropertyBuilder<TProperty>)((ComplexCollectionTypePropertyBuilder)propertyBuilder).IsVectorProperty(
+            distanceFunction, dimensions);
 
     private static DistanceFunction ValidateVectorDistanceFunction(DistanceFunction distanceFunction)
         => Enum.IsDefined(distanceFunction)

@@ -130,8 +130,8 @@ public class ExceptExpression : SetOperationBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ExceptExpression exceptExpression
-                && Equals(exceptExpression));
+                || (obj is ExceptExpression exceptExpression
+                    && Equals(exceptExpression)));
 
     private bool Equals(ExceptExpression exceptExpression)
         => base.Equals(exceptExpression);

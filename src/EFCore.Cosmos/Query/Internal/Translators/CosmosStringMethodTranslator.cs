@@ -106,11 +106,14 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
                         => TranslateSystemFunction("LEFT", method.ReturnType, instance, length),
                     nameof(string.Substring) when arguments is [var startIndex, var length]
                         => TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, startIndex, length),
-                    nameof(string.Equals) when arguments is [var other, SqlConstantExpression
+                    nameof(string.Equals) when arguments is
+                        [
+                            var other, SqlConstantExpression
                         {
                             Value: StringComparison comparisonTypeValue
                                 and (StringComparison.OrdinalIgnoreCase or StringComparison.Ordinal)
-                        }]
+                        }
+                        ]
                         => comparisonTypeValue == StringComparison.OrdinalIgnoreCase
                             ? TranslateSystemFunction(
                                 "STRINGEQUALS", typeof(bool), instance, other, sqlExpressionFactory.Constant(true))
@@ -128,11 +131,14 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
                     => sqlExpressionFactory.Add(a, sqlExpressionFactory.Add(b, c)),
                 nameof(string.Concat) when arguments is [var a, var b, var c, var d]
                     => sqlExpressionFactory.Add(a, sqlExpressionFactory.Add(b, sqlExpressionFactory.Add(c, d))),
-                nameof(string.Equals) when arguments is [var left, var right, SqlConstantExpression
+                nameof(string.Equals) when arguments is
+                    [
+                        var left, var right, SqlConstantExpression
                     {
                         Value: StringComparison comparisonTypeValue
                             and (StringComparison.OrdinalIgnoreCase or StringComparison.Ordinal)
-                    }]
+                    }
+                    ]
                     => comparisonTypeValue == StringComparison.OrdinalIgnoreCase
                         ? TranslateSystemFunction(
                             "STRINGEQUALS", typeof(bool), left, right, sqlExpressionFactory.Constant(true))
@@ -141,22 +147,19 @@ public class CosmosStringMethodTranslator(ISqlExpressionFactory sqlExpressionFac
             };
         }
 
-        if (method.DeclaringType == typeof(Enumerable)
+        return method.DeclaringType == typeof(Enumerable)
             && method.IsGenericMethod
             && method.GetGenericArguments()[0] == typeof(char)
-            && arguments is [var source])
-        {
-            return method.Name switch
-            {
-                nameof(Enumerable.FirstOrDefault)
-                    => TranslateSystemFunction("LEFT", typeof(char), source, sqlExpressionFactory.Constant(1)),
-                nameof(Enumerable.LastOrDefault)
-                    => TranslateSystemFunction("RIGHT", typeof(char), source, sqlExpressionFactory.Constant(1)),
-                _ => null
-            };
-        }
-
-        return null;
+            && arguments is [var source]
+                ? method.Name switch
+                {
+                    nameof(Enumerable.FirstOrDefault)
+                        => TranslateSystemFunction("LEFT", typeof(char), source, sqlExpressionFactory.Constant(1)),
+                    nameof(Enumerable.LastOrDefault)
+                        => TranslateSystemFunction("RIGHT", typeof(char), source, sqlExpressionFactory.Constant(1)),
+                    _ => null
+                }
+                : null;
     }
 
     private SqlExpression TranslateSystemFunction(string function, Type returnType, params SqlExpression[] arguments)

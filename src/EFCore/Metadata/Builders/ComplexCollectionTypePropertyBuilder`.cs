@@ -455,9 +455,9 @@ public class ComplexCollectionTypePropertyBuilder<TProperty> : ComplexCollection
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexCollectionTypePropertyBuilder<TProperty> HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => (ComplexCollectionTypePropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer>();
 
@@ -471,11 +471,11 @@ public class ComplexCollectionTypePropertyBuilder<TProperty> : ComplexCollection
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexCollectionTypePropertyBuilder<TProperty> HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer,
+    TComparer,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TProviderComparer>()
+    TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => (ComplexCollectionTypePropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer, TProviderComparer>();

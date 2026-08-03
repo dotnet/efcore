@@ -46,7 +46,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasColumnName<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? name)
-        => (ComplexTypePropertyBuilder<TProperty>)HasColumnName((ComplexTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasColumnName(name);
 
     /// <summary>
     ///     Configures the order of the column the property is mapped to.
@@ -70,7 +70,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasColumnOrder<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         int? order)
-        => (ComplexTypePropertyBuilder<TProperty>)HasColumnOrder((ComplexTypePropertyBuilder)propertyBuilder, order);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasColumnOrder(order);
 
     /// <summary>
     ///     Configures the data type of the column that the property maps to when targeting a relational database.
@@ -107,7 +107,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasColumnType<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? typeName)
-        => (ComplexTypePropertyBuilder<TProperty>)HasColumnType((ComplexTypePropertyBuilder)propertyBuilder, typeName);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasColumnType(typeName);
 
     /// <summary>
     ///     Configures the property as capable of storing only fixed-length data, such as strings.
@@ -140,7 +140,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> IsFixedLength<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         bool fixedLength = true)
-        => (ComplexTypePropertyBuilder<TProperty>)IsFixedLength((ComplexTypePropertyBuilder)propertyBuilder, fixedLength);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).IsFixedLength(fixedLength);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a
@@ -204,7 +204,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValueSql((ComplexTypePropertyBuilder)propertyBuilder);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasDefaultValueSql();
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -219,7 +219,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasDefaultValueSql<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? sql)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValueSql((ComplexTypePropertyBuilder)propertyBuilder, sql);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasDefaultValueSql(sql);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -255,7 +255,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder HasComputedColumnSql(
         this ComplexTypePropertyBuilder propertyBuilder,
         string? sql)
-        => HasComputedColumnSql(propertyBuilder, sql, null);
+        => propertyBuilder.HasComputedColumnSql(sql, null);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -306,7 +306,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder)
-        => (ComplexTypePropertyBuilder<TProperty>)HasComputedColumnSql((ComplexTypePropertyBuilder)propertyBuilder);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasComputedColumnSql();
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -321,7 +321,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? sql)
-        => HasComputedColumnSql(propertyBuilder, sql, null);
+        => propertyBuilder.HasComputedColumnSql(sql, null);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -342,7 +342,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? sql,
         bool? stored)
-        => (ComplexTypePropertyBuilder<TProperty>)HasComputedColumnSql((ComplexTypePropertyBuilder)propertyBuilder, sql, stored);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasComputedColumnSql(sql, stored);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -405,7 +405,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePropertyBuilder<TProperty> HasDefaultValue<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValue((ComplexTypePropertyBuilder)propertyBuilder);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasDefaultValue();
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -421,7 +421,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasDefaultValue<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         object? value)
-        => (ComplexTypePropertyBuilder<TProperty>)HasDefaultValue((ComplexTypePropertyBuilder)propertyBuilder, value);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasDefaultValue(value);
 
     /// <summary>
     ///     Configures a comment to be applied to the column
@@ -454,7 +454,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasComment<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? comment)
-        => (ComplexTypePropertyBuilder<TProperty>)HasComment((ComplexTypePropertyBuilder)propertyBuilder, comment);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasComment(comment);
 
     /// <summary>
     ///     Configures the property to use the given collation. The database column will be created with the given
@@ -488,7 +488,7 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> UseCollation<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? collation)
-        => (ComplexTypePropertyBuilder<TProperty>)UseCollation((ComplexTypePropertyBuilder)propertyBuilder, collation);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).UseCollation(collation);
 
     /// <summary>
     ///     Configures the property of an entity mapped to a JSON column, mapping the entity property to a specific JSON property,
@@ -518,5 +518,5 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     public static ComplexTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
         string? name)
-        => (ComplexTypePropertyBuilder<TProperty>)HasJsonPropertyName((ComplexTypePropertyBuilder)propertyBuilder, name);
+        => (ComplexTypePropertyBuilder<TProperty>)((ComplexTypePropertyBuilder)propertyBuilder).HasJsonPropertyName(name);
 }

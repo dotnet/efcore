@@ -53,9 +53,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     IListSource
     where TEntity : class
 {
-#pragma warning disable EF1001
     private ObservableBackedBindingList<TEntity>? _bindingList;
-#pragma warning restore EF1001
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
@@ -93,7 +91,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     {
         if (_observable == null)
         {
-            _observable = new ObservableCollection<TEntity>(this);
+            _observable = [with(this)];
             _observable.CollectionChanged += ObservableCollectionChanged;
             CollectionChanged += LocalViewCollectionChanged;
         }
@@ -351,11 +349,11 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
         if (entry.Entity is TEntity entity)
         {
-            var wasIn = previousState != EntityState.Detached
-                && previousState != EntityState.Deleted;
+            var wasIn = previousState is not EntityState.Detached
+                and not EntityState.Deleted;
 
-            var isIn = entry.EntityState != EntityState.Detached
-                && entry.EntityState != EntityState.Deleted;
+            var isIn = entry.EntityState is not EntityState.Detached
+                and not EntityState.Deleted;
 
             if (wasIn != isIn)
             {
@@ -471,12 +469,10 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
-#pragma warning disable EF1001
     [RequiresUnreferencedCode(
         "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
-#pragma warning restore EF1001
 
     /// <summary>
     ///     This method is called by data binding frameworks when attempting to data bind
@@ -627,7 +623,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     {
         Check.NotNull(propertyNames);
 
-        return FindEntry(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
+        return FindEntry(propertyNames.Select(_entityType.GetProperty), propertyValues);
     }
 
     /// <summary>
@@ -694,7 +690,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     {
         Check.NotNull(propertyNames);
 
-        return GetEntries(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
+        return GetEntries(propertyNames.Select(_entityType.GetProperty), propertyValues);
     }
 
     /// <summary>
@@ -841,17 +837,14 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
         var property = _entityType.GetProperty(propertyName);
 
-        if (property.ClrType != typeof(TProperty))
-        {
-            throw new ArgumentException(
+        return property.ClrType != typeof(TProperty)
+            ? throw new ArgumentException(
                 CoreStrings.WrongGenericPropertyType(
                     property.Name,
                     property.DeclaringType.DisplayName(),
                     property.ClrType.ShortDisplayName(),
-                    typeof(TProperty).ShortDisplayName()));
-        }
-
-        return property;
+                    typeof(TProperty).ShortDisplayName()))
+            : property;
     }
 
     [field: AllowNull, MaybeNull]

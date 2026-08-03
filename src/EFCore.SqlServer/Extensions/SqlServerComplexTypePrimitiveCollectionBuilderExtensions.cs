@@ -51,8 +51,8 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> IsSparse<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         bool sparse = true)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsSparse(
-            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sparse);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder).IsSparse(
+            sparse);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -92,8 +92,8 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         object? value,
         string defaultConstraintName)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
-            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, value, defaultConstraintName);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder)
+            .HasDefaultValue(value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -133,6 +133,6 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? sql,
         string defaultConstraintName)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
-            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, defaultConstraintName);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder)
+            .HasDefaultValueSql(sql, defaultConstraintName);
 }

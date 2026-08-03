@@ -321,7 +321,8 @@ public class Migrator : IMigrator
                 }
 
                 await _migrationCommandExecutor.ExecuteNonQueryAsync(
-                        getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel, cancellationToken)
+                        getCommands(), _connection, state, commitTransaction: useTransaction, MigrationTransactionIsolationLevel,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
@@ -352,11 +353,8 @@ public class Migrator : IMigrator
         }
         finally
         {
-            if (state.DatabaseLock != null)
-            {
-                state.DatabaseLock.Dispose();
-                state.DatabaseLock = null;
-            }
+            state.DatabaseLock?.Dispose();
+            state.DatabaseLock = null;
 
             if (state.Transaction != null)
             {
@@ -385,8 +383,8 @@ public class Migrator : IMigrator
             _logger.ModelSnapshotNotFound(this, _migrationsAssembly);
         }
         else if (targetMigration == null
-            && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
-            && HasPendingModelChanges())
+                 && RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
+                 && HasPendingModelChanges())
         {
             var modelSource = (ModelSource)_currentContext.Context.GetService<IModelSource>();
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -453,39 +451,41 @@ public class Migrator : IMigrator
 
             var index = i;
             yield return (migration.GetId(), () =>
-            {
-                _logger.MigrationReverting(this, migration);
+                    {
+                        _logger.MigrationReverting(this, migration);
 
-                var commands = GenerateDownSql(
-                    migration,
-                    index != migrationsToRevert.Count - 1
-                        ? migrationsToRevert[index + 1]
-                        : actualTargetMigration);
-                if (migration.DownOperations.Count > 1
-                    && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
-                {
-                    _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
-                }
+                        var commands = GenerateDownSql(
+                            migration,
+                            index != migrationsToRevert.Count - 1
+                                ? migrationsToRevert[index + 1]
+                                : actualTargetMigration);
+                        if (migration.DownOperations.Count > 1
+                            && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
+                        {
+                            _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
+                        }
 
-                return commands;
-            });
+                        return commands;
+                    }
+            );
         }
 
         foreach (var migration in migrationsToApply)
         {
             yield return (migration.GetId(), () =>
-            {
-                _logger.MigrationApplying(this, migration);
+                    {
+                        _logger.MigrationApplying(this, migration);
 
-                var commands = GenerateUpSql(migration);
-                if (migration.UpOperations.Count > 1
-                    && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
-                {
-                    _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
-                }
+                        var commands = GenerateUpSql(migration);
+                        if (migration.UpOperations.Count > 1
+                            && commands.FirstOrDefault(c => c.TransactionSuppressed) is { } nonTransactionalCommand)
+                        {
+                            _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
+                        }
 
-                return commands;
-            });
+                        return commands;
+                    }
+            );
         }
 
         if (migrationsToRevert.Count + migrationsToApply.Count == 0)

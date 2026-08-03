@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -69,7 +68,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
             options.UseDatabaseNames
                 ? (t => t.Name)
-                : t => _candidateNamingService.GenerateCandidateIdentifier(t),
+                : _candidateNamingService.GenerateCandidateIdentifier,
             _cSharpUtilities,
             options.NoPluralize
                 ? null
@@ -78,13 +77,13 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
             options.UseDatabaseNames
                 ? (t => t.Name)
-                : t => _candidateNamingService.GenerateCandidateIdentifier(t),
+                : _candidateNamingService.GenerateCandidateIdentifier,
             _cSharpUtilities,
             options.NoPluralize
                 ? null
                 : _pluralizer.Pluralize,
             caseSensitive: true);
-        _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
+        _columnNamers = [];
         _options = options;
 
         VisitDatabaseModel(modelBuilder, databaseModel);
@@ -143,7 +142,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                 _columnNamers.Add(
                     table,
                     new CSharpUniqueNamer<DatabaseColumn>(
-                        c => _candidateNamingService.GenerateCandidateIdentifier(c),
+                        _candidateNamingService.GenerateCandidateIdentifier,
                         usedNames,
                         _cSharpUtilities,
                         singularizePluralizer: null,
@@ -502,8 +501,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         property.Metadata.SetColumnOrder(column.Table.Columns.IndexOf(column));
 
         property.Metadata.AddAnnotations(
-            column.GetAnnotations().Where(a => a.Name != ScaffoldingAnnotationNames.ConcurrencyToken
-                && a.Name != ScaffoldingAnnotationNames.ClrType));
+            column.GetAnnotations().Where(a => a.Name is not ScaffoldingAnnotationNames.ConcurrencyToken
+                and not ScaffoldingAnnotationNames.ClrType));
 
         return property;
     }
@@ -519,7 +518,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         var primaryKey = table.PrimaryKey!;
 
         var unmappedColumns = primaryKey.Columns
-            .Where(c => _unmappedColumns.Contains(c))
+            .Where(_unmappedColumns.Contains)
             .Select(c => c.Name)
             .ToList();
         if (unmappedColumns.Count > 0)
@@ -586,7 +585,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         DatabaseUniqueConstraint uniqueConstraint)
     {
         var unmappedColumns = uniqueConstraint.Columns
-            .Where(c => _unmappedColumns.Contains(c))
+            .Where(_unmappedColumns.Contains)
             .Select(c => c.Name)
             .ToList();
         if (unmappedColumns.Count > 0)
@@ -633,7 +632,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     protected virtual IndexBuilder? VisitIndex(EntityTypeBuilder builder, DatabaseIndex index)
     {
         var unmappedColumns = index.Columns
-            .Where(c => _unmappedColumns.Contains(c))
+            .Where(_unmappedColumns.Contains)
             .Select(c => c.Name)
             .ToList();
         if (unmappedColumns.Count > 0)
@@ -770,7 +769,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
 
         var unmappedDependentColumns = foreignKey.Columns
-            .Where(c => _unmappedColumns.Contains(c))
+            .Where(_unmappedColumns.Contains)
             .Select(c => c.Name)
             .ToList();
         if (unmappedDependentColumns.Count > 0)
@@ -942,7 +941,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
     // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
     private readonly Dictionary<IReadOnlyEntityType, List<string>> _entityTypeAndPropertyIdentifiers =
-        new();
+        [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -971,46 +970,25 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual TypeScaffoldingInfo? GetTypeScaffoldingInfo(DatabaseColumn column)
-    {
-        if (column.StoreType == null)
-        {
-            return null;
-        }
-
-        return _scaffoldingTypeMapper.FindMapping(
-            column.StoreType,
-            column.IsKeyOrIndex(),
-            column.IsRowVersion(),
-            (Type?)column[ScaffoldingAnnotationNames.ClrType]);
-    }
+        => column.StoreType == null
+            ? null
+            : _scaffoldingTypeMapper.FindMapping(
+                column.StoreType,
+                column.IsKeyOrIndex(),
+                column.IsRowVersion(),
+                (Type?)column[ScaffoldingAnnotationNames.ClrType]);
 
     private static void AssignOnDeleteAction(
         DatabaseForeignKey databaseForeignKey,
         IMutableForeignKey foreignKey)
-    {
-        switch (databaseForeignKey.OnDelete)
+        => foreignKey.DeleteBehavior = databaseForeignKey.OnDelete switch
         {
-            case ReferentialAction.Cascade:
-                foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
-                break;
-
-            case ReferentialAction.SetNull:
-                foreignKey.DeleteBehavior = DeleteBehavior.SetNull;
-                break;
-
-            case ReferentialAction.SetDefault:
-                foreignKey.DeleteBehavior = DeleteBehavior.SetDefault;
-                break;
-
-            case ReferentialAction.Restrict:
-                foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
-                break;
-
-            default:
-                foreignKey.DeleteBehavior = DeleteBehavior.ClientSetNull;
-                break;
-        }
-    }
+            ReferentialAction.Cascade => DeleteBehavior.Cascade,
+            ReferentialAction.SetNull => DeleteBehavior.SetNull,
+            ReferentialAction.SetDefault => DeleteBehavior.SetDefault,
+            ReferentialAction.Restrict => DeleteBehavior.Restrict,
+            _ => DeleteBehavior.ClientSetNull,
+        };
 
     // TODO use CSharpUniqueNamer
     private static string NavigationUniquifier(string proposedIdentifier, ICollection<string>? existingIdentifiers)

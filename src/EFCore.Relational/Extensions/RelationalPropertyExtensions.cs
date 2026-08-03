@@ -58,12 +58,12 @@ public static class RelationalPropertyExtensions
         var columnAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
         return columnAnnotation != null
             ? (string?)columnAnnotation.Value
-            : GetDefaultColumnName(property, storeObject);
+            : property.GetDefaultColumnName(storeObject);
 
         static bool ShouldBeMapped(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            if (storeObject.StoreObjectType == StoreObjectType.Function
-                || storeObject.StoreObjectType == StoreObjectType.SqlQuery)
+            if (storeObject.StoreObjectType is StoreObjectType.Function
+                or StoreObjectType.SqlQuery)
             {
                 return true;
             }
@@ -417,7 +417,7 @@ public static class RelationalPropertyExtensions
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedTableRootProperty != null
-            ? GetColumnOrder(sharedTableRootProperty, storeObject)
+            ? sharedTableRootProperty.GetColumnOrder(storeObject)
             : null;
     }
 
@@ -486,12 +486,9 @@ public static class RelationalPropertyExtensions
     public static string? GetColumnType(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
-        if (annotation != null)
-        {
-            return property.FindRelationalTypeMapping()?.StoreType ?? (string?)annotation.Value;
-        }
-
-        return GetDefaultColumnType(property, storeObject);
+        return annotation != null
+            ? property.FindRelationalTypeMapping()?.StoreType ?? (string?)annotation.Value
+            : GetDefaultColumnType(property, storeObject);
     }
 
     /// <summary>
@@ -787,7 +784,7 @@ public static class RelationalPropertyExtensions
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedTableRootProperty != null
-            ? GetDefaultValueSql(sharedTableRootProperty, storeObject)
+            ? sharedTableRootProperty.GetDefaultValueSql(storeObject)
             : null;
     }
 
@@ -849,7 +846,7 @@ public static class RelationalPropertyExtensions
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedTableRootProperty != null
-            ? GetComputedColumnSql(sharedTableRootProperty, storeObject)
+            ? sharedTableRootProperty.GetComputedColumnSql(storeObject)
             : null;
     }
 
@@ -919,7 +916,7 @@ public static class RelationalPropertyExtensions
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedTableRootProperty != null
-            ? GetIsStored(sharedTableRootProperty, storeObject)
+            ? sharedTableRootProperty.GetIsStored(storeObject)
             : null;
     }
 
@@ -1022,7 +1019,7 @@ public static class RelationalPropertyExtensions
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         if (sharedTableRootProperty != null)
         {
-            return TryGetDefaultValue(sharedTableRootProperty, storeObject, out defaultValue);
+            return sharedTableRootProperty.TryGetDefaultValue(storeObject, out defaultValue);
         }
 
         defaultValue = property.ClrType.GetDefaultValue();
@@ -1103,7 +1100,7 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedTableRootProperty != null ? GetMaxLength(sharedTableRootProperty, storeObject) : null;
+        return sharedTableRootProperty != null ? sharedTableRootProperty.GetMaxLength(storeObject) : null;
     }
 
     /// <summary>
@@ -1122,7 +1119,7 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedTableRootProperty != null ? GetPrecision(sharedTableRootProperty, storeObject) : null;
+        return sharedTableRootProperty != null ? sharedTableRootProperty.GetPrecision(storeObject) : null;
     }
 
     /// <summary>
@@ -1141,7 +1138,7 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedTableRootProperty != null ? GetScale(sharedTableRootProperty, storeObject) : null;
+        return sharedTableRootProperty != null ? sharedTableRootProperty.GetScale(storeObject) : null;
     }
 
     /// <summary>
@@ -1159,7 +1156,7 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedTableRootProperty != null ? IsUnicode(sharedTableRootProperty, storeObject) : null;
+        return sharedTableRootProperty != null ? sharedTableRootProperty.IsUnicode(storeObject) : null;
     }
 
     /// <summary>
@@ -1186,7 +1183,7 @@ public static class RelationalPropertyExtensions
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedTableRootProperty != null
-            ? IsFixedLength(sharedTableRootProperty, storeObject)
+            ? sharedTableRootProperty.IsFixedLength(storeObject)
             : null;
     }
 
@@ -1265,12 +1262,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return sharedTableRootProperty.IsColumnNullable(storeObject);
-        }
-
-        return property.IsNullable
+        return sharedTableRootProperty != null
+            ? sharedTableRootProperty.IsColumnNullable(storeObject)
+            : property.IsNullable
             || (property.DeclaringType.ContainingEntityType is { } entityType
                 && ((entityType.BaseType != null
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
@@ -1331,7 +1325,7 @@ public static class RelationalPropertyExtensions
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedTableRootProperty != null
-            ? GetComment(sharedTableRootProperty, storeObject)
+            ? sharedTableRootProperty.GetComment(storeObject)
             : null;
     }
 

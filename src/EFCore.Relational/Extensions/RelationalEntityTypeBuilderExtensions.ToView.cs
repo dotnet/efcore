@@ -41,7 +41,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         string? name)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToView(name);
 
     /// <summary>
     ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -84,7 +84,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? name,
         string? schema)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name, schema);
+        => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToView(name, schema);
 
     /// <summary>
     ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -118,7 +118,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string name,
         Action<ViewBuilder<TEntity>> buildAction)
         where TEntity : class
-        => ToView(entityTypeBuilder, name, null, buildAction);
+        => entityTypeBuilder.ToView(name, null, buildAction);
 
     /// <summary>
     ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -209,7 +209,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? name)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)ToView((OwnedNavigationBuilder)ownedNavigationBuilder, name);
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)ownedNavigationBuilder).ToView(name);
 
     /// <summary>
     ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -254,8 +254,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         string? schema)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)ToView(
-            (OwnedNavigationBuilder)ownedNavigationBuilder, name, schema);
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)ownedNavigationBuilder).ToView(name, schema);
 
     /// <summary>
     ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -291,7 +290,7 @@ public static partial class RelationalEntityTypeBuilderExtensions
         Action<OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>> buildAction)
         where TOwnerEntity : class
         where TDependentEntity : class
-        => ToView(ownedNavigationBuilder, name, null, buildAction);
+        => ownedNavigationBuilder.ToView(name, null, buildAction);
 
     /// <summary>
     ///     Configures the view that the entity type maps to when targeting a relational database.

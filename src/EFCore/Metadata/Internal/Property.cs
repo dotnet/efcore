@@ -61,7 +61,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
         if (elementType != null)
         {
             if (clrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
-                    .IsAssignableFrom(elementType.UnwrapNullableType()) != true)
+                    .IsAssignableFrom(elementType.UnwrapNullableType())
+                != true)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ElementTypeNotCompatible(
@@ -415,14 +416,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetMaxLength(int? maxLength, ConfigurationSource configurationSource)
-    {
-        if (maxLength is < -1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxLength));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource)?.Value;
-    }
+        => maxLength is < -1
+            ? throw new ArgumentOutOfRangeException(nameof(maxLength))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.MaxLength, maxLength, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -476,14 +472,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetPrecision(int? precision, ConfigurationSource configurationSource)
-    {
-        if (precision != null && precision < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(precision));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource)?.Value;
-    }
+        => precision is not null and < 0
+            ? throw new ArgumentOutOfRangeException(nameof(precision))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Precision, precision, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -510,14 +501,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int? SetScale(int? scale, ConfigurationSource configurationSource)
-    {
-        if (scale != null && scale < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(scale));
-        }
-
-        return (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource)?.Value;
-    }
+        => scale is not null and < 0
+            ? throw new ArgumentOutOfRangeException(nameof(scale))
+            : (int?)SetOrRemoveAnnotation(CoreAnnotationNames.Scale, scale, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1043,8 +1029,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
         bool TryFindAndValidateConversionAnnotation(
             Property principalProperty,
             string annotationName,
-            Type? firstTypeToCheck, Type? secondTypeToCheck,
-            Type? firstConflictingType, Type? secondConflictingType,
+            Type? firstTypeToCheck,
+            Type? secondTypeToCheck,
+            Type? firstConflictingType,
+            Type? secondConflictingType,
             out object? value)
         {
             var annotation = principalProperty.FindAnnotation(annotationName);
@@ -1116,13 +1104,11 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IRu
     /// </summary>
     [DisallowNull]
     public virtual CoreTypeMapping? TypeMapping
-    {
-        get => IsReadOnly
+        => IsReadOnly
             ? NonCapturingLazyInitializer.EnsureInitialized(
                 ref _typeMapping, (IProperty)this, static property =>
                     property.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!)
             : _typeMapping;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

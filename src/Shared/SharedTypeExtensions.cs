@@ -121,12 +121,7 @@ internal static class SharedTypeExtensions
         string name)
     {
         var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
-        if (props.Count > 1)
-        {
-            throw new AmbiguousMatchException();
-        }
-
-        return props.SingleOrDefault();
+        return props.Count > 1 ? throw new AmbiguousMatchException() : props.SingleOrDefault();
     }
 
     public static bool IsInstantiable(this Type type)
@@ -149,12 +144,7 @@ internal static class SharedTypeExtensions
     public static Type GetSequenceType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var sequenceType = TryGetSequenceType(type);
-        if (sequenceType == null)
-        {
-            throw new ArgumentException($"The type {type.Name} does not represent a sequence");
-        }
-
-        return sequenceType;
+        return sequenceType ?? throw new ArgumentException($"The type {type.Name} does not represent a sequence");
     }
 
     public static Type? TryGetSequenceType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
@@ -296,14 +286,10 @@ internal static class SharedTypeExtensions
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var interfaces = type.GetInterfaces();
-        if (type.BaseType == typeof(object)
-            || type.BaseType == null)
-        {
-            return interfaces;
-        }
-
-        return interfaces.Except(GetInterfacesSuppressed(type.BaseType));
-
+        return type.BaseType == typeof(object)
+            || type.BaseType == null
+            ? interfaces
+            : interfaces.Except(GetInterfacesSuppressed(type.BaseType));
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "https://github.com/dotnet/linker/issues/2473")]
         static IEnumerable<Type> GetInterfacesSuppressed(Type type)
             => type.GetInterfaces();

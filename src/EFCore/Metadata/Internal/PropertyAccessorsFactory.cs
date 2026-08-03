@@ -339,8 +339,8 @@ public class PropertyAccessorsFactory
         }
 
         return !addNullCheck
-            || instanceExpression.Type.IsValueType
-            && !instanceExpression.Type.IsNullableValueType()
+            || (instanceExpression.Type.IsValueType
+                && !instanceExpression.Type.IsNullableValueType())
                 ? memberAccess
                 : Expression.Condition(
                     Expression.Equal(instanceExpression, Expression.Constant(null)),
@@ -424,10 +424,10 @@ public class PropertyAccessorsFactory
                 Expression.Throw(
                     Expression.New(
                         InvalidOperationConstructor,
-                            Expression.Call(
-                                ComplexCollectionNotInitializedMethod,
-                                Expression.Constant(complexProperty.DeclaringType.ShortNameChain()),
-                                Expression.Constant(complexProperty.Name))),
+                        Expression.Call(
+                            ComplexCollectionNotInitializedMethod,
+                            Expression.Constant(complexProperty.DeclaringType.ShortNameChain()),
+                            Expression.Constant(complexProperty.Name))),
                     instanceExpression.Type),
                 Expression.Condition(
                     isOutOfRange,
@@ -443,7 +443,7 @@ public class PropertyAccessorsFactory
                                     Expression.Property(instanceExpression, listCountProperty),
                                     typeof(object)))),
                         instanceExpression.Type),
-                instanceExpression));
+                    instanceExpression));
         }
 
         return Expression.MakeIndex(

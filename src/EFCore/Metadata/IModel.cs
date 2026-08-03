@@ -107,12 +107,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     RuntimeModelDependencies GetModelDependencies()
     {
         var dependencies = ModelDependencies;
-        if (dependencies == null)
-        {
-            throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetModelDependencies)));
-        }
-
-        return dependencies;
+        return dependencies ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetModelDependencies)));
     }
 
     /// <summary>
