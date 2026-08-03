@@ -437,7 +437,7 @@
     <value>'WithPartitionKey' can only be called once in a query. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
   </data>
   <data name="WithPartitionKeyBadNode" xml:space="preserve">
-    <value>'WithPartitionKey' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+    <value>'WithPartitionKey' can only be called on an entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
   </data>
   <data name="WithPartitionKeyNotConstantOrParameter" xml:space="preserve">
     <value>'WithPartitionKey' only accepts simple constant or parameter arguments. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>

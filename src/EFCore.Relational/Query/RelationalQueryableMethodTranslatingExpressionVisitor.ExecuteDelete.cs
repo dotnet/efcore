@@ -161,7 +161,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     }
 
     /// <summary>
-    ///     Checks weather the current select expression can be used as-is for executing a delete operation, or whether it must be pushed
+    ///     Checks whether the current select expression can be used as-is for executing a delete operation, or whether it must be pushed
     ///     down into a subquery.
     /// </summary>
     /// <remarks>

@@ -418,7 +418,7 @@ public class ChangeTracker : IResettableService
     /// <param name="rootEntity">The entity to begin traversal from.</param>
     /// <param name="state">An arbitrary state object passed to the callback.</param>
     /// <param name="callback">
-    ///     An delegate to configure the change tracking information for each entity. The second parameter to the
+    ///     A delegate to configure the change tracking information for each entity. The second parameter to the
     ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
     ///     if the callback returns <see langword="false" />.
     /// </param>
