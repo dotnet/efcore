@@ -7,33 +7,42 @@ public class KeysWithConvertersInMemoryTest(KeysWithConvertersInMemoryTest.KeysW
     : KeysWithConvertersTestBase<
         KeysWithConvertersInMemoryTest.KeysWithConvertersInMemoryFixture>(fixture)
 {
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact]
     public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
-        => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents();
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents());
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact]
     public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK()
-        => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK();
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK());
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact]
     public override Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact]
     public override Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_required_dependents();
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    // Value converters of keys are not supported by InMemory (#26238); this query/update path currently throws NullReferenceException.
+    [Fact]
     public override Task Can_query_and_update_owned_entity_with_value_converter()
-        => base.Can_query_and_update_owned_entity_with_value_converter();
+        => Assert.ThrowsAsync<NullReferenceException>(
+            () => base.Can_query_and_update_owned_entity_with_value_converter());
 
-    [ConditionalFact(Skip = "Issue #26238")]
+    [Fact]
     public override Task Can_query_and_update_owned_entity_with_int_bare_class_key()
-        => base.Can_query_and_update_owned_entity_with_int_bare_class_key();
+        => Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Can_query_and_update_owned_entity_with_int_bare_class_key());
 
-    [ConditionalFact(Skip = "Issue #26238")]
-    public override Task Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
-        => base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents();
+    // Value converters of keys are not supported
+    [Fact]
+    public override async Task Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
+        => Assert.Equal(
+            CoreStrings.InvalidSetType(nameof(EnumerableClassKeyPrincipal)),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents())).Message);
 
     public class KeysWithConvertersInMemoryFixture : KeysWithConvertersFixtureBase
     {
@@ -47,7 +56,7 @@ public class KeysWithConvertersInMemoryTest(KeysWithConvertersInMemoryTest.KeysW
         {
             base.OnModelCreating(modelBuilder, context);
 
-            // Issue #26238
+            // Value converters of keys are not supported
             modelBuilder.Ignore<EnumerableClassKeyPrincipal>();
             modelBuilder.Ignore<EnumerableClassKeyOptionalDependent>();
             modelBuilder.Ignore<EnumerableClassKeyRequiredDependent>();

@@ -113,6 +113,6 @@ RETURNING "Id";
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

@@ -18,7 +18,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     private static readonly string _eol = Environment.NewLine;
 
-    private static readonly object _queryBaselineFileLock = new();
     private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
@@ -75,16 +74,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf(
-                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                        StringComparison.Ordinal)
-                    + 1)
-                + "QueryBaseline.txt";
-
-            var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
             if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
@@ -108,10 +97,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
             Logger.TestOutputHelper?.WriteLine(newBaseLine);
-
-            var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
-
-            File.AppendAllText(logFile, contents);
 
             throw;
         }

@@ -7,6 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocManyToManyQuerySqliteTest(NonSharedFixture fixture) : AdHocManyToManyQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

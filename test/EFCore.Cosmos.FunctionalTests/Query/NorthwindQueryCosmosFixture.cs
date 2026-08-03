@@ -12,7 +12,7 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
     where TModelCustomizer : ITestModelCustomizer, new()
 {
     protected override ITestStoreFactory TestStoreFactory
-        => CosmosNorthwindTestStoreFactory.Instance;
+        => CosmosTestStoreFactory.Instance;
 
     protected override bool UsePooling
         => false;
@@ -52,32 +52,35 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
             .HasRootDiscriminatorInJsonId()
             .ToContainer("ProductsAndOrders");
 
-        modelBuilder.Entity<OrderQuery>()
-            .ToContainer("ProductsAndOrders")
-            .HasRootDiscriminatorInJsonId()
-            .HasDiscriminator<string>("$type").HasValue("Order");
+        var orderQuery = modelBuilder.Entity<OrderQuery>().ToContainer("ProductsAndOrders").HasRootDiscriminatorInJsonId();
+        orderQuery.HasDiscriminator().HasValue("Order");
+        orderQuery.Property<string>("Discriminator").ToJsonProperty("$type");
 
-        modelBuilder
+        var productQuery = modelBuilder
             .Entity<ProductQuery>()
             .ToContainer("ProductsAndOrders")
-            .HasRootDiscriminatorInJsonId()
-            .HasDiscriminator<string>("$type").HasValue("Product");
+            .HasRootDiscriminatorInJsonId();
+        productQuery.HasDiscriminator().HasValue("Product");
+        productQuery.Property<string>("Discriminator").ToJsonProperty("$type");
 
-        modelBuilder
+        var productView = modelBuilder
             .Entity<ProductView>()
             .ToContainer("ProductsAndOrders")
-            .HasRootDiscriminatorInJsonId()
-            .HasDiscriminator<string>("$type").HasValue("ProductView");
+            .HasRootDiscriminatorInJsonId();
+        productView.HasDiscriminator().HasValue("ProductView");
+        productView.Property<string>("Discriminator").ToJsonProperty("$type");
 
-        modelBuilder
+        var customerQueryWithQueryFilter = modelBuilder
             .Entity<CustomerQueryWithQueryFilter>()
-            .ToContainer("Customers")
-            .HasDiscriminator<string>("$type").HasValue("Customer");
+            .ToContainer("Customers");
+        customerQueryWithQueryFilter.HasDiscriminator().HasValue("Customer");
+        customerQueryWithQueryFilter.Property<string>("Discriminator").ToJsonProperty("$type");
 
-        modelBuilder
+        var customerQuery = modelBuilder
             .Entity<CustomerQuery>()
-            .ToContainer("Customers")
-            .HasDiscriminator<string>("$type").HasValue("Customer");
+            .ToContainer("Customers");
+        customerQuery.HasDiscriminator().HasValue("Customer");
+        customerQuery.Property<string>("Discriminator").ToJsonProperty("$type");
 
         modelBuilder.Entity<Customer>().Metadata.RemoveIndex(
             modelBuilder.Entity<Customer>().Property(e => e.City).Metadata.GetContainingIndexes().Single());

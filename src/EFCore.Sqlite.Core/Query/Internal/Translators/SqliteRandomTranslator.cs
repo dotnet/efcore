@@ -12,22 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteRandomTranslator : IMethodCallTranslator
+public class SqliteRandomTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo MethodInfo
-        = typeof(DbFunctionsExtensions).GetMethod(nameof(DbFunctionsExtensions.Random), [typeof(DbFunctions)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteRandomTranslator(ISqlExpressionFactory sqlExpressionFactory)
-        => _sqlExpressionFactory = sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -40,21 +26,22 @@ public class SqliteRandomTranslator : IMethodCallTranslator
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         // Issue #15586: Query: TypeCompatibility chart for inference.
-        => MethodInfo.Equals(method)
-            ? _sqlExpressionFactory.Function(
-                "abs",
-                [
-                    _sqlExpressionFactory.Divide(
-                        _sqlExpressionFactory.Function(
-                            "random",
-                            [],
-                            nullable: false,
-                            argumentsPropagateNullability: [],
-                            method.ReturnType),
-                        _sqlExpressionFactory.Constant(9223372036854780000.0))
-                ],
-                nullable: false,
-                argumentsPropagateNullability: Statics.TrueArrays[1],
-                method.ReturnType)
-            : null;
+        => method.DeclaringType == typeof(DbFunctionsExtensions)
+            && method.Name == nameof(DbFunctionsExtensions.Random)
+                ? sqlExpressionFactory.Function(
+                    "abs",
+                    [
+                        sqlExpressionFactory.Divide(
+                            sqlExpressionFactory.Function(
+                                "random",
+                                [],
+                                nullable: false,
+                                argumentsPropagateNullability: [],
+                                method.ReturnType),
+                            sqlExpressionFactory.Constant(9223372036854780000.0))
+                    ],
+                    nullable: false,
+                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                    method.ReturnType)
+                : null;
 }

@@ -956,6 +956,52 @@ LIMIT 2
 """);
     }
 
+    public override async Task Edit_single_property_nullable_datetime_set_to_null()
+    {
+        await base.Edit_single_property_nullable_datetime_set_to_null();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false) (DbType = DateTime)
+@p1=NULL (Nullable = false) (DbType = DateTime)
+@p2='1'
+
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateTime', @p0), "Reference" = json_set("Reference", '$.TestNullableDateTime', @p1)
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
+FROM "JsonEntitiesAllTypes" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
+    public override async Task Edit_single_property_nullable_dateonly_set_to_null()
+    {
+        await base.Edit_single_property_nullable_dateonly_set_to_null();
+
+        AssertSql(
+            """
+@p0=NULL (Nullable = false) (DbType = Date)
+@p1=NULL (Nullable = false) (DbType = Date)
+@p2='1'
+
+UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableDateOnly', @p0), "Reference" = json_set("Reference", '$.TestNullableDateOnly', @p1)
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."TestBooleanCollection", "j"."TestByteCollection", "j"."TestCharacterCollection", "j"."TestDateTimeCollection", "j"."TestDateTimeOffsetCollection", "j"."TestDecimalCollection", "j"."TestDefaultStringCollection", "j"."TestDoubleCollection", "j"."TestEnumCollection", "j"."TestEnumWithIntConverterCollection", "j"."TestGuidCollection", "j"."TestInt16Collection", "j"."TestInt32Collection", "j"."TestInt64Collection", "j"."TestMaxLengthStringCollection", "j"."TestNullableEnumCollection", "j"."TestNullableEnumWithConverterThatHandlesNullsCollection", "j"."TestNullableEnumWithIntConverterCollection", "j"."TestNullableInt32Collection", "j"."TestSignedByteCollection", "j"."TestSingleCollection", "j"."TestTimeSpanCollection", "j"."TestUnsignedInt16Collection", "j"."TestUnsignedInt32Collection", "j"."TestUnsignedInt64Collection", "j"."Collection", "j"."Reference"
+FROM "JsonEntitiesAllTypes" AS "j"
+WHERE "j"."Id" = 1
+LIMIT 2
+""");
+    }
+
     public override async Task Edit_single_property_enum()
     {
         await base.Edit_single_property_enum();
@@ -1146,8 +1192,8 @@ LIMIT 2
 
         AssertSql(
             """
-@p0='{"TestBoolean":false,"TestBooleanCollection":[true,false],"TestByte":25,"TestByteArray":"","TestByteCollection":null,"TestCharacter":"h","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2323-04-03","TestDateOnlyCollection":["3234-01-23","4331-01-21"],"TestDateTime":"2100-11-11 12:34:56","TestDateTimeCollection":["2000-01-01 12:34:56","3000-01-01 12:34:56"],"TestDateTimeOffset":"2200-11-11 12:34:56-05:00","TestDateTimeOffsetCollection":["2000-01-01 12:34:56-08:00"],"TestDecimal":"-123450.01","TestDecimalCollection":["-1234567890.01"],"TestDefaultString":"MyDefaultStringInCollection1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.2345,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-12,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Baz","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":-3,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":90,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-18,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.4,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"05:07:08.0000000","TestTimeOnlyCollection":["13:42:23.0000000","07:17:25.0000000"],"TestTimeSpan":"6:05:04.003","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":12,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":12345,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567867,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2161)
-@p1='{"TestBoolean":true,"TestBooleanCollection":[true,false],"TestByte":255,"TestByteArray":"010203","TestByteCollection":null,"TestCharacter":"a","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2023-10-10","TestDateOnlyCollection":["1234-01-23","4321-01-21"],"TestDateTime":"2000-01-01 12:34:56","TestDateTimeCollection":["2000-01-01 12:34:56","3000-01-01 12:34:56"],"TestDateTimeOffset":"2000-01-01 12:34:56-08:00","TestDateTimeOffsetCollection":["2000-01-01 12:34:56-08:00"],"TestDecimal":"-1234567890.01","TestDecimalCollection":["-1234567890.01"],"TestDefaultString":"MyDefaultStringInReference1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.23456789,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"12345678-1234-4321-7777-987654321000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-1234,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Foo","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":2,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":78,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-128,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.234,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"11:12:13.0000000","TestTimeOnlyCollection":["11:42:23.0000000","07:17:27.0000000"],"TestTimeSpan":"10:09:08.007","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":1234,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":1234565789,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567890123456789,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2197)
+@p0='{"TestBoolean":false,"TestBooleanCollection":[true,false],"TestByte":25,"TestByteArray":"","TestByteCollection":null,"TestCharacter":"h","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2323-04-03","TestDateOnlyCollection":["3234-01-23","4331-01-21"],"TestDateTime":"2100-11-11 12:34:56","TestDateTimeCollection":["2000-01-01 12:34:56","3000-01-01 12:34:56"],"TestDateTimeOffset":"2200-11-11 12:34:56-05:00","TestDateTimeOffsetCollection":["2000-01-01 12:34:56-08:00"],"TestDecimal":"-123450.01","TestDecimalCollection":["-1234567890.01"],"TestDefaultString":"MyDefaultStringInCollection1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.2345,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"00000000-0000-0000-0000-000000000000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-12,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Baz","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableDateOnly":"2323-04-03","TestNullableDateTime":"2100-11-11 12:34:56","TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":-3,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":90,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-18,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.4,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"05:07:08.0000000","TestTimeOnlyCollection":["13:42:23.0000000","07:17:25.0000000"],"TestTimeSpan":"6:05:04.003","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":12,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":12345,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567867,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2242)
+@p1='{"TestBoolean":true,"TestBooleanCollection":[true,false],"TestByte":255,"TestByteArray":"010203","TestByteCollection":null,"TestCharacter":"a","TestCharacterCollection":["A","B","\u0022"],"TestDateOnly":"2023-10-10","TestDateOnlyCollection":["1234-01-23","4321-01-21"],"TestDateTime":"2000-01-01 12:34:56","TestDateTimeCollection":["2000-01-01 12:34:56","3000-01-01 12:34:56"],"TestDateTimeOffset":"2000-01-01 12:34:56-08:00","TestDateTimeOffsetCollection":["2000-01-01 12:34:56-08:00"],"TestDecimal":"-1234567890.01","TestDecimalCollection":["-1234567890.01"],"TestDefaultString":"MyDefaultStringInReference1","TestDefaultStringCollection":["S1","\u0022S2\u0022","S3"],"TestDouble":-1.23456789,"TestDoubleCollection":[-1.23456789,1.23456789,0],"TestEnum":-1,"TestEnumCollection":[-1,-3,-7],"TestEnumWithIntConverter":2,"TestEnumWithIntConverterCollection":[-1,-3,-7],"TestGuid":"12345678-1234-4321-7777-987654321000","TestGuidCollection":["12345678-1234-4321-7777-987654321000"],"TestInt16":-1234,"TestInt16Collection":[-32768,0,32767],"TestInt32":32,"TestInt32Collection":[-2147483648,0,2147483647],"TestInt64":64,"TestInt64Collection":[-9223372036854775808,0,9223372036854775807],"TestMaxLengthString":"Foo","TestMaxLengthStringCollection":["S1","S2","S3"],"TestNullableDateOnly":"2023-10-10","TestNullableDateTime":"2000-01-01 12:34:56","TestNullableEnum":-1,"TestNullableEnumCollection":[-1,null,-3,-7],"TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithConverterThatHandlesNullsCollection":[-1,null,-7],"TestNullableEnumWithIntConverter":2,"TestNullableEnumWithIntConverterCollection":[-1,null,-3,-7],"TestNullableInt32":78,"TestNullableInt32Collection":[null,-2147483648,0,null,2147483647,null],"TestSignedByte":-128,"TestSignedByteCollection":[-128,0,127],"TestSingle":-1.234,"TestSingleCollection":[-1.234,0,-1.234],"TestTimeOnly":"11:12:13.0000000","TestTimeOnlyCollection":["11:42:23.0000000","07:17:27.0000000"],"TestTimeSpan":"10:09:08.007","TestTimeSpanCollection":["10:09:08.007","-9:50:51.993"],"TestUnsignedInt16":1234,"TestUnsignedInt16Collection":[0,0,65535],"TestUnsignedInt32":1234565789,"TestUnsignedInt32Collection":[0,0,4294967295],"TestUnsignedInt64":1234567890123456789,"TestUnsignedInt64Collection":[0,0,9223372036854775807]}' (Nullable = false) (Size = 2278)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0]', json(@p0)), "Reference" = @p1
@@ -2295,9 +2341,9 @@ LIMIT 2
 
         var parameterSize = value switch
         {
-            true => "1562",
-            false => "1559",
-            _ => "1561"
+            true => "1620",
+            false => "1617",
+            _ => "1619"
         };
 
         var updateParameter = value switch
@@ -2310,7 +2356,7 @@ LIMIT 2
         AssertSql(
             @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteArray"":null,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":"
             + characterCollection
-            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01 00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01 00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":""0.0"",""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
+            + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01 00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01 00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":""0.0"",""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableDateOnly"":null,""TestNullableDateTime"":null,""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":""Null"",""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = "
             + parameterSize
             + @")
 @p1='7624'
@@ -2407,6 +2453,27 @@ LIMIT 2
     // Nested collections are not mapped in the relational model, so there is no data stored in the document for them
     public override Task Edit_single_property_collection_of_collection_of_single()
         => Assert.ThrowsAsync<ArgumentOutOfRangeException>(base.Edit_single_property_collection_of_collection_of_single);
+
+    public override async Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
+    {
+        await base.Replace_json_reference_root_preserves_nested_owned_entities_in_memory();
+
+        AssertSql(
+            """
+@p0='{"Id":0,"Name":"Modified","Names":["e1_r1","e1_r2"],"Number":10,"Numbers":[-2147483648,-1,0,1,2147483647],"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2100-01-01 00:00:00","Enum":-1,"Enums":[-1,-1,2],"Fraction":"10.0","Id":88,"NullableEnum":null,"NullableEnums":[null,-1,2],"OwnedCollectionLeaf":[],"OwnedReferenceLeaf":{"SomethingSomething":"e1_r_r_r"}}}' (Nullable = false) (Size = 369)
+@p1='1'
+
+UPDATE "JsonEntitiesBasic" SET "OwnedReferenceRoot" = @p0
+WHERE "Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
+FROM "JsonEntitiesBasic" AS "j"
+LIMIT 2
+""");
+    }
 
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();

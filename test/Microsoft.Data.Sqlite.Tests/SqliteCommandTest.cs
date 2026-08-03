@@ -54,7 +54,6 @@ CREATE TABLE "Products" (
         }
         finally
         {
-#if NET5_0_OR_GREATER
             if (async)
             {
                 await connection.CloseAsync();
@@ -63,9 +62,6 @@ CREATE TABLE "Products" (
             {
                 connection.Close();
             }
-#else
-            connection.Close();
-#endif
         }
     }
 

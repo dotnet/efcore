@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -13,7 +13,7 @@ public class ModelSourceTest
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()
         .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
-    [ConditionalFact]
+    [Fact]
     public void OnModelCreating_is_only_called_once()
     {
         const int threadCount = 5;
@@ -56,7 +56,7 @@ public class ModelSourceTest
                 .UseInMemoryDatabase(nameof(SlowContext));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adds_all_entities_based_on_all_distinct_entity_types_found()
     {
         var context = InMemoryTestHelpers.Instance.CreateContext(
@@ -103,7 +103,7 @@ public class ModelSourceTest
         public int Id { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Caches_model_by_context_type()
     {
         var options = InMemoryTestHelpers.Instance.CreateOptions();
@@ -130,7 +130,7 @@ public class ModelSourceTest
         Assert.NotSame(model2, designModel2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Model_from_options_is_preserved()
     {
         var options = InMemoryTestHelpers.Instance.CreateOptions();
@@ -163,7 +163,7 @@ public class ModelSourceTest
         Assert.Equal(0, designTimeContext.OnModelCreatingCallCount);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_model_from_options_with_different_version()
     {
         var model = (Model)InMemoryTestHelpers.Instance.CreateConventionBuilder().Model;
@@ -181,7 +181,7 @@ public class ModelSourceTest
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Does_not_throw_for_model_from_options_with_different_patch_version()
     {
         var productVersion = ProductInfo.GetVersion();
@@ -221,7 +221,7 @@ public class ModelSourceTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Stores_model_version_information_as_annotation_on_model()
     {
         var options = InMemoryTestHelpers.Instance.CreateOptions();
@@ -241,6 +241,16 @@ public class ModelSourceTest
         }
 
         Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+        Assert.Null(model.FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled));
+    }
+
+    [Fact]
+    public void Detailed_errors_annotation_is_set_from_options()
+    {
+        using var context = new DetailedErrorsContext(_serviceProvider);
+        var model = context.Model;
+
+        Assert.True(model.FindRuntimeAnnotationValue(CoreAnnotationNames.DetailedErrorsEnabled) is true);
     }
 
     private class Context1(DbContextOptions options) : DbContext(options)
@@ -255,4 +265,46 @@ public class ModelSourceTest
     }
 
     private class Context2(DbContextOptions options) : DbContext(options);
+
+    [Fact]
+    public void Compiled_model_provider_mismatch_warning_has_correct_message()
+    {
+        var definition = CoreResources.LogCompiledModelProviderMismatch(
+            new TestLogger<TestLoggingDefinitions>());
+
+        var message = definition.GenerateMessage("Microsoft.EntityFrameworkCore.SqlServer", "Microsoft.EntityFrameworkCore.InMemory");
+
+        Assert.Contains("Microsoft.EntityFrameworkCore.SqlServer", message);
+        Assert.Contains("Microsoft.EntityFrameworkCore.InMemory", message);
+    }
+
+    [Fact]
+    public void DbContextModelAttribute_stores_provider_name()
+    {
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object))
+        {
+            ProviderName = "TestProvider"
+        };
+
+        Assert.Equal("TestProvider", attr.ProviderName);
+    }
+
+    [Fact]
+    public void DbContextModelAttribute_provider_name_defaults_to_null()
+    {
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object));
+
+        Assert.Null(attr.ProviderName);
+    }
+
+    private class DetailedErrorsContext(IServiceProvider serviceProvider) : DbContext
+    {
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(_serviceProvider)
+                .UseInMemoryDatabase(nameof(DetailedErrorsContext))
+                .EnableDetailedErrors();
+    }
 }

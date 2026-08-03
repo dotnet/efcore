@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class PropertyExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Asking_for_type_mapping_before_finalize_throws()
     {
         var model = CreateModel();
@@ -21,7 +21,7 @@ public class PropertyExtensionsTest
             Assert.Throws<InvalidOperationException>(() => property.GetTypeMapping()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Properties_can_have_store_type_set()
     {
         var model = CreateModel();
@@ -38,7 +38,7 @@ public class PropertyExtensionsTest
         Assert.Null(property.GetProviderClrType());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Properties_can_have_value_converter_set()
     {
         var model = CreateModel();
@@ -56,7 +56,7 @@ public class PropertyExtensionsTest
         Assert.Null(property.GetValueConverter());
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_converter_type_is_checked()
     {
         var model = CreateModel();
@@ -75,7 +75,7 @@ public class PropertyExtensionsTest
             Assert.Throws<InvalidOperationException>(() => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_returns_null_for_property_without_generator()
     {
         var model = CreateModel();
@@ -86,7 +86,7 @@ public class PropertyExtensionsTest
         Assert.Null(property.FindGenerationProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_returns_same_property_on_property_with_generator()
     {
         var model = CreateModel();
@@ -100,7 +100,7 @@ public class PropertyExtensionsTest
         Assert.Equal((IProperty)property, ((IProperty)property).FindGenerationProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_returns_generation_property_from_foreign_key_chain()
     {
         var model = CreateModel();
@@ -123,7 +123,7 @@ public class PropertyExtensionsTest
         Assert.Equal((IProperty)firstProperty, ((IProperty)thirdProperty).FindGenerationProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_returns_generation_property_from_foreign_key_tree()
     {
         var model = CreateModel();
@@ -154,7 +154,7 @@ public class PropertyExtensionsTest
         Assert.Equal((IProperty)rightId2, ((IProperty)endProperty).FindGenerationProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_returns_generation_property_from_foreign_key_graph_with_cycle()
     {
         var model = CreateModel();
@@ -182,7 +182,7 @@ public class PropertyExtensionsTest
         Assert.Equal((IProperty)leafId1, ((IProperty)secondId1).FindGenerationProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_for_one_to_one_FKs()
     {
         var model = BuildModel();
@@ -207,7 +207,7 @@ public class PropertyExtensionsTest
             .FindGenerationProperty());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Get_generation_property_for_one_to_many_identifying_FKs()
     {
         var model = BuildModel();

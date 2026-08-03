@@ -72,7 +72,7 @@ public class SqliteDatabaseModelFactoryTest : IClassFixture<SqliteDatabaseModelF
 
     #region FilteringSchemaTable
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables()
         => Test(
             @"
@@ -91,7 +91,7 @@ CREATE TABLE Denali ( id int );",
 DROP TABLE Everest;
 DROP TABLE Denali;");
 
-    [ConditionalFact]
+    [Fact]
     public void Filter_tables_is_case_insensitive()
         => Test(
             @"
@@ -114,7 +114,7 @@ DROP TABLE Denali;");
 
     #region Table
 
-    [ConditionalFact]
+    [Fact]
     public void Create_tables()
         => Test(
             @"
@@ -133,7 +133,7 @@ CREATE TABLE Denali ( id int );",
 DROP TABLE Everest;
 DROP TABLE Denali;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_columns()
         => Test(
             @"
@@ -156,7 +156,7 @@ CREATE TABLE MountainsColumns (
             },
             "DROP TABLE MountainsColumns;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_view_columns()
         => Test(
             @"
@@ -181,7 +181,7 @@ SELECT
             },
             "DROP VIEW MountainsColumnsView;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_primary_key()
         => Test(
             "CREATE TABLE Place ( Id int PRIMARY KEY );",
@@ -197,7 +197,7 @@ SELECT
             },
             "DROP TABLE Place;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_unique_constraints()
         => Test(
             @"
@@ -221,7 +221,7 @@ CREATE INDEX IX_Location_Name ON Place (Location, Name);",
             },
             "DROP TABLE Place;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_indexes()
         => Test(
             @"
@@ -248,7 +248,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
             },
             "DROP TABLE IndexTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_foreign_keys()
         => Test(
             @"
@@ -297,7 +297,7 @@ DROP TABLE SecondDependent;
 DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_foreign_key_with_default_columns()
         => Test(
             @"
@@ -333,11 +333,30 @@ DROP TABLE PrincipalTable;");
                     DROP TABLE MinimalFKTest1;
                 ");
 
+    [Fact]
+    public void EF_internal_tables_are_not_scaffolded()
+        => Test(
+            @"
+CREATE TABLE ""__EFMigrationsLock"" ( ""Id"" INTEGER NOT NULL PRIMARY KEY, ""Timestamp"" TEXT NOT NULL );
+CREATE TABLE ""MyTable"" ( ""Id"" INTEGER NOT NULL PRIMARY KEY );",
+                [],
+                [],
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    Assert.Equal("MyTable", table.Name);
+                },
+                @"
+                    DROP TABLE ""__EFMigrationsLock"";
+                    DROP TABLE ""MyTable"";
+                ");
+    
+
     #endregion
 
     #region ColumnFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Column_storetype_is_set()
         => Test(
             @"
@@ -362,7 +381,7 @@ CREATE TABLE StoreType (
             },
             "DROP TABLE StoreType;");
 
-    [ConditionalTheory, InlineData("BIT", typeof(bool)), InlineData("BIT(1)", typeof(bool)), InlineData("BOOL", typeof(bool)),
+    [Theory, InlineData("BIT", typeof(bool)), InlineData("BIT(1)", typeof(bool)), InlineData("BOOL", typeof(bool)),
      InlineData("BOOLEAN", typeof(bool)), InlineData("LOGICAL", typeof(bool)), InlineData("YESNO", typeof(bool)),
      InlineData("TINYINT", typeof(byte)), InlineData("UINT8", typeof(byte)), InlineData("UNSIGNEDINTEGER8", typeof(byte)),
      InlineData("BYTE", typeof(byte)), InlineData("SMALLINT", typeof(short)), InlineData("INT16", typeof(short)),
@@ -413,7 +432,7 @@ CREATE TABLE ClrType (
             },
             "DROP TABLE ClrType");
 
-    [ConditionalTheory, InlineData("INTEGER", "1", typeof(int)), InlineData("INTEGER", "2147483648", null),
+    [Theory, InlineData("INTEGER", "1", typeof(int)), InlineData("INTEGER", "2147483648", null),
      InlineData("BIT", "1", typeof(bool)), InlineData("TINYINT", "1", typeof(byte)), InlineData("SMALLINT", "1", typeof(short)),
      InlineData("BIGINT", "1", null), InlineData("INT8", "1", typeof(sbyte)), InlineData("UINT16", "1", typeof(ushort)),
      InlineData("UINT", "1", typeof(uint)), InlineData("UINT64", "1", typeof(ulong)), InlineData("UINT64", "-1", typeof(ulong)),
@@ -447,7 +466,7 @@ INSERT INTO ClrTypeWithData VALUES ({value});",
             },
             "DROP TABLE ClrTypeWithData");
 
-    [ConditionalTheory, InlineData("INTEGER", "0.1", typeof(double)), InlineData("BIT", "2", typeof(int)),
+    [Theory, InlineData("INTEGER", "0.1", typeof(double)), InlineData("BIT", "2", typeof(int)),
      InlineData("TINYINT", "-1", typeof(int)), InlineData("TINYINT", "256", typeof(int)), InlineData("SMALLINT", "32768", typeof(int)),
      InlineData("MEDIUMINT", "2147483648", null), InlineData("INT8", "128", typeof(int)), InlineData("UINT16", "-1", typeof(int)),
      InlineData("UINT16", "65536", typeof(int)), InlineData("UINT", "4294967296", null), InlineData("REAL", "'A'", null),
@@ -476,7 +495,7 @@ INSERT INTO ClrTypeWithData VALUES ({value});",
             },
             "DROP TABLE ClrTypeWithData");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_nullability_is_set()
         => Test(
             @"
@@ -496,7 +515,7 @@ CREATE TABLE Nullable (
             },
             "DROP TABLE Nullable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_default_value_is_set()
         => Test(
             @"
@@ -518,7 +537,7 @@ CREATE TABLE DefaultValue (
             },
             "DROP TABLE DefaultValue;");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_computed_column_sql_is_set()
         => Test(
             @"
@@ -543,7 +562,7 @@ CREATE TABLE ComputedColumnSql (
             },
             "DROP TABLE ComputedColumnSql;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_int_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -594,7 +613,7 @@ INSERT INTO MyTable VALUES (1, 1, 1, 1, 1, 1, 1, 1);",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_short_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -620,7 +639,7 @@ INSERT INTO MyTable VALUES (1, 1, 1);",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_long_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @$"
@@ -646,7 +665,7 @@ INSERT INTO MyTable VALUES (1, {long.MaxValue}, {long.MaxValue});",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_byte_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -672,7 +691,7 @@ INSERT INTO MyTable VALUES (1, 1, 1);",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_double_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -703,7 +722,7 @@ INSERT INTO MyTable VALUES (1, 1.1, 1.2, 1.3);",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_float_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -734,7 +753,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_decimal_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -770,7 +789,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_decimal_literals_are_parsed_for_HasDefaultValue_with_Danish_locale()
     {
         var culture = CultureInfo.CurrentCulture;
@@ -819,7 +838,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3', '1.4');",
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -855,7 +874,7 @@ INSERT INTO MyTable VALUES (1, 1, 1, 1, 1);",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_DateTime_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -881,7 +900,7 @@ INSERT INTO MyTable VALUES (1, '2023-01-20 13:37:00', '2023-01-20 13:37:00');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Non_literal_or_non_parsable_DateTime_default_values_are_passed_through()
         => Test(
             @"
@@ -907,7 +926,7 @@ INSERT INTO MyTable VALUES (1, '2023-01-20 13:37:00', '2023-01-20 13:37:00');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_DateOnly_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -933,7 +952,7 @@ INSERT INTO MyTable VALUES (1, '2023-01-20', '2023-01-20');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_TimeOnly_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -954,7 +973,7 @@ INSERT INTO MyTable VALUES (1, '13:37:00.0000000');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_DateTimeOffset_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -977,7 +996,7 @@ INSERT INTO MyTable VALUES (1, '1973-09-03 12:00:01.0000000+10:00');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -998,7 +1017,7 @@ INSERT INTO MyTable VALUES (1, '993CDD7A-F4DF-4C5E-A810-8F51A11E9B6D');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Simple_string_literals_are_parsed_for_HasDefaultValue()
         => Test(
             @"
@@ -1039,7 +1058,7 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
             },
             "DROP TABLE MyTable;");
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Column_ValueGenerated_is_set(bool autoIncrement)
         => Test(
             $@"
@@ -1064,7 +1083,7 @@ INSERT INTO MyTable VALUES (1, 'A', 'Tale', 'Of', 'Two', 'Cities');",
             },
             "DROP TABLE AutoIncTest");
 
-    [ConditionalFact]
+    [Fact]
     public void Column_collation_is_set()
         => Test(
             @"
@@ -1088,7 +1107,7 @@ CREATE TABLE ColumnsWithCollation (
 
     #region PrimaryKeyFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_primary_key()
         => Test(
             @"
@@ -1109,7 +1128,7 @@ CREATE TABLE CompositePrimaryKey (
             },
             "DROP TABLE CompositePrimaryKey;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_primary_key_when_integer_primary_key_aliased_to_rowid()
         => Test(
             @"
@@ -1128,7 +1147,7 @@ CREATE TABLE RowidPrimaryKey (
             },
             "DROP TABLE RowidPrimaryKey;");
 
-    [ConditionalFact(Skip = "See issue#8802")]
+    [Fact(Skip = "See issue#8802")]
     public void Set_name_for_primary_key()
         => Test(
             @"
@@ -1153,7 +1172,7 @@ CREATE TABLE PrimaryKeyName (
 
     #region UniqueConstraintFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_unique_constraint()
         => Test(
             @"
@@ -1175,7 +1194,7 @@ CREATE TABLE CompositeUniqueConstraint (
             },
             "DROP TABLE CompositeUniqueConstraint;");
 
-    [ConditionalFact(Skip = "See issue#8802")]
+    [Fact(Skip = "See issue#8802")]
     public void Set_name_for_unique_constraint()
         => Test(
             @"
@@ -1201,7 +1220,7 @@ CREATE TABLE UniqueConstraintName (
 
     #region IndexFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_index()
         => Test(
             @"
@@ -1225,7 +1244,7 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
             },
             "DROP TABLE CompositeIndex;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_unique_for_unique_index()
         => Test(
             @"
@@ -1254,7 +1273,7 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
 
     #region ForeignKeyFacets
 
-    [ConditionalFact]
+    [Fact]
     public void Create_composite_foreign_key()
         => Test(
             @"
@@ -1289,7 +1308,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_multiple_foreign_key_in_same_table()
         => Test(
             @"
@@ -1343,7 +1362,7 @@ DROP TABLE DependentTable;
 DROP TABLE AnotherPrincipalTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Create_foreign_key_referencing_unique_constraint()
         => Test(
             @"
@@ -1376,7 +1395,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact(Skip = "See issue#8802")]
+    [Fact(Skip = "See issue#8802")]
     public void Set_name_for_foreign_key()
         => Test(
             @"
@@ -1409,7 +1428,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Set_referential_action_for_foreign_key()
         => Test(
             @"
@@ -1445,7 +1464,7 @@ DROP TABLE PrincipalTable;");
 
     #region Warnings
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_for_schema_filtering()
         => Test(
             "CREATE TABLE Everest ( id int );",
@@ -1462,7 +1481,7 @@ DROP TABLE PrincipalTable;");
             },
             "DROP TABLE Everest;");
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_missing_table()
         => Test(
             "CREATE TABLE Blank ( Id int );",
@@ -1480,7 +1499,7 @@ DROP TABLE PrincipalTable;");
             },
             "DROP TABLE Blank;");
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_missing_principal_table_for_foreign_key()
         => Test(
             @"
@@ -1510,7 +1529,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
 
-    [ConditionalFact]
+    [Fact]
     public void Warn_missing_principal_column_for_foreign_key()
         => Test(
             @"

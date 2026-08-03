@@ -116,10 +116,10 @@ public class SqlServerTestStore : RelationalTestStore
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => (UseConnectionString
-                ? TestEnvironment.IsAzureSql
+                ? SqlServerTestEnvironment.IsAzureSql
                     ? builder.UseAzureSql(ConnectionString, b => b.ApplyConfiguration())
                     : builder.UseSqlServer(ConnectionString, b => b.ApplyConfiguration())
-                : TestEnvironment.IsAzureSql
+                : SqlServerTestEnvironment.IsAzureSql
                     ? builder.UseAzureSql(Connection, b => b.ApplyConfiguration())
                     : builder.UseSqlServer(Connection, b => b.ApplyConfiguration()))
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
@@ -131,7 +131,7 @@ public class SqlServerTestStore : RelationalTestStore
         if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
         {
             // Only reseed scripted databases during CI runs
-            if (_scriptPath != null && !TestEnvironment.IsCI)
+            if (_scriptPath != null && !SqlServerTestEnvironment.IsCI)
             {
                 return false;
             }
@@ -160,9 +160,9 @@ public class SqlServerTestStore : RelationalTestStore
         return true;
     }
 
-    public override Task CleanAsync(DbContext context)
+    public override Task CleanAsync(DbContext context, bool createTables = true)
     {
-        context.Database.EnsureClean();
+        context.Database.EnsureClean(createTables);
         return Task.CompletedTask;
     }
 
@@ -217,9 +217,9 @@ public class SqlServerTestStore : RelationalTestStore
     {
         var result = $"CREATE DATABASE [{name}]";
 
-        if (TestEnvironment.IsAzureSql)
+        if (SqlServerTestEnvironment.IsAzureSql)
         {
-            var elasticGroupName = TestEnvironment.ElasticPoolName;
+            var elasticGroupName = SqlServerTestEnvironment.ElasticPoolName;
             result += Environment.NewLine
                 + (string.IsNullOrEmpty(elasticGroupName)
                     ? " ( Edition = 'basic' )"
@@ -344,16 +344,20 @@ END
         bool useTransaction,
         object[]? parameters)
     {
+        var wasOpen = false;
+
         if (connection.State != ConnectionState.Closed)
         {
+            wasOpen = true;
             connection.Close();
         }
+
+        T result;
 
         connection.Open();
         try
         {
             using var transaction = useTransaction ? connection.BeginTransaction() : null;
-            T result;
             using (var command = CreateCommand(connection, sql, parameters))
             {
                 command.Transaction = transaction;
@@ -361,8 +365,6 @@ END
             }
 
             transaction?.Commit();
-
-            return result;
         }
         finally
         {
@@ -371,6 +373,13 @@ END
                 connection.Close();
             }
         }
+
+        if (wasOpen)
+        {
+            connection.Open();
+        }
+
+        return result;
     }
 
     private static Task<T> ExecuteAsync<T>(
@@ -397,16 +406,20 @@ END
         bool useTransaction,
         IReadOnlyList<object>? parameters)
     {
+        var wasOpen = false;
+
         if (connection.State != ConnectionState.Closed)
         {
+            wasOpen = true;
             await connection.CloseAsync();
         }
+
+        T result;
 
         await connection.OpenAsync();
         try
         {
             using var transaction = useTransaction ? await connection.BeginTransactionAsync() : null;
-            T result;
             using (var command = CreateCommand(connection, sql, parameters))
             {
                 result = await executeAsync(command);
@@ -416,8 +429,6 @@ END
             {
                 await transaction.CommitAsync();
             }
-
-            return result;
         }
         finally
         {
@@ -426,6 +437,13 @@ END
                 await connection.CloseAsync();
             }
         }
+
+        if (wasOpen)
+        {
+            await connection.OpenAsync();
+        }
+
+        return result;
     }
 
     private static DbCommand CreateCommand(
@@ -454,7 +472,7 @@ END
         await base.DisposeAsync();
 
         if (_fileName != null // Clean up the database using a local file, as it might get deleted later
-            || (TestEnvironment.IsAzureSql && !Shared))
+            || (SqlServerTestEnvironment.IsAzureSql && !Shared))
         {
             await DeleteDatabaseAsync();
         }
@@ -468,7 +486,7 @@ END
 
     public static string CreateConnectionString(string name, string? fileName = null, bool? multipleActiveResultSets = null)
     {
-        var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
+        var builder = new SqlConnectionStringBuilder(SqlServerTestEnvironment.DefaultConnection)
         {
             MultipleActiveResultSets = multipleActiveResultSets ?? Random.Shared.Next(0, 2) == 1, InitialCatalog = name
         };

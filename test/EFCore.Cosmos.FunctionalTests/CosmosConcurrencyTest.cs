@@ -1,17 +1,21 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) : IClassFixture<CosmosConcurrencyTest.CosmosFixture>
+public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) : IClassFixture<CosmosConcurrencyTest.CosmosFixture>, IAsyncLifetime
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
 
+    protected ServiceProvider ServiceProvider { get; } = new ServiceCollection()
+        .AddEntityFrameworkCosmos()
+        .BuildServiceProvider();
+
     protected CosmosFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
         => ConcurrencyTestAsync<DbUpdateException>(ctx =>
         {
@@ -23,7 +27,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             return Task.CompletedTask;
         });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync<DbUpdateConcurrencyException>(
             ctx =>
@@ -37,7 +41,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             }, async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "2")).Name = "Updated",
             async ctx => ctx.Customers.Remove(await ctx.Customers.SingleAsync(c => c.Id == "2")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync<DbUpdateConcurrencyException>(
             ctx =>
@@ -51,17 +55,20 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             }, async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "3")).Name = "Updated",
             async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "3")).Name = "Updated");
 
-    [ConditionalTheory, InlineData(null), InlineData(true), InlineData(false)]
+    [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        var options = new DbContextOptionsBuilder(Fixture.CreateOptions())
+        var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
             .UseCosmos(o =>
             {
                 if (contentResponseOnWriteEnabled != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
-            })
+            })))
+            .UseInternalServiceProvider(ServiceProvider)
             .Options;
 
         var customer = new Customer
@@ -72,7 +79,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         };
 
         string etag = null;
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             await Fixture.TestStore.CleanAsync(context);
 
@@ -83,7 +90,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             etag = customer.ETag;
         }
 
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
@@ -111,17 +118,20 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         }
     }
 
-    [ConditionalTheory, InlineData(null), InlineData(true), InlineData(false)]
+    [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_derived_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        var options = new DbContextOptionsBuilder(Fixture.CreateOptions())
+        var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
             .UseCosmos(o =>
             {
                 if (contentResponseOnWriteEnabled != null)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
-            })
+            })))
+            .UseInternalServiceProvider(ServiceProvider)
             .Options;
 
         var customer = new PremiumCustomer
@@ -133,7 +143,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         };
 
         string etag = null;
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             await Fixture.TestStore.CleanAsync(context);
 
@@ -144,7 +154,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             etag = customer.ETag;
         }
 
-        await using (var context = new ConcurrencyContext(options))
+        await using (var context = CreateContext(options))
         {
             var customerFromStore = await context.Set<PremiumCustomer>().SingleAsync();
 
@@ -232,8 +242,14 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         Assert.IsAssignableFrom<Customer>(entry.Entity);
     }
 
-    protected ConcurrencyContext CreateContext()
+    protected virtual ConcurrencyContext CreateContext()
         => Fixture.CreateContext();
+
+    protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
+        => new ConcurrencyContext(options);
+
+    public virtual ValueTask InitializeAsync() => ValueTask.CompletedTask;
+    public virtual async ValueTask DisposeAsync() => await ServiceProvider.DisposeAsync();
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {

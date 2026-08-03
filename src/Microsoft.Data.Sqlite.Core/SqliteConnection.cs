@@ -78,9 +78,13 @@ public partial class SqliteConnection : DbConnection
             {
                 currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
             }
-            catch (TargetInvocationException)
+            catch (TargetInvocationException ex) when (IsNoPackageIdentityException(ex.InnerException))
             {
-                // Ignore "The process has no package identity."
+                // Ignore the unpackaged-app "no package identity" case; ApplicationData.Current is unavailable there.
+            }
+            catch (InvalidOperationException ex) when (IsNoPackageIdentityException(ex))
+            {
+                // Ignore the unpackaged-app "no package identity" case; ApplicationData.Current is unavailable there.
             }
 
             if (currentAppData != null)
@@ -103,6 +107,11 @@ public partial class SqliteConnection : DbConnection
             }
         }
     }
+
+    private static bool IsNoPackageIdentityException(Exception? ex)
+        => (ex is InvalidOperationException or COMException)
+            && (ex.HResult == unchecked((int)0x80073D54) // APPMODEL_ERROR_NO_PACKAGE
+                || ex.HResult == unchecked((int)0x8000000D)); // E_ILLEGAL_STATE_CHANGE
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
@@ -303,9 +312,9 @@ public partial class SqliteConnection : DbConnection
                 rc = sqlite3_db_config(Handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, out _);
                 SqliteException.ThrowExceptionForRC(rc, Handle);
 
-                foreach (var item in _extensions)
+                foreach (var (file, proc) in _extensions)
                 {
-                    LoadExtensionCore(item.file, item.proc);
+                    LoadExtensionCore(file, proc);
                 }
             }
 
@@ -490,7 +499,7 @@ public partial class SqliteConnection : DbConnection
             SqliteException.ThrowExceptionForRC(rc, Handle);
         }
 
-        _collations ??= new Dictionary<string, (object?, strdelegate_collation?)>(StringComparer.OrdinalIgnoreCase);
+        _collations ??= [with(StringComparer.OrdinalIgnoreCase)];
         _collations[name] = (state, collation);
     }
 
@@ -562,19 +571,11 @@ public partial class SqliteConnection : DbConnection
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
     public virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel, bool deferred)
-    {
-        if (State != ConnectionState.Open)
-        {
-            throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BeginTransaction)));
-        }
-
-        if (Transaction != null)
-        {
-            throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported);
-        }
-
-        return Transaction = new SqliteTransaction(this, isolationLevel, deferred);
-    }
+        => State != ConnectionState.Open
+            ? throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BeginTransaction)))
+            : Transaction != null
+                ? throw new InvalidOperationException(Resources.ParallelTransactionsNotSupported)
+                : (Transaction = new SqliteTransaction(this, isolationLevel, deferred));
 
     /// <summary>
     ///     Changes the current database. Not supported.
@@ -636,11 +637,8 @@ public partial class SqliteConnection : DbConnection
                 return;
             }
 
-            if (firstException == null)
-            {
-                // We store the first exception so that error message looks more obvious if file appears in there
-                firstException = new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
-            }
+            // We store the first exception so that error message looks more obvious if file appears in there
+            firstException ??= new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
         }
 
         if (firstException != null)
@@ -794,11 +792,10 @@ public partial class SqliteConnection : DbConnection
             var dataTable = new DataTable(DbMetaDataCollectionNames.ReservedWords) { Columns = { DbMetaDataColumnNames.ReservedWord } };
 
             int rc;
-            string keyword;
             var count = sqlite3_keyword_count();
             for (var i = 0; i < count; i++)
             {
-                rc = sqlite3_keyword_name(i, out keyword);
+                rc = sqlite3_keyword_name(i, out var keyword);
                 SqliteException.ThrowExceptionForRC(rc, null);
 
                 dataTable.Rows.Add(keyword);
@@ -864,7 +861,7 @@ public partial class SqliteConnection : DbConnection
             SqliteException.ThrowExceptionForRC(rc, Handle);
         }
 
-        _functions ??= new Dictionary<(string, int), (int, object?, delegate_function_scalar?)>(FunctionsKeyComparer.Instance);
+        _functions ??= [with(FunctionsKeyComparer.Instance)];
         _functions[(name, arity)] = (flags, state, func);
     }
 
@@ -964,8 +961,10 @@ public partial class SqliteConnection : DbConnection
         }
 
         _aggregates ??=
-            new Dictionary<(string, int), (int, object?, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
-                FunctionsKeyComparer.Instance);
+        [
+            with(
+                FunctionsKeyComparer.Instance)
+        ];
         _aggregates[(name, arity)] = (flags, state, func_step, func_final);
     }
 

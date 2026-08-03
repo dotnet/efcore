@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 public class SqlServerValueGeneratorCacheTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Uses_single_generator_per_property()
     {
         var model = CreateModel();
@@ -30,7 +30,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.NotSame(generator1, generator2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Uses_single_sequence_generator_per_sequence()
     {
         var model = CreateModel();
@@ -55,7 +55,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.NotSame(generator1, generator3);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Uses_single_sequence_generator_per_database()
     {
         var model = CreateModel();
@@ -74,7 +74,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.NotSame(generator1, generator2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Uses_single_sequence_generator_per_server()
     {
         var model = CreateModel();
@@ -105,7 +105,7 @@ public class SqlServerValueGeneratorCacheTest
         return connection;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Block_size_is_obtained_from_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -123,7 +123,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Block_size_is_obtained_from_named_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -141,7 +141,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Block_size_is_obtained_from_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -159,7 +159,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Block_size_is_obtained_from_named_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -177,7 +177,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal(10, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Block_size_is_obtained_from_specified_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -196,7 +196,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal(11, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Non_positive_block_sizes_are_not_allowed()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -218,7 +218,7 @@ public class SqlServerValueGeneratorCacheTest
                 => cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Block_size_is_obtained_from_specified_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -237,7 +237,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal(11, cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.IncrementBy);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_name_is_obtained_from_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -255,7 +255,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_name_is_obtained_from_named_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -273,7 +273,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_name_is_obtained_from_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -291,7 +291,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_name_is_obtained_from_named_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -309,7 +309,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_name_is_obtained_from_specified_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -328,7 +328,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Sequence_name_is_obtained_from_specified_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -347,7 +347,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Name);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Schema_qualified_sequence_name_is_obtained_from_named_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -366,7 +366,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Schema_qualified_sequence_name_is_obtained_from_named_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -385,7 +385,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Schema_qualified_sequence_name_is_obtained_from_specified_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -405,7 +405,7 @@ public class SqlServerValueGeneratorCacheTest
         Assert.Equal("R", cache.GetOrAddSequenceState((IProperty)property, CreateConnection()).Sequence.Schema);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Schema_qualified_sequence_name_is_obtained_from_specified_model_default_sequence()
     {
         var modelBuilder = CreateConventionModelBuilder();

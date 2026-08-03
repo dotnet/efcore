@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data.Common;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 public class ReverseEngineerScaffolderTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Save_works()
     {
         using var directory = new TempDirectory();
@@ -38,7 +38,7 @@ public class ReverseEngineerScaffolderTest
         Assert.Equal("// TestEntity", File.ReadAllText(entityTypePath));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Save_throws_when_existing_files()
     {
         using var directory = new TempDirectory();
@@ -64,7 +64,7 @@ public class ReverseEngineerScaffolderTest
             ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Save_works_when_overwriteFiles()
     {
         using var directory = new TempDirectory();
@@ -80,7 +80,7 @@ public class ReverseEngineerScaffolderTest
         Assert.Equal("// Test", File.ReadAllText(path));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Save_throws_when_readonly_files()
     {
         using var directory = new TempDirectory();
@@ -128,7 +128,7 @@ public class ReverseEngineerScaffolderTest
             .ServiceProvider
             .GetRequiredService<IReverseEngineerScaffolder>();
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldModel_works_with_named_connection_string()
     {
         var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
@@ -158,7 +158,7 @@ public class ReverseEngineerScaffolderTest
         Assert.DoesNotContain("#warning", result.ContextFile.Code);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldModel_works_with_overridden_connection_string()
     {
         var resolver = new TestNamedConnectionStringResolver("Data Source=Test");

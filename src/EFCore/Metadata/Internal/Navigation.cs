@@ -84,7 +84,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsInModel
+    public override bool IsInModel
         => _builder is not null
             && ForeignKey.IsInModel;
 
@@ -209,51 +209,35 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     {
         if (!navigationProperty.DeclaringType!.IsAssignableFrom(sourceType.ClrType))
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoClrNavigation(navigationName, sourceType.DisplayName()));
-            }
-
-            return false;
+            return shouldThrow
+                ? throw new InvalidOperationException(
+                    CoreStrings.NoClrNavigation(navigationName, sourceType.DisplayName()))
+                : false;
         }
 
         var targetClrType = targetType.ClrType;
         var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
         shouldBeCollection ??= navigationTargetClrType != null && navigationProperty.GetMemberType() != targetClrType;
-        if (shouldBeCollection.Value
-            && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true)
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NavigationCollectionWrongClrType(
-                        navigationName,
-                        sourceType.DisplayName(),
-                        navigationProperty.GetMemberType().ShortDisplayName(),
-                        targetClrType.ShortDisplayName()));
-            }
-
-            return false;
-        }
-
-        if (!shouldBeCollection.Value
-            && !navigationProperty.GetMemberType().IsAssignableFrom(targetClrType))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NavigationSingleWrongClrType(
-                        navigationName,
-                        sourceType.DisplayName(),
-                        navigationProperty.GetMemberType().ShortDisplayName(),
-                        targetClrType.ShortDisplayName()));
-            }
-
-            return false;
-        }
-
-        return true;
+        return shouldBeCollection.Value
+            && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true
+                ? shouldThrow
+                    ? throw new InvalidOperationException(
+                        CoreStrings.NavigationCollectionWrongClrType(
+                            navigationName,
+                            sourceType.DisplayName(),
+                            navigationProperty.GetMemberType().ShortDisplayName(),
+                            targetClrType.ShortDisplayName()))
+                    : false
+                : shouldBeCollection.Value
+                || navigationProperty.GetMemberType().IsAssignableFrom(targetClrType)
+                || (shouldThrow
+                    ? throw new InvalidOperationException(
+                        CoreStrings.NavigationSingleWrongClrType(
+                            navigationName,
+                            sourceType.DisplayName(),
+                            navigationProperty.GetMemberType().ShortDisplayName(),
+                            targetClrType.ShortDisplayName()))
+                    : false);
     }
 
     /// <summary>

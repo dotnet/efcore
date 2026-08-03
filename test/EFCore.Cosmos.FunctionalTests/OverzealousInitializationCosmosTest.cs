@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class OverzealousInitializationCosmosTest(OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture fixture)
     : OverzealousInitializationTestBase<OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture>(fixture)
 {
-    [ConditionalFact(Skip = "Issue #17246")]
+    [Fact(Skip = "Issue #17246")]
     public override void Fixup_ignores_eagerly_initialized_reference_navs()
     {
     }

@@ -42,7 +42,8 @@ internal static class SharedTypeExtensions
         => !type.IsValueType || type.IsNullableValueType();
 
     public static bool IsValidEntityType(this Type type)
-        => type is { IsClass: true, IsArray: false }
+        => type is { IsArray: false }
+            && (type.IsClass || type.IsUnion())
             && type != typeof(string);
 
     public static bool IsValidComplexType(this Type type)
@@ -50,6 +51,10 @@ internal static class SharedTypeExtensions
             && !type.IsInterface
             && !type.IsNullableValueType()
             && !IsScalarType(type);
+
+    public static bool IsUnion(this Type type)
+        => type.GetCustomAttributesData().Any(
+            static a => a.AttributeType.FullName == "System.Runtime.CompilerServices.UnionAttribute");
 
     public static bool IsScalarType(this Type type)
         => type == typeof(string)
@@ -116,12 +121,7 @@ internal static class SharedTypeExtensions
         string name)
     {
         var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
-        if (props.Count > 1)
-        {
-            throw new AmbiguousMatchException();
-        }
-
-        return props.SingleOrDefault();
+        return props.Count > 1 ? throw new AmbiguousMatchException() : props.SingleOrDefault();
     }
 
     public static bool IsInstantiable(this Type type)
@@ -144,12 +144,7 @@ internal static class SharedTypeExtensions
     public static Type GetSequenceType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var sequenceType = TryGetSequenceType(type);
-        if (sequenceType == null)
-        {
-            throw new ArgumentException($"The type {type.Name} does not represent a sequence");
-        }
-
-        return sequenceType;
+        return sequenceType ?? throw new ArgumentException($"The type {type.Name} does not represent a sequence");
     }
 
     public static Type? TryGetSequenceType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
@@ -291,14 +286,10 @@ internal static class SharedTypeExtensions
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var interfaces = type.GetInterfaces();
-        if (type.BaseType == typeof(object)
-            || type.BaseType == null)
-        {
-            return interfaces;
-        }
-
-        return interfaces.Except(GetInterfacesSuppressed(type.BaseType));
-
+        return type.BaseType == typeof(object)
+            || type.BaseType == null
+            ? interfaces
+            : interfaces.Except(GetInterfacesSuppressed(type.BaseType));
         [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "https://github.com/dotnet/linker/issues/2473")]
         static IEnumerable<Type> GetInterfacesSuppressed(Type type)
             => type.GetInterfaces();
@@ -621,7 +612,7 @@ internal static class SharedTypeExtensions
         }
         else
         {
-            if (type.Namespace is not null)
+            if (!string.IsNullOrEmpty(type.Namespace))
             {
                 yield return type.Namespace;
             }

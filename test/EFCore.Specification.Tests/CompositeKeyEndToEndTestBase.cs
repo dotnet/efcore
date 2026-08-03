@@ -13,7 +13,7 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
 {
     private TFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_two_non_generated_integers_as_composite_key_end_to_end()
     {
         var ticks = DateTime.UtcNow.Ticks;
@@ -60,7 +60,7 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_use_generated_values_in_composite_key_end_to_end()
     {
         long id1;
@@ -114,7 +114,7 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Only_one_part_of_a_composite_key_needs_to_vary_for_uniqueness()
     {
         var ids = new int[3];

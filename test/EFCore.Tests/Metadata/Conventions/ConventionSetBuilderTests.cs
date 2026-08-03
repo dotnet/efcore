@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ConventionSetBuilderTests
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_create_a_model_builder_with_given_conventions_only()
     {
         var convention = new TestEntityTypeAddedConvention();
@@ -33,8 +33,10 @@ public class ConventionSetBuilderTests
             => Applied = true;
     }
 
-    [ConditionalFact]
-    public virtual IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI()
+    [Fact]
+#pragma warning disable xUnit1028 // Test method returns non-void; return value used by overrides
+    public virtual IMutableModel Can_build_a_model_with_default_conventions_without_DI()
+#pragma warning restore xUnit1028
     {
         var modelBuilder = new ModelBuilder(GetConventionSet());
         modelBuilder.Entity<Product>();
@@ -45,8 +47,10 @@ public class ConventionSetBuilderTests
         return model;
     }
 
-    [ConditionalFact]
-    public virtual IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI_new()
+    [Fact]
+#pragma warning disable xUnit1028 // Test method returns non-void; return value used by overrides
+    public virtual IMutableModel Can_build_a_model_with_default_conventions_without_DI_new()
+#pragma warning restore xUnit1028
     {
         var modelBuilder = GetModelBuilder();
         modelBuilder.Entity<Product>();
@@ -57,7 +61,7 @@ public class ConventionSetBuilderTests
         return model;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_add_remove_and_replace_conventions()
     {
         var conventionSet = GetConventionSet();

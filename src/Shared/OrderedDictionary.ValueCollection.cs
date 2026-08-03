@@ -129,24 +129,22 @@ internal partial class OrderedDictionary<TKey, TValue>
             private readonly OrderedDictionary<TKey, TValue> _orderedDictionary;
             private readonly int _version;
             private int _index;
-            private TValue _current;
 
             /// <summary>
             ///     Gets the element at the current position of the enumerator.
             /// </summary>
             /// <returns>The element in the <see cref="OrderedDictionary{TKey, TValue}.ValueCollection" /> at the current position of the enumerator.</returns>
-            public TValue Current
-                => _current;
+            public TValue Current { get; private set; }
 
             object? IEnumerator.Current
-                => _current;
+                => Current;
 
             internal Enumerator(OrderedDictionary<TKey, TValue> orderedDictionary)
             {
                 _orderedDictionary = orderedDictionary;
                 _version = orderedDictionary._version;
                 _index = 0;
-                _current = default!;
+                Current = default!;
             }
 
             /// <summary>
@@ -173,12 +171,12 @@ internal partial class OrderedDictionary<TKey, TValue>
 
                 if (_index < _orderedDictionary.Count)
                 {
-                    _current = _orderedDictionary._entries[_index].Value;
+                    Current = _orderedDictionary._entries[_index].Value;
                     ++_index;
                     return true;
                 }
 
-                _current = default!;
+                Current = default!;
                 return false;
             }
 
@@ -190,7 +188,7 @@ internal partial class OrderedDictionary<TKey, TValue>
                 }
 
                 _index = 0;
-                _current = default!;
+                Current = default!;
             }
         }
     }

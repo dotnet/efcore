@@ -24,21 +24,16 @@ public class CosmosTypeCheckingTranslator(ISqlExpressionFactory sqlExpressionFac
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.DeclaringType != typeof(CosmosDbFunctionsExtensions))
-        {
-            return null;
-        }
+        => method.DeclaringType != typeof(CosmosDbFunctionsExtensions)
+            ? null
+            : method.Name switch
+            {
+                nameof(CosmosDbFunctionsExtensions.IsDefined)
+                    => sqlExpressionFactory.Function("IS_DEFINED", [arguments[1]], typeof(bool)),
 
-        return method.Name switch
-        {
-            nameof(CosmosDbFunctionsExtensions.IsDefined)
-                => sqlExpressionFactory.Function("IS_DEFINED", [arguments[1]], typeof(bool)),
+                nameof(CosmosDbFunctionsExtensions.CoalesceUndefined)
+                    => sqlExpressionFactory.CoalesceUndefined(arguments[1], arguments[2]),
 
-            nameof(CosmosDbFunctionsExtensions.CoalesceUndefined)
-                => sqlExpressionFactory.CoalesceUndefined(arguments[1], arguments[2]),
-
-            _ => null
-        };
-    }
+                _ => null
+            };
 }

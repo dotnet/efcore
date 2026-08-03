@@ -200,7 +200,7 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[0].Int') AS int) = 8
         {
             AssertSql(
                 """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -211,7 +211,7 @@ WHERE JSON_VALUE([r].[AssociateCollection], '$[' + CAST(@i AS nvarchar(max)) + '
         {
             AssertSql(
                 """
-@i='?' (DbType = Int32)
+@i='0'
 
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
@@ -296,7 +296,7 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[9999].Int') AS int) = 8
 
     #region GroupBy
 
-    [ConditionalFact]
+    [Fact]
     public override async Task GroupBy()
     {
         await base.GroupBy();
@@ -306,7 +306,7 @@ WHERE CAST(JSON_VALUE([r].[AssociateCollection], '$[9999].Int') AS int) = 8
 SELECT [r].[Id], [r].[Name], [r].[AssociateCollection], [r].[OptionalAssociate], [r].[RequiredAssociate]
 FROM [RootEntity] AS [r]
 WHERE 16 IN (
-    SELECT COALESCE(SUM([a].[Int]), 0)
+    SELECT ISNULL(SUM([a].[Int]), 0)
     FROM OPENJSON([r].[AssociateCollection], '$') WITH (
         [Int] int '$.Int',
         [String] nvarchar(max) '$.String'
@@ -327,7 +327,7 @@ WHERE 16 IN (
             AssertSql(
                 """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] json '$.NestedCollection' AS JSON) AS [a]
     OUTER APPLY (
         SELECT MAX([n].[Int]) AS [value]
@@ -341,7 +341,7 @@ FROM [RootEntity] AS [r]
             AssertSql(
                 """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM OPENJSON([r].[AssociateCollection], '$') WITH ([NestedCollection] nvarchar(max) '$.NestedCollection' AS JSON) AS [a]
     OUTER APPLY (
         SELECT MAX([n].[Int]) AS [value]
@@ -352,7 +352,24 @@ FROM [RootEntity] AS [r]
         }
     }
 
-    [ConditionalFact]
+    public override async Task Project_struct_complex_type_with_entity_collection_navigation()
+    {
+        await base.Project_struct_complex_type_with_entity_collection_navigation();
+
+        AssertSql(
+            """
+SELECT [p0].[Coords_X], [p0].[Coords_Y], [p0].[Id], [c].[Id], [c].[Name], [c].[ParentId]
+FROM (
+    SELECT TOP(1) [p].[Coords_X], [p].[Coords_Y], [p].[Id]
+    FROM [Parent] AS [p]
+    ORDER BY [p].[Id]
+) AS [p0]
+LEFT JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
+""");
+    }
+
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

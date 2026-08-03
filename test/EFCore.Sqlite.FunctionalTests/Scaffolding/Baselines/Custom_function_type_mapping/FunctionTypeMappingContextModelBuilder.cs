@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -14,72 +13,59 @@ using Microsoft.EntityFrameworkCore.Storage;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
+namespace TestNamespace;
+
+public partial class FunctionTypeMappingContextModel
 {
-    public partial class FunctionTypeMappingContextModel
+    private FunctionTypeMappingContextModel()
+        : base(skipDetectChanges: true, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 0)
     {
-        private FunctionTypeMappingContextModel()
-            : base(skipDetectChanges: true, modelId: new Guid("00000000-0000-0000-0000-000000000000"), entityTypeCount: 0)
-        {
-        }
+    }
 
-        partial void Initialize()
-        {
-            var functions = new Dictionary<string, IDbFunction>();
-            var getSqlFragmentStatic = new RuntimeDbFunction(
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionTypeMappingContext.GetSqlFragmentStatic(string)",
-                this,
-                typeof(string),
+    partial void Initialize()
+    {
+        var functions = new Dictionary<string, IDbFunction>();
+        var getSqlFragmentStatic = new RuntimeDbFunction(
+            "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionTypeMappingContext.GetSqlFragmentStatic(string)",
+            this,
+            typeof(string),
+            "GetSqlFragmentStatic",
+            storeType: "varchar",
+            methodInfo: typeof(CompiledModelRelationalTestBase.FunctionTypeMappingContext).GetMethod(
                 "GetSqlFragmentStatic",
-                storeType: "varchar",
-                methodInfo: typeof(CompiledModelRelationalTestBase.FunctionTypeMappingContext).GetMethod(
-                    "GetSqlFragmentStatic",
-                    BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
-                    null,
-                    new Type[] { typeof(string) },
-                    null),
-                scalar: true,
-                nullable: true);
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
+                null,
+                new Type[] { typeof(string) },
+                null),
+            scalar: true,
+            nullable: true);
 
-            var param = getSqlFragmentStatic.AddParameter(
-                "param",
-                typeof(string),
-                false,
-                "TEXT");
-            param.TypeMapping = SqliteStringTypeMapping.Default;
+        var param = getSqlFragmentStatic.AddParameter(
+            "param",
+            typeof(string),
+            false,
+            "TEXT");
+        param.TypeMapping = SqliteStringTypeMapping.Default;
 
-            getSqlFragmentStatic.TypeMapping = StringTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    bool (string v1, string v2) => v1 == v2,
-                    int (string v) => ((object)v).GetHashCode(),
-                    string (string v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "varchar",
-                    dbType: System.Data.DbType.AnsiString));
-            functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionTypeMappingContext.GetSqlFragmentStatic(string)"] = getSqlFragmentStatic;
+        getSqlFragmentStatic.TypeMapping = StringTypeMapping.Default.Clone(
+            mappingInfo: new RelationalTypeMappingInfo(
+                storeTypeName: "varchar",
+                dbType: System.Data.DbType.AnsiString));
+        functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionTypeMappingContext.GetSqlFragmentStatic(string)"] = getSqlFragmentStatic;
 
-            AddAnnotation("Relational:DbFunctions", functions);
-            AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
-        }
+        AddAnnotation("Relational:DbFunctions", functions);
+        AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
+    }
 
-        private IRelationalModel CreateRelationalModel()
-        {
-            var relationalModel = new RelationalModel(this);
-            var getSqlFragmentStatic = (IRuntimeDbFunction)this.FindDbFunction("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionTypeMappingContext.GetSqlFragmentStatic(string)")!;
-            var getSqlFragmentStaticFunction = new StoreFunction(getSqlFragmentStatic, relationalModel);
-            var paramFunctionParameter = getSqlFragmentStaticFunction.FindParameter("param")!;
-            relationalModel.Functions.Add(
-                ("GetSqlFragmentStatic", null, new[] { "TEXT" }),
-                getSqlFragmentStaticFunction);
-            return relationalModel.MakeReadOnly();
-        }
+    private IRelationalModel CreateRelationalModel()
+    {
+        var relationalModel = new RelationalModel(this);
+        var getSqlFragmentStatic = (IRuntimeDbFunction)this.FindDbFunction("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionTypeMappingContext.GetSqlFragmentStatic(string)")!;
+        var getSqlFragmentStaticFunction = new StoreFunction(getSqlFragmentStatic, relationalModel);
+        var paramFunctionParameter = getSqlFragmentStaticFunction.FindParameter("param")!;
+        relationalModel.Functions.Add(
+            ("GetSqlFragmentStatic", null, new[] { "TEXT" }),
+            getSqlFragmentStaticFunction);
+        return relationalModel.MakeReadOnly();
     }
 }

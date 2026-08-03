@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class KeyTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_when_model_is_readonly()
     {
         var model = CreateModel();
@@ -24,7 +24,7 @@ public class KeyTest
             Assert.Throws<InvalidOperationException>(() => entityType.RemoveKey(key)).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_key_from_properties()
     {
         var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
@@ -38,7 +38,7 @@ public class KeyTest
         Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Validates_properties_from_same_entity()
     {
         var model = CreateModel();

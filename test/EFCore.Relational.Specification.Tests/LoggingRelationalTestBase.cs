@@ -13,43 +13,43 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
     where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
     where TExtension : RelationalOptionsExtension, new()
 {
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_max_batch_size()
         => Assert.Equal(
             ExpectedMessage("MaxBatchSize=10 " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s, b => b.MaxBatchSize(10))));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_command_timeout()
         => Assert.Equal(
             ExpectedMessage("CommandTimeout=10 " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s, b => b.CommandTimeout(10))));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_relational_nulls()
         => Assert.Equal(
             ExpectedMessage("UseRelationalNulls " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s, b => b.UseRelationalNulls())));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_migrations_assembly()
         => Assert.Equal(
             ExpectedMessage("MigrationsAssembly=A.B.C " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsAssembly("A.B.C"))));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_migrations_history_table()
         => Assert.Equal(
             ExpectedMessage("MigrationsHistoryTable=MyHistory " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsHistoryTable("MyHistory"))));
 
-    [ConditionalFact]
+    [Fact]
     public void Logs_context_initialization_migrations_history_table_schema()
         => Assert.Equal(
             ExpectedMessage("MigrationsHistoryTable=mySchema.MyHistory " + DefaultOptions),
             ActualMessage(s => CreateOptionsBuilder(s, b => b.MigrationsHistoryTable("MyHistory", "mySchema"))));
 
-    [ConditionalFact]
+    [Fact]
     public virtual void IndexPropertiesBothMappedAndNotMappedToTable_throws_by_default()
     {
         using var context = new IndexPropertiesBothMappedAndNotMappedToTableContext(CreateOptionsBuilder(new ServiceCollection()));
@@ -73,7 +73,7 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void UnnamedIndexPropertiesMappedToNonOverlappingTables_throws_by_default()
     {
         using var context = new UnnamedIndexPropertiesMappedToNonOverlappingTablesContext(CreateOptionsBuilder(new ServiceCollection()));
@@ -99,7 +99,7 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKeyPropertiesMappedToUnrelatedTables_throws_by_default()
     {
         using var context = new ForeignKeyPropertiesMappedToUnrelatedTablesContext(CreateOptionsBuilder(new ServiceCollection()));

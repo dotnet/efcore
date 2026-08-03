@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -8,7 +8,7 @@ public class StringToEnumConverterTest
     private static readonly ValueConverter<string, Beatles> _stringToEnum
         = new StringToEnumConverter<Beatles>();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_enums()
     {
         var converter = _stringToEnum.ConvertToProviderExpression.Compile();
@@ -31,7 +31,7 @@ public class StringToEnumConverterTest
             Assert.Throws<InvalidOperationException>(() => converter("Jon")).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_enums_object()
     {
         var converter = _stringToEnum.ConvertToProvider;
@@ -49,7 +49,7 @@ public class StringToEnumConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_strings()
     {
         var converter = _stringToEnum.ConvertFromProviderExpression.Compile();
@@ -62,7 +62,7 @@ public class StringToEnumConverterTest
         Assert.Equal("0", converter(default));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_enums_to_strings_object()
     {
         var converter = _stringToEnum.ConvertFromProvider;

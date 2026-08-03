@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Or()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int | b.Long) == 7));
@@ -18,7 +18,7 @@ public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fix
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.Int | b.Long));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Or_over_boolean()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 | b.String == "Seattle"));
@@ -26,11 +26,11 @@ public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fix
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.Int == 12 | b.String == "Seattle"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Or_multiple()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int | b.Short | b.Long) == 7));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task And()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int & b.Short) == 2));
@@ -38,7 +38,7 @@ public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fix
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.Int & b.Short));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task And_over_boolean()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 & b.String == "Seattle"));
@@ -46,7 +46,7 @@ public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fix
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.Int == 8 & b.String == "Seattle"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Xor()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int ^ b.Short) == 1));
@@ -54,39 +54,39 @@ public abstract class BitwiseOperatorTranslationsTestBase<TFixture>(TFixture fix
         await AssertQueryScalar(ss => ss.Set<BasicTypesEntity>().Select(b => b.Int ^ b.Short));
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Xor_over_boolean()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => (b.Int == b.Short) ^ (b.String == "Seattle")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Complement()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => ~b.Int == -9));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task And_or_over_boolean()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 & b.Short == 12 | b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Or_with_logical_or()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 | b.Short == 12 || b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task And_with_logical_and()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 & b.Short == 8 && b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Or_with_logical_and()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8 | b.Short == 9 && b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task And_with_logical_or()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 12 & b.Short == 12 || b.String == "Seattle"));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Left_shift()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int << 1 == 16));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Right_shift()
         => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >> 1 == 4));
 }

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixture) : DataAnnotationTestBase<TFixture>(fixture)
     where TFixture : DataAnnotationRelationalTestBase<TFixture>.DataAnnotationRelationalFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void ForeignKey_to_ForeignKey_on_many_to_many()
     {
         var modelBuilder = CreateModelBuilder();
@@ -58,7 +58,7 @@ public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixtur
         public virtual ICollection<Login16> Login16s { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Table_can_configure_TPT_with_Owned()
         => ExecuteWithStrategyInTransactionAsync(
             context =>

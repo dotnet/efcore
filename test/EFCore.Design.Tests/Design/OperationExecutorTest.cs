@@ -6,15 +6,14 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
+using Microsoft.Data.Sqlite;
 namespace Microsoft.EntityFrameworkCore.Design;
 
 public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
 {
     private static readonly char S = Path.DirectorySeparatorChar;
 
-    [ConditionalFact]
+    [Fact]
     public void Ctor_validates_arguments()
     {
         var ex = Assert.Throws<ArgumentNullException>(() => new OperationExecutor(null!, null!));
@@ -24,9 +23,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         Assert.Equal("args", ex.ParamName);
     }
 
-    [ConditionalTheory, PlatformSkipCondition(
-         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("MgOne", "MgOne"),
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("MgOne", "MgOne"),
      InlineData("Name with Spaces", "NamewithSpaces"), InlineData(" Space Space ", "SpaceSpace")]
     public void AddMigration_can_scaffold_for_different_names(string migrationName, string processedMigrationName)
         => TestAddMigrationPositive(
@@ -34,9 +31,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
             "output", "output",
             ProductInfo.GetVersion());
 
-    [ConditionalTheory, PlatformSkipCondition(
-         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("to fix error: add column is_deleted"),
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("to fix error: add column is_deleted"),
      InlineData(@"A\B\C")] // Issue #24024
     public void AddMigration_errors_for_bad_names(string migrationName)
         => TestAddMigrationNegative(
@@ -46,9 +41,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
             typeof(OperationException),
             DesignStrings.BadMigrationName(migrationName, string.Join("','", Path.GetInvalidFileNameChars())));
 
-    [ConditionalTheory, PlatformSkipCondition(
-         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("output", "output"),
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("output", "output"),
      InlineData("Name with Spaces", "Name with Spaces"), InlineData(" Space Space", " Space Space")]
     public void AddMigration_can_scaffold_for_different_output_dirs(string outputDir, string processedOutputDir)
         => TestAddMigrationPositive(
@@ -56,13 +49,11 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
             outputDir, processedOutputDir,
             ProductInfo.GetVersion());
 
-    [ConditionalTheory, PlatformSkipCondition(
-         TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
-         SkipReason = "Tested negative cases and baselines are Windows-specific"), InlineData("Something:Else")]
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("Something:Else")]
     public void AddMigration_errors_for_bad_output_dirs(string outputDir)
         => TestAddMigrationNegative("MgTwo", outputDir, ProductInfo.GetVersion(), typeof(IOException), null);
 
-    [ConditionalFact]
+    [Fact]
     public void AddMigration_errors_if_migration_name_is_same_as_context_name()
         => TestAddMigrationNegative(
             "GnomeContext", "output", ProductInfo.GetVersion(), typeof(OperationException),
@@ -75,6 +66,7 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         string processedOutputDir,
         string productVersion)
     {
+        var migrationTypeName = $"_11112233445566_{processedMigrationName}";
         using var tempPath = new TempDirectory();
         var resultHandler = ExecuteAddMigration(tempPath, migrationName, Path.Combine(tempPath, outputDir), productVersion);
 
@@ -119,19 +111,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace My.Gnomespace.Data
+namespace My.Gnomespace.Data;
+
+[DbContext(typeof(OperationExecutorTest.GnomeContext))]
+[Migration("11112233445566_{{migrationName}}")]
+partial class {{migrationTypeName}}
 {
-    [DbContext(typeof(OperationExecutorTest.GnomeContext))]
-    [Migration("11112233445566_{{migrationName}}")]
-    partial class {{processedMigrationName}}
+    /// <inheritdoc />
+    protected override void BuildTargetModel(ModelBuilder modelBuilder)
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
+        modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -143,22 +134,21 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace My.Gnomespace.Data
+namespace My.Gnomespace.Data;
+
+/// <inheritdoc />
+public partial class {{migrationTypeName}} : Migration
 {
     /// <inheritdoc />
-    public partial class {{processedMigrationName}} : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
 
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
 
-        }
     }
 }
 
@@ -174,17 +164,21 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace My.Gnomespace.Data
+namespace My.Gnomespace.Data;
+
+[DbContext(typeof(OperationExecutorTest.GnomeContext))]
+partial class GnomeContextModelSnapshot : ModelSnapshot
 {
-    [DbContext(typeof(OperationExecutorTest.GnomeContext))]
-    partial class GnomeContextModelSnapshot : ModelSnapshot
+    // If you encounter a merge conflict in the line below, it means you need to
+    // discard one of the migration branches and recreate its migrations on top of
+    // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
+    public override string LastMigrationId => "11112233445566_{{migrationName}}";
+
+    protected override void BuildModel(ModelBuilder modelBuilder)
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
+        modelBuilder.HasAnnotation("ProductVersion", "{{productVersion}}");
 #pragma warning restore 612, 618
-        }
     }
 }
 
@@ -248,7 +242,7 @@ namespace My.Gnomespace.Data
         return resultHandler;
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath"),
      InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath")]
     public void No_output_path(string projectDir, string expectedPrefix)
     {
@@ -269,7 +263,7 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/"),
      InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/"),
@@ -298,7 +292,7 @@ namespace My.Gnomespace.Data
         Assert.Equal("putout", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/"),
      InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/"),
@@ -327,7 +321,7 @@ namespace My.Gnomespace.Data
         Assert.Equal("putout.output", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/"),
@@ -356,7 +350,7 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/"),
@@ -385,7 +379,7 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/"),
      InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/")]
     public void Output_path_is_empty_string(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
     {
@@ -408,7 +402,7 @@ namespace My.Gnomespace.Data
         Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Acme")]
     public void No_output_path_with_root_namespace(string projectDir, string expectedPrefix, string rootNamespace)
     {
@@ -429,7 +423,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Acme"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Acme"),
      InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/", "Acme"),
      InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/", "Acme.Parts")]
@@ -459,7 +453,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".putout", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Acme"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Acme"),
      InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/", "Acme"),
      InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/", "Acme.Parts")]
@@ -489,7 +483,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".putout.output", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme")]
@@ -519,7 +513,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme")]
@@ -549,7 +543,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Acme"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Acme"),
      InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Acme.Parts")]
     public void Output_path_is_empty_string_with_root_namespace(
         string projectDir,
@@ -577,7 +571,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway"),
      InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc"),
      InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc")]
@@ -601,7 +595,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway"),
@@ -635,7 +629,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway"),
@@ -669,7 +663,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway"),
@@ -703,7 +697,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway"),
@@ -737,7 +731,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway"),
      InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway"),
      InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc"),
      InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
@@ -767,7 +761,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway", "Acme"),
      InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc", "Acme"),
      InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc", "Acme.Parts")]
@@ -795,7 +789,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
@@ -830,7 +824,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
@@ -866,7 +860,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
@@ -901,7 +895,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
@@ -936,7 +930,7 @@ namespace My.Gnomespace.Data
         Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
     }
 
-    [ConditionalTheory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
+    [Theory, InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway", "Acme"),
      InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts"),
      InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
@@ -968,9 +962,9 @@ namespace My.Gnomespace.Data
     }
 
     private static string ExtractNamespace(string migrationMigrationCode)
-        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10);
+        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10).TrimEnd(';');
 
-    // [ConditionalTheory]
+    // [Theory]
     // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath")]
     // [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpat` h")]
     // public void Migration_files_are_created_in_the_Migrations_folder(string projectDir, string expectedPrefix)
@@ -991,7 +985,7 @@ namespace My.Gnomespace.Data
     // private static string ExtractNamespace(string migrationMigrationCode)
     //     => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10);
     //
-    // [ConditionalTheory]
+    // [Theory]
     // [InlineData(@"C:/SomePath/SomeSubpath", @"C:/SomePath/SomeSubpath")]
     // [InlineData(@"K:/SomePath/SomeSubpath/", @"K:/SomePath/SomeSubpath")]
     // [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Windows-specific paths")]
@@ -1010,7 +1004,7 @@ namespace My.Gnomespace.Data
     //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     // }
     //
-    // [ConditionalTheory]
+    // [Theory]
     // [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/SomePath/SomeSubpath/putout/")]
     // [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/SomePath/SomeSubpath/putout/")]
     // [InlineData(@"SomePath/SomeSubpath/", @"putout/", @"/SomePath/SomeSubpath/putout/")]
@@ -1032,7 +1026,7 @@ namespace My.Gnomespace.Data
     //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     // }
     //
-    // [ConditionalTheory]
+    // [Theory]
     // [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/putout/")]
     // [InlineData(@"/SomePath/SomeSubpath", @"/putout/", @"/putout/")]
     // [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"/putout/")]
@@ -1054,7 +1048,7 @@ namespace My.Gnomespace.Data
     //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
     // }
     //
-    // [ConditionalTheory]
+    // [Theory]
     // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath/putout", @"/SomePath/SomeSubpath/putout/")]
     // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath/putout/", @"/SomePath/SomeSubpath/putout/")]
     // [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath/putout/", @"/SomePath/SomeSubpath/putout/")]
@@ -1100,9 +1094,131 @@ namespace My.Gnomespace.Data
         return executor.MigrationsOperations.AddMigration("M", outputDir, nameof(GnomeContext), @namespace, dryRun: true);
     }
 
+    [Fact]
+    public void AddAndApplyMigration_succeeds_when_no_model_changes()
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteAddAndApplyMigration(
+            tempPath,
+            "TestMigration",
+            null,
+            null);
+
+        // When there are no pending model changes, the operation succeeds
+        // by applying existing migrations without creating a new one
+        Assert.True(resultHandler.HasResult);
+        Assert.Null(resultHandler.ErrorType);
+    }
+
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("to fix error: add column"),
+     InlineData(@"A\B\C")]
+    public void AddAndApplyMigration_errors_for_bad_names(string migrationName)
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteAddAndApplyMigration(
+            tempPath,
+            migrationName,
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.Equal(typeof(OperationException).FullName, resultHandler.ErrorType);
+        Assert.Contains(migrationName, resultHandler.ErrorMessage);
+    }
+
+    [Fact]
+    public void AddAndApplyMigration_errors_for_invalid_context()
+    {
+        using var tempPath = new TempDirectory();
+        var reportHandler = new OperationReportHandler();
+        var resultHandler = new OperationResultHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", tempPath.Path },
+                { "rootNamespace", "My.Gnomespace.Data" },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        new OperationExecutor.AddAndApplyMigration(
+            executor,
+            resultHandler,
+            new Dictionary<string, object?>
+            {
+                { "name", "TestMigration" },
+                { "connectionString", null },
+                { "contextType", "NonExistentContext" },
+                { "outputDir", null },
+                { "namespace", null }
+            });
+
+        Assert.False(resultHandler.HasResult);
+        Assert.NotNull(resultHandler.ErrorType);
+        Assert.Contains("NonExistentContext", resultHandler.ErrorMessage);
+    }
+
+    [Fact]
+    public void AddAndApplyMigration_errors_for_empty_name()
+    {
+        using var tempPath = new TempDirectory();
+        var resultHandler = ExecuteAddAndApplyMigration(
+            tempPath,
+            "",
+            null,
+            null);
+
+        Assert.False(resultHandler.HasResult);
+        Assert.NotNull(resultHandler.ErrorType);
+    }
+
+    private static OperationResultHandler ExecuteAddAndApplyMigration(
+        string tempPath,
+        string migrationName,
+        string? outputDir,
+        string? @namespace)
+    {
+        var reportHandler = new OperationReportHandler();
+        var resultHandler = new OperationResultHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", tempPath },
+                { "rootNamespace", "My.Gnomespace.Data" },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        new OperationExecutor.AddAndApplyMigration(
+            executor,
+            resultHandler,
+            new Dictionary<string, object?>
+            {
+                { "name", migrationName },
+                { "connectionString", null },
+                { "contextType", "GnomeContext" },
+                { "outputDir", outputDir },
+                { "namespace", @namespace }
+            });
+
+        return resultHandler;
+    }
+
     public class OperationBaseTests
     {
-        [ConditionalFact]
+        [Fact]
         public void Execute_catches_exceptions()
         {
             var handler = new OperationResultHandler();
@@ -1115,7 +1231,7 @@ namespace My.Gnomespace.Data
             Assert.NotEmpty(handler.ErrorStackTrace!);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Execute_sets_results()
         {
             var handler = new OperationResultHandler();
@@ -1126,7 +1242,7 @@ namespace My.Gnomespace.Data
             Assert.Equal(result, handler.Result);
         }
 
-        [ConditionalFact]
+        [Fact]
         public void Execute_enumerates_results()
         {
             var handler = new OperationResultHandler();
@@ -1161,10 +1277,23 @@ namespace My.Gnomespace.Data
 
     public class GnomeContext : DbContext
     {
+        // Use an externally opened connection so EF Core doesn't close it during migration steps.
+        // With :memory: SQLite, the database is destroyed when the connection closes, which causes
+        // issues when Migrator.Migrate opens/closes the connection multiple times.
+        private static readonly SqliteConnection _connection = CreateOpenConnection();
+
+        private static SqliteConnection CreateOpenConnection()
+        {
+            var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            return connection;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseSqlite()
-                .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>();
+                .UseSqlite(_connection)
+                .ReplaceService<IMigrationsIdGenerator, FakeMigrationsIdGenerator>()
+                .ConfigureWarnings(w => w.Ignore(RelationalEventId.MigrationsNotFound));
 
         private class FakeMigrationsIdGenerator : MigrationsIdGenerator
         {

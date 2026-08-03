@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
@@ -14,7 +14,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_same_level_top_level_ordering(bool async)
         => AssertQuery(
             async,
@@ -34,7 +34,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
                 AssertCollection(e.Required, a.Required);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_same_level_top_level_ordering_using_entire_composite_key(bool async)
         => AssertQuery(
             async,
@@ -54,7 +54,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
                 AssertCollection(e.Required, a.Required);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_with_ordering_same_level(bool async)
         => AssertQuery(
             async,
@@ -73,7 +73,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
                 AssertCollection(e.Required, a.Required);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_with_ordering_same_level_top_level_ordering(bool async)
         => AssertQuery(
             async,
@@ -93,7 +93,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
                 AssertCollection(e.Required, a.Required);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_collections_multi_level(bool async)
         => AssertQuery(
             async,
@@ -121,7 +121,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
                     });
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_on_multiple_levels_no_explicit_ordering(bool async)
         => AssertQuery(
             async,
@@ -230,7 +230,7 @@ public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : Q
                     });
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_multiple_collections_on_multiple_levels_some_explicit_ordering(bool async)
         => AssertQuery(
             async,

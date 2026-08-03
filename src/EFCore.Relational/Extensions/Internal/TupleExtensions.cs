@@ -21,7 +21,7 @@ public static class TupleExtensions
     /// </summary>
     public static string FormatTables(this IEnumerable<(string Table, string? Schema)> tables)
         => "{"
-            + string.Join(", ", tables.Select(t => "'" + FormatTable(t) + "'"))
+            + string.Join(", ", tables.Select(t => "'" + t.FormatTable() + "'"))
             + "}";
 
     /// <summary>

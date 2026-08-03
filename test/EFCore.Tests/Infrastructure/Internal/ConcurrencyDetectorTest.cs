@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 public class ConcurrencyDetectorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void MultipleContextOnSameThread_Should_Success()
     {
         var preparingContext = new Context();

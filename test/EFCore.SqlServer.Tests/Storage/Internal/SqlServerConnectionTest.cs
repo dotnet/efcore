@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal;
 
 public class SqlServerConnectionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Creates_SQL_Server_connection_string()
     {
         using var connection = new SqlServerConnection(CreateDependencies());
@@ -21,7 +21,7 @@ public class SqlServerConnectionTest
 
     #region Master connection
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_master_connection()
     {
         using var connection = new SqlServerConnection(CreateDependencies());
@@ -30,7 +30,7 @@ public class SqlServerConnectionTest
         Assert.Equal(60, master.CommandTimeout);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Master_connection_string_contains_filename()
     {
         var options = new DbContextOptionsBuilder()
@@ -44,7 +44,7 @@ public class SqlServerConnectionTest
         Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master", StripApplicationName(master.ConnectionString));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Master_connection_string_none_default_command_timeout()
     {
         var options = new DbContextOptionsBuilder()
@@ -62,7 +62,7 @@ public class SqlServerConnectionTest
 
     #region Application Name
 
-    [ConditionalFact]
+    [Fact]
     public void ApplicationName_is_injected_when_not_defined_with_connection_string()
     {
         var options = new DbContextOptionsBuilder()
@@ -80,7 +80,7 @@ public class SqlServerConnectionTest
             connection.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ApplicationName_is_not_injected_when_user_defined_with_connection_string()
     {
         var options = new DbContextOptionsBuilder()
@@ -97,7 +97,7 @@ public class SqlServerConnectionTest
             """Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SomeOtherDatabase;Application Name=foo""", connection.ConnectionString);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ApplicationName_is_not_injected_with_connection()
     {
         var dbConnection1 = new SqlConnection("""Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SqlServerConnectionTest""");

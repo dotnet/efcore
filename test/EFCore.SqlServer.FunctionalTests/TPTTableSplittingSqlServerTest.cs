@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class TPTTableSplittingSqlServerTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : TPTTableSplittingTestBase(fixture, testOutputHelper)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     public override async Task Can_use_with_redundant_relationships()

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class SqlServerModificationCommandBatchFactoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -51,7 +51,7 @@ public class SqlServerModificationCommandBatchFactoryTest
         Assert.False(batch.TryAddCommand(CreateModificationCommand("T1", null, false)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void MaxBatchSize_is_optional()
     {
         var optionsBuilder = new DbContextOptionsBuilder();

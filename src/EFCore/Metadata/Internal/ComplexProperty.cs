@@ -82,7 +82,7 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsInModel
+    public override bool IsInModel
         => _builder is not null
             && DeclaringType.IsInModel;
 
@@ -213,33 +213,26 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
         bool shouldThrow)
     {
         var memberClrType = memberInfo.GetMemberType().TryGetSequenceType();
-        if (shouldBeCollection
-            && memberClrType?.IsAssignableFrom(targetType) != true)
-        {
-            return shouldThrow
-                ? throw new InvalidOperationException(
-                    CoreStrings.ComplexCollectionWrongClrType(
-                        propertyName,
-                        sourceType.DisplayName(),
-                        memberInfo.GetMemberType().ShortDisplayName(),
-                        targetType.ShortDisplayName()))
-                : false;
-        }
-
-        if (!shouldBeCollection
-            && !memberInfo.GetMemberType().IsAssignableFrom(targetType))
-        {
-            return shouldThrow
-                ? throw new InvalidOperationException(
-                    CoreStrings.ComplexPropertyWrongClrType(
-                        propertyName,
-                        sourceType.DisplayName(),
-                        memberInfo.GetMemberType().ShortDisplayName(),
-                        targetType.ShortDisplayName()))
-                : false;
-        }
-
-        return true;
+        return shouldBeCollection
+            && memberClrType?.IsAssignableFrom(targetType) != true
+                ? shouldThrow
+                    ? throw new InvalidOperationException(
+                        CoreStrings.ComplexCollectionWrongClrType(
+                            propertyName,
+                            sourceType.DisplayName(),
+                            memberInfo.GetMemberType().ShortDisplayName(),
+                            targetType.ShortDisplayName()))
+                    : false
+                : shouldBeCollection
+                || memberInfo.GetMemberType().IsAssignableFrom(targetType)
+                || (shouldThrow
+                    ? throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyWrongClrType(
+                            propertyName,
+                            sourceType.DisplayName(),
+                            memberInfo.GetMemberType().ShortDisplayName(),
+                            targetType.ShortDisplayName()))
+                    : false);
     }
 
     /// <summary>

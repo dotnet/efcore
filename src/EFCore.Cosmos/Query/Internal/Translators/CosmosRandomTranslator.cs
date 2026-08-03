@@ -13,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosRandomTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
-    private static readonly MethodInfo MethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-        nameof(DbFunctionsExtensions.Random), [typeof(DbFunctions)])!;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -27,10 +24,11 @@ public class CosmosRandomTranslator(ISqlExpressionFactory sqlExpressionFactory) 
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => MethodInfo.Equals(method)
-            ? sqlExpressionFactory.Function(
-                "RAND",
-                [],
-                method.ReturnType)
-            : null;
+        => method.DeclaringType == typeof(DbFunctionsExtensions)
+            && method.Name == nameof(DbFunctionsExtensions.Random)
+                ? sqlExpressionFactory.Function(
+                    "RAND",
+                    [],
+                    method.ReturnType)
+                : null;
 }

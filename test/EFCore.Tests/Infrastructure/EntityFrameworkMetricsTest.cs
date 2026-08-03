@@ -52,6 +52,61 @@ public class EntityFrameworkMetricsTest
     }
 
     [Theory, InlineData(false), InlineData(true)]
+    public async Task Active_dbcontexts_is_decremented_when_pooled_context_is_torn_down(bool async)
+    {
+        var initial = EntityFrameworkMetricsData.GetActiveDbContexts();
+
+        // A pool size of 1 means the second returned context overflows the pool and is fully torn down.
+        using var serviceProvider = new ServiceCollection()
+            .AddPooledDbContextFactory<SomeDbContext>(ob => ob.UseInMemoryDatabase(nameof(EntityFrameworkMetricsTest)), poolSize: 1)
+            .BuildServiceProvider(validateScopes: true);
+
+        var factory = serviceProvider.GetRequiredService<IDbContextFactory<SomeDbContext>>();
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+
+        Assert.Equal(initial + 2, EntityFrameworkMetricsData.GetActiveDbContexts());
+
+        // Returning the first context fills the single-slot pool; it stays counted while idle in the pool.
+        await Dispose(context1, async);
+        Assert.Equal(initial + 2, EntityFrameworkMetricsData.GetActiveDbContexts());
+
+        // Returning the second context overflows the pool, so it is fully torn down and the counter is decremented.
+        await Dispose(context2, async);
+        Assert.Equal(initial + 1, EntityFrameworkMetricsData.GetActiveDbContexts());
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Active_dbcontexts_is_decremented_when_scoped_pooled_context_is_torn_down(bool async)
+    {
+        var initial = EntityFrameworkMetricsData.GetActiveDbContexts();
+
+        // A pool size of 1 means the second released context overflows the pool and is fully torn down.
+        using var serviceProvider = new ServiceCollection()
+            .AddDbContextPool<SomeDbContext>(ob => ob.UseInMemoryDatabase(nameof(EntityFrameworkMetricsTest)), poolSize: 1)
+            .BuildServiceProvider(validateScopes: true);
+
+        var scope1 = serviceProvider.CreateScope();
+        _ = scope1.ServiceProvider.GetRequiredService<SomeDbContext>();
+
+        Assert.Equal(initial + 1, EntityFrameworkMetricsData.GetActiveDbContexts());
+
+        using (var scope2 = serviceProvider.CreateScope())
+        {
+            _ = scope2.ServiceProvider.GetRequiredService<SomeDbContext>();            
+        }
+
+        // Disposing the second scope releases its context, filling the single-slot pool; it stays counted while idle.
+        Assert.Equal(initial + 2, EntityFrameworkMetricsData.GetActiveDbContexts());
+
+        // Disposing the first scope releases a context that overflows the pool, so it is fully torn down and the
+        // counter is decremented.
+        await Dispose(scope1, async);
+        Assert.Equal(initial + 1, EntityFrameworkMetricsData.GetActiveDbContexts());
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Validate_query_executed(bool async)
     {
         var initial = EntityFrameworkMetricsData.GetTotalQueriesExecuted();
@@ -272,8 +327,29 @@ public class EntityFrameworkMetricsTest
         }
     }
 
+    private static async Task Dispose(IDisposable disposable, bool async)
+    {
+        if (async)
+        {
+            await ((IAsyncDisposable)disposable).DisposeAsync();
+        }
+        else
+        {
+            disposable.Dispose();
+        }
+    }
+
     private class SomeDbContext : DbContext
     {
+        public SomeDbContext()
+        {
+        }
+
+        public SomeDbContext(DbContextOptions<SomeDbContext> options)
+            : base(options)
+        {
+        }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Foo> Foos { get; set; }
 
@@ -281,8 +357,12 @@ public class EntityFrameworkMetricsTest
             => modelBuilder.Entity<Foo>().Property(e => e.Token).IsConcurrencyToken();
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseInMemoryDatabase(nameof(EntityFrameworkMetricsTest));
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseInMemoryDatabase(nameof(EntityFrameworkMetricsTest));
+            }
+        }
     }
 
     private class Foo

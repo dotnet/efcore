@@ -7,25 +7,21 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>,
-    IQueryFixtureBase,
+public abstract class OptionalDependentQueryFixtureBase : QueryFixtureBase<OptionalDependentContext>,
     ITestSqlLoggerFactory
 {
     private OptionalDependentData _expectedData;
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
-
-    public virtual ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
         => _expectedData ??= new OptionalDependentData();
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
         { typeof(OptionalDependentEntityAllOptional), e => ((OptionalDependentEntityAllOptional)e)?.Id },
         { typeof(OptionalDependentEntitySomeRequired), e => ((OptionalDependentEntitySomeRequired)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(OptionalDependentEntityAllOptional), (e, a) =>

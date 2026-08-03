@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqlServerDatabaseFacadeExtensionsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Returns_appropriate_name()
         => Assert.Equal(
             typeof(SqlServerConnection).Assembly.GetName().Name,
             new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).Name);
 
-    [ConditionalFact]
+    [Fact]
     public void Is_configured_when_configuration_contains_associated_extension()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -25,7 +25,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
             new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Is_not_configured_when_configuration_does_not_contain_associated_extension()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -34,7 +34,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
             new DatabaseProvider<SqlServerOptionsExtension>(new DatabaseProviderDependencies()).IsConfigured(optionsBuilder.Options));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Default_value_for_CommandTimeout_is_null_and_can_be_changed_including_setting_to_null()
     {
         using var context = new TimeoutContext();
@@ -50,7 +50,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.Equal(66, context.Database.GetCommandTimeout());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_CommandTimeout_to_infinite_sets_to_zero()
     {
         using var context = new TimeoutContext();
@@ -59,7 +59,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.Equal(0, context.Database.GetCommandTimeout());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Setting_CommandTimeout_to_negative_value_throws()
     {
         Assert.Throws<InvalidOperationException>(() => new DbContextOptionsBuilder().UseSqlServer(
@@ -93,14 +93,14 @@ public class SqlServerDatabaseFacadeExtensionsTest
                 .UseSqlServer(new FakeDbConnection("A=B"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_when_using_OnConfiguring()
     {
         using var context = new SqlServerOnConfiguringContext();
         Assert.True(context.Database.IsSqlServer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_in_OnModelCreating_when_using_OnConfiguring()
     {
         using var context = new SqlServerOnModelContext();
@@ -108,7 +108,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.True(context.IsSqlServerSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsRelational_in_OnModelCreating_when_using_OnConfiguring()
     {
         using var context = new RelationalOnModelContext();
@@ -116,7 +116,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.True(context.IsSqlServerSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_in_constructor_when_using_OnConfiguring()
     {
         using var context = new SqlServerConstructorContext();
@@ -124,7 +124,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.True(context.IsSqlServerSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_use_IsSqlServer_in_OnConfiguring()
     {
         using var context = new SqlServerUseInOnConfiguringContext();
@@ -136,7 +136,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
             }).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_when_using_constructor()
     {
         using var context = new ProviderContext(
@@ -146,7 +146,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.True(context.Database.IsSqlServer());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_in_OnModelCreating_when_using_constructor()
     {
         using var context = new ProviderOnModelContext(
@@ -157,7 +157,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.True(context.IsSqlServerSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSqlServer_in_constructor_when_using_constructor()
     {
         using var context = new ProviderConstructorContext(
@@ -168,7 +168,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
         Assert.True(context.IsSqlServerSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Cannot_use_IsSqlServer_in_OnConfiguring_with_constructor()
     {
         using var context = new ProviderUseInOnConfiguringContext(
@@ -183,7 +183,7 @@ public class SqlServerDatabaseFacadeExtensionsTest
             }).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Not_IsSqlServer_when_using_different_provider()
     {
         using var context = new ProviderContext(

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class StringToCharConverterTest
 {
     private static readonly StringToCharConverter _stringToChar = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_chars()
     {
         var converter = _stringToChar.ConvertToProviderExpression.Compile();
@@ -20,7 +20,7 @@ public class StringToCharConverterTest
         Assert.Throws<NullReferenceException>(() => converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_chars_object()
     {
         var converter = _stringToChar.ConvertToProvider;
@@ -31,7 +31,7 @@ public class StringToCharConverterTest
         Assert.Null(converter(null));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_chars_to_strings()
     {
         var converter = _stringToChar.ConvertFromProviderExpression.Compile();
@@ -40,7 +40,7 @@ public class StringToCharConverterTest
         Assert.Equal("!", converter('!'));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_chars_to_strings_object()
     {
         var converter = _stringToChar.ConvertFromProvider;

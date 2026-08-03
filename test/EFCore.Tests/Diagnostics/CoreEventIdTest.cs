@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 public class CoreEventIdTest : EventIdTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var propertyInfo = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
@@ -104,7 +104,7 @@ public class CoreEventIdTest : EventIdTestBase
             => (IEntityType)DeclaringType;
 
         public IEntityType TargetEntityType
-            => throw new NotImplementedException();
+            => (IEntityType)DeclaringType;
 
         public INavigationBase Inverse
             => throw new NotImplementedException();
@@ -114,6 +114,9 @@ public class CoreEventIdTest : EventIdTestBase
 
         public override TypeBase DeclaringType { get; } = entityType;
 
+        public override bool IsInModel
+            => true;
+
         public override Type ClrType
             => throw new NotImplementedException();
 
@@ -121,7 +124,7 @@ public class CoreEventIdTest : EventIdTestBase
             => (IReadOnlyEntityType)DeclaringType;
 
         IReadOnlyEntityType IReadOnlyNavigationBase.TargetEntityType
-            => throw new NotImplementedException();
+            => (IReadOnlyEntityType)DeclaringType;
 
         IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
             => throw new NotImplementedException();

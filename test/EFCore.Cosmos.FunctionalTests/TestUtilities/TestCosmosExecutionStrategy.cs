@@ -19,8 +19,8 @@ public class TestCosmosExecutionStrategy : CosmosExecutionStrategy
                 new DbContextOptionsBuilder()
                     .EnableServiceProviderCaching(false)
                     .UseCosmos(
-                        TestEnvironment.DefaultConnection,
-                        TestEnvironment.AuthToken,
+                        CosmosTestEnvironment.DefaultConnection,
+                        CosmosTestEnvironment.AuthToken,
                         "NonExistent").Options),
             DefaultMaxRetryCount, DefaultMaxDelay)
     {

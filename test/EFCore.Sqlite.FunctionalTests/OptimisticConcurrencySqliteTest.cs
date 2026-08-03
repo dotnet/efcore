@@ -41,49 +41,49 @@ RETURNING 1;
 """);
     }
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Simple_concurrency_exception_can_be_resolved_with_store_values()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Simple_concurrency_exception_can_be_resolved_with_client_values()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Simple_concurrency_exception_can_be_resolved_with_new_values()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task
         Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task
         Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Change_in_independent_association_results_in_independent_association_exception()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
         => Task.FromResult(true);
 
-    [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
+    [Fact(Skip = "Optimistic Offline Lock #2195")]
     public override Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
         => Task.FromResult(true);
 

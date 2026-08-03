@@ -39,8 +39,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     private int? _maxPoolSize;
     private TimeSpan _loggingCacheTime = DefaultLoggingCacheTime;
     private bool _serviceProviderCachingEnabled = true;
-    private IEnumerable<IInterceptor>? _interceptors;
-    private IEnumerable<ISingletonInterceptor>? _singletonInterceptors;
+    private List<IInterceptor>? _interceptors;
+    private List<ISingletonInterceptor>? _singletonInterceptors;
     private Action<DbContext, bool>? _seed;
     private Func<DbContext, bool, CancellationToken, Task>? _seedAsync;
 
@@ -91,7 +91,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
 
         if (copyFrom._replacedServices != null)
         {
-            _replacedServices = new Dictionary<(Type, Type?), Type>(copyFrom._replacedServices);
+            _replacedServices = [with(copyFrom._replacedServices)];
         }
     }
 
@@ -310,7 +310,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         var clone = Clone();
 
-        clone._replacedServices ??= new Dictionary<(Type, Type?), Type>();
+        clone._replacedServices ??= [];
 
         clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
 
@@ -388,8 +388,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._interceptors = _interceptors == null
-            ? interceptors
-            : _interceptors.Concat(interceptors);
+            ? [.. interceptors]
+            : [.. _interceptors, .. interceptors];
 
         return clone;
     }
@@ -405,8 +405,8 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._singletonInterceptors = _singletonInterceptors == null
-            ? interceptors
-            : _singletonInterceptors.Concat(interceptors);
+            ? [.. interceptors]
+            : [.. _singletonInterceptors, .. interceptors];
 
         return clone;
     }

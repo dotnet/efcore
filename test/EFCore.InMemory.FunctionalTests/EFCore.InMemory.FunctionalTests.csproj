@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\Shared\MemberInfoExtensions.cs" Link="MemberInfoExtensions.cs" />
+    <Compile Include="..\..\src\Shared\*.cs" />
     <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
   </ItemGroup>
 
@@ -49,7 +49,6 @@
     <Using Include="Microsoft.Extensions.Logging" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
     <Using Include="Xunit" />
-    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

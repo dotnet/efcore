@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
 {
-    [ConditionalFact]
+    [Fact]
     public void AmbientTransactionWarning_throws_by_default()
     {
         using var context = new AmbientTransactionWarningContext(CreateOptionsBuilder(new ServiceCollection()));

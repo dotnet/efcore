@@ -461,7 +461,46 @@ WHERE [b].[Float] > CAST(0 AS real) AND SQRT([b].[Float]) > CAST(0 AS real)
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE SIGN([b].[Double]) > 0
+WHERE CAST(SIGN([b].[Double]) AS int) > 0
+""",
+            //
+            """
+SELECT CAST(SIGN([b].[Double]) AS int)
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task Sign_decimal()
+    {
+        await base.Sign_decimal();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(SIGN([b].[Decimal]) AS int) > 0
+""",
+            //
+            """
+SELECT CAST(SIGN([b].[Decimal]) AS int)
+FROM [BasicTypesEntities] AS [b]
+""");
+    }
+
+    public override async Task Sign_int()
+    {
+        await base.Sign_int();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE SIGN([b].[Int]) > 0
+""",
+            //
+            """
+SELECT SIGN([b].[Int])
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 
@@ -473,27 +512,128 @@ WHERE SIGN([b].[Double]) > 0
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
-WHERE SIGN([b].[Float]) > 0
+WHERE CAST(SIGN([b].[Float]) AS int) > 0
+""",
+            //
+            """
+SELECT CAST(SIGN([b].[Float]) AS int)
+FROM [BasicTypesEntities] AS [b]
 """);
     }
 
-    public override Task Max()
-        => AssertTranslationFailed(() => base.Max());
+    public override async Task Max()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Max();
 
-    public override Task Max_nested()
-        => AssertTranslationFailed(() => base.Max_nested());
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE GREATEST([b].[Int], [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Max());
+        }
+    }
 
-    public override Task Max_nested_twice()
-        => AssertTranslationFailed(() => base.Max_nested_twice());
+    public override async Task Max_nested()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Max_nested();
 
-    public override Task Min()
-        => AssertTranslationFailed(() => base.Min());
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE GREATEST([b].[Short] - CAST(3 AS smallint), [b].[Int], 1) = [b].[Int]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Max_nested());
+        }
+    }
 
-    public override Task Min_nested()
-        => AssertTranslationFailed(() => base.Min_nested());
+    public override async Task Max_nested_twice()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Max_nested_twice();
 
-    public override Task Min_nested_twice()
-        => AssertTranslationFailed(() => base.Min_nested_twice());
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE GREATEST(1, [b].[Int], 2, [b].[Short] - CAST(3 AS smallint)) = [b].[Int]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Max_nested_twice());
+        }
+    }
+
+    public override async Task Min()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Min();
+
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE LEAST([b].[Int], [b].[Short] + CAST(3 AS smallint)) = [b].[Int]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Min());
+        }
+    }
+
+    public override async Task Min_nested()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Min_nested();
+
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE LEAST([b].[Short] + CAST(3 AS smallint), [b].[Int], 99999) = [b].[Int]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Min_nested());
+        }
+    }
+
+    public override async Task Min_nested_twice()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.Min_nested_twice();
+
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE LEAST(99999, [b].[Int], 99998, [b].[Short] + CAST(3 AS smallint)) = [b].[Int]
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(() => base.Min_nested_twice());
+        }
+    }
 
     public override async Task Degrees()
     {
@@ -733,7 +873,7 @@ WHERE TAN([b].[Float]) > CAST(0 AS real)
 
     #endregion Trigonometry
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

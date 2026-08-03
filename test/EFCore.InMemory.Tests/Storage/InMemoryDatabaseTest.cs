@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class InMemoryDatabaseTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Uses_persistent_database_by_default()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -25,7 +25,7 @@ public class InMemoryDatabaseTest
         Assert.Same(store1.Store, store2.Store);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Uses_persistent_database_if_configured_as_persistent()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -35,7 +35,7 @@ public class InMemoryDatabaseTest
             CreateStore(serviceProvider).Store);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Uses_different_stores_for_different_database_roots()
     {
         const string databaseName = nameof(Uses_different_stores_for_different_database_roots);
@@ -53,7 +53,7 @@ public class InMemoryDatabaseTest
         Assert.NotSame(store1.Store, store2.Store);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -79,7 +79,7 @@ public class InMemoryDatabaseTest
         return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Save_changes_adds_new_objects_to_store()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
@@ -95,7 +95,7 @@ public class InMemoryDatabaseTest
         Assert.Equal([42, "Unikorn"], inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Save_changes_updates_changed_objects_in_store()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
@@ -119,7 +119,7 @@ public class InMemoryDatabaseTest
             inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Save_changes_removes_deleted_objects_from_store()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices(CreateModel());
@@ -143,7 +143,7 @@ public class InMemoryDatabaseTest
         Assert.Empty(inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows));
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Should_log_writes()
     {
         var loggerFactory = new ListLoggerFactory();

@@ -20,7 +20,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
     protected TFixture Fixture { get; }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void External_model_builder_uses_validation()
     {
         var modelBuilder = Fixture.CreateModelBuilder();
@@ -33,7 +33,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Nullable_client_side_concurrency_token_can_be_used()
     {
         string originalName;
@@ -65,7 +65,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
     #region Concurrency resolution with FK associations
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Simple_concurrency_exception_can_be_resolved_with_client_values()
         => ConcurrencyTestAsync(
             ClientPodiums, async (_, ex) =>
@@ -75,7 +75,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 ResolveConcurrencyTokens(driverEntry);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values()
         => ConcurrencyTestAsync(
             StorePodiums, async (_, ex) =>
@@ -87,7 +87,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 ResolveConcurrencyTokens(driverEntry);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Simple_concurrency_exception_can_be_resolved_with_new_values()
         => ConcurrencyTestAsync(
             10, async (_, ex) =>
@@ -98,7 +98,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 ((Driver)driverEntry.Entity).Podiums = 10;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
         => ConcurrencyTestAsync(
             StorePodiums, async (_, ex) =>
@@ -110,11 +110,11 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 driverEntry.State = EntityState.Unchanged;
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
         => ConcurrencyTestAsync(StorePodiums, (_, ex) => ex.Entries.Single().ReloadAsync());
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
         => ConcurrencyTestAsync(
             async c =>
@@ -160,7 +160,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 Assert.Equal("Larry David", team.Principal);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
         => ConcurrencyTestAsync(
             async c =>
@@ -206,7 +206,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 Assert.Equal("Larry David", team.Principal);
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
         => ConcurrencyTestAsync(
             async c => (await c.Engines.SingleAsync(e => e.Name == "056")).EngineSupplierId =
@@ -228,7 +228,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
     #region Concurrency exceptions with shadow FK associations
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Change_in_independent_association_results_in_independent_association_exception()
         => ConcurrencyTestAsync(
             async c => (await c.Teams.SingleAsync(t => t.Id == Team.Ferrari)).Engine =
@@ -241,7 +241,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             null);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task
         Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         => ConcurrencyTestAsync(
@@ -256,7 +256,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             null);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         => ConcurrencyTestAsync(
             async c =>
@@ -273,7 +273,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             null);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
     {
         return ConcurrencyTestAsync<DbUpdateException>(
@@ -300,7 +300,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
     #region Concurrency exceptions with complex types
 
     // Depends on an aggregate-friendly Reload, see #13890
-    [ConditionalFact(Skip = "Issue#13890")]
+    [Fact(Skip = "Issue#13890")]
     public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         => ConcurrencyTestAsync(
             async c => (await c.Engines.SingleAsync(s => s.Name == "CA2010")).StorageLocation.Latitude = 47.642576,
@@ -317,7 +317,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
     #region Tests for update exceptions involving adding and deleting entities
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Adding_the_same_entity_twice_results_in_DbUpdateException()
     {
         using var c = CreateF1Context();
@@ -349,7 +349,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync(
             async c => c.Drivers.Remove(await c.Drivers.SingleAsync(d => d.Name == "Fernando Alonso")),
@@ -360,7 +360,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 await entry.ReloadAsync();
             }, async c => Assert.Null(await c.Drivers.SingleOrDefaultAsync(d => d.Name == "Fernando Alonso")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync(
             async c => (await c.Drivers.SingleAsync(d => d.Name == "Fernando Alonso")).Wins = 1,
@@ -373,7 +373,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             async c => Assert.Equal(1, (await c.Drivers.SingleAsync(d => d.Name == "Fernando Alonso")).Wins));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task
         Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => ConcurrencyTestAsync(
@@ -392,7 +392,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             async c => Assert.Equal(1, (await c.Drivers.SingleAsync(d => d.Name == "Fernando Alonso")).Wins));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         => ConcurrencyTestAsync(
             async c => c.Drivers.Remove(await c.Drivers.SingleAsync(d => d.Name == "Fernando Alonso")),
@@ -405,7 +405,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             async c => Assert.Null(await c.Drivers.SingleOrDefaultAsync(d => d.Name == "Fernando Alonso")));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task
         Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => ConcurrencyTestAsync(
@@ -425,7 +425,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
     #region Tests for calling Reload on an entity in various states
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Added_entity_that_is_not_in_database_is_no_op(bool async)
     {
         using var c = CreateF1Context();
@@ -451,19 +451,19 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Unchanged_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Unchanged, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Modified_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Modified, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Deleted_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Deleted, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Detached_entity_that_is_not_in_database_detaches_it(bool async)
         => await TestReloadGone(EntityState.Detached, async);
 
@@ -499,23 +499,23 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Unchanged_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Unchanged, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Modified, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Deleted, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_an_Added_entity_that_was_saved_elsewhere_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Added, async);
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_a_Detached_entity_makes_the_entity_unchanged(bool async)
         => await TestReloadPositive(EntityState.Detached, async);
 
@@ -552,7 +552,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_GetDatabaseValues_on_owned_entity_works(bool async)
     {
         using var c = CreateF1Context();
@@ -582,7 +582,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             });
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Calling_Reload_on_owned_entity_works(bool async)
     {
         using var c = CreateF1Context();

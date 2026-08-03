@@ -64,16 +64,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
         _materializationConditionConstantLifter = new MaterializationConditionConstantLifter(dependencies.LiftableConstantFactory);
 
-        if (queryCompilationContext.IsAsync)
-        {
-            _cancellationTokenParameter = MakeMemberAccess(
+        _cancellationTokenParameter = queryCompilationContext.IsAsync
+            ? MakeMemberAccess(
                 QueryCompilationContext.QueryContextParameter,
-                CancellationTokenMemberInfo);
-        }
-        else
-        {
-            _cancellationTokenParameter = null!;
-        }
+                CancellationTokenMemberInfo)
+            : (Expression)null!;
     }
 
     /// <summary>
@@ -154,12 +149,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         var result = enumerator.Current;
 
-        if (await enumerator.MoveNextAsync().ConfigureAwait(false))
-        {
-            throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement);
-        }
-
-        return result;
+        return await enumerator.MoveNextAsync().ConfigureAwait(false)
+            ? throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement)
+            : result;
     }
 
     /// <summary>
@@ -176,19 +168,16 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
         await using var _ = enumerator.ConfigureAwait(false);
 
-        if (!(await enumerator.MoveNextAsync().ConfigureAwait(false)))
+        if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
         {
             return default;
         }
 
         var result = enumerator.Current;
 
-        if (await enumerator.MoveNextAsync().ConfigureAwait(false))
-        {
-            throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement);
-        }
-
-        return result;
+        return await enumerator.MoveNextAsync().ConfigureAwait(false)
+            ? throw new InvalidOperationException(CoreStrings.SequenceContainsMoreThanOneElement)
+            : result;
     }
 
     /// <summary>
@@ -309,15 +298,10 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 || constantExpression.Value is Array { Length: 0 };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            if (!ValidConstant(constantExpression))
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ClientProjectionCapturingConstantInTree(constantExpression.Type.DisplayName()));
-            }
-
-            return constantExpression;
-        }
+            => !ValidConstant(constantExpression)
+                ? throw new InvalidOperationException(
+                    CoreStrings.ClientProjectionCapturingConstantInTree(constantExpression.Type.DisplayName()))
+                : (Expression)constantExpression;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -642,7 +626,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 valueBufferExpression,
                 shaper.MaterializationCondition.Body);
 
-            var expressionContext = (returnType, shaper.IsNullable, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
+            var expressionContext = (returnType, shaper.IsNullable, materializationContextVariable, concreteEntityTypeVariable,
+                shadowValuesVariable);
             expressions.Add(Assign(concreteEntityTypeVariable, materializationConditionBody));
 
             var (primaryKey, concreteStructuralTypes) = structuralType is IEntityType entityType
@@ -751,10 +736,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                 runtimeEntityType,
                                 NewArrayInit(
                                     typeof(object),
-                                    shadowProperties.Select(
-                                        p =>
-                                            Convert(
-                                                valueBufferExpression.CreateValueBufferReadValueExpression(
+                                    shadowProperties.Select(p =>
+                                        Convert(
+                                            p is IProperty { IsAutoLoaded: false }
+                                                ? (p.Sentinel is null ? Default(p.ClrType) : Constant(p.Sentinel, p.ClrType))
+                                                : valueBufferExpression.CreateValueBufferReadValueExpression(
                                                     p.ClrType, p.GetIndex(), p), typeof(object)))))));
                 }
             }

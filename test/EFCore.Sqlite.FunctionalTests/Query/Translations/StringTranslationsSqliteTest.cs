@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
@@ -263,6 +264,20 @@ WHERE instr('12559', CAST("b"."Int" AS TEXT)) - 1 = 1
 """);
     }
 
+    public override async Task IndexOf_with_non_string_column_using_double_cast()
+    {
+        await base.IndexOf_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+@pattern='5' (Size = 1)
+
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE instr(CAST("b"."Int" AS TEXT), @pattern) - 1 <> -1
+""");
+    }
+
     #endregion IndexOf
 
     #region Replace
@@ -312,6 +327,18 @@ WHERE "b"."String" <> '' AND replace("b"."String", "b"."String", '') = ''
 SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
 FROM "BasicTypesEntities" AS "b"
 WHERE "b"."String" <> '' AND replace("b"."String", "b"."String", CAST("b"."Int" AS TEXT)) = CAST("b"."Int" AS TEXT)
+""");
+    }
+
+    public override async Task Replace_with_non_string_column_using_double_cast()
+    {
+        await base.Replace_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."Bool", "b"."Byte", "b"."ByteArray", "b"."DateOnly", "b"."DateTime", "b"."DateTimeOffset", "b"."Decimal", "b"."Double", "b"."Enum", "b"."FlagsEnum", "b"."Float", "b"."Guid", "b"."Int", "b"."Long", "b"."Short", "b"."String", "b"."TimeOnly", "b"."TimeSpan"
+FROM "BasicTypesEntities" AS "b"
+WHERE replace(CAST("b"."Int" AS TEXT), '8', '3') = '3'
 """);
     }
 
@@ -1392,24 +1419,37 @@ GROUP BY "b"."Int"
 
     public override async Task Join_with_ordering()
     {
-        // SQLite does not support input ordering on aggregate methods; the below does client evaluation.
+        // group_concat with an ORDER BY clause requires SQLite 3.44.0.
+        Assert.SkipUnless(SqliteTestEnvironment.VersionAtLeast3_44, "Requires SQLite 3.44.0 for ORDER BY in aggregate functions.");
+
         await base.Join_with_ordering();
 
         AssertSql(
             """
-SELECT "b1"."Int", "b0"."String", "b0"."Id"
-FROM (
-    SELECT "b"."Int"
-    FROM "BasicTypesEntities" AS "b"
-    GROUP BY "b"."Int"
-) AS "b1"
-LEFT JOIN "BasicTypesEntities" AS "b0" ON "b1"."Int" = "b0"."Int"
-ORDER BY "b1"."Int", "b0"."Id" DESC
+SELECT "b"."Int" AS "Key", COALESCE(group_concat("b"."String", '|' ORDER BY "b"."Id" DESC), '') AS "Strings"
+FROM "BasicTypesEntities" AS "b"
+GROUP BY "b"."Int"
 """);
     }
 
     public override Task Join_non_aggregate()
         => AssertTranslationFailed(() => base.Join_non_aggregate());
+
+    [Fact]
+    public virtual async Task Join_with_distinct()
+    {
+        // SQLite's group_concat() accepts only a single argument when DISTINCT is used, so it cannot be combined
+        // with the separator that string.Join always supplies ("DISTINCT aggregates must have exactly one argument").
+        // We therefore don't translate it; the query then falls back to APPLY, which SQLite does not support.
+        Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    ss => ss.Set<BasicTypesEntity>()
+                        .GroupBy(c => c.Int)
+                        .Select(g => new { g.Key, Strings = string.Join("|", g.Select(e => e.String).Distinct()) }),
+                    elementSorter: x => x.Key))).Message);
+    }
 
     #endregion Join
 
@@ -1609,7 +1649,7 @@ WHERE 'Seattle' REGEXP "b"."String"
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Regex_IsMatch_negated()
     {
         await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => !Regex.IsMatch(o.String, "^[^S]")));
@@ -1676,7 +1716,7 @@ WHERE CAST("b"."Int" AS TEXT) LIKE '%5%'
 
     #endregion Like
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

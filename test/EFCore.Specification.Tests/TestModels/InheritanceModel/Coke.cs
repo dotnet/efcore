@@ -8,4 +8,9 @@ public class Coke : Drink, ISugary
     public int SugarGrams { get; set; }
     public int CaffeineGrams { get; set; }
     public int Carbonation { get; set; }
+
+    public required int[] Ints { get; set; }
+
+    // Same property name as on Tea, to test uniquification
+    public ComplexType? ChildComplexType { get; set; }
 }

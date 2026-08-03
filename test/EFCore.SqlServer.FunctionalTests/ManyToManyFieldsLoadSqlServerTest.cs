@@ -33,7 +33,7 @@ LEFT JOIN (
     WHERE [e1].[Id] = @p
 ) AS [s0] ON [s].[Id] = [s0].[TwoId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneId], [s].[TwoId], [s].[Id], [s0].[OneId], [s0].[TwoId]
+ORDER BY [e].[Id], [s].[OneId], [s].[TwoId], [s0].[OneId]
 """);
     }
 
@@ -59,7 +59,7 @@ LEFT JOIN (
     WHERE [e3].[Id] = @p
 ) AS [s0] ON [s].[Id] = [s0].[TwoSkipSharedId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s0].[OneSkipSharedId], [s0].[TwoSkipSharedId]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s0].[OneSkipSharedId]
 """);
     }
 
@@ -90,7 +90,7 @@ LEFT JOIN (
     WHERE [e3].[Id] = @p
 ) AS [s1] ON [s].[Id] = [s1].[TwoSkipSharedId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[Id], [s1].[OneSkipSharedId0], [s1].[TwoSkipSharedId0]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0]
 """);
     }
 
@@ -121,7 +121,7 @@ LEFT JOIN (
     INNER JOIN [EntityThrees] AS [e4] ON [j].[ThreeId] = [e4].[Id]
 ) AS [s1] ON [s].[Id] = [s1].[TwoId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s0].[OneSkipSharedId], [s0].[TwoSkipSharedId], [s0].[Id], [s1].[ThreeId], [s1].[TwoId]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s0].[OneSkipSharedId], [s0].[TwoSkipSharedId], [s1].[ThreeId]
 """);
     }
 
@@ -153,7 +153,7 @@ LEFT JOIN (
     WHERE [e4].[Id] IN (13, 11)
 ) AS [s1] ON [s].[Id] = [s1].[TwoId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s0].[OneSkipSharedId], [s0].[TwoSkipSharedId], [s0].[Id], [s1].[ThreeId], [s1].[TwoId]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s0].[OneSkipSharedId], [s0].[TwoSkipSharedId], [s1].[ThreeId]
 """);
     }
 
@@ -168,11 +168,9 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s0].
 SELECT [s].[Id], [s].[Name], (
     SELECT COUNT(*)
     FROM [EntityOneEntityTwo] AS [e2]
-    INNER JOIN [EntityOnes] AS [e3] ON [e2].[OneSkipSharedId] = [e3].[Id]
     WHERE [s].[Id] = [e2].[TwoSkipSharedId]) AS [Count1], (
     SELECT COUNT(*)
     FROM [JoinTwoToThree] AS [j]
-    INNER JOIN [EntityThrees] AS [e4] ON [j].[ThreeId] = [e4].[Id]
     WHERE [s].[Id] = [j].[TwoId]) AS [Count3]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -193,7 +191,7 @@ ORDER BY [s].[Id]
             """
 @p='3'
 
-SELECT [s].[Id], [s].[CollectionInverseId], [s].[Name], [s].[ReferenceInverseId], [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[Id0], [s2].[OneSkipSharedId], [s2].[TwoSkipSharedId], [s2].[Id], [s2].[Name], [s1].[CollectionInverseId], [s1].[Name0], [s1].[ReferenceInverseId]
+SELECT [s].[Id], [s].[CollectionInverseId], [s].[Name], [s].[ReferenceInverseId], [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s2].[OneSkipSharedId], [s2].[TwoSkipSharedId], [s2].[Id], [s2].[Name], [s1].[Id0], [s1].[CollectionInverseId], [s1].[Name0], [s1].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
     SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [e0].[OneSkipSharedId], [e0].[TwoSkipSharedId]
@@ -216,7 +214,7 @@ LEFT JOIN (
     WHERE [e6].[Id] = @p
 ) AS [s2] ON [s].[Id] = [s2].[TwoSkipSharedId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s1].[Id], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[Id0], [s2].[OneSkipSharedId], [s2].[TwoSkipSharedId]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s2].[OneSkipSharedId]
 """);
     }
 

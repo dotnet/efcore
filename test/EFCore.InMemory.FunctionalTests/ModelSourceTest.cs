@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ModelSourceTest
 {
-    [ConditionalFact] // Issue #2992
+    [Fact] // Issue #2992
     public void Can_customize_ModelBuilder()
     {
         var serviceProvider = new ServiceCollection()

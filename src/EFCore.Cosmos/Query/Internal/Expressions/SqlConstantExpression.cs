@@ -3,8 +3,6 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -77,49 +75,28 @@ public class SqlConstantExpression : SqlExpression
         object? value,
         ExpressionPrinter expressionPrinter)
     {
-        if (value is IEnumerable enumerable and not (string or byte[]))
+        if (value is IEnumerable enumerable and not (string or byte[])
+            && TypeMapping?.ClrType.GetInterfaces().Any(i => i == typeof(IEnumerable)) == false)
         {
             var first = true;
+            expressionPrinter.Append("[");
             foreach (var item in enumerable)
             {
                 if (!first)
                 {
-                    expressionPrinter.Append(", ");
+                    expressionPrinter.Append(",");
                 }
 
                 first = false;
                 Print(item, expressionPrinter);
             }
+
+            expressionPrinter.Append("]");
         }
         else
         {
-            var jToken = GenerateJToken(Value, TypeMapping);
-
-            expressionPrinter.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
+            expressionPrinter.Append((TypeMapping as CosmosTypeMapping)?.GenerateSqlLiteral(value) ?? value?.ToString() ?? "null");
         }
-    }
-
-    private JToken? GenerateJToken(object? value, CoreTypeMapping? typeMapping)
-    {
-        var mappingClrType = typeMapping?.ClrType.UnwrapNullableType() ?? Type;
-        if (value?.GetType().IsInteger() == true
-            && mappingClrType.IsEnum)
-        {
-            value = Enum.ToObject(mappingClrType, value);
-        }
-
-        var converter = typeMapping?.Converter;
-        if (converter != null)
-        {
-            value = converter.ConvertToProvider(value);
-        }
-
-        if (value == null)
-        {
-            return null;
-        }
-
-        return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
     }
 
     /// <summary>
@@ -131,12 +108,12 @@ public class SqlConstantExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlConstantExpression sqlConstantExpression
-                && Equals(sqlConstantExpression));
+                || (obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression)));
 
     private bool Equals(SqlConstantExpression sqlConstantExpression)
         => base.Equals(sqlConstantExpression)
-            && (Value?.Equals(sqlConstantExpression.Value) ?? sqlConstantExpression.Value == null);
+            && (Value?.Equals(sqlConstantExpression.Value) ?? (sqlConstantExpression.Value == null));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

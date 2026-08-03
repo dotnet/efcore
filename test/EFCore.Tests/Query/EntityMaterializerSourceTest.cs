@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class EntityMaterializerSourceTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Throws_for_abstract_types()
     {
         var entityType = CreateConventionalModelBuilder().Model.AddEntityType(typeof(SomeAbstractEntity));
@@ -30,7 +30,7 @@ public class EntityMaterializerSourceTest
                 .Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_with_constructor_properties()
     {
         using var context = new SomeEntityContext(b =>
@@ -70,7 +70,7 @@ public class EntityMaterializerSourceTest
         Assert.False(entity.GooSetterCalled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_with_factory_method()
     {
         using var context = new SomeEntityContext(b =>
@@ -110,7 +110,7 @@ public class EntityMaterializerSourceTest
         Assert.False(entity.GooSetterCalled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_with_factory_method_with_object_array()
     {
         using var context = new SomeEntityContext(b =>
@@ -154,7 +154,7 @@ public class EntityMaterializerSourceTest
         Assert.False(entity.GooSetterCalled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_with_instance_factory_method()
     {
         using var context = new SomeEntityContext(b =>
@@ -199,7 +199,7 @@ public class EntityMaterializerSourceTest
             => Activator.CreateInstance(entityType.ClrType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_with_auto_properties()
     {
         using var context = new SomeEntityContext(b => b.Entity<SomeEntity>());
@@ -221,7 +221,7 @@ public class EntityMaterializerSourceTest
         Assert.Equal(SomeEnum.EnumValue, entity.MaybeEnum);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_with_fields()
     {
         using var context = new SomeEntityContext(b => b.Entity<SomeEntityWithFields>(eb =>
@@ -253,7 +253,7 @@ public class EntityMaterializerSourceTest
         Assert.Null(entity.MaybeEnum);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_read_nulls()
     {
         using var context = new SomeEntityContext(b => b.Entity<SomeEntity>(eb =>
@@ -277,7 +277,7 @@ public class EntityMaterializerSourceTest
         Assert.Null(entity.Goo);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_create_materializer_for_entity_ignoring_shadow_fields()
     {
         using var context = new SomeEntityContext(b => b.Entity<SomeEntity>(eb =>
@@ -308,7 +308,7 @@ public class EntityMaterializerSourceTest
         Assert.Equal(gu, entity.Goo);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Throws_if_parameterless_constructor_is_not_defined_on_entity_type()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -324,7 +324,7 @@ public class EntityMaterializerSourceTest
             Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_parameterless_constructor()
     {
         using var context = new FactoryContext();
@@ -339,7 +339,7 @@ public class EntityMaterializerSourceTest
         Assert.NotSame(instance1, instance2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_lazy_loader()
     {
         using var context = new FactoryContext();
@@ -356,7 +356,7 @@ public class EntityMaterializerSourceTest
         Assert.NotSame(((WithLazyLoader)instance1).LazyLoader, ((WithLazyLoader)instance2).LazyLoader);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_lazy_loading_delegate()
     {
         using var context = new FactoryContext();
@@ -373,7 +373,7 @@ public class EntityMaterializerSourceTest
         Assert.NotSame(((WithLazyLoaderDelegate)instance1).LazyLoader, ((WithLazyLoaderDelegate)instance2).LazyLoader);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_entity_type()
     {
         using var context = new FactoryContext();
@@ -390,7 +390,7 @@ public class EntityMaterializerSourceTest
         Assert.Same(((WithEntityType)instance1).EntityType, ((WithEntityType)instance2).EntityType);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_context()
     {
         using var context = new FactoryContext();
@@ -407,7 +407,7 @@ public class EntityMaterializerSourceTest
         Assert.Same(context, ((WithContext)instance2).Context);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_service_and_with_properties()
     {
         using var context = new FactoryContext();
@@ -424,7 +424,7 @@ public class EntityMaterializerSourceTest
         Assert.NotSame(((WithServiceAndWithProperties)instance1).LazyLoader, ((WithServiceAndWithProperties)instance2).LazyLoader);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Create_instance_with_parameterless_and_with_properties()
     {
         using var context = new FactoryContext();
@@ -439,7 +439,7 @@ public class EntityMaterializerSourceTest
         Assert.NotSame(instance1, instance2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void GetEmptyMaterializer_Throws_for_constructor_with_properties()
     {
         using var context = new FactoryContext();

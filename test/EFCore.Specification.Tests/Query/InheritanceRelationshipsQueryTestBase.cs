@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : InheritanceRelationshipsQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Changes_in_derived_related_entities_are_detected()
     {
         using var context = CreateContext();
@@ -46,7 +46,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
         context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Entity_can_make_separate_relationships_with_base_type_and_derived_type_both()
     {
         using var context = CreateContext();
@@ -70,7 +70,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
         Assert.Equal(nameof(DerivedInheritanceRelationshipEntity.DerivedReferenceOnDerived), fkOnDerived.PrincipalToDependent.Name);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance(bool async)
         => AssertQuery(
             async,
@@ -79,7 +79,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_reverse(bool async)
         => AssertQuery(
             async,
@@ -88,7 +88,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_self_reference_with_inheritance(bool async)
         => AssertQuery(
             async,
@@ -97,7 +97,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.DerivedSefReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_self_reference_with_inheritance_reverse(bool async)
         => AssertQuery(
             async,
@@ -106,7 +106,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseSelfReferenceOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_with_filter(bool async)
         => AssertQuery(
             async,
@@ -115,7 +115,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_with_filter_reverse(bool async)
         => AssertQuery(
             async,
@@ -124,7 +124,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance(bool async)
         => AssertQuery(
             async,
@@ -133,7 +133,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.ReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance_reverse(bool async)
         => AssertQuery(
             async,
@@ -142,7 +142,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<ReferenceOnBase>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance_with_filter(bool async)
         => AssertQuery(
             async,
@@ -151,7 +151,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.ReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance_with_filter_reverse(bool async)
         => AssertQuery(
             async,
@@ -160,7 +160,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<ReferenceOnBase>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance(bool async)
         => AssertQuery(
             async,
@@ -169,7 +169,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_reverse(bool async)
         => AssertQuery(
             async,
@@ -179,7 +179,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 a,
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_with_filter(bool async)
         => AssertQuery(
             async,
@@ -188,7 +188,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_with_filter_reverse(bool async)
         => AssertQuery(
             async,
@@ -197,7 +197,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance(bool async)
         => AssertQuery(
             async,
@@ -206,7 +206,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_reverse(bool async)
         => AssertQuery(
             async,
@@ -215,7 +215,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_with_filter(bool async)
         => AssertQuery(
             async,
@@ -224,7 +224,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.CollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_with_filter_reverse(bool async)
         => AssertQuery(
             async,
@@ -233,7 +233,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived1(bool async)
         => AssertQuery(
             async,
@@ -242,7 +242,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived2(bool async)
         => AssertQuery(
             async,
@@ -251,7 +251,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived4(bool async)
         => AssertQuery(
             async,
@@ -260,7 +260,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedReferenceOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived_reverse(bool async)
         => AssertQuery(
             async,
@@ -269,7 +269,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseReferenceOnDerived>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived_with_filter1(bool async)
         => AssertQuery(
             async,
@@ -278,7 +278,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived_with_filter2(bool async)
         => AssertQuery(
             async,
@@ -287,7 +287,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived_with_filter4(bool async)
         => AssertQuery(
             async,
@@ -296,7 +296,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedReferenceOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_with_inheritance_on_derived_with_filter_reverse(bool async)
         => AssertQuery(
             async,
@@ -305,7 +305,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseReferenceOnDerived>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance_on_derived1(bool async)
         => AssertQuery(
             async,
@@ -314,7 +314,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.ReferenceOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance_on_derived2(bool async)
         => AssertQuery(
             async,
@@ -323,7 +323,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.ReferenceOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_without_inheritance_on_derived_reverse(bool async)
         => AssertQuery(
             async,
@@ -332,7 +332,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<ReferenceOnDerived>(x => x.Parent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived1(bool async)
         => AssertQuery(
             async,
@@ -341,7 +341,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived2(bool async)
         => AssertQuery(
             async,
@@ -350,7 +350,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseCollectionOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived3(bool async)
         => AssertQuery(
             async,
@@ -359,7 +359,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.DerivedCollectionOnDerived)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived_reverse(bool async)
         => AssertQuery(
             async,
@@ -368,7 +368,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 e, a,
                 new ExpectedInclude<BaseCollectionOnDerived>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_reference(bool async)
         => AssertQuery(
             async,
@@ -378,7 +378,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedReference)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_reference_on_base(bool async)
         => AssertQuery(
             async,
@@ -388,7 +388,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedReference)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_reference_reverse(bool async)
         => AssertQuery(
             async,
@@ -398,7 +398,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<NestedReferenceBase>(x => x.ParentReference),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection(bool async)
         => AssertQuery(
             async,
@@ -408,7 +408,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_on_base(bool async)
         => AssertQuery(
             async,
@@ -418,7 +418,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_reverse(bool async)
         => AssertQuery(
             async,
@@ -428,7 +428,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<NestedCollectionBase>(x => x.ParentReference),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_reference(bool async)
         => AssertQuery(
             async,
@@ -438,7 +438,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedReference)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_reference_reverse(bool async)
         => AssertQuery(
             async,
@@ -448,7 +448,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<NestedReferenceBase>(x => x.ParentCollection),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_collection(bool async)
         => AssertQuery(
             async,
@@ -458,7 +458,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedCollection)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_collection_reverse(bool async)
         => AssertQuery(
             async,
@@ -468,7 +468,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<NestedCollectionBase>(x => x.ParentCollection),
                 new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_collection_reference_on_non_entity_base(bool async)
         => AssertQuery(
             async,
@@ -478,7 +478,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 new ExpectedInclude<ReferencedEntity>(x => x.Principals),
                 new ExpectedInclude<PrincipalEntity>(x => x.Reference)));
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_projection_on_base_type(bool async)
         => AssertQuery(
             async,
@@ -491,7 +491,7 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 AssertCollection(e.BaseCollectionOnBase, a.BaseCollectionOnBase);
             });
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_derived_type_with_queryable_Cast(bool async)
         => AssertQuery(
             async,

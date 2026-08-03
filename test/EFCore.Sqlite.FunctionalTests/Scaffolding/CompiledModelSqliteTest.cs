@@ -11,7 +11,7 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-[SpatialiteRequired]
+[ConditionalClass(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.SpatialiteAvailable))]
 public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRelationalTestBase(fixture)
 {
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -109,12 +109,12 @@ public class CompiledModelSqliteTest(NonSharedFixture fixture) : CompiledModelRe
     protected override TestHelpers TestHelpers
         => SqliteTestHelpers.Instance;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
     {
-        builder = base.AddOptions(builder)
+        builder = base.AddNonSharedOptions(builder)
             .ConfigureWarnings(w => w
                 .Ignore(SqliteEventId.SchemaConfiguredWarning)
                 .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));

@@ -44,16 +44,9 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
 
     private MethodInfo? _createDbContext;
 
-    public virtual async Task InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
-        if (RecreateStore)
-        {
-            _testStore = TestStoreFactory.Create(StoreName);
-        }
-        else
-        {
-            _testStore = TestStoreFactory.GetOrCreate(StoreName);
-        }
+        _testStore = RecreateStore ? TestStoreFactory.Create(StoreName) : TestStoreFactory.GetOrCreate(StoreName);
 
         var services = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()));
         services = UsePooling
@@ -120,6 +113,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLife
         return Task.CompletedTask;
     }
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }

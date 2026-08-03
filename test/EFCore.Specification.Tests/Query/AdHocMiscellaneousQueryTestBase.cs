@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -12,29 +12,29 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocMiscellaneousQueryTests";
 
     #region 603
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task First_FirstOrDefault_ix_async()
     {
-        var contextFactory = await InitializeAsync<Context603>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context603>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.OrderBy(p => p.Id).FirstAsync();
             context.Products.Remove(product);
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Products.Add(new Context603.Product { Name = "Product 1" });
             await context.SaveChangesAsync();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.OrderBy(p => p.Id).FirstOrDefaultAsync();
             context.Products.Remove(product);
@@ -63,11 +63,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 6901
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task LeftJoin_with_missing_key_values_on_both_sides(bool async)
     {
-        var contextFactory = await InitializeAsync<Context6901>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context6901>();
+        using var context = contextFactory.CreateDbContext();
 
         var results
             = context.Customers
@@ -182,12 +182,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 6986
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Shadow_property_with_inheritance()
     {
-        var contextFactory = await InitializeAsync<Context6986>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context6986>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // can_query_base_type_when_derived_types_contain_shadow_properties
             var query = context.Contacts.ToList();
@@ -197,7 +197,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Single(query.OfType<Context6986.ServiceOperatorContact>());
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // can_include_dependent_to_principal_navigation_of_derived_type_with_shadow_fk
             var query = context.Contacts.OfType<Context6986.ServiceOperatorContact>().Include(e => e.ServiceOperator)
@@ -207,7 +207,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.NotNull(query[0].ServiceOperator);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             // can_project_shadow_property_using_ef_property
             var query = context.Contacts.OfType<Context6986.ServiceOperatorContact>()
@@ -291,16 +291,16 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 7222
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Inlined_dbcontext_is_not_leaking()
     {
-        var contextFactory = await InitializeAsync<Context7222>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context7222>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var entities = context.Blogs.Select(b => context.ClientMethod(b)).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Assert.Throws<InvalidOperationException>(() => context.RunQuery());
         }
@@ -327,19 +327,19 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 7359
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Discriminator_type_is_handled_correctly()
     {
-        var contextFactory = await InitializeAsync<Context7359>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context7359>(seed: c => c.SeedAsync());
 
-        using (var ctx = contextFactory.CreateContext())
+        using (var ctx = contextFactory.CreateDbContext())
         {
             var query = ctx.Products.OfType<Context7359.SpecialProduct>().ToList();
 
             Assert.Single(query);
         }
 
-        using (var ctx = contextFactory.CreateContext())
+        using (var ctx = contextFactory.CreateDbContext())
         {
             var query = ctx.Products.Where(p => p is Context7359.SpecialProduct).ToList();
 
@@ -382,11 +382,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 7983
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task New_instances_in_projection_are_not_shared_across_results()
     {
-        var contextFactory = await InitializeAsync<Context7983>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context7983>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var list = context.Posts.Select(p => new Context7983.PostDTO().From(p)).ToList();
 
         Assert.Equal(3, list.Count);
@@ -448,36 +448,36 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 8538
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_has_flag_applies_explicit_cast_for_constant()
     {
-        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context8538>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.Permission.HasFlag(Context8538.Permission.READ_WRITE)).ToList();
             Assert.Single(query);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.PermissionShort.HasFlag(Context8538.PermissionShort.READ_WRITE)).ToList();
             Assert.Single(query);
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Enum_has_flag_does_not_apply_explicit_cast_for_non_constant()
     {
-        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context8538>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.Permission.HasFlag(e.Permission)).ToList();
             Assert.Equal(3, query.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Entities.Where(e => e.PermissionByte.HasFlag(e.PermissionByte)).ToList();
             Assert.Equal(3, query.Count);
@@ -552,11 +552,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 8909
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Variable_from_closure_is_parametrized()
     {
-        var contextFactory = await InitializeAsync<Context8909>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
 
@@ -569,7 +569,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, context.Cache.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
 
@@ -586,7 +586,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(2, context.Cache.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
 
@@ -606,11 +606,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Relational_command_cache_creates_new_entry_when_parameter_nullability_changes()
     {
-        var contextFactory = await InitializeAsync<Context8909>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
+        using var context = contextFactory.CreateDbContext();
         context.Cache.Compact(1);
 
         var name = "A";
@@ -623,11 +623,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(3, context.Cache.Count);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_cache_entries_are_evicted_as_necessary()
     {
-        var contextFactory = await InitializeAsync<Context8909>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
+        using var context = contextFactory.CreateDbContext();
         context.Cache.Compact(1);
         Assert.Equal(0, context.Cache.Count);
 
@@ -647,7 +647,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.True(context.Cache.Count <= 1024);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Explicitly_compiled_query_does_not_add_cache_entry()
     {
         var parameter = Expression.Parameter(typeof(Context8909.Entity));
@@ -659,9 +659,9 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             parameter);
         var query = EF.CompileQuery((Context8909 context) => context.Set<Context8909.Entity>().SingleOrDefault(predicate));
 
-        var contextFactory = await InitializeAsync<Context8909>();
+        var contextFactory = await InitializeNonSharedTest<Context8909>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             context.Cache.Compact(1);
             Assert.Equal(0, context.Cache.Count);
@@ -701,11 +701,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 9468
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
     {
-        var contextFactory = await InitializeAsync<Context9468>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context9468>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Carts.Select(t => new { Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null })
             .ToList();
 
@@ -748,11 +748,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 11104
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
     {
-        var contextFactory = await InitializeAsync<Context11104>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11104>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Bases.ToList();
 
         var derived1 = Assert.Single(query);
@@ -799,11 +799,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 11885
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Average_with_cast()
     {
-        var contextFactory = await InitializeAsync<Context11885>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11885>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var prices = context.Prices.ToList();
 
         Assert.Equal(prices.Average(e => e.Price), context.Prices.Average(e => e.Price));
@@ -898,11 +898,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 12274
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Parameterless_ctor_on_inner_DTO_gets_called_for_every_row()
     {
-        var contextFactory = await InitializeAsync<Context12274>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context12274>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var results = context.Entities.Select(x =>
             new Context12274.OuterDTO
             {
@@ -952,12 +952,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 12549
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Union_and_insert_works_correctly_together()
     {
-        var contextFactory = await InitializeAsync<Context12549>();
+        var contextFactory = await InitializeNonSharedTest<Context12549>();
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var id1 = 1;
             var id2 = 2;
@@ -1003,11 +1003,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 15215
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Repeated_parameters_in_generated_query_sql()
     {
-        var contextFactory = await InitializeAsync<Context15215>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context15215>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var k = 1;
         var a = context.Autos.Where(e => e.Id == k).First();
         var b = context.Autos.Where(e => e.Id == k + 1).First();
@@ -1060,12 +1060,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 19253
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Operators_combine_nullability_of_entity_shapers()
     {
-        var contextFactory = await InitializeAsync<Context19253>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context19253>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1093,7 +1093,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(3, query.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1121,7 +1121,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Equal(3, query.Count);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1148,7 +1148,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Assert.Single(query);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             Expression<Func<Context19253.A, string>> leftKeySelector = x => x.forkey;
             Expression<Func<Context19253.B, string>> rightKeySelector = y => y.forkey;
@@ -1247,11 +1247,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 21770
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_enum_casted_to_byte_with_int_parameter(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
         var bitterTaste = Context21770.Taste.Bitter;
         var query = context.IceCreams.Where(i => i.Taste == (byte)bitterTaste);
 
@@ -1262,11 +1262,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Single(bitterIceCreams);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_enum_casted_to_byte_with_int_constant(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.IceCreams.Where(i => i.Taste == (byte)Context21770.Taste.Bitter);
 
         var bitterIceCreams = async
@@ -1276,11 +1276,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Single(bitterIceCreams);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Comparing_byte_column_to_enum_in_vb_creating_double_cast(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
         Expression<Func<Context21770.Food, byte?>> memberAccess = i => i.Taste;
         var predicate = Expression.Lambda<Func<Context21770.Food, bool>>(
             Expression.Equal(
@@ -1296,11 +1296,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Null_check_removal_in_ternary_maintain_appropriate_cast(bool async)
     {
-        var contextFactory = await InitializeAsync<Context21770>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context21770>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = from f in context.Foods
                     select new { Bar = f.Taste != null ? (Context21770.Taste)f.Taste : (Context21770.Taste?)null };
@@ -1371,12 +1371,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 22841
 
-    [ConditionalFact(Skip = "Issue #34727 - flaky test")]
+    [Fact(Skip = "Issue #34727 - flaky test")]
     public virtual async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true()
     {
-        var contextFactory = await InitializeAsync<Context22841>();
+        var contextFactory = await InitializeNonSharedTest<Context22841>();
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var observableThing = new Context22841.ObservableThing();
 
         using var trackingSynchronizationContext = new SingleThreadSynchronizationContext();
@@ -1440,11 +1440,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 24657
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Bool_discriminator_column_works(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24657>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context24657>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Authors.Include(e => e.Blog);
 
@@ -1506,11 +1506,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26593
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var currentUserId = 1;
 
@@ -1530,11 +1530,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var currentUserId = 1;
 
@@ -1554,11 +1554,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26593>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var currentUserId = 1;
 
@@ -1623,11 +1623,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26587
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_aggregate_on_right_side_of_join(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26587>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26587>();
+        using var context = contextFactory.CreateDbContext();
 
         var orderId = 123456;
 
@@ -1668,11 +1668,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26472
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Enum_with_value_converter_matching_take_value(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26472>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26472>();
+        using var context = contextFactory.CreateDbContext();
         var orderItemType = Context26472.OrderItemType.MyType1;
         var query = context.Orders.Where(x => x.Items.Any()).OrderBy(e => e.Id).Take(1)
             .Select(e => e.Id)
@@ -1726,11 +1726,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 27083
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27083>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context
             .Set<Context27083.TimeSheet>()
@@ -1750,11 +1750,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(2, timeSheets.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27083>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         Expression<Func<Context27083.Order, bool>> someFilterFromOutside = x => x.Number != "A1";
 
@@ -1881,11 +1881,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 27094
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27094>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27094>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = from t in context.Tables
                     group t.Id by t.Value
@@ -1900,11 +1900,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             : query.ToList();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27094>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27094>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = from t in context.Tables
                     group t.Id by t.Value
@@ -1941,11 +1941,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 26744
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Subquery_first_member_compared_to_null(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26744>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Parents
             .Where(p => p.Children.Any(c => c.SomeNullableDateTime == null)
@@ -1964,11 +1964,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Single(result);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SelectMany_where_Select(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context26744>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Parents
             .SelectMany(p => p.Children
@@ -2017,11 +2017,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 27343
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Flattened_GroupJoin_on_interface_generic(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27343>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context27343>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var entitySet = context.Parents.AsQueryable<Context27343.IDocumentType>();
         var query = from p in entitySet
                     join c in context.Set<Context27343.Child>()
@@ -2069,11 +2069,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 28039
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28039>();
-        using var db = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context28039>();
+        using var db = contextFactory.CreateDbContext();
 
         var queryResults = (from i in db.IndexDatas.Where(a => a.Parcel == "some condition")
                                 .Select(a => new Context28039.SearchResult { ParcelNumber = a.Parcel, RowId = a.RowId })
@@ -2131,11 +2131,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
     #region 31961
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Filter_on_nested_DTO_with_interface_gets_simplified_correctly(bool async)
     {
-        var contextFactory = await InitializeAsync<Context31961>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context31961>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Customers
             .Select(m => new Context31961.CustomerDto
@@ -2250,6 +2250,62 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public string CountryId { get; set; }
 
             public ICountryDto Country { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 37653
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual async Task Coalesce_in_conditional_with_value_conversion(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context37653>();
+        using var context = contextFactory.CreateDbContext();
+
+        var query = context.Set<Context37653.Data>()
+            .OrderBy(e => e.Id)
+            .Select(e => new
+            {
+                e.Id,
+                Foo = e.Foo ?? false ? 'A' : 'B',
+            });
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+        Assert.Equal('A', result[0].Foo);
+        Assert.Equal('B', result[1].Foo);
+        Assert.Equal('B', result[2].Foo);
+    }
+
+    // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
+    protected class Context37653(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Data>(builder =>
+            {
+                builder.Property(a => a.Foo).HasConversion<FooConverter>();
+                builder.HasData(
+                    new Data { Id = 1, Foo = true },
+                    new Data { Id = 2, Foo = false },
+                    new Data { Id = 3, Foo = null });
+            });
+
+        public class Data
+        {
+            public int Id { get; set; }
+            public bool? Foo { get; set; }
+        }
+
+        public class FooConverter : ValueConverter<bool?, short?>
+        {
+            public FooConverter()
+                : base(
+                    x => x == true ? (short?)10 : (short?)99,
+                    x => x == 10 ? true : x == 99 ? false : null,
+                    convertsNulls: true)
+            { }
         }
     }
 

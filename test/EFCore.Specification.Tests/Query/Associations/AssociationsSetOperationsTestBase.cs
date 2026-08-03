@@ -6,21 +6,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations;
 public abstract class AssociationsSetOperationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : AssociationsQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual Task Over_associate_collections()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
             e.AssociateCollection.Where(r => r.Int == 8)
                 .Concat(e.AssociateCollection.Where(r => r.String == "foo"))
                 .Count() == 4));
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(e =>
                 e.AssociateCollection.Where(r => r.Int == 8).Concat(e.AssociateCollection.Where(r => r.String == "foo"))),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalTheory, MemberData(nameof(TrackingData))]
+    [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Over_assocate_collection_Select_nested_with_aggregates_projected(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
             ss => ss.Set<RootEntity>().Select(e =>
@@ -30,7 +30,7 @@ public abstract class AssociationsSetOperationsTestBase<TFixture>(TFixture fixtu
                     .Sum()),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Over_nested_associate_collection()
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
             e.RequiredAssociate.NestedCollection.Where(r => r.Int == 8)
@@ -38,7 +38,7 @@ public abstract class AssociationsSetOperationsTestBase<TFixture>(TFixture fixtu
                 .Count()
             == 4));
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Over_different_collection_properties()
         => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e =>

@@ -34,13 +34,15 @@ public abstract class TypeFixtureBase<T> : SharedStoreFixtureBase<DbContext>
             {
                 Id = 1,
                 Value = Value,
-                OtherValue = OtherValue
+                OtherValue = OtherValue,
+                ArrayValue = [Value, Value]
             },
             new()
             {
                 Id = 2,
                 Value = OtherValue,
-                OtherValue = Value
+                OtherValue = Value,
+                ArrayValue = [Value, OtherValue]
             });
 
         await context.SaveChangesAsync();

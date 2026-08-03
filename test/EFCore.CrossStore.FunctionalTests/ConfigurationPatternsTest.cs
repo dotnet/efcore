@@ -2,15 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-[SqlServerConfiguredCondition]
+[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
 public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixture<CrossStoreFixture>, IAsyncLifetime
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_register_multiple_context_types()
     {
         using var scope = new ServiceCollection()
@@ -32,7 +33,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_register_multiple_context_types_with_default_service_provider()
     {
         using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
@@ -74,7 +75,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_select_appropriate_provider_when_multiple_registered()
     {
         var serviceProvider
@@ -125,7 +126,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         Assert.NotSame(context1, context2);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
     {
         using (var context = new MultipleProvidersContext())
@@ -188,10 +189,10 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
         return context.SaveChangesAsync();
     }
 
-    [SqlServerConfiguredCondition]
+    [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
     public class NestedContextDifferentStores(CrossStoreFixture fixture) : IClassFixture<CrossStoreFixture>, IAsyncLifetime
     {
-        [ConditionalFact]
+        [Fact]
         public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
         {
             var inMemoryServiceProvider = InMemoryFixture.DefaultServiceProvider;
@@ -202,7 +203,7 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
                 () => new ExternalProviderContext(sqlServerServiceProvider));
         }
 
-        [ConditionalFact]
+        [Fact]
         public Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
             => NestedContextTest(() => new BlogContext(), () => new ExternalProviderContext());
 
@@ -285,16 +286,16 @@ public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixtur
                     .UseInternalServiceProvider(_serviceProvider);
         }
 
-        public async Task InitializeAsync()
+        public async ValueTask InitializeAsync()
             => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
 
-        public async Task DisposeAsync()
+        public async ValueTask DisposeAsync()
             => await ExistingTestStore.DisposeAsync();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await ExistingTestStore.DisposeAsync();
 }

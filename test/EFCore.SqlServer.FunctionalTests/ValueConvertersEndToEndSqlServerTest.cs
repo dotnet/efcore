@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class ValueConvertersEndToEndSqlServerTest(ValueConvertersEndToEndSqlServerTest.ValueConvertersEndToEndSqlServerFixture fixture)
     : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqlServerTest.ValueConvertersEndToEndSqlServerFixture>(fixture)
 {
-    [ConditionalTheory,
+    [Theory,
      InlineData(nameof(ConvertingEntity.BoolAsChar), "nvarchar(1)", false),
      InlineData(nameof(ConvertingEntity.BoolAsNullableChar), "nvarchar(1)", false),
      InlineData(nameof(ConvertingEntity.BoolAsString), "nvarchar(3)", false),
@@ -154,7 +154,7 @@ public class ValueConvertersEndToEndSqlServerTest(ValueConvertersEndToEndSqlServ
         Assert.Equal(isNullable, property!.IsNullable);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Can_use_custom_converters_without_property()
     {
         Fixture.TestSqlLoggerFactory.Clear();
@@ -184,7 +184,7 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1
     private class WrappedStringToStringConverter()
         : ValueConverter<WrappedString, string>(v => v.Value, v => new WrappedString { Value = v });
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Fixed_length_hints_are_respected()
     {
         Fixture.TestSqlLoggerFactory.Clear();
@@ -217,7 +217,7 @@ WHERE [s].[GuidToFixedLengthString] <> @guid
         var parameter = Fixture.TestSqlLoggerFactory.Parameters.Single();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void DbType_hints_are_respected()
     {
         Fixture.TestSqlLoggerFactory.Clear();

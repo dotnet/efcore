@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #nullable enable
@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class StoreGeneratedInMemoryTest
 {
-    [ConditionalFact]
+    [Fact]
     public virtual void Value_generation_works_for_common_GUID_conversions()
     {
         ValueGenerationPositive<Guid, GuidToString>();
@@ -278,7 +278,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedIntRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_int_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -594,7 +594,7 @@ public class StoreGeneratedInMemoryTest
         public LongToIntPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_long_to_int_conversion()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -927,7 +927,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedStringRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_string_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -1423,7 +1423,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedGuidRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_Guid_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -1919,7 +1919,7 @@ public class StoreGeneratedInMemoryTest
         public WrappedUriRecordPrincipal Principal { get; set; } = null!;
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_wrapped_Uri_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2234,7 +2234,7 @@ public class StoreGeneratedInMemoryTest
         public UriPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_Uri_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2357,7 +2357,7 @@ public class StoreGeneratedInMemoryTest
         public EnumPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_enum_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2470,7 +2470,7 @@ public class StoreGeneratedInMemoryTest
         public GuidAsStringPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_GuidAsString_key()
     {
         var databaseName = Guid.NewGuid().ToString();
@@ -2583,7 +2583,7 @@ public class StoreGeneratedInMemoryTest
         public StringAsGuidPrincipal? Principal { get; set; }
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Insert_update_and_delete_with_StringAsGuid_key()
     {
         var databaseName = Guid.NewGuid().ToString();

@@ -418,17 +418,11 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                 .OfType<RelationalOptionsExtension>()
                 .ToList();
 
-        if (relationalOptionsExtensions.Count == 0)
-        {
-            throw new InvalidOperationException(RelationalStrings.NoProviderConfigured);
-        }
-
-        if (relationalOptionsExtensions.Count > 1)
-        {
-            throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured);
-        }
-
-        return relationalOptionsExtensions[0];
+        return relationalOptionsExtensions.Count == 0
+            ? throw new InvalidOperationException(RelationalStrings.NoProviderConfigured)
+            : relationalOptionsExtensions.Count > 1
+                ? throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured)
+                : relationalOptionsExtensions[0];
     }
 
     /// <summary>
@@ -463,7 +457,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                 .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.StoredProcedureConcurrencyTokenNotMapped, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.PendingModelChangesWarning, WarningBehavior.Throw));
+                .TryWithExplicit(RelationalEventId.PendingModelChangesWarning, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.MigrationsNotFound, WarningBehavior.Throw));
 
     /// <summary>
     ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.

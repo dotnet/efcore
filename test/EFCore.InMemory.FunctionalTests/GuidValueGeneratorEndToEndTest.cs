@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class GuidValueGeneratorEndToEndTest
 {
-    [ConditionalFact]
+    [Fact]
     public async Task Can_use_GUIDs_end_to_end_async()
     {
         var serviceProvider = new ServiceCollection()

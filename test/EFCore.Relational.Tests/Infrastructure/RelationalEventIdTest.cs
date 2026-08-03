@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class RelationalEventIdTest : EventIdTestBase
 {
-    [ConditionalFact]
+    [Fact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
         var constantExpression = Expression.Constant("A");
@@ -163,6 +163,10 @@ public class RelationalEventIdTest : EventIdTestBase
 
         public string FindMigrationId(string nameOrId)
             => throw new NotImplementedException();
+
+        public void AddMigrations(Assembly additionalMigrationsAssembly)
+        {
+        }
     }
 
     private class FakeMigrationCommand()

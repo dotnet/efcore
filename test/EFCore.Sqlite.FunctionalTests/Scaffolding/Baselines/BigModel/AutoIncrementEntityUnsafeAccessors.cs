@@ -6,14 +6,13 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 #pragma warning disable 219, 612, 618
 #nullable disable
 
-namespace TestNamespace
-{
-    public static class AutoIncrementEntityUnsafeAccessors
-    {
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int Id(CompiledModelSqliteTest.AutoIncrementEntity @this);
+namespace TestNamespace;
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
-        public static extern ref string Name(CompiledModelSqliteTest.AutoIncrementEntity @this);
-    }
+public static class AutoIncrementEntityUnsafeAccessors
+{
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+    public static extern ref int Id(CompiledModelSqliteTest.AutoIncrementEntity @this);
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
+    public static extern ref string Name(CompiledModelSqliteTest.AutoIncrementEntity @this);
 }
