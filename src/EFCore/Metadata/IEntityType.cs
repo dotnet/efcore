@@ -346,7 +346,7 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     ///     Gets all skip navigation properties declared on this entity type.
     /// </summary>
     /// <remarks>
-    ///     This method does not return skip navigation properties declared declared on base types.
+    ///     This method does not return skip navigation properties declared on base types.
     ///     It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
     ///     Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
     /// </remarks>
