@@ -26,19 +26,16 @@ public class SqliteTimeOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpres
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType != typeof(TimeOnly) || instance is null)
-        {
-            return null;
-        }
+        return member.DeclaringType != typeof(TimeOnly) || instance is null
+            ? null
+            : member.Name switch
+            {
+                nameof(TimeOnly.Hour) => DatePart("%H"),
+                nameof(TimeOnly.Minute) => DatePart("%M"),
+                nameof(TimeOnly.Second) => DatePart("%S"),
 
-        return member.Name switch
-        {
-            nameof(TimeOnly.Hour) => DatePart("%H"),
-            nameof(TimeOnly.Minute) => DatePart("%M"),
-            nameof(TimeOnly.Second) => DatePart("%S"),
-
-            _ => null
-        };
+                _ => null
+            };
 
         SqlExpression DatePart(string datePart)
             => sqlExpressionFactory.Convert(

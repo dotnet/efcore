@@ -39,17 +39,12 @@ public class SqlitePolygonMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(method, GetInteriorRingN))
-        {
-            return _sqlExpressionFactory.Function(
+        => Equals(method, GetInteriorRingN)
+            ? _sqlExpressionFactory.Function(
                 "InteriorRingN",
                 [instance!, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1))],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType);
-        }
-
-        return null;
-    }
+                method.ReturnType)
+            : null;
 }

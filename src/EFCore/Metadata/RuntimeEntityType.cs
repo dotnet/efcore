@@ -74,7 +74,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             complexPropertyCount: complexPropertyCount)
     {
         _hasSharedClrType = sharedClrType;
-        _foreignKeys = new List<RuntimeForeignKey>(foreignKeyCount);
+        _foreignKeys = [with(foreignKeyCount)];
         _navigations = new Utilities.OrderedDictionary<string, RuntimeNavigation>(navigationCount, StringComparer.Ordinal);
         if (skipNavigationCount > 0)
         {
@@ -216,7 +216,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         bool constrained = true)
     {
         var foreignKey = new RuntimeForeignKey(
-            properties, principalKey, this, principalEntityType, deleteBehavior, unique, required, requiredDependent, ownership, constrained);
+            properties, principalKey, this, principalEntityType, deleteBehavior, unique, required, requiredDependent, ownership,
+            constrained);
 
         _foreignKeys.Add(foreignKey);
 
@@ -244,7 +245,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         if (principalEntityType.DeclaredReferencingForeignKeys == null)
         {
             principalEntityType.DeclaredReferencingForeignKeys =
-                new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                [with(ForeignKeyComparer.Instance), foreignKey];
         }
         else
         {
@@ -470,7 +471,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             eagerLoaded,
             lazyLoadingEnabled);
 
-        _skipNavigations ??= new Utilities.OrderedDictionary<string, RuntimeSkipNavigation>(StringComparer.Ordinal);
+        _skipNavigations ??= [with(StringComparer.Ordinal)];
         _skipNavigations.Add(name, skipNavigation);
 
         return skipNavigation;
@@ -546,7 +547,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         var index = new RuntimeIndex(properties, this, name, unique, collectionIndices);
         if (name != null)
         {
-            (_namedIndexes ??= new Utilities.OrderedDictionary<string, RuntimeIndex>(StringComparer.Ordinal)).Add(name, index);
+            (_namedIndexes ??= [with(StringComparer.Ordinal)]).Add(name, index);
         }
         else
         {
@@ -645,7 +646,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             this,
             propertyAccessMode);
 
-        (_serviceProperties ??= new Utilities.OrderedDictionary<string, RuntimeServiceProperty>(StringComparer.Ordinal))[
+        (_serviceProperties ??= [with(StringComparer.Ordinal)])[
                 serviceProperty.Name] =
             serviceProperty;
 
@@ -670,7 +671,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             : null;
 
     private bool HasServiceProperties()
-        => _serviceProperties != null || BaseType != null && BaseType.HasServiceProperties();
+        => _serviceProperties != null || (BaseType != null && BaseType.HasServiceProperties());
 
     private IEnumerable<RuntimeServiceProperty> GetServiceProperties()
         => BaseType != null
@@ -775,7 +776,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         var trigger = new RuntimeTrigger(this, modelName);
 
-        (_triggers ??= new Utilities.OrderedDictionary<string, RuntimeTrigger>(StringComparer.Ordinal)).Add(modelName, trigger);
+        (_triggers ??= [with(StringComparer.Ordinal)]).Add(modelName, trigger);
 
         return trigger;
     }
@@ -819,13 +820,11 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         get => !base.ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(
-                ref _constructorBinding, this, entityType =>
-                {
-                    ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                ref _constructorBinding, this, entityType => ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory
+                    .GetBindings(
                         entityType,
                         out entityType._constructorBinding,
-                        out entityType._serviceOnlyConstructorBinding);
-                })
+                        out entityType._serviceOnlyConstructorBinding))
             : _constructorBinding;
 
         [DebuggerStepThrough]

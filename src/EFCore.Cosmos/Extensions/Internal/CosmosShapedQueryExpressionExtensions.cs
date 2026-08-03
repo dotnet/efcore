@@ -31,7 +31,7 @@ public static class CosmosShapedQueryExpressionExtensions
         ITypeMappingSource typeMappingSource,
         [NotNullWhen(true)] out Expression? array,
         bool ignoreOrderings = false)
-        => TryConvertToArray(source, typeMappingSource, out array, out _, ignoreOrderings);
+        => source.TryConvertToArray(typeMappingSource, out array, out _, ignoreOrderings);
 
     /// <summary>
     ///     If the given <paramref name="source" /> represents wraps an array-returning expression without any additional clauses
@@ -51,7 +51,7 @@ public static class CosmosShapedQueryExpressionExtensions
         [NotNullWhen(true)] out Expression? projection,
         bool ignoreOrderings = false)
     {
-        if (TryExtractArray(source, out array, out var projectedScalar, ignoreOrderings))
+        if (source.TryExtractArray(out array, out var projectedScalar, ignoreOrderings))
         {
             projection = projectedScalar;
             return true;
@@ -100,7 +100,7 @@ public static class CosmosShapedQueryExpressionExtensions
         this ShapedQueryExpression source,
         [NotNullWhen(true)] out Expression? array,
         bool ignoreOrderings = false)
-        => TryExtractArray(source, out array, out _, ignoreOrderings);
+        => source.TryExtractArray(out array, out _, ignoreOrderings);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,7 +113,7 @@ public static class CosmosShapedQueryExpressionExtensions
         [NotNullWhen(true)] out Expression? array,
         [NotNullWhen(true)] out Expression? projection,
         bool ignoreOrderings = false)
-        => TryExtractArray(source, out array, out projection, out _, out var boundMember, ignoreOrderings)
+        => source.TryExtractArray(out array, out projection, out _, out var boundMember, ignoreOrderings)
             && boundMember is null;
 
     /// <summary>

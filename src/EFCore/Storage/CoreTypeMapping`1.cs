@@ -18,7 +18,7 @@ public abstract class CoreTypeMapping<
     [DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T> : CoreTypeMapping
+T> : CoreTypeMapping
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="CoreTypeMapping{T}" /> class.

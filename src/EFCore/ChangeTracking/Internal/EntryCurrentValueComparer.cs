@@ -55,24 +55,13 @@ public class EntryCurrentValueComparer : IComparer<IUpdateEntry>, IEqualityCompa
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int Compare(IUpdateEntry? x, IUpdateEntry? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x is null)
-        {
-            return -1;
-        }
-
-        if (y is null)
-        {
-            return 1;
-        }
-
-        return ComparePropertyValues(x.GetCurrentValue(_property), y.GetCurrentValue(_property));
-    }
+        => ReferenceEquals(x, y)
+            ? 0
+            : x is null
+                ? -1
+                : y is null
+                    ? 1
+                    : ComparePropertyValues(x.GetCurrentValue(_property), y.GetCurrentValue(_property));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

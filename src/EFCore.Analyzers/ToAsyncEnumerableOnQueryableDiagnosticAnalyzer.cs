@@ -122,11 +122,6 @@ public sealed class ToAsyncEnumerableOnQueryableDiagnosticAnalyzer : DiagnosticA
         }
 
         // Generic name case (e.g. `AsyncEnumerable.ToAsyncEnumerable<T>(q)`): point at just the identifier.
-        if (targetNode is GenericNameSyntax genericName)
-        {
-            return genericName.Identifier.GetLocation();
-        }
-
-        return targetNode.GetLocation();
+        return targetNode is GenericNameSyntax genericName ? genericName.Identifier.GetLocation() : targetNode.GetLocation();
     }
 }

@@ -35,7 +35,7 @@ public class SqliteCharMethodTranslator(ISqlExpressionFactory sqlExpressionFacto
         {
             nameof(char.ToLower) => "lower",
             nameof(char.ToUpper) => "upper",
-            _ => (string?)null
+            _ => null
         };
 
         return sqlFunctionName is null

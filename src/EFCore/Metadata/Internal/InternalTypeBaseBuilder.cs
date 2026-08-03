@@ -57,8 +57,7 @@ public abstract class InternalTypeBaseBuilder :
         }
 
         IMutableEntityType? existingMemberDeclaringEntityType = null;
-        var declaringType = existingProperty.DeclaringType as IMutableEntityType;
-        if (declaringType != null)
+        if (existingProperty.DeclaringType is IMutableEntityType declaringType)
         {
             foreach (var baseType in declaringType.GetAllBaseTypes())
             {
@@ -124,7 +123,8 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? Property(string propertyName, ConfigurationSource? configurationSource)
-        => Property(propertyType: null, propertyName, memberInfo: null, typeConfigurationSource: null, configurationSource, collection: false);
+        => Property(
+            propertyType: null, propertyName, memberInfo: null, typeConfigurationSource: null, configurationSource, collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,7 +133,9 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? Property(MemberInfo memberInfo, ConfigurationSource? configurationSource)
-        => Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource, collection: false);
+        => Property(
+            memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource,
+            collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -148,13 +150,12 @@ public abstract class InternalTypeBaseBuilder :
         bool skipTypeCheck = false)
     {
         var indexerPropertyInfo = Metadata.FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return Property(propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource, skipTypeCheck, collection: false);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()))
+            : Property(
+                propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource, skipTypeCheck,
+                collection: false);
     }
 
     /// <summary>
@@ -214,7 +215,7 @@ public abstract class InternalTypeBaseBuilder :
                 return existingProperty.Builder;
             }
 
-            if(!typeCompatible)
+            if (!typeCompatible)
             {
                 // The existing property is incompatible, so it has to be recreated. This is only allowed when the
                 // requested configuration source can override the existing one. For shadow and indexer properties
@@ -383,14 +384,12 @@ public abstract class InternalTypeBaseBuilder :
                 ? null
                 : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault()?.GetMemberType());
         elementType ??= effectiveType?.TryGetElementType(typeof(IEnumerable<>));
-        if (elementType == null
-            && effectiveType != null)
-        {
-            throw new InvalidOperationException(CoreStrings.NotCollection(effectiveType.ShortDisplayName(), propertyName));
-        }
-
-        return Property(
-            propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource, elementType: elementType, collection: true);
+        return elementType == null
+            && effectiveType != null
+                ? throw new InvalidOperationException(CoreStrings.NotCollection(effectiveType.ShortDisplayName(), propertyName))
+                : Property(
+                    propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource, elementType: elementType,
+                    collection: true);
     }
 
     /// <summary>
@@ -579,9 +578,9 @@ public abstract class InternalTypeBaseBuilder :
         {
             var propertyName = propertyNames[i];
 
-            var resolved = ResolveComplexChainByName(propertyName);
-            var typeBuilder = resolved.Builder;
-            var leafName = resolved.FinalName;
+            var (Builder, FinalName) = ResolveComplexChainByName(propertyName);
+            var typeBuilder = Builder;
+            var leafName = FinalName;
             var property = typeBuilder.Metadata.FindProperty(leafName);
             if (property == null)
             {
@@ -926,7 +925,7 @@ public abstract class InternalTypeBaseBuilder :
                 return null;
             }
 
-            var memberName = segment.Substring(0, bracketStart).Trim();
+            var memberName = segment[..bracketStart].Trim();
             if (memberName.Length == 0)
             {
                 return null;
@@ -1088,8 +1087,7 @@ public abstract class InternalTypeBaseBuilder :
         var result = new Property[actual.Count];
         for (var i = 0; i < result.Length; i++)
         {
-            var property = actual[i] as Property;
-            if (property == null)
+            if (actual[i] is not Property property)
             {
                 return null;
             }
@@ -1481,14 +1479,11 @@ public abstract class InternalTypeBaseBuilder :
         ConfigurationSource? configurationSource)
     {
         var indexerPropertyInfo = Metadata.FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return ComplexProperty(
-            propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()))
+            : ComplexProperty(
+                propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
     }
 
     /// <summary>
@@ -2158,7 +2153,8 @@ public abstract class InternalTypeBaseBuilder :
                 case ComplexProperty { IsCollection: true }:
                     throw new InvalidOperationException(
                         CoreStrings.ComplexPropertyChainOnCollection(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
-                case not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
+                case not null and not Internal.ComplexProperty
+                    when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
                     throw new InvalidOperationException(
                         CoreStrings.ComplexPropertyChainInvalidMember(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
             }
@@ -2167,11 +2163,12 @@ public abstract class InternalTypeBaseBuilder :
             if (conflictingMember is ComplexProperty complexProperty)
             {
                 complexProperty.UpdateConfigurationSource(ConfigurationSource.Explicit);
-                
+
                 builder = complexProperty.ComplexType.Builder;
                 continue;
             }
-            else if (memberInfo == null)
+
+            if (memberInfo == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ComplexPropertyChainIntermediateNotFound(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));

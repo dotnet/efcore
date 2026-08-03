@@ -90,6 +90,7 @@ public class SqlConstantExpression : SqlExpression
                 first = false;
                 Print(item, expressionPrinter);
             }
+
             expressionPrinter.Append("]");
         }
         else
@@ -107,12 +108,12 @@ public class SqlConstantExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlConstantExpression sqlConstantExpression
-                && Equals(sqlConstantExpression));
+                || (obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression)));
 
     private bool Equals(SqlConstantExpression sqlConstantExpression)
         => base.Equals(sqlConstantExpression)
-            && (Value?.Equals(sqlConstantExpression.Value) ?? sqlConstantExpression.Value == null);
+            && (Value?.Equals(sqlConstantExpression.Value) ?? (sqlConstantExpression.Value == null));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

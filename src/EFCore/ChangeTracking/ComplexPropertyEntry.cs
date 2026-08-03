@@ -180,7 +180,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry ComplexCollection(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexCollectionEntry(InternalEntry, property);
     }
@@ -196,7 +196,7 @@ public class ComplexPropertyEntry : MemberEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexCollectionEntry ComplexCollection(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexCollectionEntry(InternalEntry, Metadata.ComplexType.GetComplexProperty(propertyName));
     }

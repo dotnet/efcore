@@ -1898,6 +1898,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 setOperationType);
 
         /// <summary>
+        ///     The results of a split query could not be correlated because the data was modified concurrently while the query was executing. Re-execute the query, or execute it within a serializable or snapshot transaction to prevent concurrent modifications.
+        /// </summary>
+        public static string SplitQueryConcurrentModification
+            => GetString("SplitQueryConcurrentModification");
+
+        /// <summary>
         ///     This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.
         /// </summary>
         public static string SplitQueryString

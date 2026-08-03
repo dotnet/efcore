@@ -188,12 +188,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         Check.NotNull(otherEntityType);
 
         var leastDerived = LeastDerivedType(otherEntityType);
-        if (leastDerived != null)
-        {
-            return leastDerived;
-        }
-
-        return GetAllBaseTypesInclusiveAscending()
+        return leastDerived ?? GetAllBaseTypesInclusiveAscending()
             .FirstOrDefault(i => otherEntityType.GetAllBaseTypesInclusiveAscending().Any(j => j == i));
     }
 

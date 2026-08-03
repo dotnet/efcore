@@ -34,17 +34,12 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object?[] CreateKeyValue(object?[] keyValues)
-    {
-        if (keyValues.Any(v => v == null))
-        {
-            throw new InvalidOperationException(
+        => keyValues.Any(v => v == null)
+            ? throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    FindNullColumnInKeyValues(keyValues).Name));
-        }
-
-        return keyValues;
-    }
+                    FindNullColumnInKeyValues(keyValues).Name))
+            : keyValues;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,17 +48,12 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object?[] CreateKeyValue(IDictionary<string, object?> keyValues)
-    {
-        if (!TryCreateDependentKeyValue(keyValues, out var key))
-        {
-            throw new InvalidOperationException(
+        => !TryCreateDependentKeyValue(keyValues, out var key)
+            ? throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    FindNullColumnInKeyValues(key).Name));
-        }
-
-        return key;
-    }
+                    FindNullColumnInKeyValues(key).Name))
+            : key;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,17 +62,12 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object?[] CreateKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
-    {
-        if (!TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue))
-        {
-            throw new InvalidOperationException(
+        => !TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue)
+            ? throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    FindNullColumnInKeyValues(keyValue).Name));
-        }
-
-        return keyValue;
-    }
+                    FindNullColumnInKeyValues(keyValue).Name))
+            : keyValue;
 
     private IColumn FindNullColumnInKeyValues(object?[]? keyValues)
     {

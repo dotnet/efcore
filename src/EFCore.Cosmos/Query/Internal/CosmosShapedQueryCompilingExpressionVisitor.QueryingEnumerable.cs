@@ -99,8 +99,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 else
                 {
                     builder.Append('\'')
-                    .Append(paramJsonString.Trim('"'))
-                    .AppendLine("'");
+                        .Append(paramJsonString.Trim('"'))
+                        .AppendLine("'");
                 }
             }
 
@@ -144,7 +144,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     : null;
             }
 
-            public T Current => _current!;
+            public T Current
+                => _current!;
 
             public async ValueTask<bool> MoveNextAsync()
             {
@@ -164,7 +165,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
 
-ReadNext:
+                    ReadNext:
                     if (!_data.HasValue)
                     {
                         var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
@@ -172,6 +173,7 @@ ReadNext:
                         {
                             return false;
                         }
+
                         _data = _enumerator.Current;
 
                         _data = ShaperProcessingExpressionVisitor.ExtractDocuments(_data.Value);
@@ -187,7 +189,7 @@ ReadNext:
                     }
 
                     _ordinal++;
-                    _data = _data.Value.Slice(bytesConsumed);
+                    _data = _data.Value[bytesConsumed..];
 
                     return true;
                 }

@@ -60,7 +60,8 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TNumber), typeof(byte[]),
+        = new(
+            typeof(TNumber), typeof(byte[]),
             i => ReferenceEquals(i.MappingHints, DefaultHints) ? Instance! : new NumberToBytesConverter<TNumber>(i.MappingHints),
             DefaultHints);
 
@@ -163,33 +164,23 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     }
 
     private static Expression HandleEmptyArray(Expression expression)
-    {
-        if (!typeof(TNumber).IsInteger())
-        {
-            return expression;
-        }
-
-        return Expression.Condition(
-            Expression.Equal(Expression.ArrayLength(expression), Expression.Constant(0)),
-            Expression.NewArrayBounds(typeof(byte), Expression.Constant(GetByteCount())),
-            expression);
-    }
+        => !typeof(TNumber).IsInteger()
+            ? expression
+            : Expression.Condition(
+                Expression.Equal(Expression.ArrayLength(expression), Expression.Constant(0)),
+                Expression.NewArrayBounds(typeof(byte), Expression.Constant(GetByteCount())),
+                expression);
 
     private static Expression EnsureEndian(Expression expression)
-    {
-        if (!BitConverter.IsLittleEndian)
-        {
-            return expression;
-        }
-
-        return GetByteCount() switch
-        {
-            8 => Expression.Call(ReverseLongMethod, expression),
-            4 => Expression.Call(ReverseIntMethod, expression),
-            2 => Expression.Call(ReverseShortMethod, expression),
-            _ => expression
-        };
-    }
+        => !BitConverter.IsLittleEndian
+            ? expression
+            : GetByteCount() switch
+            {
+                8 => Expression.Call(ReverseLongMethod, expression),
+                4 => Expression.Call(ReverseIntMethod, expression),
+                2 => Expression.Call(ReverseShortMethod, expression),
+                _ => expression
+            };
 
     private static readonly MethodInfo ReverseLongMethod
         = typeof(NumberToBytesConverter<TNumber>).GetMethod(
@@ -305,7 +296,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
         if (BitConverter.IsLittleEndian)
         {
             bytes.CopyTo(gotBytes);
-            gotBytes.Slice(0, 4).Reverse();
+            gotBytes[..4].Reverse();
             gotBytes.Slice(4, 4).Reverse();
             gotBytes.Slice(8, 4).Reverse();
             gotBytes.Slice(12, 4).Reverse();
@@ -314,9 +305,9 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
         var specialBits = BitConverter.ToUInt32(gotBytes);
 
         return new decimal(
-            BitConverter.ToInt32(gotBytes.Slice(12)),
-            BitConverter.ToInt32(gotBytes.Slice(8)),
-            BitConverter.ToInt32(gotBytes.Slice(4)),
+            BitConverter.ToInt32(gotBytes[12..]),
+            BitConverter.ToInt32(gotBytes[8..]),
+            BitConverter.ToInt32(gotBytes[4..]),
             (specialBits & 0x80000000) != 0,
             (byte)((specialBits & 0x00FF0000) >> 16));
     }

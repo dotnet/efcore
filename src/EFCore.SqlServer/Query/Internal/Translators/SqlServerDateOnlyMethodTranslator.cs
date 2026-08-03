@@ -38,27 +38,24 @@ public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
                 // We need to refrain from doing the translation when either the DateOnly or the TimeOnly
                 // are a complex SQL expression (anything other than a column/constant/parameter), to avoid evaluating them multiple
                 // potentially expensive arbitrary expressions multiple times.
-                if (instance is not ColumnExpression and not SqlParameterExpression and not SqlConstantExpression
-                    || timeOnly is not ColumnExpression and not SqlParameterExpression and not SqlConstantExpression)
-                {
-                    return null;
-                }
-
-                return sqlExpressionFactory.Function(
-                    "DATETIME2FROMPARTS",
-                    [
-                        MapDatePartExpression("year", instance),
-                        MapDatePartExpression("month", instance),
-                        MapDatePartExpression("day", instance),
-                        MapDatePartExpression("hour", timeOnly),
-                        MapDatePartExpression("minute", timeOnly),
-                        MapDatePartExpression("second", timeOnly),
-                        MapDatePartExpression("fraction", timeOnly),
-                        sqlExpressionFactory.Constant(7, typeof(int)),
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: [true, true, true, true, true, true, true, false],
-                    typeof(DateTime));
+                return instance is not ColumnExpression and not SqlParameterExpression and not SqlConstantExpression
+                    || timeOnly is not ColumnExpression and not SqlParameterExpression and not SqlConstantExpression
+                        ? null
+                        : sqlExpressionFactory.Function(
+                            "DATETIME2FROMPARTS",
+                            [
+                                MapDatePartExpression("year", instance),
+                                MapDatePartExpression("month", instance),
+                                MapDatePartExpression("day", instance),
+                                MapDatePartExpression("hour", timeOnly),
+                                MapDatePartExpression("minute", timeOnly),
+                                MapDatePartExpression("second", timeOnly),
+                                MapDatePartExpression("fraction", timeOnly),
+                                sqlExpressionFactory.Constant(7, typeof(int)),
+                            ],
+                            nullable: true,
+                            argumentsPropagateNullability: [true, true, true, true, true, true, true, false],
+                            typeof(DateTime));
             }
 
             var datePart = method.Name switch
@@ -66,7 +63,7 @@ public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
                 nameof(DateOnly.AddYears) => "year",
                 nameof(DateOnly.AddMonths) => "month",
                 nameof(DateOnly.AddDays) => "day",
-                _ => (string?)null
+                _ => null
             };
 
             if (datePart is not null)
@@ -83,12 +80,9 @@ public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
             }
         }
 
-        if (method.Name == nameof(DateOnly.FromDateTime) && arguments is [_])
-        {
-            return sqlExpressionFactory.Convert(arguments[0], typeof(DateOnly));
-        }
-
-        return null;
+        return method.Name == nameof(DateOnly.FromDateTime) && arguments is [_]
+            ? sqlExpressionFactory.Convert(arguments[0], typeof(DateOnly))
+            : null;
     }
 
     private SqlExpression MapDatePartExpression(string datepart, SqlExpression argument)
@@ -111,9 +105,8 @@ public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
             return sqlExpressionFactory.Constant(constant, typeof(int));
         }
 
-        if (datepart == "fraction")
-        {
-            return sqlExpressionFactory.Divide(
+        return datepart == "fraction"
+            ? sqlExpressionFactory.Divide(
                 sqlExpressionFactory.Function(
                     "DATEPART",
                     [sqlExpressionFactory.Fragment("nanosecond"), argument],
@@ -122,14 +115,12 @@ public class SqlServerDateOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
                     typeof(int)
                 ),
                 sqlExpressionFactory.Constant(100, typeof(int))
-            );
-        }
-
-        return sqlExpressionFactory.Function(
-            "DATEPART",
-            [sqlExpressionFactory.Fragment(datepart), argument],
-            nullable: true,
-            argumentsPropagateNullability: [true, true],
-            typeof(int));
+            )
+            : sqlExpressionFactory.Function(
+                "DATEPART",
+                [sqlExpressionFactory.Fragment(datepart), argument],
+                nullable: true,
+                argumentsPropagateNullability: [true, true],
+                typeof(int));
     }
 }

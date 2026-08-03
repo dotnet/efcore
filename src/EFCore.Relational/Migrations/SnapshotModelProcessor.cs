@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -43,10 +42,10 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         _operationReporter = operationReporter;
         _relationalNames =
         [
-            ..typeof(RelationalAnnotationNames)
+            .. typeof(RelationalAnnotationNames)
                 .GetRuntimeFields()
-                .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix)
-                    && p.Name != nameof(RelationalAnnotationNames.AllNames))
+                .Where(p => p.Name is not (nameof(RelationalAnnotationNames.Prefix))
+                    and not (nameof(RelationalAnnotationNames.AllNames)))
                 .Select(p => (string)p.GetValue(null)!)
                 .Where(v => v.IndexOf(':') > 0)
                 .Select(v => v[(RelationalAnnotationNames.Prefix.Length - 1)..])

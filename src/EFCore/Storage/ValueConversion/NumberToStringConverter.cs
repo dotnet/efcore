@@ -51,7 +51,8 @@ public class NumberToStringConverter<TNumber> : StringNumberConverter<TNumber, s
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TNumber), typeof(string),
+        = new(
+            typeof(TNumber), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new NumberToStringConverter<TNumber>(i.MappingHints),
             DefaultHints);
 }

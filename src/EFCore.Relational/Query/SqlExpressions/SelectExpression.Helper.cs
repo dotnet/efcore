@@ -69,7 +69,7 @@ public sealed partial class SelectExpression
         {
             if (!ReferenceEquals(visited, original))
             {
-                (_nodes ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[original] = visited;
+                (_nodes ??= [with(ReferenceEqualityComparer.Instance)])[original] = visited;
             }
 
             return visited;
@@ -133,6 +133,7 @@ public sealed partial class SelectExpression
     // projection of a non-entity from the nullable side of an outer join to null on no-match rows; see the
     // _nonEntityNullabilityMarkers field comment for its lifecycle. AddJoin records/re-keys it, the grouping-element
     // subquery lowering propagates it across a clone, and the projection binder consults it.
+
     #region Non-entity nullability markers
 
     // true when this SelectExpression currently carries any non-entity nullability marker. Used to assert the invariant
@@ -191,7 +192,7 @@ public sealed partial class SelectExpression
             {
                 var reboundBinding = remapper.Visit(markerBinding);
                 (clone._nonEntityNullabilityMarkers ??=
-                    new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[oldNode] = reboundBinding;
+                    [with(ReferenceEqualityComparer.Instance)])[oldNode] = reboundBinding;
             }
         }
     }
@@ -265,7 +266,7 @@ public sealed partial class SelectExpression
         // see ReplacingExpressionVisitor.VisitMember), and the inner shaper is left unwrapped so those folds keep working.
         if (markerBinding is not null && innerShaper is NewExpression or MemberInitExpression)
         {
-            (_nonEntityNullabilityMarkers ??= new Dictionary<Expression, Expression>(ReferenceEqualityComparer.Instance))[innerShaper] =
+            (_nonEntityNullabilityMarkers ??= [with(ReferenceEqualityComparer.Instance)])[innerShaper] =
                 markerBinding;
         }
     }
@@ -380,7 +381,7 @@ public sealed partial class SelectExpression
         string tableAlias)
         : ExpressionVisitor
     {
-        private readonly HashSet<SqlExpression> _correlatedTerms = new(ReferenceEqualityComparer.Instance);
+        private readonly HashSet<SqlExpression> _correlatedTerms = [with(ReferenceEqualityComparer.Instance)];
         private bool _groupByDiscovery = subquery._groupBy.Count > 0;
 
         [return: NotNullIfNotNull(nameof(sqlExpression))]
@@ -587,7 +588,7 @@ public sealed partial class SelectExpression
     // SqlAliasManager isn't passed in.
     private sealed class CloningExpressionVisitor(SqlAliasManager? sqlAliasManager, bool cloneClientProjections = true) : ExpressionVisitor
     {
-        private readonly Dictionary<string, string> _tableAliasMap = new();
+        private readonly Dictionary<string, string> _tableAliasMap = [];
 
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
@@ -612,7 +613,8 @@ public sealed partial class SelectExpression
                 }
 
                 case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):
-                    return new ColumnExpression(column.Name, newTableAlias, column.Column, column.Type, column.TypeMapping, column.IsNullable);
+                    return new ColumnExpression(
+                        column.Name, newTableAlias, column.Column, column.Type, column.TypeMapping, column.IsNullable);
 
                 default:
                     return base.Visit(expression);
@@ -633,16 +635,16 @@ public sealed partial class SelectExpression
             // We ignore projection here because if this selectExpression has projection from inner TPC
             // Then TPC will have superset of projection
             var identitySelect = selectExpression is
-                {
-                    Tables: [TpcTablesExpression],
-                    Predicate: null,
-                    Orderings: [],
-                    Limit: null,
-                    Offset: null,
-                    IsDistinct: false,
-                    GroupBy: [],
-                    Having: null
-                }
+            {
+                Tables: [TpcTablesExpression],
+                Predicate: null,
+                Orderings: [],
+                Limit: null,
+                Offset: null,
+                IsDistinct: false,
+                GroupBy: [],
+                Having: null
+            }
                 // Any non-column projection means some composition which cannot be removed
                 && selectExpression.Projection.All(e => e.Expression is ColumnExpression);
 
@@ -653,10 +655,7 @@ public sealed partial class SelectExpression
                 if (table.UnwrapJoin() is not TpcTablesExpression tpcTablesExpression)
                 {
                     // Note that we don't visit non-TpcTablesExpressions - we'll be calling base.VisitExtension at the end.
-                    if (visitedTables is not null)
-                    {
-                        visitedTables[i] = table;
-                    }
+                    visitedTables?[i] = table;
 
                     continue;
                 }
@@ -696,7 +695,7 @@ public sealed partial class SelectExpression
                             break;
                         }
 
-                        identityMap &= (j == newIndex);
+                        identityMap &= j == newIndex;
                         reindexingMap[j] = newIndex;
                     }
 

@@ -74,7 +74,7 @@ public class OwnedNavigationTemporalPeriodPropertyBuilder
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual OwnedNavigationTemporalPeriodPropertyBuilder IsHidden(bool hidden = true)
     {
-        ((IMutableProperty)_propertyBuilder.Metadata).SetIsHidden(hidden);
+        _propertyBuilder.Metadata.SetIsHidden(hidden);
 
         return this;
     }

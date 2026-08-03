@@ -51,17 +51,11 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
 
         var recordedExceptions = new List<Exception>();
 
-        var options = new DbContextOptionsBuilder<TransactionalBatchContext>()
-            .UseCosmos(
-                ((CosmosTestStore)Fixture.TestStore).ConnectionUri,
-                ((CosmosTestStore)Fixture.TestStore).AuthToken,
-                Fixture.TestStore.Name,
-                cfg =>
-                {
-                    cfg.ApplyConfiguration();
-                    cfg.ExecutionStrategy(d => new RecordingExecutionStrategy(d, recordedExceptions));
-                })
-            .Options;
+        var store = (CosmosTestStore)Fixture.TestStore;
+        var optionsBuilder = new DbContextOptionsBuilder<TransactionalBatchContext>();
+        store.AddProviderOptions(optionsBuilder);
+        optionsBuilder.UseCosmos(cfg => cfg.ExecutionStrategy(d => new RecordingExecutionStrategy(d, recordedExceptions)));
+        var options = optionsBuilder.Options;
 
         using var context = new TransactionalBatchContext(options);
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Always;
@@ -92,12 +86,10 @@ public class CosmosTransactionalBatchTest(CosmosTransactionalBatchTest.CosmosFix
             await arrangeContext.SaveChangesAsync();
         }
 
-        var options = new DbContextOptionsBuilder<TransactionalBatchContext>()
-            .UseCosmos(
-                ((CosmosTestStore)Fixture.TestStore).ConnectionUri,
-                ((CosmosTestStore)Fixture.TestStore).AuthToken,
-                Fixture.TestStore.Name,
-                cfg => cfg.ApplyConfiguration())
+        var store = (CosmosTestStore)Fixture.TestStore;
+        var optionsBuilder = new DbContextOptionsBuilder<TransactionalBatchContext>();
+        store.AddProviderOptions(optionsBuilder);
+        var options = optionsBuilder
             .AddInterceptors(new ConcurrencySuppressingInterceptor())
             .Options;
 

@@ -17,28 +17,28 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     internal const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
 
     private readonly SortedSet<ForeignKey> _foreignKeys
-        = new(ForeignKeyComparer.Instance);
+        = [with(ForeignKeyComparer.Instance)];
 
     private readonly SortedDictionary<string, Navigation> _navigations
-        = new(StringComparer.Ordinal);
+        = [with(StringComparer.Ordinal)];
 
     private readonly SortedDictionary<string, SkipNavigation> _skipNavigations
-        = new(StringComparer.Ordinal);
+        = [with(StringComparer.Ordinal)];
 
     private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
-        = new(StringComparer.Ordinal);
+        = [with(StringComparer.Ordinal)];
 
     private readonly SortedDictionary<UnnamedIndexKey, Index> _unnamedIndexes
-        = new(UnnamedIndexKey.Comparer);
+        = [with(UnnamedIndexKey.Comparer)];
 
     private readonly SortedDictionary<string, Index> _namedIndexes
-        = new(StringComparer.Ordinal);
+        = [with(StringComparer.Ordinal)];
 
     private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, Key> _keys
-        = new(PropertyListComparer.Instance);
+        = [with(PropertyListComparer.Instance)];
 
     private readonly SortedDictionary<string, Trigger> _triggers
-        = new(StringComparer.Ordinal);
+        = [with(StringComparer.Ordinal)];
 
     private List<object>? _data;
     private Key? _primaryKey;
@@ -715,12 +715,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         Check.HasNoNulls(properties);
         Check.NotEmpty(properties);
 
-        if (BaseType != null)
-        {
-            return BaseType.FindPrimaryKey(properties);
-        }
-
-        return _primaryKey != null
+        return BaseType != null
+            ? BaseType.FindPrimaryKey(properties)
+            : _primaryKey != null
             && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
                 ? _primaryKey
                 : null;
@@ -1091,7 +1088,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         var principalEntityType = foreignKey.PrincipalEntityType;
         if (principalEntityType._declaredReferencingForeignKeys == null)
         {
-            principalEntityType._declaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+            principalEntityType._declaredReferencingForeignKeys = [with(ForeignKeyComparer.Instance), foreignKey];
         }
         else
         {
@@ -1733,7 +1730,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         if (targetEntityType._declaredReferencingSkipNavigations == null)
         {
             targetEntityType._declaredReferencingSkipNavigations =
-                new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
+                [with(SkipNavigationComparer.Instance), skipNavigation];
         }
         else
         {
@@ -2213,6 +2210,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
                 .Select(et => et.FindDeclaredIndex(Check.NotEmpty(name)))
                 .Where(i => i != null);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2548,7 +2546,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool HasServiceProperties()
-        => _serviceProperties.Count != 0 || BaseType != null && BaseType.HasServiceProperties();
+        => _serviceProperties.Count != 0 || (BaseType != null && BaseType.HasServiceProperties());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2888,15 +2886,12 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     public virtual string? CheckQueryFilter(IQueryFilter queryFilter)
     {
         var expression = queryFilter?.Expression;
-        if (expression != null
+        return expression != null
             && (expression.Parameters.Count != 1
                 || expression.Parameters[0].Type != ClrType
-                || expression.ReturnType != typeof(bool)))
-        {
-            return CoreStrings.BadFilterExpression(expression, DisplayName(), ClrType);
-        }
-
-        return null;
+                || expression.ReturnType != typeof(bool))
+                ? CoreStrings.BadFilterExpression(expression, DisplayName(), ClrType)
+                : null;
     }
 
     /// <summary>
@@ -3995,7 +3990,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     [DebuggerStepThrough]
     IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutablePropertyBase> properties, string name)
-        => AddIndex(properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(), name, ConfigurationSource.Explicit)!;
+        => AddIndex(
+            properties as IReadOnlyList<PropertyBase> ?? properties.Cast<PropertyBase>().ToList(), name, ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

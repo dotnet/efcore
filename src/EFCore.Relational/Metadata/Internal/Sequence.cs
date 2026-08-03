@@ -142,13 +142,10 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     public static ISequence? FindSequence(IReadOnlyModel model, string name, string? schema)
     {
         var sequences = (Dictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
-        if (sequences == null
-            || !sequences.TryGetValue((name, schema), out var sequence))
-        {
-            return null;
-        }
-
-        return sequence;
+        return sequences == null
+            || !sequences.TryGetValue((name, schema), out var sequence)
+                ? null
+                : sequence;
     }
 
     /// <summary>
@@ -167,7 +164,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
         var sequences = (Dictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
         if (sequences == null)
         {
-            sequences = new Dictionary<(string, string?), ISequence>();
+            sequences = [];
             model[RelationalAnnotationNames.Sequences] = sequences;
         }
 

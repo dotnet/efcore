@@ -62,7 +62,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
-        => AddDbContext<TContext, TContext>(serviceCollection, optionsAction, contextLifetime, optionsLifetime);
+        => serviceCollection.AddDbContext<TContext, TContext>(optionsAction, contextLifetime, optionsLifetime);
 
     /// <summary>
     ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -114,8 +114,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContextImplementation : DbContext, TContextService
-        => AddDbContext<TContextService, TContextImplementation>(
-            serviceCollection,
+        => serviceCollection.AddDbContext<TContextService, TContextImplementation>(
             optionsAction == null
                 ? null
                 : (_, b) => optionsAction(b), contextLifetime, optionsLifetime);
@@ -165,7 +164,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             Action<DbContextOptionsBuilder> optionsAction,
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
-        => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
+        => serviceCollection.AddDbContextPool<TContext, TContext>(optionsAction, poolSize);
 
     /// <summary>
     ///     Registers the given <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />,
@@ -217,7 +216,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     {
         Check.NotNull(optionsAction);
 
-        return AddDbContextPool<TContextService, TContextImplementation>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+        return serviceCollection.AddDbContextPool<TContextService, TContextImplementation>((_, ob) => optionsAction(ob), poolSize);
     }
 
     /// <summary>
@@ -273,7 +272,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
-        => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
+        => serviceCollection.AddDbContextPool<TContext, TContext>(optionsAction, poolSize);
 
     /// <summary>
     ///     Registers the given <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />,
@@ -409,7 +408,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             ServiceLifetime contextLifetime,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
-        => AddDbContext<TContext, TContext>(serviceCollection, contextLifetime, optionsLifetime);
+        => serviceCollection.AddDbContext<TContext, TContext>(contextLifetime, optionsLifetime);
 
     /// <summary>
     ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -445,8 +444,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
-        => AddDbContext<TContextService, TContextImplementation>(
-            serviceCollection,
+        => serviceCollection.AddDbContext<TContextService, TContextImplementation>(
             (Action<IServiceProvider, DbContextOptionsBuilder>?)null,
             contextLifetime,
             optionsLifetime);
@@ -509,7 +507,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
-        => AddDbContext<TContext, TContext>(serviceCollection, optionsAction, contextLifetime, optionsLifetime);
+        => serviceCollection.AddDbContext<TContext, TContext>(optionsAction, contextLifetime, optionsLifetime);
 
     /// <summary>
     ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -670,7 +668,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             Action<DbContextOptionsBuilder>? optionsAction = null,
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         where TContext : DbContext
-        => AddDbContextFactory<TContext, DbContextFactory<TContext>>(serviceCollection, optionsAction, lifetime);
+        => serviceCollection.AddDbContextFactory<TContext, DbContextFactory<TContext>>(optionsAction, lifetime);
 
     /// <summary>
     ///     Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
@@ -741,8 +739,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         ServiceLifetime lifetime = ServiceLifetime.Singleton)
         where TContext : DbContext
         where TFactory : IDbContextFactory<TContext>
-        => AddDbContextFactory<TContext, TFactory>(
-            serviceCollection,
+        => serviceCollection.AddDbContextFactory<TContext, TFactory>(
             optionsAction == null
                 ? null
                 : (_, b) => optionsAction(b),
@@ -818,7 +815,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
             ServiceLifetime lifetime = ServiceLifetime.Singleton)
         where TContext : DbContext
-        => AddDbContextFactory<TContext, DbContextFactory<TContext>>(serviceCollection, optionsAction, lifetime);
+        => serviceCollection.AddDbContextFactory<TContext, DbContextFactory<TContext>>(optionsAction, lifetime);
 
     /// <summary>
     ///     Registers an <see cref="IDbContextFactory{TContext}" /> in the <see cref="IServiceCollection" /> to create instances
@@ -967,7 +964,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     {
         Check.NotNull(optionsAction);
 
-        return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+        return serviceCollection.AddPooledDbContextFactory<TContext>((_, ob) => optionsAction(ob), poolSize);
     }
 
     /// <summary>
@@ -1037,7 +1034,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///     <para>
     ///         This overload aligns with the EF Core centralized configuration model
     ///         <see cref="ConfigureDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime)" />.
-    ///         and allows specifying a custom <paramref name="poolSize"/>.  
+    ///         and allows specifying a custom <paramref name="poolSize" />.
     ///         Options configured via <c>ConfigureDbContext&lt;TContext&gt;</c> are automatically used,
     ///         eliminating the need to repeat provider configuration.
     ///     </para>
@@ -1059,7 +1056,7 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see>, and
     ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see>
     ///         for more information and examples.
-    ///     </para>   
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TContext">
     ///     The type of <see cref="DbContext" /> to be created by the factory.
@@ -1078,8 +1075,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             this IServiceCollection serviceCollection,
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
-        => AddPooledDbContextFactory<TContext>(
-            serviceCollection,
+        => serviceCollection.AddPooledDbContextFactory<TContext>(
             static (_, __) => { },
             poolSize);
 
@@ -1117,7 +1113,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             Action<DbContextOptionsBuilder> optionsAction,
             ServiceLifetime optionsLifetime = ServiceLifetime.Singleton)
         where TContext : DbContext
-        => ConfigureDbContext<TContext>(serviceCollection, (_, b) => optionsAction(b), optionsLifetime);
+        => serviceCollection.ConfigureDbContext<TContext>((_, b) => optionsAction(b), optionsLifetime);
 
     /// <summary>
     ///     Configures the given context type in the <see cref="IServiceCollection" />.

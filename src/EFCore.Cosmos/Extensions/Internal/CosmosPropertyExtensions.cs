@@ -19,5 +19,4 @@ public static class CosmosPropertyExtensions
     /// </summary>
     public static bool IsPersisted(this IReadOnlyProperty property)
         => property.GetJsonPropertyName() != string.Empty;
-
 }

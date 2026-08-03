@@ -418,7 +418,8 @@ public static class RelationalTypeBaseExtensions
             {
                 var localStoreObject = storeObject;
                 return StoreObjectIdentifier.Create(containingEntityType, localStoreObject.StoreObjectType) == localStoreObject
-                    || containingEntityType.GetDerivedTypes().Any(e => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject)
+                    || containingEntityType.GetDerivedTypes().Any(e
+                        => StoreObjectIdentifier.Create(e, localStoreObject.StoreObjectType) == localStoreObject)
                         ? containerColumnName
                         : null;
             }
@@ -567,16 +568,13 @@ public static class RelationalTypeBaseExtensions
     public static string? GetJsonPropertyName(this IReadOnlyTypeBase typeBase)
     {
         var annotation = typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        return typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null || !typeBase.IsMappedToJson()
-            ? null
-            : typeBase is IReadOnlyEntityType entityType
-                ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name;
+        return annotation != null
+            ? (string?)annotation.Value
+            : typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName) != null || !typeBase.IsMappedToJson()
+                ? null
+                : typeBase is IReadOnlyEntityType entityType
+                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name;
     }
 
     /// <summary>

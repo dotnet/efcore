@@ -65,7 +65,8 @@ public class MemberClassifier : IMemberClassifier
         if (targetSequenceType != null
             && (propertyInfo == null
                 || propertyInfo.IsCandidateProperty(needsWrite: false))
-            && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, model, useAttributes, out shouldBeOwned, out explicitlyConfigured))
+            && IsCandidateNavigationPropertyType(
+                targetSequenceType, memberInfo, model, useAttributes, out shouldBeOwned, out explicitlyConfigured))
         {
             elementType = targetSequenceType;
             return true;
@@ -108,10 +109,10 @@ public class MemberClassifier : IMemberClassifier
 
         var memberType = memberInfo.GetMemberType();
         return isConfiguredAsEntityType == true
-            || targetType != typeof(object)
-            && (memberType != targetType
-                || (Dependencies.ParameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
-                    && Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes) == null));
+            || (targetType != typeof(object)
+                && (memberType != targetType
+                    || (Dependencies.ParameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
+                        && Dependencies.TypeMappingSource.FindMapping(memberInfo, (IModel)model, useAttributes) == null)));
     }
 
     /// <inheritdoc />
@@ -189,8 +190,8 @@ public class MemberClassifier : IMemberClassifier
 
         var configurationType = GetConfigurationType(targetType, model);
         explicitlyConfigured = configurationType != null;
-        return configurationType == TypeConfigurationType.ComplexType
-            || configurationType == null;
+        return configurationType is TypeConfigurationType.ComplexType
+            or null;
     }
 
     /// <inheritdoc />

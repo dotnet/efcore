@@ -31,9 +31,7 @@ public class WithApproximateExpression : SqlExpression
     /// </summary>
     public WithApproximateExpression(SqlExpression operand)
         : base(operand.Type, operand.TypeMapping)
-    {
-        Operand = operand;
-    }
+        => Operand = operand;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,8 +74,8 @@ public class WithApproximateExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is WithApproximateExpression withApproximate
-                && Equals(withApproximate));
+                || (obj is WithApproximateExpression withApproximate
+                    && Equals(withApproximate)));
 
     private bool Equals(WithApproximateExpression other)
         => base.Equals(other)

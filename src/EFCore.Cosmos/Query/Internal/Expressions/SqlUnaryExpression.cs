@@ -111,8 +111,8 @@ public class SqlUnaryExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlUnaryExpression sqlUnaryExpression
-                && Equals(sqlUnaryExpression));
+                || (obj is SqlUnaryExpression sqlUnaryExpression
+                    && Equals(sqlUnaryExpression)));
 
     private bool Equals(SqlUnaryExpression sqlUnaryExpression)
         => base.Equals(sqlUnaryExpression)

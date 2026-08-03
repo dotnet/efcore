@@ -101,22 +101,16 @@ public interface IReadOnlyForeignKey : IReadOnlyAnnotatable
     /// </summary>
     /// <param name="entityType">One of the entity types related by the foreign key.</param>
     /// <returns>The entity type related to the given one.</returns>
-    IReadOnlyEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
-    {
-        if (DeclaringEntityType != entityType
-            && PrincipalEntityType != entityType)
-        {
-            throw new InvalidOperationException(
+    IReadOnlyEntityType GetRelatedEntityType(IReadOnlyEntityType entityType) => DeclaringEntityType != entityType
+            && PrincipalEntityType != entityType
+            ? throw new InvalidOperationException(
                 CoreStrings.EntityTypeNotInRelationshipStrict(
                     entityType.DisplayName(),
                     DeclaringEntityType.DisplayName(),
-                    PrincipalEntityType.DisplayName()));
-        }
-
-        return DeclaringEntityType == entityType
+                    PrincipalEntityType.DisplayName()))
+            : DeclaringEntityType == entityType
             ? PrincipalEntityType
             : DeclaringEntityType;
-    }
 
     /// <summary>
     ///     Returns a navigation associated with this foreign key.

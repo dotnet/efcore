@@ -53,7 +53,8 @@ public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byt
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTimeOffset), typeof(byte[]),
+        = new(
+            typeof(DateTimeOffset), typeof(byte[]),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateTimeOffsetToBytesConverter(i.MappingHints),
             DefaultHints);
 

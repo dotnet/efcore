@@ -32,12 +32,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     documentsReader.Read();
                     var token = documentsReader.TokenType;
-                    if (token != JsonTokenType.StartArray)
-                    {
-                        throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(token));
-                    }
-
-                    return data.Slice((int)documentsReader.BytesConsumed);
+                    return token != JsonTokenType.StartArray
+                        ? throw new InvalidOperationException(CoreStrings.JsonReaderInvalidTokenType(token))
+                        : data[(int)documentsReader.BytesConsumed..];
                 }
 
                 documentsReader.Skip();
@@ -79,7 +76,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 shaperBytesConsumed = (int)reader.BytesConsumed;
             }
 
-            data = data.Slice(shaperBytesConsumed);
+            data = data[shaperBytesConsumed..];
             bytesConsumed += shaperBytesConsumed;
 
             SliceNextItemToken(data, out var bytesConsumedNextItem);
@@ -89,7 +86,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         private static readonly MethodInfo ShapeCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShapeCollection), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShapeCollection), BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new UnreachableException();
 
         private static TCollection ShapeCollection<TElement, TCollection>(
             QueryContext queryContext,
@@ -103,7 +101,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var reader = new Utf8JsonReader(data.Span);
             reader.Read();
-            data = data.Slice((int)reader.BytesConsumed);
+            data = data[(int)reader.BytesConsumed..];
             bytesConsumed = (int)reader.BytesConsumed;
 
             if (reader.TokenType == JsonTokenType.Null)
@@ -121,16 +119,18 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             while (TryMaterializeNextJsonCollectionItem(queryContext, data, shaper, collection.Count, out itemBytesConsumed, out var item))
             {
                 collection.Add(item);
-                data = data.Slice(itemBytesConsumed);
+                data = data[itemBytesConsumed..];
                 bytesConsumed += itemBytesConsumed;
             }
+
             bytesConsumed += itemBytesConsumed; // ']'
 
             return (TCollection)collection;
         }
 
         private static readonly MethodInfo SliceNextItemTokenMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(SliceNextItemToken), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(SliceNextItemToken), BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new UnreachableException();
 
         private static ReadOnlyMemory<byte> SliceNextItemToken(ReadOnlyMemory<byte> data, out int bytesConsumed)
         {
@@ -140,7 +140,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             if (data.Span[0] == NextItemByte)
             {
                 bytesConsumed = startLength - data.Length + 1;
-                return data.Slice(1);
+                return data[1..];
             }
 
             bytesConsumed = startLength - data.Length;
@@ -148,20 +148,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         }
 
         private static readonly MethodInfo CreateJsonReaderInvalidTokenTypeMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(CreateJsonReaderInvalidTokenType), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(
+                nameof(CreateJsonReaderInvalidTokenType), BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new UnreachableException();
 
         private static InvalidOperationException CreateJsonReaderInvalidTokenType(JsonTokenType jsonTokenType)
             => new(CoreStrings.JsonReaderInvalidTokenType(jsonTokenType));
 
         private static readonly MethodInfo CreateInvalidKeyValueMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(CreateInvalidKeyValue), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new UnreachableException();
+            = typeof(ShaperProcessingExpressionVisitor).GetMethod(
+                nameof(CreateInvalidKeyValue), BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new UnreachableException();
 
         private static InvalidOperationException CreateInvalidKeyValue(
             IEntityType entityType,
             IReadOnlyList<IProperty> properties,
             object?[] keyValues)
-            => new(CoreStrings.InvalidKeyValue(
-                entityType.DisplayName(),
-                properties[keyValues.Select((x, i) => (x, i)).First(x => x.x == null).i].Name));
+            => new(
+                CoreStrings.InvalidKeyValue(
+                    entityType.DisplayName(),
+                    properties[keyValues.Select((x, i) => (x, i)).First(x => x.x == null).i].Name));
     }
 }

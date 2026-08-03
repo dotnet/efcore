@@ -12,8 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 public class SqliteTypeMappingSource : RelationalTypeMappingSource
 {
     private static readonly HashSet<string> SpatialiteTypes
-        = new(StringComparer.OrdinalIgnoreCase)
-        {
+        =
+        [
+            with(StringComparer.OrdinalIgnoreCase),
             "GEOMETRY",
             "GEOMETRYZ",
             "GEOMETRYM",
@@ -46,7 +47,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             "POLYGONZ",
             "POLYGONM",
             "POLYGONZM"
-        };
+        ];
 
     internal const string IntegerTypeName = "INTEGER";
     internal const string RealTypeName = "REAL";

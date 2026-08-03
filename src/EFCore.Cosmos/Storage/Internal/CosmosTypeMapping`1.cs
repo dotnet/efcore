@@ -16,7 +16,7 @@ public class CosmosTypeMapping<
     [DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T> : CosmosTypeMapping
+T> : CosmosTypeMapping
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

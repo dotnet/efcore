@@ -264,26 +264,21 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
         }
 
         var referenceProperty = reference.MemberInfo;
-        if (pointsToPrincipal)
-        {
-            builder = referenceProperty == null || ReferenceMember == null
+        builder = pointsToPrincipal
+            ? referenceProperty == null || ReferenceMember == null
                 ? builder.HasNavigations(
                     referenceName, ReferenceName,
                     (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)!
                 : builder.HasNavigations(
                     referenceProperty, ReferenceMember,
-                    (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)!;
-        }
-        else
-        {
-            builder = referenceProperty == null || ReferenceMember == null
+                    (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)!
+            : referenceProperty == null || ReferenceMember == null
                 ? builder.HasNavigations(
                     ReferenceName, referenceName,
                     (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)!
                 : builder.HasNavigations(
                     ReferenceMember, referenceProperty,
                     (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)!;
-        }
 
         return batch.Run(builder)!;
     }

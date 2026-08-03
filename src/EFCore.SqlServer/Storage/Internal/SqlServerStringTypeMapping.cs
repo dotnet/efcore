@@ -174,8 +174,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             return;
         }
 
-        if ((value == null
-                || value == DBNull.Value)
+        if (value == null
+            || value == DBNull.Value
             || (IsFixedLength
                 && length == _maxSpecificSize
                 && Size.HasValue))
@@ -196,18 +196,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
             // fragmentation by setting lots of different Size values otherwise set to the max bounded length
             // if the value will fit, otherwise set to -1 (unbounded) to avoid SQL client size inference.
-            if (length <= _maxSpecificSize)
-            {
-                parameter.Size = _maxSpecificSize;
-            }
-            else if (length <= _maxSize)
-            {
-                parameter.Size = _maxSize;
-            }
-            else
-            {
-                parameter.Size = -1;
-            }
+            parameter.Size = length <= _maxSpecificSize ? _maxSpecificSize : length <= _maxSize ? _maxSize : -1;
         }
     }
 

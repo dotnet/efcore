@@ -75,12 +75,8 @@ public abstract class DbContextOptions : IDbContextOptions
         where TExtension : class, IDbContextOptionsExtension
     {
         var extension = FindExtension<TExtension>();
-        if (extension == null)
-        {
-            throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
-        }
-
-        return extension;
+        return extension
+            ?? throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).ShortDisplayName()));
     }
 
     /// <summary>

@@ -76,7 +76,8 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
     {
         var connectionStringBuilder = new SqliteConnectionStringBuilder(GetValidatedConnectionString())
         {
-            Mode = SqliteOpenMode.ReadOnly, Pooling = false
+            Mode = SqliteOpenMode.ReadOnly,
+            Pooling = false
         };
 
         var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
@@ -102,7 +103,7 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 "regexp",
                 (pattern, input)
                     => input == null
-                        || pattern == null
+                    || pattern == null
                         ? null
                         : Regex.IsMatch(input, pattern, RegexOptions.NonBacktracking, TimeSpan.FromMilliseconds(1000)),
                 isDeterministic: true);

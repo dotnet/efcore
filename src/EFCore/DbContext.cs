@@ -417,12 +417,9 @@ public class DbContext :
             throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
         }
 
-        if (entityType.FindPrimaryKey() == null)
-        {
-            throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(type.ShortDisplayName()));
-        }
-
-        return DbContextDependencies.EntityFinderFactory.Create(entityType);
+        return entityType.FindPrimaryKey() == null
+            ? throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(type.ShortDisplayName()))
+            : DbContextDependencies.EntityFinderFactory.Create(entityType);
     }
 
     private IServiceProvider InternalServiceProvider

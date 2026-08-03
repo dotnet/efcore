@@ -120,7 +120,8 @@ internal static class DotNetEfConfigLoader
                 }
             }
 
-            return new DotNetEfConfig(fullPath, project, startupProject, context, framework, configuration, runtime, verbose, noColor, prefixOutput);
+            return new DotNetEfConfig(
+                fullPath, project, startupProject, context, framework, configuration, runtime, verbose, noColor, prefixOutput);
         }
     }
 
@@ -131,11 +132,9 @@ internal static class DotNetEfConfigLoader
                 : throw new CommandException(Resources.DotNetEfConfigInvalidValue(fullPath, property.Name));
 
     private static bool ValidateBoolValue(string fullPath, JsonProperty property)
-        => property.Value.ValueKind == JsonValueKind.True || property.Value.ValueKind == JsonValueKind.False
+        => property.Value.ValueKind is JsonValueKind.True or JsonValueKind.False
             ? property.Value.GetBoolean()
             : throw new CommandException(Resources.DotNetEfConfigInvalidBoolValue(fullPath, property.Name));
-
-
 
     private static string ResolvePath(string configDirectory, string path)
         => Path.IsPathRooted(path)

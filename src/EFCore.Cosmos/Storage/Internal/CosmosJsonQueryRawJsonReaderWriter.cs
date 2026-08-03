@@ -25,11 +25,11 @@ public class CosmosJsonQueryRawJsonReaderWriter : JsonValueReaderWriter<ReadOnly
     public override Expression ConstructorExpression
         => Expression.Property(null, InstanceProperty);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override ReadOnlyMemory<byte> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => throw new UnreachableException("Query json is only serialized.");
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, ReadOnlyMemory<byte> value)
         => writer.WriteRawValue(value.Span, skipInputValidation: true);
 }

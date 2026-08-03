@@ -35,24 +35,13 @@ public class CurrentProviderValueComparer<TModel, TProvider> : IComparer<IUpdate
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int Compare(IUpdateEntry? x, IUpdateEntry? y)
-    {
-        if (ReferenceEquals(x, y))
-        {
-            return 0;
-        }
-
-        if (x is null)
-        {
-            return -1;
-        }
-
-        if (y is null)
-        {
-            return 1;
-        }
-
-        return _underlyingComparer.Compare(
-            _converter(x.GetCurrentValue<TModel>(_property)),
-            _converter(y.GetCurrentValue<TModel>(_property)));
-    }
+        => ReferenceEquals(x, y)
+            ? 0
+            : x is null
+                ? -1
+                : y is null
+                    ? 1
+                    : _underlyingComparer.Compare(
+                        _converter(x.GetCurrentValue<TModel>(_property)),
+                        _converter(y.GetCurrentValue<TModel>(_property)));
 }

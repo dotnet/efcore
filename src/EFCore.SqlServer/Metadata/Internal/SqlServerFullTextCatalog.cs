@@ -1,9 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 /// <summary>
@@ -24,7 +21,6 @@ public class SqlServerFullTextCatalog(
     private ConfigurationSource _configurationSource = configurationSource;
     private ConfigurationSource? _isDefaultConfigurationSource;
     private ConfigurationSource? _isAccentSensitiveConfigurationSource;
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -270,5 +266,6 @@ public class SqlServerFullTextCatalog(
     /// </summary>
     [DebuggerStepThrough]
     bool? IConventionSqlServerFullTextCatalog.SetIsAccentSensitive(bool? isAccentSensitive, bool fromDataAnnotation)
-        => SetIsAccentSensitive(isAccentSensitive, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => SetIsAccentSensitive(
+            isAccentSensitive, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

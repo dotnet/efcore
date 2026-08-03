@@ -292,7 +292,7 @@ public static class SqlServerEventId
     ///     An invalid foreign key constraint was skipped.
     /// </summary>
     /// <remarks>
-    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding"/> category.
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
     /// </remarks>
     public static readonly EventId DataverseForeignKeyInvalidWarning = MakeScaffoldingId(Id.DataverseForeignKeyInvalidWarning);
 
