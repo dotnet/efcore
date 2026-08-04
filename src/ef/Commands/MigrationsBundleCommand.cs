@@ -32,22 +32,25 @@ internal partial class MigrationsBundleCommand
     protected override int Execute(string[] args)
     {
         string? version;
-        string context;
         using (var executor = CreateExecutor(args))
         {
+            // Reads the design assembly only (NuGet cache); does not load — or lock — the app assembly.
             version = executor.EFCoreVersion;
             if (new SemanticVersionComparer().Compare(version, "6.0.0") < 0)
             {
                 throw new CommandException(Resources.VersionRequired("6.0.0"));
             }
-
-            if (Context!.Value() == "*")
-            {
-                throw new CommandException(Resources.WildcardNotSupported);
-            }
-
-            context = (string)executor.GetContextInfo(Context!.Value())["Type"]!;
         }
+
+        if (Context!.Value() == "*")
+        {
+            throw new CommandException(Resources.WildcardNotSupported);
+        }
+
+        // Discover the DbContext type in a SEPARATE process so the target assembly is not loaded
+        // (and on Windows, not locked) by this process when it later runs `dotnet publish`.
+        // See https://github.com/dotnet/efcore/issues/25555.
+        var context = DiscoverContextType(args);
 
         Reporter.WriteInformation(Resources.BuildBundleStarted);
 
