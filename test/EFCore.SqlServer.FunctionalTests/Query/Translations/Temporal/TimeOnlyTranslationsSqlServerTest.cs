@@ -125,13 +125,73 @@ WHERE DATEADD(minute, CAST(3.0E0 AS int), [b].[TimeOnly]) = '15:33:10'
             """
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
+WHERE [b].[TimeOnly] >= '14:00:00' AND [b].[TimeOnly] < '16:00:00'
+""");
+    }
+
+    [Fact]
+    public virtual async Task IsBetween_spanning_midnight_with_parameters()
+    {
+        var start = new TimeOnly(15, 0, 0);
+        var end = new TimeOnly(14, 0, 0);
+
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeOnly.IsBetween(start, end)));
+
+        AssertSql(
+            """
+@start='15:00' (DbType = Time)
+@end='14:00' (DbType = Time)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
 WHERE CASE
-    WHEN [b].[TimeOnly] >= '14:00:00' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END & CASE
-    WHEN [b].[TimeOnly] < '16:00:00' THEN CAST(1 AS bit)
+    WHEN @start <= @end THEN CASE
+        WHEN [b].[TimeOnly] >= @start AND [b].[TimeOnly] < @end THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [b].[TimeOnly] >= @start OR [b].[TimeOnly] < @end THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
+""");
+    }
+
+    [Fact]
+    public virtual async Task IsBetween_with_parameters()
+    {
+        var start = new TimeOnly(14, 0, 0);
+        var end = new TimeOnly(16, 0, 0);
+
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeOnly.IsBetween(start, end)));
+
+        AssertSql(
+            """
+@start='14:00' (DbType = Time)
+@end='16:00' (DbType = Time)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CASE
+    WHEN @start <= @end THEN CASE
+        WHEN [b].[TimeOnly] >= @start AND [b].[TimeOnly] < @end THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [b].[TimeOnly] >= @start OR [b].[TimeOnly] < @end THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""");
+    }
+
+    [Fact]
+    public virtual async Task IsBetween_spanning_midnight()
+    {
+        await AssertQuery(
+            ss => ss.Set<BasicTypesEntity>().Where(b => b.TimeOnly.IsBetween(new TimeOnly(15, 0, 0), new TimeOnly(14, 0, 0))));
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE [b].[TimeOnly] >= '15:00:00' OR [b].[TimeOnly] < '14:00:00'
 """);
     }
 
