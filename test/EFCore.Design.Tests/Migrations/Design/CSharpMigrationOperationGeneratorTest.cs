@@ -634,6 +634,37 @@ mb.AlterColumn<int>(
             });
 
     [Fact]
+    public void AlterColumnOperation_computed_to_non_computed_preserves_oldStored()
+        => Test(
+            new AlterColumnOperation
+            {
+                Name = "Id",
+                Table = "Post",
+                ClrType = typeof(int),
+                OldColumn =
+                {
+                    ComputedColumnSql = "1",
+                    IsStored = true
+                }
+            },
+            """
+mb.AlterColumn<int>(
+    name: "Id",
+    table: "Post",
+    nullable: false,
+    oldComputedColumnSql: "1",
+    oldStored: true);
+""",
+            o =>
+            {
+                Assert.Equal("Id", o.Name);
+                Assert.Equal("Post", o.Table);
+                Assert.Equal(typeof(int), o.ClrType);
+                Assert.Equal("1", o.OldColumn.ComputedColumnSql);
+                Assert.True(o.OldColumn.IsStored);
+            });
+
+    [Fact]
     public void AlterColumnOperation_DefaultValueSql()
         => Test(
             new AlterColumnOperation
