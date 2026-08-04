@@ -238,17 +238,15 @@ ORDER BY [s0].[Id] DESC
     public virtual async Task Temporal_owned_range_operation_negative(bool async)
     {
         var contextFactory = await InitializeNonSharedTest<MyContext26451>();
-        using (var context = contextFactory.CreateDbContext())
-        {
-            var message = async
-                ? (await Assert.ThrowsAsync<InvalidOperationException>(()
-                    => context.MainEntitiesDifferentTable.TemporalAll().ToListAsync())).Message
-                : Assert.Throws<InvalidOperationException>(() => context.MainEntitiesDifferentTable.TemporalAll().ToList()).Message;
+        using var context = contextFactory.CreateDbContext();
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => context.MainEntitiesDifferentTable.TemporalAll().ToListAsync())).Message
+            : Assert.Throws<InvalidOperationException>(() => context.MainEntitiesDifferentTable.TemporalAll().ToList()).Message;
 
-            Assert.Equal(
-                SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"),
-                message);
-        }
+        Assert.Equal(
+            SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"),
+            message);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -384,16 +382,13 @@ ORDER BY [u].[Id], [o].[MainEntityManyId]
             modelBuilder.Entity<MainEntityDifferentTable>().Property(me => me.Id).UseIdentityColumn();
             modelBuilder.Entity<MainEntityDifferentTable>().OwnsOne(me => me.OwnedEntity).WithOwner();
             modelBuilder.Entity<MainEntityDifferentTable>().OwnsOne(
-                me => me.OwnedEntity, oe =>
-                {
-                    oe.ToTable(
-                        "OwnedEntityDifferentTable", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("StartTime");
-                            ttb.HasPeriodEnd("EndTime");
-                            ttb.UseHistoryTable("OwnedEntityHistory");
-                        }));
-                });
+                me => me.OwnedEntity, oe => oe.ToTable(
+                    "OwnedEntityDifferentTable", tb => tb.IsTemporal(ttb =>
+                    {
+                        ttb.HasPeriodStart("StartTime");
+                        ttb.HasPeriodEnd("EndTime");
+                        ttb.UseHistoryTable("OwnedEntityHistory");
+                    })));
 
             modelBuilder.Entity<MainEntitySameTable>(eb =>
             {

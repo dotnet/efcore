@@ -27,7 +27,10 @@ public class CosmosEventIdTest : EventIdTestBase
                     [new SqlValueParameter("P1", "V1"), new SqlValueParameter("P2", "V2")])
             },
             { typeof(string), () => "Fake" },
-            { typeof(IReadOnlyList<CosmosTransactionalBatchEntry>), () => new List<CosmosTransactionalBatchEntry>{ new(null, CosmosCudOperation.Create, "fake") } },
+            {
+                typeof(IReadOnlyList<CosmosTransactionalBatchEntry>),
+                () => new List<CosmosTransactionalBatchEntry> { new(null, CosmosCudOperation.Create, "fake") }
+            },
         };
 
         TestEventLogging(

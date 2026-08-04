@@ -709,7 +709,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         var toy = modelBuilder.Entity<Toy>();
 
         Assert.DoesNotContain(
-            toy.Metadata.GetForeignKeys(), fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow)));
+            toy.Metadata.GetForeignKeys(), fk => !fk.IsUnique && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow)));
 
         Validate(modelBuilder);
 
@@ -1802,7 +1802,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
     protected interface IEntityBase
     {
-        int Target { get; set; }
+        public int Target { get; set; }
     }
 
     protected class EntityAnnotationBase : IEntityBase
@@ -2220,7 +2220,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                         + $" {nameof(AmbiguousInversePropertyRight)}.{nameof(AmbiguousInversePropertyRight.BaseLefts)}",
                         nameof(AmbiguousInversePropertyLeft.BaseRights)),
                 "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
     }
 
     protected class AmbiguousInversePropertyLeft
@@ -2379,7 +2379,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.Equal(
             CoreStrings.InvalidRelationshipUsingDataAnnotations(nameof(A.B), nameof(A), nameof(B.A), nameof(B)),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
+            Assert.Throws<InvalidOperationException>(modelBuilder.Entity<A>).Message);
     }
 
     [Fact]
@@ -2390,7 +2390,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.Equal(
             CoreStrings.InvalidRelationshipUsingDataAnnotations("C", nameof(D), "D", nameof(C)),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
+            Assert.Throws<InvalidOperationException>(modelBuilder.Entity<D>).Message);
     }
 
     [Fact]
@@ -2402,7 +2402,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.Equal(
             CoreStrings.ConflictingForeignKeyAttributes("{'AId'}", nameof(ConflictingFKAttributes), nameof(A)),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<ConflictingFKAttributes>()).Message);
+            Assert.Throws<InvalidOperationException>(modelBuilder.Entity<ConflictingFKAttributes>).Message);
     }
 
     protected class A

@@ -207,7 +207,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture>(TFixture fixture
 
     protected virtual ITypeBase FindType(DbContext context)
         => context.Model.FindEntityType(
-                typeof(ConvertingEntity))!;
+            typeof(ConvertingEntity))!;
 
     private void SetPropertyValues(DbContext context, ConvertingEntity entity, int valueIndex, int previousValueIndex)
     {

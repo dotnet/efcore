@@ -395,17 +395,11 @@ public abstract class CompositeKeysQueryFixtureBase : QueryFixtureBase<Composite
                 return (IQueryable<TEntity>)CompositeTwos.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(CompositeThree))
-            {
-                return (IQueryable<TEntity>)CompositeThrees.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(CompositeFour))
-            {
-                return (IQueryable<TEntity>)CompositeFours.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(CompositeThree)
+                ? (IQueryable<TEntity>)CompositeThrees.AsQueryable()
+                : typeof(TEntity) == typeof(CompositeFour)
+                    ? (IQueryable<TEntity>)CompositeFours.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
     }
 }

@@ -2177,7 +2177,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,
                     existingFk.PrincipalEntityType.DisplayName() + "." + existingFk.PrincipalToDependent.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -2233,13 +2233,10 @@ public abstract partial class ModelBuilderTest
             var model = modelBuilder.Model;
             modelBuilder.Ignore<OrderDetails>();
             modelBuilder.Entity<Customer>();
-            modelBuilder.Entity<Order>(eb =>
-            {
-                eb.HasKey(c => new { c.OrderId, c.CustomerId });
-            });
+            modelBuilder.Entity<Order>(eb => eb.HasKey(c => new { c.OrderId, c.CustomerId }));
 
             modelBuilder.Ignore<ProductCategory>();
-            modelBuilder.Entity<Category>(eb => { eb.HasKey(c => new { c.Id, c.Name }); });
+            modelBuilder.Entity<Category>(eb => eb.HasKey(c => new { c.Id, c.Name }));
 
             modelBuilder.Entity<Product>(eb =>
             {
@@ -2621,12 +2618,9 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<Alpha>();
-            modelBuilder.Entity<Beta>(b =>
-            {
-                b.HasOne(e => e.FirstNav)
-                    .WithMany()
-                    .HasForeignKey("ShadowId");
-            });
+            modelBuilder.Entity<Beta>(b => b.HasOne(e => e.FirstNav)
+                .WithMany()
+                .HasForeignKey("ShadowId"));
 
             modelBuilder.FinalizeModel();
 
@@ -2683,7 +2677,7 @@ public abstract partial class ModelBuilderTest
                     nameof(Customer) + "." + nameof(Customer.Orders),
                     "{'AnotherCustomerId' : Guid}",
                     "{'Id' : int}"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]

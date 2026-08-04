@@ -1001,7 +1001,8 @@ WHERE (
         => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_same_parameter();
 
     // nothing to test here
-    public override Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
+    public override Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
         => base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
     // nothing to test here
@@ -1538,7 +1539,6 @@ WHERE "p"."Int" IN (10, 999)
 """);
     }
 
-
     public override async Task Contains_on_MemoryExtensions()
     {
         await base.Contains_on_MemoryExtensions();
@@ -1717,7 +1717,7 @@ WHERE json_array_length("p"."Strings") > 0 AND "p"."Strings" ->> 1 = "p"."Nullab
     public override async Task Inline_collection_index_Column()
     {
         // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
-        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_index_Column());
+        await Assert.ThrowsAsync<SqliteException>(base.Inline_collection_index_Column);
 
         AssertSql(
             """
@@ -1746,7 +1746,7 @@ WHERE '[1,2,3]' ->> "p"."Int" = 1
     public override async Task Inline_collection_value_index_Column()
     {
         // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
-        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_value_index_Column());
+        await Assert.ThrowsAsync<SqliteException>(base.Inline_collection_value_index_Column);
 
         AssertSql(
             """
@@ -1763,7 +1763,7 @@ WHERE (
     public override async Task Inline_collection_List_value_index_Column()
     {
         // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
-        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_List_value_index_Column());
+        await Assert.ThrowsAsync<SqliteException>(base.Inline_collection_List_value_index_Column);
 
         AssertSql(
             """
@@ -2075,23 +2075,23 @@ WHERE (
     public override async Task Column_collection_SelectMany()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Column_collection_SelectMany())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Column_collection_SelectMany)).Message);
 
     public override async Task Inline_collection_SelectMany_with_unreferenced_collection_value()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Inline_collection_SelectMany_with_unreferenced_collection_value())).Message);
+                base.Inline_collection_SelectMany_with_unreferenced_collection_value)).Message);
 
     public override async Task Column_collection_SelectMany_with_filter()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Column_collection_SelectMany_with_filter())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Column_collection_SelectMany_with_filter)).Message);
 
     public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Column_collection_SelectMany_with_Select_to_anonymous_type()))
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Column_collection_SelectMany_with_Select_to_anonymous_type))
             .Message);
 
     public override async Task Column_collection_projection_from_top_level()
@@ -2143,7 +2143,7 @@ WHERE (
     public override async Task Parameter_collection_Concat_column_collection()
     {
         // Issue #32561
-        await Assert.ThrowsAsync<EqualException>(() => base.Parameter_collection_Concat_column_collection());
+        await Assert.ThrowsAsync<EqualException>(base.Parameter_collection_Concat_column_collection);
 
         AssertSql(
             """
@@ -2497,48 +2497,48 @@ ORDER BY "p"."Id"
     public override async Task Project_collection_of_ints_ordered()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_ints_ordered())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_ints_ordered)).Message);
 
     public override async Task Project_collection_of_datetimes_filtered()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_datetimes_filtered())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_datetimes_filtered)).Message);
 
     public override async Task Project_collection_of_nullable_ints_with_paging()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_nullable_ints_with_paging())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_nullable_ints_with_paging)).Message);
 
     public override async Task Project_collection_of_nullable_ints_with_paging2()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_nullable_ints_with_paging2())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_nullable_ints_with_paging2)).Message);
 
     public override async Task Project_collection_of_nullable_ints_with_paging3()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_nullable_ints_with_paging3())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_nullable_ints_with_paging3)).Message);
 
     public override async Task Project_collection_of_ints_with_distinct()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_ints_with_distinct())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_ints_with_distinct)).Message);
 
     public override async Task Project_collection_of_nullable_ints_with_distinct()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_nullable_ints_with_distinct())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_nullable_ints_with_distinct)).Message);
 
     public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_ints_with_ToList_and_FirstOrDefault()))
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_collection_of_ints_with_ToList_and_FirstOrDefault))
             .Message);
 
     public override async Task Project_multiple_collections()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_multiple_collections())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_multiple_collections)).Message);
 
     public override async Task Project_primitive_collections_element()
     {
@@ -2567,7 +2567,7 @@ FROM "PrimitiveCollectionsEntity" AS "p"
     public override async Task Project_inline_collection_with_Union()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_inline_collection_with_Union())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(base.Project_inline_collection_with_Union)).Message);
 
     public override async Task Project_inline_collection_with_Concat()
     {
@@ -2579,8 +2579,8 @@ FROM "PrimitiveCollectionsEntity" AS "p"
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls()
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(()
-                => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls)).Message);
 
     public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping()
     {

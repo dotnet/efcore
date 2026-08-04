@@ -256,16 +256,13 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 b.OwnsOne(e => e.SupplierData).ToTable("SupplierData");
             });
 
-            modelBuilder.Entity<Owner>(b =>
-            {
-                b.OwnsOne(
-                    e => e.OwnedEntity, o =>
-                    {
-                        o.ToTable("IntermediateOwnedEntity");
-                        o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
-                        o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
-                    });
-            });
+            modelBuilder.Entity<Owner>(b => b.OwnsOne(
+                e => e.OwnedEntity, o =>
+                {
+                    o.ToTable("IntermediateOwnedEntity");
+                    o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
+                    o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
+                }));
         }
     }
 
@@ -349,10 +346,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 Assert.Equal("1", t.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            Assert.Null);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -379,10 +373,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 Assert.Equal("1", t.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            Assert.Null);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -399,14 +390,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         Assert.Collection(
             result,
-            t =>
-            {
-                Assert.Equal("1", t);
-            },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            t => Assert.Equal("1", t),
+            Assert.Null);
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -505,13 +490,15 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             Add(
                 new Monarch
                 {
-                    Name = "His August Majesty Guslav the Fifth", RulerOf = "The Union",
+                    Name = "His August Majesty Guslav the Fifth",
+                    RulerOf = "The Union",
                 });
 
             Add(
                 new Monarch
                 {
-                    Name = "Emperor Uthman-ul-Dosht", RulerOf = "The Gurkish Empire",
+                    Name = "Emperor Uthman-ul-Dosht",
+                    RulerOf = "The Gurkish Empire",
                 });
 
             Add(
@@ -628,11 +615,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 var rootEntity = new Context38223.RootEntity
                 {
                     Id = Guid.NewGuid(),
-                    Outer = new Context38223.Outer
-                    {
-                        RequiredProperty = 1,
-                        Inner = new Context38223.Inner { InnerProperty = 42 }
-                    }
+                    Outer = new Context38223.Outer { RequiredProperty = 1, Inner = new Context38223.Inner { InnerProperty = 42 } }
                 };
                 c.Add(rootEntity);
                 await c.SaveChangesAsync();
@@ -655,11 +638,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             l => l.Id == CoreEventId.InconsistentOwnedDataWarning && l.Level == LogLevel.Warning);
 
         // Replacing the owned entity should not throw an identity conflict exception
-        root.Outer = new Context38223.Outer
-        {
-            RequiredProperty = 1,
-            Inner = new Context38223.Inner { InnerProperty = 2 }
-        };
+        root.Outer = new Context38223.Outer { RequiredProperty = 1, Inner = new Context38223.Inner { InnerProperty = 2 } };
 
         await context.SaveChangesAsync();
     }

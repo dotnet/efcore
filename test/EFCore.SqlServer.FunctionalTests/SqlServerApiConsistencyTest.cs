@@ -60,7 +60,10 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
+                Type RuntimeExtensions)> MetadataExtensionTypes
+        {
+            get;
+        }
             = new()
             {
                 {
@@ -141,6 +144,5 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
 
             base.Initialize();
         }
-
     }
 }

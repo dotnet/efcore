@@ -727,10 +727,7 @@ public abstract partial class ModelBuilding101TestBase
                     .UsingEntity<PostTag>(
                         l => l.HasOne<Tag>().WithMany(e => e.PostTags).HasForeignKey(e => e.TagId).HasPrincipalKey(e => e.Id),
                         r => r.HasOne<Post>().WithMany(e => e.PostTags).HasForeignKey(e => e.PostId).HasPrincipalKey(e => e.Id),
-                        j =>
-                        {
-                            j.HasKey(e => new { e.PostId, e.TagId });
-                        });
+                        j => j.HasKey(e => new { e.PostId, e.TagId }));
         }
     }
 

@@ -10,10 +10,8 @@ public abstract class ServiceProviderFixtureBase : FixtureBase
     public IServiceProvider ServiceProvider { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
 
-    private ListLoggerFactory _listLoggerFactory;
-
     public ListLoggerFactory ListLoggerFactory
-        => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        => field ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
     protected ServiceProviderFixtureBase()
         => ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))

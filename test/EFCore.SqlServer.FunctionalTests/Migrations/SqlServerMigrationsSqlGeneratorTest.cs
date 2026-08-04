@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -1000,10 +999,7 @@ SELECT 2;
     public virtual void SqlOperation_handles_block_comment_with_multiple_quotes()
     {
         Generate(
-            new SqlOperation
-            {
-                Sql = "/* It's a comment with 'multiple' quotes */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
-            });
+            new SqlOperation { Sql = "/* It's a comment with 'multiple' quotes */" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
 
         AssertSql(
             """
@@ -1021,8 +1017,15 @@ SELECT 2;
         Generate(
             new SqlOperation
             {
-                Sql = "/* It's a procedure */" + EOL + "CREATE PROCEDURE dbo.proc1 AS SELECT 1;" + EOL + "go" + EOL
-                    + "/* Another one */" + EOL + "CREATE PROCEDURE dbo.proc2 AS SELECT 2;"
+                Sql = "/* It's a procedure */"
+                    + EOL
+                    + "CREATE PROCEDURE dbo.proc1 AS SELECT 1;"
+                    + EOL
+                    + "go"
+                    + EOL
+                    + "/* Another one */"
+                    + EOL
+                    + "CREATE PROCEDURE dbo.proc2 AS SELECT 2;"
             });
 
         AssertSql(
@@ -1058,8 +1061,15 @@ SELECT 2;
         Generate(
             new SqlOperation
             {
-                Sql = "/* Block comment */" + EOL + "SELECT 'string with '' escaped quotes';" + EOL + "go" + EOL
-                    + "-- Line comment" + EOL + "SELECT 1;"
+                Sql = "/* Block comment */"
+                    + EOL
+                    + "SELECT 'string with '' escaped quotes';"
+                    + EOL
+                    + "go"
+                    + EOL
+                    + "-- Line comment"
+                    + EOL
+                    + "SELECT 1;"
             });
 
         AssertSql(
@@ -1093,10 +1103,7 @@ SELECT 2;
     public virtual void SqlOperation_handles_block_comment_with_asterisks()
     {
         Generate(
-            new SqlOperation
-            {
-                Sql = "/** It's a comment with extra stars **/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;"
-            });
+            new SqlOperation { Sql = "/** It's a comment with extra stars **/" + EOL + "SELECT 1;" + EOL + "go" + EOL + "SELECT 2;" });
 
         AssertSql(
             """
@@ -1477,8 +1484,15 @@ SELECT 2;
         Generate(
             new SqlOperation
             {
-                Sql = "CREATE PROCEDURE dbo.Proc1 AS SELECT 1;" + EOL + "GO" + EOL
-                    + "CREATE VIEW view1 AS SELECT 1 AS Id;" + EOL + "GO 2" + EOL + "SELECT 1;",
+                Sql = "CREATE PROCEDURE dbo.Proc1 AS SELECT 1;"
+                    + EOL
+                    + "GO"
+                    + EOL
+                    + "CREATE VIEW view1 AS SELECT 1 AS Id;"
+                    + EOL
+                    + "GO 2"
+                    + EOL
+                    + "SELECT 1;",
                 SuppressTransaction = true
             },
             MigrationsSqlGenerationOptions.Script);
@@ -1907,12 +1921,9 @@ SELECT @@ROWCOUNT;
     public virtual void CreateIndex_generates_exec_when_legacy_filter_and_idempotent()
     {
         Generate(
-            modelBuilder =>
-            {
-                modelBuilder
-                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
-                    .Entity("Table1").Property<int?>("Column1");
-            },
+            modelBuilder => modelBuilder
+                .HasAnnotation(CoreAnnotationNames.ProductVersion, "1.1.0")
+                .Entity("Table1").Property<int?>("Column1"),
             migrationBuilder => migrationBuilder.CreateIndex(
                 name: "IX_Table1_Column1",
                 table: "Table1",
@@ -1960,8 +1971,6 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
 """);
     }
 
-
-
     [Fact]
     public void Invalid_column_type_for_unmappable_clr_type_throws_meaningful_exception()
     {
@@ -1971,7 +1980,7 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
                 {
                     Name = "TestColumn",
                     Table = "TestTable",
-                    ClrType = typeof(System.IO.FileStream), // Unmappable CLR type
+                    ClrType = typeof(FileStream), // Unmappable CLR type
                     ColumnType = null,
                     IsNullable = false
                 }));
@@ -2053,20 +2062,22 @@ ALTER TABLE [People] DROP COLUMN [ef_temp_Settings];
     {
         Generate(
             modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
-            [new AlterColumnOperation
-            {
-                Table = "People",
-                Name = "Settings",
-                ClrType = typeof(string),
-                ColumnType = "nvarchar(max)",
-                IsNullable = false,
-                OldColumn = new AddColumnOperation
+            [
+                new AlterColumnOperation
                 {
+                    Table = "People",
+                    Name = "Settings",
                     ClrType = typeof(string),
-                    ColumnType = "json",
-                    IsNullable = false
+                    ColumnType = "nvarchar(max)",
+                    IsNullable = false,
+                    OldColumn = new AddColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        ColumnType = "json",
+                        IsNullable = false
+                    }
                 }
-            }],
+            ],
             MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(

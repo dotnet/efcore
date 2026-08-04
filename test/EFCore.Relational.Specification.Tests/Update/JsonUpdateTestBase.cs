@@ -1857,14 +1857,14 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestDateTimeOffsetCollection = new List<DateTimeOffset>
-                {
+                entity.Reference.TestDateTimeOffsetCollection =
+                [
                     new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))
-                };
-                entity.Collection[0].TestDateTimeOffsetCollection = new List<DateTimeOffset>
-                {
+                ];
+                entity.Collection[0].TestDateTimeOffsetCollection =
+                [
                     new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))
-                };
+                ];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1873,10 +1873,10 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
                 Assert.Equal(
-                    new List<DateTimeOffset> { new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0)) },
+                    [new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))],
                     result.Reference.TestDateTimeOffsetCollection);
                 Assert.Equal(
-                    new List<DateTimeOffset> { new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0)) },
+                    [new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))],
                     result.Collection[0].TestDateTimeOffsetCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
@@ -2173,8 +2173,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestUnsignedInt16Collection = new List<ushort> { 1534 };
-                entity.Collection[0].TestUnsignedInt16Collection = new List<ushort> { 1534 };
+                entity.Reference.TestUnsignedInt16Collection = [1534];
+                entity.Collection[0].TestUnsignedInt16Collection = [1534];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2182,8 +2182,8 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new List<ushort> { 1534 }, result.Reference.TestUnsignedInt16Collection);
-                Assert.Equal(new List<ushort> { 1534 }, result.Collection[0].TestUnsignedInt16Collection);
+                Assert.Equal([1534], result.Reference.TestUnsignedInt16Collection);
+                Assert.Equal([1534], result.Collection[0].TestUnsignedInt16Collection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -2611,10 +2611,10 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestDateTimeOffsetCollection = new List<DateTimeOffset>
-                {
+                entity.TestDateTimeOffsetCollection =
+                [
                     new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))
-                };
+                ];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2623,7 +2623,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
                 Assert.Equal(
-                    new List<DateTimeOffset> { new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0)) },
+                    [new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))],
                     result.TestDateTimeOffsetCollection);
 
                 Assert.False(result.NewCollectionSet);
@@ -2837,7 +2837,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestUnsignedInt16Collection = new List<ushort> { 1534 };
+                entity.TestUnsignedInt16Collection = [1534];
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2845,7 +2845,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new List<ushort> { 1534 }, result.TestUnsignedInt16Collection);
+                Assert.Equal([1534], result.TestUnsignedInt16Collection);
 
                 Assert.False(result.NewCollectionSet);
             });
@@ -3559,7 +3559,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                     TestSignedByteCollection = [],
                     TestSingleCollection = [],
                     TestTimeSpanCollection = [],
-                    TestUnsignedInt16Collection = new List<ushort>(),
+                    TestUnsignedInt16Collection = [],
                     TestUnsignedInt32Collection = [],
                     TestUnsignedInt64Collection = [],
                     TestNullableInt32Collection = [],
@@ -3599,7 +3599,7 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
                             TestTimeSpanCollection = [],
                             TestDateOnlyCollection = [],
                             TestTimeOnlyCollection = [],
-                            TestUnsignedInt16Collection = new List<ushort>(),
+                            TestUnsignedInt16Collection = [],
                             TestUnsignedInt32Collection = [],
                             TestUnsignedInt64Collection = [],
                             TestNullableInt32Collection = [],
@@ -3670,50 +3670,50 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
 
     [Fact]
     public virtual Task Edit_single_property_with_non_ascii_characters()
-       => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-           CreateContext,
-           UseTransaction,
-           async context =>
-           {
-               var query = await context.JsonEntitiesBasic.ToListAsync();
-               var entity = query.Single(x => x.Id == 1);
-               entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething = "测试1";
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething = "测试1";
 
-               var newEntity = new JsonEntityBasic
-               {
-                   Id = 3,
-                   Name = "ComprehensiveEntity",
-                   OwnedCollectionRoot = [],
-                   OwnedReferenceRoot = new JsonOwnedRoot
-                   {
-                       Name = "ReferenceRoot",
-                       Number = 300,
-                       OwnedCollectionBranch = [],
-                       OwnedReferenceBranch = new JsonOwnedBranch
-                       {
-                           Id = 15,
-                           Date = new DateTime(2023, 10, 5),
-                           Enum = JsonEnum.Three,
-                           Fraction = 99.99m,
-                           OwnedCollectionLeaf = [],
-                           OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "测试1" }
-                       }
-                   }
-               };
+                var newEntity = new JsonEntityBasic
+                {
+                    Id = 3,
+                    Name = "ComprehensiveEntity",
+                    OwnedCollectionRoot = [],
+                    OwnedReferenceRoot = new JsonOwnedRoot
+                    {
+                        Name = "ReferenceRoot",
+                        Number = 300,
+                        OwnedCollectionBranch = [],
+                        OwnedReferenceBranch = new JsonOwnedBranch
+                        {
+                            Id = 15,
+                            Date = new DateTime(2023, 10, 5),
+                            Enum = JsonEnum.Three,
+                            Fraction = 99.99m,
+                            OwnedCollectionLeaf = [],
+                            OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "测试1" }
+                        }
+                    }
+                };
 
-               context.Add(newEntity);
+                context.Add(newEntity);
 
-               ClearLog();
-               await context.SaveChangesAsync();
-           },
-           async context =>
-           {
-               var result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 3);
-               Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 3);
+                Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
 
-               result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 1);
-               Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
-           });
+                result = await context.Set<JsonEntityBasic>().SingleAsync(x => x.Id == 1);
+                Assert.Equal("测试1", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
+            });
 
     [Fact]
     public virtual Task Replace_json_reference_root_preserves_nested_owned_entities_in_memory()
@@ -3785,22 +3785,23 @@ public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFix
             {
                 var entity = await context.JsonEntitiesInheritance.OfType<JsonEntityInheritanceDerived>().SingleAsync();
                 context.Remove(entity);
-                context.Add(new JsonEntityInheritanceBase
-                {
-                    Id = entity.Id,
-                    Name = "ReplacementBase",
-                    ReferenceOnBase = new JsonOwnedBranch
+                context.Add(
+                    new JsonEntityInheritanceBase
                     {
-                        Date = new DateTime(2010, 1, 1),
-                        Fraction = 1.0m,
-                        Enum = JsonEnum.One,
-                        Enums = [JsonEnum.One],
-                        NullableEnums = [null],
-                        OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "leaf" },
-                        OwnedCollectionLeaf = []
-                    },
-                    CollectionOnBase = []
-                });
+                        Id = entity.Id,
+                        Name = "ReplacementBase",
+                        ReferenceOnBase = new JsonOwnedBranch
+                        {
+                            Date = new DateTime(2010, 1, 1),
+                            Fraction = 1.0m,
+                            Enum = JsonEnum.One,
+                            Enums = [JsonEnum.One],
+                            NullableEnums = [null],
+                            OwnedReferenceLeaf = new JsonOwnedLeaf { SomethingSomething = "leaf" },
+                            OwnedCollectionLeaf = []
+                        },
+                        CollectionOnBase = []
+                    });
 
                 ClearLog();
                 await context.SaveChangesAsync();

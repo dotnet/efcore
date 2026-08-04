@@ -52,14 +52,14 @@ public class SqliteMetadataExtensionsTest
     {
         var modelBuilder = new ModelBuilder();
 
-        var property = (IMutableProperty)modelBuilder
+        var property = modelBuilder
             .Entity<Customer>()
             .Property(e => e.Id)
             .Metadata;
 
         Assert.Equal(SqliteValueGenerationStrategy.None, property.GetValueGenerationStrategy());
 
-        ((IMutableProperty)property).SetValueGenerationStrategy(SqliteValueGenerationStrategy.Autoincrement);
+        property.SetValueGenerationStrategy(SqliteValueGenerationStrategy.Autoincrement);
 
         Assert.Equal(SqliteValueGenerationStrategy.Autoincrement, property.GetValueGenerationStrategy());
     }
@@ -110,10 +110,7 @@ public class SqliteMetadataExtensionsTest
         var modelBuilder = new ModelBuilder();
 
         modelBuilder
-            .Entity<CustomerWithCompositeKey>(b =>
-            {
-                b.HasKey(e => new { e.Id1, e.Id2 });
-            });
+            .Entity<CustomerWithCompositeKey>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
         var property1 = modelBuilder.Entity<CustomerWithCompositeKey>().Property(e => e.Id1).Metadata;
         var property2 = modelBuilder.Entity<CustomerWithCompositeKey>().Property(e => e.Id2).Metadata;

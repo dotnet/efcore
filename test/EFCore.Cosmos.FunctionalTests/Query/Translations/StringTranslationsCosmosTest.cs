@@ -257,10 +257,10 @@ WHERE ((LENGTH(c["String"]) > 2) AND (INDEX_OF(c["String"], "e", @start) = 6))
     }
 
     public override Task IndexOf_after_ToString()
-        => AssertTranslationFailed(() => base.IndexOf_after_ToString());
+        => AssertTranslationFailed(base.IndexOf_after_ToString);
 
     public override Task IndexOf_over_ToString()
-        => AssertTranslationFailed(() => base.IndexOf_over_ToString());
+        => AssertTranslationFailed(base.IndexOf_over_ToString);
 
     #endregion IndexOf
 
@@ -305,7 +305,7 @@ WHERE ((c["String"] != "") AND (REPLACE(c["String"], c["String"], "") = ""))
     public override async Task Replace_using_property_arguments()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Replace_using_property_arguments());
+        await AssertTranslationFailed(base.Replace_using_property_arguments);
 
         AssertSql();
     }
@@ -421,7 +421,7 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
     public override async Task IsNullOrEmpty()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrEmpty());
+        await AssertTranslationFailed(base.IsNullOrEmpty);
 
         AssertSql();
     }
@@ -429,7 +429,7 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
     public override async Task IsNullOrEmpty_negated()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrEmpty_negated());
+        await AssertTranslationFailed(base.IsNullOrEmpty_negated);
 
         AssertSql();
     }
@@ -437,7 +437,7 @@ WHERE (CONTAINS(c["String"], "a") AND (SUBSTRING(c["String"], INDEX_OF(c["String
     public override async Task IsNullOrWhiteSpace()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.IsNullOrWhiteSpace());
+        await AssertTranslationFailed(base.IsNullOrWhiteSpace);
 
         AssertSql();
     }
@@ -778,7 +778,7 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
     public override async Task TrimStart_with_char_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_argument());
+        await AssertTranslationFailed(base.TrimStart_with_char_argument);
 
         AssertSql();
     }
@@ -786,7 +786,7 @@ WHERE (LTRIM(c["String"]) = "Boston  ")
     public override async Task TrimStart_with_char_array_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument());
+        await AssertTranslationFailed(base.TrimStart_with_char_array_argument);
 
         AssertSql();
     }
@@ -810,7 +810,7 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     public override async Task TrimEnd_with_char_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument());
+        await AssertTranslationFailed(base.TrimEnd_with_char_argument);
 
         AssertSql();
     }
@@ -818,7 +818,7 @@ WHERE (RTRIM(c["String"]) = "  Boston")
     public override async Task TrimEnd_with_char_array_argument()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument());
+        await AssertTranslationFailed(base.TrimEnd_with_char_array_argument);
 
         AssertSql();
     }
@@ -842,7 +842,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Trim_with_char_argument_in_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_argument_in_predicate);
 
         AssertSql();
     }
@@ -850,7 +850,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Trim_with_char_array_argument_in_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_array_argument_in_predicate);
 
         AssertSql();
     }
@@ -862,7 +862,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Compare_simple_zero()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_zero());
+        await AssertTranslationFailed(base.Compare_simple_zero);
 
         AssertSql();
     }
@@ -870,7 +870,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Compare_simple_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_one());
+        await AssertTranslationFailed(base.Compare_simple_one);
 
         AssertSql();
     }
@@ -878,7 +878,7 @@ WHERE (TRIM(c["String"]) = "Boston")
     public override async Task Compare_with_parameter()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_with_parameter());
+        await AssertTranslationFailed(base.Compare_with_parameter);
 
         AssertSql(
             """
@@ -889,7 +889,7 @@ ReadItem([1.0], 1)
     public override async Task Compare_simple_more_than_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_simple_more_than_one());
+        await AssertTranslationFailed(base.Compare_simple_more_than_one);
 
         AssertSql();
     }
@@ -897,7 +897,7 @@ ReadItem([1.0], 1)
     public override async Task Compare_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_nested());
+        await AssertTranslationFailed(base.Compare_nested);
 
         AssertSql();
     }
@@ -905,7 +905,7 @@ ReadItem([1.0], 1)
     public override async Task Compare_multi_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_multi_predicate());
+        await AssertTranslationFailed(base.Compare_multi_predicate);
 
         AssertSql();
     }
@@ -913,7 +913,7 @@ ReadItem([1.0], 1)
     public override async Task CompareTo_simple_zero()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_zero());
+        await AssertTranslationFailed(base.CompareTo_simple_zero);
 
         AssertSql();
     }
@@ -921,7 +921,7 @@ ReadItem([1.0], 1)
     public override async Task CompareTo_simple_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_one());
+        await AssertTranslationFailed(base.CompareTo_simple_one);
 
         AssertSql();
     }
@@ -929,7 +929,7 @@ ReadItem([1.0], 1)
     public override async Task CompareTo_with_parameter()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_with_parameter());
+        await AssertTranslationFailed(base.CompareTo_with_parameter);
 
         AssertSql(
             """
@@ -940,7 +940,7 @@ ReadItem([1.0], 1)
     public override async Task CompareTo_simple_more_than_one()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_simple_more_than_one());
+        await AssertTranslationFailed(base.CompareTo_simple_more_than_one);
 
         AssertSql();
     }
@@ -948,7 +948,7 @@ ReadItem([1.0], 1)
     public override async Task CompareTo_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.CompareTo_nested());
+        await AssertTranslationFailed(base.CompareTo_nested);
 
         AssertSql();
     }
@@ -956,7 +956,7 @@ ReadItem([1.0], 1)
     public override async Task Compare_to_multi_predicate()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Compare_to_multi_predicate());
+        await AssertTranslationFailed(base.Compare_to_multi_predicate);
 
         AssertSql();
     }
@@ -966,19 +966,19 @@ ReadItem([1.0], 1)
     #region Join
 
     public override Task Join_over_non_nullable_column()
-        => AssertTranslationFailed(() => base.Join_over_non_nullable_column());
+        => AssertTranslationFailed(base.Join_over_non_nullable_column);
 
     public override Task Join_with_predicate()
-        => AssertTranslationFailed(() => base.Join_with_predicate());
+        => AssertTranslationFailed(base.Join_with_predicate);
 
     public override Task Join_with_ordering()
-        => AssertTranslationFailed(() => base.Join_with_ordering());
+        => AssertTranslationFailed(base.Join_with_ordering);
 
     public override Task Join_over_nullable_column()
-        => AssertTranslationFailed(() => base.Join_over_nullable_column());
+        => AssertTranslationFailed(base.Join_over_nullable_column);
 
     public override Task Join_non_aggregate()
-        => AssertTranslationFailed(() => base.Join_non_aggregate());
+        => AssertTranslationFailed(base.Join_non_aggregate);
 
     #endregion Join
 
@@ -997,7 +997,7 @@ WHERE ((c["String"] || "Boston") = "SeattleBoston")
     }
 
     public override Task Concat_aggregate()
-        => AssertTranslationFailed(() => base.Concat_aggregate());
+        => AssertTranslationFailed(base.Concat_aggregate);
 
     public override async Task Concat_string_string_comparison()
     {

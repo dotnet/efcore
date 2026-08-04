@@ -39,9 +39,9 @@ public class ModelCodeGeneratorSelectorTest
         var selector = new ModelCodeGeneratorSelector(
         [
             new TestTemplatedModelGenerator(hasTemplates: true),
-                expected,
-                new TestTemplatedModelGenerator(hasTemplates: false),
-                new TestModelCodeGenerator("C#")
+            expected,
+            new TestTemplatedModelGenerator(hasTemplates: false),
+            new TestModelCodeGenerator("C#")
         ]);
 
         var result = selector.Select(

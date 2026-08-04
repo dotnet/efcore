@@ -5042,18 +5042,14 @@ public class OwnedFixupTest
     {
         using var context = new FixupContext();
         var dependent = new Child { Name = "1" };
-        var principal1 = new Parent
-        {
-            Id = 77,
-            Child1 = dependent
-        };
+        var principal1 = new Parent { Id = 77, Child1 = dependent };
 
         context.Add(principal1);
 
         var principal2 = new Parent
         {
             Id = 78,
-            Child1 = dependent  // Same instance, already tracked
+            Child1 = dependent // Same instance, already tracked
         };
 
         var ex = Assert.Throws<InvalidOperationException>(() => context.Add(principal2));
@@ -5068,11 +5064,7 @@ public class OwnedFixupTest
     {
         using var context = new FixupContext();
         var dependent = new Child { Name = "1" };
-        var principal1 = new Parent
-        {
-            Id = 77,
-            Child1 = dependent
-        };
+        var principal1 = new Parent { Id = 77, Child1 = dependent };
         var principal2 = new Parent { Id = 78 };
 
         context.Add(principal1);
@@ -5091,11 +5083,7 @@ public class OwnedFixupTest
     {
         using var context = new FixupContext();
         var dependent = new Child { Name = "1" };
-        var principal = new Parent
-        {
-            Id = 79,
-            Child1 = dependent
-        };
+        var principal = new Parent { Id = 79, Child1 = dependent };
 
         context.Add(principal);
 
@@ -5112,21 +5100,13 @@ public class OwnedFixupTest
     {
         using var context = new FixupContext();
         var dependent = new Child { Name = "1" };
-        var principal1 = new Parent
-        {
-            Id = 80,
-            Child1 = dependent
-        };
+        var principal1 = new Parent { Id = 80, Child1 = dependent };
 
         context.Add(principal1);
         context.Entry(principal1).State = EntityState.Unchanged;
         context.Entry(dependent).State = EntityState.Unchanged;
 
-        var principal2 = new Parent
-        {
-            Id = 81,
-            Child1 = dependent
-        };
+        var principal2 = new Parent { Id = 81, Child1 = dependent };
 
         Assert.Equal(
             CoreStrings.DuplicateOwnedEntityInstance(

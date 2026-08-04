@@ -71,7 +71,7 @@ public abstract class InterceptionTestBase(InterceptionTestBase.InterceptionFixt
 
     public interface ITestDiagnosticListener : IDisposable
     {
-        void AssertEventsInOrder(params string[] eventNames);
+        public void AssertEventsInOrder(params string[] eventNames);
     }
 
     public class NullDiagnosticListener : ITestDiagnosticListener

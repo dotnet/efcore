@@ -112,8 +112,18 @@ public class CosmosSyncQueryTest(CosmosSyncQueryTest.CosmosSyncQueryFixture fixt
         protected override Task SeedAsync(SyncQueryContext context)
         {
             context.Entities.AddRange(
-                new SyncQueryEntity { Id = 1, PartitionKey = "1", Value = 8 },
-                new SyncQueryEntity { Id = 2, PartitionKey = "2", Value = 13 });
+                new SyncQueryEntity
+                {
+                    Id = 1,
+                    PartitionKey = "1",
+                    Value = 8
+                },
+                new SyncQueryEntity
+                {
+                    Id = 2,
+                    PartitionKey = "2",
+                    Value = 13
+                });
 
             return context.SaveChangesAsync();
         }

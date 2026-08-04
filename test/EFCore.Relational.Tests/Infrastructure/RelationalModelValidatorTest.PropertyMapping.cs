@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
+using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -30,12 +30,12 @@ public partial class RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionlessModelBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
-        entityTypeBuilder.Property(typeof(NetTopologySuite.Geometries.FakePoint), "Location");
+        entityTypeBuilder.Property(typeof(FakePoint), "Location");
         entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
 
         Assert.Equal(
             RelationalStrings.PropertyNotMappedSpatial(
-                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(FakePoint).ShortDisplayName(),
                 typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
                 "Location"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
@@ -45,13 +45,13 @@ public partial class RelationalModelValidatorTest
     public void Throws_spatial_message_when_declaring_type_is_geometry()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
-        var entityTypeBuilder = modelBuilder.Entity(typeof(NetTopologySuite.Geometries.FakePoint));
+        var entityTypeBuilder = modelBuilder.Entity(typeof(FakePoint));
         entityTypeBuilder.Property(typeof(Tuple<long>), "SomeProperty");
 
         Assert.Equal(
             RelationalStrings.PropertyNotMappedSpatial(
                 typeof(Tuple<long>).ShortDisplayName(),
-                typeof(NetTopologySuite.Geometries.FakePoint).ShortDisplayName(),
+                typeof(FakePoint).ShortDisplayName(),
                 "SomeProperty"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
     }

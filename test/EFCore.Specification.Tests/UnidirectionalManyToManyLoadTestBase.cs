@@ -141,11 +141,11 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             : new UnidirectionalEntityOne
             {
                 Id = 7776,
-                TwoSkip = new List<UnidirectionalEntityTwo> { new() { Id = 7777 } },
-                TwoSkipShared = new List<UnidirectionalEntityTwo> { new() { Id = 7778 } },
-                SelfSkipPayloadLeft = new List<UnidirectionalEntityOne> { new() { Id = 7779 } },
-                BranchSkip = new List<UnidirectionalEntityBranch> { new() { Id = 7781 } },
-                ThreeSkipPayloadFullShared = new List<UnidirectionalEntityThree> { new() { Id = 7783 } }
+                TwoSkip = [new() { Id = 7777 }],
+                TwoSkipShared = [new() { Id = 7778 }],
+                SelfSkipPayloadLeft = [new() { Id = 7779 }],
+                BranchSkip = [new() { Id = 7781 }],
+                ThreeSkipPayloadFullShared = [new() { Id = 7783 }]
             };
 
         var entityThreeCollection = context.Entry(left).Collection<UnidirectionalEntityThree>("UnidirectionalEntityThree");
@@ -854,7 +854,8 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             .OrderBy(e => e.Id)
             .Select(e => new
             {
-                e.Id, e.Name,
+                e.Id,
+                e.Name,
             });
 
         var projected = async

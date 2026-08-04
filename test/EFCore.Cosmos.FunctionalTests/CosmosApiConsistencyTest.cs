@@ -80,7 +80,7 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
                         typeof(CosmosComplexPropertyBuilderExtensions),
                         null
                     )
-            },
+                },
             };
     }
 }

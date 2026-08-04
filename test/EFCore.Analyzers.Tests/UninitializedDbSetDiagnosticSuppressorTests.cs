@@ -2,10 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis.Testing;
+using VerifyCS =
+    Microsoft.EntityFrameworkCore.TestUtilities.CSharpAnalyzerVerifier<
+        Microsoft.EntityFrameworkCore.UninitializedDbSetDiagnosticSuppressor>;
 
 namespace Microsoft.EntityFrameworkCore;
-
-using VerifyCS = CSharpAnalyzerVerifier<UninitializedDbSetDiagnosticSuppressor>;
 
 public class UninitializedDbSetDiagnosticSuppressorTests
 {

@@ -15,7 +15,6 @@ public class CosmosTriggersTest(NonSharedFixture fixture) : NonSharedModelTestBa
     protected override ITestStoreFactory NonSharedTestStoreFactory
         => CosmosTestStoreFactory.Instance;
 
-
     // Linux emulator: server-side scripts are not supported
     [ConditionalFact(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.IsNotLinuxEmulator))]
     public async Task Triggers_are_executed_on_SaveChanges()
@@ -213,10 +212,7 @@ function updateTrigger() {
                 entity.HasTrigger("UpdateTrigger", TriggerType.Pre, TriggerOperation.Replace);
             });
 
-            modelBuilder.Entity<TriggerExecutionLog>(entity =>
-            {
-                entity.HasPartitionKey(e => e.PartitionKey);
-            });
+            modelBuilder.Entity<TriggerExecutionLog>(entity => entity.HasPartitionKey(e => e.PartitionKey));
         }
     }
 

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class ComplianceTestBase
 {
     protected abstract Assembly TargetAssembly { get; }
-    protected virtual ICollection<Type> IgnoredTestBases { get; } = new List<Type>();
+    protected virtual ICollection<Type> IgnoredTestBases { get; } = [];
 
     [Fact]
     public virtual void All_test_bases_must_be_implemented()

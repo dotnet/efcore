@@ -510,7 +510,8 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
                 => new { first = (char?)e.FirstName.FirstOrDefault(), last = (char?)e.FirstName.LastOrDefault() }),
             ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(e => new
             {
-                first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()), last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
+                first = e.FirstName.MaybeScalar(x => x.FirstOrDefault()),
+                last = e.FirstName.MaybeScalar(x => x.LastOrDefault())
             }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -540,7 +541,6 @@ public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : Query
 
     public abstract class FunkyDataQueryFixtureBase : QueryFixtureBase<FunkyDataContext>
     {
-
         public override ISetSource GetExpectedData()
             => FunkyDataData.Instance;
 

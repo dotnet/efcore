@@ -38,10 +38,7 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
         });
         modelBuilder.Entity<LicensedOperator>();
 
-        modelBuilder.Entity<Vehicle>(vb =>
-        {
-            vb.Navigation(v => v.Operator).IsRequired();
-        });
+        modelBuilder.Entity<Vehicle>(vb => vb.Navigation(v => v.Operator).IsRequired());
 
         modelBuilder.Entity<FuelTank>(eb =>
         {
@@ -54,17 +51,11 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
                 .HasForeignKey<FuelTank>(e => e.VehicleName);
         });
 
-        modelBuilder.Entity<SolidFuelTank>(eb =>
-        {
-            eb.HasOne(e => e.Rocket)
-                .WithOne(e => e.SolidFuelTank)
-                .HasForeignKey<SolidFuelTank>(e => e.VehicleName);
-        });
+        modelBuilder.Entity<SolidFuelTank>(eb => eb.HasOne(e => e.Rocket)
+            .WithOne(e => e.SolidFuelTank)
+            .HasForeignKey<SolidFuelTank>(e => e.VehicleName));
 
-        modelBuilder.Entity<OperatorDetails>(eb =>
-        {
-            eb.HasKey(e => e.VehicleName);
-        });
+        modelBuilder.Entity<OperatorDetails>(eb => eb.HasKey(e => e.VehicleName));
     }
 
     public Task SeedAsync()
@@ -87,8 +78,8 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
     }
 
     protected IEnumerable<Vehicle> CreateVehicles()
-        => new List<Vehicle>
-        {
+        =>
+        [
             new()
             {
                 Name = "Trek Pro Fit Madone 6 Series",
@@ -167,5 +158,5 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
                     VehicleName = "AIM-9M Sidewinder"
                 }
             }
-        };
+        ];
 }

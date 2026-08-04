@@ -414,7 +414,8 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
                 };
 
                 context.Add(person);
@@ -489,7 +490,8 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             context.Products.Remove(
                 new Product
                 {
-                    Id = productId, Price = 3.49M // Not the same as the value stored in the database
+                    Id = productId,
+                    Price = 3.49M // Not the same as the value stored in the database
                 });
 
             Assert.Equal(
@@ -533,10 +535,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
     {
         var categoryId = 0;
         return ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                categoryId = (await context.Categories.SingleAsync()).Id;
-            },
+            async context => categoryId = (await context.Categories.SingleAsync()).Id,
             async context =>
             {
                 var stateManager = context.GetService<IStateManager>();
@@ -558,15 +557,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 entry3.SetEntityState(EntityState.Unchanged);
                 entry4.SetEntityState(EntityState.Deleted);
 
-                var processedEntities = 0;
-                if (async)
-                {
-                    processedEntities = await stateManager.SaveChangesAsync(true);
-                }
-                else
-                {
-                    processedEntities = stateManager.SaveChanges(true);
-                }
+                var processedEntities = async ? await stateManager.SaveChangesAsync(true) : stateManager.SaveChanges(true);
 
                 // Assert.Equal(3, processedEntities);
                 Assert.Equal(3, stateManager.Entries.Count());
@@ -587,10 +578,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
     {
         var categoryId = 0;
         return ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                categoryId = (await context.Categories.SingleAsync()).Id;
-            },
+            async context => categoryId = (await context.Categories.SingleAsync()).Id,
             async context =>
             {
                 var stateManager = context.GetService<IStateManager>();
@@ -613,15 +601,7 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
                 entry4.SetEntityState(EntityState.Deleted);
                 var generatedId = ((SpecialCategory)entry1.Entity).Id;
 
-                var processedEntities = 0;
-                if (async)
-                {
-                    processedEntities = await stateManager.SaveChangesAsync(false);
-                }
-                else
-                {
-                    processedEntities = stateManager.SaveChanges(false);
-                }
+                var processedEntities = async ? await stateManager.SaveChangesAsync(false) : stateManager.SaveChanges(false);
 
                 //Assert.Equal(3, processedEntities);
                 Assert.Equal(4, stateManager.Entries.Count());
@@ -1044,20 +1024,8 @@ public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixtur
             modelBuilder.Entity<LiftPaper>();
 
             modelBuilder.Entity<Nougat>();
-            modelBuilder.Entity<CrunchyNougat>(b =>
-            {
-                b.OwnsOne(e => e.Filling, ob =>
-                {
-                    ob.Property(o => o.Kind).HasConversion<string>();
-                });
-            });
-            modelBuilder.Entity<SoftNougat>(b =>
-            {
-                b.OwnsOne(e => e.Filling, ob =>
-                {
-                    ob.Property(o => o.Kind).HasConversion<string>();
-                });
-            });
+            modelBuilder.Entity<CrunchyNougat>(b => b.OwnsOne(e => e.Filling, ob => ob.Property(o => o.Kind).HasConversion<string>()));
+            modelBuilder.Entity<SoftNougat>(b => b.OwnsOne(e => e.Filling, ob => ob.Property(o => o.Kind).HasConversion<string>()));
         }
 
         protected override Task SeedAsync(UpdatesContext context)

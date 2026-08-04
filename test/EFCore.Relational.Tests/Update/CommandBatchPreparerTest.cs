@@ -1056,12 +1056,9 @@ FakeEntity [Deleted]"
             b.Ignore(c => c.RelatedId);
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.Id);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.Id));
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1096,12 +1093,9 @@ FakeEntity [Deleted]"
             b.HasIndex(c => c.UniqueValue).IsUnique();
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
 
         modelBuilder
             .Entity<FakeEntity>()
@@ -1122,12 +1116,9 @@ FakeEntity [Deleted]"
             b.HasIndex(c => c.UniqueValue).IsUnique();
         });
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
 
         modelBuilder
             .Entity<FakeEntity>()
@@ -1135,12 +1126,9 @@ FakeEntity [Deleted]"
             .WithOne()
             .HasForeignKey<FakeEntity>(c => c.RelatedId);
 
-        modelBuilder.Entity<AnotherFakeEntity>(b =>
-        {
-            b.HasOne<RelatedFakeEntity>()
-                .WithOne()
-                .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId);
-        });
+        modelBuilder.Entity<AnotherFakeEntity>(b => b.HasOne<RelatedFakeEntity>()
+            .WithOne()
+            .HasForeignKey<AnotherFakeEntity>(e => e.AnotherId));
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1151,19 +1139,13 @@ FakeEntity [Deleted]"
 
         modelBuilder.Entity<FakeEntity>();
 
-        modelBuilder.Entity<RelatedFakeEntity>(b =>
-        {
-            b.HasOne<FakeEntity>()
-                .WithOne()
-                .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
-        });
+        modelBuilder.Entity<RelatedFakeEntity>(b => b.HasOne<FakeEntity>()
+            .WithOne()
+            .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId));
 
-        modelBuilder.Entity<AnotherFakeEntity>(b =>
-        {
-            b.HasOne<RelatedFakeEntity>()
-                .WithOne()
-                .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId);
-        });
+        modelBuilder.Entity<AnotherFakeEntity>(b => b.HasOne<RelatedFakeEntity>()
+            .WithOne()
+            .HasForeignKey<AnotherFakeEntity>(c => c.AnotherId));
 
         return modelBuilder.Model.FinalizeModel();
     }
@@ -1187,12 +1169,9 @@ FakeEntity [Deleted]"
             b.ToTable(nameof(FakeEntity));
         });
 
-        modelBuilder.Entity<DerivedRelatedFakeEntity>(b =>
-        {
-            b.HasOne<AnotherFakeEntity>()
-                .WithOne()
-                .HasForeignKey<AnotherFakeEntity>(c => c.Id);
-        });
+        modelBuilder.Entity<DerivedRelatedFakeEntity>(b => b.HasOne<AnotherFakeEntity>()
+            .WithOne()
+            .HasForeignKey<AnotherFakeEntity>(c => c.Id));
 
         modelBuilder.Entity<AnotherFakeEntity>().ToTable(nameof(FakeEntity));
 
@@ -1301,23 +1280,22 @@ FakeEntity [Deleted]"
         modelBuilder.Entity<EntityA37588>(b =>
         {
             b.Property(x => x.SomeValue);
-            b.OwnsOne(x => x.Owned, x =>
-            {
-                x.Property(p => p.CreationDate);
-            });
+            b.OwnsOne(x => x.Owned, x => x.Property(p => p.CreationDate));
         });
 
-        modelBuilder.Entity<EntityB37588>(b =>
-        {
-            b.Property(x => x.Name).HasMaxLength(100);
-        });
+        modelBuilder.Entity<EntityB37588>(b => b.Property(x => x.Name).HasMaxLength(100));
 
         var model = modelBuilder.Model.FinalizeModel();
         var currentDbContext = CreateContextServices(model).GetRequiredService<ICurrentDbContext>();
         var stateManager = currentDbContext.GetDependencies().StateManager;
 
         // Create "existing" EntityA with an owned entity
-        var entityA = new EntityA37588 { Id = "SOMEID", SomeValue = true, Owned = new OwnedEntity37588 { CreationDate = DateTime.UtcNow } };
+        var entityA = new EntityA37588
+        {
+            Id = "SOMEID",
+            SomeValue = true,
+            Owned = new OwnedEntity37588 { CreationDate = DateTime.UtcNow }
+        };
         var entityAEntry = stateManager.GetOrCreateEntry(entityA);
         entityAEntry.SetEntityState(EntityState.Unchanged);
 
@@ -1361,9 +1339,10 @@ FakeEntity [Deleted]"
         Assert.Equal(EntityState.Modified, modifiedCommand.EntityState);
 
         // The modified command should contain both EntityB and OwnedEntity entries
-        Assert.True(modifiedCommand.Entries.Count() >= 2,
-            $"Expected at least 2 entries in Modified command, but got {modifiedCommand.Entries.Count()}. " +
-            $"Total commands: {allCommands.Count}, states: [{string.Join(", ", allCommands.Select(c => c.EntityState))}]");
+        Assert.True(
+            modifiedCommand.Entries.Count() >= 2,
+            $"Expected at least 2 entries in Modified command, but got {modifiedCommand.Entries.Count()}. "
+            + $"Total commands: {allCommands.Count}, states: [{string.Join(", ", allCommands.Select(c => c.EntityState))}]");
 
         // RowVersion should be a condition (used in WHERE clause)
         var rvModification = modifiedCommand.ColumnModifications
@@ -1461,12 +1440,9 @@ FakeEntity [Deleted]"
         modelBuilder.Entity<ConcretePrincipal>()
             .ToTable(nameof(ConcretePrincipal));
 
-        modelBuilder.Entity<TpcDependent>(b =>
-        {
-            b.HasOne<AbstractPrincipal>()
-                .WithMany()
-                .HasForeignKey(c => c.PrincipalId);
-        });
+        modelBuilder.Entity<TpcDependent>(b => b.HasOne<AbstractPrincipal>()
+            .WithMany()
+            .HasForeignKey(c => c.PrincipalId));
 
         return modelBuilder.Model.FinalizeModel();
     }

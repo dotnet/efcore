@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Types.Geography;
 public class SqlServerGeographyMultiLineStringTypeTest(
     SqlServerGeographyMultiLineStringTypeTest.MultiLineStringTypeFixture fixture,
     ITestOutputHelper testOutputHelper)
-    : SqlServerGeographyTypeTestBase<MultiLineString, SqlServerGeographyMultiLineStringTypeTest.MultiLineStringTypeFixture>(fixture, testOutputHelper)
+    : SqlServerGeographyTypeTestBase<MultiLineString, SqlServerGeographyMultiLineStringTypeTest.MultiLineStringTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -38,9 +39,7 @@ WHERE [t].[Value].STEquals('MULTILINESTRING ((-122.35 47.62, -122.345 47.615), (
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -217,24 +216,30 @@ FROM [JsonTypeEntity] AS [j]
 
     public class MultiLineStringTypeFixture : SqlServerGeographyTypeFixture
     {
-        public override MultiLineString Value { get; } = new([
-            new LineString([
+        public override MultiLineString Value { get; } = new(
+        [
+            new LineString(
+            [
                 new Coordinate(-122.3500, 47.6200),
                 new Coordinate(-122.3450, 47.6150)
             ]) { SRID = 4326 },
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(-122.3480, 47.6180),
                 new Coordinate(-122.3420, 47.6130)
             ]) { SRID = 4326 }
         ])
         { SRID = 4326 };
 
-        public override MultiLineString OtherValue { get; } = new([
-            new LineString([
+        public override MultiLineString OtherValue { get; } = new(
+        [
+            new LineString(
+            [
                 new Coordinate(-121.9000, 46.9500),
                 new Coordinate(-121.6000, 46.8200)
             ]) { SRID = 4326 },
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(-121.7000, 46.7800),
                 new Coordinate(-121.4000, 46.5500)
             ]) { SRID = 4326 }

@@ -19,14 +19,14 @@ public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fix
         await context
             .Set<F1ULongSqlServerFixture.OptimisticParent>()
             .Select(x => new
+            {
+                x.Id,
+                Child = new
                 {
-                    x.Id,
-                    Child = new
-                    {
-                        Id = x.OptionalChild == null ? Guid.Empty : x.OptionalChild.Id,
-                        Version = x.OptionalChild == null ? 0 : x.OptionalChild.Version
-                    }
+                    Id = x.OptionalChild == null ? Guid.Empty : x.OptionalChild.Id,
+                    Version = x.OptionalChild == null ? 0 : x.OptionalChild.Version
                 }
+            }
             ).ToArrayAsync();
     }
 

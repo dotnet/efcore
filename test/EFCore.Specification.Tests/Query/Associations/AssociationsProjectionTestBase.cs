@@ -101,7 +101,8 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             ss => ss.Set<RootEntity>().Select(e => UntranslatableMethod(e.RequiredAssociate.Int)),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    private static int UntranslatableMethod(int i) => i + 1;
+    private static int UntranslatableMethod(int i)
+        => i + 1;
 
     #endregion Structural properties
 
@@ -234,7 +235,12 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     {
         var obj = new object();
         return AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => new { Obj = obj, x.Id, x.RequiredAssociate }),
+            ss => ss.Set<RootEntity>().Select(x => new
+            {
+                Obj = obj,
+                x.Id,
+                x.RequiredAssociate
+            }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -349,9 +355,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Select(x => ss.Set<RootEntity>()
-                .OrderBy(e => e.Id)
-                .Select(e => e.RequiredAssociate)
-                .FirstOrDefault()!.RequiredNestedAssociate),
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.RequiredAssociate)
+                    .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [Theory, MemberData(nameof(TrackingData))]
@@ -359,9 +365,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Select(x => ss.Set<RootEntity>()
-                .OrderBy(e => e.Id)
-                .Select(e => e.OptionalAssociate)
-                .FirstOrDefault()!.RequiredNestedAssociate),
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.OptionalAssociate)
+                    .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [Theory, MemberData(nameof(TrackingData))]

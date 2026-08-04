@@ -787,11 +787,12 @@ public class InternalComplexEntryTest
 
         modelBuilder.Entity<BlogWithNested>(eb =>
         {
-            eb.ComplexProperty(e => e.NestedJson, b =>
-            {
-                b.ComplexProperty(a => a.Item);
-                b.ComplexCollection(a => a.Items);
-            });
+            eb.ComplexProperty(
+                e => e.NestedJson, b =>
+                {
+                    b.ComplexProperty(a => a.Item);
+                    b.ComplexCollection(a => a.Items);
+                });
         });
 
         return modelBuilder.FinalizeModel();

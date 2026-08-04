@@ -238,18 +238,13 @@ public class CustomValueGeneratorTest
     private class CustomValueGeneratorFactory : ValueGeneratorFactory
     {
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-        {
-            if (property.ClrType == typeof(Guid))
-            {
-                return property["SpecialGuid"] != null
+            => property.ClrType == typeof(Guid)
+                ? property["SpecialGuid"] != null
                     ? new CustomGuidValueGenerator()
-                    : new SequentialGuidValueGenerator();
-            }
-
-            return property.ClrType == typeof(string)
+                    : new SequentialGuidValueGenerator()
+                : property.ClrType == typeof(string)
                 && property.DeclaringType.ClrType == typeof(SomeEntity)
                     ? new SomeEntityStringValueGenerator()
                     : null;
-        }
     }
 }

@@ -10,7 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSemanticsContext>, ITestSqlLoggerFactory
 {
-
     public override ISetSource GetExpectedData()
         => NullSemanticsData.Instance;
 

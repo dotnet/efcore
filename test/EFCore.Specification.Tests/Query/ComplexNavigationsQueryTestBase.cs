@@ -2849,7 +2849,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Select_with_joined_where_clause_cast_using_as(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Where(w => (w.Id + 7) == w.OneToOne_Optional_FK1.Id as int?));
+            ss => ss.Set<Level1>().Where(w => (w.Id + 7) == (w.OneToOne_Optional_FK1.Id as int?)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async)
@@ -2924,7 +2924,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>().GroupBy(
                     l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.Name,
-                    l1 => new { Id = ((int?)l1.OneToOne_Required_PK1.Id ?? 0) })
+                    l1 => new { Id = (int?)l1.OneToOne_Required_PK1.Id ?? 0 })
                 .Where(g => g.Min(l1 => l1.Id + l1.Id) > 0)
                 .Select(g => g.Count()));
 
@@ -2995,7 +2995,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                         ? null
                         : new Level2Dto
                         {
-                            Id = l1.OneToOne_Optional_FK1.Id, Name = l1.OneToOne_Optional_FK1.Name,
+                            Id = l1.OneToOne_Optional_FK1.Id,
+                            Name = l1.OneToOne_Optional_FK1.Name,
                         }
                 })
                 .OrderBy(e => e.Level2.Name)
@@ -3127,7 +3128,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     o => new { o.Id, Condition = true },
                     i => new
                     {
-                        Id = i.Key, Condition = i.Sum > 10,
+                        Id = i.Key,
+                        Condition = i.Sum > 10,
                     },
                     (o, i) => i.Key));
 
@@ -3141,7 +3143,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     o => new { o.Id, Condition = false },
                     i => new
                     {
-                        Id = i.Key, Condition = i.Sum <= 10,
+                        Id = i.Key,
+                        Condition = i.Sum <= 10,
                     },
                     (o, i) => i.Key));
 
@@ -3152,10 +3155,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => from l1 in ss.Set<Level1>()
                   join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping1
                   from l2 in grouping1.DefaultIfEmpty()
-                  join x in (from l3 in ss.Set<Level3>()
-                             group l3 by l3.Name
-                             into g
-                             select new { g.Key, Count = g.Count() }) on l1.Name equals x.Key into grouping2
+                  join x in from l3 in ss.Set<Level3>()
+                            group l3 by l3.Name
+                            into g
+                            select new { g.Key, Count = g.Count() } on l1.Name equals x.Key into grouping2
                   from x in grouping2.DefaultIfEmpty()
                   where l2.Name != null || x.Count > 0
                   select new
@@ -3241,11 +3244,11 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                        Name1 = l1.Name,
                        Name2 = l2.Name
                    }).Distinct().Select(x => new
-            {
-                Foo = x.Id1,
-                Bar = x.Id2,
-                Baz = x.Id3
-            }).Take(10),
+                   {
+                       Foo = x.Id1,
+                       Bar = x.Id2,
+                       Baz = x.Id3
+                   }).Take(10),
             elementSorter: e => (e.Foo, e.Bar, e.Baz));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3302,10 +3305,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             () => AssertQuery(
                 async,
                 ss => ss.Set<Level1>().Select(x => new
-                    {
-                        Subquery = ss.Set<Level2>()
+                {
+                    Subquery = ss.Set<Level2>()
                             .Where(l2 => l2.Id < 10)
-                    })
+                })
                     .Join(ss.Set<Level3>(), o => 7, i => i.Id, (o, i) => i)),
             "IQueryable<Level1>");
 
@@ -3420,7 +3423,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => from x in ss.Set<InheritanceBase2>()
                   select new
                   {
-                      x.Id, InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
+                      x.Id,
+                      InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
                   },
             elementSorter: e => e.Id);
 
@@ -3617,10 +3621,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Multiple_optional_navs_should_not_deadlock(bool async)
         => AssertCount(
             async,
-            ss => ss.Set<Level2>().Where(x => x.OneToMany_Optional_Inverse2 != null
-                && x.OneToMany_Optional_Inverse2.Name.Contains("L1 01")
-                || x.OneToOne_Optional_FK_Inverse2 != null
-                && x.OneToOne_Optional_FK_Inverse2.Name.Contains("L1 01")));
+            ss => ss.Set<Level2>().Where(x => (x.OneToMany_Optional_Inverse2 != null
+                    && x.OneToMany_Optional_Inverse2.Name.Contains("L1 01"))
+                || (x.OneToOne_Optional_FK_Inverse2 != null
+                    && x.OneToOne_Optional_FK_Inverse2.Name.Contains("L1 01"))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Null_check_removal_applied_recursively_complex(bool async)

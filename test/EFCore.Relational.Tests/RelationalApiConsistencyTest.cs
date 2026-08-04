@@ -179,7 +179,10 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             Type MutableExtensions,
             Type ConventionExtensions,
             Type ConventionBuilderExtensions,
-            Type RuntimeExtensions)> MetadataExtensionTypes { get; } = new()
+            Type RuntimeExtensions)> MetadataExtensionTypes
+        {
+            get;
+        } = new()
         {
             {
                 typeof(IReadOnlyModel), (

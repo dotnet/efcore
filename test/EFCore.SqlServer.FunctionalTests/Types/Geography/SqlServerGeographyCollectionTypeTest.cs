@@ -6,8 +6,11 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geography;
 
-public class SqlServerGeographyCollectionTypeTest(SqlServerGeographyCollectionTypeTest.GeographyCollectionTypeFixture fixture, ITestOutputHelper testOutputHelper)
-    : SqlServerGeographyTypeTestBase<GeometryCollection, SqlServerGeographyCollectionTypeTest.GeographyCollectionTypeFixture>(fixture, testOutputHelper)
+public class SqlServerGeographyCollectionTypeTest(
+    SqlServerGeographyCollectionTypeTest.GeographyCollectionTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : SqlServerGeographyTypeTestBase<GeometryCollection, SqlServerGeographyCollectionTypeTest.GeographyCollectionTypeFixture>(
+        fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
     {
@@ -36,9 +39,7 @@ WHERE [t].[Value].STEquals('GEOMETRYCOLLECTION (POINT (-122.35 47.62), LINESTRIN
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -222,34 +223,40 @@ FROM [JsonTypeEntity] AS [j]
         public override GeometryCollection Value { get; } = new(
         [
             new Point(-122.3500, 47.6200) { SRID = 4326 },
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(-122.3500, 47.6200),
                 new Coordinate(-122.3450, 47.6150)
             ]) { SRID = 4326 },
-            new Polygon(new LinearRing([
-                new Coordinate(-122.3480, 47.6190), // NW
-                new Coordinate(-122.3480, 47.6170), // SW
-                new Coordinate(-122.3460, 47.6170), // SE
-                new Coordinate(-122.3460, 47.6190), // NE
-                new Coordinate(-122.3480, 47.6190)
-            ])) { SRID = 4326 }
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-122.3480, 47.6190), // NW
+                    new Coordinate(-122.3480, 47.6170), // SW
+                    new Coordinate(-122.3460, 47.6170), // SE
+                    new Coordinate(-122.3460, 47.6190), // NE
+                    new Coordinate(-122.3480, 47.6190)
+                ])) { SRID = 4326 }
         ])
         { SRID = 4326 };
 
         public override GeometryCollection OtherValue { get; } = new(
         [
             new Point(-121.9000, 46.9500) { SRID = 4326 },
-            new LineString([
+            new LineString(
+            [
                 new Coordinate(-121.9000, 46.9500),
                 new Coordinate(-121.6000, 46.8200)
             ]) { SRID = 4326 },
-            new Polygon(new LinearRing([
-                new Coordinate(-121.8800, 46.9400), // NW
-                new Coordinate(-121.8800, 46.9200), // SW
-                new Coordinate(-121.8600, 46.9200), // SE
-                new Coordinate(-121.8600, 46.9400), // NE
-                new Coordinate(-121.8800, 46.9400)
-            ])) { SRID = 4326 }
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(-121.8800, 46.9400), // NW
+                    new Coordinate(-121.8800, 46.9200), // SW
+                    new Coordinate(-121.8600, 46.9200), // SE
+                    new Coordinate(-121.8600, 46.9400), // NE
+                    new Coordinate(-121.8800, 46.9400)
+                ])) { SRID = 4326 }
         ])
         { SRID = 4326 };
     }

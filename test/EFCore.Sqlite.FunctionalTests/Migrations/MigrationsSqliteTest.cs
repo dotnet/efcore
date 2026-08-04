@@ -2398,15 +2398,14 @@ CREATE UNIQUE INDEX "IX_Person_Ssn" ON "Person" ("Ssn");
     {
         await Test(
             builder => { },
-            builder => builder.Entity<ProductWithStrongId>(
-                x =>
-                {
-                    x.Property(e => e.Id).HasConversion(
-                        v => v.Value,
-                        v => new ProductId(v)).UseAutoincrement();
-                    x.HasKey(e => e.Id);
-                    x.Property(e => e.Name);
-                }),
+            builder => builder.Entity<ProductWithStrongId>(x =>
+            {
+                x.Property(e => e.Id).HasConversion(
+                    v => v.Value,
+                    v => new ProductId(v)).UseAutoincrement();
+                x.HasKey(e => e.Id);
+                x.Property(e => e.Name);
+            }),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2431,15 +2430,14 @@ CREATE TABLE "ProductWithStrongId" (
     {
         await Test(
             builder => { },
-            builder => builder.Entity<ProductWithStrongId>(
-                x =>
-                {
-                    x.Property(e => e.Id).HasConversion(
-                        v => v.Value,
-                        v => new ProductId(v));
-                    x.HasKey(e => e.Id);
-                    x.Property(e => e.Name);
-                }),
+            builder => builder.Entity<ProductWithStrongId>(x =>
+            {
+                x.Property(e => e.Id).HasConversion(
+                    v => v.Value,
+                    v => new ProductId(v));
+                x.HasKey(e => e.Id);
+                x.Property(e => e.Name);
+            }),
             model =>
             {
                 var table = Assert.Single(model.Tables);

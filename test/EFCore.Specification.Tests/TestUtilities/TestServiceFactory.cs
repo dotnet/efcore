@@ -102,18 +102,12 @@ public class TestServiceFactory
             .Where(t => (elementType ?? serviceType).IsAssignableFrom(t) && !t.IsAbstract)
             .ToList();
 
-        if (elementType == null)
-        {
-            if (implementationTypes.Count != 1)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot use 'TestServiceFactory' for '{serviceType.ShortDisplayName()}': no single implementation type in same assembly.");
-            }
-
-            return [(serviceType, implementationTypes[0])];
-        }
-
-        return implementationTypes.Select(t => (elementType, t)).ToList();
+        return elementType == null
+            ? implementationTypes.Count != 1
+                ? throw new InvalidOperationException(
+                    $"Cannot use 'TestServiceFactory' for '{serviceType.ShortDisplayName()}': no single implementation type in same assembly.")
+                : [(serviceType, implementationTypes[0])]
+            : (IList<(Type ServiceType, Type ImplementationType)>)implementationTypes.Select(t => (elementType, t)).ToList();
     }
 
     private static Type TryGetEnumerableType(Type type)

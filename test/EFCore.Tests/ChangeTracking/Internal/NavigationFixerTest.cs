@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -1371,7 +1372,7 @@ public class NavigationFixerTest
             ValueComparer comparer = null,
             ValueComparer keyComparer = null,
             CoreTypeMapping elementMapping = null,
-            Microsoft.EntityFrameworkCore.Storage.Json.JsonValueReaderWriter jsonValueReaderWriter = null)
+            JsonValueReaderWriter jsonValueReaderWriter = null)
             => new CaseInsensitiveKeyStringTypeMapping(
                 Parameters.WithComposedConverter(
                     converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));

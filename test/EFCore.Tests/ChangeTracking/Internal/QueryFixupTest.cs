@@ -940,7 +940,8 @@ public class QueryFixupTest
                 Id = 77,
                 OrderDetails = new OrderDetails
                 {
-                    BillingAddress = new Address { Street = "BillMe" }, ShippingAddress = new Address { Street = "ShipMe" }
+                    BillingAddress = new Address { Street = "BillMe" },
+                    ShippingAddress = new Address { Street = "ShipMe" }
                 }
             });
 

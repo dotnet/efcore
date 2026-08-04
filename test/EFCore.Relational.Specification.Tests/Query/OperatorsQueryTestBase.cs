@@ -35,7 +35,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         var expected = (from o1 in ExpectedData.OperatorEntitiesString
                         from o2 in ExpectedData.OperatorEntitiesString
                         from o3 in ExpectedData.OperatorEntitiesBool
-                        where ((o2.Value == "B" || o3.Value) & (o1.Value != null))
+                        where (o2.Value == "B" || o3.Value) & (o1.Value != null)
                         orderby o1.Id, o2.Id, o3.Id
                         select new
                         {
@@ -76,8 +76,8 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
                         from e2 in ExpectedData.OperatorEntitiesLong
                         from e3 in ExpectedData.OperatorEntitiesLong
                         orderby e0.Id, e1.Id, e2.Id, e3.Id
-                        where ((((e1.Value % 2) / e0.Value) & (((e3.Value | e2.Value) - e0.Value) - (e2.Value * e2.Value)))
-                            >= (((e1.Value / ~(e3.Value)) % (1 + 1)) % (~(e0.Value) + 1)))
+                        where ((e1.Value % 2 / e0.Value) & ((e3.Value | e2.Value) - e0.Value - (e2.Value * e2.Value)))
+                            >= (e1.Value / ~e3.Value % (1 + 1) % (~e0.Value + 1))
                         select new
                         {
                             Value0 = e0.Value,
@@ -91,8 +91,8 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
                       from e2 in context.Set<OperatorEntityLong>()
                       from e3 in context.Set<OperatorEntityLong>()
                       orderby e0.Id, e1.Id, e2.Id, e3.Id
-                      where ((((e1.Value % 2) / e0.Value) & (((e3.Value | e2.Value) - e0.Value) - (e2.Value * e2.Value)))
-                          >= (((e1.Value / ~(e3.Value)) % (1 + 1)) % (~(e0.Value) + 1)))
+                      where ((e1.Value % 2 / e0.Value) & ((e3.Value | e2.Value) - e0.Value - (e2.Value * e2.Value)))
+                          >= (e1.Value / ~e3.Value % (1 + 1) % (~e0.Value + 1))
                       select new
                       {
                           Value0 = e0.Value,
@@ -120,7 +120,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         var expected = (from e0 in ExpectedData.OperatorEntitiesInt
                         from e1 in ExpectedData.OperatorEntitiesInt
                         from e2 in ExpectedData.OperatorEntitiesBool
-                        where (((((e1.Value & (e0.Value + e0.Value)) & e0.Value) / 1) > (e1.Value & 8 + 2)) && e2.Value)
+                        where (((e1.Value & (e0.Value + e0.Value) & e0.Value) / 1) > (e1.Value & (8 + 2))) && e2.Value
                         orderby e0.Id, e1.Id, e2.Id
                         select new
                         {
@@ -132,7 +132,7 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
         var actual = (from e0 in context.Set<OperatorEntityInt>()
                       from e1 in context.Set<OperatorEntityInt>()
                       from e2 in context.Set<OperatorEntityBool>()
-                      where (((((e1.Value & (e0.Value + e0.Value)) & e0.Value) / 1) > (e1.Value & 8 + 2)) && e2.Value)
+                      where (((e1.Value & (e0.Value + e0.Value) & e0.Value) / 1) > (e1.Value & (8 + 2))) && e2.Value
                       orderby e0.Id, e1.Id, e2.Id
                       select new
                       {
@@ -209,13 +209,13 @@ public abstract class OperatorsQueryTestBase(NonSharedFixture fixture) : NonShar
                         from e4 in ExpectedData.OperatorEntitiesLong
                         from e5 in ExpectedData.OperatorEntitiesLong
                         orderby e3.Id, e4.Id, e5.Id
-                        select ((~(-(-((e5.Value + e3.Value) + 2))) % (-(e4.Value + e4.Value) - e3.Value)))).ToList();
+                        select (~-(-(e5.Value + e3.Value + 2)) % (-(e4.Value + e4.Value) - e3.Value))).ToList();
 
         var actual = (from e3 in context.Set<OperatorEntityLong>()
                       from e4 in context.Set<OperatorEntityLong>()
                       from e5 in context.Set<OperatorEntityLong>()
                       orderby e3.Id, e4.Id, e5.Id
-                      select ((~(-(-((e5.Value + e3.Value) + 2))) % (-(e4.Value + e4.Value) - e3.Value)))).ToList();
+                      select (~-(-(e5.Value + e3.Value + 2)) % (-(e4.Value + e4.Value) - e3.Value))).ToList();
 
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)

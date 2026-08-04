@@ -108,10 +108,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
             .HasDiscriminator<string>("Discriminator").HasValue("SingleOwned");
 
         modelBuilder.Entity<JsonEntitySingleOwned>().OwnsMany(
-            x => x.OwnedCollection, b =>
-            {
-                b.Ignore(x => x.Parent);
-            });
+            x => x.OwnedCollection, b => b.Ignore(x => x.Parent));
 
         modelBuilder.Entity<JsonEntityInheritanceBase>().ToContainer("JsonEntitiesInheritance");
 

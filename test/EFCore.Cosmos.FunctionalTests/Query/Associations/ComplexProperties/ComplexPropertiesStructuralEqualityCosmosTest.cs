@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
 public class ComplexPropertiesStructuralEqualityCosmosTest : ComplexPropertiesStructuralEqualityTestBase<ComplexPropertiesCosmosFixture>
 {
-    public ComplexPropertiesStructuralEqualityCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
+    public ComplexPropertiesStructuralEqualityCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
@@ -119,8 +120,7 @@ WHERE (c["RequiredAssociate"]["RequiredNestedAssociate"] = @entity_equality_nest
     public async Task Nested_associate_with_parameter_null()
     {
         NestedAssociateType? nested = null;
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == nested));
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate == nested));
 
         AssertSql(
             """
@@ -136,8 +136,7 @@ WHERE (c["RequiredAssociate"]["OptionalNestedAssociate"] = @entity_equality_nest
     public async Task Nested_associate_with_parameter_not_null()
     {
         NestedAssociateType? nested = null;
-        await AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate != nested));
+        await AssertQuery(ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.OptionalNestedAssociate != nested));
 
         AssertSql(
             """
@@ -159,7 +158,7 @@ SELECT VALUE c
 FROM root c
 WHERE (c["RequiredAssociate"]["NestedCollection"] = c["OptionalAssociate"]["NestedCollection"])
 """);
-}
+    }
 
     // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/288 (Complex-type equality comparisons return no results)
     public override async Task Nested_collection_with_inline()

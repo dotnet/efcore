@@ -328,7 +328,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         public Task SeedAsync()
         {
-            Add(new Offer { OfferActions = new List<OfferAction> { new() { Action = Actions.Accepted } } });
+            Add(new Offer { OfferActions = [new() { Action = Actions.Accepted }] });
             return SaveChangesAsync();
         }
 

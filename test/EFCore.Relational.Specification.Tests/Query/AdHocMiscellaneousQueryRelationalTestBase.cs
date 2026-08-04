@@ -1036,11 +1036,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var categories = context.Requests
                 .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
 
-            var query = (from s in context.Statuses
-                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
-                         from countInfo in g.DefaultIfEmpty()
-                         orderby (countInfo == null ? 0 : countInfo.Count), s.PickupStatusId
-                         select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count });
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        orderby (countInfo == null ? 0 : countInfo.Count), s.PickupStatusId
+                        select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
             Assert.Contains("could not be translated", ex.Message);
@@ -1093,12 +1093,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var categories = context.Requests
                 .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
 
-            var query = (from s in context.Statuses
-                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
-                         from countInfo in g.DefaultIfEmpty()
-                         where countInfo != null
-                         orderby s.PickupStatusId
-                         select s.PickupStatusId);
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        where countInfo != null
+                        orderby s.PickupStatusId
+                        select s.PickupStatusId;
 
             // Server-side null-check against a whole non-entity projection from the nullable side
             // currently cannot be translated.
@@ -1116,12 +1116,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var categories = context.Requests
                 .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count() });
 
-            var query = (from s in context.Statuses
-                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
-                         from countInfo in g.DefaultIfEmpty()
-                         where countInfo == null
-                         orderby s.PickupStatusId
-                         select s.PickupStatusId);
+            var query = from s in context.Statuses
+                        join c in categories on s.PickupStatusId equals c.pickupStatusId into g
+                        from countInfo in g.DefaultIfEmpty()
+                        where countInfo == null
+                        orderby s.PickupStatusId
+                        select s.PickupStatusId;
 
             // Server-side null-check against a whole non-entity projection from the nullable side
             // currently cannot be translated.
@@ -1177,7 +1177,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = contextFactory.CreateDbContext();
 
             var categories = context.Requests
-                .GroupBy(r => r.PickupStatusId, (k, els) => new { pickupStatusId = k, Count = els.Count(), Name = "cat" });
+                .GroupBy(
+                    r => r.PickupStatusId, (k, els) => new
+                    {
+                        pickupStatusId = k,
+                        Count = els.Count(),
+                        Name = "cat"
+                    });
 
             var query = from s in context.Statuses
                         join c in categories on s.PickupStatusId equals c.pickupStatusId into g
@@ -1462,7 +1468,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var query = context.Statuses
                 .LeftJoin(categories, s => s.PickupStatusId, c => c.pickupStatusId, (s, first) => new { s.PickupStatusId, first })
-                .LeftJoin(categories, e => e.PickupStatusId, c => c.pickupStatusId, (e, second) => new { e.PickupStatusId, e.first, second })
+                .LeftJoin(
+                    categories, e => e.PickupStatusId, c => c.pickupStatusId, (e, second) => new
+                    {
+                        e.PickupStatusId,
+                        e.first,
+                        second
+                    })
                 .OrderBy(e => e.PickupStatusId);
 
             var result = await query.ToListAsync();
@@ -1552,7 +1564,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                          join c in categories on s.PickupStatusId equals c.pickupStatusId into g
                          from countInfo in g.DefaultIfEmpty()
                          select new { s.PickupStatusId, countInfo })
-                .Join(context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId, (e, s2) => new { s2.PickupStatusId, wrapper = new { e.countInfo } })
+                .Join(
+                    context.Statuses, e => e.PickupStatusId, s2 => s2.PickupStatusId,
+                    (e, s2) => new { s2.PickupStatusId, wrapper = new { e.countInfo } })
                 .OrderBy(e => e.PickupStatusId);
 
             var result = await query.ToListAsync();
@@ -1910,7 +1924,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = from f in firstLevel
                         join s2 in context.Statuses on f.PickupStatusId equals s2.PickupStatusId
                         orderby s2.PickupStatusId
-                        select new { s2.PickupStatusId, s2.Name, f.Count };
+                        select new
+                        {
+                            s2.PickupStatusId,
+                            s2.Name,
+                            f.Count
+                        };
 
             var result = await query.ToListAsync();
 
@@ -1964,12 +1983,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<PickupRequest30915> Requests { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<PickupStatus30915>(
-                    b =>
-                    {
-                        b.HasKey(e => e.PickupStatusId);
-                        b.Property(e => e.PickupStatusId).ValueGeneratedNever();
-                    });
+                => modelBuilder.Entity<PickupStatus30915>(b =>
+                {
+                    b.HasKey(e => e.PickupStatusId);
+                    b.Property(e => e.PickupStatusId).ValueGeneratedNever();
+                });
 
             public class PickupStatus30915
             {

@@ -1564,7 +1564,7 @@ DROP TABLE [db2].[JustTableName];
 DROP TABLE [db2].[DependentTable];
 DROP TABLE [db2].[PrincipalTable];");
 
-        void AssertIdOnly(IEntityType entityType)
+        static void AssertIdOnly(IEntityType entityType)
         {
             Assert.Equal("Id", entityType.FindPrimaryKey()!.Properties.Single().Name);
             Assert.Collection(entityType.GetProperties(), p => Assert.Equal(ValueGenerated.Never, p.ValueGenerated));
@@ -2015,8 +2015,8 @@ CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
 
     [Fact]
     public void Create_indexes_on_views()
-    => Test(
-        @"
+        => Test(
+            @"
 CREATE TABLE dbo.BaseTable (
     Id int NOT NULL,
     Name int NOT NULL
@@ -2038,46 +2038,46 @@ EXEC('
 CREATE UNIQUE CLUSTERED INDEX IX_TestView_Id
 ON dbo.TestView (Id);
 ",
-        [],
-        [],
-        (dbModel, scaffoldingFactory) =>
-        {
-            var view = dbModel.Tables.Single(t => t.Name == "TestView");
+            [],
+            [],
+            (dbModel, scaffoldingFactory) =>
+            {
+                var view = dbModel.Tables.Single(t => t.Name == "TestView");
 
-            Assert.Single(view.Indexes);
+                Assert.Single(view.Indexes);
 
-            var index = view.Indexes.Single();
-            Assert.True(index.IsUnique);
-            Assert.Collection(
-                index.Columns,
-                c => Assert.Equal("Id", c.Name));
+                var index = view.Indexes.Single();
+                Assert.True(index.IsUnique);
+                Assert.Collection(
+                    index.Columns,
+                    c => Assert.Equal("Id", c.Name));
 
-            var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
 
-            var viewEntity = model.GetEntityTypes()
-                .Single(e => e.Name == "TestView");
+                var viewEntity = model.GetEntityTypes()
+                    .Single(e => e.Name == "TestView");
 
-            var properties = viewEntity.GetProperties().ToList();
-            Assert.Contains(properties, p => p.Name == "Id");
-            Assert.Contains(properties, p => p.Name == "Name");
+                var properties = viewEntity.GetProperties().ToList();
+                Assert.Contains(properties, p => p.Name == "Id");
+                Assert.Contains(properties, p => p.Name == "Name");
 
-            Assert.Empty(viewEntity.GetKeys());
+                Assert.Empty(viewEntity.GetKeys());
 
-            Assert.Collection(
-                viewEntity.GetIndexes(),
-                i =>
-                {
-                    Assert.True(i.IsUnique);
-                    Assert.Collection(
-                        i.Properties,
-                        p => Assert.Equal("Id", p.Name));
-                });
+                Assert.Collection(
+                    viewEntity.GetIndexes(),
+                    i =>
+                    {
+                        Assert.True(i.IsUnique);
+                        Assert.Collection(
+                            i.Properties,
+                            p => Assert.Equal("Id", p.Name));
+                    });
 
-            Assert.Empty(viewEntity.GetForeignKeys());
-            Assert.Empty(viewEntity.GetNavigations());
-            Assert.Empty(viewEntity.GetSkipNavigations());
-        },
-        @"
+                Assert.Empty(viewEntity.GetForeignKeys());
+                Assert.Empty(viewEntity.GetNavigations());
+                Assert.Empty(viewEntity.GetSkipNavigations());
+            },
+            @"
 DROP VIEW dbo.TestView;
 DROP TABLE dbo.BaseTable;");
 
@@ -2764,18 +2764,17 @@ CREATE INDEX IX_JsonNoIndexTable_Name ON JsonNoIndexTable(Name);",
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public void Scaffolds_unique_JSON_index()
         // SQL Server doesn't support UNIQUE on JSON indexes; the batch is rejected at parse time.
-        => Assert.Throws<SqlException>(
-            () => Test(
-                @"
+        => Assert.Throws<SqlException>(() => Test(
+            @"
 CREATE TABLE JsonUniqueIndexTable (
     Id int PRIMARY KEY,
     Data json NULL
 );
 CREATE UNIQUE JSON INDEX IX_JsonUniqueIndexTable_Data ON JsonUniqueIndexTable(Data) FOR (N'$.Name');",
-                [],
-                [],
-                (dbModel, scaffoldingFactory) => { },
-                "DROP TABLE JsonUniqueIndexTable;"));
+            [],
+            [],
+            (dbModel, scaffoldingFactory) => { },
+            "DROP TABLE JsonUniqueIndexTable;"));
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public void Scaffolds_JSON_index_with_fillfactor()
@@ -2800,19 +2799,18 @@ CREATE JSON INDEX IX_JsonFillFactorTable_Data ON JsonFillFactorTable(Data) FOR (
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public void Scaffolds_JSON_index_with_filter()
         // SQL Server doesn't support a WHERE filter on JSON indexes; the batch is rejected at parse time.
-        => Assert.Throws<SqlException>(
-            () => Test(
-                @"
+        => Assert.Throws<SqlException>(() => Test(
+            @"
 CREATE TABLE JsonFilteredIndexTable (
     Id int PRIMARY KEY,
     Discriminator int NOT NULL,
     Data json NULL
 );
 CREATE JSON INDEX IX_JsonFilteredIndexTable_Data ON JsonFilteredIndexTable(Data) FOR (N'$.Name') WHERE [Discriminator] = 1;",
-                [],
-                [],
-                (dbModel, scaffoldingFactory) => { },
-                "DROP TABLE JsonFilteredIndexTable;"));
+            [],
+            [],
+            (dbModel, scaffoldingFactory) => { },
+            "DROP TABLE JsonFilteredIndexTable;"));
 
     [Fact]
     public void Specific_max_length_are_add_to_store_type()

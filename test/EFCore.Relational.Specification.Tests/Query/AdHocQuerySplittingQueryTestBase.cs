@@ -188,7 +188,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         var task2 = QueryAsync(context2, Context25225.Parent2Id, Context25225.Collection2Id);
         await Task.WhenAll(task1, task2);
 
-        async Task QueryAsync(Context25225 context, Guid parentId, Guid collectionId)
+        static async Task QueryAsync(Context25225 context, Guid parentId, Guid collectionId)
         {
             for (var i = 0; i < 100; i++)
             {
@@ -207,7 +207,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         var task2 = Task.Run(() => Query(context2, Context25225.Parent2Id, Context25225.Collection2Id));
         await Task.WhenAll(task1, task2);
 
-        void Query(Context25225 context, Guid parentId, Guid collectionId)
+        static void Query(Context25225 context, Guid parentId, Guid collectionId)
         {
             for (var i = 0; i < 10; i++)
             {
@@ -253,7 +253,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                     .Collection
                     .Select(c => new Context25225.CollectionViewModel
                     {
-                        Id = c.Id, ParentId = c.ParentId,
+                        Id = c.Id,
+                        ParentId = c.ParentId,
                     })
                     .ToArray()
             });
@@ -277,8 +278,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         public async Task SeedAsync()
         {
-            var parent1 = new Parent { Id = Parent1Id, Collection = new List<Collection> { new() { Id = Collection1Id, } } };
-            var parent2 = new Parent { Id = Parent2Id, Collection = new List<Collection> { new() { Id = Collection2Id, } } };
+            var parent1 = new Parent { Id = Parent1Id, Collection = [new() { Id = Collection1Id, }] };
+            var parent2 = new Parent { Id = Parent2Id, Collection = [new() { Id = Collection2Id, }] };
             AddRange(parent1, parent2);
             await SaveChangesAsync();
         }
@@ -465,21 +466,19 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Blog33826>(
-                b =>
-                {
-                    b.HasKey(e => new { e.Id, e.SecondId });
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.SecondId).ValueGeneratedNever();
-                    b.HasMany(e => e.Posts).WithOne().HasForeignKey(e => new { e.BlogId, e.BlogSecondId });
-                });
-            modelBuilder.Entity<Post33826>(
-                p =>
-                {
-                    p.HasKey(e => new { e.Id, e.SecondId });
-                    p.Property(e => e.Id).ValueGeneratedNever();
-                    p.Property(e => e.SecondId).ValueGeneratedNever();
-                });
+            modelBuilder.Entity<Blog33826>(b =>
+            {
+                b.HasKey(e => new { e.Id, e.SecondId });
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.SecondId).ValueGeneratedNever();
+                b.HasMany(e => e.Posts).WithOne().HasForeignKey(e => new { e.BlogId, e.BlogSecondId });
+            });
+            modelBuilder.Entity<Post33826>(p =>
+            {
+                p.HasKey(e => new { e.Id, e.SecondId });
+                p.Property(e => e.Id).ValueGeneratedNever();
+                p.Property(e => e.SecondId).ValueGeneratedNever();
+            });
         }
 
         public Task SeedAsync()

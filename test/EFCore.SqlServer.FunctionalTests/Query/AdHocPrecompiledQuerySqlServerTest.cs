@@ -11,15 +11,12 @@ public class AdHocPrecompiledQuerySqlServerTest(NonSharedFixture fixture, ITestO
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
-        public override async Task Index_no_evaluatability()
+    public override async Task Index_no_evaluatability()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Index_no_evaluatability();
@@ -32,15 +29,12 @@ WHERE CAST(JSON_VALUE([j].[IntList], '$[' + CAST([j].[Id] AS nvarchar(max)) + ']
 """);
     }
 
-        public override async Task Index_with_captured_variable()
+    public override async Task Index_with_captured_variable()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Index_with_captured_variable();

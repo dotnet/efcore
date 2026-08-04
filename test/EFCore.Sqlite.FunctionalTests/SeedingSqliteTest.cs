@@ -16,6 +16,6 @@ public class SeedingSqliteTest : SeedingTestBase
     protected class SeedingSqliteContext(string testId) : SeedingContext(testId)
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlite(($"Data Source = Seeds{TestId}.db"));
+            => optionsBuilder.UseSqlite($"Data Source = Seeds{TestId}.db");
     }
 }

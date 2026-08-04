@@ -243,15 +243,14 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
                 StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
-            var testName = methodCallLine.Substring(0, indexMethodEnding);
+            var testName = methodCallLine[..indexMethodEnding];
             var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
             var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+            var logFile = currentDirectory[
+                    ..(currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)]
                 + "QueryBaseline.txt";
 
             var testInfo = testName + " : " + lineNumber + FileNewLine;

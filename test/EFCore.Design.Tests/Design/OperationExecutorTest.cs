@@ -4,9 +4,10 @@
 #nullable enable
 
 using System.Collections;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
-using Microsoft.Data.Sqlite;
+
 namespace Microsoft.EntityFrameworkCore.Design;
 
 public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
@@ -31,7 +32,8 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
             "output", "output",
             ProductInfo.GetVersion());
 
-    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("to fix error: add column is_deleted"),
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"),
+     InlineData("to fix error: add column is_deleted"),
      InlineData(@"A\B\C")] // Issue #24024
     public void AddMigration_errors_for_bad_names(string migrationName)
         => TestAddMigrationNegative(
@@ -81,9 +83,9 @@ public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
         Assert.StartsWith(tempPath, migrationFilePath);
         Assert.StartsWith(tempPath, snapshotFilePath);
 
-        var metadataFileName = metadataFilePath.Substring(tempPath.Path.Length + 1);
-        var migrationFileName = migrationFilePath.Substring(tempPath.Path.Length + 1);
-        var snapshotFileName = snapshotFilePath.Substring(tempPath.Path.Length + 1);
+        var metadataFileName = metadataFilePath[(tempPath.Path.Length + 1)..];
+        var migrationFileName = migrationFilePath[(tempPath.Path.Length + 1)..];
+        var snapshotFileName = snapshotFilePath[(tempPath.Path.Length + 1)..];
 
         Assert.Equal(Path.Combine(processedOutputDir, $"11112233445566_{migrationName}.Designer.cs"), metadataFileName);
         Assert.Equal(Path.Combine(processedOutputDir, $"11112233445566_{migrationName}.cs"), migrationFileName);
@@ -962,7 +964,8 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
     }
 
     private static string ExtractNamespace(string migrationMigrationCode)
-        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10).TrimEnd(';');
+        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal))[10..]
+            .TrimEnd(';');
 
     // [Theory]
     // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath")]
@@ -1110,7 +1113,8 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
         Assert.Null(resultHandler.ErrorType);
     }
 
-    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"), InlineData("to fix error: add column"),
+    [Theory, SkipOnPlatform(TestPlatforms.Linux | TestPlatforms.OSX, "Test does not run on Linux or macOS"),
+     InlineData("to fix error: add column"),
      InlineData(@"A\B\C")]
     public void AddAndApplyMigration_errors_for_bad_names(string migrationName)
     {
@@ -1247,7 +1251,7 @@ partial class GnomeContextModelSnapshot : ModelSnapshot
         {
             var handler = new OperationResultHandler();
 
-            new MockOperation<string>(handler, () => YieldResults());
+            new MockOperation<string>(handler, YieldResults);
 
             Assert.IsType<string[]>(handler.Result);
             Assert.Equal(new[] { "Twilight Sparkle", "Princess Celestia" }, handler.Result);

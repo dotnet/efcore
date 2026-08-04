@@ -224,7 +224,7 @@ FROM root c
     public override async Task Round_with_digits_decimal()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Round_with_digits_decimal());
+        await AssertTranslationFailed(base.Round_with_digits_decimal);
 
         AssertSql();
     }
@@ -232,7 +232,7 @@ FROM root c
     public override async Task Round_with_digits_double()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Round_with_digits_decimal());
+        await AssertTranslationFailed(base.Round_with_digits_decimal);
 
         AssertSql();
     }
@@ -240,7 +240,7 @@ FROM root c
     public override async Task Round_with_digits_float()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Round_with_digits_decimal());
+        await AssertTranslationFailed(base.Round_with_digits_decimal);
 
         AssertSql();
     }
@@ -299,7 +299,7 @@ FROM root c
     public override async Task Truncate_project_and_order_by_it_twice()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice());
+        await Assert.ThrowsAsync<CosmosException>(base.Truncate_project_and_order_by_it_twice);
 
         AssertSql(
             """
@@ -312,7 +312,7 @@ ORDER BY TRUNC(c["Double"])
     public override async Task Truncate_project_and_order_by_it_twice2()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice2());
+        await Assert.ThrowsAsync<CosmosException>(base.Truncate_project_and_order_by_it_twice2);
 
         AssertSql(
             """
@@ -325,7 +325,7 @@ ORDER BY TRUNC(c["Double"]) DESC
     public override async Task Truncate_project_and_order_by_it_twice3()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice3());
+        await Assert.ThrowsAsync<CosmosException>(base.Truncate_project_and_order_by_it_twice3);
 
         AssertSql(
             """
@@ -410,7 +410,7 @@ WHERE ((c["Float"] > 0) AND (LOG10(c["Float"]) != 0))
     public override async Task Log2()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Log2());
+        await AssertTranslationFailed(base.Log2);
 
         AssertSql();
     }
@@ -510,7 +510,7 @@ FROM root c
     public override async Task Max()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Max());
+        await AssertTranslationFailed(base.Max);
 
         AssertSql();
     }
@@ -518,7 +518,7 @@ FROM root c
     public override async Task Max_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Max());
+        await AssertTranslationFailed(base.Max);
 
         AssertSql();
     }
@@ -526,7 +526,7 @@ FROM root c
     public override async Task Max_nested_twice()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Max());
+        await AssertTranslationFailed(base.Max);
 
         AssertSql();
     }
@@ -534,7 +534,7 @@ FROM root c
     public override async Task Min()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Min());
+        await AssertTranslationFailed(base.Min);
 
         AssertSql();
     }
@@ -542,7 +542,7 @@ FROM root c
     public override async Task Min_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Min());
+        await AssertTranslationFailed(base.Min);
 
         AssertSql();
     }
@@ -550,7 +550,7 @@ FROM root c
     public override async Task Min_nested_twice()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Min());
+        await AssertTranslationFailed(base.Min);
 
         AssertSql();
     }
@@ -632,7 +632,7 @@ WHERE (((c["Float"] >= -1) AND (c["Float"] <= 1)) AND (ACOS(c["Float"]) > 0))
     public override async Task Acosh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Acosh());
+        await AssertTranslationFailed(base.Acosh);
 
         AssertSql();
     }
@@ -664,7 +664,7 @@ WHERE (((c["Float"] >= -1) AND (c["Float"] <= 1)) AND (ASIN(c["Float"]) > -1.797
     public override async Task Asinh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Asinh());
+        await AssertTranslationFailed(base.Asinh);
 
         AssertSql();
     }
@@ -696,7 +696,7 @@ WHERE (ATAN(c["Float"]) > 0)
     public override async Task Atanh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Atanh());
+        await AssertTranslationFailed(base.Atanh);
 
         AssertSql();
     }
@@ -740,7 +740,7 @@ WHERE (COS(c["Float"]) > 0)
     public override async Task Cosh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Cosh());
+        await AssertTranslationFailed(base.Cosh);
 
         AssertSql();
     }
@@ -772,7 +772,7 @@ WHERE (SIN(c["Float"]) > 0)
     public override async Task Sinh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Sinh());
+        await AssertTranslationFailed(base.Sinh);
 
         AssertSql();
     }
@@ -804,7 +804,7 @@ WHERE (TAN(c["Float"]) > 0)
     public override async Task Tanh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Tanh());
+        await AssertTranslationFailed(base.Tanh);
 
         AssertSql();
     }

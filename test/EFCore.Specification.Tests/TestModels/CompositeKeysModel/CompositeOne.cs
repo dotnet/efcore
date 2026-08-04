@@ -30,14 +30,7 @@ public class CompositeOne
     public CompositeOne OneToMany_Optional_Self_Inverse1 { get; set; }
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompositeOne)obj);
-    }
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((CompositeOne)obj)));
 
     private bool Equals(CompositeOne other)
         => Id1 == other.Id1 && Equals(Id2, other.Id2) && string.Equals(Name, other.Name) && Date.Equals(other.Date);

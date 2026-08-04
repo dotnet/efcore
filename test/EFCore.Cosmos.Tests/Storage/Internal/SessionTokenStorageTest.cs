@@ -59,6 +59,7 @@ public class SessionTokenStorageTest
                 AssertDefault(storage, null);
             }
         }
+
         AssertOther(storage, "A");
     }
 
@@ -70,11 +71,8 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "Token1" },
-            { _otherContainerName, "Token2" }
-        });
+        storage.SetSessionTokens(
+            new Dictionary<string, string?> { { _defaultContainerName, "Token1" }, { _otherContainerName, "Token2" } });
 
         AssertDefault(storage, "Token1");
         AssertOther(storage, "Token2");
@@ -88,16 +86,8 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "" },
-            { _otherContainerName, "" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "" }, { _otherContainerName, "" } });
 
         AssertDefault(storage, "");
         AssertOther(storage, "");
@@ -112,11 +102,7 @@ public class SessionTokenStorageTest
         var storage = CreateStorage(mode);
         storage.TrackSessionToken(_defaultContainerName, "Token1");
         storage.TrackSessionToken(_otherContainerName, "Token2");
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
 
         AssertDefault(storage, "A");
         AssertOther(storage, "B");
@@ -129,11 +115,7 @@ public class SessionTokenStorageTest
     public virtual void SetSessionTokens_SingleContainer_OverwritesOnlySingleContainer(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
         storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "C" } });
 
         AssertDefault(storage, "C");
@@ -328,7 +310,8 @@ public class SessionTokenStorageTest
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
     [InlineData(SessionTokenManagementMode.Manual)]
     [InlineData(SessionTokenManagementMode.EnforcedManual)]
-    public virtual void AppendDefaultContainerSessionToken_PreviousTrackedToken_Duplicate_DoesNotAppendToken(SessionTokenManagementMode mode)
+    public virtual void AppendDefaultContainerSessionToken_PreviousTrackedToken_Duplicate_DoesNotAppendToken(
+        SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
         storage.TrackSessionToken(_defaultContainerName, "A");
@@ -356,11 +339,7 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
 
         AssertDefault(storage, "A");
         AssertOther(storage, "B");
@@ -374,10 +353,7 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
 
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _otherContainerName, "B" }
-        });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _otherContainerName, "B" } });
 
         if (mode != SessionTokenManagementMode.EnforcedManual)
         {
@@ -390,6 +366,7 @@ public class SessionTokenStorageTest
                 AssertDefault(storage, null);
             }
         }
+
         AssertOther(storage, "B");
     }
 
@@ -400,16 +377,8 @@ public class SessionTokenStorageTest
     public virtual void AppendSessionTokens_PreviousSetTokens_AppendsTokens(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "C" },
-            { _otherContainerName, "D" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "C" }, { _otherContainerName, "D" } });
 
         AssertDefault(storage, "A,C");
         AssertOther(storage, "B,D");
@@ -422,15 +391,8 @@ public class SessionTokenStorageTest
     public virtual void AppendSessionTokens_PreviousSetToken_AppendsAndSetsTokens(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _otherContainerName, "B" }
-        });
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "C" },
-            { _otherContainerName, "D" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _otherContainerName, "B" } });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "C" }, { _otherContainerName, "D" } });
 
         AssertDefault(storage, "C");
         AssertOther(storage, "B,D");
@@ -444,11 +406,7 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
         storage.TrackSessionToken(_otherContainerName, "B");
-        storage.AppendSessionTokens(new Dictionary<string, string>
-        {
-            { _defaultContainerName, "C" },
-            { _otherContainerName, "D" }
-        });
+        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "C" }, { _otherContainerName, "D" } });
 
         AssertDefault(storage, "C");
         AssertOther(storage, "B,D");
@@ -495,7 +453,8 @@ public class SessionTokenStorageTest
     public virtual void AppendSessionTokens_RemovesDuplicates(SessionTokenManagementMode mode)
     {
         var storage = CreateStorage(mode);
-        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A,B,A" }, { _otherContainerName, "B,C,B" } });
+        storage.AppendSessionTokens(
+            new Dictionary<string, string> { { _defaultContainerName, "A,B,A" }, { _otherContainerName, "B,C,B" } });
         AssertDefault(storage, "A,B");
         AssertOther(storage, "B,C");
     }
@@ -508,7 +467,8 @@ public class SessionTokenStorageTest
     {
         var storage = CreateStorage(mode);
         storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A,C,E" }, { _otherContainerName, "J,K,L" } });
-        storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A,B,B" }, { _otherContainerName, "K,A,A" } });
+        storage.AppendSessionTokens(
+            new Dictionary<string, string> { { _defaultContainerName, "A,B,B" }, { _otherContainerName, "K,A,A" } });
         AssertDefault(storage, "A,C,E,B");
         AssertOther(storage, "J,K,L,A");
     }
@@ -669,11 +629,7 @@ public class SessionTokenStorageTest
     public virtual void EnforcedManual_SetSessionTokens_SetsAndUses()
     {
         var storage = CreateStorage(SessionTokenManagementMode.EnforcedManual);
-        storage.SetSessionTokens(new Dictionary<string, string?>
-        {
-            { _defaultContainerName, "A" },
-            { _otherContainerName, "B" }
-        });
+        storage.SetSessionTokens(new Dictionary<string, string?> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
 
         AssertDefault(storage, "A");
         AssertOther(storage, "B");
@@ -784,10 +740,10 @@ public class SessionTokenStorageTest
 
         storage.AppendSessionTokens(new Dictionary<string, string> { { _defaultContainerName, "A" }, { _otherContainerName, "B" } });
         storage.Clear();
-        
+
         var tokens = storage.GetTrackedTokens();
 
-        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        if (mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual)
         {
             Assert.True(tokens[_defaultContainerName] == "");
             Assert.True(tokens[_otherContainerName] == "");
@@ -824,7 +780,7 @@ public class SessionTokenStorageTest
 
         var tokens = storage.GetTrackedTokens();
 
-        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        if (mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual)
         {
             Assert.True(tokens[_defaultContainerName] == "");
             Assert.True(tokens[_otherContainerName] == "");
@@ -963,7 +919,7 @@ public class SessionTokenStorageTest
         var snapshot2 = storage.GetTrackedTokens();
 
         Assert.NotSame(snapshot, snapshot2);
-        if (mode == SessionTokenManagementMode.Manual || mode == SessionTokenManagementMode.EnforcedManual)
+        if (mode is SessionTokenManagementMode.Manual or SessionTokenManagementMode.EnforcedManual)
         {
             Assert.True(snapshot[_defaultContainerName] == "");
         }
@@ -971,6 +927,7 @@ public class SessionTokenStorageTest
         {
             Assert.Null(snapshot[_defaultContainerName]);
         }
+
         Assert.Equal("A", snapshot2[_defaultContainerName]);
     }
 
@@ -987,7 +944,7 @@ public class SessionTokenStorageTest
     public virtual void FullyAutomatic_WhenCallingGetTrackedTokens_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
-        var ex = Assert.Throws<InvalidOperationException>(() => storage.GetTrackedTokens());
+        var ex = Assert.Throws<InvalidOperationException>(storage.GetTrackedTokens);
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
@@ -1022,8 +979,7 @@ public class SessionTokenStorageTest
     public virtual void FullyAutomatic_WhenCallingGetDefaultContainerTrackedToken_ThrowsInvalidOperationException()
     {
         var storage = CreateStorage(SessionTokenManagementMode.FullyAutomatic);
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            storage.GetDefaultContainerTrackedToken());
+        var ex = Assert.Throws<InvalidOperationException>(storage.GetDefaultContainerTrackedToken);
         Assert.Equal(CosmosStrings.EnableManualSessionTokenManagement, ex.Message);
     }
 
@@ -1091,7 +1047,6 @@ public class SessionTokenStorageTest
         Assert.Throws<ArgumentException>(() => storage.AppendDefaultContainerSessionToken("   "));
         Assert.Throws<ArgumentException>(() => storage.AppendDefaultContainerSessionToken(""));
     }
-
 
     [Theory]
     [InlineData(SessionTokenManagementMode.SemiAutomatic)]
@@ -1169,11 +1124,9 @@ public class SessionTokenStorageTest
     public virtual void GetDefaultContainerTrackedToken_NotInUse_ThrowsInvalidOperationException(SessionTokenManagementMode mode)
     {
         var storage = new SessionTokenStorage("bad", _containerNames, mode);
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-            storage.GetDefaultContainerTrackedToken());
+        var ex = Assert.Throws<InvalidOperationException>(storage.GetDefaultContainerTrackedToken);
         Assert.Equal(CosmosStrings.ContainerNameDoesNotExist("bad"), ex.Message);
     }
-
 
     private SessionTokenStorage CreateStorage(SessionTokenManagementMode mode)
         => new(_defaultContainerName, _containerNames, mode);
@@ -1239,5 +1192,4 @@ public class SessionTokenStorageTest
             Assert.Equal(value, storage.GetTrackedTokens()[_otherContainerName]);
         }
     }
-
 }

@@ -998,9 +998,10 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) :
                 .SetProperty(od => od.Quantity, 1)
                 .SetProperty(od => od.UnitPrice, 10),
             rowsAffectedCount: 12,
-            (b, a) => Assert.All(a, od =>
-            {
-                Assert.Equal(1, od.Quantity);
-                Assert.Equal(10, od.UnitPrice);
-            }));
+            (b, a) => Assert.All(
+                a, od =>
+                {
+                    Assert.Equal(1, od.Quantity);
+                    Assert.Equal(10, od.UnitPrice);
+                }));
 }

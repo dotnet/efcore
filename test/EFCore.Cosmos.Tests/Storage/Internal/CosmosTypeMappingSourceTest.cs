@@ -173,15 +173,11 @@ public class CosmosTypeMappingSourceTest
     public void Can_roundtrip_dictionary_with_null_reference_collection_value()
     {
         var mapping = (CosmosTypeMapping)GetTypeMapping(typeof(Dictionary<string, string[]>));
-        var readerWriter = Assert.IsType<
-            CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<string[], string>>(
+        var readerWriter =
+            Assert.IsType<CosmosTypeMappingSource.CosmosJsonStringKeyedDictionaryReferenceCollectionValueReaderWriter<string[], string>>(
                 mapping.JsonValueReaderWriter);
 
-        var value = new Dictionary<string, string[]>
-        {
-            { "1", ["1"] },
-            { "2", null! }
-        };
+        var value = new Dictionary<string, string[]> { { "1", ["1"] }, { "2", null! } };
 
         var json = readerWriter.ToJsonString(value);
         var result = Assert.IsType<Dictionary<string, string[]>>(readerWriter.FromJsonString(json));
@@ -340,7 +336,10 @@ public class CosmosTypeMappingSourceTest
         Assert.Equal(jsonValue, mapping.JsonValueReaderWriter.ToJsonString(value!));
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(jsonValue)), null);
         readerManager.MoveNext();
-        Assert.Equal((IEnumerable<TElement>)value!, ((JsonCollectionOfStructsReaderWriter<TCollection, TElement>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager)!.ToList()!);
+        Assert.Equal(
+            (IEnumerable<TElement>)value!,
+            ((JsonCollectionOfStructsReaderWriter<TCollection, TElement>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager)!
+            .ToList()!);
     }
 
     [Fact]
@@ -360,7 +359,8 @@ public class CosmosTypeMappingSourceTest
 
         Assert.Equal("\"39e5debb-8826-4996-b68d-f9c05e687a86\"", mapping.JsonValueReaderWriter.ToJsonString(value!));
 
-        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes("\"39e5debb-8826-4996-b68d-f9c05e687a86\"")), null);
+        var readerManager = new Utf8JsonReaderManager(
+            new JsonReaderData(Encoding.UTF8.GetBytes("\"39e5debb-8826-4996-b68d-f9c05e687a86\"")), null);
         readerManager.MoveNext();
         Assert.Equal(value, ((JsonValueReaderWriter<Guid>)mapping.JsonValueReaderWriter).FromJsonTyped(ref readerManager));
     }
@@ -379,10 +379,7 @@ public class CosmosTypeMappingSourceTest
     public void Plugins_can_override_builtin_mappings()
     {
         var typeMappingSource = new CosmosTypeMappingSource(
-            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>() with
-            {
-                Plugins = [new FakeTypeMappingSourcePlugin()]
-            });
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>() with { Plugins = [new FakeTypeMappingSourcePlugin()] });
 
         Assert.Same(typeof(Random), typeMappingSource.FindMapping(typeof(int))!.ClrType);
     }

@@ -244,8 +244,8 @@ public class IdValueGeneratorTest
 
         public override bool Equals(object obj)
             => obj == this
-                || obj?.GetType() == GetType()
-                && Equals((IntClass)obj);
+                || (obj?.GetType() == GetType()
+                    && Equals((IntClass)obj));
 
         public override int GetHashCode()
             => Value;
@@ -258,7 +258,7 @@ public class IdValueGeneratorTest
         public IntStruct Id { get; set; }
     }
 
-    private struct IntStruct(int value)
+    private readonly struct IntStruct(int value)
     {
         public static readonly ValueConverter<IntStruct, int> Converter
             = new(v => v.Value, v => new IntStruct(v));
@@ -271,7 +271,7 @@ public class IdValueGeneratorTest
         public BytesStruct Id { get; set; }
     }
 
-    private struct BytesStruct(byte[] value)
+    private readonly struct BytesStruct(byte[] value)
     {
         public static readonly ValueConverter<BytesStruct, byte[]> Converter
             = new(v => v.Value, v => new BytesStruct(v));
@@ -279,10 +279,10 @@ public class IdValueGeneratorTest
         public byte[] Value { get; } = value;
 
         public bool Equals(BytesStruct other)
-            => Value == null
-                && other.Value == null
-                || other.Value != null
-                && Value?.SequenceEqual(other.Value) == true;
+            => (Value == null
+                    && other.Value == null)
+                || (other.Value != null
+                    && Value?.SequenceEqual(other.Value) == true);
 
         public override int GetHashCode()
         {

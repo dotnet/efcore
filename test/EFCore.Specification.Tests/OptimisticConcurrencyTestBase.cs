@@ -287,7 +287,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             },
             null);
 
-        async Task Change(F1Context c)
+        static async Task Change(F1Context c)
         {
             await c.Teams.Include(e => e.Sponsors).LoadAsync();
             (await c.Teams.SingleAsync(t => t.Id == Team.McLaren)).Sponsors.Add(

@@ -33,17 +33,11 @@ public class SpatialData(GeometryFactory factory) : ISetSource
             return (IQueryable<TEntity>)_lineStringEntities.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(PolygonEntity))
-        {
-            return (IQueryable<TEntity>)_polygonEntities.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(MultiLineStringEntity))
-        {
-            return (IQueryable<TEntity>)_multiLineStringEntities.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Unknown entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(PolygonEntity)
+            ? (IQueryable<TEntity>)_polygonEntities.AsQueryable()
+            : typeof(TEntity) == typeof(MultiLineStringEntity)
+                ? (IQueryable<TEntity>)_multiLineStringEntities.AsQueryable()
+                : throw new InvalidOperationException("Unknown entity type: " + typeof(TEntity));
     }
 
     public static IReadOnlyList<PointEntity> CreatePointEntities(GeometryFactory factory)

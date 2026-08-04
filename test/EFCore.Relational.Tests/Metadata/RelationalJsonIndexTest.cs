@@ -13,8 +13,7 @@ public class RelationalJsonIndexTest
         var elements = new IRelationalJsonElement[] { null!, null! };
         var collectionIndices = new IReadOnlyList<int?>?[] { [null] }; // 1 entry, but 2 elements
 
-        var exception = Assert.Throws<ArgumentException>(
-            () => new RelationalJsonIndex(elements, collectionIndices));
+        var exception = Assert.Throws<ArgumentException>(() => new RelationalJsonIndex(elements, collectionIndices));
 
         Assert.Equal(
             RelationalStrings.JsonPathIndexElementsCollectionIndicesMismatch(2, 1)

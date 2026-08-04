@@ -199,9 +199,7 @@ END;
             => FromExpression(() => TableFunction());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            configureModel?.Invoke(modelBuilder);
-        }
+            => configureModel?.Invoke(modelBuilder);
     }
 
     /// <summary>

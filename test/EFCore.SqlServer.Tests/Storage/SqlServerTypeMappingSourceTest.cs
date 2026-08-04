@@ -295,7 +295,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         property.SetIsFixedLength(fixedLength);
         var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
         var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
-        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, (IMutableEntityType)property.DeclaringType);
 
         var model = property.DeclaringType.Model.FinalizeModel();
         var typeMappingSource = CreateRelationalTypeMappingSource(model);
@@ -331,7 +331,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         property.SetIsFixedLength(fixedLength);
         var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
         var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
-        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, (IMutableEntityType)property.DeclaringType);
         fkProperty.IsNullable = false;
 
         var model = property.DeclaringType.Model.FinalizeModel();
@@ -660,7 +660,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         property.IsNullable = false;
         var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
         var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
-        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, (IMutableEntityType)property.DeclaringType);
 
         var model = property.DeclaringType.Model.FinalizeModel();
         var typeMappingSource = CreateRelationalTypeMappingSource(model);
@@ -694,7 +694,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         property.IsNullable = false;
         var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
         var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
-        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, (IMutableEntityType)property.DeclaringType);
         fkProperty.IsNullable = false;
 
         var model = property.DeclaringType.Model.FinalizeModel();
@@ -968,7 +968,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         property.SetIsFixedLength(fixedLength);
         var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", typeof(byte[]));
         var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
-        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, (IMutableEntityType)property.DeclaringType);
 
         var model = property.DeclaringType.Model.FinalizeModel();
         var typeMappingSource = CreateRelationalTypeMappingSource(model);
@@ -989,7 +989,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         property.SetIsFixedLength(fixedLength);
         var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", typeof(byte[]));
         var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
-        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, (IMutableEntityType)property.DeclaringType);
         fkProperty.IsNullable = false;
 
         var model = property.DeclaringType.Model.FinalizeModel();

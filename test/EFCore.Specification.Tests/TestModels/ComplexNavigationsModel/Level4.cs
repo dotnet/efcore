@@ -31,14 +31,7 @@ public class Level4
     public Level4 OneToMany_Optional_Self_Inverse4 { get; set; }
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((Level4)obj);
-    }
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((Level4)obj)));
 
     protected bool Equals(Level4 other)
         => Id == other.Id

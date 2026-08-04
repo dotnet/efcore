@@ -95,16 +95,10 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             ConfigureConstructorBinding<EngineSupplier>(b.Metadata, nameof(EngineSupplier.Name));
         });
 
-        modelBuilder.Entity<Gearbox>(b =>
-        {
-            ConfigureConstructorBinding<Gearbox>(b.Metadata, nameof(Gearbox.Id), nameof(Gearbox.Name));
-        });
+        modelBuilder.Entity<Gearbox>(b => ConfigureConstructorBinding<Gearbox>(b.Metadata, nameof(Gearbox.Id), nameof(Gearbox.Name)));
 
-        modelBuilder.Entity<Sponsor>(b =>
-        {
-            b.Property<int?>(Sponsor.ClientTokenPropertyName)
-                .IsConcurrencyToken();
-        });
+        modelBuilder.Entity<Sponsor>(b => b.Property<int?>(Sponsor.ClientTokenPropertyName)
+            .IsConcurrencyToken());
 
         modelBuilder.Entity<Team>(b =>
         {
@@ -157,27 +151,21 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             );
         });
 
-        modelBuilder.Entity<TestDriver>(b =>
-        {
-            ConfigureConstructorBinding<TestDriver, Driver>(
-                b.Metadata,
-                nameof(Driver.Id),
-                nameof(Driver.Name),
-                nameof(Driver.CarNumber),
-                nameof(Driver.Championships),
-                nameof(Driver.Races),
-                nameof(Driver.Wins),
-                nameof(Driver.Podiums),
-                nameof(Driver.Poles),
-                nameof(Driver.FastestLaps),
-                nameof(Driver.TeamId)
-            );
-        });
+        modelBuilder.Entity<TestDriver>(b => ConfigureConstructorBinding<TestDriver, Driver>(
+            b.Metadata,
+            nameof(Driver.Id),
+            nameof(Driver.Name),
+            nameof(Driver.CarNumber),
+            nameof(Driver.Championships),
+            nameof(Driver.Races),
+            nameof(Driver.Wins),
+            nameof(Driver.Podiums),
+            nameof(Driver.Poles),
+            nameof(Driver.FastestLaps),
+            nameof(Driver.TeamId)
+        ));
 
-        modelBuilder.Entity<Sponsor>(b =>
-        {
-            b.Property(e => e.Id).ValueGeneratedNever();
-        });
+        modelBuilder.Entity<Sponsor>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
         modelBuilder.Entity<TitleSponsor>(b =>
         {

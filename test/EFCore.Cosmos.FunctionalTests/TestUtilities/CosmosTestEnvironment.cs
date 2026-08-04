@@ -141,9 +141,11 @@ public static class CosmosTestEnvironment
         ? _emulatorAuthToken
         : Config["AuthToken"];
 
-    public static string ConnectionString => $"AccountEndpoint={DefaultConnection};AccountKey={AuthToken}";
+    public static string ConnectionString
+        => $"AccountEndpoint={DefaultConnection};AccountKey={AuthToken}";
 
-    public static bool UseTokenCredential { get; } = string.Equals(Config["UseTokenCredential"], "true", StringComparison.OrdinalIgnoreCase);
+    public static bool UseTokenCredential { get; } =
+        string.Equals(Config["UseTokenCredential"], "true", StringComparison.OrdinalIgnoreCase);
 
     public static TokenCredential TokenCredential { get; } = new AzureCliCredential(
         new AzureCliCredentialOptions { ProcessTimeout = TimeSpan.FromMinutes(5) });
@@ -156,24 +158,34 @@ public static class CosmosTestEnvironment
         ? AzureLocation.WestUS
         : Enum.Parse<AzureLocation>(Config["AzureLocation"]);
 
-    public static bool IsEmulator => !UseTokenCredential && (AuthToken == _emulatorAuthToken);
+    public static bool IsEmulator
+        => !UseTokenCredential && (AuthToken == _emulatorAuthToken);
 
-    public static bool SkipConnectionCheck { get; } = string.Equals(Config["SkipConnectionCheck"], "true", StringComparison.OrdinalIgnoreCase);
+    public static bool SkipConnectionCheck { get; } = string.Equals(
+        Config["SkipConnectionCheck"], "true", StringComparison.OrdinalIgnoreCase);
 
-    public static string EmulatorType => _container != null
-        ? "linux"
-        : Config["EmulatorType"] ?? (!OperatingSystem.IsWindows() ? "linux" : "");
+    public static string EmulatorType
+        => _container != null
+            ? "linux"
+            : Config["EmulatorType"] ?? (!OperatingSystem.IsWindows() ? "linux" : "");
 
-    public static bool IsLinuxEmulator => IsEmulator
-        && EmulatorType.Equals("linux", StringComparison.OrdinalIgnoreCase);
+    public static bool IsLinuxEmulator
+        => IsEmulator
+            && EmulatorType.Equals("linux", StringComparison.OrdinalIgnoreCase);
 
-    public static bool IsAvailable => CosmosTestStore.IsConnectionAvailableAsync().AsTask().GetAwaiter().GetResult();
+    public static bool IsAvailable
+        => CosmosTestStore.IsConnectionAvailableAsync().AsTask().GetAwaiter().GetResult();
 
     // ---- Conditional* helpers consumed by [ConditionalFact(typeof(TestEnvironment), nameof(...))] ----
 
-    public static bool DoesNotUseTokenCredential => !UseTokenCredential;
-    public static bool IsNotEmulator => !IsEmulator;
-    public static bool IsNotLinuxEmulator => !IsLinuxEmulator;
+    public static bool DoesNotUseTokenCredential
+        => !UseTokenCredential;
+
+    public static bool IsNotEmulator
+        => !IsEmulator;
+
+    public static bool IsNotLinuxEmulator
+        => !IsLinuxEmulator;
 
     /// <summary>
     ///     Throws <see cref="SkipException" /> when running on the Linux Cosmos emulator.

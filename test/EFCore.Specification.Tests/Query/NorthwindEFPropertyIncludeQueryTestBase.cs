@@ -173,9 +173,8 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
                 var parameterExpression = fromQuote.Parameters[0];
 
                 var path = GetPath(fromQuote.Body);
-                if (path != null && !path.Contains("."))
-                {
-                    return Expression.Call(
+                return path != null && !path.Contains(".")
+                    ? Expression.Call(
                         methodCallExpression.Method,
                         Visit(arguments[0]),
                         Expression.Quote(
@@ -185,10 +184,8 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
                                     _propertyMethod.MakeGenericMethod(genericArguments[propertyTypeIndex]),
                                     parameterExpression,
                                     Expression.Constant(path)),
-                                parameterExpression)));
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
+                                parameterExpression)))
+                    : base.VisitMethodCall(methodCallExpression);
             }
         }
 

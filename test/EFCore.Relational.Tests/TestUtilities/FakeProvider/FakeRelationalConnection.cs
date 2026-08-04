@@ -71,10 +71,12 @@ public class FakeRelationalConnection(IDbContextOptions options = null)
     public List<Tuple<string, object>> ConnectionDiagnosticEvents
         => ((ListDiagnosticSource)Dependencies.ConnectionLogger.DiagnosticSource).DiagnosticList;
 
-    protected override bool SupportsAmbientTransactions => true;
+    protected override bool SupportsAmbientTransactions
+        => true;
 
     protected override void ConnectionEnlistTransaction(Transaction transaction)
-    { }
+    {
+    }
 
     protected override DbConnection CreateDbConnection()
     {

@@ -17,6 +17,6 @@ public static class LazyProxiesEntity3UnsafeAccessors
     [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
     public static extern ref string Name(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
 
-    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_collectionNavigation")]
-    public static extern ref ICollection<CompiledModelInMemoryTest.LazyProxiesEntity4> _collectionNavigation(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<CollectionNavigation>k__BackingField")]
+    public static extern ref ICollection<CompiledModelInMemoryTest.LazyProxiesEntity4> CollectionNavigation(CompiledModelInMemoryTest.LazyProxiesEntity3 @this);
 }

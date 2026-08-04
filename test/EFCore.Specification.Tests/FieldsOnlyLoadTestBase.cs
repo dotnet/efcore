@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -97,10 +100,10 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         {
             Id = 707,
             AlternateId = "Root",
-            Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
-            ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
-            ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
-            ChildrenCompositeKey = new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } }
+            Children = [new() { Id = 11 }, new() { Id = 12 }],
+            ChildrenAk = [new() { Id = 31 }, new() { Id = 32 }],
+            ChildrenShadowFk = [new() { Id = 51 }, new() { Id = 52 }],
+            ChildrenCompositeKey = [new() { Id = 51 }, new() { Id = 52 }]
         };
 
         context.Attach(parent);
@@ -1087,7 +1090,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         if (state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {
@@ -2139,7 +2142,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
         if (state == EntityState.Deleted
             && deleteOrphansTiming != CascadeTiming.Never)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.All(parent.Children.Select(e => e.Parent), Assert.Null);
         }
         else
         {
@@ -4334,50 +4337,23 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
                     .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
             });
 
-            modelBuilder.Entity<SingleShadowFk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SingleShadowFk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<ChildShadowFk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ChildShadowFk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<SingleCompositeKey>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SingleCompositeKey>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<ChildCompositeKey>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ChildCompositeKey>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<SingleAk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SingleAk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<ChildAk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ChildAk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<Single>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<Single>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<SinglePkToPk>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<SinglePkToPk>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
-            modelBuilder.Entity<Child>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<Child>(b => b.Property(e => e.Id).ValueGeneratedNever());
         }
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -4387,14 +4363,14 @@ public abstract class FieldsOnlyLoadTestBase<TFixture>(TFixture fixture) : IClas
                 {
                     Id = 707,
                     AlternateId = "Root",
-                    Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
+                    Children = [new() { Id = 11 }, new() { Id = 12 }],
                     SinglePkToPk = new SinglePkToPk { Id = 707 },
                     Single = new Single { Id = 21 },
-                    ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
+                    ChildrenAk = [new() { Id = 31 }, new() { Id = 32 }],
                     SingleAk = new SingleAk { Id = 42 },
-                    ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
+                    ChildrenShadowFk = [new() { Id = 51 }, new() { Id = 52 }],
                     SingleShadowFk = new SingleShadowFk { Id = 62 },
-                    ChildrenCompositeKey = new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } },
+                    ChildrenCompositeKey = [new() { Id = 51 }, new() { Id = 52 }],
                     SingleCompositeKey = new SingleCompositeKey { Id = 62 }
                 });
 

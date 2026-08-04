@@ -238,9 +238,9 @@ public class CollectionComparerTest
             ],
             ListStruct =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyStruct("0"),
+                new MyStruct("1"),
+                new MyStruct("2")
             ],
             ListNullableStruct =
             [
@@ -250,15 +250,15 @@ public class CollectionComparerTest
             ],
             ListClass =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyClass("0"),
+                new MyClass("1"),
+                new MyClass("2")
             ],
             ListNullableClass =
             [
-                new("0"),
+                new MyClass("0"),
                 null,
-                new("2")
+                new MyClass("2")
             ],
             ICollectionInt = new List<int>
             {
@@ -571,9 +571,9 @@ public class CollectionComparerTest
             ],
             CollectionStruct =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyStruct("0"),
+                new MyStruct("1"),
+                new MyStruct("2")
             ],
             CollectionNullableStruct =
             [
@@ -583,15 +583,15 @@ public class CollectionComparerTest
             ],
             CollectionClass =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyClass("0"),
+                new MyClass("1"),
+                new MyClass("2")
             ],
             CollectionNullableClass =
             [
-                new("0"),
+                new MyClass("0"),
                 null,
-                new("2")
+                new MyClass("2")
             ],
         };
 
@@ -856,9 +856,9 @@ public class CollectionComparerTest
             ],
             ObservableCollectionStruct =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyStruct("0"),
+                new MyStruct("1"),
+                new MyStruct("2")
             ],
             ObservableCollectionNullableStruct =
             [
@@ -868,15 +868,15 @@ public class CollectionComparerTest
             ],
             ObservableCollectionClass =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyClass("0"),
+                new MyClass("1"),
+                new MyClass("2")
             ],
             ObservableCollectionNullableClass =
             [
-                new("0"),
+                new MyClass("0"),
                 null,
-                new("2")
+                new MyClass("2")
             ],
         };
 

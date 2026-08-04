@@ -28,7 +28,7 @@ public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixtu
                             new Product
                             {
                                 Name = uuid,
-                                ProductNumber = uuid.Substring(0, 25),
+                                ProductNumber = uuid[..25],
                                 Weight = 1000,
                                 SellStartDate = DateTime.Now
                             });

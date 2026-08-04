@@ -202,35 +202,35 @@ WHERE date("b"."DateOnly", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' mon
 
     public override async Task ToDateTime_property_with_constant_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_property_with_constant_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_property_with_constant_TimeOnly);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_property_with_property_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_property_with_property_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_property_with_property_TimeOnly);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_constant_DateTime_with_property_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_constant_DateTime_with_property_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_constant_DateTime_with_property_TimeOnly);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_with_complex_DateTime()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_with_complex_DateTime());
+        await AssertTranslationFailed(base.ToDateTime_with_complex_DateTime);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_with_complex_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_with_complex_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_with_complex_TimeOnly);
 
         AssertSql();
     }

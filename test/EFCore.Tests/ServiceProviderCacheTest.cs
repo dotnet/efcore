@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -336,15 +336,15 @@ public class ServiceProviderCacheTest
         var options = new DbContextOptionsBuilder().UseInMemoryDatabase("TestDB").Options;
 
         var provider1 = cache.GetOrAdd(options, providerRequired: false);
-        cache.Clear(); 
+        cache.Clear();
 
         var field = typeof(ServiceProviderCache).GetField("_configurations", BindingFlags.NonPublic | BindingFlags.Instance);
-        var dict = (System.Collections.IDictionary)field.GetValue(cache);
-        
+        var dict = (IDictionary)field.GetValue(cache);
+
         Assert.Equal(0, dict.Count);
-        
+
         var provider2 = cache.GetOrAdd(options, providerRequired: false);
-        
+
         Assert.NotNull(provider2);
         Assert.NotSame(provider1, provider2);
     }

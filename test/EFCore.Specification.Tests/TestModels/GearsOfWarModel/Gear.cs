@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 public class Gear
 {
     public Gear()
-        => Weapons = new List<Weapon>();
+        => Weapons = [];
 
     // composite key
     public string Nickname { get; set; }

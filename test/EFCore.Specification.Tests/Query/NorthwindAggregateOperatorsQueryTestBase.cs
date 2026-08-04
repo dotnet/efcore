@@ -38,17 +38,10 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             => Equals(Order, other.Order);
 
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                ? true
-                : obj.GetType() == GetType()
-                && Equals((ProjectedType)obj);
-        }
+            => obj is not null
+                && (ReferenceEquals(this, obj)
+                    || (obj.GetType() == GetType()
+                        && Equals((ProjectedType)obj)));
 
         public override int GetHashCode()
             => Order.GetHashCode();
@@ -403,7 +396,6 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<Order>().Where(o => o.OrderID == -1).Select(o => o.OrderID),
             selector: o => o));
-
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task MaxBy_no_data_nullable_source(bool async)
@@ -1284,7 +1276,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)));
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE" || !ids.Contains(c.CustomerID)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1294,7 +1286,9 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
         return AssertQuery(
             async,
+            #pragma warning disable IDE0047
             ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")),
+            #pragma warning restore IDE0047
             assertEmpty: true);
     }
 
@@ -1323,7 +1317,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     public virtual Task Contains_with_local_collection_empty_inline(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => !(new List<string>().Contains(c.CustomerID))));
+            ss => ss.Set<Customer>().Where(c => !new List<string>().Contains(c.CustomerID)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_top_level(bool async)

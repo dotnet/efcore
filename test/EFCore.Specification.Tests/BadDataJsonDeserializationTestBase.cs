@@ -142,7 +142,7 @@ public abstract class BadDataJsonDeserializationTestBase
         }
         catch (Exception e)
         {
-            Assert.True(e is InvalidOperationException || e is JsonException || e is Newtonsoft.Json.JsonException);
+            Assert.True(e is InvalidOperationException or JsonException or Newtonsoft.Json.JsonException);
         }
     }
 

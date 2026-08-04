@@ -39,7 +39,8 @@ public class ConnectionSpecificationTest
 
         Assert.Equal(
             CosmosStrings.ConnectionInfoMissing,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.GetService<IDatabaseCreator>().EnsureDeletedAsync())).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.GetService<IDatabaseCreator>().EnsureDeletedAsync()))
+            .Message);
     }
 
     public class NoConnectionContext : DbContext

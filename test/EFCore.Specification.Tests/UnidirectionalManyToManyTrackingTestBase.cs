@@ -100,7 +100,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             IList<UnidirectionalEntityCompositeKey> leftEntities,
             IList<UnidirectionalEntityLeaf> rightEntities)
@@ -199,7 +199,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities, 24, 4, 35 - 2);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<UnidirectionalEntityCompositeKey> leftEntities,
             List<UnidirectionalEntityLeaf> rightEntities,
@@ -524,7 +524,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities, postSave: true);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             IList<UnidirectionalEntityCompositeKey> leftEntities,
             IList<UnidirectionalEntityThree> rightEntities,
@@ -1011,7 +1011,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<UnidirectionalEntityTwo> leftEntities, IList<UnidirectionalEntityTwo> rightEntities)
+        static void ValidateFixup(
+            DbContext context,
+            IList<UnidirectionalEntityTwo> leftEntities,
+            IList<UnidirectionalEntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(6, context.ChangeTracker.Entries<UnidirectionalEntityTwo>().Count());
@@ -1269,7 +1272,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<UnidirectionalEntityOne> leftEntities, IList<UnidirectionalEntityBranch> rightEntities)
+        static void ValidateFixup(
+            DbContext context,
+            IList<UnidirectionalEntityOne> leftEntities,
+            IList<UnidirectionalEntityBranch> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<UnidirectionalEntityOne>().Count());
@@ -1385,7 +1391,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities, 24, 14, 55 - 4);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<UnidirectionalEntityOne> leftEntities,
             List<UnidirectionalEntityBranch> rightEntities,
@@ -2003,7 +2009,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         static int GetEntityThreeId(ManyToManyContext context, string name)
             => context.Entry(context.UnidirectionalEntityThrees.Local.Single(e => e.Name == name)).Property(e => e.Id).CurrentValue;
 
-        void ValidateFixup(
+        static void ValidateFixup(
             ManyToManyContext context,
             List<UnidirectionalEntityOne> leftEntities,
             List<UnidirectionalEntityThree> rightEntities,
@@ -2165,7 +2171,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<UnidirectionalEntityOne> leftEntities, IList<UnidirectionalEntityTwo> rightEntities)
+        static void ValidateFixup(
+            DbContext context,
+            IList<UnidirectionalEntityOne> leftEntities,
+            IList<UnidirectionalEntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<UnidirectionalEntityOne>().Count());
@@ -2288,7 +2297,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities, 24, 24, 49);
             });
 
-        void ValidateFixup(
+        static void ValidateFixup(
             DbContext context,
             List<UnidirectionalEntityOne> leftEntities,
             List<UnidirectionalEntityTwo> rightEntities,
@@ -2419,17 +2428,15 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                     }),
                 };
 
-                var extra = context.Set<UnidirectionalJoinOneToTwoExtra>().CreateInstance((e, p) =>
-                {
-                    e.JoinEntities = new ObservableCollection<UnidirectionalJoinOneToTwo>
+                var extra = context.Set<UnidirectionalJoinOneToTwoExtra>().CreateInstance((e, p) => e.JoinEntities =
+                    new ObservableCollection<UnidirectionalJoinOneToTwo>
                     {
                         joinEntities[0],
                         joinEntities[1],
                         joinEntities[2],
                         joinEntities[3],
                         joinEntities[4],
-                    };
-                });
+                    });
 
                 rightEntities[0].Extra = extra;
                 rightEntities[1].Extra = extra;
@@ -2497,7 +2504,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<UnidirectionalEntityOne> leftEntities, IList<UnidirectionalEntityTwo> rightEntities)
+        static void ValidateFixup(
+            DbContext context,
+            IList<UnidirectionalEntityOne> leftEntities,
+            IList<UnidirectionalEntityTwo> rightEntities)
         {
             Assert.Equal(12, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<UnidirectionalEntityOne>().Count());
@@ -2633,7 +2643,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 ValidateFixup(context, leftEntities, rightEntities);
             });
 
-        void ValidateFixup(DbContext context, IList<UnidirectionalEntityOne> leftEntities, IList<UnidirectionalEntityTwo> rightEntities)
+        static void ValidateFixup(
+            DbContext context,
+            IList<UnidirectionalEntityOne> leftEntities,
+            IList<UnidirectionalEntityTwo> rightEntities)
         {
             Assert.Equal(11, context.ChangeTracker.Entries().Count());
             Assert.Equal(3, context.ChangeTracker.Entries<UnidirectionalEntityOne>().Count());

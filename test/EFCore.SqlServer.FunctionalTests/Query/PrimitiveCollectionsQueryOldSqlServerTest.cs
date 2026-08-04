@@ -725,7 +725,8 @@ WHERE [p].[NullableInt] IS NOT NULL AND [p].[NullableInt] <> @nullableInts1
     public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter()
     {
         // EF.Parameter() on primitive collection (OPENJSON on SQL Server) not supported on old versions of SQL Server.
-        await Assert.ThrowsAsync<InvalidOperationException>(base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter);
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            base.Parameter_collection_of_nullable_ints_Contains_nullable_int_with_EF_Parameter);
 
         AssertSql();
     }
@@ -1014,9 +1015,11 @@ WHERE (
         Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
+        await base
+            .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
         Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
         Assert.DoesNotContain("OPENJSON", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
@@ -1032,7 +1035,8 @@ WHERE (
         Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
 
@@ -1045,8 +1049,7 @@ WHERE (
         switch (mode)
         {
             case ParameterTranslationMode.Parameter:
-                await AssertCompatibilityLevelTooLow(
-                    () => base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode));
+                await AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode));
                 break;
 
             case ParameterTranslationMode.Constant:
@@ -1166,12 +1169,10 @@ WHERE [t].[Id] IN (2, 999)
 
     public override Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(
         ParameterTranslationMode mode)
-        => AssertCompatibilityLevelTooLow(
-            () => base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count_with_column_predicate_with_default_mode_EF_Parameter(mode));
 
     public override Task Parameter_collection_Contains_with_default_mode_EF_Parameter(ParameterTranslationMode mode)
-        => AssertCompatibilityLevelTooLow(
-            () => base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Contains_with_default_mode_EF_Parameter(mode));
 
     public override async Task Parameter_collection_Count_with_column_predicate_with_default_mode_EF_MultipleParameters(
         ParameterTranslationMode mode)
@@ -1261,8 +1262,7 @@ WHERE EXISTS (
 
             case ParameterTranslationMode.Parameter:
             {
-                await AssertCompatibilityLevelTooLow(
-                    () => base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode));
+                await AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count_with_column_predicate_with_default_mode(mode));
                 break;
             }
 
@@ -1352,13 +1352,13 @@ WHERE [p].[Int] NOT IN (10, 999)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains_null());
 
     public override Task Column_collection_of_strings_Contains()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains());
+        => AssertTranslationFailed(base.Column_collection_of_strings_Contains);
 
     public override Task Column_collection_of_strings_Contains_null()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains_null());
+        => AssertTranslationFailed(base.Column_collection_of_strings_Contains_null);
 
     public override Task Column_collection_of_nullable_strings_contains_null()
-        => AssertTranslationFailed(() => base.Column_collection_of_strings_Contains_null());
+        => AssertTranslationFailed(base.Column_collection_of_strings_Contains_null);
 
     public override Task Column_collection_of_bools_Contains()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains());
@@ -1389,7 +1389,7 @@ WHERE [t].[Ints] = @ints
     }
 
     public override Task Column_collection_inside_json_owned_entity()
-        => AssertCompatibilityLevelTooLow(() => base.Column_collection_inside_json_owned_entity());
+        => AssertCompatibilityLevelTooLow(base.Column_collection_inside_json_owned_entity);
 
     public override async Task Parameter_with_inferred_value_converter()
     {
@@ -1428,7 +1428,6 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Int] IN (10, 999)
 """);
     }
-
 
     public override async Task Contains_on_MemoryExtensions()
     {
@@ -1653,25 +1652,25 @@ WHERE (
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take());
 
     public override Task Column_collection_OrderByDescending_ElementAt()
-        => AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt());
+        => AssertTranslationFailed(base.Column_collection_OrderByDescending_ElementAt);
 
     public override Task Column_collection_Where_ElementAt()
-        => AssertTranslationFailed(() => base.Column_collection_Where_ElementAt());
+        => AssertTranslationFailed(base.Column_collection_Where_ElementAt);
 
     public override Task Column_collection_Any()
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any());
 
     public override Task Column_collection_Distinct()
-        => AssertTranslationFailed(() => base.Column_collection_Distinct());
+        => AssertTranslationFailed(base.Column_collection_Distinct);
 
     public override Task Column_collection_SelectMany()
-        => AssertTranslationFailed(() => base.Column_collection_SelectMany());
+        => AssertTranslationFailed(base.Column_collection_SelectMany);
 
     public override Task Column_collection_SelectMany_with_filter()
-        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_filter());
+        => AssertTranslationFailed(base.Column_collection_SelectMany_with_filter);
 
     public override Task Column_collection_SelectMany_with_Select_to_anonymous_type()
-        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_Select_to_anonymous_type());
+        => AssertTranslationFailed(base.Column_collection_SelectMany_with_Select_to_anonymous_type);
 
     public override async Task Column_collection_projection_from_top_level()
     {
@@ -1686,7 +1685,7 @@ ORDER BY [p].[Id]
     }
 
     public override Task Column_collection_Join_parameter_collection()
-        => AssertTranslationFailed(() => base.Column_collection_Join_parameter_collection());
+        => AssertTranslationFailed(base.Column_collection_Join_parameter_collection);
 
     public override Task Inline_collection_Join_ordered_column_collection()
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection());
@@ -1834,11 +1833,11 @@ ORDER BY [p].[Id]
 
     public override Task Project_collection_of_ints_ordered()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_ints_ordered());
+        => AssertTranslationFailed(base.Project_collection_of_ints_ordered);
 
     public override Task Project_collection_of_datetimes_filtered()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_datetimes_filtered());
+        => AssertTranslationFailed(base.Project_collection_of_datetimes_filtered);
 
     public override async Task Project_collection_of_nullable_ints_with_paging()
     {
@@ -1855,7 +1854,7 @@ ORDER BY [p].[Id]
 
     public override Task Project_collection_of_nullable_ints_with_paging2()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_nullable_ints_with_paging2());
+        => AssertTranslationFailed(base.Project_collection_of_nullable_ints_with_paging2);
 
     public override async Task Project_collection_of_nullable_ints_with_paging3()
     {
@@ -1904,11 +1903,11 @@ ORDER BY [p].[Id]
 
     public override Task Project_multiple_collections()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_multiple_collections());
+        => AssertTranslationFailed(base.Project_multiple_collections);
 
     public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls()
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls());
+        => AssertTranslationFailed(base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls);
 
     public override async Task Project_primitive_collections_element()
     {

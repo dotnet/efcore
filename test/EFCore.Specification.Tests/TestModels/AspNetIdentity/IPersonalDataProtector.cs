@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
 public interface IPersonalDataProtector
 {
-    string Protect(string data);
-    string Unprotect(string data);
+    public string Protect(string data);
+    public string Unprotect(string data);
 }

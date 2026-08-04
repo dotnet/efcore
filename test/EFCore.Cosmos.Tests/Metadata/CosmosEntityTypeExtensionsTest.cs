@@ -15,8 +15,8 @@ public class CosmosEntityTypeExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
         Assert.Equal(
             CosmosStrings.AutomaticIndexingExceptionWhileDisabled,
-            Assert.Throws<InvalidOperationException>(
-                () => modelBuilder.Entity<Customer>(b => b.HasAutomaticIndexing(enabled: false).Except("/X/?"))).Message);
+            Assert.Throws<InvalidOperationException>(()
+                => modelBuilder.Entity<Customer>(b => b.HasAutomaticIndexing(enabled: false).Except("/X/?"))).Message);
     }
 
     [Fact]
@@ -40,12 +40,9 @@ public class CosmosEntityTypeExtensionsTest
     public virtual void Except_does_not_dedupe()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasAutomaticIndexing()
-                .Except("/Notes/?")
-                .Except("/Notes/?");
-        });
+        modelBuilder.Entity<Customer>(b => b.HasAutomaticIndexing()
+            .Except("/Notes/?")
+            .Except("/Notes/?"));
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
         Assert.Equal(["/Notes/?", "/Notes/?"], entityType.GetAutomaticIndexingExceptions()!);
@@ -193,6 +190,6 @@ public class CosmosEntityTypeExtensionsTest
 
     private class DescriptionItem
     {
-        public string Description { get; set; } = null!;
+        public string Description { get; } = null!;
     }
 }

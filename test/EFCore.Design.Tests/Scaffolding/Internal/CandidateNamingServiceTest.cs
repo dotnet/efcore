@@ -31,12 +31,11 @@ public class CandidateNamingServiceTest
         // principal type name); the original property name is used instead.
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<NamingPrincipal>();
-        modelBuilder.Entity<NamingDependent>(
-            b =>
-            {
-                b.Property<int>("_Id");
-                b.HasOne<NamingPrincipal>().WithMany().HasForeignKey("_Id");
-            });
+        modelBuilder.Entity<NamingDependent>(b =>
+        {
+            b.Property<int>("_Id");
+            b.HasOne<NamingPrincipal>().WithMany().HasForeignKey("_Id");
+        });
 
         var foreignKey = modelBuilder.Model.FindEntityType(typeof(NamingDependent))!.GetForeignKeys().Single();
 

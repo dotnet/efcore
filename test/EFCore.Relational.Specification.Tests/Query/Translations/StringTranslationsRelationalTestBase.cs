@@ -14,34 +14,34 @@ public abstract class StringTranslationsRelationalTestBase<TFixture>(TFixture fi
     // column collation is used to control comparison semantics.
 
     public override Task Equals_with_OrdinalIgnoreCase()
-        => AssertTranslationFailed(() => base.Equals_with_OrdinalIgnoreCase());
+        => AssertTranslationFailed(base.Equals_with_OrdinalIgnoreCase);
 
     public override Task Equals_with_Ordinal()
-        => AssertTranslationFailed(() => base.Equals_with_OrdinalIgnoreCase());
+        => AssertTranslationFailed(base.Equals_with_OrdinalIgnoreCase);
 
     public override Task Static_Equals_with_OrdinalIgnoreCase()
-        => AssertTranslationFailed(() => base.Static_Equals_with_OrdinalIgnoreCase());
+        => AssertTranslationFailed(base.Static_Equals_with_OrdinalIgnoreCase);
 
     public override Task Static_Equals_with_Ordinal()
-        => AssertTranslationFailed(() => base.Static_Equals_with_Ordinal());
+        => AssertTranslationFailed(base.Static_Equals_with_Ordinal);
 
     public override Task StartsWith_with_StringComparison_Ordinal()
-        => AssertTranslationFailed(() => base.StartsWith_with_StringComparison_Ordinal());
+        => AssertTranslationFailed(base.StartsWith_with_StringComparison_Ordinal);
 
     public override Task StartsWith_with_StringComparison_OrdinalIgnoreCase()
-        => AssertTranslationFailed(() => base.StartsWith_with_StringComparison_OrdinalIgnoreCase());
+        => AssertTranslationFailed(base.StartsWith_with_StringComparison_OrdinalIgnoreCase);
 
     public override Task EndsWith_with_StringComparison_Ordinal()
-        => AssertTranslationFailed(() => base.EndsWith_with_StringComparison_Ordinal());
+        => AssertTranslationFailed(base.EndsWith_with_StringComparison_Ordinal);
 
     public override Task EndsWith_with_StringComparison_OrdinalIgnoreCase()
-        => AssertTranslationFailed(() => base.EndsWith_with_StringComparison_OrdinalIgnoreCase());
+        => AssertTranslationFailed(base.EndsWith_with_StringComparison_OrdinalIgnoreCase);
 
     public override Task Contains_with_StringComparison_Ordinal()
-        => AssertTranslationFailed(() => base.Contains_with_StringComparison_Ordinal());
+        => AssertTranslationFailed(base.Contains_with_StringComparison_Ordinal);
 
     public override Task Contains_with_StringComparison_OrdinalIgnoreCase()
-        => AssertTranslationFailed(() => base.Contains_with_StringComparison_OrdinalIgnoreCase());
+        => AssertTranslationFailed(base.Contains_with_StringComparison_OrdinalIgnoreCase);
 
     #endregion Case sensitivity
 

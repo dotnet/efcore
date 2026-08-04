@@ -12,7 +12,7 @@ public abstract partial class ModelBuilding101TestBase
     protected virtual void Model101Test([CallerMemberName] string testMame = "")
     {
         var models = new List<ModelMetadata>();
-        var testTypeName = "Microsoft.EntityFrameworkCore.ModelBuilding101TestBase+" + testMame.Substring(0, testMame.Length - 4);
+        var testTypeName = "Microsoft.EntityFrameworkCore.ModelBuilding101TestBase+" + testMame[..^4];
 
         foreach (Context101 context in Type.GetType(testTypeName, throwOnError: true)!.GetNestedTypes()
                      .Where(t => t.IsAssignableTo(typeof(DbContext)))
@@ -45,8 +45,8 @@ public abstract partial class ModelBuilding101TestBase
         public override bool Equals(object obj)
             => !ReferenceEquals(null, obj)
                 && (ReferenceEquals(this, obj)
-                    || obj.GetType() == GetType()
-                    && Equals((ModelMetadata)obj));
+                    || (obj.GetType() == GetType()
+                        && Equals((ModelMetadata)obj)));
 
         public override int GetHashCode()
             => ModelDebugView.GetHashCode();

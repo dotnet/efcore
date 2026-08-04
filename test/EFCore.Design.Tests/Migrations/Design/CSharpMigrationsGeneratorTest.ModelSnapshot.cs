@@ -6,15 +6,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using Xunit.Sdk;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -216,7 +213,7 @@ partial class Snapshot : ModelSnapshot
     {
         public int CartId { get; set; }
         public int ProductId { get; set; }
-        public Product Product { get; set; } = null!;
+        public Product Product { get; } = null!;
     }
 
     private class Product
@@ -230,10 +227,7 @@ partial class Snapshot : ModelSnapshot
         var generator = CreateMigrationsCodeGenerator();
 
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
-        {
-            x.Property(e => e.Id);
-        });
+        modelBuilder.Entity<EntityWithConstructorBinding>(x => x.Property(e => e.Id));
 
         var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
@@ -260,10 +254,7 @@ partial class Snapshot : ModelSnapshot
         var generator = CreateMigrationsCodeGenerator();
 
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithConstructorBinding>(x =>
-        {
-            x.Property(e => e.Id);
-        });
+        modelBuilder.Entity<EntityWithConstructorBinding>(x => x.Property(e => e.Id));
 
         var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
@@ -812,7 +803,7 @@ partial class Snapshot : ModelSnapshot
     private abstract class Pet : Animal
     {
         public string Vet { get; set; }
-        public ICollection<Human> Humans { get; } = new List<Human>();
+        public ICollection<Human> Humans { get; } = [];
     }
 
     private class Cat : Pet
@@ -828,7 +819,7 @@ partial class Snapshot : ModelSnapshot
     private class Human : Animal
     {
         public Animal FavoriteAnimal { get; set; }
-        public ICollection<Pet> Pets { get; } = new List<Pet>();
+        public ICollection<Pet> Pets { get; } = [];
     }
 
     public abstract class BarBase
@@ -927,10 +918,12 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.SequenceHiLo,
-                    EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
+                    SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.SequenceHiLo,
+                    SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
 
     [Fact]
@@ -968,10 +961,12 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                Assert.Equal(SqlServerValueGenerationStrategy.Sequence, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.Sequence,
-                    EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
+                    SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.Sequence,
+                    SqlServerPropertyExtensions.GetValueGenerationStrategy(o.GetEntityTypes().Single().GetProperty("Id")));
             });
 
     [Fact]
@@ -1606,64 +1601,49 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Entity_splitting_is_stored_in_snapshot_with_tables()
         => Test(
-            builder =>
+            builder => builder.Entity<Order>(b =>
             {
-                builder.Entity<Order>(b =>
-                {
-                    b.Ignore(e => e.OrderInfo);
+                b.Ignore(e => e.OrderInfo);
 
-                    b.Property<int>("Shadow").HasColumnName("Shadow");
-                    b.ToTable(
-                        "Order", "DefaultSchema", tb =>
-                        {
-                            tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
-                            tb.Property("Shadow");
-                        });
-                    b.SplitToTable(
-                        "SplitOrder", "DefaultSchema", sb =>
-                        {
-                            sb.Property("Shadow");
-                            sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
-                            sb.HasAnnotation("foo", "bar");
-                        });
+                b.Property<int>("Shadow").HasColumnName("Shadow");
+                b.ToTable(
+                    "Order", "DefaultSchema", tb =>
+                    {
+                        tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
+                        tb.Property("Shadow");
+                    });
+                b.SplitToTable(
+                    "SplitOrder", "DefaultSchema", sb =>
+                    {
+                        sb.Property("Shadow");
+                        sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
+                        sb.HasAnnotation("foo", "bar");
+                    });
 
-                    b.OwnsOne(
-                        p => p.OrderBillingDetails, od =>
-                        {
-                            od.OwnsOne(c => c.StreetAddress);
+                b.OwnsOne(
+                    p => p.OrderBillingDetails, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress);
 
-                            od.Property<int>("BillingShadow");
-                            od.ToTable(
-                                "SplitOrder", "DefaultSchema", tb =>
-                                {
-                                    tb.Property("BillingShadow").HasColumnName("Shadow");
-                                });
-                            od.SplitToTable(
-                                "BillingDetails", "DefaultSchema", sb =>
-                                {
-                                    sb.Property("BillingShadow").HasColumnName("Shadow");
-                                });
-                        });
+                        od.Property<int>("BillingShadow");
+                        od.ToTable(
+                            "SplitOrder", "DefaultSchema", tb => tb.Property("BillingShadow").HasColumnName("Shadow"));
+                        od.SplitToTable(
+                            "BillingDetails", "DefaultSchema", sb => sb.Property("BillingShadow").HasColumnName("Shadow"));
+                    });
 
-                    b.OwnsOne(
-                        p => p.OrderShippingDetails, od =>
-                        {
-                            od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
+                b.OwnsOne(
+                    p => p.OrderShippingDetails, od =>
+                    {
+                        od.OwnsOne(c => c.StreetAddress).ToTable("ShippingDetails");
 
-                            od.Property<int>("ShippingShadow");
-                            od.ToTable(
-                                "Order", "DefaultSchema", tb =>
-                                {
-                                    tb.Property("ShippingShadow").HasColumnName("Shadow");
-                                });
-                            od.SplitToTable(
-                                "ShippingDetails", "DefaultSchema", sb =>
-                                {
-                                    sb.Property("ShippingShadow");
-                                });
-                        });
-                });
-            },
+                        od.Property<int>("ShippingShadow");
+                        od.ToTable(
+                            "Order", "DefaultSchema", tb => tb.Property("ShippingShadow").HasColumnName("Shadow"));
+                        od.SplitToTable(
+                            "ShippingDetails", "DefaultSchema", sb => sb.Property("ShippingShadow"));
+                    });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -1825,12 +1805,13 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(nameof(Order), orderEntityType.GetTableName());
 
                 var id = orderEntityType.FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
+                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
                 Assert.Equal(1, id.GetIdentitySeed());
                 Assert.Equal(1, id.GetIdentityIncrement());
 
                 var overrides = id.FindOverrides(StoreObjectIdentifier.Create(orderEntityType, StoreObjectType.Table).Value)!;
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(overrides));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(overrides));
                 Assert.Equal(2, overrides.GetIdentitySeed());
                 Assert.Equal(3, overrides.GetIdentityIncrement());
                 Assert.Equal("arr", overrides["fii"]);
@@ -1897,40 +1878,25 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Entity_splitting_is_stored_in_snapshot_with_views()
         => Test(
-            builder =>
+            builder => builder.Entity<EntityWithOneProperty>(b =>
             {
-                builder.Entity<EntityWithOneProperty>(b =>
-                {
-                    b.Property<int>("Shadow");
-                    b.ToView(
-                        "EntityWithOneProperty", tb =>
-                        {
-                            tb.Property("Shadow");
-                        });
-                    b.SplitToView(
-                        "SplitView", sb =>
-                        {
-                            sb.Property("Shadow");
-                        });
+                b.Property<int>("Shadow");
+                b.ToView(
+                    "EntityWithOneProperty", tb => tb.Property("Shadow"));
+                b.SplitToView(
+                    "SplitView", sb => sb.Property("Shadow"));
 
-                    b.OwnsOne(
-                        eo => eo.EntityWithTwoProperties, eb =>
-                        {
-                            eb.Ignore(e => e.EntityWithStringKey);
+                b.OwnsOne(
+                    eo => eo.EntityWithTwoProperties, eb =>
+                    {
+                        eb.Ignore(e => e.EntityWithStringKey);
 
-                            eb.ToView(
-                                "EntityWithOneProperty", tb =>
-                                {
-                                    tb.Property(e => e.AlternateId).HasColumnName("SomeId");
-                                });
-                            eb.SplitToView(
-                                "SplitView", sb =>
-                                {
-                                    sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId");
-                                });
-                        });
-                });
-            },
+                        eb.ToView(
+                            "EntityWithOneProperty", tb => tb.Property(e => e.AlternateId).HasColumnName("SomeId"));
+                        eb.SplitToView(
+                            "SplitView", sb => sb.Property(e => e.AlternateId).HasColumnName("SomeOtherId"));
+                    });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -2135,16 +2101,13 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
         => Test(
-            builder =>
-            {
-                builder.HasSequence<int>("Foo", "Bar")
-                    .StartsAt(2)
-                    .HasMin(1)
-                    .HasMax(3)
-                    .IncrementsBy(2)
-                    .IsCyclic()
-                    .HasAnnotation("foo", "bar");
-            },
+            builder => builder.HasSequence<int>("Foo", "Bar")
+                .StartsAt(2)
+                .HasMin(1)
+                .HasMax(3)
+                .IncrementsBy(2)
+                .IsCyclic()
+                .HasAnnotation("foo", "bar"),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -2511,7 +2474,8 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(5, o.GetIdentityIncrement());
 
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(long.MaxValue, property.GetIdentitySeed());
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
@@ -2928,14 +2892,11 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o =>
-            {
-                Assert.Collection(
-                    o.GetEntityTypes().First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
-                    t => Assert.Equal("Id", t.Name),
-                    t => Assert.Equal("AlternateId", t.Name)
-                );
-            });
+            o => Assert.Collection(
+                o.GetEntityTypes().First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
+                t => Assert.Equal("Id", t.Name),
+                t => Assert.Equal("AlternateId", t.Name)
+            ));
 
     [Fact]
     public virtual void Indexes_are_stored_in_snapshot()
@@ -3013,14 +2974,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Foreign_keys_are_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder
-                    .Entity<EntityWithTwoProperties>()
-                    .HasOne(e => e.EntityWithOneProperty)
-                    .WithOne(e => e.EntityWithTwoProperties)
-                    .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId);
-            },
+            builder => builder
+                .Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -3178,14 +3136,8 @@ partial class Snapshot : ModelSnapshot
                     });
                 Assert.Collection(
                     joinEntity.FindDeclaredPrimaryKey().Properties,
-                    p =>
-                    {
-                        Assert.Equal("LeftsId", p.Name);
-                    },
-                    p =>
-                    {
-                        Assert.Equal("RightsId", p.Name);
-                    });
+                    p => Assert.Equal("LeftsId", p.Name),
+                    p => Assert.Equal("RightsId", p.Name));
                 Assert.Collection(
                     joinEntity.GetDeclaredForeignKeys(),
                     fk =>
@@ -3195,16 +3147,10 @@ partial class Snapshot : ModelSnapshot
                             fk.PrincipalEntityType.Name);
                         Assert.Collection(
                             fk.PrincipalKey.Properties,
-                            p =>
-                            {
-                                Assert.Equal("Id", p.Name);
-                            });
+                            p => Assert.Equal("Id", p.Name));
                         Assert.Collection(
                             fk.Properties,
-                            p =>
-                            {
-                                Assert.Equal("LeftsId", p.Name);
-                            });
+                            p => Assert.Equal("LeftsId", p.Name));
                     },
                     fk =>
                     {
@@ -3213,16 +3159,10 @@ partial class Snapshot : ModelSnapshot
                             fk.PrincipalEntityType.Name);
                         Assert.Collection(
                             fk.PrincipalKey.Properties,
-                            p =>
-                            {
-                                Assert.Equal("Id", p.Name);
-                            });
+                            p => Assert.Equal("Id", p.Name));
                         Assert.Collection(
                             fk.Properties,
-                            p =>
-                            {
-                                Assert.Equal("RightsId", p.Name);
-                            });
+                            p => Assert.Equal("RightsId", p.Name));
                     });
 
                 Assert.Equal("ManyToManyLeftManyToManyRight", joinEntity.GetTableName());
@@ -3326,14 +3266,8 @@ partial class Snapshot : ModelSnapshot
                     });
                 Assert.Collection(
                     joinEntity.FindDeclaredPrimaryKey().Properties,
-                    p =>
-                    {
-                        Assert.Equal("LeftsId", p.Name);
-                    },
-                    p =>
-                    {
-                        Assert.Equal("RightsId", p.Name);
-                    });
+                    p => Assert.Equal("LeftsId", p.Name),
+                    p => Assert.Equal("RightsId", p.Name));
                 Assert.Collection(
                     joinEntity.GetDeclaredForeignKeys(),
                     fk =>
@@ -3343,16 +3277,10 @@ partial class Snapshot : ModelSnapshot
                             fk.PrincipalEntityType.Name);
                         Assert.Collection(
                             fk.PrincipalKey.Properties,
-                            p =>
-                            {
-                                Assert.Equal("Id", p.Name);
-                            });
+                            p => Assert.Equal("Id", p.Name));
                         Assert.Collection(
                             fk.Properties,
-                            p =>
-                            {
-                                Assert.Equal("LeftsId", p.Name);
-                            });
+                            p => Assert.Equal("LeftsId", p.Name));
                     },
                     fk =>
                     {
@@ -3361,16 +3289,10 @@ partial class Snapshot : ModelSnapshot
                             fk.PrincipalEntityType.Name);
                         Assert.Collection(
                             fk.PrincipalKey.Properties,
-                            p =>
-                            {
-                                Assert.Equal("Id", p.Name);
-                            });
+                            p => Assert.Equal("Id", p.Name));
                         Assert.Collection(
                             fk.Properties,
-                            p =>
-                            {
-                                Assert.Equal("RightsId", p.Name);
-                            });
+                            p => Assert.Equal("RightsId", p.Name));
                     });
             });
 
@@ -3741,15 +3663,15 @@ partial class Snapshot : ModelSnapshot
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
                 Assert.Equal(7, annotations.Count);
-                Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
+                Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && (a.Value as bool?) == true);
                 Assert.Contains(
                     annotations,
-                    a => a.Name == SqlServerAnnotationNames.TemporalHistoryTableName && a.Value as string == "HistoryTable");
+                    a => a.Name == SqlServerAnnotationNames.TemporalHistoryTableName && (a.Value as string) == "HistoryTable");
                 Assert.Contains(
                     annotations,
-                    a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "Start");
+                    a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && (a.Value as string) == "Start");
                 Assert.Contains(
-                    annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "End");
+                    annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && (a.Value as string) == "End");
             });
 
     [Fact]
@@ -3803,13 +3725,13 @@ partial class Snapshot : ModelSnapshot
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
                 Assert.Equal(7, annotations.Count);
-                Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
+                Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && (a.Value as bool?) == true);
                 Assert.Contains(
                     annotations,
-                    a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "PeriodStart");
+                    a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && (a.Value as string) == "PeriodStart");
                 Assert.Contains(
                     annotations,
-                    a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "PeriodEnd");
+                    a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && (a.Value as string) == "PeriodEnd");
             });
 
     [Fact]
@@ -4487,13 +4409,10 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Owned_types_can_be_mapped_to_view()
         => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity<TestOwner>()
-                    .OwnsMany(
-                        o => o.OwnedEntities,
-                        ownee => ownee.ToView("OwnedView"));
-            },
+            modelBuilder => modelBuilder.Entity<TestOwner>()
+                .OwnsMany(
+                    o => o.OwnedEntities,
+                    ownee => ownee.ToView("OwnedView")),
             """
 // <auto-generated />
 using Microsoft.EntityFrameworkCore;
@@ -4573,14 +4492,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Snapshot_with_OwnedNavigationBuilder_HasCheckConstraint_compiles()
         => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Entity<TestOwner>()
-                    .OwnsMany(
-                        o => o.OwnedEntities,
-                        ownee => ownee.ToTable(tb => tb.HasCheckConstraint(
-                            "CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)")));
-            },
+            modelBuilder => modelBuilder.Entity<TestOwner>()
+                .OwnsMany(
+                    o => o.OwnedEntities,
+                    ownee => ownee.ToTable(tb => tb.HasCheckConstraint(
+                        "CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)"))),
             """
 // <auto-generated />
 using Microsoft.EntityFrameworkCore;
@@ -4664,28 +4580,25 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Owned_types_mapped_to_json_are_stored_in_snapshot()
         => Test(
-            builder =>
+            builder => builder.Entity<EntityWithOneProperty>(b =>
             {
-                builder.Entity<EntityWithOneProperty>(b =>
-                {
-                    b.HasKey(x => x.Id).HasName("PK_Custom");
+                b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                    b.OwnsOne(
-                        x => x.EntityWithTwoProperties, bb =>
-                        {
-                            bb.ToJson();
-                            bb.Ignore(x => x.Id);
-                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
-                            bb.WithOwner(e => e.EntityWithOneProperty);
-                            bb.OwnsOne(
-                                x => x.EntityWithStringKey, bbb =>
-                                {
-                                    bbb.Ignore(x => x.Id);
-                                    bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
-                                });
-                        });
-                });
-            },
+                b.OwnsOne(
+                    x => x.EntityWithTwoProperties, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Ignore(x => x.Id);
+                        bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                        bb.WithOwner(e => e.EntityWithOneProperty);
+                        bb.OwnsOne(
+                            x => x.EntityWithStringKey, bbb =>
+                            {
+                                bbb.Ignore(x => x.Id);
+                                bbb.OwnsMany(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
+                            });
+                    });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -4828,22 +4741,19 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Owned_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
         => Test(
-            builder =>
+            builder => builder.Entity<EntityWithOneProperty>(b =>
             {
-                builder.Entity<EntityWithOneProperty>(b =>
-                {
-                    b.HasKey(x => x.Id).HasName("PK_Custom");
+                b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                    b.OwnsOne(
-                        x => x.EntityWithTwoProperties, bb =>
-                        {
-                            bb.ToJson().HasColumnType("json");
-                            bb.Ignore(x => x.Id);
-                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
-                            bb.WithOwner(e => e.EntityWithOneProperty);
-                        });
-                });
-            },
+                b.OwnsOne(
+                    x => x.EntityWithTwoProperties, bb =>
+                    {
+                        bb.ToJson().HasColumnType("json");
+                        bb.Ignore(x => x.Id);
+                        bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                        bb.WithOwner(e => e.EntityWithOneProperty);
+                    });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -5075,10 +4985,10 @@ partial class Snapshot : ModelSnapshot
             {
                 var id = model.GetEntityTypes().Single().GetProperty(nameof(EntityWithEnumType.Id));
                 Assert.Equal(ValueGenerated.OnAdd, id.ValueGenerated);
-                Assert.Equal(SqlServerValueGenerationStrategy.None, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
+                Assert.Equal(SqlServerValueGenerationStrategy.None, SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
                 var day = model.GetEntityTypes().Single().GetProperty(nameof(EntityWithEnumType.Day));
                 Assert.Equal(ValueGenerated.OnAdd, day.ValueGenerated);
-                Assert.Equal(SqlServerValueGenerationStrategy.None, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(day));
+                Assert.Equal(SqlServerValueGenerationStrategy.None, SqlServerPropertyExtensions.GetValueGenerationStrategy(day));
             });
 
     [Fact]
@@ -5257,14 +5167,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Many_facets_chained_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithStringProperty>()
-                    .Property<string>("Name")
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasAnnotation("AnnotationName", "AnnotationValue");
-            },
+            builder => builder.Entity<EntityWithStringProperty>()
+                .Property<string>("Name")
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasAnnotation("AnnotationName", "AnnotationValue"),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6140,18 +6047,15 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Property_with_identity_column()
         => Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Building", b =>
-                    {
-                        b.Property<int>("Id").UseIdentityColumn();
+            builder => builder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn();
 
-                        b.HasKey("Id");
+                    b.HasKey("Id");
 
-                        b.ToTable("Buildings", "DefaultSchema");
-                    });
-            },
+                    b.ToTable("Buildings", "DefaultSchema");
+                }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6171,7 +6075,8 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(1, property.GetIdentitySeed());
                 Assert.Equal(1, property.GetIdentityIncrement());
             });
@@ -6179,18 +6084,15 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Property_with_identity_column_custom_seed()
         => Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Building", b =>
-                    {
-                        b.Property<int>("Id").UseIdentityColumn(seed: 5);
+            builder => builder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn(seed: 5);
 
-                        b.HasKey("Id");
+                    b.HasKey("Id");
 
-                        b.ToTable("Buildings", "DefaultSchema");
-                    });
-            },
+                    b.ToTable("Buildings", "DefaultSchema");
+                }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6210,7 +6112,8 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(5, property.GetIdentitySeed());
                 Assert.Equal(1, property.GetIdentityIncrement());
             });
@@ -6218,18 +6121,15 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Property_with_identity_column_custom_increment()
         => Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Building", b =>
-                    {
-                        b.Property<int>("Id").UseIdentityColumn(increment: 5);
+            builder => builder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn(increment: 5);
 
-                        b.HasKey("Id");
+                    b.HasKey("Id");
 
-                        b.ToTable("Buildings", "DefaultSchema");
-                    });
-            },
+                    b.ToTable("Buildings", "DefaultSchema");
+                }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6249,7 +6149,8 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(1, property.GetIdentitySeed());
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
@@ -6257,18 +6158,15 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Property_with_identity_column_custom_seed_increment()
         => Test(
-            builder =>
-            {
-                builder.Entity(
-                    "Building", b =>
-                    {
-                        b.Property<int>("Id").UseIdentityColumn(5, 5);
+            builder => builder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id").UseIdentityColumn(5, 5);
 
-                        b.HasKey("Id");
+                    b.HasKey("Id");
 
-                        b.ToTable("Buildings", "DefaultSchema");
-                    });
-            },
+                    b.ToTable("Buildings", "DefaultSchema");
+                }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6288,7 +6186,8 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var property = o.FindEntityType("Building").FindProperty("Id");
-                Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                Assert.Equal(
+                    SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(5, property.GetIdentitySeed());
                 Assert.Equal(5, property.GetIdentityIncrement());
             });
@@ -6441,35 +6340,29 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Complex_properties_are_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithOneProperty>(b =>
+            builder => builder.Entity<EntityWithOneProperty>(b => b.ComplexProperty(
+                eo => eo.EntityWithTwoProperties, eb =>
                 {
-                    b.ComplexProperty(
-                        eo => eo.EntityWithTwoProperties, eb =>
+                    eb.IsRequired();
+                    eb.Property(e => e.AlternateId).HasColumnOrder(1).IsSparse();
+                    eb.PrimitiveCollection<List<string>>("List")
+                        .HasColumnType("nvarchar(max)")
+                        .IsSparse();
+                    eb.ComplexProperty(
+                        e => e.Coordinates, cb =>
                         {
-                            eb.IsRequired();
-                            eb.Property(e => e.AlternateId).HasColumnOrder(1).IsSparse();
-                            eb.PrimitiveCollection<List<string>>("List")
-                                .HasColumnType("nvarchar(max)")
-                                .IsSparse();
-                            eb.ComplexProperty(
-                                e => e.Coordinates, cb =>
-                                {
-                                    cb.Property(c => c.Latitude).HasColumnName("Coordinate_X");
-                                    cb.Property(c => c.Longitude).HasColumnName("Coordinate_Y");
-                                });
-                            eb.ComplexProperty(
-                                e => e.EntityWithStringKey, cb =>
-                                {
-                                    cb.Ignore(e => e.Properties);
-                                    cb.HasDiscriminator<string>("Id");
-                                });
-                            eb.HasPropertyAnnotation("PropertyAnnotation", 1);
-                            eb.HasTypeAnnotation("TypeAnnotation", 2);
+                            cb.Property(c => c.Latitude).HasColumnName("Coordinate_X");
+                            cb.Property(c => c.Longitude).HasColumnName("Coordinate_Y");
                         });
-                });
-            },
+                    eb.ComplexProperty(
+                        e => e.EntityWithStringKey, cb =>
+                        {
+                            cb.Ignore(e => e.Properties);
+                            cb.HasDiscriminator<string>("Id");
+                        });
+                    eb.HasPropertyAnnotation("PropertyAnnotation", 1);
+                    eb.HasTypeAnnotation("TypeAnnotation", 2);
+                })),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6723,31 +6616,26 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Complex_types_mapped_to_json_with_explicit_column_type_are_stored_in_snapshot()
         => Test(
-            builder =>
+            builder => builder.Entity<EntityWithOneProperty>(b =>
             {
-                builder.Entity<EntityWithOneProperty>(b =>
-                {
-                    b.HasKey(x => x.Id).HasName("PK_Custom");
+                b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                    b.ComplexProperty(
-                        x => x.EntityWithTwoProperties, bb =>
-                        {
-                            bb.ToJson("TwoProps").HasColumnType("json");
-                            bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
-                            bb.ComplexProperty(
-                                x => x.EntityWithStringKey, bbb =>
-                                {
-                                    bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps"));
-                                });
-                            bb.ComplexProperty(
-                                x => x.Coordinates, bbb =>
-                                {
-                                    bbb.Property(c => c.Latitude).HasJsonPropertyName("Lat");
-                                    bbb.Property(c => c.Longitude).HasJsonPropertyName("Lon");
-                                });
-                        });
-                });
-            },
+                b.ComplexProperty(
+                    x => x.EntityWithTwoProperties, bb =>
+                    {
+                        bb.ToJson("TwoProps").HasColumnType("json");
+                        bb.Property(x => x.AlternateId).HasJsonPropertyName("NotKey");
+                        bb.ComplexProperty(
+                            x => x.EntityWithStringKey,
+                            bbb => bbb.ComplexCollection(x => x.Properties, bbbb => bbbb.HasJsonPropertyName("JsonProps")));
+                        bb.ComplexProperty(
+                            x => x.Coordinates, bbb =>
+                            {
+                                bbb.Property(c => c.Latitude).HasJsonPropertyName("Lat");
+                                bbb.Property(c => c.Longitude).HasJsonPropertyName("Lon");
+                            });
+                    });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -6842,37 +6730,32 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Complex_collection_property_annotations_not_supported_by_builder_are_ignored_in_snapshot()
         => Test(
-            builder =>
+            builder => builder.Entity<EntityWithOneProperty>(b =>
             {
-                builder.Entity<EntityWithOneProperty>(b =>
-                {
-                    b.HasKey(x => x.Id).HasName("PK_Custom");
+                b.HasKey(x => x.Id).HasName("PK_Custom");
 
-                    b.ComplexProperty(
-                        x => x.EntityWithTwoProperties, bb =>
-                        {
-                            bb.ToJson("TwoProps").HasColumnType("json");
-                            bb.ComplexProperty(
-                                x => x.EntityWithStringKey, bbb =>
+                b.ComplexProperty(
+                    x => x.EntityWithTwoProperties, bb =>
+                    {
+                        bb.ToJson("TwoProps").HasColumnType("json");
+                        bb.ComplexProperty(
+                            x => x.EntityWithStringKey, bbb => bbb.ComplexCollection(
+                                x => x.Properties, bbbb =>
                                 {
-                                    bbb.ComplexCollection(x => x.Properties, bbbb =>
-                                    {
-                                        bbbb.HasJsonPropertyName("JsonProps");
-                                        // Set annotations directly on the model to simulate convention behavior
-                                        // These should NOT appear in snapshot because ComplexCollectionTypePropertyBuilder
-                                        // doesn't support these methods
-                                        var complexType = bbbb.Metadata.ComplexType;
-                                        var nameProperty = (IMutableProperty)complexType.FindProperty("Name")!;
-                                        nameProperty.SetMaxLength(100);
-                                        nameProperty.SetPrecision(10);
-                                        nameProperty.SetScale(2);
-                                        nameProperty.IsConcurrencyToken = true;
-                                        nameProperty.ValueGenerated = ValueGenerated.OnAdd;
-                                    });
-                                });
-                        });
-                });
-            },
+                                    bbbb.HasJsonPropertyName("JsonProps");
+                                    // Set annotations directly on the model to simulate convention behavior
+                                    // These should NOT appear in snapshot because ComplexCollectionTypePropertyBuilder
+                                    // doesn't support these methods
+                                    var complexType = bbbb.Metadata.ComplexType;
+                                    var nameProperty = complexType.FindProperty("Name")!;
+                                    nameProperty.SetMaxLength(100);
+                                    nameProperty.SetPrecision(10);
+                                    nameProperty.SetScale(2);
+                                    nameProperty.IsConcurrencyToken = true;
+                                    nameProperty.ValueGenerated = ValueGenerated.OnAdd;
+                                }));
+                    });
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7244,51 +7127,48 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void Index_IsDescending_is_stored_in_snapshot()
         => Test(
-            builder =>
+            builder => builder.Entity<EntityWithThreeProperties>(e =>
             {
-                builder.Entity<EntityWithThreeProperties>(e =>
-                {
-                    e.HasIndex(
+                e.HasIndex(
+                    t => new
+                    {
+                        t.X,
+                        t.Y,
+                        t.Z
+                    }, "IX_unspecified");
+                e.HasIndex(
                         t => new
                         {
                             t.X,
                             t.Y,
                             t.Z
-                        }, "IX_unspecified");
-                    e.HasIndex(
-                            t => new
-                            {
-                                t.X,
-                                t.Y,
-                                t.Z
-                            }, "IX_empty")
-                        .IsDescending();
-                    e.HasIndex(
-                            t => new
-                            {
-                                t.X,
-                                t.Y,
-                                t.Z
-                            }, "IX_all_ascending")
-                        .IsDescending(false, false, false);
-                    e.HasIndex(
-                            t => new
-                            {
-                                t.X,
-                                t.Y,
-                                t.Z
-                            }, "IX_all_descending")
-                        .IsDescending(true, true, true);
-                    e.HasIndex(
-                            t => new
-                            {
-                                t.X,
-                                t.Y,
-                                t.Z
-                            }, "IX_mixed")
-                        .IsDescending(false, true, false);
-                });
-            },
+                        }, "IX_empty")
+                    .IsDescending();
+                e.HasIndex(
+                        t => new
+                        {
+                            t.X,
+                            t.Y,
+                            t.Z
+                        }, "IX_all_ascending")
+                    .IsDescending(false, false, false);
+                e.HasIndex(
+                        t => new
+                        {
+                            t.X,
+                            t.Y,
+                            t.Z
+                        }, "IX_all_descending")
+                    .IsDescending(true, true, true);
+                e.HasIndex(
+                        t => new
+                        {
+                            t.X,
+                            t.Y,
+                            t.Z
+                        }, "IX_mixed")
+                    .IsDescending(false, true, false);
+            }),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7640,10 +7520,7 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void IndexAttribute_IncludeProperties_generated_without_fluent_api()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(x =>
-            {
-                x.HasIndex(e => e.Id).IncludeProperties(e => e.Name);
-            }),
+            builder => builder.Entity<EntityWithStringProperty>(x => x.HasIndex(e => e.Id).IncludeProperties(e => e.Name)),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7676,10 +7553,7 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void IndexAttribute_HasFillFactor_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(x =>
-            {
-                x.HasIndex(e => e.Id).HasFillFactor(29);
-            }),
+            builder => builder.Entity<EntityWithStringProperty>(x => x.HasIndex(e => e.Id).HasFillFactor(29)),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7712,10 +7586,7 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void IndexAttribute_UseDataCompression_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(x =>
-            {
-                x.HasIndex(e => e.Id).UseDataCompression(DataCompressionType.Row);
-            }),
+            builder => builder.Entity<EntityWithStringProperty>(x => x.HasIndex(e => e.Id).UseDataCompression(DataCompressionType.Row)),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7748,10 +7619,7 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void IndexAttribute_SortInTempDb_is_stored_in_snapshot()
         => Test(
-            builder => builder.Entity<EntityWithStringProperty>(x =>
-            {
-                x.HasIndex(e => e.Id).SortInTempDb();
-            }),
+            builder => builder.Entity<EntityWithStringProperty>(x => x.HasIndex(e => e.Id).SortInTempDb()),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -7807,18 +7675,20 @@ partial class Snapshot : ModelSnapshot
             b => b.Entity<SnapshotBlog>(eb =>
             {
                 eb.Property(e => e.Title);
-                eb.ComplexProperty(e => e.Owner, cb =>
-                {
-                    cb.Property(a => a.City);
-                    cb.Property(a => a.Country);
-                    cb.ToJson();
-                });
-                eb.ComplexCollection(e => e.Posts, cb =>
-                {
-                    cb.Property(p => p.Title);
-                    cb.Property(p => p.Rating);
-                    cb.ToJson();
-                });
+                eb.ComplexProperty(
+                    e => e.Owner, cb =>
+                    {
+                        cb.Property(a => a.City);
+                        cb.Property(a => a.Country);
+                        cb.ToJson();
+                    });
+                eb.ComplexCollection(
+                    e => e.Posts, cb =>
+                    {
+                        cb.Property(p => p.Title);
+                        cb.Property(p => p.Rating);
+                        cb.ToJson();
+                    });
                 eb.HasIndex(e => e.Owner.City);
             }),
             """b.HasIndex("Owner.City")""",
@@ -7835,18 +7705,20 @@ partial class Snapshot : ModelSnapshot
             b => b.Entity<SnapshotBlog>(eb =>
             {
                 eb.Property(e => e.Title);
-                eb.ComplexProperty(e => e.Owner, cb =>
-                {
-                    cb.Property(a => a.City);
-                    cb.Property(a => a.Country);
-                    cb.ToJson();
-                });
-                eb.ComplexCollection(e => e.Posts, cb =>
-                {
-                    cb.Property(p => p.Title);
-                    cb.Property(p => p.Rating);
-                    cb.ToJson();
-                });
+                eb.ComplexProperty(
+                    e => e.Owner, cb =>
+                    {
+                        cb.Property(a => a.City);
+                        cb.Property(a => a.Country);
+                        cb.ToJson();
+                    });
+                eb.ComplexCollection(
+                    e => e.Posts, cb =>
+                    {
+                        cb.Property(p => p.Title);
+                        cb.Property(p => p.Rating);
+                        cb.ToJson();
+                    });
                 eb.HasIndex(e => e.Posts.Select(p => p.Title));
             }),
             """b.HasIndex("Posts[].Title")""",
@@ -7864,18 +7736,20 @@ partial class Snapshot : ModelSnapshot
             b => b.Entity<SnapshotBlog>(eb =>
             {
                 eb.Property(e => e.Title);
-                eb.ComplexProperty(e => e.Owner, cb =>
-                {
-                    cb.Property(a => a.City);
-                    cb.Property(a => a.Country);
-                    cb.ToJson();
-                });
-                eb.ComplexCollection(e => e.Posts, cb =>
-                {
-                    cb.Property(p => p.Title);
-                    cb.Property(p => p.Rating);
-                    cb.ToJson();
-                });
+                eb.ComplexProperty(
+                    e => e.Owner, cb =>
+                    {
+                        cb.Property(a => a.City);
+                        cb.Property(a => a.Country);
+                        cb.ToJson();
+                    });
+                eb.ComplexCollection(
+                    e => e.Posts, cb =>
+                    {
+                        cb.Property(p => p.Title);
+                        cb.Property(p => p.Rating);
+                        cb.ToJson();
+                    });
                 eb.HasIndex(e => e.Posts[0].Rating);
             }),
             """b.HasIndex("Posts[0].Rating")""",
@@ -7893,18 +7767,20 @@ partial class Snapshot : ModelSnapshot
             builder => builder.Entity<SnapshotBlog>(eb =>
             {
                 eb.Property(e => e.Title);
-                eb.ComplexProperty(e => e.Owner, cb =>
-                {
-                    cb.Property(a => a.City);
-                    cb.Property(a => a.Country);
-                    cb.ToJson();
-                });
-                eb.ComplexCollection(e => e.Posts, cb =>
-                {
-                    cb.Property(p => p.Title);
-                    cb.Property(p => p.Rating);
-                    cb.ToJson();
-                });
+                eb.ComplexProperty(
+                    e => e.Owner, cb =>
+                    {
+                        cb.Property(a => a.City);
+                        cb.Property(a => a.Country);
+                        cb.ToJson();
+                    });
+                eb.ComplexCollection(
+                    e => e.Posts, cb =>
+                    {
+                        cb.Property(p => p.Title);
+                        cb.Property(p => p.Rating);
+                        cb.ToJson();
+                    });
                 eb.HasIndex(e => e.Owner.City);
             }),
             AddBoilerPlate(
@@ -7963,18 +7839,20 @@ partial class Snapshot : ModelSnapshot
             builder => builder.Entity<SnapshotBlog>(eb =>
             {
                 eb.Property(e => e.Title);
-                eb.ComplexProperty(e => e.Owner, cb =>
-                {
-                    cb.Property(a => a.City);
-                    cb.Property(a => a.Country);
-                    cb.ToJson();
-                });
-                eb.ComplexCollection(e => e.Posts, cb =>
-                {
-                    cb.Property(p => p.Title);
-                    cb.Property(p => p.Rating);
-                    cb.ToJson();
-                });
+                eb.ComplexProperty(
+                    e => e.Owner, cb =>
+                    {
+                        cb.Property(a => a.City);
+                        cb.Property(a => a.Country);
+                        cb.ToJson();
+                    });
+                eb.ComplexCollection(
+                    e => e.Posts, cb =>
+                    {
+                        cb.Property(p => p.Title);
+                        cb.Property(p => p.Rating);
+                        cb.ToJson();
+                    });
                 eb.HasIndex(e => e.Posts.Select(p => p.Title));
             }),
             AddBoilerPlate(
@@ -8033,18 +7911,20 @@ partial class Snapshot : ModelSnapshot
             builder => builder.Entity<SnapshotBlog>(eb =>
             {
                 eb.Property(e => e.Title);
-                eb.ComplexProperty(e => e.Owner, cb =>
-                {
-                    cb.Property(a => a.City);
-                    cb.Property(a => a.Country);
-                    cb.ToJson();
-                });
-                eb.ComplexCollection(e => e.Posts, cb =>
-                {
-                    cb.Property(p => p.Title);
-                    cb.Property(p => p.Rating);
-                    cb.ToJson();
-                });
+                eb.ComplexProperty(
+                    e => e.Owner, cb =>
+                    {
+                        cb.Property(a => a.City);
+                        cb.Property(a => a.Country);
+                        cb.ToJson();
+                    });
+                eb.ComplexCollection(
+                    e => e.Posts, cb =>
+                    {
+                        cb.Property(p => p.Title);
+                        cb.Property(p => p.Rating);
+                        cb.ToJson();
+                    });
                 eb.HasIndex(e => e.Posts[0].Rating);
             }),
             AddBoilerPlate(
@@ -8104,14 +7984,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_annotations_are_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithTwoProperties>()
-                    .HasOne(e => e.EntityWithOneProperty)
-                    .WithOne(e => e.EntityWithTwoProperties)
-                    .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
-                    .HasAnnotation("AnnotationName", "AnnotationValue");
-            },
+            builder => builder.Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                .HasAnnotation("AnnotationName", "AnnotationValue"),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8226,13 +8103,10 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_isUnique_is_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithStringProperty>()
-                    .HasOne<EntityWithStringKey>()
-                    .WithMany(e => e.Properties)
-                    .HasForeignKey(e => e.Name);
-            },
+            builder => builder.Entity<EntityWithStringProperty>()
+                .HasOne<EntityWithStringKey>()
+                .WithMany(e => e.Properties)
+                .HasForeignKey(e => e.Name),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8281,14 +8155,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_with_non_primary_principal_is_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithStringProperty>()
-                    .HasOne<EntityWithStringAlternateKey>()
-                    .WithMany(e => e.Properties)
-                    .HasForeignKey(e => e.Name)
-                    .HasPrincipalKey(e => e.AlternateId);
-            },
+            builder => builder.Entity<EntityWithStringProperty>()
+                .HasOne<EntityWithStringAlternateKey>()
+                .WithMany(e => e.Properties)
+                .HasForeignKey(e => e.Name)
+                .HasPrincipalKey(e => e.AlternateId),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8399,13 +8270,10 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithOneProperty>()
-                    .HasOne(e => e.EntityWithTwoProperties)
-                    .WithOne(e => e.EntityWithOneProperty)
-                    .HasForeignKey<EntityWithOneProperty>(e => e.Id);
-            },
+            builder => builder.Entity<EntityWithOneProperty>()
+                .HasOne(e => e.EntityWithTwoProperties)
+                .WithOne(e => e.EntityWithOneProperty)
+                .HasForeignKey<EntityWithOneProperty>(e => e.Id),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8539,14 +8407,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithTwoProperties>()
-                    .HasOne(e => e.EntityWithOneProperty)
-                    .WithOne(e => e.EntityWithTwoProperties)
-                    .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
-                    .HasConstraintName("Constraint");
-            },
+            builder => builder.Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                .HasConstraintName("Constraint"),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8605,14 +8470,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_excluded_from_migrations_is_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithTwoProperties>()
-                    .HasOne(e => e.EntityWithOneProperty)
-                    .WithOne(e => e.EntityWithTwoProperties)
-                    .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
-                    .ExcludeForeignKeyFromMigrations();
-            },
+            builder => builder.Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                .ExcludeForeignKeyFromMigrations(),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8671,15 +8533,12 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithTwoProperties>()
-                    .HasOne(e => e.EntityWithOneProperty)
-                    .WithOne(e => e.EntityWithTwoProperties)
-                    .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
-                    .HasAnnotation("AnnotationName", "AnnotationValue")
-                    .HasConstraintName("Constraint");
-            },
+            builder => builder.Entity<EntityWithTwoProperties>()
+                .HasOne(e => e.EntityWithOneProperty)
+                .WithOne(e => e.EntityWithTwoProperties)
+                .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId)
+                .HasAnnotation("AnnotationName", "AnnotationValue")
+                .HasConstraintName("Constraint"),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -8814,14 +8673,11 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void ForeignKey_principal_key_is_stored_in_snapshot()
         => Test(
-            builder =>
-            {
-                builder.Entity<EntityWithOneProperty>()
-                    .HasOne(e => e.EntityWithTwoProperties)
-                    .WithOne(e => e.EntityWithOneProperty)
-                    .HasForeignKey<EntityWithOneProperty>(e => e.Id)
-                    .HasPrincipalKey<EntityWithTwoProperties>(e => e.AlternateId);
-            },
+            builder => builder.Entity<EntityWithOneProperty>()
+                .HasOne(e => e.EntityWithTwoProperties)
+                .WithOne(e => e.EntityWithOneProperty)
+                .HasForeignKey<EntityWithOneProperty>(e => e.Id)
+                .HasPrincipalKey<EntityWithTwoProperties>(e => e.AlternateId),
             AddBoilerPlate(
                 GetHeading()
                 + """
@@ -9099,17 +8955,21 @@ partial class Snapshot : ModelSnapshot
                 .ToList();
 
         var lineString1 = new LineString(
-            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)]) { SRID = 4326 };
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)])
+        { SRID = 4326 };
 
         var lineString2 = new LineString(
-            [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)]) { SRID = 4326 };
+            [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
+        { SRID = 4326 };
 
         var multiPoint = new MultiPoint(
-            [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)]) { SRID = 4326 };
+            [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)])
+        { SRID = 4326 };
 
         var polygon1 = new Polygon(
             new LinearRing(
-                [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)])) { SRID = 4326 };
+                [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
+        { SRID = 4326 };
 
         var polygon2 = new Polygon(
             new LinearRing(
@@ -9125,7 +8985,8 @@ partial class Snapshot : ModelSnapshot
         var multiPolygon = new MultiPolygon([polygon2, polygon1]) { SRID = 4326 };
 
         var geometryCollection = new GeometryCollection(
-            [lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon]) { SRID = 4326 };
+            [lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon])
+        { SRID = 4326 };
 
         Test(
             builder =>
@@ -9627,15 +9488,15 @@ partial class Snapshot : ModelSnapshot
             + (empty ? null : Environment.NewLine);
 
     protected override ICollection<BuildReference> GetReferences()
-        => new List<BuildReference>
-        {
+        =>
+        [
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),
             BuildReference.ByName("Microsoft.EntityFrameworkCore.Design.Tests"),
             BuildReference.ByName("NetTopologySuite")
-        };
+        ];
 
     protected virtual string AddBoilerPlate(string code, bool usingSystem = false, bool usingCollections = false)
         => $$"""

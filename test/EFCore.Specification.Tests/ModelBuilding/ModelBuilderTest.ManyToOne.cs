@@ -1880,7 +1880,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOneToOneRelationship(
                     existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,
                     existingFk.PrincipalEntityType.DisplayName() + "." + existingFk.PrincipalToDependent.Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -2222,14 +2222,11 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<Beta>();
             modelBuilder.Ignore<Theta>();
 
-            modelBuilder.Entity<Alpha>(b =>
-            {
-                b.HasMany<Beta>()
-                    .WithOne(e => e.FirstNav)
-                    .HasForeignKey("ShadowId")
-                    .IsRequired()
-                    .HasAnnotation("Test", "foo");
-            });
+            modelBuilder.Entity<Alpha>(b => b.HasMany<Beta>()
+                .WithOne(e => e.FirstNav)
+                .HasForeignKey("ShadowId")
+                .IsRequired()
+                .HasAnnotation("Test", "foo"));
 
             var model = modelBuilder.FinalizeModel();
 

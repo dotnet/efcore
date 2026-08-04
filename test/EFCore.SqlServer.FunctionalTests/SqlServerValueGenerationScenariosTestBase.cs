@@ -724,7 +724,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
 
             context.SaveChanges();
 
-            var point = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            var point = (Point)blogs[1].GeometryCollection.Geometries[0];
             Assert.Equal(1, point.X);
             Assert.Equal(3, point.Y);
         }
@@ -734,11 +734,11 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
 
-            var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            var point1 = (Point)blogs[1].GeometryCollection.Geometries[0];
             Assert.Equal(1, point1.X);
             Assert.Equal(3, point1.Y);
 
-            var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+            var point2 = (Point)blogs[2].GeometryCollection.Geometries[0];
             Assert.Equal(1, point2.X);
             Assert.Equal(2, point2.Y);
 
@@ -753,11 +753,11 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
             Assert.Equal(3, blogs.Count);
 
-            var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            var point1 = (Point)blogs[1].GeometryCollection.Geometries[0];
             Assert.Equal(1, point1.X);
             Assert.Equal(11, point1.Y);
 
-            var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+            var point2 = (Point)blogs[2].GeometryCollection.Geometries[0];
             Assert.Equal(1, point2.X);
             Assert.Equal(22, point2.Y);
         }
@@ -1159,19 +1159,17 @@ END");
 
         try
         {
-            await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
-            {
-                await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
+            await using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+            await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
 
-                var exception = async
-                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
-                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
-                Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction, exception.Message);
+            Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction, exception.Message);
 
-                var sqlException = Assert.IsType<SqlException>(exception.InnerException);
-                Assert.Equal(4186, sqlException.Number);
-            }
+            var sqlException = Assert.IsType<SqlException>(exception.InnerException);
+            Assert.Equal(4186, sqlException.Number);
         }
         finally
         {
@@ -1204,19 +1202,17 @@ END");
 
         try
         {
-            await using (var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
-            {
-                await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
+            await using var context = new BlogContextComputedColumn(testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+            await context.AddAsync(new FullNameBlog { Id = IntSentinel, FullName = StringSentinel });
 
-                var exception = async
-                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
-                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
 
-                Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfTriggers, exception.Message);
+            Assert.Equal(SqlServerStrings.SaveChangesFailedBecauseOfTriggers, exception.Message);
 
-                var sqlException = Assert.IsType<SqlException>(exception.InnerException);
-                Assert.Equal(334, sqlException.Number);
-            }
+            var sqlException = Assert.IsType<SqlException>(exception.InnerException);
+            Assert.Equal(334, sqlException.Number);
         }
         finally
         {

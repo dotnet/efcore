@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -93,10 +92,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
             b.OwnsOne(
-                x => x.Json, nb =>
-                {
-                    nb.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Json, nb => nb.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -124,10 +120,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Reviews");
             b.OwnsMany(
-                x => x.Rounds, ownedBuilder =>
-                {
-                    ownedBuilder.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Rounds, ownedBuilder => ownedBuilder.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -240,7 +233,8 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 Id = 3,
                 Json = new JsonRoot
                 {
-                    Date = new DateTime(2003, 3, 3), Required = null,
+                    Date = new DateTime(2003, 3, 3),
+                    Required = null,
                 }
             };
 
@@ -300,16 +294,10 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
             b.ToTable("Entities");
 
             b.OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
         });
 
         modelBuilder.Entity<Context34960.JunkEntity>(b =>
@@ -317,16 +305,10 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
             b.ToTable("Junk");
 
             b.OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -358,28 +340,16 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
             b.ToTable("Entities");
 
             b.OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsOne(
-                x => x.ReferenceWithCtor, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.ReferenceWithCtor, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsMany(
-                x => x.CollectionWithCtor, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.CollectionWithCtor, b => b.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -395,10 +365,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
             b.OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -415,10 +382,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
             b.ToTable("Entities");
 
             b.OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsOne(
                 x => x.ReferenceWithCtor, b =>
@@ -428,16 +392,10 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 });
 
             b.OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsMany(
-                x => x.CollectionWithCtor, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.CollectionWithCtor, b => b.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -508,10 +466,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
             b.ToTable("Entities");
             b.OwnsOne(
-                cr => cr.Json, nb =>
-                {
-                    nb.ToJson().HasColumnType(JsonColumnType);
-                });
+                cr => cr.Json, nb => nb.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -547,22 +502,13 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
             b.ToTable("Entities");
 
             b.OwnsOne(
-                x => x.RequiredReference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.RequiredReference, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsOne(
-                x => x.OptionalReference, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.OptionalReference, b => b.ToJson().HasColumnType(JsonColumnType));
 
             b.OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson().HasColumnType(JsonColumnType);
-                });
+                x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
         });
     }
 
@@ -633,35 +579,39 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     {
         var contextFactory = await InitializeNonSharedTest<Context37009>(
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            onModelCreating: m => m.Entity<Context37009.Entity>().ComplexProperty(e => e.Json, b =>
-            {
-                b.ToJson();
-
-                b.Property(j => j.String).HasJsonPropertyName("string");
-
-                b.ComplexProperty(j => j.Nested, b =>
+            onModelCreating: m => m.Entity<Context37009.Entity>().ComplexProperty(
+                e => e.Json, b =>
                 {
-                    b.HasJsonPropertyName("nested");
-                    b.Property(x => x.Int).HasJsonPropertyName("int");
-                });
+                    b.ToJson();
 
-                b.ComplexCollection(a => a.NestedCollection, b =>
-                {
-                    b.HasJsonPropertyName("nested_collection");
-                    b.Property(x => x.Int).HasJsonPropertyName("int");
-                });
-            }),
+                    b.Property(j => j.String).HasJsonPropertyName("string");
+
+                    b.ComplexProperty(
+                        j => j.Nested, b =>
+                        {
+                            b.HasJsonPropertyName("nested");
+                            b.Property(x => x.Int).HasJsonPropertyName("int");
+                        });
+
+                    b.ComplexCollection(
+                        a => a.NestedCollection, b =>
+                        {
+                            b.HasJsonPropertyName("nested_collection");
+                            b.Property(x => x.Int).HasJsonPropertyName("int");
+                        });
+                }),
             seed: context =>
             {
-                context.Set<Context37009.Entity>().Add(new Context37009.Entity
-                {
-                    Json = new Context37009.JsonComplexType
+                context.Set<Context37009.Entity>().Add(
+                    new Context37009.Entity
                     {
-                        String = "foo",
-                        Nested = new Context37009.JsonNestedType { Int = 1 },
-                        NestedCollection = [new Context37009.JsonNestedType { Int = 2 }]
-                    }
-                });
+                        Json = new Context37009.JsonComplexType
+                        {
+                            String = "foo",
+                            Nested = new Context37009.JsonNestedType { Int = 1 },
+                            NestedCollection = [new Context37009.JsonNestedType { Int = 2 }]
+                        }
+                    });
 
                 return context.SaveChangesAsync();
             });
@@ -714,25 +664,27 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                 b.Property(e => e.DealerId).IsUnicode(false).HasMaxLength(32);
                 b.HasIndex(e => new { e.Vin, e.DealerId }).IsUnique();
 
-                b.ComplexProperty(e => e.CarConfiguration, pp =>
-                {
-                    pp.ToJson("CarConfiguration");
-                    if (JsonColumnType != null)
+                b.ComplexProperty(
+                    e => e.CarConfiguration, pp =>
                     {
-                        pp.HasColumnType(JsonColumnType);
-                    }
+                        pp.ToJson("CarConfiguration");
+                        if (JsonColumnType != null)
+                        {
+                            pp.HasColumnType(JsonColumnType);
+                        }
 
-                    pp.Property(p => p.CurrentTrim).HasJsonPropertyName("currentTrim");
+                        pp.Property(p => p.CurrentTrim).HasJsonPropertyName("currentTrim");
 
-                    pp.ComplexCollection(p => p.OptionPackages, op =>
-                    {
-                        op.HasJsonPropertyName("optionPackages");
-                        op.Property(o => o.PackageId).HasJsonPropertyName("packageId");
-                        op.PrimitiveCollection(o => o.PartNumbers)
-                            .ElementType(e => e.IsUnicode(false).HasMaxLength(32))
-                            .HasJsonPropertyName("partNumbers");
+                        pp.ComplexCollection(
+                            p => p.OptionPackages, op =>
+                            {
+                                op.HasJsonPropertyName("optionPackages");
+                                op.Property(o => o.PackageId).HasJsonPropertyName("packageId");
+                                op.PrimitiveCollection(o => o.PartNumbers)
+                                    .ElementType(e => e.IsUnicode(false).HasMaxLength(32))
+                                    .HasJsonPropertyName("partNumbers");
+                            });
                     });
-                });
             }),
             seed: context =>
             {
@@ -791,6 +743,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     }
 
     #endregion 38615
+
     #region Value converter equality null scalar
 
     [Fact]
@@ -798,21 +751,17 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
     {
         var contextFactory = await InitializeNonSharedTest<Context37983>(
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
-            onModelCreating: m => m.Entity<Context37983.Entity>().ComplexProperty(e => e.Json, b =>
-            {
-                b.ToJson();
+            onModelCreating: m => m.Entity<Context37983.Entity>().ComplexProperty(
+                e => e.Json, b =>
+                {
+                    b.ToJson();
 
-                b.Property(j => j.IntToString).HasConversion(new Context37983_StringToIntConverter());
-            }),
+                    b.Property(j => j.IntToString).HasConversion(new Context37983_StringToIntConverter());
+                }),
             seed: context =>
             {
-                context.Set<Context37983.Entity>().Add(new Context37983.Entity
-                {
-                    Json = new Context37983.JsonComplexType
-                    {
-                        IntToString = null,
-                    }
-                });
+                context.Set<Context37983.Entity>()
+                    .Add(new Context37983.Entity { Json = new Context37983.JsonComplexType { IntToString = null, } });
 
                 return context.SaveChangesAsync();
             });
@@ -821,10 +770,7 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
 
         TestSqlLoggerFactory.Clear();
 
-        var complexType = new Context37983.JsonComplexType
-        {
-            IntToString = null,
-        };
+        var complexType = new Context37983.JsonComplexType { IntToString = null, };
 
         Assert.Equal(1, await context.Set<Context37983.Entity>().CountAsync(e => e.Json == complexType));
     }
@@ -854,7 +800,8 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
         {
         }
 
-        public override bool ConvertsNulls => true;
+        public override bool ConvertsNulls
+            => true;
     }
 
     #endregion
@@ -889,7 +836,8 @@ public abstract class AdHocJsonQueryRelationalTestBase(NonSharedFixture fixture)
                     new Context38315.Person { OrderIds = [new Context38315.ValueJson { Value = 3 }] });
                 await context.SaveChangesAsync();
 
-                string Q(string name) => sqlGenerationHelper.DelimitIdentifier(name);
+                string Q(string name)
+                    => sqlGenerationHelper.DelimitIdentifier(name);
             });
 
         await using var context = contextFactory.CreateDbContext();

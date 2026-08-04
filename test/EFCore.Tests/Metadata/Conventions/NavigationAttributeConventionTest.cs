@@ -1089,7 +1089,7 @@ public class NavigationAttributeConventionTest
 
     private interface IPrincipal
     {
-        MismatchedInverseProperty MismatchedInverseProperty { get; set; }
+        public MismatchedInverseProperty MismatchedInverseProperty { get; set; }
     }
 
     private class Principal : IPrincipal

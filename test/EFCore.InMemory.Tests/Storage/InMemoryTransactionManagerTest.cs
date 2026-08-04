@@ -63,7 +63,7 @@ public class InMemoryTransactionManagerTest
 
         Assert.Equal(
             CoreStrings.TransactionsNotSupported,
-            Assert.Throws<NotSupportedException>(() => context.Database.GetEnlistedTransaction()).Message);
+            Assert.Throws<NotSupportedException>(context.Database.GetEnlistedTransaction).Message);
     }
 
     [Fact]
@@ -88,7 +88,8 @@ public class InMemoryTransactionManagerTest
 
     [Fact]
     public void Throws_on_BeginTransactionAsync_with_IsolationLevel()
-        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter().GetResult());
+        => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).BeginTransactionAsync(IsolationLevel.Serializable).GetAwaiter()
+            .GetResult());
 
     [Fact]
     public void Throws_on_CommitTransaction()
