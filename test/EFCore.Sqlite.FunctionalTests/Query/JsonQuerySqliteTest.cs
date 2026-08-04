@@ -263,11 +263,17 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
         => Assert.ThrowsAsync<EqualException>(() => base.Json_predicate_on_byte_array(async));
 
     public override async Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(()
-                => base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async)))
-            .Message);
+    {
+        await base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async);
+
+        AssertSql(
+            """
+SELECT "j"."Id", "o"."value" ->> 'Name' AS "Name", "o"."value" ->> 'Number' AS "Number", "o"."key"
+FROM "JsonEntitiesBasic" AS "j"
+LEFT JOIN json_each("j"."OwnedCollectionRoot", '$') AS "o" ON 1
+ORDER BY "j"."Id", "o"."key"
+""");
+    }
 
     public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
         => Assert.Equal(
