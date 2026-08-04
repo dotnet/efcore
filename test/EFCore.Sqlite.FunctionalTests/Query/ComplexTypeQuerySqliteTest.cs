@@ -1092,13 +1092,9 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "c1"."BillingAddress_ZipCode"
+SELECT "c0"."BillingAddress_ZipCode"
 FROM "CustomerGroup" AS "c"
-LEFT JOIN (
-    SELECT "c0"."Id", "c0"."BillingAddress_ZipCode"
-    FROM "Customer" AS "c0"
-    WHERE "c0"."Id" > 5
-) AS "c1" ON "c"."Id" = "c1"."Id"
+LEFT JOIN "Customer" AS "c0" ON "c"."Id" = "c0"."Id" AND "c0"."Id" > 5
 """);
     }
 

@@ -322,12 +322,8 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM "Orders" AS "o0"
-    INNER JOIN (
-        SELECT "o2"."OrderID", "o2"."ProductID"
-        FROM "Order Details" AS "o2"
-        WHERE "o2"."ProductID" > 0
-    ) AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
-    WHERE "o0"."OrderID" < 10250 AND "o1"."OrderID" = "o"."OrderID" AND "o1"."ProductID" = "o"."ProductID")
+    INNER JOIN "Order Details" AS "o2" ON "o0"."OrderID" = "o2"."OrderID" AND "o2"."ProductID" > 0
+    WHERE "o0"."OrderID" < 10250 AND "o2"."OrderID" = "o"."OrderID" AND "o2"."ProductID" = "o"."ProductID")
 """);
     }
 
@@ -1325,11 +1321,7 @@ SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
-    LEFT JOIN (
-        SELECT "o"."CustomerID"
-        FROM "Orders" AS "o"
-        WHERE "o"."OrderID" < 10300
-    ) AS "o0" ON "c"."CustomerID" = "o0"."CustomerID"
+    LEFT JOIN "Orders" AS "o" ON "c"."CustomerID" = "o"."CustomerID" AND "o"."OrderID" < 10300
     WHERE "c"."CustomerID" LIKE 'F%'
 ) AS "s"
 WHERE "c0"."CustomerID" = "s"."CustomerID"
@@ -1349,11 +1341,7 @@ SET "ContactName" = @p
 FROM (
     SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
-    LEFT JOIN (
-        SELECT "o"."CustomerID"
-        FROM "Orders" AS "o"
-        WHERE "o"."OrderID" < 10300
-    ) AS "o0" ON "c"."CustomerID" = "o0"."CustomerID"
+    LEFT JOIN "Orders" AS "o" ON "c"."CustomerID" = "o"."CustomerID" AND "o"."OrderID" < 10300
     WHERE "c"."CustomerID" LIKE 'F%'
 ) AS "s"
 WHERE "c0"."CustomerID" = "s"."CustomerID"
@@ -1467,13 +1455,9 @@ WHERE "c"."CustomerID" LIKE 'F%'
 UPDATE "Orders" AS "o1"
 SET "OrderDate" = NULL
 FROM (
-    SELECT "o0"."OrderID"
+    SELECT "o"."OrderID"
     FROM "Customers" AS "c"
-    INNER JOIN (
-        SELECT "o"."OrderID", "o"."CustomerID"
-        FROM "Orders" AS "o"
-        WHERE CAST(strftime('%Y', "o"."OrderDate") AS INTEGER) = 1997
-    ) AS "o0" ON "c"."CustomerID" = "o0"."CustomerID"
+    INNER JOIN "Orders" AS "o" ON "c"."CustomerID" = "o"."CustomerID" AND CAST(strftime('%Y', "o"."OrderDate") AS INTEGER) = 1997
     WHERE "c"."CustomerID" LIKE 'F%'
 ) AS "s"
 WHERE "o1"."OrderID" = "s"."OrderID"
