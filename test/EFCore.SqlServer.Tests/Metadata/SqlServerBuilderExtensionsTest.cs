@@ -158,6 +158,36 @@ public class SqlServerBuilderExtensionsTest
     }
 
     [Fact]
+    public void Can_set_key_with_data_compression()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasKey(e => e.Id)
+            .UseDataCompression(DataCompressionType.Page);
+
+        var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+
+        Assert.Equal(DataCompressionType.Page, key.GetDataCompression());
+    }
+
+    [Fact]
+    public void Can_set_key_with_data_compression_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasKey("Id")
+            .UseDataCompression(DataCompressionType.Row);
+
+        var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+
+        Assert.Equal(DataCompressionType.Row, key.GetDataCompression());
+    }
+
+    [Fact]
     public void Can_set_index_include()
     {
         var modelBuilder = CreateConventionModelBuilder();

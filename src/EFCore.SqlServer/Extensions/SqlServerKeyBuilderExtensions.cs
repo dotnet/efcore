@@ -178,4 +178,86 @@ public static class SqlServerKeyBuilderExtensions
         int? fillFactor,
         bool fromDataAnnotation = false)
         => keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.FillFactor, fillFactor, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures whether the key is created with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <returns>A builder to further configure the key.</returns>
+    public static KeyBuilder UseDataCompression(this KeyBuilder keyBuilder, DataCompressionType dataCompressionType)
+    {
+        keyBuilder.Metadata.SetDataCompression(dataCompressionType);
+
+        return keyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether the key is created with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <returns>A builder to further configure the key.</returns>
+    public static KeyBuilder<TEntity> UseDataCompression<TEntity>(
+        this KeyBuilder<TEntity> keyBuilder,
+        DataCompressionType dataCompressionType)
+        => (KeyBuilder<TEntity>)UseDataCompression((KeyBuilder)keyBuilder, dataCompressionType);
+
+    /// <summary>
+    ///     Configures whether the key is created with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionKeyBuilder? UseDataCompression(
+        this IConventionKeyBuilder keyBuilder,
+        DataCompressionType? dataCompressionType,
+        bool fromDataAnnotation = false)
+    {
+        if (keyBuilder.CanSetDataCompression(dataCompressionType, fromDataAnnotation))
+        {
+            keyBuilder.Metadata.SetDataCompression(dataCompressionType, fromDataAnnotation);
+
+            return keyBuilder;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the key can be configured with data compression option when targeting SQL Server.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="keyBuilder">The builder for the key being configured.</param>
+    /// <param name="dataCompressionType">A value indicating the data compression option to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the key can be configured with data compression option when targeting SQL Server.</returns>
+    public static bool CanSetDataCompression(
+        this IConventionKeyBuilder keyBuilder,
+        DataCompressionType? dataCompressionType,
+        bool fromDataAnnotation = false)
+        => keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.DataCompression, dataCompressionType, fromDataAnnotation);
 }
