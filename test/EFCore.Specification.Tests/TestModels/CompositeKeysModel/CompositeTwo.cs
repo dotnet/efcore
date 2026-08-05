@@ -44,14 +44,7 @@ public class CompositeTwo
     public CompositeTwo OneToMany_Optional_Self_Inverse2 { get; set; }
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompositeTwo)obj);
-    }
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((CompositeTwo)obj)));
 
     private bool Equals(CompositeTwo other)
         => Id1 == other.Id1

@@ -297,7 +297,7 @@ public class TypeExtensionsTest
 
     private interface IRole2014
     {
-        string Permissions { get; set; }
+        public string Permissions { get; set; }
     }
 
     private interface IRoleCollection2014 : ICollection<IRole2014>;
@@ -557,8 +557,7 @@ public class TypeExtensionsTest
         };
     }
 
-    [Theory]
-    [MemberData(nameof(OpenGenericsTestData))]
+    [Theory, MemberData(nameof(OpenGenericsTestData))]
     public void Can_pretty_print_open_generics(Type type, bool fullName, string expected)
         => Assert.Equal(expected, type.DisplayName(fullName));
 

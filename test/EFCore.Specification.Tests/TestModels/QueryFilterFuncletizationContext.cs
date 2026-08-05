@@ -180,7 +180,7 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
             new ExtensionContextFilter { IsEnabled = false },
             new ParameterFilter { Tenant = 1 },
             new ParameterFilter { Tenant = 2 },
-            new PrincipalSetFilter { Dependents = new List<DependentSetFilter> { new(), new() } },
+            new PrincipalSetFilter { Dependents = [new(), new()] },
             new PrincipalSetFilter(),
             new MultiContextFilter { BossId = 1, IsEnabled = true },
             new MultiContextFilter { BossId = 1, IsEnabled = false },
@@ -190,8 +190,8 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
             new DeDupeFilter1
             {
                 Tenant = 1,
-                DeDupeFilter2s = new List<DeDupeFilter2> { new() { TenantX = 1 }, new() { TenantX = 2 } },
-                DeDupeFilter3s = new List<DeDupeFilter3> { new() { Tenant = 1 }, new() { Tenant = 2 } }
+                DeDupeFilter2s = [new() { TenantX = 1 }, new() { TenantX = 2 }],
+                DeDupeFilter3s = [new() { Tenant = 1 }, new() { Tenant = 2 }]
             },
             new DeDupeFilter1 { Tenant = 2 }
         );

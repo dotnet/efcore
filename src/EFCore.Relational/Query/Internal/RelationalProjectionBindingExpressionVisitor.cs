@@ -27,8 +27,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     private bool _rootIsTransparentIdentifier;
     private Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>? _projectionBindingCache;
     private List<Expression>? _clientProjections;
+    private Dictionary<object, Expression>? _loweredSingleResultSubqueries;
 
-    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private readonly Stack<ProjectionMember> _projectionMembers = new();
 
     /// <summary>
@@ -72,9 +73,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
             _indexBasedBinding = true;
-            _projectionBindingCache = new Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>();
+            _projectionBindingCache = [];
             _projectionMapping.Clear();
             _clientProjections = [];
+            _loweredSingleResultSubqueries = null;
 
             result = Visit(expression);
 
@@ -133,6 +135,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         {
                             StructuralTypeProjectionExpression projection => AddClientProjection(projection, typeof(ValueBuffer)),
                             SqlExpression mappedSqlExpression => AddClientProjection(mappedSqlExpression, expression.Type.MakeNullable()),
+                            // A single-result subquery (e.g. the group element of GroupBy(k).Select(g => g.First()))
+                            // being composed over: lower it into the current select as a to-one join so the result
+                            // has a bindable shape, instead of failing.
+                            ShapedQueryExpression
+                            {
+                                ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault
+                            } singleResultSubquery
+                                => LowerSingleResultSubquery(projectionBindingExpression, singleResultSubquery),
                             _ => throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()))
                         };
 
@@ -338,10 +348,10 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
 #pragma warning disable EF1001
                     return shaper.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
-                            // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
-                            // This mirrors for structural types what we do for scalars.
-                            .MakeClrTypeNullable();
+                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+                        // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
+                        // This mirrors for structural types what we do for scalars.
+                        .MakeClrTypeNullable();
 #pragma warning restore EF1001
                 }
 
@@ -375,7 +385,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
 #pragma warning disable EF1001
                         return shaper.Update(
-                            new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
+                                new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)))
                             // This is to handle have correct type for the shaper expression. It is later fixed in MatchTypes.
                             // This mirrors for structural types what we do for scalars.
                             .MakeClrTypeNullable();
@@ -811,11 +821,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
             return expression switch
             {
-#pragma warning disable EF1001
                 RelationalStructuralTypeShaperExpression structuralShaper => structuralShaper.MakeClrTypeNonNullable(),
-#pragma warning restore EF1001
-
-                _ =>  Expression.Convert(expression, targetType),
+                _ => Expression.Convert(expression, targetType),
             };
         }
 
@@ -834,6 +841,24 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
 
+    private Expression LowerSingleResultSubquery(
+        ProjectionBindingExpression projectionBindingExpression,
+        ShapedQueryExpression singleResultSubquery)
+    {
+        // The lowering mutates the select expression (pushdown + to-one join), so it must run
+        // once per projection slot — a second reference to the same slot reuses the shaper
+        // produced by the first, instead of adding a duplicate join.
+        _loweredSingleResultSubqueries ??= [];
+        var key = projectionBindingExpression.Index is int index ? index : (object)projectionBindingExpression.ProjectionMember!;
+        if (!_loweredSingleResultSubqueries.TryGetValue(key, out var loweredShaper))
+        {
+            loweredShaper = _selectExpression.LowerSingleResultSubquery(singleResultSubquery, _clientProjections!);
+            _loweredSingleResultSubqueries[key] = loweredShaper;
+        }
+
+        return loweredShaper;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -841,7 +866,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-#pragma warning restore IDE0052 // Remove unread private members
         => (T)queryContext.Parameters[parameterName]!;
 
     private sealed class IncludeFindingExpressionVisitor : ExpressionVisitor

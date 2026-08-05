@@ -6,7 +6,9 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geography;
 
-public class SqlServerGeographyMultiPointTypeTest(SqlServerGeographyMultiPointTypeTest.MultiPointTypeFixture fixture, ITestOutputHelper testOutputHelper)
+public class SqlServerGeographyMultiPointTypeTest(
+    SqlServerGeographyMultiPointTypeTest.MultiPointTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : SqlServerGeographyTypeTestBase<MultiPoint, SqlServerGeographyMultiPointTypeTest.MultiPointTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
@@ -36,9 +38,7 @@ WHERE [t].[Value].STEquals('MULTIPOINT ((-122.35 47.62), (-122.345 47.615))') = 
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -219,13 +219,15 @@ FROM [JsonTypeEntity] AS [j]
 
     public class MultiPointTypeFixture : SqlServerGeographyTypeFixture
     {
-        public override MultiPoint Value { get; } = new([
+        public override MultiPoint Value { get; } = new(
+        [
             new Point(-122.3500, 47.6200) { SRID = 4326 },
             new Point(-122.3450, 47.6150) { SRID = 4326 }
         ])
         { SRID = 4326 };
 
-        public override MultiPoint OtherValue { get; } = new([
+        public override MultiPoint OtherValue { get; } = new(
+        [
             new Point(-121.9000, 46.9500) { SRID = 4326 },
             new Point(-121.5000, 46.6000) { SRID = 4326 },
             new Point(-121.2000, 46.3000) { SRID = 4326 }

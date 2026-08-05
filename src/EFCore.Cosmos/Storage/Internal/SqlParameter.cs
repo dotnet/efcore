@@ -81,6 +81,7 @@ public class SqlValueParameter(string name, object? value) : SqlParameter(name)
         {
             JsonSerializer.Serialize(writer, Value);
         }
+
         return Encoding.UTF8.GetString(stream.GetBuffer(), 0, (int)stream.Length);
     }
 }
@@ -108,21 +109,16 @@ public class SqlRawJsonParameter(string name, ReadOnlyMemory<byte> valueJson) : 
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override QueryDefinition Apply(QueryDefinition queryDefinition)
-    {
-        if (!MemoryMarshal.TryGetArray(ValueJson, out var segment) || segment.Array == null)
-        {
-            throw new UnreachableException("ReadOnlyMemory should have an underlying array.");
-        }
-
-        return queryDefinition.WithParameterStream(
-            Name,
-            new MemoryStream(
-                segment.Array!,
-                segment.Offset,
-                segment.Count,
-                writable: false,
-                publiclyVisible: true));
-    }
+        => !MemoryMarshal.TryGetArray(ValueJson, out var segment) || segment.Array == null
+            ? throw new UnreachableException("ReadOnlyMemory should have an underlying array.")
+            : queryDefinition.WithParameterStream(
+                Name,
+                new MemoryStream(
+                    segment.Array!,
+                    segment.Offset,
+                    segment.Count,
+                    writable: false,
+                    publiclyVisible: true));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

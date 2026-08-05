@@ -29,7 +29,7 @@ public class SqliteGuidTypeTest(SqliteGuidTypeTest.GuidTypeFixture fixture, ITes
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 
@@ -45,7 +45,7 @@ public class SqliteByteArrayTypeTest(SqliteByteArrayTypeTest.ByteArrayTypeFixtur
 {
     // TODO: string representation discrepancy between our JSON and M.D.SQLite's string representation, see #36749.
     public override Task Query_property_within_json()
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Query_property_within_json());
+        => Assert.ThrowsAsync<InvalidOperationException>(base.Query_property_within_json);
 
     // byte[].Equals() does reference equality, so the base test doesn't work for byte arrays
     public override Task Primitive_collection_in_query()
@@ -54,7 +54,7 @@ public class SqliteByteArrayTypeTest(SqliteByteArrayTypeTest.ByteArrayTypeFixtur
     public override async Task ExecuteUpdate_within_json_to_nonjson_column()
     {
         // See #36688 for supporting this for Sqlite types other than string/numeric/bool
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_within_json_to_nonjson_column());
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(base.ExecuteUpdate_within_json_to_nonjson_column);
         Assert.Equal(RelationalStrings.ExecuteUpdateCannotSetJsonPropertyToNonJsonColumn, exception.InnerException!.Message);
     }
 

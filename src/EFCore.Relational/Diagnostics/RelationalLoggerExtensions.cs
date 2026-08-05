@@ -2471,7 +2471,7 @@ public static class RelationalLoggerExtensions
             var commandText = command.CommandText;
             if (commandText.Length > 100)
             {
-                commandText = commandText.Substring(0, 100) + "...";
+                commandText = commandText[..100] + "...";
             }
 
             definition.Log(diagnostics, commandText, migration.GetType().ShortDisplayName());
@@ -2497,7 +2497,7 @@ public static class RelationalLoggerExtensions
         var commandText = p.MigrationCommand.CommandText;
         if (commandText.Length > 100)
         {
-            commandText = commandText.Substring(0, 100) + "...";
+            commandText = commandText[..100] + "...";
         }
 
         return d.GenerateMessage(commandText, p.Migration.GetType().ShortDisplayName());

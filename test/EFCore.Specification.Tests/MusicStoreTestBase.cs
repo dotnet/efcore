@@ -373,7 +373,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("Greatest Hits has been removed from your shopping cart.", viewModel.Message);
 
                 var cart = ShoppingCart.GetCart(context, cartId);
-                Assert.DoesNotContain((await cart.GetCartItems()), c => c.CartItemId == cartItemId);
+                Assert.DoesNotContain(await cart.GetCartItems(), c => c.CartItemId == cartItemId);
             }
         });
     }
@@ -590,7 +590,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
 
     public class CheckoutController(Dictionary<string, StringValues> formCollection = null)
     {
-        private readonly Dictionary<string, StringValues> _formCollection = formCollection ?? new Dictionary<string, StringValues>();
+        private readonly Dictionary<string, StringValues> _formCollection = formCollection ?? [];
         private const string PromoCode = "FREE";
 
         public async Task<object> AddressAndPayment(MusicStoreContext context, string cartId, Order order)
@@ -627,12 +627,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
 
             var isValid = await context.Orders.AnyAsync(o => o.OrderId == id && o.Username == userName);
 
-            if (isValid)
-            {
-                return id;
-            }
-
-            return "Error";
+            return isValid ? id : "Error";
         }
     }
 

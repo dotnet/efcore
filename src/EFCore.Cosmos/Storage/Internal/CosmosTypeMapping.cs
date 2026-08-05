@@ -102,6 +102,7 @@ public class CosmosTypeMapping : CoreTypeMapping
         {
             value = Converter.ConvertToProvider(value);
         }
+
         return value;
     }
 
@@ -115,8 +116,8 @@ public class CosmosTypeMapping : CoreTypeMapping
     {
         value = NormalizeValue(value);
         return value is not null || JsonValueReaderWriter!.HandlesNullWrites
-                ? ToCosmosJsonString(value)
-                : "null";
+            ? ToCosmosJsonString(value)
+            : "null";
     }
 
     private string ToCosmosJsonString(object? value)
@@ -159,11 +160,6 @@ public class CosmosTypeMapping : CoreTypeMapping
         }
 
         // Handle implicit conversions here to ensure the boxed value has the type expected by JsonValueReaderWriter. Otherwise, unboxing it will throw if the boxed type does not match (for example, value = (char)boxedInt).
-        if (type != unwrappedClrType && value is IConvertible)
-        {
-            return Convert.ChangeType(value, unwrappedClrType);
-        }
-
-        return value;
+        return type != unwrappedClrType && value is IConvertible ? Convert.ChangeType(value, unwrappedClrType) : value;
     }
 }

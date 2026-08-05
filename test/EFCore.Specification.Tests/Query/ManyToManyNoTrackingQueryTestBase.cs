@@ -20,16 +20,13 @@ public abstract class ManyToManyNoTrackingQueryTestBase<TFixture>(TFixture fixtu
 
         var elementType = serverQueryExpression.Type.TryGetSequenceType();
 
-        if (elementType.UnwrapNullableType().IsValueType
+        return elementType.UnwrapNullableType().IsValueType
             && serverQueryExpression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.DeclaringType == typeof(Queryable))
-        {
-            return methodCallExpression.Update(
-                null, new[] { ApplyNoTracking(methodCallExpression.Arguments[0]) }
-                    .Concat(methodCallExpression.Arguments.Skip(1)));
-        }
-
-        return ApplyNoTracking(serverQueryExpression);
+            && methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                ? methodCallExpression.Update(
+                    null, new[] { ApplyNoTracking(methodCallExpression.Arguments[0]) }
+                        .Concat(methodCallExpression.Arguments.Skip(1)))
+                : ApplyNoTracking(serverQueryExpression);
 
         static Expression ApplyNoTracking(Expression source)
             => Expression.Call(

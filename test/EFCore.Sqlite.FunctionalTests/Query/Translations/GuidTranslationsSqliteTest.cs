@@ -50,7 +50,7 @@ FROM "BasicTypesEntities" AS "b"
     }
 
     public override Task NewGuid()
-        => AssertTranslationFailed(() => base.NewGuid());
+        => AssertTranslationFailed(base.NewGuid);
 
     [Fact]
     public virtual void Check_all_tests_overridden()

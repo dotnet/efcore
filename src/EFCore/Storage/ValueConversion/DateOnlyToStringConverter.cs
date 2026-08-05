@@ -51,7 +51,8 @@ public class DateOnlyToStringConverter : StringDateOnlyConverter<DateOnly, strin
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateOnly), typeof(string),
+        = new(
+            typeof(DateOnly), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new DateOnlyToStringConverter(i.MappingHints),
             DefaultHints);
 }

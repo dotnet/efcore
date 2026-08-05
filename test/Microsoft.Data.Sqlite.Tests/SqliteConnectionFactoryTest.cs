@@ -102,12 +102,10 @@ public class SqliteConnectionFactoryTest : IDisposable
             {
                 for (var j = 0; j < 10000; j++)
                 {
-                    using (var connection = new SqliteConnection(connectionStrings[captured]))
-                    {
-                        connection.Open();
-                        Task.Yield();
-                        connection.Close();
-                    }
+                    using var connection = new SqliteConnection(connectionStrings[captured]);
+                    connection.Open();
+                    Task.Yield();
+                    connection.Close();
                 }
             };
         }

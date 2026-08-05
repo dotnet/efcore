@@ -49,7 +49,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
         public Album()
         {
             Artist = new Artist();
-            Tracks = new List<Track>();
+            Tracks = [];
         }
     }
 
@@ -101,7 +101,7 @@ public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixtu
                     {
                         Id = i,
                         Artist = _artists[(i - 1) % 3],
-                        Tracks = new List<Track> { new() { Id = i * 2 }, new() { Id = i * 2 + 1 } }
+                        Tracks = [new Track { Id = i * 2 }, new Track { Id = (i * 2) + 1 }]
                     });
             }
 

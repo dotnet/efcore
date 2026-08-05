@@ -222,7 +222,12 @@ public static class Uniquifier
         }
     }
 
-    private static ReadOnlySpan<char> TruncateImpl(ReadOnlySpan<char> identifier, Span<char> buffer, int maxNameLength, string? suffix, int? uniquifier)
+    private static ReadOnlySpan<char> TruncateImpl(
+        ReadOnlySpan<char> identifier,
+        Span<char> buffer,
+        int maxNameLength,
+        string? suffix,
+        int? uniquifier)
     {
         int position;
 

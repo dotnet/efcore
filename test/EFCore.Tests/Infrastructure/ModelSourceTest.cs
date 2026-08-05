@@ -79,9 +79,9 @@ public class ModelSourceTest
         public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
             =>
             [
-                new DbSetProperty("One", typeof(SetA), setter: null),
-                new DbSetProperty("Two", typeof(SetB), setter: null),
-                new DbSetProperty("Three", typeof(SetA), setter: null)
+                new("One", typeof(SetA), setter: null),
+                new("Two", typeof(SetB), setter: null),
+                new("Three", typeof(SetA), setter: null)
             ];
     }
 
@@ -281,10 +281,7 @@ public class ModelSourceTest
     [Fact]
     public void DbContextModelAttribute_stores_provider_name()
     {
-        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object))
-        {
-            ProviderName = "TestProvider"
-        };
+        var attr = new DbContextModelAttribute(typeof(DbContext), typeof(object)) { ProviderName = "TestProvider" };
 
         Assert.Equal("TestProvider", attr.ProviderName);
     }

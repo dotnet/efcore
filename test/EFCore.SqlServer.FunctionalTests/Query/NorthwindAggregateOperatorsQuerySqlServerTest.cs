@@ -331,7 +331,7 @@ FROM [Customers] AS [c]
         await base.MinBy(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID]
@@ -343,7 +343,7 @@ ORDER BY [o].[OrderID]
         await base.MinBy_no_data_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -369,7 +369,7 @@ ORDER BY ISNULL([p].[SupplierID], 0)
         await base.MinBy_no_data_reference_type_source(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1
@@ -382,7 +382,7 @@ ORDER BY [p].[ProductID]
         await base.MinBy_no_data_nullable_selector(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -395,7 +395,7 @@ ORDER BY [o].[OrderID]
         await base.MinBy_no_data_subquery_reference_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -415,7 +415,7 @@ LEFT JOIN (
         await base.MinBy_no_data_subquery_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -430,7 +430,7 @@ FROM [Customers] AS [c]
         await base.MinBy_with_coalesce(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
@@ -458,7 +458,7 @@ ORDER BY (
         await base.MinBy_over_nested_subquery(async);
 
         AssertSql(
-"""
+            """
 @p='3'
 
 SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -484,7 +484,7 @@ ORDER BY (
         await base.MinBy_over_max_subquery(async);
 
         AssertSql(
-"""
+            """
 @p='3'
 
 SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
@@ -559,7 +559,7 @@ FROM [Customers] AS [c]
         await base.MaxBy_no_data_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -585,7 +585,7 @@ ORDER BY ISNULL([p].[SupplierID], 0) DESC
         await base.MaxBy_no_data_reference_type_source(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1
@@ -598,7 +598,7 @@ ORDER BY [p].[ProductID] DESC
         await base.MaxBy_no_data_nullable_selector(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1
@@ -611,7 +611,7 @@ ORDER BY [o].[OrderID] DESC
         await base.MaxBy_no_data_subquery_reference_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -631,7 +631,7 @@ LEFT JOIN (
         await base.MaxBy_no_data_subquery_value_type(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -646,7 +646,7 @@ FROM [Customers] AS [c]
         await base.MaxBy(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 ORDER BY [o].[OrderID] DESC
@@ -658,7 +658,7 @@ ORDER BY [o].[OrderID] DESC
         await base.MaxBy_with_coalesce(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
@@ -686,7 +686,7 @@ ORDER BY (
         await base.MaxBy_over_nested_subquery(async);
 
         AssertSql(
-"""
+            """
 @p='3'
 
 SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]

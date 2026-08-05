@@ -33,7 +33,8 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => new
             {
-                c.City, Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
+                c.City,
+                Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
             })))).Message;
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);

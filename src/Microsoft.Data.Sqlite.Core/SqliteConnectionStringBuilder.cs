@@ -312,29 +312,17 @@ public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
             return (TEnum)Enum.Parse(typeof(TEnum), stringValue, ignoreCase: true);
         }
 
-        TEnum enumValue;
-        if (value is TEnum)
-        {
-            enumValue = (TEnum)value;
-        }
-        else if (value.GetType().IsEnum)
-        {
-            throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)));
-        }
-        else
-        {
-            enumValue = (TEnum)Enum.ToObject(typeof(TEnum), value);
-        }
-
-        if (!Enum.IsDefined(typeof(TEnum), enumValue))
-        {
-            throw new ArgumentOutOfRangeException(
+        var enumValue = value is TEnum
+            ? (TEnum)value
+            : value.GetType().IsEnum
+                ? throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)))
+                : (TEnum)Enum.ToObject(typeof(TEnum), value);
+        return !Enum.IsDefined(typeof(TEnum), enumValue)
+            ? throw new ArgumentOutOfRangeException(
                 nameof(value),
                 value,
-                Resources.InvalidEnumValue(typeof(TEnum), enumValue));
-        }
-
-        return enumValue;
+                Resources.InvalidEnumValue(typeof(TEnum), enumValue))
+            : enumValue;
     }
 
     private static bool? ConvertToNullableBoolean(object value)

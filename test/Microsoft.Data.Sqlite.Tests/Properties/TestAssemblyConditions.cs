@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite.Tests.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit;
 
 // Skip the entire assembly if the SQLite native library could not be initialized
-[assembly: Xunit.ConditionalAssembly(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.IsAvailable))]
+[assembly: ConditionalAssembly(typeof(SqliteTestEnvironment), nameof(SqliteTestEnvironment.IsAvailable))]

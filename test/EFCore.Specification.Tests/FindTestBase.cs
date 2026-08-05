@@ -752,9 +752,9 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Prop = 7,
                             NestedOwned = new Owned2 { Prop = "7" },
-                            NestedOwnedCollection = [new() { Prop = "71" }, new() { Prop = "72" }]
+                            NestedOwnedCollection = [new Owned2 { Prop = "71" }, new Owned2 { Prop = "72" }]
                         },
-                        OwnedCollection = [new() { Prop = 71 }, new() { Prop = 72 }]
+                        OwnedCollection = [new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 }]
                     },
                     new NullableIntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },

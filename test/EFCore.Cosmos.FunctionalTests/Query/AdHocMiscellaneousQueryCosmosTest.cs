@@ -430,10 +430,11 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         {
             public FooConverter()
                 : base(
-                    x => x == true ? (short?)10 : (short?)99,
+                    x => x == true ? 10 : (short?)99,
                     x => x == 10 ? true : x == 99 ? false : null,
                     convertsNulls: true)
-            { }
+            {
+            }
         }
     }
 
@@ -515,12 +516,11 @@ FROM root c
 
         public class Data
         {
-            public string Id { get; set; } = "\"" +
-                "";
-            public string Text { get; set; } = "\"" +
-                "";
+            public string Id { get; set; } = "\"" + "";
+            public string Text { get; set; } = "\"" + "";
         }
     }
+
     #endregion
 
     protected override string NonSharedStoreName

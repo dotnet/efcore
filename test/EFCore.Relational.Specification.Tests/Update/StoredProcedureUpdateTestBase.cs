@@ -691,7 +691,8 @@ public abstract class StoredProcedureUpdateTestBase(NonSharedFixture fixture)
 
         var entity1 = new EntityWithAdditionalProperty
         {
-            Name = "Initial", AdditionalProperty = 8 // The concurrency token
+            Name = "Initial",
+            AdditionalProperty = 8 // The concurrency token
         };
 
         context1.Set<EntityWithAdditionalProperty>().Add(entity1);

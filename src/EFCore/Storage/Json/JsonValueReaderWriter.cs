@@ -22,8 +22,8 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
-    ///     If <see langword="true" />, then the nulls will be passed to the writer's <see cref="ToJson"/> method. Otherwise null
-    ///     values will always be written as <see langword="null"/>.
+    ///     If <see langword="true" />, then the nulls will be passed to the writer's <see cref="ToJson" /> method. Otherwise null
+    ///     values will always be written as <see langword="null" />.
     /// </summary>
     /// <remarks>
     ///     The default is <see langword="false" />.

@@ -485,7 +485,7 @@ public abstract class MaterializationInterceptionTestBase<TContext>(NonSharedFix
             return new FactoryMethodBinding(
                 this,
                 typeof(TestBindingInterceptor).GetTypeInfo().GetDeclaredMethod(nameof(BookFactory))!,
-                new List<ParameterBinding>(),
+                [],
                 interceptionData.TypeBase.ClrType);
         }
     }

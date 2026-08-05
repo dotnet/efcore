@@ -209,7 +209,7 @@ public static class RelationalEventId
     public static readonly EventId ConnectionDisposed = MakeConnectionId(Id.ConnectionDisposed);
 
     /// <summary>
-    ///     A error occurred while opening or using a database connection.
+    ///     An error occurred while opening or using a database connection.
     /// </summary>
     /// <remarks>
     ///     <para>

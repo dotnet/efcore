@@ -464,9 +464,9 @@ public abstract partial class ModelBuilderTest
 
         [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_provider_type_set()
-            => Properties_can_have_provider_type_set<byte[]>();
+            => Properties_can_have_provider_type_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_provider_type_set<TBytes>()
+        protected virtual void Properties_can_have_provider_type_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -547,9 +547,9 @@ public abstract partial class ModelBuilderTest
 
         [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_non_generic_value_converter_set()
-            => Properties_can_have_non_generic_value_converter_set<byte[]>();
+            => Properties_can_have_non_generic_value_converter_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_non_generic_value_converter_set<TBytes>()
+        protected virtual void Properties_can_have_non_generic_value_converter_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -592,9 +592,9 @@ public abstract partial class ModelBuilderTest
 
         [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_custom_type_value_converter_type_set()
-            => Properties_can_have_custom_type_value_converter_type_set<byte[]>();
+            => Properties_can_have_custom_type_value_converter_type_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_custom_type_value_converter_type_set<TBytes>()
+        protected virtual void Properties_can_have_custom_type_value_converter_type_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -742,10 +742,8 @@ public abstract partial class ModelBuilderTest
         [Fact(Skip = "Issue #35613")]
         public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
         {
-            var modelBuilder = CreateModelBuilder(c =>
-            {
-                c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
-            });
+            var modelBuilder = CreateModelBuilder(c
+                => c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>());
 
             modelBuilder
                 .Ignore<Order>()
@@ -868,12 +866,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
                     e => e.QuarksCollection,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.QuarksCollection#Quarks"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), "ComplexProperties.QuarksCollection#Quarks"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message));
         }
 
         [Fact]
@@ -885,12 +880,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
                     e => e.QuarksCollection,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message));
         }
 
         [Fact]
@@ -1147,12 +1139,9 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
                     e => e.QuarksCollection,
-                    b =>
-                    {
-                        Assert.Equal(
-                            CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                            Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-                    });
+                    b => Assert.Equal(
+                        CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                        Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message));
         }
 
         [Fact]
@@ -1394,22 +1383,24 @@ public abstract partial class ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.Ignore(c => c.Orders);
-                        cb.Ignore(c => c.Details);
-                    });
-                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>("Customer.SomeOrders", ob =>
-                    {
-                        ob.Ignore(o => o.Customer);
-                        ob.Ignore(o => o.Products);
-                        ob.Ignore(o => o.Details);
-                        ob.Ignore(o => o.OrderCombination);
-                        ob.Ignore(o => o.SpecialCustomer);
-                        ob.Ignore(o => o.BackOrder);
-                        ob.Ignore(o => o.SpecialOrderCombination);
-                        ob.Ignore(o => o.ShippingAddress);
-                    });
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
+                        {
+                            cb.Ignore(c => c.Orders);
+                            cb.Ignore(c => c.Details);
+                        });
+                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>(
+                        "Customer.SomeOrders", ob =>
+                        {
+                            ob.Ignore(o => o.Customer);
+                            ob.Ignore(o => o.Products);
+                            ob.Ignore(o => o.Details);
+                            ob.Ignore(o => o.OrderCombination);
+                            ob.Ignore(o => o.SpecialCustomer);
+                            ob.Ignore(o => o.BackOrder);
+                            ob.Ignore(o => o.SpecialOrderCombination);
+                            ob.Ignore(o => o.ShippingAddress);
+                        });
                 });
 
             var model = modelBuilder.FinalizeModel();

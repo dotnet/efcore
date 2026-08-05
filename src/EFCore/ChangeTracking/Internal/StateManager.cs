@@ -275,10 +275,7 @@ public class StateManager : IStateManager
     [Obsolete("Use the overload that accepts a dictionary keyed by " + nameof(IProperty) + " instead.")]
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
-#pragma warning restore CS0618 // Type or member is obsolete
-
         UpdateReferenceMaps(entry, EntityState.Detached, null);
 
         return entry;
@@ -476,7 +473,7 @@ public class StateManager : IStateManager
             return _identityMap1;
         }
 
-        _identityMaps ??= new Dictionary<IKey, IIdentityMap>();
+        _identityMaps ??= [];
 
         if (!_identityMaps.TryGetValue(key, out var identityMap))
         {
@@ -488,33 +485,19 @@ public class StateManager : IStateManager
     }
 
     private IIdentityMap? FindIdentityMap(IKey? key)
-    {
-        if (_identityMap0 == null
-            || key == null)
-        {
-            return null;
-        }
-
-        if (_identityMap0.Key == key)
-        {
-            return _identityMap0;
-        }
-
-        if (_identityMap1 == null)
-        {
-            return null;
-        }
-
-        if (_identityMap1.Key == key)
-        {
-            return _identityMap1;
-        }
-
-        return _identityMaps == null
-            || !_identityMaps.TryGetValue(key, out var identityMap)
+        => _identityMap0 == null
+            || key == null
                 ? null
-                : identityMap;
-    }
+                : _identityMap0.Key == key
+                    ? _identityMap0
+                    : _identityMap1 == null
+                        ? null
+                        : _identityMap1.Key == key
+                            ? _identityMap1
+                            : _identityMaps == null
+                            || !_identityMaps.TryGetValue(key, out var identityMap)
+                                ? null
+                                : identityMap;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -841,11 +824,11 @@ public class StateManager : IStateManager
         InternalEntityEntry referencedFromEntry)
     {
         _referencedUntrackedEntities ??=
-            new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance);
+            [with(ReferenceEqualityComparer.Instance)];
 
         if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
         {
-            danglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
+            danglers = [];
             _referencedUntrackedEntities.Add(referencedEntity, danglers);
         }
 
@@ -869,7 +852,7 @@ public class StateManager : IStateManager
         {
             if (!_referencedUntrackedEntities.TryGetValue(newReferencedEntity, out var newDanglers))
             {
-                newDanglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();
+                newDanglers = [];
                 _referencedUntrackedEntities.Add(newReferencedEntity, newDanglers);
             }
 

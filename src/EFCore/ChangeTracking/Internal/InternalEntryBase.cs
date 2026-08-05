@@ -1530,8 +1530,8 @@ public abstract partial class InternalEntryBase : IInternalEntry
         bool setModified = false,
         bool isCascadeDelete = false)
     {
-        if (EntityState != EntityState.Deleted
-            && EntityState != EntityState.Detached)
+        if (EntityState is not EntityState.Deleted
+            and not EntityState.Detached)
         {
             _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Null, isFlagged: true);
 

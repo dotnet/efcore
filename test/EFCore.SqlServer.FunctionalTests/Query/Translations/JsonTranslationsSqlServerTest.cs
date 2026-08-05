@@ -6,7 +6,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<JsonTranslationsSqlServerTest.JsonTranslationsQuerySqlServerFixture>
+public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
+    JsonTranslationsSqlServerTest.JsonTranslationsQuerySqlServerFixture>
 {
     public JsonTranslationsSqlServerTest(JsonTranslationsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -15,15 +16,12 @@ public class JsonTranslationsSqlServerTest : JsonTranslationsRelationalTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-        public override async Task JsonPathExists_on_scalar_string_column()
+    public override async Task JsonPathExists_on_scalar_string_column()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2022Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2022Supported");
-
         }
 
         await base.JsonPathExists_on_scalar_string_column();
@@ -36,15 +34,12 @@ WHERE JSON_PATH_EXISTS([j].[JsonString], N'$.OptionalInt') = 1
 """);
     }
 
-        public override async Task JsonPathExists_on_complex_property()
+    public override async Task JsonPathExists_on_complex_property()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2022Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2022Supported");
-
         }
 
         await base.JsonPathExists_on_complex_property();
@@ -57,15 +52,12 @@ WHERE JSON_PATH_EXISTS([j].[JsonComplexType], N'$.OptionalInt') = 1
 """);
     }
 
-        public override async Task JsonPathExists_on_owned_entity()
+    public override async Task JsonPathExists_on_owned_entity()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2022Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2022Supported");
-
         }
 
         await base.JsonPathExists_on_owned_entity();

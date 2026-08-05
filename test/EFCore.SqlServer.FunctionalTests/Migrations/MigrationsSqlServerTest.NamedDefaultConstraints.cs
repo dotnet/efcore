@@ -113,10 +113,7 @@ CREATE TABLE [Entity] (
                 builder.Entity("Entity").Property<Guid>("Guid").HasDefaultValueSql("NEWID()", defaultConstraintName: "MyConstraintSql");
             },
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -262,29 +259,17 @@ ALTER TABLE [Entity] ADD DEFAULT (NEWID()) FOR [Guid];
                 builder.UseNamedDefaultConstraints();
                 builder.Entity("Entity").Property<string>("Id");
                 builder.Entity("Entity").OwnsOne(
-                    "OwnedType", "MyOwned", b =>
-                    {
-                        b.OwnsOne(
-                            "NestedType", "MyNested", bb =>
-                            {
-                                bb.Property<int>("Foo");
-                            });
-                    });
+                    "OwnedType", "MyOwned", b => b.OwnsOne(
+                        "NestedType", "MyNested", bb => bb.Property<int>("Foo")));
             },
             builder => { },
-            builder =>
-            {
-                builder.Entity("Entity").OwnsOne(
-                    "OwnedType", "MyOwned", b =>
+            builder => builder.Entity("Entity").OwnsOne(
+                "OwnedType", "MyOwned", b => b.OwnsOne(
+                    "NestedType", "MyNested", bb =>
                     {
-                        b.OwnsOne(
-                            "NestedType", "MyNested", bb =>
-                            {
-                                bb.Property<int>("Number").HasDefaultValue(7);
-                                bb.Property<Guid>("Guid").HasDefaultValueSql("NEWID()");
-                            });
-                    });
-            },
+                        bb.Property<int>("Number").HasDefaultValue(7);
+                        bb.Property<Guid>("Guid").HasDefaultValueSql("NEWID()");
+                    })),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -470,10 +455,7 @@ CREATE TABLE [Entity] (
                 builder.Entity("Entity").Property<Guid>("Guid").HasDefaultValueSql("NEWID()");
             },
             builder => { },
-            model =>
-            {
-                Assert.Empty(model.Tables);
-            });
+            model => Assert.Empty(model.Tables));
 
         AssertSql(
             """
@@ -939,10 +921,7 @@ ALTER TABLE [Entity] ADD [YetAnother] uniqueidentifier NOT NULL CONSTRAINT [DF_E
                         b.Property<int>("Id");
                         b.OwnsOne(
                             "Owned", "YetAnotherVeryVeryVeryVeryVeryLoooooooooooooonnnnnnnnnnnnnnnnnnnnggggggggggggggggggggOwnedNavigation",
-                            bb =>
-                            {
-                                bb.Property<string>("Name");
-                            });
+                            bb => bb.Property<string>("Name"));
                     });
             },
             builder =>

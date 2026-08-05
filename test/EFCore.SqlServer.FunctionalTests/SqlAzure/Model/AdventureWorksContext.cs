@@ -145,11 +145,11 @@ public class AdventureWorksContext(DbContextOptions options) : PoolableDbContext
         modelBuilder.Entity<ProductModelProductDescription>(entity =>
         {
             entity.HasKey(e => new
-                {
-                    e.ProductModelID,
-                    e.ProductDescriptionID,
-                    e.Culture
-                })
+            {
+                e.ProductModelID,
+                e.ProductDescriptionID,
+                e.Culture
+            })
                 .HasName("PK_ProductModelProductDescription_ProductModelID_ProductDescriptionID_Culture");
 
             entity.HasIndex(e => e.rowguid, "AK_ProductModelProductDescription_rowguid")

@@ -137,15 +137,15 @@ WHERE (c["$type"] = "Parent")
     public override void Value_conversion_on_enum_collection_contains()
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[47..],
-            Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
+            Assert.Throws<InvalidOperationException>(base.Value_conversion_on_enum_collection_contains).Message);
 
     public override void GroupBy_converted_enum()
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[21..],
-            Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
+            Assert.Throws<InvalidOperationException>(base.GroupBy_converted_enum).Message);
 
     public override void Infer_type_mapping_from_in_subquery_to_item()
-        => Assert.Throws<InvalidOperationException>(() => base.Infer_type_mapping_from_in_subquery_to_item());
+        => Assert.Throws<InvalidOperationException>(base.Infer_type_mapping_from_in_subquery_to_item);
 
     public override Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(async, RunCustomTypeNotMappedByDefaultEqualityAsync);

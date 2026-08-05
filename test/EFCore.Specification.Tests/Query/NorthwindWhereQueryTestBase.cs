@@ -718,20 +718,20 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_select_many_and(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss =>
                 from c in ss.Set<Customer>()
                 from e in ss.Set<Employee>()
-                // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
-                where (c.City == "London" && c.Country == "UK")
-                    && (e.City == "London" && e.Country == "UK")
+                where c.City == "London"
+                    && c.Country == "UK"
+                    && e.City == "London"
+                    && e.Country == "UK"
 #pragma warning restore RCS1032 // Remove redundant parentheses.
                 select new { c, e },
             e => e.c.CustomerID + " " + e.e.EmployeeID);
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_primitive(bool async)
@@ -772,22 +772,17 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
 #pragma warning disable IDE0060 // Remove unused parameter
     private static bool ClientFunc(int id)
-#pragma warning restore IDE0060 // Remove unused parameter
-    {
-        return false;
-    }
+        => false;
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_bool_member_negated_twice(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
 #pragma warning disable RCS1068 // Simplify logical negation.
 #pragma warning disable RCS1033 // Remove redundant boolean literal.
             ss => ss.Set<Product>().Where(p => !!(p.Discontinued == true)));
 #pragma warning restore RCS1033 // Remove redundant boolean literal.
 #pragma warning restore RCS1068 // Simplify logical negation.
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_bool_member_shadow(bool async)
@@ -811,7 +806,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     public virtual Task Where_bool_member_in_complex_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Product>().Where(p => p.ProductID > 100 && p.Discontinued || (p.Discontinued == true)));
+            ss => ss.Set<Product>().Where(p => (p.ProductID > 100 && p.Discontinued) || (p.Discontinued == true)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_bool_member_compared_to_binary_expression(bool async)
@@ -1239,7 +1234,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
         return AssertQuery(
             async,
 #pragma warning disable CS0184 // 'is' expression's given expression is never of the provided type
-            ss => ss.Set<Order>().Where(o => (customer is Order)),
+            ss => ss.Set<Order>().Where(o => customer is Order),
 #pragma warning restore CS0184 // 'is' expression's given expression is never of the provided type
             assertEmpty: true);
     }

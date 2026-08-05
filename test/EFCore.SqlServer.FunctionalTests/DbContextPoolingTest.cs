@@ -42,18 +42,12 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .AddDbContextPool<TContextService, TContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .AddDbContextPool<ISecondContext, SecondContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .BuildServiceProvider(validateScopes: true);
 
@@ -63,18 +57,12 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .AddDbContextPool<TContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .AddDbContextPool<SecondContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .BuildServiceProvider(validateScopes: true);
 
@@ -397,8 +385,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     {
         var services = new ServiceCollection();
 
-        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                .EnableServiceProviderCaching(false));
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob
+            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+            .EnableServiceProviderCaching(false));
 
         services.AddPooledDbContextFactory<DefaultOptionsPooledContext>();
 
@@ -414,8 +403,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     {
         var services = new ServiceCollection();
 
-        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                .EnableServiceProviderCaching(false));
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob
+            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+            .EnableServiceProviderCaching(false));
 
         services.AddPooledDbContextFactory<DefaultOptionsPooledContext>(poolSize: 256);
 

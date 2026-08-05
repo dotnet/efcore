@@ -6,7 +6,9 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geometry;
 
-public class SqlServerGeometryPolygonTypeTest(SqlServerGeometryPolygonTypeTest.PolygonTypeFixture fixture, ITestOutputHelper testOutputHelper)
+public class SqlServerGeometryPolygonTypeTest(
+    SqlServerGeometryPolygonTypeTest.PolygonTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : SqlServerGeometryTypeTestBase<Polygon, SqlServerGeometryPolygonTypeTest.PolygonTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
@@ -36,9 +38,7 @@ WHERE [t].[Value].STEquals('POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0))') = CAST(1 A
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -214,20 +214,20 @@ FROM [JsonTypeEntity] AS [j]
         public override Polygon Value { get; } = new(
             new LinearRing(
             [
-                new Coordinate(0, 0),    // NW
-                new Coordinate(0, 10),   // SW
-                new Coordinate(10, 10),  // SE
-                new Coordinate(10, 0),   // NE
+                new Coordinate(0, 0), // NW
+                new Coordinate(0, 10), // SW
+                new Coordinate(10, 10), // SE
+                new Coordinate(10, 0), // NE
                 new Coordinate(0, 0)
             ]));
 
         public override Polygon OtherValue { get; } = new(
             new LinearRing(
             [
-                new Coordinate(20, 20),  // NW
-                new Coordinate(20, 30),  // SW
-                new Coordinate(30, 30),  // SE
-                new Coordinate(30, 20),  // NE
+                new Coordinate(20, 20), // NW
+                new Coordinate(20, 30), // SW
+                new Coordinate(30, 30), // SE
+                new Coordinate(30, 20), // NE
                 new Coordinate(20, 20)
             ]));
     }

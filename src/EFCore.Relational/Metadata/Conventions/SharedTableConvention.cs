@@ -195,11 +195,11 @@ public class SharedTableConvention : IModelFinalizingConvention
                 }
 
                 clashingTables ??=
-                    new Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
+                    [];
 
                 if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                 {
-                    clashingSubTables = new Dictionary<(string Name, string? Schema), List<IConventionEntityType>>();
+                    clashingSubTables = [];
                     clashingTables[table] = clashingSubTables;
                 }
 
@@ -336,8 +336,8 @@ public class SharedTableConvention : IModelFinalizingConvention
             return prefix == otherType.ShortName()
                 && type is IComplexType complexType
                 && otherType is IComplexType othertComplexType
-                ? CreatePrefix(complexType.ComplexProperty.DeclaringType, othertComplexType.ComplexProperty.DeclaringType)
-                : prefix;
+                    ? CreatePrefix(complexType.ComplexProperty.DeclaringType, othertComplexType.ComplexProperty.DeclaringType)
+                    : prefix;
         }
     }
 

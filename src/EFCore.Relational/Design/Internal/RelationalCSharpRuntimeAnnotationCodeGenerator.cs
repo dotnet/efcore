@@ -580,18 +580,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var code = Dependencies.CSharpHelper;
-        if (parameters.ScopeVariables.TryGetValue(typeBase, out var variable))
-        {
-            return variable;
-        }
-
-        return typeBase switch
-        {
-            IEntityType entityType => $"FindEntityType({code.Literal(entityType.Name)})!",
-            IComplexType complexType
-                => $"{GetTypeBaseAccess(complexType.ComplexProperty.DeclaringType, parameters)}.FindComplexProperty({code.Literal(complexType.ComplexProperty.Name)})!.ComplexType",
-            _ => throw new UnreachableException()
-        };
+        return parameters.ScopeVariables.TryGetValue(typeBase, out var variable)
+            ? variable
+            : typeBase switch
+            {
+                IEntityType entityType => $"FindEntityType({code.Literal(entityType.Name)})!",
+                IComplexType complexType
+                    => $"{GetTypeBaseAccess(complexType.ComplexProperty.DeclaringType, parameters)}.FindComplexProperty({code.Literal(complexType.ComplexProperty.Name)})!.ComplexType",
+                _ => throw new UnreachableException()
+            };
     }
 
     private string CreateJsonElement(
@@ -620,7 +617,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
-        var variable = code.Identifier((jsonObject.PropertyName ?? "element") + "JsonObject", jsonObject, parameters.ScopeObjects, capitalize: false);
+        var variable = code.Identifier(
+            (jsonObject.PropertyName ?? "element") + "JsonObject", jsonObject, parameters.ScopeObjects, capitalize: false);
         parameters.ScopeVariables[jsonObject] = variable;
 
         mainBuilder.Append($"var {variable} = new RelationalJsonObject(");
@@ -645,7 +643,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
 
-        var variable = code.Identifier((jsonArray.PropertyName ?? "array") + "JsonArray", jsonArray, parameters.ScopeObjects, capitalize: false);
+        var variable = code.Identifier(
+            (jsonArray.PropertyName ?? "array") + "JsonArray", jsonArray, parameters.ScopeObjects, capitalize: false);
         parameters.ScopeVariables[jsonArray] = variable;
 
         mainBuilder.Append($"var {variable} = new RelationalJsonArray(");
@@ -666,7 +665,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
-        var variable = code.Identifier((jsonScalar.PropertyName ?? "scalar") + "JsonScalar", jsonScalar, parameters.ScopeObjects, capitalize: false);
+        var variable = code.Identifier(
+            (jsonScalar.PropertyName ?? "scalar") + "JsonScalar", jsonScalar, parameters.ScopeObjects, capitalize: false);
         parameters.ScopeVariables[jsonScalar] = variable;
 
         mainBuilder.Append($"var {variable} = new RelationalJsonScalar(");
@@ -2662,7 +2662,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

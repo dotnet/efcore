@@ -1059,7 +1059,7 @@ public class RelationshipDiscoveryConventionTest
 
     private interface IInterface
     {
-        int Id { get; set; }
+        public int Id { get; set; }
     }
 
     private abstract class AbstractClass

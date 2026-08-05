@@ -11,7 +11,8 @@ public abstract class AssociationsSetOperationsTestBase<TFixture>(TFixture fixtu
         => AssertQuery(ss => ss.Set<RootEntity>().Where(e =>
             e.AssociateCollection.Where(r => r.Int == 8)
                 .Concat(e.AssociateCollection.Where(r => r.String == "foo"))
-                .Count() == 4));
+                .Count()
+            == 4));
 
     [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)

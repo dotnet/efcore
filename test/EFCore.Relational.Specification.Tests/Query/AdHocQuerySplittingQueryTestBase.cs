@@ -188,7 +188,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         var task2 = QueryAsync(context2, Context25225.Parent2Id, Context25225.Collection2Id);
         await Task.WhenAll(task1, task2);
 
-        async Task QueryAsync(Context25225 context, Guid parentId, Guid collectionId)
+        static async Task QueryAsync(Context25225 context, Guid parentId, Guid collectionId)
         {
             for (var i = 0; i < 100; i++)
             {
@@ -207,7 +207,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         var task2 = Task.Run(() => Query(context2, Context25225.Parent2Id, Context25225.Collection2Id));
         await Task.WhenAll(task1, task2);
 
-        void Query(Context25225 context, Guid parentId, Guid collectionId)
+        static void Query(Context25225 context, Guid parentId, Guid collectionId)
         {
             for (var i = 0; i < 10; i++)
             {
@@ -253,7 +253,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                     .Collection
                     .Select(c => new Context25225.CollectionViewModel
                     {
-                        Id = c.Id, ParentId = c.ParentId,
+                        Id = c.Id,
+                        ParentId = c.ParentId,
                     })
                     .ToArray()
             });
@@ -277,8 +278,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         public async Task SeedAsync()
         {
-            var parent1 = new Parent { Id = Parent1Id, Collection = new List<Collection> { new() { Id = Collection1Id, } } };
-            var parent2 = new Parent { Id = Parent2Id, Collection = new List<Collection> { new() { Id = Collection2Id, } } };
+            var parent1 = new Parent { Id = Parent1Id, Collection = [new() { Id = Collection1Id, }] };
+            var parent2 = new Parent { Id = Parent2Id, Collection = [new() { Id = Collection2Id, }] };
             AddRange(parent1, parent2);
             await SaveChangesAsync();
         }
@@ -359,6 +360,185 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
             public int Id { get; set; }
             public int Value { get; set; }
         }
+    }
+
+    #endregion
+
+    #region 33826
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Split_include_collection_throws_for_orphan_child_rows_after_concurrent_insert(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33826>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
+            createTestStore: CreateTestStore33826);
+
+        Context33826.ConcurrentContextFactory = contextFactory.CreateDbContext;
+        try
+        {
+            // A concurrent, unrelated Blog(15, 3) with a child is inserted while Blog(20, 1) is materialized. Because the parent
+            // query already returned its rows without Blog(15, 3), that blog's child appears in the split-include stream as an
+            // orphan row that correlates to no parent. Rather than silently dropping child collections (as before #33826), the
+            // materializer detects the leftover child rows once every parent has been processed and throws.
+            Context33826.InsertConcurrentEntity = true;
+            ClearLog();
+
+            using var context = contextFactory.CreateDbContext();
+            var query = context.Blogs
+                .Include(b => b.Posts)
+                .AsSplitQuery()
+                .OrderByDescending(b => b.Id)
+                .ThenByDescending(b => b.SecondId);
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<DbQueryConcurrencyException>(() => query.ToListAsync());
+            }
+            else
+            {
+                Assert.Throws<DbQueryConcurrencyException>(() => query.ToList());
+            }
+        }
+        finally
+        {
+            Context33826.InsertConcurrentEntity = false;
+            Context33826.ConcurrentContextFactory = null;
+        }
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual async Task Split_include_collection_not_dropped_when_other_parent_made_childless_concurrently(bool async)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context33826>(
+            seed: c => c.SeedAsync(),
+            onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
+            createTestStore: CreateTestStore33826);
+
+        Context33826.ConcurrentContextFactory = contextFactory.CreateDbContext;
+        try
+        {
+            // While Blog(20, 1) is materialized, all children of Blog(10, 2) are deleted, making it childless in the child
+            // stream. Blog(20, 1) must still keep its children and Blog(10, 2) ends up with an empty collection - no exception.
+            Context33826.DeleteOtherParentsChildren = true;
+            ClearLog();
+
+            using var context = contextFactory.CreateDbContext();
+            var query = context.Blogs
+                .Include(b => b.Posts)
+                .AsSplitQuery()
+                .OrderByDescending(b => b.Id)
+                .ThenByDescending(b => b.SecondId);
+
+            var blogs = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            var byKey = blogs.ToDictionary(b => (b.Id, b.SecondId));
+            Assert.Equal(["C", "D"], byKey[(20, 1)].Posts.OrderBy(p => p.Name).Select(p => p.Name));
+            Assert.Empty(byKey[(10, 2)].Posts);
+        }
+        finally
+        {
+            Context33826.DeleteOtherParentsChildren = false;
+            Context33826.ConcurrentContextFactory = null;
+        }
+    }
+
+    protected virtual TestStore CreateTestStore33826()
+    {
+        var testStore = (RelationalTestStore)CreateTestStore();
+        testStore.UseConnectionString = true;
+        return testStore;
+    }
+
+    protected class Context33826(DbContextOptions options) : DbContext(options)
+    {
+        public static Func<Context33826> ConcurrentContextFactory { get; set; }
+        public static bool InsertConcurrentEntity { get; set; }
+        public static bool DeleteOtherParentsChildren { get; set; }
+
+        public DbSet<Blog33826> Blogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blog33826>(b =>
+            {
+                b.HasKey(e => new { e.Id, e.SecondId });
+                b.Property(e => e.Id).ValueGeneratedNever();
+                b.Property(e => e.SecondId).ValueGeneratedNever();
+                b.HasMany(e => e.Posts).WithOne().HasForeignKey(e => new { e.BlogId, e.BlogSecondId });
+            });
+            modelBuilder.Entity<Post33826>(p =>
+            {
+                p.HasKey(e => new { e.Id, e.SecondId });
+                p.Property(e => e.Id).ValueGeneratedNever();
+                p.Property(e => e.SecondId).ValueGeneratedNever();
+            });
+        }
+
+        public Task SeedAsync()
+        {
+            Blogs.AddRange(
+                new Blog33826(10, 2, [new Post33826(1, 2, "A"), new Post33826(2, 2, "B")]),
+                new Blog33826(20, 1, [new Post33826(3, 1, "C"), new Post33826(4, 1, "D")]));
+
+            return SaveChangesAsync();
+        }
+    }
+
+    protected class Blog33826
+    {
+        public Blog33826(int id, int secondId, IEnumerable<Post33826> posts)
+        {
+            Id = id;
+            SecondId = secondId;
+            Posts = posts.ToList();
+        }
+
+        // EF materialization constructor - used to inject a concurrent modification at a deterministic point.
+        private Blog33826(int id, int secondId)
+        {
+            Id = id;
+            SecondId = secondId;
+
+            if (id == 20 && secondId == 1)
+            {
+                if (Context33826.InsertConcurrentEntity)
+                {
+                    Context33826.InsertConcurrentEntity = false;
+
+                    using var context = Context33826.ConcurrentContextFactory();
+                    context.Blogs.Add(new Blog33826(15, 3, [new Post33826(5, 3, "Concurrent")]));
+                    context.SaveChanges();
+                }
+
+                if (Context33826.DeleteOtherParentsChildren)
+                {
+                    Context33826.DeleteOtherParentsChildren = false;
+
+                    using var context = Context33826.ConcurrentContextFactory();
+                    context.Set<Post33826>().Where(p => p.BlogId == 10 && p.BlogSecondId == 2).ExecuteDelete();
+                }
+            }
+        }
+
+        public int Id { get; private init; }
+        public int SecondId { get; private init; }
+        public List<Post33826> Posts { get; private init; } = [];
+    }
+
+    protected class Post33826(int id, int secondId, string name)
+    {
+        public int Id { get; private init; } = id;
+        public int SecondId { get; private init; } = secondId;
+        public string Name { get; private init; } = name;
+        public int BlogId { get; private set; }
+        public int BlogSecondId { get; private set; }
     }
 
     #endregion

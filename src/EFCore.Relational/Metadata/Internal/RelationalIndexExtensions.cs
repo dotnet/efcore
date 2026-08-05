@@ -46,14 +46,13 @@ public static class RelationalIndexExtensions
         in StoreObjectIdentifier storeObject,
         bool shouldThrow)
     {
-        var columnNames = GetColumnNames(index, storeObject);
-        var duplicateColumnNames = GetColumnNames(duplicateIndex, storeObject);
+        var columnNames = index.GetColumnNames(storeObject);
+        var duplicateColumnNames = duplicateIndex.GetColumnNames(storeObject);
         if (columnNames == null
             || duplicateColumnNames == null)
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            return shouldThrow
+                ? throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexTableMismatch(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
@@ -61,17 +60,14 @@ public static class RelationalIndexExtensions
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.GetDatabaseName(storeObject),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        duplicateIndex.DeclaringEntityType.GetSchemaQualifiedTableName()));
-            }
-
-            return false;
+                        duplicateIndex.DeclaringEntityType.GetSchemaQualifiedTableName()))
+                : false;
         }
 
         if (!columnNames.SequenceEqual(duplicateColumnNames))
         {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            return shouldThrow
+                ? throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexColumnMismatch(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
@@ -80,69 +76,48 @@ public static class RelationalIndexExtensions
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject),
                         FormatColumnNames(columnNames),
-                        FormatColumnNames(duplicateColumnNames)));
-            }
-
-            return false;
+                        FormatColumnNames(duplicateColumnNames)))
+                : false;
         }
 
-        if (index.IsUnique != duplicateIndex.IsUnique)
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        return index.IsUnique != duplicateIndex.IsUnique
+            ? shouldThrow
+                ? throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexUniquenessMismatch(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
                         duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
-        }
-
-        if (index.IsDescending is null != duplicateIndex.IsDescending is null
+                        index.GetDatabaseName(storeObject)))
+                : false
+            : (index.IsDescending is null) != (duplicateIndex.IsDescending is null)
             || (index.IsDescending is not null
                 && duplicateIndex.IsDescending is not null
-                && !index.IsDescending.SequenceEqual(duplicateIndex.IsDescending)))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.DuplicateIndexSortOrdersMismatch(
-                        index.DisplayName(),
-                        index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.DisplayName(),
-                        duplicateIndex.DeclaringEntityType.DisplayName(),
-                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject)));
-            }
-
-            return false;
-        }
-
-        if (index.GetFilter(storeObject) != duplicateIndex.GetFilter(storeObject))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.DuplicateIndexFiltersMismatch(
-                        index.DisplayName(),
-                        index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.DisplayName(),
-                        duplicateIndex.DeclaringEntityType.DisplayName(),
-                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        index.GetDatabaseName(storeObject),
-                        index.GetFilter(),
-                        duplicateIndex.GetFilter()));
-            }
-
-            return false;
-        }
-
-        return true;
+                && !index.IsDescending.SequenceEqual(duplicateIndex.IsDescending))
+                ? shouldThrow
+                    ? throw new InvalidOperationException(
+                        RelationalStrings.DuplicateIndexSortOrdersMismatch(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.DisplayName(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetDatabaseName(storeObject)))
+                    : false
+                : index.GetFilter(storeObject) == duplicateIndex.GetFilter(storeObject)
+                || (shouldThrow
+                    ? throw new InvalidOperationException(
+                        RelationalStrings.DuplicateIndexFiltersMismatch(
+                            index.DisplayName(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.DisplayName(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetDatabaseName(storeObject),
+                            index.GetFilter(),
+                            duplicateIndex.GetFilter()))
+                    : false);
     }
 
     private static string FormatColumnNames(IEnumerable<string> columnNames)

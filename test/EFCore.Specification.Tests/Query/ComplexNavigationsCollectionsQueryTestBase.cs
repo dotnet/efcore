@@ -115,7 +115,7 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixt
                           "OneToOne_Optional_FK1"),
                       "OneToMany_Optional2"),
             elementSorter: e => e?.Count ?? 0,
-            elementAsserter: (e, a) => AssertCollection(e ?? new List<Level3>(), a));
+            elementAsserter: (e, a) => AssertCollection(e ?? [], a));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_collection_navigation_nested_anonymous(bool async)
@@ -127,7 +127,7 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixt
             elementAsserter: (e, a) =>
             {
                 Assert.Equal(e.Id, a.Id);
-                AssertCollection(e.OneToMany_Optional2 ?? new List<Level3>(), a.OneToMany_Optional2);
+                AssertCollection(e.OneToMany_Optional2 ?? [], a.OneToMany_Optional2);
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -180,7 +180,7 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixt
             elementAsserter: (e, a) =>
             {
                 Assert.Equal(e.OneToOne_Optional_FK1?.Id, a.OneToOne_Optional_FK1?.Id);
-                AssertCollection(e.OneToMany_Optional2 ?? new List<Level3>(), a.OneToMany_Optional2);
+                AssertCollection(e.OneToMany_Optional2 ?? [], a.OneToMany_Optional2);
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -338,22 +338,19 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixt
                 })
             }),
             assertOrder: true,
-            elementAsserter: (e, a) =>
-            {
-                AssertCollection(
-                    e.Level2s, a.Level2s, ordered: true, elementAsserter:
-                    (e2, a2) =>
+            elementAsserter: (e, a) => AssertCollection(
+                e.Level2s, a.Level2s, ordered: true, elementAsserter:
+                (e2, a2) =>
+                {
+                    if (e2.Level3 == null)
                     {
-                        if (e2.Level3 == null)
-                        {
-                            Assert.Null(a2.Level3);
-                        }
-                        else
-                        {
-                            AssertCollection(e2.Level3.Level4s, a2.Level3.Level4s, ordered: true);
-                        }
-                    });
-            });
+                        Assert.Null(a2.Level3);
+                    }
+                    else
+                    {
+                        AssertCollection(e2.Level3.Level4s, a2.Level3.Level4s, ordered: true);
+                    }
+                }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Queryable_in_subquery_works_when_final_projection_is_List(bool async)

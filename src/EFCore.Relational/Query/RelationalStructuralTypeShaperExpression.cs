@@ -38,7 +38,7 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
     ///     An expression of <see cref="Func{T,TResult}" /> to determine which entity type to
     ///     materialize.
     /// </param>
-    /// <param name="clrType">CLR type for this expression as returned from <see cref="Type"/>.</param>
+    /// <param name="clrType">CLR type for this expression as returned from <see cref="Type" />.</param>
     protected RelationalStructuralTypeShaperExpression(
         ITypeBase type,
         Expression valueBufferExpression,
@@ -152,7 +152,8 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
     /// <inheritdoc />
     public override StructuralTypeShaperExpression WithType(ITypeBase type)
         => type != StructuralType
-            ? new RelationalStructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable, materializationCondition: null, type.ClrType)
+            ? new RelationalStructuralTypeShaperExpression(
+                type, ValueBufferExpression, IsNullable, materializationCondition: null, type.ClrType)
             : this;
 
     /// <inheritdoc />
@@ -178,24 +179,28 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
         }
 
         // Marking nullable requires re-computation of Discriminator condition
-        return new RelationalStructuralTypeShaperExpression(StructuralType, newValueBufferExpression, true, materializationCondition: null, Type);
+        return new RelationalStructuralTypeShaperExpression(
+            StructuralType, newValueBufferExpression, true, materializationCondition: null, Type);
     }
 
     /// <inheritdoc />
     public override StructuralTypeShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new RelationalStructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition, Type)
+            ? new RelationalStructuralTypeShaperExpression(
+                StructuralType, valueBufferExpression, IsNullable, MaterializationCondition, Type)
             : this;
 
     /// <inheritdoc />
     public override RelationalStructuralTypeShaperExpression MakeClrTypeNullable()
         => Type != Type.MakeNullable()
-            ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
+            ? new RelationalStructuralTypeShaperExpression(
+                StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.MakeNullable())
             : this;
 
     /// <inheritdoc />
     public override RelationalStructuralTypeShaperExpression MakeClrTypeNonNullable()
         => Type != Type.UnwrapNullableType()
-            ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
+            ? new RelationalStructuralTypeShaperExpression(
+                StructuralType, ValueBufferExpression, IsNullable, MaterializationCondition, Type.UnwrapNullableType())
             : this;
 }

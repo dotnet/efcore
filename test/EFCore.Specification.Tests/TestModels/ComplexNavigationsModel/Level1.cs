@@ -30,14 +30,7 @@ public class Level1
     public Level1 OneToMany_Optional_Self_Inverse1 { get; set; }
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((Level1)obj);
-    }
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((Level1)obj)));
 
     private bool Equals(Level1 other)
         => Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date);

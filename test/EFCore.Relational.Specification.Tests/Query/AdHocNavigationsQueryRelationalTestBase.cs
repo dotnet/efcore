@@ -90,24 +90,9 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
             .Select(x => new
             {
                 x.Id,
-                Job = x.Job == null ? null : new
-                {
-                    x.Job.Id,
-                    Address = new
-                    {
-                        x.Job.Address.Id,
-                        x.Job.Address.Street
-                    }
-                }
+                Job = x.Job == null ? null : new { x.Job.Id, Address = new { x.Job.Address.Id, x.Job.Address.Street } }
             })
-            .Select(x => new
-            {
-                x.Id,
-                Job = x.Job == null ? null : new
-                {
-                    x.Job.Id
-                }
-            })
+            .Select(x => new { x.Id, Job = x.Job == null ? null : new { x.Job.Id } })
             .Where(x => x.Id == 1);
 
         var result = async ? await query.FirstOrDefaultAsync() : query.FirstOrDefault();
@@ -131,24 +116,9 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
             .Select(x => new
             {
                 x.Id,
-                Job = x.Job == null ? null : new
-                {
-                    x.Job.Id,
-                    Address = new
-                    {
-                        x.Job.Address.Id,
-                        x.Job.Address.Street
-                    }
-                }
+                Job = x.Job == null ? null : new { x.Job.Id, Address = new { x.Job.Address.Id, x.Job.Address.Street } }
             })
-            .Select(x => new
-            {
-                x.Id,
-                Job = x.Job == null ? null : new
-                {
-                    x.Job.Id
-                }
-            });
+            .Select(x => new { x.Id, Job = x.Job == null ? null : new { x.Job.Id } });
 
         var result = async ? await query.FirstOrDefaultAsync() : query.FirstOrDefault();
 
@@ -168,25 +138,9 @@ public abstract class AdHocNavigationsQueryRelationalTestBase(NonSharedFixture f
             .Select(x => new
             {
                 x.Id,
-                Job = x.Job == null ? null : new
-                {
-                    x.Job.Id,
-                    Address = new
-                    {
-                        x.Job.Address.Id,
-                        x.Job.Address.Street
-                    }
-                }
+                Job = x.Job == null ? null : new { x.Job.Id, Address = new { x.Job.Address.Id, x.Job.Address.Street } }
             })
-            .Select(x => new
-            {
-                x.Id,
-                Job = x.Job == null ? null : new
-                {
-                    x.Job.Id,
-                    AddressId = x.Job.Address.Id
-                }
-            })
+            .Select(x => new { x.Id, Job = x.Job == null ? null : new { x.Job.Id, AddressId = x.Job.Address.Id } })
             .Where(x => x.Id == 1);
 
         var result = async ? await query.FirstOrDefaultAsync() : query.FirstOrDefault();

@@ -130,7 +130,8 @@ public class SqliteTestStore : RelationalTestStore
     {
         var connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = name + ".db", Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
+            DataSource = name + ".db",
+            Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
         }.ToString();
 
         return new SqliteConnection(connectionString);

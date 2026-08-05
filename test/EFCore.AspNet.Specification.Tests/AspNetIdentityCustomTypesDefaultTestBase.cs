@@ -39,10 +39,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_Role_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var role = await context.Roles.OrderBy(e => e.NormalizedName).FirstAsync();
@@ -74,10 +71,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_Role_navigations_many_to_many()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var role = await context.Roles.OrderBy(e => e.NormalizedName).FirstAsync();
@@ -88,10 +82,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_UserRole_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userRole = await context.UserRoles.OrderBy(e => e.Role.Name).FirstAsync();
@@ -103,10 +94,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_UserClaim_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userClaim = await context.UserClaims.OrderBy(e => e.ClaimType).ThenBy(e => e.ClaimValue).FirstAsync();
@@ -116,10 +104,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_UserLogin_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userLogin = await context.UserLogins.OrderBy(e => e.LoginProvider).FirstAsync();
@@ -129,10 +114,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_RoleClaim_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var roleClaim = await context.RoleClaims.OrderBy(e => e.Role.Name).FirstAsync();
@@ -142,10 +124,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixtur
     [Fact]
     public async Task Can_lazy_load_UserToken_navigations()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
-            },
+            async context => await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" }),
             async context =>
             {
                 var userToken = await context.UserTokens.OrderBy(e => e.Name).FirstAsync();
@@ -366,15 +345,9 @@ public class CustomTypesIdentityContext(DbContextOptions options)
             b.ToTable("MyRoles");
         });
 
-        modelBuilder.Entity<CustomUserClaimString>(b =>
-        {
-            b.ToTable("MyUserClaims");
-        });
+        modelBuilder.Entity<CustomUserClaimString>(b => b.ToTable("MyUserClaims"));
 
-        modelBuilder.Entity<CustomUserLoginString>(b =>
-        {
-            b.ToTable("MyUserLogins");
-        });
+        modelBuilder.Entity<CustomUserLoginString>(b => b.ToTable("MyUserLogins"));
 
         modelBuilder.Entity<CustomUserTokenString>(b =>
         {
@@ -383,15 +356,9 @@ public class CustomTypesIdentityContext(DbContextOptions options)
             b.ToTable("MyUserTokens");
         });
 
-        modelBuilder.Entity<CustomRoleClaimString>(b =>
-        {
-            b.ToTable("MyRoleClaims");
-        });
+        modelBuilder.Entity<CustomRoleClaimString>(b => b.ToTable("MyRoleClaims"));
 
-        modelBuilder.Entity<CustomUserRoleString>(b =>
-        {
-            b.ToTable("MyUserRoles");
-        });
+        modelBuilder.Entity<CustomUserRoleString>(b => b.ToTable("MyUserRoles"));
     }
 }
 

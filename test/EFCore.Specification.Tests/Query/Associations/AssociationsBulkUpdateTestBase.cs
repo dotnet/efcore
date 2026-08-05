@@ -17,8 +17,8 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         var deletableEntity = Fixture.Data.RootEntities.Where(e => !Fixture.Data.RootReferencingEntities.Any(re => re.Root == e)).First();
 
         await AssertDelete(
-             ss => ss.Set<RootEntity>().Where(e => e.Name == deletableEntity.Name),
-             rowsAffectedCount: 1);
+            ss => ss.Set<RootEntity>().Where(e => e.Name == deletableEntity.Name),
+            rowsAffectedCount: 1);
     }
 
     // Should always fail (since the association is required), but (at least for now) may fail in different ways depending on the
@@ -50,7 +50,8 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
     [Fact]
     public virtual Task Update_property_inside_associate_with_special_chars()
         => AssertUpdate(
-            ss => ss.Set<RootEntity>().Where(c => c.RequiredAssociate.String == "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }"),
+            ss => ss.Set<RootEntity>()
+                .Where(c => c.RequiredAssociate.String == "{ this may/look:like JSON but it [isn't]: ממש ממש לאéèéè }"),
             e => e,
             s => s.SetProperty(c => c.RequiredAssociate.String, c => "{ Some other/JSON:like text though it [isn't]: ממש ממש לאéèéè }"),
             rowsAffectedCount: 1);
@@ -112,7 +113,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             Int = 80,
             String = "Updated nested string",
             Ints = [1, 2, 3],
-
             RequiredNestedAssociate = new NestedAssociateType
             {
                 Id = 1000,
@@ -181,7 +181,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                     Int = 70,
                     String = "Updated associate string",
                     Ints = [1, 2, 4],
-
                     RequiredNestedAssociate = new NestedAssociateType
                     {
                         Id = 1000,
@@ -208,15 +207,24 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                     Name = "Updated associate name",
                     Int = 70,
                     String = "Updated associate string",
-                    Ints = new() { 1, 2, 4 },
-
+                    Ints = new()
+                    {
+                        1,
+                        2,
+                        4
+                    },
                     RequiredNestedAssociate = new NestedAssociateType
                     {
                         Id = 1000,
                         Name = "Updated nested name",
                         Int = 80,
                         String = "Updated nested string",
-                        Ints = new() { 1, 2, 4 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            4
+                        }
                     },
                     OptionalNestedAssociate = null,
                     NestedCollection = new List<NestedAssociateType>()
@@ -236,7 +244,12 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                     Name = "Updated nested name",
                     Int = 80,
                     String = "Updated nested string",
-                    Ints = new() { 1, 2, 4 }
+                    Ints = new()
+                    {
+                        1,
+                        2,
+                        4
+                    }
                 }),
             rowsAffectedCount: 7);
 
@@ -262,10 +275,10 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         var nullAssociate = (AssociateType?)null;
 
         return AssertUpdate(
-                ss => ss.Set<RootEntity>(),
-                c => c,
-                s => s.SetProperty(x => x.OptionalAssociate, nullAssociate),
-                rowsAffectedCount: 7);
+            ss => ss.Set<RootEntity>(),
+            c => c,
+            s => s.SetProperty(x => x.OptionalAssociate, nullAssociate),
+            rowsAffectedCount: 7);
     }
 
     [Fact]
@@ -305,7 +318,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 Int = 80,
                 String = "Updated associate string1",
                 Ints = [1, 2, 4],
-
                 RequiredNestedAssociate = new()
                 {
                     Id = 1000,
@@ -324,7 +336,6 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                 Int = 81,
                 String = "Updated associate string2",
                 Ints = [1, 2, 4],
-
                 RequiredNestedAssociate = new()
                 {
                     Id = 1001,
@@ -390,7 +401,12 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                         Name = "Updated nested name1",
                         Int = 80,
                         String = "Updated nested string1",
-                        Ints = new() { 1, 2, 4 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            4
+                        }
                     },
                     new()
                     {
@@ -398,7 +414,12 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
                         Name = "Updated nested name2",
                         Int = 81,
                         String = "Updated nested string2",
-                        Ints = new() { 1, 2, 4 }
+                        Ints = new()
+                        {
+                            1,
+                            2,
+                            4
+                        }
                     }
                 }),
             rowsAffectedCount: 7);
@@ -410,7 +431,7 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
             c => c,
             s => s.SetProperty(
                 e => e.RequiredAssociate.NestedCollection,
-                e => new List<NestedAssociateType> { e.RequiredAssociate.NestedCollection[1], e.RequiredAssociate.NestedCollection[0]}),
+                e => new List<NestedAssociateType> { e.RequiredAssociate.NestedCollection[1], e.RequiredAssociate.NestedCollection[0] }),
             rowsAffectedCount: 7);
 
     [Fact]
@@ -445,7 +466,13 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         => AssertUpdate(
             ss => ss.Set<RootEntity>(),
             c => c,
-            s => s.SetProperty(x => x.RequiredAssociate.Ints, x => new List<int> { 1, 2, 4 }),
+            s => s.SetProperty(
+                x => x.RequiredAssociate.Ints, x => new List<int>
+                {
+                    1,
+                    2,
+                    4
+                }),
             rowsAffectedCount: 7);
 
     [Fact]
@@ -468,7 +495,8 @@ public abstract class AssociationsBulkUpdateTestBase<TFixture>(TFixture fixture)
         await AssertUpdate(
             ss => ss.Set<RootEntity>(),
             c => c,
-            s => s.SetProperty(x => x.RequiredAssociate.OptionalNestedAssociate!.Ints, x => x.RequiredAssociate.RequiredNestedAssociate.Ints),
+            s => s.SetProperty(
+                x => x.RequiredAssociate.OptionalNestedAssociate!.Ints, x => x.RequiredAssociate.RequiredNestedAssociate.Ints),
             rowsAffectedCount: 7);
     }
 

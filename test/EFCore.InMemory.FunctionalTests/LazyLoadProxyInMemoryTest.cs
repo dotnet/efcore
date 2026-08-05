@@ -234,519 +234,519 @@ public class LazyLoadProxyInMemoryTest(LazyLoadProxyInMemoryTest.LoadInMemoryFix
 """;
 
     // TODO: Complex types on owned types, #33170
-//     protected override string SerializedBlogs2
-//         => """
-// {
-//   "$id": "1",
-//   "$values": [
-//     {
-//       "$id": "2",
-//       "Id": 1,
-//       "Writer": {
-//         "$id": "3",
-//         "FirstName": "firstNameWriter0",
-//         "LastName": "lastNameWriter0",
-//         "Alive": false,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Reader": {
-//         "$id": "4",
-//         "FirstName": "firstNameReader0",
-//         "LastName": "lastNameReader0",
-//         "Alive": false,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Host": {
-//         "$id": "5",
-//         "HostName": "127.0.0.1",
-//         "Rating": 0,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null
-//     },
-//     {
-//       "$id": "6",
-//       "Id": 2,
-//       "Writer": {
-//         "$id": "7",
-//         "FirstName": "firstNameWriter1",
-//         "LastName": "lastNameWriter1",
-//         "Alive": false,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Reader": {
-//         "$id": "8",
-//         "FirstName": "firstNameReader1",
-//         "LastName": "lastNameReader1",
-//         "Alive": false,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Host": {
-//         "$id": "9",
-//         "HostName": "127.0.0.2",
-//         "Rating": 0,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null
-//     },
-//     {
-//       "$id": "10",
-//       "Id": 3,
-//       "Writer": {
-//         "$id": "11",
-//         "FirstName": "firstNameWriter2",
-//         "LastName": "lastNameWriter2",
-//         "Alive": false,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Reader": {
-//         "$id": "12",
-//         "FirstName": "firstNameReader2",
-//         "LastName": "lastNameReader2",
-//         "Alive": false,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Host": {
-//         "$id": "13",
-//         "HostName": "127.0.0.3",
-//         "Rating": 0,
-//         "Culture": {
-//           "Species": null,
-//           "Subspecies": null,
-//           "Rating": 0,
-//           "Validation": null,
-//           "Manufacturer": null,
-//           "License": {
-//             "Title": null,
-//             "Charge": 0,
-//             "Tag": null,
-//             "Tog": {
-//               "Text": null
-//             }
-//           }
-//         },
-//         "Milk": null
-//       },
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null
-//     }
-//   ]
-// }
-// """;
+    //     protected override string SerializedBlogs2
+    //         => """
+    // {
+    //   "$id": "1",
+    //   "$values": [
+    //     {
+    //       "$id": "2",
+    //       "Id": 1,
+    //       "Writer": {
+    //         "$id": "3",
+    //         "FirstName": "firstNameWriter0",
+    //         "LastName": "lastNameWriter0",
+    //         "Alive": false,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Reader": {
+    //         "$id": "4",
+    //         "FirstName": "firstNameReader0",
+    //         "LastName": "lastNameReader0",
+    //         "Alive": false,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Host": {
+    //         "$id": "5",
+    //         "HostName": "127.0.0.1",
+    //         "Rating": 0,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null
+    //     },
+    //     {
+    //       "$id": "6",
+    //       "Id": 2,
+    //       "Writer": {
+    //         "$id": "7",
+    //         "FirstName": "firstNameWriter1",
+    //         "LastName": "lastNameWriter1",
+    //         "Alive": false,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Reader": {
+    //         "$id": "8",
+    //         "FirstName": "firstNameReader1",
+    //         "LastName": "lastNameReader1",
+    //         "Alive": false,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Host": {
+    //         "$id": "9",
+    //         "HostName": "127.0.0.2",
+    //         "Rating": 0,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null
+    //     },
+    //     {
+    //       "$id": "10",
+    //       "Id": 3,
+    //       "Writer": {
+    //         "$id": "11",
+    //         "FirstName": "firstNameWriter2",
+    //         "LastName": "lastNameWriter2",
+    //         "Alive": false,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Reader": {
+    //         "$id": "12",
+    //         "FirstName": "firstNameReader2",
+    //         "LastName": "lastNameReader2",
+    //         "Alive": false,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Host": {
+    //         "$id": "13",
+    //         "HostName": "127.0.0.3",
+    //         "Rating": 0,
+    //         "Culture": {
+    //           "Species": null,
+    //           "Subspecies": null,
+    //           "Rating": 0,
+    //           "Validation": null,
+    //           "Manufacturer": null,
+    //           "License": {
+    //             "Title": null,
+    //             "Charge": 0,
+    //             "Tag": null,
+    //             "Tog": {
+    //               "Text": null
+    //             }
+    //           }
+    //         },
+    //         "Milk": null
+    //       },
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null
+    //     }
+    //   ]
+    // }
+    // """;
 
     // TODO: Complex types on owned types, #33170
-//     protected override string SerializedBlogs1
-//         => """
-// [
-//   {
-//     "Writer": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "FirstName": "firstNameWriter0",
-//       "LastName": "lastNameWriter0",
-//       "Alive": false
-//     },
-//     "Reader": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "FirstName": "firstNameReader0",
-//       "LastName": "lastNameReader0",
-//       "Alive": false
-//     },
-//     "Host": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "HostName": "127.0.0.1",
-//       "Rating": 0.0
-//     },
-//     "Culture": {
-//       "Species": null,
-//       "Subspecies": null,
-//       "Rating": 0,
-//       "Validation": null,
-//       "Manufacturer": null,
-//       "License": {
-//         "Title": null,
-//         "Charge": 0.0,
-//         "Tag": null,
-//         "Tog": {
-//           "Text": null
-//         }
-//       }
-//     },
-//     "Milk": null,
-//     "Id": 1
-//   },
-//   {
-//     "Writer": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "FirstName": "firstNameWriter1",
-//       "LastName": "lastNameWriter1",
-//       "Alive": false
-//     },
-//     "Reader": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "FirstName": "firstNameReader1",
-//       "LastName": "lastNameReader1",
-//       "Alive": false
-//     },
-//     "Host": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "HostName": "127.0.0.2",
-//       "Rating": 0.0
-//     },
-//     "Culture": {
-//       "Species": null,
-//       "Subspecies": null,
-//       "Rating": 0,
-//       "Validation": null,
-//       "Manufacturer": null,
-//       "License": {
-//         "Title": null,
-//         "Charge": 0.0,
-//         "Tag": null,
-//         "Tog": {
-//           "Text": null
-//         }
-//       }
-//     },
-//     "Milk": null,
-//     "Id": 2
-//   },
-//   {
-//     "Writer": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "FirstName": "firstNameWriter2",
-//       "LastName": "lastNameWriter2",
-//       "Alive": false
-//     },
-//     "Reader": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "FirstName": "firstNameReader2",
-//       "LastName": "lastNameReader2",
-//       "Alive": false
-//     },
-//     "Host": {
-//       "Culture": {
-//         "Species": null,
-//         "Subspecies": null,
-//         "Rating": 0,
-//         "Validation": null,
-//         "Manufacturer": null,
-//         "License": {
-//           "Title": null,
-//           "Charge": 0.0,
-//           "Tag": null,
-//           "Tog": {
-//             "Text": null
-//           }
-//         }
-//       },
-//       "Milk": null,
-//       "HostName": "127.0.0.3",
-//       "Rating": 0.0
-//     },
-//     "Culture": {
-//       "Species": null,
-//       "Subspecies": null,
-//       "Rating": 0,
-//       "Validation": null,
-//       "Manufacturer": null,
-//       "License": {
-//         "Title": null,
-//         "Charge": 0.0,
-//         "Tag": null,
-//         "Tog": {
-//           "Text": null
-//         }
-//       }
-//     },
-//     "Milk": null,
-//     "Id": 3
-//   }
-// ]
-// """;
+    //     protected override string SerializedBlogs1
+    //         => """
+    // [
+    //   {
+    //     "Writer": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "FirstName": "firstNameWriter0",
+    //       "LastName": "lastNameWriter0",
+    //       "Alive": false
+    //     },
+    //     "Reader": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "FirstName": "firstNameReader0",
+    //       "LastName": "lastNameReader0",
+    //       "Alive": false
+    //     },
+    //     "Host": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "HostName": "127.0.0.1",
+    //       "Rating": 0.0
+    //     },
+    //     "Culture": {
+    //       "Species": null,
+    //       "Subspecies": null,
+    //       "Rating": 0,
+    //       "Validation": null,
+    //       "Manufacturer": null,
+    //       "License": {
+    //         "Title": null,
+    //         "Charge": 0.0,
+    //         "Tag": null,
+    //         "Tog": {
+    //           "Text": null
+    //         }
+    //       }
+    //     },
+    //     "Milk": null,
+    //     "Id": 1
+    //   },
+    //   {
+    //     "Writer": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "FirstName": "firstNameWriter1",
+    //       "LastName": "lastNameWriter1",
+    //       "Alive": false
+    //     },
+    //     "Reader": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "FirstName": "firstNameReader1",
+    //       "LastName": "lastNameReader1",
+    //       "Alive": false
+    //     },
+    //     "Host": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "HostName": "127.0.0.2",
+    //       "Rating": 0.0
+    //     },
+    //     "Culture": {
+    //       "Species": null,
+    //       "Subspecies": null,
+    //       "Rating": 0,
+    //       "Validation": null,
+    //       "Manufacturer": null,
+    //       "License": {
+    //         "Title": null,
+    //         "Charge": 0.0,
+    //         "Tag": null,
+    //         "Tog": {
+    //           "Text": null
+    //         }
+    //       }
+    //     },
+    //     "Milk": null,
+    //     "Id": 2
+    //   },
+    //   {
+    //     "Writer": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "FirstName": "firstNameWriter2",
+    //       "LastName": "lastNameWriter2",
+    //       "Alive": false
+    //     },
+    //     "Reader": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "FirstName": "firstNameReader2",
+    //       "LastName": "lastNameReader2",
+    //       "Alive": false
+    //     },
+    //     "Host": {
+    //       "Culture": {
+    //         "Species": null,
+    //         "Subspecies": null,
+    //         "Rating": 0,
+    //         "Validation": null,
+    //         "Manufacturer": null,
+    //         "License": {
+    //           "Title": null,
+    //           "Charge": 0.0,
+    //           "Tag": null,
+    //           "Tog": {
+    //             "Text": null
+    //           }
+    //         }
+    //       },
+    //       "Milk": null,
+    //       "HostName": "127.0.0.3",
+    //       "Rating": 0.0
+    //     },
+    //     "Culture": {
+    //       "Species": null,
+    //       "Subspecies": null,
+    //       "Rating": 0,
+    //       "Validation": null,
+    //       "Manufacturer": null,
+    //       "License": {
+    //         "Title": null,
+    //         "Charge": 0.0,
+    //         "Tag": null,
+    //         "Tog": {
+    //           "Text": null
+    //         }
+    //       }
+    //     },
+    //     "Milk": null,
+    //     "Id": 3
+    //   }
+    // ]
+    // """;
 
     public class LoadInMemoryFixture : LoadFixtureBase
     {

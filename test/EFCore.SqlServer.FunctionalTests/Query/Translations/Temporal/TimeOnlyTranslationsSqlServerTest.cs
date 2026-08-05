@@ -112,7 +112,7 @@ WHERE DATEADD(minute, CAST(3.0E0 AS int), [b].[TimeOnly]) = '15:33:10'
 
     public override async Task Add_TimeSpan()
     {
-        await AssertTranslationFailed(() => base.Add_TimeSpan());
+        await AssertTranslationFailed(base.Add_TimeSpan);
 
         AssertSql();
     }
@@ -137,7 +137,7 @@ END = CAST(1 AS bit)
 
     public override async Task Subtract()
     {
-        await AssertTranslationFailed(() => base.Subtract());
+        await AssertTranslationFailed(base.Subtract);
 
         AssertSql();
     }

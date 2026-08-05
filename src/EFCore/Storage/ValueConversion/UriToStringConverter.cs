@@ -51,6 +51,7 @@ public class UriToStringConverter : StringUriConverter<Uri?, string?>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Uri), typeof(string),
+        = new(
+            typeof(Uri), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new UriToStringConverter(i.MappingHints));
 }

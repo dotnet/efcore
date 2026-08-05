@@ -600,12 +600,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (property.DeclaringType is IEntityType)
         {
-            if (property is IComplexProperty)
-            {
-                return (RuntimePropertyBase)runtimeEntityType.FindComplexProperty(property.Name)!;
-            }
-
-            return runtimeEntityType.FindProperty(property.Name)!;
+            return property is IComplexProperty
+                ? runtimeEntityType.FindComplexProperty(property.Name)!
+                : runtimeEntityType.FindProperty(property.Name)!;
         }
 
         // Build the chain of complex property names from entity down to the property's declaring type.
@@ -623,12 +620,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             currentType = currentType.FindComplexProperty(complexPropertyName)!.ComplexType;
         }
 
-        if (property is IComplexProperty)
-        {
-            return (RuntimePropertyBase)currentType.FindComplexProperty(property.Name)!;
-        }
-
-        return (RuntimePropertyBase)currentType.FindProperty(property.Name)!;
+        return property is IComplexProperty
+            ? (RuntimePropertyBase)currentType.FindComplexProperty(property.Name)!
+            : (RuntimePropertyBase)currentType.FindProperty(property.Name)!;
     }
 
     /// <summary>

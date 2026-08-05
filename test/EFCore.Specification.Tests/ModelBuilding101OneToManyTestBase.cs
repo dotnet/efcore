@@ -20,7 +20,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -76,7 +76,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -107,7 +107,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -163,7 +163,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -194,7 +194,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -253,7 +253,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
 
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -278,7 +278,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -306,7 +306,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -361,7 +361,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -389,7 +389,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -444,7 +444,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -470,7 +470,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -525,7 +525,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -551,7 +551,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -603,7 +603,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -632,7 +632,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -686,7 +686,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [ForeignKey("BlogId")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1278,7 +1278,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1348,7 +1348,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             [Index(nameof(BlogId))]
@@ -1400,7 +1400,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1455,7 +1455,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1493,7 +1493,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1546,7 +1546,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id { get; set; }
                 public int AlternateId { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1578,7 +1578,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1613,7 +1613,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1667,7 +1667,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int AlternateId { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1702,7 +1702,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1777,7 +1777,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1804,7 +1804,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1835,7 +1835,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -1909,7 +1909,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1936,7 +1936,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -1967,7 +1967,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -2048,7 +2048,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2075,7 +2075,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2104,7 +2104,7 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -2176,7 +2176,7 @@ public abstract partial class ModelBuilding101TestBase
             {
                 public int Id1 { get; set; }
                 public int Id2 { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2201,7 +2201,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id2 { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2232,7 +2232,7 @@ public abstract partial class ModelBuilding101TestBase
 
             public int? ManagerId { get; set; }
             public Employee Manager { get; set; }
-            public ICollection<Employee> Reports { get; } = new List<Employee>();
+            public ICollection<Employee> Reports { get; } = [];
         }
 
         public class Context0 : Context101
@@ -2273,7 +2273,7 @@ public abstract partial class ModelBuilding101TestBase
                 public Employee Manager { get; set; }
 
                 [InverseProperty("Manager")]
-                public ICollection<Employee> Reports { get; } = new List<Employee>();
+                public ICollection<Employee> Reports { get; } = [];
             }
 
             public DbSet<Employee> Employees
@@ -2290,7 +2290,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Blog
         {
             public int Id { get; set; }
-            public ICollection<Post> Posts { get; } = new List<Post>();
+            public ICollection<Post> Posts { get; } = [];
         }
 
         public class Post
@@ -2344,7 +2344,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post
@@ -2370,7 +2370,7 @@ public abstract partial class ModelBuilding101TestBase
                 public int Id { get; set; }
 
                 [InverseProperty("Blog")]
-                public ICollection<Post> Posts { get; } = new List<Post>();
+                public ICollection<Post> Posts { get; } = [];
             }
 
             public class Post

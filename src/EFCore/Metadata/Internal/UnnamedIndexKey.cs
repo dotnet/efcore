@@ -177,7 +177,7 @@ public readonly struct UnnamedIndexKey : IEquatable<UnnamedIndexKey>
         {
             var a = x[i];
             var b = y[i];
-            if (a is null != b is null)
+            if ((a is null) != (b is null))
             {
                 return a is null ? -1 : 1;
             }
@@ -203,12 +203,7 @@ public readonly struct UnnamedIndexKey : IEquatable<UnnamedIndexKey>
         public int Compare(UnnamedIndexKey x, UnnamedIndexKey y)
         {
             var result = PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
-            if (result != 0)
-            {
-                return result;
-            }
-
-            return CompareCollectionIndices(x.CollectionIndices, y.CollectionIndices);
+            return result != 0 ? result : CompareCollectionIndices(x.CollectionIndices, y.CollectionIndices);
         }
     }
 }

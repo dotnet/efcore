@@ -371,7 +371,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IC
             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
 
         var results1 = async ? await query1.ToListAsync() : query1.ToList();
-        var results2 = (async ? await query2.ToListAsync() : query2.ToList());
+        var results2 = async ? await query2.ToListAsync() : query2.ToList();
 
         var actual = (from a in results1
                       from b in results2

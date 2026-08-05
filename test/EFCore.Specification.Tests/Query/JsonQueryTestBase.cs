@@ -141,7 +141,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                x.Id, x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
+                x.Id,
+                x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -156,7 +157,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityCustomNaming>().Select(x => new
             {
-                x.Id, x.OwnedReferenceRoot.Enum,
+                x.Id,
+                x.OwnedReferenceRoot.Enum,
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -882,10 +884,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => x.OwnedCollectionRoot.Where(xx => xx.Name != "Foo").ToList())
                 .AsNoTracking(),
             assertOrder: true,
-            elementAsserter: (e, a) =>
-            {
-                AssertCollection(e, a, ordered: true, elementAsserter: (ee, aa) => AssertEqual(ee, aa));
-            });
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true, elementAsserter: (ee, aa) => AssertEqual(ee, aa)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_nested_collection_filter_in_projection(bool async)
@@ -962,19 +961,16 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                     }).ToList())
                 .AsNoTracking(),
             assertOrder: true,
-            elementAsserter: (e, a) =>
-            {
-                AssertCollection(
-                    e, a, ordered: true, elementAsserter: (ee, aa) =>
-                    {
-                        AssertEqual(ee.Name, aa.Name);
-                        AssertCollection(ee.Names, aa.Names, ordered: true);
-                        AssertEqual(ee.Number, aa.Number);
-                        AssertCollection(ee.Numbers, aa.Numbers, ordered: true);
-                        AssertCollection(ee.OwnedCollectionBranch, aa.OwnedCollectionBranch, ordered: true);
-                        AssertEqual(ee.OwnedReferenceBranch, aa.OwnedReferenceBranch);
-                    });
-            });
+            elementAsserter: (e, a) => AssertCollection(
+                e, a, ordered: true, elementAsserter: (ee, aa) =>
+                {
+                    AssertEqual(ee.Name, aa.Name);
+                    AssertCollection(ee.Names, aa.Names, ordered: true);
+                    AssertEqual(ee.Number, aa.Number);
+                    AssertCollection(ee.Numbers, aa.Numbers, ordered: true);
+                    AssertCollection(ee.OwnedCollectionBranch, aa.OwnedCollectionBranch, ordered: true);
+                    AssertEqual(ee.OwnedReferenceBranch, aa.OwnedReferenceBranch);
+                }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(bool async)
@@ -1058,7 +1054,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .OrderBy(x => x.Id)
                 .Select(x => new
                 {
-                    First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(), Second = x.EntityCollection.ToList()
+                    First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(),
+                    Second = x.EntityCollection.ToList()
                 })
                 .AsNoTracking(),
             assertOrder: true,
@@ -1130,7 +1127,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                x.Id, CollectionElement = x.OwnedCollectionRoot[prm].OwnedCollectionBranch.Select(xx => "Foo").ElementAt(0)
+                x.Id,
+                CollectionElement = x.OwnedCollectionRoot[prm].OwnedCollectionBranch.Select(xx => "Foo").ElementAt(0)
             }));
     }
 
@@ -1181,10 +1179,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().AsNoTracking().OrderBy(x => x.Id).Select(x =>
                 x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)),
             assertOrder: true,
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch);
-            });
+            elementAsserter: (e, a) => AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_collection_Select_entity_with_initializer_ElementAt(bool async)
@@ -1388,7 +1383,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                x, CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
+                x,
+                CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
             }).AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
@@ -1407,7 +1403,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                x.Id, CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
+                x.Id,
+                CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
             }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -2232,7 +2229,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                x.Id, Element = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                x.Id,
+                Element = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
             }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -2253,7 +2251,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                x.Id, Element = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[prm2],
+                x.Id,
+                Element = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[prm2],
             }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>

@@ -75,7 +75,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (PropertyBuilder<TProperty>)UseHiLo((PropertyBuilder)propertyBuilder, name, schema);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseHiLo(name, schema);
 
     /// <summary>
     ///     Configures the database sequence used for the hi-lo pattern to generate values for the key property,
@@ -188,7 +188,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? name = null,
         string? schema = null)
-        => (PropertyBuilder<TProperty>)UseSequence((PropertyBuilder)propertyBuilder, name, schema);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseSequence(name, schema);
 
     /// <summary>
     ///     Configures the database sequence used for the key value generation pattern to generate values for the key property,
@@ -342,7 +342,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         long seed = 1,
         int increment = 1)
-        => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, seed, increment);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseIdentityColumn(seed, increment);
 
     /// <summary>
     ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
@@ -362,7 +362,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         int seed,
         int increment = 1)
-        => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, (long)seed, increment);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).UseIdentityColumn((long)seed, increment);
 
     /// <summary>
     ///     Configures the key column to use the SQL Server IDENTITY feature to generate values for new entities,
@@ -382,7 +382,7 @@ public static class SqlServerPropertyBuilderExtensions
         this ColumnBuilder<TProperty> columnBuilder,
         long seed = 1,
         int increment = 1)
-        => (ColumnBuilder<TProperty>)UseIdentityColumn((ColumnBuilder)columnBuilder, seed, increment);
+        => (ColumnBuilder<TProperty>)((ColumnBuilder)columnBuilder).UseIdentityColumn(seed, increment);
 
     /// <summary>
     ///     Configures the seed for SQL Server IDENTITY.
@@ -759,7 +759,7 @@ public static class SqlServerPropertyBuilderExtensions
     public static PropertyBuilder<TProperty> IsSparse<TProperty>(
         this PropertyBuilder<TProperty> propertyBuilder,
         bool sparse = true)
-        => (PropertyBuilder<TProperty>)IsSparse((PropertyBuilder)propertyBuilder, sparse);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).IsSparse(sparse);
 
     /// <summary>
     ///     Configures whether the property's column is created as sparse when targeting SQL Server.
@@ -900,7 +900,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         object? value,
         string defaultConstraintName)
-        => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value, defaultConstraintName);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValue(value, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps to when targeting SQL Server.
@@ -1003,7 +1003,7 @@ public static class SqlServerPropertyBuilderExtensions
         this PropertyBuilder<TProperty> propertyBuilder,
         string? sql,
         string defaultConstraintName)
-        => (PropertyBuilder<TProperty>)HasDefaultValueSql((PropertyBuilder)propertyBuilder, sql, defaultConstraintName);
+        => (PropertyBuilder<TProperty>)((PropertyBuilder)propertyBuilder).HasDefaultValueSql(sql, defaultConstraintName);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting SQL Server.

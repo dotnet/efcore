@@ -90,8 +90,7 @@ public class RelationalParameterBuilderTest
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",
-            new List<IRelationalParameter>
-            {
+            [
                 new TypeMappedRelationalParameter(
                     "FirstInvariant",
                     "FirstName",
@@ -102,7 +101,7 @@ public class RelationalParameterBuilderTest
                     "SecondName",
                     new StringTypeMapping("nvarchar(max)", DbType.String),
                     nullable: true)
-            });
+            ]);
 
         Assert.Equal(1, parameterBuilder.Parameters.Count);
 
@@ -128,7 +127,7 @@ public class RelationalParameterBuilderTest
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",
-            new List<IRelationalParameter>());
+            []);
 
         Assert.Equal(0, parameterBuilder.Parameters.Count);
     }

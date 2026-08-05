@@ -282,49 +282,37 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     <[DynamicallyAccessedMembers(
             DynamicallyAccessedMemberTypes.PublicMethods
             | DynamicallyAccessedMemberTypes.PublicProperties)]
-        T>(bool favorStructuralComparisons)
+    T>(bool favorStructuralComparisons)
     {
         var nonNullableType = typeof(T).UnwrapNullableType();
 
         // The equality operator returns false for NaNs, but the Equals methods returns true
-        if (nonNullableType == typeof(double))
-        {
-            return favorStructuralComparisons
+        return nonNullableType == typeof(double)
+            ? favorStructuralComparisons
                 ? DefaultDoubleValueComparer.DefaultWithStructuralComparisons
-                : DefaultDoubleValueComparer.Default;
-        }
-
-        if (nonNullableType == typeof(float))
-        {
-            return favorStructuralComparisons
-                ? DefaultFloatValueComparer.DefaultWithStructuralComparisons
-                : DefaultFloatValueComparer.Default;
-        }
-
-        if (nonNullableType == typeof(DateTimeOffset))
-        {
-            return favorStructuralComparisons
-                ? DefaultDateTimeOffsetValueComparer.DefaultWithStructuralComparisons
-                : DefaultDateTimeOffsetValueComparer.Default;
-        }
-
-        if (nonNullableType.IsInteger()
-            || nonNullableType == typeof(decimal)
-            || nonNullableType == typeof(bool)
-            || nonNullableType == typeof(string)
-            || nonNullableType == typeof(DateTime)
-            || nonNullableType == typeof(DateOnly)
-            || nonNullableType == typeof(Guid)
-            || nonNullableType == typeof(TimeSpan)
-            || nonNullableType == typeof(TimeOnly))
-        {
-            return favorStructuralComparisons
-                ? DefaultValueComparer<T>.DefaultWithStructuralComparisons
-                : DefaultValueComparer<T>.Default;
-        }
-
-        return favorStructuralComparisons
-            ? ValueComparer<T>.DefaultWithStructuralComparisons
-            : ValueComparer<T>.Default;
+                : DefaultDoubleValueComparer.Default
+            : nonNullableType == typeof(float)
+                ? favorStructuralComparisons
+                    ? DefaultFloatValueComparer.DefaultWithStructuralComparisons
+                    : DefaultFloatValueComparer.Default
+                : nonNullableType == typeof(DateTimeOffset)
+                    ? favorStructuralComparisons
+                        ? DefaultDateTimeOffsetValueComparer.DefaultWithStructuralComparisons
+                        : DefaultDateTimeOffsetValueComparer.Default
+                    : nonNullableType.IsInteger()
+                    || nonNullableType == typeof(decimal)
+                    || nonNullableType == typeof(bool)
+                    || nonNullableType == typeof(string)
+                    || nonNullableType == typeof(DateTime)
+                    || nonNullableType == typeof(DateOnly)
+                    || nonNullableType == typeof(Guid)
+                    || nonNullableType == typeof(TimeSpan)
+                    || nonNullableType == typeof(TimeOnly)
+                        ? favorStructuralComparisons
+                            ? DefaultValueComparer<T>.DefaultWithStructuralComparisons
+                            : DefaultValueComparer<T>.Default
+                        : favorStructuralComparisons
+                            ? ValueComparer<T>.DefaultWithStructuralComparisons
+                            : ValueComparer<T>.Default;
     }
 }

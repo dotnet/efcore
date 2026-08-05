@@ -175,10 +175,7 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             ss => ss.Set<Country>()
                 .OrderBy(c => c.Name)
                 .Include(c => c.Animals),
-            elementAsserter: (e, a) =>
-            {
-                AssertInclude(e, a, new ExpectedInclude<Country>(x => x.Animals));
-            });
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Country>(x => x.Animals)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_include_prey(bool async)
@@ -186,10 +183,7 @@ public abstract class InheritanceQueryTestBase<TFixture>(TFixture fixture) : Que
             async,
             ss => ss.Set<Eagle>()
                 .Include(e => e.Prey),
-            asserter: (e, a) =>
-            {
-                AssertInclude(e, a, new ExpectedInclude<Eagle>(x => x.Prey));
-            });
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Eagle>(x => x.Prey)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_use_of_type_kiwi_where_south_on_derived_property(bool async)

@@ -3928,7 +3928,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+            Assert.DoesNotContain(
+                serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
         }
 
         [Fact]
@@ -3946,12 +3947,14 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+            Assert.DoesNotContain(
+                serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
 
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContextWithOC3A));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContextWithOC3A>));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions));
-            Assert.Contains(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContextWithOC3A>));
+            Assert.Contains(
+                serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContextWithOC3A>));
         }
 
         [Fact]
@@ -3970,7 +3973,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.Contains(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+            Assert.DoesNotContain(
+                serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
         }
 
         [Fact]
@@ -4016,7 +4020,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+            Assert.DoesNotContain(
+                serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextFactory<ConstructorTestContext1A>));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextPool<ConstructorTestContext1A>));
         }
@@ -4039,7 +4044,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(ConstructorTestContext1A));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(DbContextOptions<ConstructorTestContext1A>));
-            Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
+            Assert.DoesNotContain(
+                serviceCollection, d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ConstructorTestContext1A>));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IDbContextPool<ConstructorTestContext1A>));
             Assert.DoesNotContain(serviceCollection, d => d.ServiceType == typeof(IScopedDbContextLease<ConstructorTestContext1A>));
         }

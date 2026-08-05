@@ -318,7 +318,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
         }
 
-        if (!deleting && _entries.Any(e => e.EntityType is { } entityType
+        if (!deleting
+            && _entries.Any(e => e.EntityType is { } entityType
                 && (entityType.IsMappedToJson()
                     || entityType.GetFlattenedComplexProperties().Any(cp => cp.ComplexType.IsMappedToJson())
                     || entityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))))
@@ -612,7 +613,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         static List<JsonPartialUpdatePathEntry>? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
         {
             var result = new List<JsonPartialUpdatePathEntry>();
-            IUpdateEntry? currentEntry = entry;
+            var currentEntry = entry;
             var currentOwnership = currentEntry.EntityType.FindOwnership()!;
 
             while (currentEntry is not null && currentEntry.EntityType.IsMappedToJson())
@@ -666,12 +667,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             }
 
             // parent entity got deleted, no need to do any json-specific processing
-            if (currentEntry?.EntityState == EntityState.Deleted)
-            {
-                return null;
-            }
-
-            return result;
+            return currentEntry?.EntityState == EntityState.Deleted ? null : result;
         }
 
         static List<JsonPartialUpdatePathEntry> FindCommonJsonPartialUpdateInfo(
@@ -836,7 +832,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         write: true,
                         key: false,
                         condition: false,
-                        _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName };
+                        _sensitiveLoggingEnabled)
+                    { GenerateParameterName = _generateParameterName };
 
                     ProcessSinglePropertyJsonUpdate(ref columnModificationParameters);
 
@@ -899,7 +896,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 write: true,
                                 key: false,
                                 condition: false,
-                                _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName }));
+                                _sensitiveLoggingEnabled)
+                            { GenerateParameterName = _generateParameterName }));
                 }
             }
         }
@@ -1016,7 +1014,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     entry.SetStoreGeneratedValue(property, ordinal.Value + 1, setModified: false);
-#pragma warning disable EF1001 // Internal EF Core API usage.
                 }
 
                 continue;
@@ -1026,7 +1023,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var jsonPropertyName = property.GetJsonPropertyName()!;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var propertyValue = entry.GetCurrentValue(property);
-#pragma warning disable EF1001 // Internal EF Core API usage.
             writer.WritePropertyName(jsonPropertyName);
 
             var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
@@ -1046,7 +1042,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var jsonPropertyName = complexProperty.GetJsonPropertyName()!;
 #pragma warning disable EF1001 // Internal EF Core API usage.
             var complexPropertyValue = entry.GetCurrentValue(complexProperty);
-#pragma warning disable EF1001 // Internal EF Core API usage.
             writer.WritePropertyName(jsonPropertyName);
 
             WriteJson(
@@ -1072,8 +1067,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
 #pragma warning disable EF1001 // Internal EF Core API usage.
                 var ownedNavigationValue = entry.GetCurrentValue(navigation)!;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-
                 writer.WritePropertyName(jsonPropertyName);
                 WriteJson(
                     writer,

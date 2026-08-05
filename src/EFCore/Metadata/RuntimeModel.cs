@@ -33,7 +33,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     private readonly bool _skipDetectChanges;
     private readonly Guid _modelId;
     private readonly Dictionary<string, RuntimeEntityType> _entityTypes;
-    private readonly Dictionary<Type, List<RuntimeEntityType>> _sharedTypes = new();
+    private readonly Dictionary<Type, List<RuntimeEntityType>> _sharedTypes = [];
     private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations;
 
     private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();

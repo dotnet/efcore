@@ -105,8 +105,8 @@ public class DbContextOperations
         if (contextType == "*")
         {
             var anyContext = false;
-            
-            foreach(var contextItem in CreateAllContexts())
+
+            foreach (var contextItem in CreateAllContexts())
             {
                 anyContext = true;
                 using (contextItem)
@@ -124,7 +124,7 @@ public class DbContextOperations
         }
 
         using var context = CreateContext(contextType);
-         DropDatabaseContext(context, connectionString);
+        DropDatabaseContext(context, connectionString);
     }
 
     private void DropDatabaseContext(DbContext context, string? connectionString)
@@ -333,7 +333,7 @@ public class DbContextOperations
         // TODO: pass through properties
         MSBuildWorkspace workspace = null!;
         Project project;
-        
+
         try
         {
             // Set _EFGenerationStage to a non-empty value so that the design-time build performed by
@@ -341,22 +341,20 @@ public class DbContextOperations
             // generation targets would invoke this operation again, resulting in a fork bomb.
             workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["_EFGenerationStage"] = "build" });
             workspace.LoadMetadataForReferencedProjects = true;
-#pragma warning disable CS0612 // Obsolete
 #pragma warning disable CS0618 // Obsolete
-            workspace.WorkspaceFailed += (_, e) =>
-            {
-                _reporter.WriteError(DesignStrings.MSBuildWorkspaceFailure(e.Diagnostic.Kind, e.Diagnostic.Message));
-            };
+            workspace.WorkspaceFailed += (_, e)
+                => _reporter.WriteError(DesignStrings.MSBuildWorkspaceFailure(e.Diagnostic.Kind, e.Diagnostic.Message));
 #pragma warning restore CS0618 // Obsolete
-#pragma warning restore CS0612 // Obsolete
             project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
             if (workspace != null && !workspace.Diagnostics.IsEmpty)
             {
-                var diagnosticMessages = Environment.NewLine + string.Join(Environment.NewLine, 
-                    workspace.Diagnostics.Select(d => $"  {d.Kind}: {d.Message}"));
+                var diagnosticMessages = Environment.NewLine
+                    + string.Join(
+                        Environment.NewLine,
+                        workspace.Diagnostics.Select(d => $"  {d.Kind}: {d.Message}"));
                 _reporter.WriteVerbose(DesignStrings.MSBuildWorkspaceDiagnostics(diagnosticMessages));
             }
 
@@ -459,12 +457,12 @@ public class DbContextOperations
         }
 
         using var context = CreateContext(contextType);
-        
+
         if (connectionString != null)
         {
             context.Database.SetConnectionString(connectionString);
         }
-        
+
         var info = new ContextInfo { Type = context.GetType().FullName! };
 
         var provider = context.GetService<IDatabaseProvider>();

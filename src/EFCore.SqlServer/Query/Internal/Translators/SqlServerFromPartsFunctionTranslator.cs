@@ -48,17 +48,14 @@ public class SqlServerFromPartsFunctionTranslator(
             _ => (null, null)
         };
 
-        if (functionName is null)
-        {
-            return null;
-        }
-
-        return _sqlExpressionFactory.Function(
-            functionName,
-            arguments.Skip(1),
-            nullable: true,
-            argumentsPropagateNullability: arguments.Skip(1).Select(_ => true),
-            method.ReturnType,
-            _typeMappingSource.FindMapping(method.ReturnType, returnType));
+        return functionName is null
+            ? null
+            : _sqlExpressionFactory.Function(
+                functionName,
+                arguments.Skip(1),
+                nullable: true,
+                argumentsPropagateNullability: arguments.Skip(1).Select(_ => true),
+                method.ReturnType,
+                _typeMappingSource.FindMapping(method.ReturnType, returnType));
     }
 }

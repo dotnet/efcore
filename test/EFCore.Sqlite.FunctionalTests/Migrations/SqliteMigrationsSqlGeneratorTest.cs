@@ -294,13 +294,13 @@ SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
 
     public override void AddForeignKeyOperation_without_principal_columns()
     {
-        var ex = Assert.Throws<NotSupportedException>(() => base.AddForeignKeyOperation_without_principal_columns());
+        var ex = Assert.Throws<NotSupportedException>(base.AddForeignKeyOperation_without_principal_columns);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AddForeignKeyOperation)), ex.Message);
     }
 
     public override void AlterColumnOperation_without_column_type()
     {
-        var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation_without_column_type());
+        var ex = Assert.Throws<NotSupportedException>(base.AlterColumnOperation_without_column_type);
         Assert.Equal(SqliteStrings.InvalidMigrationOperation(nameof(AlterColumnOperation)), ex.Message);
     }
 
@@ -1057,12 +1057,9 @@ CREATE INDEX "IX_Blog_Name" ON "Blog" ("Name");
                     x.Property<string>("Name");
                     x.Property<Geometry>("Position").HasColumnType("GEOMETRY").HasSrid(4326);
                 }),
-            migrationBuilder =>
-            {
-                migrationBuilder.DropColumn(
-                    name: "Name",
-                    table: "Blog");
-            });
+            migrationBuilder => migrationBuilder.DropColumn(
+                name: "Name",
+                table: "Blog"));
 
         AssertSql(
             """

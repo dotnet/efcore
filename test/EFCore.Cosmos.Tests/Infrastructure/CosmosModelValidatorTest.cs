@@ -364,11 +364,8 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(ob => ob.OwnsOne(
-            o => o.OrderDetails, b =>
-            {
-                b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
-                    .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
-            }));
+            o => o.OrderDetails, b => b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
+                .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName)));
 
         modelBuilder.Model
             .GetEntityTypes()
@@ -394,10 +391,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Passes_on_composite_index_with_descending()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasIndex(e => new { e.Name, e.OtherName }).IsDescending(false, true);
-        });
+        modelBuilder.Entity<Customer>(b => b.HasIndex(e => new { e.Name, e.OtherName }).IsDescending(false, true));
 
         Validate(modelBuilder);
     }
@@ -406,10 +400,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Passes_on_single_property_index()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasIndex(e => e.Name);
-        });
+        modelBuilder.Entity<Customer>(b => b.HasIndex(e => e.Name));
 
         Validate(modelBuilder);
     }
@@ -418,12 +409,9 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Passes_on_global_indexing_with_exceptions()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasAutomaticIndexing()
-                .Except("/Notes/?")
-                .Except("/OtherName/?");
-        });
+        modelBuilder.Entity<Customer>(b => b.HasAutomaticIndexing()
+            .Except("/Notes/?")
+            .Except("/OtherName/?"));
 
         Validate(modelBuilder);
     }
@@ -527,13 +515,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_index_on_owned_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<EntityWithOwnedIndexed>(b =>
-        {
-            b.OwnsOne(e => e.Owned, ob =>
-            {
-                ob.HasIndex(o => o.Note);
-            });
-        });
+        modelBuilder.Entity<EntityWithOwnedIndexed>(b => b.OwnsOne(e => e.Owned, ob => ob.HasIndex(o => o.Note)));
 
         VerifyError(
             CosmosStrings.IndexOnOwnedType(
@@ -606,7 +588,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<SpecialCustomer>(b => b.HasBaseType<Customer>());
 
-        var derived = (IMutableEntityType)modelBuilder.Model.FindEntityType(typeof(SpecialCustomer))!;
+        var derived = modelBuilder.Model.FindEntityType(typeof(SpecialCustomer))!;
         var rootName = derived.GetRootType().DisplayName();
 
         derived.SetAutomaticIndexingEnabled(false);
@@ -621,11 +603,12 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithOwnedVector>(b =>
-            b.OwnsOne(e => e.Owned, ob =>
-            {
-                ob.HasIndex(o => o.Vector).IsVectorIndex(VectorIndexType.Flat);
-                ob.Property(o => o.Vector).IsVectorProperty(DistanceFunction.Cosine, 8);
-            }));
+            b.OwnsOne(
+                e => e.Owned, ob =>
+                {
+                    ob.HasIndex(o => o.Vector).IsVectorIndex(VectorIndexType.Flat);
+                    ob.Property(o => o.Vector).IsVectorProperty(DistanceFunction.Cosine, 8);
+                }));
 
         Validate(modelBuilder);
     }
@@ -721,10 +704,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_full_text_index_without_full_text_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasIndex(e => e.Name).IsFullTextIndex();
-        });
+        modelBuilder.Entity<Customer>(b => b.HasIndex(e => e.Name).IsFullTextIndex());
 
         VerifyError(
             CosmosStrings.FullTextIndexOnNonFullTextProperty(
@@ -738,10 +718,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_vector_index_on_non_vector_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>(b =>
-        {
-            b.HasIndex(e => e.Name).IsVectorIndex(VectorIndexType.Flat);
-        });
+        modelBuilder.Entity<Customer>(b => b.HasIndex(e => e.Name).IsVectorIndex(VectorIndexType.Flat));
 
         VerifyError(CosmosStrings.VectorIndexOnNonVector(nameof(Customer), "Name"), modelBuilder);
     }
@@ -750,10 +727,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_vector_property_with_unknown_data_type()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<NonVector>(b =>
-        {
-            b.Property(e => e.Vector).IsVectorProperty(DistanceFunction.Cosine, dimensions: 10);
-        });
+        modelBuilder.Entity<NonVector>(b => b.Property(e => e.Vector).IsVectorProperty(DistanceFunction.Cosine, dimensions: 10));
 
         VerifyError(CosmosStrings.BadVectorDataType("double[]"), modelBuilder);
     }
@@ -794,10 +768,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_complex_type_collection()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<EntityWithComplexTypeCollection>(b =>
-        {
-            b.ComplexCollection(e => e.ComplexTypes);
-        });
+        modelBuilder.Entity<EntityWithComplexTypeCollection>(b => b.ComplexCollection(e => e.ComplexTypes));
 
         Validate(modelBuilder);
     }
@@ -819,10 +790,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithVectorInComplexType>(b =>
         {
-            b.ComplexProperty(e => e.Details, cb =>
-            {
-                cb.Property(d => d.Embedding);
-            });
+            b.ComplexProperty(e => e.Details, cb => cb.Property(d => d.Embedding));
             b.HasIndex("Details.Embedding").IsVectorIndex(VectorIndexType.Flat);
         });
 
@@ -852,10 +820,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithVectorsInComplexCollection>(b =>
         {
-            b.ComplexCollection(e => e.Items, cb =>
-            {
-                cb.Property(d => d.Embedding);
-            });
+            b.ComplexCollection(e => e.Items, cb => cb.Property(d => d.Embedding));
             b.HasIndex("Items[].Embedding").IsVectorIndex(VectorIndexType.Flat);
         });
 
@@ -874,10 +839,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
         {
-            b.ComplexCollection(e => e.Items, cb =>
-            {
-                cb.Property(d => d.Description);
-            });
+            b.ComplexCollection(e => e.Items, cb => cb.Property(d => d.Description));
             b.HasIndex("Items[].Description").IsFullTextIndex();
         });
 
@@ -894,10 +856,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
         {
-            b.ComplexCollection(e => e.Items, cb =>
-            {
-                cb.Property(d => d.Description);
-            });
+            b.ComplexCollection(e => e.Items, cb => cb.Property(d => d.Description));
             b.HasIndex("Items[].Description", "Id");
         });
 
@@ -910,10 +869,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
         {
-            b.ComplexCollection(e => e.Items, cb =>
-            {
-                cb.Property(d => d.Description);
-            });
+            b.ComplexCollection(e => e.Items, cb => cb.Property(d => d.Description));
             b.HasIndex("Items[].Description").IsVectorIndex(VectorIndexType.Flat);
         });
 
@@ -928,10 +884,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<EntityWithStringsInComplexCollection>(b =>
         {
-            b.ComplexCollection(e => e.Items, cb =>
-            {
-                cb.Property(d => d.Description);
-            });
+            b.ComplexCollection(e => e.Items, cb => cb.Property(d => d.Description));
             b.HasIndex("Items[].Description").IsFullTextIndex();
         });
 
@@ -1016,12 +969,11 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Customer>(
-            eb =>
-            {
-                eb.Property(e => e.Name);
-                eb.Property(e => e.PartitionId);
-            });
+        modelBuilder.Entity<Customer>(eb =>
+        {
+            eb.Property(e => e.Name);
+            eb.Property(e => e.PartitionId);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(Customer))!.FindProperty(nameof(Customer.Name))!;

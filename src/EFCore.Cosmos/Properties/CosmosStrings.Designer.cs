@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("WithPartitionKeyAlreadyCalled");
 
         /// <summary>
-        ///     'WithPartitionKey' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.
+        ///     'WithPartitionKey' can only be called on an entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.
         /// </summary>
         public static string WithPartitionKeyBadNode
             => GetString("WithPartitionKeyBadNode");

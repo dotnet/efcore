@@ -189,7 +189,7 @@ WHERE CONVERT(time, [b].[DateTime]) = '00:00:00'
     }
 
     public override Task subtract_and_TotalDays()
-        => AssertTranslationFailed(() => base.subtract_and_TotalDays());
+        => AssertTranslationFailed(base.subtract_and_TotalDays);
 
     public override async Task Parse_with_constant()
     {
@@ -246,8 +246,7 @@ WHERE [b].[DateTime] = @p
     [Fact]
     public virtual async Task Now_has_proper_type_mapping_for_constant_comparison()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(x => DateTime.Now > new DateTime(2025, 1, 1)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => DateTime.Now > new DateTime(2025, 1, 1)));
 
         AssertSql(
             """
@@ -260,8 +259,7 @@ WHERE GETDATE() > '2025-01-01T00:00:00.000'
     [Fact]
     public virtual async Task UtcNow_has_proper_type_mapping_for_constant_comparison()
     {
-        await AssertQuery(
-            ss => ss.Set<BasicTypesEntity>().Where(x => DateTime.UtcNow > new DateTime(2025, 1, 1)));
+        await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(x => DateTime.UtcNow > new DateTime(2025, 1, 1)));
 
         AssertSql(
             """
@@ -290,8 +288,8 @@ FROM [BasicTypesEntities] AS [b]
     {
         await AssertQueryScalar(
             actualQuery: ss => ss.Set<BasicTypesEntity>().Select(b => EF.Functions.DateTrunc("hour", b.DateTime)),
-            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(
-                b => new DateTime(b.DateTime.Year, b.DateTime.Month, b.DateTime.Day, b.DateTime.Hour, 0, 0)));
+            expectedQuery: ss => ss.Set<BasicTypesEntity>().Select(b => new DateTime(
+                b.DateTime.Year, b.DateTime.Month, b.DateTime.Day, b.DateTime.Hour, 0, 0)));
 
         AssertSql(
             """

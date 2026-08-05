@@ -352,27 +352,25 @@ END
     {
         var contextFactory = await InitializeNonSharedTest<Context9277>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateDbContext())
+        using var context = contextFactory.CreateDbContext();
+        var valueParam = new SqlParameter
         {
-            var valueParam = new SqlParameter
-            {
-                ParameterName = "Value",
-                Value = 0,
-                Direction = ParameterDirection.Output,
-                SqlDbType = SqlDbType.Int
-            };
+            ParameterName = "Value",
+            Value = 0,
+            Direction = ParameterDirection.Output,
+            SqlDbType = SqlDbType.Int
+        };
 
-            Assert.Equal(0, valueParam.Value);
+        Assert.Equal(0, valueParam.Value);
 
-            var blogs = context.Blogs.FromSqlRaw(
-                    "[dbo].[GetPersonAndVoteCount]  @id, @Value out",
-                    new SqlParameter { ParameterName = "id", Value = 1 },
-                    valueParam)
-                .ToList();
+        var blogs = context.Blogs.FromSqlRaw(
+                "[dbo].[GetPersonAndVoteCount]  @id, @Value out",
+                new SqlParameter { ParameterName = "id", Value = 1 },
+                valueParam)
+            .ToList();
 
-            Assert.Single(blogs);
-            Assert.Equal(1, valueParam.Value);
-        }
+        Assert.Single(blogs);
+        Assert.Equal(1, valueParam.Value);
     }
 
     protected class Context9277(DbContextOptions options) : DbContext(options)
@@ -424,18 +422,17 @@ BEGIN
     {
         var contextFactory = await InitializeNonSharedTest<Context12482>();
 
-        using (var context = contextFactory.CreateDbContext())
-        {
-            context.AddRange(
-                new Context12482.BaseEntity { Value = 10.0999 },
-                new Context12482.BaseEntity { Value = -12345 },
-                new Context12482.BaseEntity { Value = "String Value" },
-                new Context12482.BaseEntity { Value = new DateTime(2020, 1, 1) });
+        using var context = contextFactory.CreateDbContext();
+        context.AddRange(
+            new Context12482.BaseEntity { Value = 10.0999 },
+            new Context12482.BaseEntity { Value = -12345 },
+            new Context12482.BaseEntity { Value = "String Value" },
+            new Context12482.BaseEntity { Value = new DateTime(2020, 1, 1) });
 
-            context.SaveChanges();
+        context.SaveChanges();
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 @p0='10.0999' (Nullable = true) (DbType = Object)
 @p1='-12345' (Nullable = true) (DbType = Object)
 @p2='String Value' (Size = 12) (DbType = Object)
@@ -453,7 +450,6 @@ INSERT ([Value])
 VALUES (i.[Value])
 OUTPUT INSERTED.[Id], i._Position;
 """);
-        }
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -1127,22 +1123,21 @@ ORDER BY [r].[Id]
     {
         var contextFactory = await InitializeNonSharedTest<Context19206>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateDbContext())
-        {
-            var query = from t1 in context.Tests.FromSql(
-                            $"Select * from Tests Where Type = {Context19206.TestType19206.Unit}")
-                        from t2 in context.Tests.FromSql(
-                            $"Select * from Tests Where Type = {Context19206.TestType19206.Integration}")
-                        select new { t1, t2 };
+        using var context = contextFactory.CreateDbContext();
+        var query = from t1 in context.Tests.FromSql(
+                        $"Select * from Tests Where Type = {Context19206.TestType19206.Unit}")
+                    from t2 in context.Tests.FromSql(
+                        $"Select * from Tests Where Type = {Context19206.TestType19206.Integration}")
+                    select new { t1, t2 };
 
-            var result = query.ToList();
+        var result = query.ToList();
 
-            var item = Assert.Single(result);
-            Assert.Equal(Context19206.TestType19206.Unit, item.t1.Type);
-            Assert.Equal(Context19206.TestType19206.Integration, item.t2.Type);
+        var item = Assert.Single(result);
+        Assert.Equal(Context19206.TestType19206.Unit, item.t1.Type);
+        Assert.Equal(Context19206.TestType19206.Integration, item.t2.Type);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 p0='0'
 p1='1'
 
@@ -1154,7 +1149,6 @@ CROSS JOIN (
     Select * from Tests Where Type = @p1
 ) AS [m0]
 """);
-        }
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -2642,8 +2636,8 @@ WHERE 1 = [t].[Id]
             .GroupBy(w => 1)
             .Select(g => g
                 .Where(wCurrent =>
-                    EF.Functions.DateDiffSecond(wCurrent.StartedAt, wCurrent.CompletedAt) >
-                    EF.Functions.StandardDeviationSample(g.Select(w => EF.Functions.DateDiffSecond(w.StartedAt, w.CompletedAt))))
+                    EF.Functions.DateDiffSecond(wCurrent.StartedAt, wCurrent.CompletedAt)
+                    > EF.Functions.StandardDeviationSample(g.Select(w => EF.Functions.DateDiffSecond(w.StartedAt, w.CompletedAt))))
                 .ToList())
             .ToListAsync();
     }

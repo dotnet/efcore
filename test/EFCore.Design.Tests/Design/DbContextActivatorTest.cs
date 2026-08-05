@@ -50,7 +50,7 @@ public class DbContextActivatorTest
     {
         var message = Assert.Throws<OperationException>(() => DbContextActivator.CreateInstance(typeof(ParameterTestContext))).Message;
 
-        Assert.StartsWith(DesignStrings.CannotCreateContextInstance(nameof(ParameterTestContext), "").Substring(0, 10), message);
+        Assert.StartsWith(DesignStrings.CannotCreateContextInstance(nameof(ParameterTestContext), "")[..10], message);
         Assert.Contains("Microsoft.EntityFrameworkCore.Design.DbContextActivatorTest+ParameterTestContext", message);
     }
 

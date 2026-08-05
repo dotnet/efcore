@@ -142,7 +142,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
         Expression<Func<TComplexProperty, IEnumerable<TElement>?>> propertyExpression)
         where TElement : notnull
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new ComplexCollectionEntry<TEntity, TElement>(
             InternalEntry,
@@ -201,7 +201,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(IComplexProperty property)
         where TElement : notnull
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         ValidateComplexType<TElement>(property);
 
@@ -261,7 +261,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     public virtual ComplexCollectionEntry<TEntity, TElement> ComplexCollection<TElement>(string propertyName)
         where TElement : notnull
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var property = Metadata.ComplexType.GetComplexProperty(propertyName);
         ValidateComplexType<TElement>(property);

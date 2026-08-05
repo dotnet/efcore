@@ -476,26 +476,17 @@ public class CSharpHelper : ICSharpHelper
     {
         var literal = number.ToString("G17", CultureInfo.InvariantCulture);
 
-        if (double.IsNaN(number))
-        {
-            return $"double.{nameof(double.NaN)}";
-        }
-
-        if (double.IsNegativeInfinity(number))
-        {
-            return $"double.{nameof(double.NegativeInfinity)}";
-        }
-
-        if (double.IsPositiveInfinity(number))
-        {
-            return $"double.{nameof(double.PositiveInfinity)}";
-        }
-
-        return !literal.Contains('E')
-            && !literal.Contains('e')
-            && !literal.Contains('.')
-                ? literal + ".0"
-                : literal;
+        return double.IsNaN(number)
+            ? $"double.{nameof(double.NaN)}"
+            : double.IsNegativeInfinity(number)
+                ? $"double.{nameof(double.NegativeInfinity)}"
+                : double.IsPositiveInfinity(number)
+                    ? $"double.{nameof(double.PositiveInfinity)}"
+                    : !literal.Contains('E')
+                    && !literal.Contains('e')
+                    && !literal.Contains('.')
+                        ? literal + ".0"
+                        : literal;
     }
 
     /// <summary>
@@ -868,10 +859,7 @@ public class CSharpHelper : ICSharpHelper
             .Append(">");
 
         return HandleEnumerable(
-            builder, vertical, values, value =>
-            {
-                builder.Append(UnknownLiteral(value));
-            });
+            builder, vertical, values, value => builder.Append(UnknownLiteral(value)));
     }
 
     /// <summary>
@@ -895,13 +883,10 @@ public class CSharpHelper : ICSharpHelper
             .Append(">");
 
         return HandleEnumerable(
-            builder, vertical, dict.Keys, key =>
-            {
-                builder.Append("[")
-                    .Append(UnknownLiteral(key))
-                    .Append("] = ")
-                    .Append(UnknownLiteral(dict[key]));
-            });
+            builder, vertical, dict.Keys, key => builder.Append("[")
+                .Append(UnknownLiteral(key))
+                .Append("] = ")
+                .Append(UnknownLiteral(dict[key])));
     }
 
     private static string HandleEnumerable(IndentedStringBuilder builder, bool vertical, IEnumerable values, Action<object> handleValue)
@@ -1118,15 +1103,12 @@ public class CSharpHelper : ICSharpHelper
             var expression = mapping.GenerateCodeLiteral(value);
             var handled = HandleExpression(expression, builder);
 
-            if (!handled)
-            {
-                throw new NotSupportedException(
+            return !handled
+                ? throw new NotSupportedException(
                     DesignStrings.LiteralExpressionNotSupported(
                         expression.ToString(),
-                        literalType.ShortDisplayName()));
-            }
-
-            return builder.ToString();
+                        literalType.ShortDisplayName()))
+                : builder.ToString();
         }
 
         throw new InvalidOperationException(DesignStrings.UnknownLiteral(literalType));

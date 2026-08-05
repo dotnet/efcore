@@ -168,7 +168,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.Subtract
                 when left.Type == typeof(TimeOnly) && right.Type == typeof(TimeOnly):
             {
-                inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right) ?? typeMappingSource.FindMapping(typeof(TimeOnly), model);
+                inferredTypeMapping = typeMapping
+                    ?? ExpressionExtensions.InferTypeMapping(left, right) ?? typeMappingSource.FindMapping(typeof(TimeOnly), model);
                 resultType = typeof(TimeSpan);
                 resultTypeMapping = typeMappingSource.FindMapping(resultType, model);
                 break;
@@ -486,14 +487,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             return Constant(false);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
     }
 
     /// <summary>
@@ -535,14 +533,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             return Constant(true);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
     }
 
     /// <summary>

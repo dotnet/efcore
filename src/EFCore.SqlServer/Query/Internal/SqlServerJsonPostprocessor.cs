@@ -31,7 +31,7 @@ public sealed class SqlServerJsonPostprocessor(
     : ExpressionVisitor
 {
     private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = [];
-    private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
+    private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = [];
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
 
@@ -99,7 +99,7 @@ public sealed class SqlServerJsonPostprocessor(
 
                         foreach (var columnInfo in columnInfos)
                         {
-                            columnsToRewrite ??= new Dictionary<(string, string), ColumnInfo>();
+                            columnsToRewrite ??= [];
                             columnsToRewrite.Add((newOpenJsonExpression.Alias, columnInfo.Name), columnInfo);
                         }
 
@@ -113,10 +113,7 @@ public sealed class SqlServerJsonPostprocessor(
                         }
                     }
 
-                    if (newTables is not null)
-                    {
-                        newTables[i] = table;
-                    }
+                    newTables?[i] = table;
                 }
 
                 var result = selectExpression;
@@ -259,11 +256,11 @@ public sealed class SqlServerJsonPostprocessor(
             // IS NULL operator"). So we find comparisons that involve the json type, and apply a conversion to string (nvarchar(max))
             // to both sides. We exempt this when one of the sides is a constant null (not required).
             case SqlBinaryExpression
-                {
-                    OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
-                    Left: var left,
-                    Right: var right
-                } comparison
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual,
+                Left: var left,
+                Right: var right
+            } comparison
                 when (left.TypeMapping?.StoreType is "json" || right.TypeMapping?.StoreType is "json")
                 && left is not SqlConstantExpression { Value: null }
                 && right is not SqlConstantExpression { Value: null }:
@@ -297,10 +294,10 @@ public sealed class SqlServerJsonPostprocessor(
         static bool IsKeyColumn(SqlExpression sqlExpression, string openJsonTableAlias)
             => (sqlExpression is ColumnExpression { Name: "key", TableAlias: var tableAlias } && tableAlias == openJsonTableAlias)
                 || (sqlExpression is SqlUnaryExpression
-                    {
-                        OperatorType: ExpressionType.Convert,
-                        Operand: var operand
-                    }
+                {
+                    OperatorType: ExpressionType.Convert,
+                    Operand: var operand
+                }
                     && IsKeyColumn(operand, openJsonTableAlias));
 
         SqlExpression RewriteOpenJsonColumn(ColumnExpression columnExpression, ColumnInfo columnInfo)

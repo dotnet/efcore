@@ -47,6 +47,7 @@ public sealed class CosmosJsonDecimalReaderWriter : JsonValueReaderWriter<decima
                     return true;
                 }
             }
+
             return false;
         }
 

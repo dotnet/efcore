@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -9,9 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBulkExecutionTest.BulkFixture fixture)
     : NonSharedModelTestBase(nonSharedFixture), IClassFixture<CosmosBulkExecutionTest.BulkFixture>, IClassFixture<NonSharedFixture>
 {
-    protected override string NonSharedStoreName => nameof(CosmosBulkExecutionTest);
+    protected override string NonSharedStoreName
+        => nameof(CosmosBulkExecutionTest);
 
-    protected override ITestStoreFactory NonSharedTestStoreFactory => CosmosTestStoreFactory.Instance;
+    protected override ITestStoreFactory NonSharedTestStoreFactory
+        => CosmosTestStoreFactory.Instance;
 
     [Fact]
     public virtual async Task DoesNotBatchSingleBatchableWrite()
@@ -74,9 +78,8 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
     public async Task SessionEnabled_Throws()
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
-            onConfiguring: cfg => cfg.UseCosmos(
-                c => c.BulkExecutionAllowed()
-                    .SessionTokenManagementMode(Cosmos.Infrastructure.SessionTokenManagementMode.SemiAutomatic)));
+            onConfiguring: cfg => cfg.UseCosmos(c => c.BulkExecutionAllowed()
+                .SessionTokenManagementMode(SessionTokenManagementMode.SemiAutomatic)));
         using var context = contextFactory.CreateDbContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context.Database.UseSessionToken("0:-1#1");
@@ -93,7 +96,7 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
     {
         var contextFactory = await InitializeNonSharedTest<CosmosBulkExecutionContext>(
             onModelCreating: b => b.Entity<Customer>().HasTrigger(
-                NonSharedStoreName, Azure.Cosmos.Scripts.TriggerType.Post, Azure.Cosmos.Scripts.TriggerOperation.Create),
+                NonSharedStoreName, TriggerType.Post, TriggerOperation.Create),
             onConfiguring: cfg => cfg.UseCosmos(c => c.BulkExecutionAllowed()));
         using var context = contextFactory.CreateDbContext();
         context.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
@@ -105,19 +108,18 @@ public class CosmosBulkExecutionTest(NonSharedFixture nonSharedFixture, CosmosBu
             inner.Message);
     }
 
-    private string BulkExecutionWithTransactionalBatchMessage => CoreStrings.WarningAsErrorTemplate(
-        CosmosEventId.BulkExecutionWithTransactionalBatch.ToString(),
-        CosmosResources.LogBulkExecutionWithTransactionalBatch(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
-        "CosmosEventId.BulkExecutionWithTransactionalBatch");
+    private string BulkExecutionWithTransactionalBatchMessage
+        => CoreStrings.WarningAsErrorTemplate(
+            CosmosEventId.BulkExecutionWithTransactionalBatch.ToString(),
+            CosmosResources.LogBulkExecutionWithTransactionalBatch(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
+            "CosmosEventId.BulkExecutionWithTransactionalBatch");
 
     public class CosmosBulkExecutionContext(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Customer> Customers { get; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Customer>().HasPartitionKey(x => x.PartitionKey);
-        }
+            => modelBuilder.Entity<Customer>().HasPartitionKey(x => x.PartitionKey);
     }
 
     public class Customer

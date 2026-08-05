@@ -62,35 +62,32 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             nameof(DateTime.AddMinutes) => MakeModifier(arg, " minutes"),
             nameof(DateTime.AddSeconds) => MakeModifier(arg, " seconds"),
 
-            _ => (SqlExpression?)null
+            _ => null
         };
 
-        if (modifier is null)
-        {
-            return null;
-        }
-
-        return sqlExpressionFactory.Function(
-            "rtrim",
-            [
-                sqlExpressionFactory.Function(
-                    "rtrim",
-                    [
-                        sqlExpressionFactory.Strftime(
-                            method.ReturnType,
-                            "%Y-%m-%d %H:%M:%f",
-                            instance,
-                            modifiers: [modifier]),
-                        sqlExpressionFactory.Constant("0")
-                    ],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueFalse,
-                    method.ReturnType),
-                sqlExpressionFactory.Constant(".")
-            ],
-            nullable: true,
-            argumentsPropagateNullability: Statics.TrueFalse,
-            method.ReturnType);
+        return modifier is null
+            ? null
+            : sqlExpressionFactory.Function(
+                "rtrim",
+                [
+                    sqlExpressionFactory.Function(
+                        "rtrim",
+                        [
+                            sqlExpressionFactory.Strftime(
+                                method.ReturnType,
+                                "%Y-%m-%d %H:%M:%f",
+                                instance,
+                                modifiers: [modifier]),
+                            sqlExpressionFactory.Constant("0")
+                        ],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueFalse,
+                        method.ReturnType),
+                    sqlExpressionFactory.Constant(".")
+                ],
+                nullable: true,
+                argumentsPropagateNullability: Statics.TrueFalse,
+                method.ReturnType);
     }
 
     private SqlExpression? TranslateDateOnly(
@@ -108,7 +105,7 @@ public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpres
             nameof(DateOnly.AddYears) => " years",
             nameof(DateOnly.AddMonths) => " months",
             nameof(DateOnly.AddDays) => " days",
-            _ => (string?)null
+            _ => null
         };
 
         return unitSuffix is not null

@@ -32,7 +32,7 @@ public abstract class RelationalTypeMapping<
     [DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    T> : RelationalTypeMapping
+T> : RelationalTypeMapping
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalTypeMapping{T}" /> class.

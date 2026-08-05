@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
 // ReSharper disable MergeConditionalExpression
@@ -322,7 +321,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                             on eVersion.RootEntityId equals eRoot.Id
                             into RootEntities
                         from eRootJoined in RootEntities.DefaultIfEmpty()
-                        select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+                        select new { One = 1, Coalesce = eRootJoined ?? eVersion ?? eRootJoined };
 
             var result = query.ToList();
             Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
@@ -344,7 +343,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                         {
                             One = eRootJoined,
                             Two = 2,
-                            Coalesce = eRootJoined ?? (eVersion ?? eRootJoined)
+                            Coalesce = eRootJoined ?? eVersion ?? eRootJoined
                         };
 
             var result = query.ToList();
@@ -443,7 +442,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         public Entity3101 RootEntity { get; set; }
 
-        public ICollection<Child3101> Children { get; set; } = new Collection<Child3101>();
+        public ICollection<Child3101> Children { get; set; } = [];
     }
 
     private class Child3101
@@ -486,7 +485,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             Task.WaitAll(tasks.ToArray());
         }
 
-        async Task Action()
+        static async Task Action()
         {
             using var ctx = new MyContext5456();
             var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
@@ -525,7 +524,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             Task.WaitAll(tasks.ToArray());
         }
 
-        async Task Action()
+        static async Task Action()
         {
             using var ctx = new MyContext5456();
             var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
@@ -565,7 +564,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             Task.WaitAll(tasks.ToArray());
         }
 
-        async Task Action()
+        static async Task Action()
         {
             using var ctx = new MyContext5456();
             var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author)
@@ -740,13 +739,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
             var query = context.Set<Owner20729>()
                 .Select(dtoOwner => new
-                    {
-                        dtoOwner.Id,
-                        Owned2 = dtoOwner.Owned2 == null
+                {
+                    dtoOwner.Id,
+                    Owned2 = dtoOwner.Owned2 == null
                             ? null
                             : new { Other = dtoOwner.Owned2.Other == null ? null : new { dtoOwner.Owned2.Other.Id } },
-                        Owned1 = dtoOwner.Owned1 == null ? null : new { dtoOwner.Owned1.Value }
-                    }
+                    Owned1 = dtoOwner.Owned1 == null ? null : new { dtoOwner.Owned1.Value }
+                }
                 ).ToList();
 
             var owner = Assert.Single(query);
@@ -760,7 +759,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         context.Owners.Add(
             new Owner20729
             {
-                Owned1 = new Owned120729(), Owned2 = new Owned220729(),
+                Owned1 = new Owned120729(),
+                Owned2 = new Owned220729(),
             });
 
         return context.SaveChangesAsync();
@@ -1293,7 +1293,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             var result2 = (from r in context.Root
                            select new
                            {
-                               r.A.Sub.AValue, r.B.BValue,
+                               r.A.Sub.AValue,
+                               r.B.BValue,
                            }).FirstOrDefault();
 
             Assert.Equal(result1.BValue, result2.BValue);
@@ -1304,7 +1305,8 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
         var root = new Root20359
         {
-            A = new A20359 { Sub = new ASubClass20359 { AValue = "A Value" } }, B = new B20359 { BValue = "B Value" }
+            A = new A20359 { Sub = new ASubClass20359 { AValue = "A Value" } },
+            B = new B20359 { BValue = "B Value" }
         };
 
         context.Add(root);
@@ -1349,15 +1351,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<A20359>(builder =>
-            {
-                builder.OwnsOne(x => x.Sub);
-            });
+            modelBuilder.Entity<A20359>(builder => builder.OwnsOne(x => x.Sub));
 
-            modelBuilder.Entity<Root20359>(builder =>
-            {
-                builder.OwnsOne(x => x.B);
-            });
+            modelBuilder.Entity<Root20359>(builder => builder.OwnsOne(x => x.B));
         }
     }
 
@@ -1376,14 +1372,16 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 .Select(u => new CommonSelectType23360
                 {
                     // 1. FirstName, 2. LastName
-                    FirstName = u.Forename, LastName = u.Surname,
+                    FirstName = u.Forename,
+                    LastName = u.Surname,
                 });
 
             var customerQuery = context.Customer
                 .Select(c => new CommonSelectType23360
                 {
                     // 1. LastName, 2. FirstName
-                    LastName = c.FamilyName, FirstName = c.GivenName,
+                    LastName = c.FamilyName,
+                    FirstName = c.GivenName,
                 });
 
             var result = userQuery.Union(customerQuery).ToList();
@@ -1400,13 +1398,15 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         context.User.Add(
             new User23360
             {
-                Forename = "Peter", Surname = "Smith",
+                Forename = "Peter",
+                Surname = "Smith",
             });
 
         context.Customer.Add(
             new Customer23360
             {
-                GivenName = "John", FamilyName = "Doe",
+                GivenName = "John",
+                FamilyName = "Doe",
             });
 
         return context.SaveChangesAsync();

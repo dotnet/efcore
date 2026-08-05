@@ -22,6 +22,6 @@ public class CosmosStructuralTypeSerializerProvider : ICosmosStructuralTypeSeria
     public virtual CosmosStructuralTypeSerializer Get(ITypeBase structuralType)
         => structuralType.GetOrAddRuntimeAnnotationValue(
             CosmosAnnotationNames.StructuralTypeSerializer,
-            (structuralType) => new CosmosStructuralTypeSerializer(this, structuralType!),
+            structuralType => new CosmosStructuralTypeSerializer(this, structuralType!),
             structuralType);
 }

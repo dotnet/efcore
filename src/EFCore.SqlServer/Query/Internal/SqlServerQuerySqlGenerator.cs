@@ -29,7 +29,6 @@ public class SqlServerQuerySqlGenerator(
 
     private bool _withinTable;
 
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -961,8 +960,22 @@ public class SqlServerQuerySqlGenerator(
             {
                 Sql
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnInfo.Name))
-                    .Append(" ")
-                    .Append(columnInfo.TypeMapping.StoreType);
+                    .Append(" ");
+
+                // OPENJSON() WITH clause AS JSON option requires nvarchar(max) on platforms that don't support the json data
+                // type in OPENJSON (i.e. Azure SQL). SQL Server 2025 (17.x) added native support for json in OPENJSON WITH.
+                // See: https://learn.microsoft.com/sql/t-sql/data-types/json-data-type#limitations
+                if (columnInfo.AsJson
+                    && columnInfo.TypeMapping.StoreType == "json"
+                    && (_sqlServerSingletonOptions.EngineType != SqlServerEngineType.SqlServer
+                        || _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 170))
+                {
+                    Sql.Append("nvarchar(max)");
+                }
+                else
+                {
+                    Sql.Append(columnInfo.TypeMapping.StoreType);
+                }
 
                 if (columnInfo.Path is not null)
                 {

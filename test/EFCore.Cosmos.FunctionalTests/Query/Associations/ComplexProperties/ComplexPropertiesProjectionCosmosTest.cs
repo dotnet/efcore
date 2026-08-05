@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
 public class ComplexPropertiesProjectionCosmosTest : ComplexPropertiesProjectionTestBase<ComplexPropertiesCosmosFixture>
 {
-    public ComplexPropertiesProjectionCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
+    public ComplexPropertiesProjectionCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
@@ -88,7 +89,6 @@ FROM root c
         => AssertTranslationFailed(() => AssertQuery(
             ss => ss.Set<RootEntity>().Select(x => x.RequiredAssociate).Distinct().Select(x => x.String),
             queryTrackingBehavior: QueryTrackingBehavior.NoTracking));
-
 
     #endregion Scalar properties
 
@@ -200,7 +200,8 @@ FROM root c
 
     public override Task Select_required_associate_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
         // We don't support (inter-document) navigations with Cosmos.
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_required_associate_via_optional_navigation(queryTrackingBehavior));
+        => Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Select_required_associate_via_optional_navigation(queryTrackingBehavior));
 
     public override async Task Select_unmapped_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -258,7 +259,8 @@ ORDER BY c["Id"]
         // result to be filtered out entirely.
         await AssertQuery(
             ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
-            ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.NestedCollection),
+            ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Where(x => x.OptionalAssociate != null)
+                .Select(x => x.OptionalAssociate!.NestedCollection),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
             queryTrackingBehavior: queryTrackingBehavior);
@@ -431,7 +433,8 @@ ORDER BY c["Id"]
 
     public override async Task Select_nullable_value_type_with_Value(QueryTrackingBehavior queryTrackingBehavior)
     {
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_nullable_value_type_with_Value(queryTrackingBehavior));
+        var ex =
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_nullable_value_type_with_Value(queryTrackingBehavior));
         Assert.Equal("Nullable object must have a value.", ex.Message);
 
         AssertSql(

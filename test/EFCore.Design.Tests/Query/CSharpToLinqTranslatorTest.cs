@@ -120,7 +120,7 @@ public class CSharpToLinqTranslatorTest
     [Fact]
     public void Interpolated_string_formattable()
         => AssertExpression(
-            () => FormattableStringMethod(FormattableStringFactory.Create("Foo: {0}, {1}", (object)8, (object)9)),
+            () => FormattableStringMethod(FormattableStringFactory.Create("Foo: {0}, {1}", 8, 9)),
             """CSharpToLinqTranslatorTest.FormattableStringMethod($"Foo: {8}, {9}")""");
 
     [Fact]

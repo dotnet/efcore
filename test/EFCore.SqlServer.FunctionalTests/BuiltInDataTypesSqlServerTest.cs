@@ -4,7 +4,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
-using System.Xml;
 using Microsoft.Data.SqlClient;
 
 // ReSharper disable InconsistentNaming
@@ -16,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
+[ConditionalClass(
+    typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
@@ -3831,7 +3831,9 @@ FROM INFORMATION_SCHEMA.COLUMNS
         "<root>" + XmlEmoji + XmlEuro + "</root>")]
     // Only the XML declaration is removed; a following stylesheet PI and the rest of the value are sent verbatim.
     [InlineData(
-        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone='yes' ?> <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone='yes' ?> <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>"
+        + XmlEmoji
+        + "</root>",
         " <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
         "<?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?><root>" + XmlEmoji + "</root>")]
     // The leading whitespace and the declaration are removed when the value is sent.
@@ -3997,10 +3999,8 @@ WHERE [x].[Id] = @id
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b =>
-            {
-                b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3);
-            });
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b
+                => b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3));
 
             modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(b =>
             {

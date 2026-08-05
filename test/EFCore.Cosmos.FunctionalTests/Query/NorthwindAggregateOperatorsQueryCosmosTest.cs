@@ -694,7 +694,7 @@ OFFSET 0 LIMIT 1
             await Assert.ThrowsAsync<CosmosException>(() => base.MaxBy_no_data_nullable_source(async));
 
             AssertSql(
-"""
+                """
 SELECT VALUE c["SupplierID"]
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
@@ -712,7 +712,7 @@ OFFSET 0 LIMIT 1
             await base.MaxBy_no_data_reference_type_source(async);
 
             AssertSql(
-"""
+                """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
@@ -761,7 +761,7 @@ OFFSET 0 LIMIT 1
                 await base.MaxBy(a);
 
                 AssertSql(
-"""
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] = "Order")
@@ -827,7 +827,7 @@ OFFSET 0 LIMIT 1
                 await base.MinBy(a);
 
                 AssertSql(
-"""
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["$type"] = "Order")
@@ -862,7 +862,7 @@ OFFSET 0 LIMIT 1
             await Assert.ThrowsAsync<CosmosException>(() => base.MinBy_no_data_nullable_source(async));
 
             AssertSql(
-"""
+                """
 SELECT VALUE c["SupplierID"]
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
@@ -880,7 +880,7 @@ OFFSET 0 LIMIT 1
             await base.MinBy_no_data_reference_type_source(async);
 
             AssertSql(
-"""
+                """
 SELECT VALUE c
 FROM root c
 WHERE ((c["$type"] = "Product") AND (c["SupplierID"] = -1))
@@ -2410,12 +2410,7 @@ WHERE ((c["$type"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
         if (!async)
         {
             await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // Contains over subquery. Issue #17246.
-                    await base.Contains_over_entityType_should_rewrite_to_identity_equality(a);
-                }
-            );
+                async, base.Contains_over_entityType_should_rewrite_to_identity_equality);
         }
     }
 

@@ -431,7 +431,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         // Always throws for sync.
         if (async)
         {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
+            var exception =
+                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
 
             Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
         }
@@ -443,7 +444,8 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         if (async)
         {
             var exception =
-                await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations_variation_2(async));
+                await Assert.ThrowsAsync<InvalidOperationException>(()
+                    => base.Client_method_skip_loads_owned_navigations_variation_2(async));
 
             Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
         }
@@ -1508,38 +1510,35 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                         );
 
                         ob.OwnsMany(
-                            e => e.Details, odb =>
-                            {
-                                odb.HasData(
-                                    new
-                                    {
-                                        Id = -100,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Discounted Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -101,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Full Price Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -200,
-                                        OrderId = -20,
-                                        OrderClientId = 2,
-                                        Detail = "Internal Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -300,
-                                        OrderId = -30,
-                                        OrderClientId = 3,
-                                        Detail = "Bulk Order"
-                                    });
-                            });
+                            e => e.Details, odb => odb.HasData(
+                                new
+                                {
+                                    Id = -100,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Discounted Order"
+                                },
+                                new
+                                {
+                                    Id = -101,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Full Price Order"
+                                },
+                                new
+                                {
+                                    Id = -200,
+                                    OrderId = -20,
+                                    OrderClientId = 2,
+                                    Detail = "Internal Order"
+                                },
+                                new
+                                {
+                                    Id = -300,
+                                    OrderId = -30,
+                                    OrderClientId = 3,
+                                    Detail = "Bulk Order"
+                                }));
                     });
             });
 
@@ -1572,22 +1571,19 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 2,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    },
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 3,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressBranchId = 2,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                },
+                                new
+                                {
+                                    OwnedAddressBranchId = 3,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                }));
                     });
             });
 
@@ -1614,16 +1610,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressLeafAId = 3,
-                                        PlanetId = 1,
-                                        Name = "Mexico"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressLeafAId = 3,
+                                    PlanetId = 1,
+                                    Name = "Mexico"
+                                }));
                     });
             });
 
@@ -1650,16 +1643,13 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressLeafBId = 4,
-                                        PlanetId = 1,
-                                        Name = "Panama"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressLeafBId = 4,
+                                    PlanetId = 1,
+                                    Name = "Panama"
+                                }));
                     });
             });
 

@@ -23,7 +23,8 @@ public static class SqliteTestEnvironment
 
     // ---- Conditional* helpers consumed by [ConditionalFact(typeof(TestEnvironment), nameof(...))] ----
 
-    public static bool SpatialiteAvailable => SpatialiteAvailableLazy.Value;
+    public static bool SpatialiteAvailable
+        => SpatialiteAvailableLazy.Value;
 
     /// <summary>
     ///     SQLite version >= 3.35.0 (required for STRICT tables / RETURNING).

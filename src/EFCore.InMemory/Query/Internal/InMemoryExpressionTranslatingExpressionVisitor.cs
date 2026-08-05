@@ -276,7 +276,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                     && !entityType.GetDirectlyDerivedTypes().Any()))
             {
                 // No hierarchy
-                return Expression.Constant((typeReference.StructuralType.ClrType == comparisonType) == match);
+                return Expression.Constant(typeReference.StructuralType.ClrType == comparisonType == match);
             }
 
             if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
@@ -927,17 +927,14 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
         // Null-compensate any extension method where the 'this' argument is a reference type
         // (in theory should do this for value types as well, but that's more complicated as the expression type needs to be changed etc.)
-        if (methodCallExpression is { Object: null, Method: { IsStatic: true } staticMethod }
+        return methodCallExpression is { Object: null, Method: { IsStatic: true } staticMethod }
             && staticMethod.IsDefined(typeof(ExtensionAttribute), inherit: false)
-            && arguments is [{ Type.IsValueType: false } instance, ..])
-        {
-            return Expression.Condition(
-                Expression.Equal(instance, Expression.Constant(null, instance.Type)),
-                Expression.Default(methodCallExpression.Type),
-                Expression.Call(methodCallExpression.Method, arguments));
-        }
-
-        return methodCallExpression.Update(@object, arguments);
+            && arguments is [{ Type.IsValueType: false } instance, ..]
+                ? Expression.Condition(
+                    Expression.Equal(instance, Expression.Constant(null, instance.Type)),
+                    Expression.Default(methodCallExpression.Type),
+                    Expression.Call(methodCallExpression.Method, arguments))
+                : methodCallExpression.Update(@object, arguments);
     }
 
     /// <summary>
@@ -1250,13 +1247,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             expression = unaryExpression.Operand;
         }
 
-        if (expression is MethodCallExpression { Method.IsGenericMethod: true } readValueMethodCall
-            && readValueMethodCall.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
-        {
-            return readValueMethodCall.Arguments[2].GetConstantValue<IProperty>();
-        }
-
-        return null;
+        return expression is MethodCallExpression { Method.IsGenericMethod: true } readValueMethodCall
+            && readValueMethodCall.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
+                ? readValueMethodCall.Arguments[2].GetConstantValue<IProperty>()
+                : null;
     }
 
     private bool TryRewriteContainsEntity(Expression? source, Expression item, [NotNullWhen(true)] out Expression? result)
@@ -1486,7 +1480,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         string baseParameterName,
         IProperty property)
     {
-        if (!(context.Parameters[baseParameterName] is IEnumerable<TEntity> baseListParameter))
+        if (context.Parameters[baseParameterName] is not IEnumerable<TEntity> baseListParameter)
         {
             return null;
         }
@@ -1503,26 +1497,15 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             expression.Type);
 
     private static bool CanEvaluate(Expression expression)
-    {
-#pragma warning disable IDE0066 // Convert switch statement to expression
-        switch (expression)
-#pragma warning restore IDE0066 // Convert switch statement to expression
+        => expression switch
         {
-            case ConstantExpression:
-                return true;
-
-            case NewExpression newExpression:
-                return newExpression.Arguments.All(CanEvaluate);
-
-            case MemberInitExpression memberInitExpression:
-                return CanEvaluate(memberInitExpression.NewExpression)
-                    && memberInitExpression.Bindings.All(mb
-                        => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
-
-            default:
-                return false;
-        }
-    }
+            ConstantExpression => true,
+            NewExpression newExpression => newExpression.Arguments.All(CanEvaluate),
+            MemberInitExpression memberInitExpression => CanEvaluate(memberInitExpression.NewExpression)
+                && memberInitExpression.Bindings.All(mb
+                    => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression)),
+            _ => false,
+        };
 
     private static Expression ConvertObjectArrayEqualityComparison(Expression left, Expression right)
     {
@@ -1546,7 +1529,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
                     return ExpressionExtensions.CreateEqualsExpression(l, r);
                 })
-            .Aggregate((a, b) => Expression.AndAlso(a, b));
+            .Aggregate(Expression.AndAlso);
 
         static Expression RemoveObjectConvert(Expression expression)
             => expression is UnaryExpression unaryExpression
@@ -1705,17 +1688,12 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             => ExpressionType.Extension;
 
         public Expression Convert(Type type)
-        {
-            if (type == typeof(object) // Ignore object conversion
-                || type.IsAssignableFrom(Type)) // Ignore casting to base type/interface
-            {
-                return this;
-            }
-
-            return StructuralType is IEntityType entityType
-                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
-                    ? new StructuralTypeReferenceExpression(this, derivedEntityType)
-                    : QueryCompilationContext.NotTranslatedExpression;
-        }
+            => type == typeof(object) // Ignore object conversion
+                || type.IsAssignableFrom(Type)
+                    ? this
+                    : StructuralType is IEntityType entityType
+                    && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is { } derivedEntityType
+                        ? new StructuralTypeReferenceExpression(this, derivedEntityType)
+                        : QueryCompilationContext.NotTranslatedExpression;
     }
 }

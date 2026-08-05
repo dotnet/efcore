@@ -25,41 +25,36 @@ public class SqliteHexMethodTranslator(ISqlExpressionFactory sqlExpressionFactor
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.DeclaringType != typeof(SqliteDbFunctionsExtensions))
-        {
-            return null;
-        }
+        => method.DeclaringType != typeof(SqliteDbFunctionsExtensions)
+            ? null
+            : method.Name switch
+            {
+                nameof(SqliteDbFunctionsExtensions.Hex) when arguments is [_, var arg]
+                    => sqlExpressionFactory.Function(
+                        "hex",
+                        [arg],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.TrueArrays[1],
+                        typeof(string)),
 
-        return method.Name switch
-        {
-            nameof(SqliteDbFunctionsExtensions.Hex) when arguments is [_, var arg]
-                => sqlExpressionFactory.Function(
-                    "hex",
-                    [arg],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.TrueArrays[1],
-                    typeof(string)),
+                // unhex returns NULL whenever the decoding fails, hence mark as
+                // nullable and use an all-false argumentsPropagateNullability
+                nameof(SqliteDbFunctionsExtensions.Unhex) when arguments is [_, var arg]
+                    => sqlExpressionFactory.Function(
+                        "unhex",
+                        [arg],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseArrays[1],
+                        typeof(byte[])),
 
-            // unhex returns NULL whenever the decoding fails, hence mark as
-            // nullable and use an all-false argumentsPropagateNullability
-            nameof(SqliteDbFunctionsExtensions.Unhex) when arguments is [_, var arg]
-                => sqlExpressionFactory.Function(
-                    "unhex",
-                    [arg],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.FalseArrays[1],
-                    typeof(byte[])),
+                nameof(SqliteDbFunctionsExtensions.Unhex) when arguments is [_, var arg, var ignoreChars]
+                    => sqlExpressionFactory.Function(
+                        "unhex",
+                        [arg, ignoreChars],
+                        nullable: true,
+                        argumentsPropagateNullability: Statics.FalseArrays[2],
+                        typeof(byte[])),
 
-            nameof(SqliteDbFunctionsExtensions.Unhex) when arguments is [_, var arg, var ignoreChars]
-                => sqlExpressionFactory.Function(
-                    "unhex",
-                    [arg, ignoreChars],
-                    nullable: true,
-                    argumentsPropagateNullability: Statics.FalseArrays[2],
-                    typeof(byte[])),
-
-            _ => null
-        };
-    }
+                _ => null
+            };
 }

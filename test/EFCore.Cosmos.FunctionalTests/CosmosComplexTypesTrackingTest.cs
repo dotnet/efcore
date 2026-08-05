@@ -5,7 +5,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.CosmosFixture fixture) : ComplexTypesTrackingTestBase<CosmosComplexTypesTrackingTest.CosmosFixture>(fixture)
+public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.CosmosFixture fixture)
+    : ComplexTypesTrackingTestBase<CosmosComplexTypesTrackingTest.CosmosFixture>(fixture)
 {
     [Fact]
     public Task Can_reorder_complex_collection_elements()
@@ -111,7 +112,6 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
             });
     }
 
-
     public override Task Can_save_null_second_level_complex_property_with_required_properties(bool async)
         => async
             ? base.Can_save_null_second_level_complex_property_with_required_properties(async)
@@ -157,7 +157,11 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
             ? base.Can_null_complex_property_with_default_values_and_multiple_properties(async)
             : throw SkipException.ForSkip("Cosmos does not support synchronous operations.");
 
-    protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation, Func<DbContext, Task>? nestedTestOperation1 = null, Func<DbContext, Task>? nestedTestOperation2 = null, Func<DbContext, Task>? nestedTestOperation3 = null)
+    protected override async Task ExecuteWithStrategyInTransactionAsync(
+        Func<DbContext, Task> testOperation,
+        Func<DbContext, Task>? nestedTestOperation1 = null,
+        Func<DbContext, Task>? nestedTestOperation2 = null,
+        Func<DbContext, Task>? nestedTestOperation3 = null)
     {
         using var c = CreateContext();
         try
@@ -196,10 +200,8 @@ public class CosmosComplexTypesTrackingTest(CosmosComplexTypesTrackingTest.Cosmo
                         return;
                     }
 
-                    using (var innerContext3 = CreateContext())
-                    {
-                        await nestedTestOperation3(innerContext3);
-                    }
+                    using var innerContext3 = CreateContext();
+                    await nestedTestOperation3(innerContext3);
                 }
             );
         }

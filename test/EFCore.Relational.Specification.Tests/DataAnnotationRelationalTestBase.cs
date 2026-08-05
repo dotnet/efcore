@@ -16,21 +16,18 @@ public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixtur
     {
         var modelBuilder = CreateModelBuilder();
 
-        modelBuilder.Entity<Login16>(entity =>
-        {
-            entity.HasMany(d => d.Profile16s)
-                .WithMany(p => p.Login16s)
-                .UsingEntity<Dictionary<string, object>>(
-                    "Login16Profile16",
-                    l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
-                    r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
-                    j =>
-                    {
-                        j.HasKey("Login16Id", "Profile16Id");
+        modelBuilder.Entity<Login16>(entity => entity.HasMany(d => d.Profile16s)
+            .WithMany(p => p.Login16s)
+            .UsingEntity<Dictionary<string, object>>(
+                "Login16Profile16",
+                l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
+                r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
+                j =>
+                {
+                    j.HasKey("Login16Id", "Profile16Id");
 
-                        j.ToTable("Login16Profile16");
-                    });
-        });
+                    j.ToTable("Login16Profile16");
+                }));
 
         var model = Validate(modelBuilder);
 

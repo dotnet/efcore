@@ -1,24 +1,21 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 [assembly: DbContextModel(
-    typeof(Microsoft.EntityFrameworkCore.Infrastructure.CompiledModelProviderMismatchTest.MismatchedProviderContext),
-    typeof(Microsoft.EntityFrameworkCore.Infrastructure.CompiledModelProviderMismatchTest.MismatchedProviderTestModel),
+    typeof(CompiledModelProviderMismatchTest.MismatchedProviderContext),
+    typeof(CompiledModelProviderMismatchTest.MismatchedProviderTestModel),
     ProviderName = "Microsoft.EntityFrameworkCore.SqlServer")]
 
 [assembly: DbContextModel(
-    typeof(Microsoft.EntityFrameworkCore.Infrastructure.CompiledModelProviderMismatchTest.MultiProviderContext),
-    typeof(Microsoft.EntityFrameworkCore.Infrastructure.CompiledModelProviderMismatchTest.WrongProviderTestModel),
+    typeof(CompiledModelProviderMismatchTest.MultiProviderContext),
+    typeof(CompiledModelProviderMismatchTest.WrongProviderTestModel),
     ProviderName = "Microsoft.EntityFrameworkCore.SqlServer")]
 [assembly: DbContextModel(
-    typeof(Microsoft.EntityFrameworkCore.Infrastructure.CompiledModelProviderMismatchTest.MultiProviderContext),
-    typeof(Microsoft.EntityFrameworkCore.Infrastructure.CompiledModelProviderMismatchTest.CorrectProviderTestModel),
+    typeof(CompiledModelProviderMismatchTest.MultiProviderContext),
+    typeof(CompiledModelProviderMismatchTest.CorrectProviderTestModel),
     ProviderName = "Microsoft.EntityFrameworkCore.InMemory")]
 
 // ReSharper disable InconsistentNaming

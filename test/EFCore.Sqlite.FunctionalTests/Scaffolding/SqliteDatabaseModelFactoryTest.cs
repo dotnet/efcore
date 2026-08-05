@@ -122,13 +122,10 @@ CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
             [],
             [],
-            dbModel =>
-            {
-                Assert.Collection(
-                    dbModel.Tables.OrderBy(t => t.Name),
-                    d => Assert.Equal("Denali", d.Name),
-                    e => Assert.Equal("Everest", e.Name));
-            },
+            dbModel => Assert.Collection(
+                dbModel.Tables.OrderBy(t => t.Name),
+                d => Assert.Equal("Denali", d.Name),
+                e => Assert.Equal("Everest", e.Name)),
             @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
@@ -339,18 +336,17 @@ DROP TABLE PrincipalTable;");
             @"
 CREATE TABLE ""__EFMigrationsLock"" ( ""Id"" INTEGER NOT NULL PRIMARY KEY, ""Timestamp"" TEXT NOT NULL );
 CREATE TABLE ""MyTable"" ( ""Id"" INTEGER NOT NULL PRIMARY KEY );",
-                [],
-                [],
-                dbModel =>
-                {
-                    var table = Assert.Single(dbModel.Tables);
-                    Assert.Equal("MyTable", table.Name);
-                },
-                @"
+            [],
+            [],
+            dbModel =>
+            {
+                var table = Assert.Single(dbModel.Tables);
+                Assert.Equal("MyTable", table.Name);
+            },
+            @"
                     DROP TABLE ""__EFMigrationsLock"";
                     DROP TABLE ""MyTable"";
                 ");
-    
 
     #endregion
 
@@ -745,7 +741,7 @@ INSERT INTO MyTable VALUES (1, '1.1', '1.2', '1.3');",
 
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("0.0", column.DefaultValueSql);
-                Assert.Equal((float)0, (float)column.DefaultValue, 0.01);
+                Assert.Equal(0, (float)column.DefaultValue, 0.01);
 
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("1.1000000000000001e+000", column.DefaultValueSql);

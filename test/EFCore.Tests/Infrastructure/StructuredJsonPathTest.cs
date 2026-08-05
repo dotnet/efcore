@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata;
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class StructuredJsonPathTest
@@ -27,9 +25,7 @@ public class StructuredJsonPathTest
 
     [Fact]
     public void StructuredJsonPathSegment_empty_name_throws()
-    {
-        Assert.Throws<ArgumentException>(() => new StructuredJsonPathSegment(""));
-    }
+        => Assert.Throws<ArgumentException>(() => new StructuredJsonPathSegment(""));
 
     [Fact]
     public void StructuredJsonPath_root()
@@ -107,7 +103,7 @@ public class StructuredJsonPathTest
             [new StructuredJsonPathSegment("A"), StructuredJsonPathSegment.Array, new StructuredJsonPathSegment("B")],
             [5]);
 
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         path.AppendTo(sb);
         Assert.Equal(path.ToString(), sb.ToString());
     }

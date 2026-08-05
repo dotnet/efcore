@@ -961,21 +961,23 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var collectionSegmentIndex = (collectionIndices?.Count ?? 0) - 1;
 
         // The indexed leaf may itself be a complex collection (e.g. "Posts[]" / "Posts[3]").
-        segments.Add(BuildSegment(
-            property.Name,
-            property is IComplexProperty { IsCollection: true },
-            collectionIndices,
-            ref collectionSegmentIndex));
+        segments.Add(
+            BuildSegment(
+                property.Name,
+                property is IComplexProperty { IsCollection: true },
+                collectionIndices,
+                ref collectionSegmentIndex));
 
         var declaringType = property.DeclaringType;
         while (declaringType is IComplexType complexType)
         {
             var complexProperty = complexType.ComplexProperty;
-            segments.Add(BuildSegment(
-                complexProperty.Name,
-                complexProperty.IsCollection,
-                collectionIndices,
-                ref collectionSegmentIndex));
+            segments.Add(
+                BuildSegment(
+                    complexProperty.Name,
+                    complexProperty.IsCollection,
+                    collectionIndices,
+                    ref collectionSegmentIndex));
 
             declaringType = complexProperty.DeclaringType;
         }
@@ -996,9 +998,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             var indexEntry = collectionIndices?[collectionSegmentIndex];
             collectionSegmentIndex--;
-            return name + (indexEntry is null
-                ? "[]"
-                : "[" + indexEntry.Value.ToString(CultureInfo.InvariantCulture) + "]");
+            return name
+                + (indexEntry is null
+                    ? "[]"
+                    : "[" + indexEntry.Value.ToString(CultureInfo.InvariantCulture) + "]");
         }
     }
 

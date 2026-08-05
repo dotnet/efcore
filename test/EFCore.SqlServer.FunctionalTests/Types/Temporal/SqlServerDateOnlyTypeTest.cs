@@ -234,8 +234,8 @@ FROM [JsonTypeEntity] AS [j]
 
     public class DateTypeFixture : SqlServerTypeFixture<DateOnly>
     {
-        public override DateOnly Value { get; } = new DateOnly(2020, 1, 5);
-        public override DateOnly OtherValue { get; } = new DateOnly(2022, 5, 3);
+        public override DateOnly Value { get; } = new(2020, 1, 5);
+        public override DateOnly OtherValue { get; } = new(2022, 5, 3);
     }
 
     [Fact]

@@ -833,12 +833,11 @@ public class ForeignKeyTest
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FluentTestPrincipal>().HasKey(e => e.Id);
-        modelBuilder.Entity<FluentTestDependent>(
-            b =>
-            {
-                b.HasKey(e => e.Id);
-                b.HasOne<FluentTestPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId).IsConstrained(false);
-            });
+        modelBuilder.Entity<FluentTestDependent>(b =>
+        {
+            b.HasKey(e => e.Id);
+            b.HasOne<FluentTestPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId).IsConstrained(false);
+        });
 
         var fk = modelBuilder.Model.FindEntityType(typeof(FluentTestDependent))!.GetForeignKeys().Single();
         Assert.False(fk.IsConstrained);

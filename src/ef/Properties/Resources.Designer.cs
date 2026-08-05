@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("IdempotentDescription");
 
         /// <summary>
-        ///     Show JSON output. Use with --prefix-output to parse programatically.
+        ///     Show JSON output. Use with --prefix-output to parse programmatically.
         /// </summary>
         public static string JsonDescription
             => GetString("JsonDescription");

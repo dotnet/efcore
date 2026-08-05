@@ -16,10 +16,9 @@ public class TestValueConverterComparer : IEqualityComparer<ValueConverter>
     public bool Equals(ValueConverter? x, ValueConverter? y)
         => x == null
             ? y == null
-            : y == null
-                ? false
-                : ExpressionEqualityComparer.Instance.Equals(x.ConvertFromProviderExpression, y.ConvertFromProviderExpression)
-                && ExpressionEqualityComparer.Instance.Equals(x.ConvertToProviderExpression, y.ConvertToProviderExpression);
+            : y != null
+            && ExpressionEqualityComparer.Instance.Equals(x.ConvertFromProviderExpression, y.ConvertFromProviderExpression)
+            && ExpressionEqualityComparer.Instance.Equals(x.ConvertToProviderExpression, y.ConvertToProviderExpression);
 
     public int GetHashCode(ValueConverter obj)
         => ExpressionEqualityComparer.Instance.GetHashCode(obj.ConvertFromProviderExpression)

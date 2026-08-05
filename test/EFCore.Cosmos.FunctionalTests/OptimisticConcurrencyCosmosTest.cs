@@ -85,12 +85,14 @@ public class OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
         return base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException();
     }
 
-    public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    public override Task
+        Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
     {
         // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
         CosmosTestEnvironment.SkipOnLinuxEmulator();
 
-        return base.Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values();
+        return base
+            .Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values();
     }
 
     public override Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()

@@ -90,34 +90,15 @@ public class SqlBinaryExpression : SqlExpression
             : this;
 
     internal static bool IsValidOperator(ExpressionType operatorType)
-    {
-        switch (operatorType)
+        => operatorType switch
         {
-            case ExpressionType.Add:
-            case ExpressionType.Subtract:
-            case ExpressionType.Multiply:
-            case ExpressionType.Divide:
-            case ExpressionType.Modulo:
-            case ExpressionType.And:
-            case ExpressionType.AndAlso:
-            case ExpressionType.Or:
-            case ExpressionType.OrElse:
-            case ExpressionType.LessThan:
-            case ExpressionType.LessThanOrEqual:
-            case ExpressionType.GreaterThan:
-            case ExpressionType.GreaterThanOrEqual:
-            case ExpressionType.Equal:
-            case ExpressionType.NotEqual:
-            case ExpressionType.ExclusiveOr:
-            case ExpressionType.RightShift:
-            case ExpressionType.LeftShift:
-            case ExpressionType.ArrayIndex:
-            case ExpressionType.Coalesce:
-                return true;
-            default:
-                return false;
-        }
-    }
+            ExpressionType.Add or ExpressionType.Subtract or ExpressionType.Multiply or ExpressionType.Divide or ExpressionType.Modulo
+                or ExpressionType.And or ExpressionType.AndAlso or ExpressionType.Or or ExpressionType.OrElse or ExpressionType.LessThan
+                or ExpressionType.LessThanOrEqual or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual or ExpressionType.Equal
+                or ExpressionType.NotEqual or ExpressionType.ExclusiveOr or ExpressionType.RightShift or ExpressionType.LeftShift
+                or ExpressionType.ArrayIndex or ExpressionType.Coalesce => true,
+            _ => false,
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,8 +160,8 @@ public class SqlBinaryExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SqlBinaryExpression sqlBinaryExpression
-                && Equals(sqlBinaryExpression));
+                || (obj is SqlBinaryExpression sqlBinaryExpression
+                    && Equals(sqlBinaryExpression)));
 
     private bool Equals(SqlBinaryExpression sqlBinaryExpression)
         => base.Equals(sqlBinaryExpression)

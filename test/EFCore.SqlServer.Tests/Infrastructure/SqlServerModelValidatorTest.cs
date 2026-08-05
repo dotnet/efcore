@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.SqlServer.Types;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -101,10 +102,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(b =>
-        {
-            b.Property(e => e.Name).UseIdentityColumn();
-        });
+        modelBuilder.Entity<Animal>(b => b.Property(e => e.Name).UseIdentityColumn());
 
         VerifyError(
             SqlServerStrings.IdentityBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
@@ -116,10 +114,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(b =>
-        {
-            b.Property(e => e.Name).UseSequence();
-        });
+        modelBuilder.Entity<Animal>(b => b.Property(e => e.Name).UseSequence());
 
         VerifyError(
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
@@ -131,10 +126,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<Animal>(b =>
-        {
-            b.Property(e => e.Name).UseHiLo();
-        });
+        modelBuilder.Entity<Animal>(b => b.Property(e => e.Name).UseHiLo());
 
         VerifyError(
             SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
@@ -146,14 +138,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>().Property(a => a.Id).ValueGeneratedNever();
-        modelBuilder.Entity<Cat>(cb =>
-        {
-            cb.Property(c => c.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Cat.Identity));
-        });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Cat>(cb => cb.Property(c => c.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Cat.Identity)));
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseIdentityColumn(2, 3).HasColumnName(nameof(Dog.Identity)));
 
         Validate(modelBuilder);
     }
@@ -163,14 +149,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(cb =>
-        {
-            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-        });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseIdentityColumn(2).HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Cat>(cb => cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity)));
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseIdentityColumn(2).HasColumnName(nameof(Dog.Identity)));
 
         VerifyError(
             SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
@@ -183,14 +163,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
-        modelBuilder.Entity<Cat>(cb =>
-        {
-            cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
-        });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseIdentityColumn(increment: 2).HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Cat>(cb => cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity)));
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseIdentityColumn(increment: 2).HasColumnName(nameof(Dog.Identity)));
 
         VerifyError(
             SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
@@ -350,10 +324,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
             cb.Property(c => c.Id).ValueGeneratedNever();
             cb.Property(c => c.Identity).UseIdentityColumn().HasColumnName(nameof(Cat.Identity));
         });
-        modelBuilder.Entity<Dog>(db =>
-        {
-            db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity));
-        });
+        modelBuilder.Entity<Dog>(db => db.Property(d => d.Identity).UseHiLo().HasColumnName(nameof(Dog.Identity)));
 
         VerifyError(
             SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
@@ -549,11 +520,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplex>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexProperty(e => e.Address, cb =>
-            {
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Address.City");
         });
 
@@ -569,11 +541,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplex>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexProperty(e => e.Address, cb =>
-            {
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties(e => e.Address.City);
         });
 
@@ -589,11 +562,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplex>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexProperty(e => e.Address, cb =>
-            {
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Address.NotAProperty");
         });
 
@@ -609,11 +583,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplex>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexProperty(e => e.Address, cb =>
-            {
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Address");
         });
 
@@ -629,12 +604,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexCollection(e => e.Addresses, cb =>
-            {
-                cb.ToJson();
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexCollection(
+                e => e.Addresses, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Addresses.City");
         });
 
@@ -651,12 +627,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplexCollection>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexCollection(e => e.Addresses, cb =>
-            {
-                cb.ToJson();
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexCollection(
+                e => e.Addresses, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Addresses");
         });
 
@@ -672,12 +649,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexProperty(e => e.Address, cb =>
-            {
-                cb.ToJson();
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Address.City");
         });
 
@@ -694,12 +672,13 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<EntityWithIncludedComplexJson>(b =>
         {
             b.HasKey(e => e.Id);
-            b.ComplexProperty(e => e.Address, cb =>
-            {
-                cb.ToJson();
-                cb.Property(a => a.City).IsRequired();
-                cb.Property(a => a.Street).IsRequired();
-            });
+            b.ComplexProperty(
+                e => e.Address, cb =>
+                {
+                    cb.ToJson();
+                    cb.Property(a => a.City).IsRequired();
+                    cb.Property(a => a.Street).IsRequired();
+                });
             b.HasIndex(e => e.Id).IncludeProperties("Address");
         });
 
@@ -1342,13 +1321,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorEntityWithTwoVectors>(
-            b =>
-            {
-                b.Property(e => e.Vector1).HasMaxLength(3);
-                b.Property(e => e.Vector2).HasMaxLength(3);
-                b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).HasMetric("cosine");
-            });
+        modelBuilder.Entity<VectorEntityWithTwoVectors>(b =>
+        {
+            b.Property(e => e.Vector1).HasMaxLength(3);
+            b.Property(e => e.Vector2).HasMaxLength(3);
+            b.HasVectorIndex(e => new { e.Vector1, e.Vector2 }).HasMetric("cosine");
+        });
 
         VerifyError(
             SqlServerStrings.VectorIndexRequiresSingleProperty(
@@ -1379,13 +1357,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<VectorWithoutDimensionsEntity>(
-            b =>
-            {
-                b.Property(e => e.Vector).HasMaxLength(3);
-                var indexBuilder = b.HasVectorIndex(e => e.Vector).HasMetric("cosine");
-                indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
-            });
+        modelBuilder.Entity<VectorWithoutDimensionsEntity>(b =>
+        {
+            b.Property(e => e.Vector).HasMaxLength(3);
+            var indexBuilder = b.HasVectorIndex(e => e.Vector).HasMetric("cosine");
+            indexBuilder.Metadata.SetDataCompression(DataCompressionType.Page);
+        });
 
         VerifyError(
             SqlServerStrings.VectorIndexUnsupportedOption(
@@ -1476,12 +1453,11 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<FullTextEntityWithTwoIndexes>(
-            b =>
-            {
-                b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
-                b.HasFullTextIndex(e => e.Body).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
-            });
+        modelBuilder.Entity<FullTextEntityWithTwoIndexes>(b =>
+        {
+            b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
+            b.HasFullTextIndex(e => e.Body).UseKeyIndex("PK_FullTextEntityWithTwoIndexes");
+        });
 
         VerifyError(
             SqlServerStrings.FullTextIndexDuplicateOnTable(
@@ -1513,8 +1489,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<FullTextEntityWithIntColumn>(
-            b => b.HasFullTextIndex(e => e.Count).UseKeyIndex("PK_FullTextEntityWithIntColumn"));
+        modelBuilder.Entity<FullTextEntityWithIntColumn>(b
+            => b.HasFullTextIndex(e => e.Count).UseKeyIndex("PK_FullTextEntityWithIntColumn"));
 
         VerifyError(
             SqlServerStrings.FullTextIndexOnInvalidColumn(
@@ -1529,8 +1505,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<FullTextEntityValid>(
-            b => b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityValid"));
+        modelBuilder.Entity<FullTextEntityValid>(b => b.HasFullTextIndex(e => e.Title).UseKeyIndex("PK_FullTextEntityValid"));
 
         Validate(modelBuilder);
     }
@@ -1540,8 +1515,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<FullTextEntityWithBinary>(
-            b => b.HasFullTextIndex(e => e.Document).UseKeyIndex("PK_FullTextEntityWithBinary"));
+        modelBuilder.Entity<FullTextEntityWithBinary>(b => b.HasFullTextIndex(e => e.Document).UseKeyIndex("PK_FullTextEntityWithBinary"));
 
         Validate(modelBuilder);
     }
@@ -1551,8 +1525,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<FullTextEntityWithMixedColumns>(
-            b => b.HasFullTextIndex(e => new { e.Title, e.Document }).UseKeyIndex("PK_FullTextEntityWithMixedColumns"));
+        modelBuilder.Entity<FullTextEntityWithMixedColumns>(b
+            => b.HasFullTextIndex(e => new { e.Title, e.Document }).UseKeyIndex("PK_FullTextEntityWithMixedColumns"));
 
         Validate(modelBuilder);
     }
@@ -1562,8 +1536,8 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<FullTextEntityWithMixedValidInvalid>(
-            b => b.HasFullTextIndex(e => new { e.Title, e.Count }).UseKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
+        modelBuilder.Entity<FullTextEntityWithMixedValidInvalid>(b
+            => b.HasFullTextIndex(e => new { e.Title, e.Count }).UseKeyIndex("PK_FullTextEntityWithMixedValidInvalid"));
 
         VerifyError(
             SqlServerStrings.FullTextIndexOnInvalidColumn(
@@ -1664,12 +1638,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     {
         var modelBuilder = CreateConventionlessModelBuilder();
         var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity));
-        entityTypeBuilder.Property(typeof(Microsoft.SqlServer.Types.SqlHierarchyId), "TreeNode");
+        entityTypeBuilder.Property(typeof(SqlHierarchyId), "TreeNode");
         entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property));
 
         Assert.Equal(
             SqlServerStrings.PropertyNotMappedHierarchyId(
-                typeof(Microsoft.SqlServer.Types.SqlHierarchyId).ShortDisplayName(),
+                typeof(SqlHierarchyId).ShortDisplayName(),
                 typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
                 "TreeNode"),
             Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);

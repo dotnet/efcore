@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Query.Associations.OwnedNavigations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.OwnedJson;
 
-
 public abstract class OwnedJsonRelationalFixtureBase : OwnedNavigationsFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName

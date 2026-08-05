@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using System.Collections;
 using Microsoft.EntityFrameworkCore.TestModels;
 
@@ -1229,7 +1232,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
         Assert.Same(login1, message3.Sender);
         Assert.Equal(
             new[] { "Fanc", "I'll" },
-            login1.SentMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
+            login1.SentMessages.Select(m => m.Body[..4]).OrderBy(m => m).ToArray());
 
         Assert.Same(login2, message2.Sender);
         Assert.Same(message2, login2.SentMessages.Single());
@@ -1238,7 +1241,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
         Assert.Same(login2, message3.Recipient);
         Assert.Equal(
             new[] { "Fanc", "I'll" },
-            login2.ReceivedMessages.Select(m => m.Body.Substring(0, 4)).OrderBy(m => m).ToArray());
+            login2.ReceivedMessages.Select(m => m.Body[..4]).OrderBy(m => m).ToArray());
 
         Assert.Same(login1, message2.Recipient);
         Assert.Same(message2, login1.ReceivedMessages.Single());

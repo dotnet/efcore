@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable StaticMemberInGenericType
@@ -4002,10 +4005,10 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
     }
 
     private static void AddData(FirstLevel first)
-        => first.SecondLevels = new List<SecondLevel>
-        {
-            new() { ThirdLevels = new List<ThirdLevel> { new(), new() } }, new() { ThirdLevels = new List<ThirdLevel> { new(), new() } }
-        };
+        => first.SecondLevels =
+        [
+            new() { ThirdLevels = [new(), new()] }, new() { ThirdLevels = [new(), new()] }
+        ];
 
     protected class SecondLevel
     {
@@ -4115,7 +4118,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
+        public ICollection<ProductPN> Products { get; } = [];
     }
 
     protected class ProductPN
@@ -4147,7 +4150,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<Product> Products { get; } = new List<Product>();
+        public ICollection<Product> Products { get; } = [];
     }
 
     protected class Product
@@ -4166,8 +4169,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
         public virtual Guid GameId { get; set; }
         public virtual Game Game { get; set; }
 
-        public virtual ICollection<Item> Items { get; } = new List<Item>();
-        public virtual ICollection<Actor> Actors { get; } = new List<Actor>();
+        public virtual ICollection<Item> Items { get; } = [];
+        public virtual ICollection<Actor> Actors { get; } = [];
     }
 
     protected abstract class GameEntity
@@ -4189,11 +4192,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
     {
         public virtual Guid Id { get; set; }
 
-        public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+        public virtual ICollection<Item> Items { get; set; } = [];
 
-        public virtual ICollection<Actor> Actors { get; set; } = new List<Actor>();
+        public virtual ICollection<Actor> Actors { get; set; } = [];
 
-        public virtual ICollection<Level> Levels { get; set; } = new List<Level>();
+        public virtual ICollection<Level> Levels { get; set; } = [];
     }
 
     protected class TestTemp
@@ -4330,21 +4333,15 @@ public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : 
 
             modelBuilder.Entity<GameEntity>();
 
-            modelBuilder.Entity<Item>(eb =>
-            {
-                eb.HasOne(i => i.Level)
-                    .WithMany(l => l.Items)
-                    .HasForeignKey(i => new { i.GameId, i.LevelId })
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            modelBuilder.Entity<Item>(eb => eb.HasOne(i => i.Level)
+                .WithMany(l => l.Items)
+                .HasForeignKey(i => new { i.GameId, i.LevelId })
+                .OnDelete(DeleteBehavior.Restrict));
 
-            modelBuilder.Entity<Actor>(eb =>
-            {
-                eb.HasOne(i => i.Level)
-                    .WithMany(l => l.Actors)
-                    .HasForeignKey(i => new { i.GameId, i.LevelId })
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
+            modelBuilder.Entity<Actor>(eb => eb.HasOne(i => i.Level)
+                .WithMany(l => l.Actors)
+                .HasForeignKey(i => new { i.GameId, i.LevelId })
+                .OnDelete(DeleteBehavior.Restrict));
 
             modelBuilder
                 .Entity<FirstLevel>()

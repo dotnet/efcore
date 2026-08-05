@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class RelationalJsonObject : RelationalJsonElement, IRelationalJsonObject
 {
-    private readonly Utilities.OrderedDictionary<string, IRelationalJsonElement> _properties = new(StringComparer.Ordinal);
+    private readonly Utilities.OrderedDictionary<string, IRelationalJsonElement> _properties = [with(StringComparer.Ordinal)];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

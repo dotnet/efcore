@@ -6,6 +6,7 @@
 // without requiring a dependency on the NetTopologySuite package.
 
 // ReSharper disable CheckNamespace
+
 namespace NetTopologySuite.Geometries;
 
 public class FakePoint;

@@ -92,10 +92,7 @@ INNER JOIN [HookMetadata] AS [h0] ON [h].[Id] = [h0].[HookId]
             seed: context =>
             {
                 context.AddRange(
-                    new Context36837.EntityType
-                    {
-                        ComplexThing = new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1) }
-                    });
+                    new Context36837.EntityType { ComplexThing = new Context36837.ComplexThing { DateTime = new DateTime(2020, 1, 1) } });
                 return context.SaveChangesAsync();
             });
 

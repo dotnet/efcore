@@ -160,8 +160,8 @@ public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAc
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectArrayAccessExpression arrayProjectionExpression
-                && Equals(arrayProjectionExpression));
+                || (obj is ObjectArrayAccessExpression arrayProjectionExpression
+                    && Equals(arrayProjectionExpression)));
 
     private bool Equals(ObjectArrayAccessExpression objectArrayAccessExpression)
         => Object.Equals(objectArrayAccessExpression.Object)

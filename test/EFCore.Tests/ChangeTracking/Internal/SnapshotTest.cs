@@ -21,10 +21,10 @@ public class SnapshotTest
     public void SetValue_sets_value_on_multi_snapshot()
     {
         var snapshot = new MultiSnapshot(
-            [
-                new Snapshot<int>(1),
-                new Snapshot<string>("A")
-            ]);
+        [
+            new Snapshot<int>(1),
+            new Snapshot<string>("A")
+        ]);
 
         snapshot.SetValue(0, 2);
         snapshot.SetValue(Snapshot.MaxGenericTypes, "B");

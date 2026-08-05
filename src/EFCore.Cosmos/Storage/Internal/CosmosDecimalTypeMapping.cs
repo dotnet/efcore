@@ -25,7 +25,8 @@ public class CosmosDecimalTypeMapping : CosmosTypeMapping<decimal>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosDecimalTypeMapping() : base(jsonValueReaderWriter: CosmosJsonDecimalReaderWriter.Instance)
+    public CosmosDecimalTypeMapping()
+        : base(jsonValueReaderWriter: CosmosJsonDecimalReaderWriter.Instance)
     {
     }
 
@@ -35,11 +36,12 @@ public class CosmosDecimalTypeMapping : CosmosTypeMapping<decimal>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected CosmosDecimalTypeMapping(CoreTypeMappingParameters parameters) : base(parameters)
+    protected CosmosDecimalTypeMapping(CoreTypeMappingParameters parameters)
+        : base(parameters)
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
         => new CosmosDecimalTypeMapping(parameters);
 }

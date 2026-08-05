@@ -243,7 +243,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_binary_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<BytesType, byte[]>(
             nameof(BytesType.Bytes),
-            value == "" ? [] : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
+            value == "" ? [] : value.Split(',').Select(byte.Parse).ToArray(), json);
 
     protected class BytesType
     {
@@ -604,7 +604,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 ? default
                 : value == ""
                     ? []
-                    : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
+                    : value.Split(',').Select(byte.Parse).ToArray(), json);
 
     protected class NullableBytesType
     {
@@ -925,7 +925,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 ? default
                 : value == ""
                     ? []
-                    : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
+                    : value.Split(',').Select(byte.Parse).ToArray(), json);
 
     [Theory, InlineData(
          "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
@@ -1445,7 +1445,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             => Address.Equals(other.Address);
 
         public override bool Equals(object? obj)
-            => !ReferenceEquals(null, obj) && (ReferenceEquals(this, obj) || obj.GetType() == GetType() && Equals((IpAddress)obj));
+            => !ReferenceEquals(null, obj) && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((IpAddress)obj)));
 
         public override int GetHashCode()
             => Address.GetHashCode();
@@ -2690,12 +2690,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             b => b.HasConversion<CustomCollectionConverter<IList<DateOnly>, DateOnly>,
                 CustomCollectionComparer<IList<DateOnly>, DateOnly>>(),
             nameof(DateOnlyConvertedType.DateOnlyConverted),
-            new List<DateOnly>
-            {
+            [
                 DateOnly.MinValue,
                 new(2023, 5, 29),
                 DateOnly.MaxValue
-            },
+            ],
             """{"Prop":"[\u00220001-01-01\u0022,\u00222023-05-29\u0022,\u00229999-12-31\u0022]"}""");
 
     protected class DateOnlyConvertedType
@@ -2709,12 +2708,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             b => b
                 .HasConversion<CustomCollectionConverter<IList<DateTime>, DateTime>, CustomCollectionComparer<IList<DateTime>, DateTime>>(),
             nameof(DateTimeConvertedType.DateTimeConverted),
-            new List<DateTime>
-            {
+            [
                 DateTime.MinValue,
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
-            },
+            ],
             """{"Prop":"[\u00220001-01-01T00:00:00\u0022,\u00222023-05-29T10:52:47\u0022,\u00229999-12-31T23:59:59.9999999\u0022]"}""");
 
     protected class DateTimeConvertedType
@@ -2727,7 +2725,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<BooleanConvertedType, IList<bool>>(
             b => b.HasConversion<CustomCollectionConverter<IList<bool>, bool>, CustomCollectionComparer<IList<bool>, bool>>(),
             nameof(BooleanConvertedType.BooleanConverted),
-            new List<bool> { false, true },
+            [false, true],
             """{"Prop":"[false,true]"}""");
 
     protected class BooleanConvertedType
@@ -2740,12 +2738,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<CharacterConvertedType, IList<char>>(
             b => b.HasConversion<CustomCollectionConverter<IList<char>, char>, CustomCollectionComparer<IList<char>, char>>(),
             nameof(CharacterConvertedType.CharacterConverted),
-            new List<char>
-            {
+            [
                 char.MinValue,
                 'X',
                 char.MaxValue
-            },
+            ],
             """{"Prop":"[\u0022\\u0000\u0022,\u0022X\u0022,\u0022\\uFFFF\u0022]"}""");
 
     protected class CharacterConvertedType
@@ -2758,12 +2755,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<StringConvertedType, IList<string>>(
             b => b.HasConversion<CustomCollectionConverter<IList<string>, string>, CustomCollectionComparer<IList<string>, string>>(),
             nameof(StringConvertedType.StringConverted),
-            new List<string>
-            {
+            [
                 "MinValue",
                 "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
                 "MaxValue"
-            },
+            ],
             """{"Prop":"[\u0022MinValue\u0022,\u0022\\u2764\\u2765\\uC6C3\\uC720\\u264B\\u262E\\u270C\\u260F\\u2622\\u2620\\u2714\\u2611\\u265A\\u25B2\\u266A\\u0E3F\\u0189\\u26CF\\u2665\\u2763\\u2642\\u2640\\u263F\\uD83D\\uDC4D\\u270D\\u2709\\u2623\\u2624\\u2718\\u2612\\u265B\\u25BC\\u266B\\u2318\\u231B\\u00A1\\u2661\\u10E6\\u30C4\\u263C\\u2601\\u2745\\u267E\\uFE0F\\u270E\\u00A9\\u00AE\\u2122\\u03A3\\u272A\\u272F\\u262D\\u27B3\\u24B6\\u271E\\u2103\\u2109\\u00B0\\u273F\\u26A1\\u2603\\u2602\\u2704\\u00A2\\u20AC\\u00A3\\u221E\\u272B\\u2605\\u00BD\\u262F\\u2721\\u262A\u0022,\u0022MaxValue\u0022]"}""");
 
     protected class StringConvertedType
@@ -2776,13 +2772,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<BytesConvertedType, IList<byte[]>>(
             b => b.HasConversion<CustomCollectionConverter<IList<byte[]>, byte[]>, CustomCollectionComparer<IList<byte[]>, byte[]>>(),
             nameof(BytesConvertedType.BytesConverted),
-            new List<byte[]>
-            {
+            [
                 new byte[] { 0, 0, 0, 1 },
                 new byte[] { 255, 255, 255, 255 },
                 Array.Empty<byte>(),
                 new byte[] { 1, 2, 3, 4 }
-            },
+            ],
             """{"Prop":"[\u0022AAAAAQ==\u0022,\u0022/////w==\u0022,\u0022\u0022,\u0022AQIDBA==\u0022]"}""");
 
     protected class BytesConvertedType
@@ -2814,14 +2809,13 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<EnumU64ConvertedType, IList<EnumU64>>(
             b => b.HasConversion<CustomCollectionConverter<IList<EnumU64>, EnumU64>, CustomCollectionComparer<IList<EnumU64>, EnumU64>>(),
             nameof(EnumU64ConvertedType.EnumU64Converted),
-            new List<EnumU64>
-            {
+            [
                 EnumU64.Min,
                 EnumU64.Max,
                 EnumU64.Default,
                 EnumU64.One,
                 (EnumU64)8
-            },
+            ],
             """{"Prop":"[0,18446744073709551615,0,1,8]"}""");
 
     protected class EnumU64ConvertedType
@@ -2898,13 +2892,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             b => b.HasConversion<CustomCollectionConverter<IList<DateOnly?>, DateOnly?>,
                 CustomCollectionComparer<IList<DateOnly?>, DateOnly?>>(),
             nameof(NullableDateOnlyConvertedType.DateOnlyConverted),
-            new List<DateOnly?>
-            {
+            [
                 DateOnly.MinValue,
                 new DateOnly(2023, 5, 29),
                 DateOnly.MaxValue,
                 null
-            },
+            ],
             """{"Prop":"[\u00220001-01-01\u0022,\u00222023-05-29\u0022,\u00229999-12-31\u0022,null]"}""");
 
     protected class NullableDateOnlyConvertedType
@@ -2919,13 +2912,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 .HasConversion<CustomCollectionConverter<IList<DateTime?>, DateTime?>,
                     CustomCollectionComparer<IList<DateTime?>, DateTime?>>(),
             nameof(NullableDateTimeConvertedType.DateTimeConverted),
-            new List<DateTime?>
-            {
+            [
                 DateTime.MinValue,
                 null,
                 new DateTime(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
-            },
+            ],
             """{"Prop":"[\u00220001-01-01T00:00:00\u0022,null,\u00222023-05-29T10:52:47\u0022,\u00229999-12-31T23:59:59.9999999\u0022]"}""");
 
     protected class NullableDateTimeConvertedType
@@ -2938,12 +2930,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<NullableBooleanConvertedType, IList<bool?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<bool?>, bool?>, CustomCollectionComparer<IList<bool?>, bool?>>(),
             nameof(NullableBooleanConvertedType.BooleanConverted),
-            new List<bool?>
-            {
+            [
                 false,
                 null,
                 true
-            },
+            ],
             """{"Prop":"[false,null,true]"}""");
 
     protected class NullableBooleanConvertedType
@@ -2956,13 +2947,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<NullableCharacterConvertedType, IList<char?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<char?>, char?>, CustomCollectionComparer<IList<char?>, char?>>(),
             nameof(NullableCharacterConvertedType.CharacterConverted),
-            new List<char?>
-            {
+            [
                 char.MinValue,
                 'X',
                 char.MaxValue,
                 null
-            },
+            ],
             """{"Prop":"[\u0022\\u0000\u0022,\u0022X\u0022,\u0022\\uFFFF\u0022,null]"}""");
 
     protected class NullableCharacterConvertedType
@@ -2975,13 +2965,12 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<NullableStringConvertedType, IList<string?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<string?>, string?>, CustomCollectionComparer<IList<string?>, string?>>(),
             nameof(NullableStringConvertedType.StringConverted),
-            new List<string?>
-            {
+            [
                 "MinValue",
                 null,
                 "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
                 "MaxValue"
-            },
+            ],
             """{"Prop":"[\u0022MinValue\u0022,null,\u0022\\u2764\\u2765\\uC6C3\\uC720\\u264B\\u262E\\u270C\\u260F\\u2622\\u2620\\u2714\\u2611\\u265A\\u25B2\\u266A\\u0E3F\\u0189\\u26CF\\u2665\\u2763\\u2642\\u2640\\u263F\\uD83D\\uDC4D\\u270D\\u2709\\u2623\\u2624\\u2718\\u2612\\u265B\\u25BC\\u266B\\u2318\\u231B\\u00A1\\u2661\\u10E6\\u30C4\\u263C\\u2601\\u2745\\u267E\\uFE0F\\u270E\\u00A9\\u00AE\\u2122\\u03A3\\u272A\\u272F\\u262D\\u27B3\\u24B6\\u271E\\u2103\\u2109\\u00B0\\u273F\\u26A1\\u2603\\u2602\\u2704\\u00A2\\u20AC\\u00A3\\u221E\\u272B\\u2605\\u00BD\\u262F\\u2721\\u262A\u0022,\u0022MaxValue\u0022]"}""");
 
     protected class NullableStringConvertedType
@@ -2994,14 +2983,13 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_property_value<NullableBytesConvertedType, IList<byte[]?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<byte[]?>, byte[]?>, CustomCollectionComparer<IList<byte[]?>, byte[]?>>(),
             nameof(NullableBytesConvertedType.BytesConverted),
-            new List<byte[]?>
-            {
+            [
                 new byte[] { 0, 0, 0, 1 },
                 null,
                 new byte[] { 255, 255, 255, 255 },
                 Array.Empty<byte>(),
                 new byte[] { 1, 2, 3, 4 }
-            },
+            ],
             """{"Prop":"[\u0022AAAAAQ==\u0022,null,\u0022/////w==\u0022,\u0022\u0022,\u0022AQIDBA==\u0022]"}""");
 
     protected class NullableBytesConvertedType
@@ -3035,15 +3023,14 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
             b => b
                 .HasConversion<CustomCollectionConverter<IList<EnumU64?>, EnumU64?>, CustomCollectionComparer<IList<EnumU64?>, EnumU64?>>(),
             nameof(NullableEnumU64ConvertedType.EnumU64Converted),
-            new List<EnumU64?>
-            {
+            [
                 EnumU64.Min,
                 null,
                 EnumU64.Max,
                 EnumU64.Default,
                 EnumU64.One,
                 (EnumU64)8
-            },
+            ],
             """{"Prop":"[0,null,18446744073709551615,0,1,8]"}""");
 
     protected class NullableEnumU64ConvertedType
@@ -3240,12 +3227,11 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
     public virtual Task Can_read_write_list_of_array_of_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<BinaryArrayListType, IEnumerable<byte[][]>>(
             nameof(BinaryArrayListType.Prop),
-            new List<byte[][]>
-            {
+            [
                 new[] { new byte[] { 0, 1, 2 }, [1], [77] },
                 Array.Empty<byte[]>(),
                 new[] { new byte[] { 78 } }
-            },
+            ],
             expected,
             mappedCollection: true);
 
@@ -3417,24 +3403,21 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_value<Int32ListListListType, List<List<List<int>>>>(
             nameof(Int32ListListListType.Prop),
             [
-                new List<List<int>>
-                {
-                    new()
-                    {
+                [
+                    [
                         int.MinValue,
                         0,
                         int.MaxValue
-                    },
-                    new() { 77 }
-                },
+                    ],
+                    [77]
+                ],
 
-                new List<List<int>>(),
-                new List<List<int>>
-                {
-                    new() { 1, 2 },
-                    new(),
-                    new() { 78, 79 }
-                }
+                [],
+                [
+                    [1, 2],
+                    [],
+                    [78, 79]
+                ]
             ],
             """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
             mappedCollection: true);
@@ -3548,9 +3531,9 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
         => Can_read_and_write_JSON_value<ULongListArrayListType, List<List<ulong[]>>>(
             nameof(ULongListArrayListType.Prop),
             [
-                new List<ulong[]> { new[] { ulong.MinValue, 1UL, ulong.MaxValue } },
-                new List<ulong[]>(),
-                new List<ulong[]> { new[] { 77UL } }
+                [new[] { ulong.MinValue, 1UL, ulong.MaxValue }],
+                [],
+                [new[] { 77UL }]
             ],
             """{"Prop":[[[0,1,18446744073709551615]],[],[[77]]]}""",
             mappedCollection: true);
@@ -3711,8 +3694,8 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
                 };
 
                 elementNullable = nullabilityInfo is not
-                    { ElementType.ReadState: NullabilityState.NotNull } and not
-                    { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] };
+                { ElementType.ReadState: NullabilityState.NotNull } and not
+                { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] };
             }
 
             Assert.Equal(elementNullable, element.IsNullable);

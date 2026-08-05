@@ -226,10 +226,8 @@ public class CosmosBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         TriggerBuilder triggerBuilder = null!;
-        modelBuilder.Entity<Customer>(entity =>
-        {
-            triggerBuilder = entity.HasTrigger("TestTrigger", TriggerType.Pre, TriggerOperation.Create);
-        });
+        modelBuilder.Entity<Customer>(entity
+            => triggerBuilder = entity.HasTrigger("TestTrigger", TriggerType.Pre, TriggerOperation.Create));
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
         var trigger = entityType.FindDeclaredTrigger("TestTrigger")!;

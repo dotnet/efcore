@@ -14,10 +14,8 @@ internal abstract class MigrationContext<TEntity1, TEntity2> : DbContext
     protected Type ModelType1 { get; } = typeof(TEntity1);
     protected Type ModelType2 { get; } = typeof(TEntity2);
 
-    private Type _thisType;
-
     protected Type ThisType
-        => _thisType ??= GetType();
+        => field ??= GetType();
 
     public DbSet<TEntity1> TestModels { get; set; }
     public DbSet<TEntity2> ConvertedTestModels { get; set; }

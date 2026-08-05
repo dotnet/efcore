@@ -48,7 +48,7 @@ public class ProceduralQueryExpressionGenerator(DbContext context)
 
 public class ProcedurallyGeneratedQueryExecutor
 {
-    private static readonly Dictionary<string, List<string>> _knownFailingTests = new();
+    private static readonly Dictionary<string, List<string>> _knownFailingTests = [];
 
     static ProcedurallyGeneratedQueryExecutor()
     {

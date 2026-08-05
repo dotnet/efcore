@@ -180,7 +180,8 @@ FROM root c
             // result to be filtered out entirely.
             await AssertQuery(
                 ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
-                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null)
+                    .Select(x => x.OptionalAssociate!.OptionalNestedAssociate),
                 queryTrackingBehavior: queryTrackingBehavior);
 
             AssertSql(
@@ -199,7 +200,8 @@ FROM root c
             // result to be filtered out entirely.
             await AssertQuery(
                 ss => ss.Set<RootEntity>().Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
-                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null)
+                    .Select(x => x.OptionalAssociate!.RequiredNestedAssociate),
                 queryTrackingBehavior: queryTrackingBehavior);
 
             AssertSql(
@@ -212,7 +214,8 @@ FROM root c
 
     public override Task Select_required_associate_via_optional_navigation(QueryTrackingBehavior queryTrackingBehavior)
         // We don't support (inter-document) navigations with Cosmos.
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_required_associate_via_optional_navigation(queryTrackingBehavior));
+        => Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Select_required_associate_via_optional_navigation(queryTrackingBehavior));
 
     public override async Task Select_unmapped_associate_scalar_property(QueryTrackingBehavior queryTrackingBehavior)
     {
@@ -281,7 +284,8 @@ ORDER BY c["Id"]
             // result to be filtered out entirely.
             await AssertQuery(
                 ss => ss.Set<RootEntity>().OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
-                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).OrderBy(e => e.Id).Select(x => x.OptionalAssociate!.NestedCollection),
+                ss => ss.Set<RootEntity>().Where(x => x.OptionalAssociate != null).OrderBy(e => e.Id)
+                    .Select(x => x.OptionalAssociate!.NestedCollection),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: r => r.Id),
                 queryTrackingBehavior: queryTrackingBehavior);

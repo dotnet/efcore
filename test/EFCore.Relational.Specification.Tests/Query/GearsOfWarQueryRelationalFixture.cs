@@ -14,58 +14,22 @@ public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureB
         var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>
         {
             {
-                (typeof(Gear), "Discriminator"), e =>
+                (typeof(Gear), "Discriminator"), e => (((Gear)e)?.Nickname)switch
                 {
-                    switch (((Gear)e)?.Nickname)
-                    {
-                        case "Baird":
-                        case "Marcus":
-                            return "Officer";
-
-                        case "Cole Train":
-                        case "Dom":
-                        case "Paduk":
-                            return "Gear";
-
-                        default:
-                            return null;
-                    }
+                    "Baird" or "Marcus" => "Officer", "Cole Train" or "Dom" or "Paduk" => "Gear", _ => null,
                 }
             },
             {
-                (typeof(Faction), "Discriminator"), e =>
+                (typeof(Faction), "Discriminator"), e => (((Faction)e)?.Id)switch
                 {
-                    switch (((Faction)e)?.Id)
-                    {
-                        case 1:
-                        case 2:
-                        case 3:
-                            return "LocustHorde";
-
-                        default:
-                            return null;
-                    }
+                    1 or 2 or 3 => "LocustHorde", _ => null,
                 }
             },
             {
-                (typeof(LocustLeader), "Discriminator"), e =>
+                (typeof(LocustLeader), "Discriminator"), e => (((LocustLeader)e)?.Name)switch
                 {
-                    switch (((LocustLeader)e)?.Name)
-                    {
-                        case "General Karn":
-                        case "General RAAM":
-                        case "High Priest Skorge":
-                        case "The Speaker":
-                            return "LocustLeader";
-
-                        case "Queen Myrrah":
-                        case "Unknown":
-                        case "Reyna Diaz":
-                            return "LocustCommander";
-
-                        default:
-                            return null;
-                    }
+                    "General Karn" or "General RAAM" or "High Priest Skorge" or "The Speaker" => "LocustLeader",
+                    "Queen Myrrah" or "Unknown" or "Reyna Diaz" => "LocustCommander", _ => null,
                 }
             },
         };

@@ -117,62 +117,28 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
             { (typeof(InheritanceBase1), "InheritanceBase2Id1"), e => ((InheritanceBase1)e)?.Id == 1 ? null : 1 },
             { (typeof(InheritanceBase2), "InheritanceLeaf2Id"), e => ((InheritanceBase2)e)?.Id == 1 ? 1 : null },
             {
-                (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"), e =>
+                (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 1:
-                            return 1;
-                        case 2:
-                            return 2;
-                        default:
-                            return null;
-                    }
+                    1 => 1, 2 => 2, _ => null,
                 }
             },
             {
-                (typeof(InheritanceLeaf1), "InheritanceDerived1Id"), e =>
+                (typeof(InheritanceLeaf1), "InheritanceDerived1Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 1:
-                            return 1;
-                        case 2:
-                            return 2;
-                        case 3:
-                            return 2;
-                        default:
-                            return null;
-                    }
+                    1 => 1, 2 => 2, 3 => 2, _ => null,
                 }
             },
             { (typeof(InheritanceLeaf1), "InheritanceDerived1Id1"), e => ((InheritanceLeaf1)e)?.Id == 1 ? 1 : null },
             {
-                (typeof(InheritanceLeaf1), "InheritanceDerived2Id"), e =>
+                (typeof(InheritanceLeaf1), "InheritanceDerived2Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 2:
-                            return 3;
-                        case 3:
-                            return 3;
-                        default:
-                            return null;
-                    }
+                    2 => 3, 3 => 3, _ => null,
                 }
             },
             {
-                (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"), e =>
+                (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"), e => (((InheritanceLeaf1)e)?.Id)switch
                 {
-                    switch (((InheritanceLeaf1)e)?.Id)
-                    {
-                        case 1:
-                            return 1;
-                        case 2:
-                            return 2;
-                        default:
-                            return null;
-                    }
+                    1 => 1, 2 => 2, _ => null,
                 }
             },
             { (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived2Id"), e => ((InheritanceLeaf1)e)?.Id == 3 ? 3 : null },
@@ -522,17 +488,11 @@ public abstract class ComplexNavigationsQueryFixtureBase : QueryFixtureBase<Comp
                 return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(InheritanceLeaf1))
-            {
-                return (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(InheritanceLeaf2))
-            {
-                return (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(InheritanceLeaf1)
+                ? (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable()
+                : typeof(TEntity) == typeof(InheritanceLeaf2)
+                    ? (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
     }
 }
