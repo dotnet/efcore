@@ -645,6 +645,9 @@ extends:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
                   DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+      - template: /eng/common/core-templates/job/helix-job-monitor.yml@self
+        parameters:
+          helixAccessToken: $(HelixApiAccessToken)
     - stage: validate
       displayName: Validate
       dependsOn: build

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "microsoft.dotnet.helix.jobmonitor": {
+      "version": "11.0.0-beta.26401.101",
+      "commands": [
+        "dotnet-helix-job-monitor"
+      ]
+    }
+  }
+}

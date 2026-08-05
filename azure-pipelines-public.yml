@@ -509,6 +509,7 @@ stages:
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
                   SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    - template: /eng/common/core-templates/job/helix-job-monitor.yml
 - stage: validate
   displayName: Validate
   dependsOn: build
