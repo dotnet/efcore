@@ -74,7 +74,7 @@ public class InternalComplexPropertyBuilder
                 continue;
             }
 
-            detachedRelationships ??= new List<RelationshipSnapshot>();
+            detachedRelationships ??= [];
 
             var detachedRelationship = InternalEntityTypeBuilder.DetachRelationship(relationshipToBeDetached, false);
             if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -101,7 +101,7 @@ public class InternalComplexPropertyBuilder
                     continue;
                 }
 
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= [];
 
                 var detachedRelationship = InternalEntityTypeBuilder.DetachRelationship(relationshipToBeDetached, true);
                 if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -116,7 +116,7 @@ public class InternalComplexPropertyBuilder
                 continue;
             }
 
-            detachedKeys ??= new List<(InternalKeyBuilder, ConfigurationSource?)>();
+            detachedKeys ??= [];
 
             var detachedKey = InternalEntityTypeBuilder.DetachKey(keyToDetach);
             if (detachedKey.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -133,7 +133,7 @@ public class InternalComplexPropertyBuilder
                 continue;
             }
 
-            detachedIndexes ??= new List<InternalIndexBuilder>();
+            detachedIndexes ??= [];
 
             var detachedIndex = InternalEntityTypeBuilder.DetachIndex(indexToBeDetached);
             if (detachedIndex.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))

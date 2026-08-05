@@ -17,11 +17,9 @@ public class FunctionMapping : TableMappingBase<FunctionColumnMapping>, IFunctio
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public FunctionMapping(IEntityType entityType, StoreFunction storeFunction, IDbFunction dbFunction, bool includesDerivedTypes)
+    public FunctionMapping(IEntityType entityType, StoreFunction storeFunction, IDbFunction dbFunction, bool? includesDerivedTypes)
         : base(entityType, storeFunction, includesDerivedTypes)
-    {
-        DbFunction = dbFunction;
-    }
+        => DbFunction = dbFunction;
 
     /// <inheritdoc />
     public virtual bool IsDefaultFunctionMapping { get; set; }

@@ -84,9 +84,9 @@ public class PrimaryKeyAttributeConventionTest
         modelBuilder.Model.FinalizeModel();
 
         // assert that the base type is not part of the model
-        Assert.Empty(
-            modelBuilder.Model.GetEntityTypes()
-                .Where(e => e.ClrType == typeof(BaseUnmappedEntityWithPrimaryKey)));
+        Assert.DoesNotContain(
+            modelBuilder.Model.GetEntityTypes(),
+            e => e.ClrType == typeof(BaseUnmappedEntityWithPrimaryKey));
 
         // assert that we see the primaryKey anyway
         var primaryKey = (Key)entityBuilder.Metadata.FindPrimaryKey()!;

@@ -23,12 +23,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static OwnedNavigationBuilder ToJson(this OwnedNavigationBuilder builder)
-    {
-        var navigationName = builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name;
-        builder.ToJson(navigationName);
-
-        return builder;
-    }
+        => builder.ToJson(builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name);
 
     /// <summary>
     ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
@@ -45,12 +40,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
         where TDependentEntity : class
-    {
-        var navigationName = builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name;
-        builder.ToJson(navigationName);
-
-        return builder;
-    }
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)builder).ToJson();
 
     /// <summary>
     ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
@@ -68,11 +58,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         string? jsonColumnName)
         where TOwnerEntity : class
         where TDependentEntity : class
-    {
-        builder.OwnedEntityType.SetContainerColumnName(jsonColumnName);
-
-        return builder;
-    }
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)builder).ToJson(jsonColumnName);
 
     /// <summary>
     ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
@@ -90,6 +76,40 @@ public static class RelationalOwnedNavigationBuilderExtensions
         string? jsonColumnName)
     {
         builder.OwnedEntityType.SetContainerColumnName(jsonColumnName);
+
+        return builder;
+    }
+
+    /// <summary>
+    ///     Set the relational database column type to be used to store the document represented by this owned entity.
+    /// </summary>
+    /// <remarks>
+    ///     This method should only be specified for the outer-most owned entity in the given ownership structure and
+    ///     only when mapping the column to a database document type.
+    /// </remarks>
+    /// <param name="builder">The builder for the owned navigation being configured.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasColumnType<TOwnerEntity, TDependentEntity>(
+        this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string? columnType)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)builder).HasColumnType(columnType);
+
+    /// <summary>
+    ///     Set the relational database column type to be used to store the document represented by this owned entity.
+    /// </summary>
+    /// <remarks>
+    ///     This method should only be specified for the outer-most owned entity in the given ownership structure and
+    ///     only when mapping the column to a database document type.
+    /// </remarks>
+    /// <param name="builder">The builder for the owned navigation being configured.</param>
+    /// <param name="columnType">The database type for the column, or <see langword="null" /> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnedNavigationBuilder HasColumnType(this OwnedNavigationBuilder builder, string? columnType)
+    {
+        builder.OwnedEntityType.SetContainerColumnType(columnType);
 
         return builder;
     }

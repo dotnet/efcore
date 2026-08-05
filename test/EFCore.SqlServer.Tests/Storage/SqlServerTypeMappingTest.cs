@@ -23,7 +23,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
         using var context = new OptimisticContext();
         var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-        var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+        var newToken = changeValue ? [1, 2, 3, 4, 0, 6, 7, 8] : token;
 
         var entity = context.Attach(
             new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
@@ -92,7 +92,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             typeof(SqlServerDateTimeTypeMapping),
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
             null,
-            new[] { FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime },
+            [FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime],
             null,
             null);
 
@@ -385,7 +385,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void DateOnly_code_literal_generated_correctly()
     {
-        var typeMapping = new DateOnlyTypeMapping("date", DbType.Date);
+        var typeMapping = new DateOnlyTypeMapping("date");
 
         Test_GenerateCodeLiteral_helper(typeMapping, new DateOnly(2020, 3, 5), "new DateOnly(2020, 3, 5)");
     }
@@ -393,7 +393,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void TimeOnly_code_literal_generated_correctly()
     {
-        var typeMapping = new TimeOnlyTypeMapping("time", DbType.Time);
+        var typeMapping = new TimeOnlyTypeMapping("time");
 
         Test_GenerateCodeLiteral_helper(typeMapping, new TimeOnly(12, 30, 10), "new TimeOnly(12, 30, 10)");
         Test_GenerateCodeLiteral_helper(typeMapping, new TimeOnly(12, 30, 10, 500), "new TimeOnly(12, 30, 10, 500)");
@@ -430,13 +430,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(expectedCode, csharpHelper.UnknownLiteral(value));
     }
 
-    private class FakeType : Type
+    private class FakeType(string fullName) : Type
     {
-        public FakeType(string fullName)
-        {
-            FullName = fullName;
-        }
-
         public override object[] GetCustomAttributes(bool inherit)
             => throw new NotImplementedException();
 
@@ -566,7 +561,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
             => throw new NotImplementedException();
 
-        public override string FullName { get; }
+        public override string FullName { get; } = fullName;
 
         public override int GetHashCode()
             => FullName.GetHashCode();

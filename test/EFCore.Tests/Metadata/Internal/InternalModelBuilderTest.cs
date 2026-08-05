@@ -372,7 +372,7 @@ public class InternalModelBuilderTest
 
         Assert.NotNull(modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit));
 
-        Assert.Empty(model.FindEntityTypes(typeof(Details)).Where(e => !e.HasSharedClrType));
+        Assert.DoesNotContain(model.FindEntityTypes(typeof(Details)), e => !e.HasSharedClrType);
 
         Assert.Null(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
@@ -435,9 +435,9 @@ public class InternalModelBuilderTest
         Assert.NotNull(joinEntityType);
         Assert.NotNull(modelBuilder.RemoveImplicitJoinEntity(joinEntityType));
 
-        Assert.Empty(
-            model.GetEntityTypes()
-                .Where(e => e.IsImplicitlyCreatedJoinEntityType));
+        Assert.DoesNotContain(
+            model.GetEntityTypes(),
+            e => e.IsImplicitlyCreatedJoinEntityType);
 
         var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
         var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
@@ -563,9 +563,7 @@ public class InternalModelBuilderTest
         public Details Details { get; set; }
     }
 
-    private class SpecialCustomer : Customer
-    {
-    }
+    private class SpecialCustomer : Customer;
 
     private class Order
     {

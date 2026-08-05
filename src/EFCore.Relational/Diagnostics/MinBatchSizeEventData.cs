@@ -27,9 +27,7 @@ public class MinBatchSizeEventData : BatchEventData
         int commandCount,
         int minBatchSize)
         : base(eventDefinition, messageGenerator, entries, commandCount)
-    {
-        MinBatchSize = minBatchSize;
-    }
+        => MinBatchSize = minBatchSize;
 
     /// <summary>
     ///     The minimum batch size.

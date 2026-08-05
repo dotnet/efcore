@@ -3,15 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class ComplexTypeBulkUpdatesSqliteTest : ComplexTypeBulkUpdatesTestBase<
-    ComplexTypeBulkUpdatesSqliteTest.ComplexTypeBulkUpdatesSqliteFixture>
-{
-    public ComplexTypeBulkUpdatesSqliteTest(ComplexTypeBulkUpdatesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
+#nullable disable
 
-    public class ComplexTypeBulkUpdatesSqliteFixture : ComplexTypeBulkUpdatesFixtureBase
+public class ComplexTypeBulkUpdatesSqliteTest(
+    ComplexTypeBulkUpdatesSqliteTest.ComplexTypeBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesRelationalTestBase<
+    ComplexTypeBulkUpdatesSqliteTest.ComplexTypeBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
+{
+    public class ComplexTypeBulkUpdatesSqliteFixture : ComplexTypeBulkUpdatesRelationalFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
+#nullable disable
+
 public class OperatorEntityString : OperatorEntityBase
 {
     public string Value { get; set; }

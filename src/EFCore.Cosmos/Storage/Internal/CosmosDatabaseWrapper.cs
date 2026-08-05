@@ -3,6 +3,7 @@
 
 using System.Net;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -245,7 +246,7 @@ public class CosmosDatabaseWrapper : Database
                     if (propertyName != null)
                     {
                         document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
                     }
                 }
 
@@ -283,6 +284,69 @@ public class CosmosDatabaseWrapper : Database
         switch (state)
         {
             case EntityState.Added:
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey != null)
+                {
+                    // The code below checks for primary key properties that are not configured for value generation but have not
+                    // had a non-sentinel (effectively, non-CLR default) value set. For composite keys, we only check if at least
+                    // one property has value generation or a value set, since it is normal to have non-value generated parts of composite
+                    // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
+                    // check to ensure that, even if partition key properties have been set, at least one other primary key property is
+                    // also set.
+                    var partitionPropertyNeedsValue = true;
+                    var propertyNeedsValue = true;
+                    var allPkPropertiesAreFk = true;
+                    IProperty? firstNonPartitionKeyProperty = null;
+
+                    var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+                    foreach (var property in primaryKey.Properties)
+                    {
+                        if (property.IsForeignKey())
+                        {
+                            // FK properties conceptually get their value from the associated principal key, which can be handled
+                            // automatically by the update pipeline in some cases, so exclude from this check.
+                            continue;
+                        }
+
+                        allPkPropertiesAreFk = false;
+
+                        var isPartitionKeyProperty = partitionKeyProperties.Contains(property);
+                        if (!isPartitionKeyProperty)
+                        {
+                            firstNonPartitionKeyProperty = property;
+                        }
+
+                        if (property.ValueGenerated != ValueGenerated.Never
+                            || entry.HasExplicitValue(property))
+                        {
+                            if (!isPartitionKeyProperty)
+                            {
+                                propertyNeedsValue = false;
+                                break;
+                            }
+
+                            partitionPropertyNeedsValue = false;
+                        }
+                    }
+
+                    if (!allPkPropertiesAreFk)
+                    {
+                        if (firstNonPartitionKeyProperty != null
+                            && propertyNeedsValue)
+                        {
+                            // There were non-partition key properties, so only throw if it is one of these that is not set,
+                            // ignoring partition key properties.
+                            Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
+                        }
+                        else if (firstNonPartitionKeyProperty == null
+                                 && partitionPropertyNeedsValue)
+                        {
+                            // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
+                            Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
+                        }
+                    }
+                }
+
                 var newDocument = documentSource.GetCurrentDocument(entry);
                 if (newDocument != null)
                 {
@@ -313,7 +377,7 @@ public class CosmosDatabaseWrapper : Database
                     if (propertyName != null)
                     {
                         document[propertyName] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                            JToken.FromObject(entityType.GetDiscriminatorValue()!, CosmosClientWrapper.Serializer);
                     }
                 }
 

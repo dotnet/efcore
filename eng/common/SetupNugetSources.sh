@@ -18,9 +18,10 @@
 #
 # Note that the NuGetAuthenticate task should be called after SetupNugetSources.
 # This ensures that:
-# - Appropriate creds are set for the added internal feeds (if not supplied to the script)
+# - Appropriate creds are set for the added internal feeds (if not supplied to the scrupt)
 # - The credential provider is installed.
 #
+# This logic is also abstracted into enable-internal-sources.yml.
 
 ConfigFile=$1
 CredToken=$2
@@ -98,7 +99,7 @@ if [ "$?" == "0" ]; then
     PackageSources+=('dotnet3.1-internal-transport')
 fi
 
-DotNetVersions=('5' '6' '7' '8')
+DotNetVersions=('5' '6' '7' '8' '9')
 
 for DotNetVersion in ${DotNetVersions[@]} ; do
     FeedPrefix="dotnet${DotNetVersion}";

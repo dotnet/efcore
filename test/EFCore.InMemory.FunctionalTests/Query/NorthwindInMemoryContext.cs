@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindInMemoryContext : NorthwindContext
+public class NorthwindInMemoryContext(DbContextOptions options) : NorthwindContext(options)
 {
-    public NorthwindInMemoryContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

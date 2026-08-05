@@ -5,16 +5,11 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ComplexNavigationsSharedTypeQuerySqliteTest :
-    ComplexNavigationsSharedTypeQueryRelationalTestBase<ComplexNavigationsSharedTypeQuerySqliteFixture>
-{
-    public ComplexNavigationsSharedTypeQuerySqliteTest(
-        ComplexNavigationsSharedTypeQuerySqliteFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class ComplexNavigationsSharedTypeQuerySqliteTest(ComplexNavigationsSharedTypeQuerySqliteFixture fixture)
+    : ComplexNavigationsSharedTypeQueryRelationalTestBase<ComplexNavigationsSharedTypeQuerySqliteFixture>(fixture)
+{
     public override Task GroupJoin_client_method_in_OrderBy(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.GroupJoin_client_method_in_OrderBy(async),
@@ -46,23 +41,21 @@ public class ComplexNavigationsSharedTypeQuerySqliteTest :
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Prune_does_not_throw_null_ref(async))).Message);
 
-    [ConditionalTheory(Skip = "Issue#26104")]
-    public override Task GroupBy_aggregate_where_required_relationship(bool async)
-        => base.GroupBy_aggregate_where_required_relationship(async);
-
-    [ConditionalTheory(Skip = "Issue#26104")]
-    public override Task GroupBy_aggregate_where_required_relationship_2(bool async)
-        => base.GroupBy_aggregate_where_required_relationship_2(async);
-
-    public override async Task GroupJoin_with_subquery_on_inner(bool async)
+    public override async Task Correlated_projection_with_first(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupJoin_with_subquery_on_inner(async))).Message);
+                () => base.Correlated_projection_with_first(async))).Message);
 
-    public override async Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool async)
+    public override async Task Multiple_select_many_in_projection(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(async))).Message);
+                () => base.Multiple_select_many_in_projection(async))).Message);
+
+    public override async Task Single_select_many_in_projection_with_take(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Single_select_many_in_projection_with_take(async))).Message);
 }

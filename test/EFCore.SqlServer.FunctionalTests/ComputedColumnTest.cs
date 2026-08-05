@@ -3,7 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ComputedColumnTest : IDisposable
+#nullable disable
+
+public class ComputedColumnTest : IAsyncLifetime
 {
     [ConditionalFact]
     public void Can_use_computed_columns()
@@ -47,23 +49,14 @@ public class ComputedColumnTest : IDisposable
         Assert.Null(entity.P5);
     }
 
-    private class Context : DbContext
+    private class Context(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly string _databaseName;
-
-        public Context(IServiceProvider serviceProvider, string databaseName)
-        {
-            _serviceProvider = serviceProvider;
-            _databaseName = databaseName;
-        }
-
         public DbSet<Entity> Entities { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_serviceProvider);
+                .UseSqlServer(SqlServerTestStore.CreateConnectionString(databaseName), b => b.ApplyConfiguration())
+                .UseInternalServiceProvider(serviceProvider);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -103,24 +96,15 @@ public class ComputedColumnTest : IDisposable
         public FlagEnum? CalculatedFlagEnum { get; set; }
     }
 
-    private class NullableContext : DbContext
+    private class NullableContext(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly string _databaseName;
-
-        public NullableContext(IServiceProvider serviceProvider, string databaseName)
-        {
-            _serviceProvider = serviceProvider;
-            _databaseName = databaseName;
-        }
-
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<EnumItem> EnumItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_serviceProvider);
+                .UseSqlServer(SqlServerTestStore.CreateConnectionString(databaseName), b => b.ApplyConfiguration())
+                .UseInternalServiceProvider(serviceProvider);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<EnumItem>()
@@ -144,13 +128,14 @@ public class ComputedColumnTest : IDisposable
         Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
     }
 
-    public ComputedColumnTest()
+    protected SqlServerTestStore TestStore { get; private set; }
+
+    public async Task InitializeAsync()
+        => TestStore = await SqlServerTestStore.CreateInitializedAsync("ComputedColumnTest");
+
+    public Task DisposeAsync()
     {
-        TestStore = SqlServerTestStore.CreateInitialized("ComputedColumnTest");
+        TestStore.Dispose();
+        return Task.CompletedTask;
     }
-
-    protected SqlServerTestStore TestStore { get; }
-
-    public virtual void Dispose()
-        => TestStore.Dispose();
 }

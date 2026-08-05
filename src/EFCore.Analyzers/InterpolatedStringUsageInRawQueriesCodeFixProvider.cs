@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore;
 public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFixProvider
 {
     public override ImmutableArray<string> FixableDiagnosticIds
-        => ImmutableArray.Create(InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer.Id);
+        => ImmutableArray.Create(EFDiagnostics.InterpolatedStringUsageInRawQueries);
 
     public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;

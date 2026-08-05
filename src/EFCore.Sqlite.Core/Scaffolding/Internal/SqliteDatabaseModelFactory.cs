@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 /// </summary>
 public class SqliteDatabaseModelFactory : DatabaseModelFactory
 {
-    private static readonly HashSet<Type?> _defaultClrTypes = new()
-    {
+    private static readonly HashSet<Type?> _defaultClrTypes =
+    [
         typeof(long),
         typeof(string),
         typeof(byte[]),
         typeof(double)
-    };
+    ];
 
     private static readonly HashSet<string> _boolTypes = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -201,7 +201,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
             }
 
             var nullableKeyColumns = databaseModel.Tables
-                .SelectMany(t => t.PrimaryKey?.Columns ?? Array.Empty<DatabaseColumn>())
+                .SelectMany(t => t.PrimaryKey?.Columns ?? [])
                 .Concat(databaseModel.Tables.SelectMany(t => t.ForeignKeys).SelectMany(fk => fk.PrincipalColumns))
                 .Where(c => c.IsNullable)
                 .Distinct();

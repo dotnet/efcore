@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindChangeTrackingQuerySqlServerTest : NorthwindChangeTrackingQueryTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public NorthwindChangeTrackingQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -104,26 +104,26 @@ ORDER BY [e].[EmployeeID]
             """
 @__p_0='2'
 
-SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 """,
             //
             """
 @__p_0='2'
 @__p_1='1'
 
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY
 """,
             //
@@ -184,26 +184,26 @@ FROM [Employees] AS [e]
             """
 @__p_0='2'
 
-SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 """,
             //
             """
 @__p_0='2'
 @__p_1='1'
 
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY
 """,
             //

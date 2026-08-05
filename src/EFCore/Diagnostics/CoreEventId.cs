@@ -122,6 +122,10 @@ public static class CoreEventId
         MappedNavigationIgnoredWarning,
         MappedPropertyIgnoredWarning,
         MappedComplexPropertyIgnoredWarning,
+        TypeLoadingErrorWarning,
+        SkippedEntityTypeConfigurationWarning,
+        NoEntityTypeConfigurationsWarning,
+        AccidentalEntityType,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -596,6 +600,57 @@ public static class CoreEventId
     public static readonly EventId MappedComplexPropertyIgnoredWarning = MakeModelId(Id.MappedComplexPropertyIgnoredWarning);
 
     /// <summary>
+    ///     An error was ignored while loading types from an assembly.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="TypeLoadingEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId TypeLoadingErrorWarning = MakeModelId(Id.TypeLoadingErrorWarning);
+
+    /// <summary>
+    ///     A type that implements <see cref="IEntityTypeConfiguration{TEntity}" /> could not be instantiated.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="TypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId SkippedEntityTypeConfigurationWarning = MakeModelId(Id.SkippedEntityTypeConfigurationWarning);
+
+    /// <summary>
+    ///     A type that implements <see cref="IEntityTypeConfiguration{TEntity}" /> could not be instantiated.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="AssemblyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId NoEntityTypeConfigurationsWarning = MakeModelId(Id.NoEntityTypeConfigurationsWarning);
+
+    /// <summary>
     ///     An index was not created as the properties are already covered.
     /// </summary>
     /// <remarks>
@@ -636,6 +691,20 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AmbiguousEndRequiredWarning = MakeModelId(Id.AmbiguousEndRequiredWarning);
+
+    /// <summary>
+    ///     An entity type has been mapped as an entity type. If you are mapping this type intentionally, then please suppress
+    ///     this warning and report the issue on GitHub.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId AccidentalEntityType = MakeModelValidationId(Id.AccidentalEntityType);
 
     /// <summary>
     ///     The <see cref="RequiredAttribute" /> on the collection navigation property was ignored.

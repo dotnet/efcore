@@ -19,9 +19,7 @@ public class SaveChangesFailedEventArgs : SaveChangesEventArgs
     /// <param name="exception">The exception thrown.</param>
     public SaveChangesFailedEventArgs(bool acceptAllChangesOnSuccess, Exception exception)
         : base(acceptAllChangesOnSuccess)
-    {
-        Exception = exception;
-    }
+        => Exception = exception;
 
     /// <summary>
     ///     The exception thrown during<see cref="O:DbContext.SaveChanges" /> or <see cref="O:DbContext.SaveChangesAsync" />.

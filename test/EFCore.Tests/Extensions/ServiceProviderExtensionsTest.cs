@@ -101,15 +101,11 @@ public class ServiceProviderExtensionsTest
 
     private const string KarlQuote = "You can only talk rubbish if you're aware of knowledge.";
 
-    private interface IPilkington
-    {
-    }
+    private interface IPilkington;
 
     private class Karl : IPilkington
     {
         public Karl()
-        {
-            throw new NotSupportedException(KarlQuote);
-        }
+            => throw new NotSupportedException(KarlQuote);
     }
 }

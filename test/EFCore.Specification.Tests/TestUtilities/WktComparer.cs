@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.IO;
@@ -15,11 +15,11 @@ public class WktComparer : IEqualityComparer<string>
     {
     }
 
-    public bool Equals(string x, string y)
+    public bool Equals(string? x, string? y)
         => x == y
             || Normalize(x) == Normalize(y);
 
-    public static string Normalize(string text)
+    public static string? Normalize(string? text)
         => text != null
             ? _reader.Read(text).AsText()
             : null;

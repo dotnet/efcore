@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
+#nullable disable
+
 public class OperatorEntityDateTimeOffset : OperatorEntityBase
 {
     public DateTimeOffset Value { get; set; }

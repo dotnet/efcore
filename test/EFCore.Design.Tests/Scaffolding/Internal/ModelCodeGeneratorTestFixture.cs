@@ -12,14 +12,14 @@ public class ModelCodeGeneratorTestFixture : IDisposable
 
         using (var input = typeof(ModelCodeGeneratorTestBase).Assembly.GetManifestResourceStream(
                    "Microsoft.EntityFrameworkCore.Resources.CSharpDbContextGenerator.tt"))
-        using (var output = File.OpenWrite(Path.Combine(templatesDir, "DbContext.t4")))
+        using (var output = File.Create(Path.Combine(templatesDir, "DbContext.t4")))
         {
             input.CopyTo(output);
         }
 
         using (var input = typeof(ModelCodeGeneratorTestBase).Assembly.GetManifestResourceStream(
                    "Microsoft.EntityFrameworkCore.Resources.CSharpEntityTypeGenerator.tt"))
-        using (var output = File.OpenWrite(Path.Combine(templatesDir, "EntityType.t4")))
+        using (var output = File.Create(Path.Combine(templatesDir, "EntityType.t4")))
         {
             input.CopyTo(output);
         }

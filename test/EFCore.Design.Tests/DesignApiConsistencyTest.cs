@@ -5,13 +5,9 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DesignApiConsistencyTest : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>
+public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<DesignApiConsistencyTest.DesignApiConsistencyFixture>(fixture)
 {
-    public DesignApiConsistencyTest(DesignApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
     {
     }
@@ -21,10 +17,10 @@ public class DesignApiConsistencyTest : ApiConsistencyTestBase<DesignApiConsiste
 
     public class DesignApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new() { typeof(DesignTimeServiceCollectionExtensions) };
+        public override HashSet<Type> FluentApiTypes { get; } = [typeof(DesignTimeServiceCollectionExtensions)];
 
-        public override HashSet<MethodInfo> NonVirtualMethods { get; } = new()
-        {
+        public override HashSet<MethodInfo> NonVirtualMethods { get; } =
+        [
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
                 .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider)).GetMethod,
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
@@ -37,6 +33,6 @@ public class DesignApiConsistencyTest : ApiConsistencyTestBase<DesignApiConsiste
                 .GetProperty(nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.FormatProvider)).SetMethod,
             typeof(CSharpDbContextGeneratorBase.ToStringInstanceHelper).GetMethod(
                 nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.ToStringWithCulture))
-        };
+        ];
     }
 }

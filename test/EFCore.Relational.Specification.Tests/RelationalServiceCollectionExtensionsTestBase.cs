@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class RelationalServiceCollectionExtensionsTestBase : EntityFrameworkServiceCollectionExtensionsTestBase
-{
-    protected RelationalServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
-        : base(testHelpers)
-    {
-    }
+#nullable disable
 
+public abstract class RelationalServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
+    : EntityFrameworkServiceCollectionExtensionsTestBase(testHelpers)
+{
     public override void Required_services_are_registered_with_expected_lifetimes()
         => LifetimeTest(EntityFrameworkServicesBuilder.CoreServices, EntityFrameworkRelationalServicesBuilder.RelationalServices);
 }

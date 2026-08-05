@@ -10,14 +10,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable StringStartsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindQueryFiltersQueryTestBase<TFixture> : FilteredQueryTestBase<TFixture>
+public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixture) : FilteredQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NorthwindQueryFiltersCustomizer>, new()
 {
-    protected NorthwindQueryFiltersQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Count_query(bool async)

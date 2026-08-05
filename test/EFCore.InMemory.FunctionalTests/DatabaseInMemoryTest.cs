@@ -130,9 +130,7 @@ public class DatabaseInMemoryTest
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);
 
-        public class Artist : ArtistBase<string>
-        {
-        }
+        public class Artist : ArtistBase<string>;
 
         public class ArtistBase<TKey>
         {

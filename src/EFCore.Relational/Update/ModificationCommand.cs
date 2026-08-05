@@ -31,7 +31,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly IComparer<IUpdateEntry>? _comparer;
-    private readonly List<IUpdateEntry> _entries = new();
+    private readonly List<IUpdateEntry> _entries = [];
     private List<IColumnModification>? _columnModifications;
     private bool _mainEntryAdded;
     private EntityState _entityState;
@@ -221,7 +221,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     {
         var modification = CreateColumnModification(columnModificationParameters);
 
-        _columnModifications ??= new List<IColumnModification>();
+        _columnModifications ??= [];
 
         _columnModifications.Add(modification);
 
@@ -238,7 +238,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
     private sealed class JsonPartialUpdateInfo
     {
-        public List<JsonPartialUpdatePathEntry> Path { get; } = new();
+        public List<JsonPartialUpdatePathEntry> Path { get; } = [];
         public IProperty? Property { get; set; }
         public object? PropertyValue { get; set; }
     }
@@ -480,7 +480,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     if (adding)
                     {
-                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
+                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save
+                            || entry.HasStoreGeneratedValue(property);
+
                         columnPropagator?.TryPropagate(columnMapping, entry);
                     }
                     else if (storedProcedureParameter is not { ForOriginalValue: true }
@@ -692,9 +694,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             foreach (var entry in _entries.Where(e => !e.EntityType.IsMappedToJson()))
             {
                 foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
-                             .Where(n => n.IsCollection
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                             .Where(
+                                 n => n.IsCollection
+                                     && n.TargetEntityType.IsMappedToJson()
+                                     && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
                 {
                     var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
                     var jsonCollectionColumn =
@@ -900,7 +903,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             if (value is not null)
             {
-                (property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter)!.ToJson(writer, value);
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+                Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
+                jsonValueReaderWriter.ToJson(writer, value);
             }
             else
             {

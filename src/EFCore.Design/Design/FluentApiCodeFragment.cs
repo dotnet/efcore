@@ -15,9 +15,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     /// </summary>
     /// <param name="method">The method's name.</param>
     public FluentApiCodeFragment(string method)
-    {
-        Method = method;
-    }
+        => Method = method;
 
     /// <summary>
     ///     Gets the namespace of the method's declaring type.
@@ -75,7 +73,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     /// </summary>
     /// <param name="call">The existing method call.</param>
     /// <returns>The new fluent API method call.</returns>
-    [return: NotNullIfNotNull("call")]
+    [return: NotNullIfNotNull(nameof(call))]
     public static FluentApiCodeFragment? From(MethodCallCodeFragment? call)
         => call is null
             ? null

@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class LikeExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="LikeExpression" /> class.
     /// </summary>
@@ -73,6 +75,16 @@ public class LikeExpression : SqlExpression
         => match != Match || pattern != Pattern || escapeChar != EscapeChar
             ? new LikeExpression(match, pattern, escapeChar, TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(LikeExpression).GetConstructor(
+                [typeof(SqlExpression), typeof(SqlExpression), typeof(SqlExpression), typeof(RelationalTypeMapping)])!,
+            Match.Quote(),
+            Pattern.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(EscapeChar),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

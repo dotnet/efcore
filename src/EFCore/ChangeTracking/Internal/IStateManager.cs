@@ -84,7 +84,7 @@ public interface IStateManager : IResettableService
     InternalEntityEntry StartTrackingFromQuery(
         IEntityType baseEntityType,
         object entity,
-        in ValueBuffer valueBuffer);
+        in ISnapshot snapshot);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

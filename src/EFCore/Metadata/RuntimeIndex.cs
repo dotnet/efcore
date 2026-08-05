@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeIndex : AnnotatableBase, IIndex
+public class RuntimeIndex : RuntimeAnnotatableBase, IIndex
 {
     private readonly bool _isUnique;
 
@@ -122,9 +122,5 @@ public class RuntimeIndex : AnnotatableBase, IIndex
     [DebuggerStepThrough]
     IDependentKeyValueFactory<TKey> IIndex.GetNullableValueFactory<TKey>()
         => (IDependentKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _nullableValueFactory, this, static index =>
-            {
-                index.EnsureReadOnly();
-                return new CompositeValueFactory(index.Properties);
-            });
+            ref _nullableValueFactory, this, static index => new CompositeValueFactory(index.Properties));
 }

@@ -9,6 +9,4 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-state-changes">State changes of entities in EF Core</see> for more information and examples.
 /// </remarks>
-public class DetectChangesEventArgs : EventArgs
-{
-}
+public class DetectChangesEventArgs : EventArgs;

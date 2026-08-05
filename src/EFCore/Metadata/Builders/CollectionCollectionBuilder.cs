@@ -407,6 +407,7 @@ public class CollectionCollectionBuilder
 
         var existingJoinEntityType = (EntityType?)(LeftNavigation.JoinEntityType ?? RightNavigation.JoinEntityType);
         EntityType? newJoinEntityType = null;
+        EntityType.Snapshot? entityTypeSnapshot = null;
         if (existingJoinEntityType != null)
         {
             if ((joinEntityType == null || existingJoinEntityType.ClrType == joinEntityType)
@@ -416,7 +417,13 @@ public class CollectionCollectionBuilder
             }
             else
             {
-                ModelBuilder.RemoveImplicitJoinEntity(existingJoinEntityType);
+                ModelBuilder.RemoveImplicitJoinEntity(existingJoinEntityType, configurationSource: ConfigurationSource.DataAnnotation);
+
+                entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(existingJoinEntityType);
+                if (entityTypeSnapshot != null)
+                {
+                    ModelBuilder.HasNoEntityType(existingJoinEntityType, ConfigurationSource.Explicit);
+                }
             }
         }
 
@@ -440,15 +447,38 @@ public class CollectionCollectionBuilder
             }
         }
 
-        var rightForeignKey = configureRight != null
-            ? configureRight(newJoinEntityType)
-            : GetOrCreateSkipNavigationForeignKey((SkipNavigation)RightNavigation, newJoinEntityType);
-        var leftForeignKey = configureLeft != null
-            ? configureLeft(newJoinEntityType)
-            : GetOrCreateSkipNavigationForeignKey((SkipNavigation)LeftNavigation, newJoinEntityType);
+        if (entityTypeSnapshot != null)
+        {
+            entityTypeSnapshot.Attach(newJoinEntityType.Builder);
+        }
+
+        IMutableForeignKey? rightForeignKey;
+        if (configureRight != null)
+        {
+            newJoinEntityType.SetAnnotation(CoreAnnotationNames.SkipNavigationBeingConfigured, RightNavigation);
+            rightForeignKey = configureRight(newJoinEntityType);
+            newJoinEntityType.RemoveAnnotation(CoreAnnotationNames.SkipNavigationBeingConfigured);
+        }
+        else
+        {
+            rightForeignKey = GetOrCreateSkipNavigationForeignKey((SkipNavigation)RightNavigation, newJoinEntityType);
+        }
 
         ((SkipNavigation)RightNavigation).Builder
             .HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit);
+
+        IMutableForeignKey? leftForeignKey;
+        if (configureLeft != null)
+        {
+            newJoinEntityType.SetAnnotation(CoreAnnotationNames.SkipNavigationBeingConfigured, LeftNavigation);
+            leftForeignKey = configureLeft(newJoinEntityType);
+            newJoinEntityType.RemoveAnnotation(CoreAnnotationNames.SkipNavigationBeingConfigured);
+        }
+        else
+        {
+            leftForeignKey = GetOrCreateSkipNavigationForeignKey((SkipNavigation)LeftNavigation, newJoinEntityType);
+        }
+
         ((SkipNavigation)LeftNavigation).Builder
             .HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit);
 

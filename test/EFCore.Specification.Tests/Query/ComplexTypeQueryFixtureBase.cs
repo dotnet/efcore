@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable enable
-
 public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
 {
     protected override string StoreName
@@ -24,8 +22,8 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(wcb => wcb.Throw());
 
-    protected override void Seed(PoolableDbContext context)
-        => ComplexTypeData.Seed(context);
+    protected override Task SeedAsync(PoolableDbContext context)
+        => ComplexTypeData.SeedAsync(context);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -146,7 +144,7 @@ public abstract class ComplexTypeQueryFixtureBase : SharedStoreFixtureBase<Poola
         {
             typeof(CountryStruct), (CountryStruct e, CountryStruct a) =>
             {
-                    AssertCountryStruct(e, e);
+                AssertCountryStruct(e, e);
             }
         },
         {

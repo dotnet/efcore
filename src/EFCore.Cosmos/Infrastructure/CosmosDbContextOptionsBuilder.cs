@@ -34,9 +34,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// </remarks>
     /// <param name="optionsBuilder">The options builder.</param>
     public CosmosDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        _optionsBuilder = optionsBuilder;
-    }
+        => _optionsBuilder = optionsBuilder;
 
     /// <inheritdoc />
     DbContextOptionsBuilder ICosmosDbContextOptionsBuilderInfrastructure.OptionsBuilder

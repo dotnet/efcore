@@ -7,6 +7,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialContext>, IQueryFixtureBase
 {
     private GeometryFactory _geometryFactory;
@@ -150,6 +152,6 @@ public abstract class SpatialQueryFixtureBase : SharedStoreFixtureBase<SpatialCo
             });
     }
 
-    protected override void Seed(SpatialContext context)
-        => SpatialContext.Seed(context, GeometryFactory);
+    protected override Task SeedAsync(SpatialContext context)
+        => SpatialContext.SeedAsync(context, GeometryFactory);
 }

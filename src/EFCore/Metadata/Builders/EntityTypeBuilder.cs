@@ -27,9 +27,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// </summary>
     [EntityFrameworkInternal]
     public EntityTypeBuilder(IMutableEntityType entityType)
-    {
-        Builder = ((EntityType)entityType).Builder;
-    }
+        => Builder = ((EntityType)entityType).Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1055,8 +1053,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
-        var foreignKey = HasOneBuilder(
-            MemberIdentity.Create(navigationName), relatedEntityType);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             Builder.Metadata,
@@ -1098,8 +1095,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
-        var foreignKey = HasOneBuilder(
-            MemberIdentity.Create(navigationName), relatedEntityType);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             Builder.Metadata,
@@ -1145,6 +1141,18 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         MemberIdentity navigationId,
         EntityType relatedEntityType)
     {
+        if (Metadata[CoreAnnotationNames.SkipNavigationBeingConfigured] is SkipNavigation skipNavigation
+            && skipNavigation.DeclaringEntityType == relatedEntityType
+            && skipNavigation.ForeignKey?.DeclaringEntityType == Builder.Metadata)
+        {
+            return navigationId.MemberInfo != null
+                ? skipNavigation.ForeignKey.Builder.HasNavigation(
+                        navigationId.MemberInfo, pointsToPrincipal: true, ConfigurationSource.Explicit)
+                    !.Metadata
+                : skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.Name, pointsToPrincipal: true, ConfigurationSource.Explicit)
+                    !.Metadata;
+        }
+
         ForeignKey foreignKey;
         if (navigationId.MemberInfo != null)
         {
@@ -1428,7 +1436,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
-    ///     Configures a trigger for the the entity type.
+    ///     Configures a trigger for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="modelName">The name of the trigger.</param>

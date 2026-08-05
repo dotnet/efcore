@@ -26,9 +26,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     /// </summary>
     public InMemoryTransactionManager(
         IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
-    {
-        _logger = logger;
-    }
+        => _logger = logger;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

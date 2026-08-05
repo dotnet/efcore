@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerAggregateFunctionExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -172,6 +174,35 @@ public class SqlServerAggregateFunctionExpression : SqlExpression
                     ArgumentsPropagateNullability,
                     Type,
                     TypeMapping);
+
+    // string name,
+    //     IReadOnlyList<SqlExpression> arguments,
+    // IReadOnlyList<OrderingExpression> orderings,
+    // bool nullable,
+    //     IEnumerable<bool> argumentsPropagateNullability,
+    // Type type,
+    //     RelationalTypeMapping? typeMapping)
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlServerAggregateFunctionExpression).GetConstructor(
+            [
+                typeof(string), typeof(IReadOnlyList<SqlExpression>), typeof(IReadOnlyList<OrderingExpression>), typeof(bool),
+                typeof(IEnumerable<bool>), typeof(Type), typeof(RelationalTypeMapping)
+            ])!,
+            Constant(Name),
+            Arguments is null
+                ? Constant(null, typeof(IEnumerable<SqlExpression>))
+                : NewArrayInit(typeof(SqlExpression), initializers: Arguments.Select(a => a.Quote())),
+            NewArrayInit(typeof(OrderingExpression), Orderings.Select(o => o.Quote())),
+            Constant(IsNullable),
+            ArgumentsPropagateNullability is null
+                ? Constant(null, typeof(IEnumerable<bool>))
+                : NewArrayInit(
+                    typeof(bool), initializers: ArgumentsPropagateNullability.Select(n => Constant(n))),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

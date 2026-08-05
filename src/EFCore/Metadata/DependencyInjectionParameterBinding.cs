@@ -17,7 +17,7 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
 {
     private static readonly MethodInfo GetServiceMethod
         = typeof(InfrastructureExtensions).GetRuntimeMethod(
-            nameof(InfrastructureExtensions.GetService), new[] { typeof(IInfrastructure<IServiceProvider>) })!;
+            nameof(InfrastructureExtensions.GetService), [typeof(IInfrastructure<IServiceProvider>)])!;
 
     /// <summary>
     ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.
