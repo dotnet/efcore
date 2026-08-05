@@ -1155,6 +1155,309 @@ LEFT JOIN (
 """);
     }
 
+    #region Non-shared test resources
+
+    public override async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
+    {
+        await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
+
+        AssertSql(
+            """
+@entity_equality_container_Id='1' (Nullable = true)
+@entity_equality_container_Containee1_Id='2' (Nullable = true)
+@entity_equality_container_Containee2_Id='3' (Nullable = true)
+
+SELECT "e"."Id", "e"."ComplexContainer_Id", "e"."ComplexContainer_Containee1_Id", "e"."ComplexContainer_Containee2_Id"
+FROM "EntityType" AS "e"
+WHERE "e"."ComplexContainer_Id" = @entity_equality_container_Id AND "e"."ComplexContainer_Containee1_Id" = @entity_equality_container_Containee1_Id AND "e"."ComplexContainer_Containee2_Id" = @entity_equality_container_Containee2_Id
+LIMIT 2
+""");
+    }
+
+    public override async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        await base.Projecting_complex_property_does_not_auto_include_owned_types();
+
+        AssertSql(
+            """
+SELECT "e"."Complex_Name", "e"."Complex_Number"
+FROM "EntityType" AS "e"
+""");
+    }
+
+    public override async Task Optional_complex_type_with_discriminator()
+    {
+        await base.Optional_complex_type_with_discriminator();
+
+        AssertSql(
+            """
+SELECT "e"."Id", "e"."AllOptionalsComplexType_Discriminator", "e"."AllOptionalsComplexType_OptionalProperty"
+FROM "EntityType" AS "e"
+WHERE "e"."AllOptionalsComplexType_Discriminator" IS NULL
+LIMIT 2
+""",
+            //
+            """
+@p2='3'
+@p0='AllOptionalsComplexType' (Size = 23)
+@p1='New thing' (Size = 9)
+
+UPDATE "EntityType" SET "AllOptionalsComplexType_Discriminator" = @p0, "AllOptionalsComplexType_OptionalProperty" = @p1
+WHERE "Id" = @p2
+RETURNING 1;
+""",
+            //
+            """
+SELECT "e"."Id", "e"."AllOptionalsComplexType_Discriminator", "e"."AllOptionalsComplexType_OptionalProperty"
+FROM "EntityType" AS "e"
+""");
+    }
+
+    public override async Task Non_optional_complex_type_with_all_nullable_properties()
+    {
+        await base.Non_optional_complex_type_with_all_nullable_properties();
+
+        AssertSql(
+            """
+SELECT "e"."Id", "e"."NonOptionalComplexType_NullableDateTime", "e"."NonOptionalComplexType_NullableString"
+FROM "EntityType" AS "e"
+LIMIT 2
+""");
+    }
+
+    public override async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
+    {
+        await base.Non_optional_complex_type_with_all_nullable_properties_via_left_join();
+
+        AssertSql(
+            """
+SELECT "p0"."Id", "c"."Id", "c"."ParentId", "c"."ComplexType_NullableDateTime", "c"."ComplexType_NullableString"
+FROM (
+    SELECT "p"."Id"
+    FROM "Parent" AS "p"
+    LIMIT 2
+) AS "p0"
+LEFT JOIN "Child" AS "c" ON "p0"."Id" = "c"."ParentId"
+ORDER BY "p0"."Id"
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_and_shadow_property()
+    {
+        await base.Nullable_complex_type_with_discriminator_and_shadow_property();
+
+        AssertSql(
+            """
+SELECT "e"."Id", "e"."CreatedBy", "e"."Prop_Discriminator", "e"."Prop_OptionalValue"
+FROM "EntityType" AS "e"
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_set_to_different_value()
+    {
+        await base.Nullable_complex_type_with_discriminator_set_to_different_value();
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_set_to_null()
+    {
+        await base.Nullable_complex_type_with_discriminator_set_to_null();
+    }
+
+    public override async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+    }
+
+    public override async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
+    {
+        await base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
+    }
+
+    public override async Task Can_query_by_complex_type_property_with_index()
+    {
+        await base.Can_query_by_complex_type_property_with_index();
+
+        AssertSql(
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+WHERE "p"."Address_City" = 'Seattle'
+LIMIT 2
+""");
+    }
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_update_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+LIMIT 2
+""",
+            //
+            """
+@p1='1'
+@p0='98102' (Nullable = false) (Size = 5)
+
+UPDATE "Person" SET "Address_PostalCode" = @p0
+WHERE "Id_Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+LIMIT 2
+""");
+    }
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_delete_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+LIMIT 2
+""",
+            //
+            """
+@p0='1'
+
+DELETE FROM "Person"
+WHERE "Id_Id" = @p0
+RETURNING 1;
+""",
+            //
+            """
+SELECT COUNT(*)
+FROM "Person" AS "p"
+""");
+    }
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+    {
+        await base.Can_query_by_alternate_key_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+WHERE "p"."Address_City" = 'Redmond'
+LIMIT 2
+""");
+    }
+
+    public override async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
+    {
+        await base.Can_save_batch_swapping_alternate_key_values_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+ORDER BY "p"."Id_Id"
+""",
+            //
+            """
+@p1='1'
+@p0='98103' (Nullable = false) (Size = 5)
+
+UPDATE "Person" SET "Address_PostalCode" = @p0
+WHERE "Id_Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+@p1='2'
+@p0='98054' (Nullable = false) (Size = 5)
+
+UPDATE "Person" SET "Address_PostalCode" = @p0
+WHERE "Id_Id" = @p1
+RETURNING 1;
+""",
+            //
+            """
+SELECT "p"."Id_Id", "p"."Address_City", "p"."Address_PostalCode"
+FROM "Person" AS "p"
+ORDER BY "p"."Id_Id"
+""");
+    }
+
+    public override async Task Complex_json_collection_inside_left_join_subquery()
+    {
+        await base.Complex_json_collection_inside_left_join_subquery();
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."ChildId", "c0"."Id", "c0"."IsPublic", "c0"."c"
+FROM "Parent" AS "p"
+LEFT JOIN (
+    SELECT "c"."Id", "c"."IsPublic", "c"."CareNeeds" AS "c"
+    FROM "Child" AS "c"
+    WHERE "c"."IsPublic"
+) AS "c0" ON "p"."ChildId" = "c0"."Id"
+""");
+    }
+
+    public override async Task Select_TPC_base_with_ComplexType()
+    {
+        await base.Select_TPC_base_with_ComplexType();
+
+        AssertSql(
+            """
+SELECT "t"."Id", "t"."ChildProperty", NULL AS "ChildProperty1", "t"."PropertyInsideComplexThing", "t"."ChildComplexProperty_PropertyInsideComplexThing", NULL AS "ChildComplexProperty_PropertyInsideComplexThing1", 'TpcChild1' AS "Discriminator"
+FROM "TpcChild1" AS "t"
+UNION ALL
+SELECT "t0"."Id", NULL AS "ChildProperty", "t0"."ChildProperty" AS "ChildProperty1", "t0"."PropertyInsideComplexThing", NULL AS "ChildComplexProperty_PropertyInsideComplexThing", "t0"."ChildComplexProperty_PropertyInsideComplexThing" AS "ChildComplexProperty_PropertyInsideComplexThing1", 'TpcChild2' AS "Discriminator"
+FROM "TpcChild2" AS "t0"
+""");
+    }
+
+    public override async Task Complex_type_on_an_entity_mapped_to_view_and_table()
+    {
+        await base.Complex_type_on_an_entity_mapped_to_view_and_table();
+
+        AssertSql(
+            """
+SELECT "b"."Id", "b"."ComplexThing_Prop1", "b"."ComplexThing_Prop2"
+FROM "BlogsView" AS "b"
+LIMIT 2
+""");
+    }
+
+    public override async Task Complex_property_on_split_entity()
+    {
+        await base.Complex_property_on_split_entity();
+
+        AssertSql(
+            """
+SELECT "h"."Id", "h"."CreatedOn", "h0"."IsTestHook", "h0"."Weight", "h"."Number_Parsed", "h"."Number_Raw"
+FROM "Hook" AS "h"
+INNER JOIN "HookMetadata" AS "h0" ON "h"."Id" = "h0"."HookId"
+""");
+    }
+
+    #endregion Non-shared test resources
+
     [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
