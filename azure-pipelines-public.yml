@@ -534,8 +534,18 @@ stages:
       HelixMacOsArm64Result: $[ stageDependencies.build.Helix_macOS_ARM64.result ]
       HelixWindowsArm64Result: $[ stageDependencies.build.Helix_Windows_Arm64.result ]
       HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
+      HelixJobMonitorResult: $[ stageDependencies.build.HelixJobMonitor.result ]
     steps:
       - pwsh: |
+          $helixJobMonitorResult = "$(HelixJobMonitorResult)"
+          Write-Host "Helix Job Monitor result: $helixJobMonitorResult"
+
+          if ($helixJobMonitorResult -ne 'Succeeded')
+          {
+              Write-Error "Helix Job Monitor did not succeed: $helixJobMonitorResult."
+              exit 1
+          }
+
           $groupResults = @{
               Windows = @("$(WindowsResult)", "$(HelixWindowsResult)")
               Linux = @("$(LinuxResult)", "$(HelixUbuntuResult)")
