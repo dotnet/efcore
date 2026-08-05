@@ -86,23 +86,37 @@ public partial class SqliteConnection : DbConnection
             {
                 // Ignore the unpackaged-app "no package identity" case; ApplicationData.Current is unavailable there.
             }
+            catch (Exception ex) when (ex is NotImplementedException or NotSupportedException)
+            {
+                // Ignore when WinRT APIs aren't implemented or supported (e.g., running under Wine)
+                // ApplicationData.Current is unavailable there.
+            }
 
             if (currentAppData != null)
             {
-                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
-                var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
-                if (localFolderPath != null)
+                try
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                    var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
+                    if (localFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
+            
+                    var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                    var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                    if (tempFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
                 }
-
-                var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
-                var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
-                if (tempFolderPath != null)
+                catch (Exception ex) when (ex is TargetInvocationException 
+                                        or NotImplementedException 
+                                        or NotSupportedException)
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    // Ignore failures accessing LocalFolder/TemporaryFolder when WinRT isn't fully implemented.
                 }
             }
         }
