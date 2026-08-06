@@ -1,3 +1,8 @@
+parameters:
+  - name: jobs
+    type: object
+    default: []
+
 variables:
   - name: _BuildConfig
     value: Release
@@ -103,11 +108,12 @@ extends:
           enablePublishBuildAssets: false
           enablePublishTestResults: true
           publishAssetsImmediately: true
-          isAssetlessBuild: true
+          isAssetlessBuild: ${{ eq(length(parameters.jobs), 0) }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
           - job: Windows
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Windows')) }}
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
@@ -160,6 +166,7 @@ extends:
 
           - job: Windows_SqlServer
             displayName: 'Windows SQL Server'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Windows_SqlServer')) }}
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
@@ -195,6 +202,7 @@ extends:
                 continueOnError: true
 
           - job: macOS
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'macOS')) }}
             pool:
               name: Azure Pipelines
               image: macOS-15
@@ -230,6 +238,7 @@ extends:
                 condition: always()
                 continueOnError: true
           - job: Linux
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Linux')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -269,6 +278,7 @@ extends:
 
           - job: Helix_Windows
             displayName: 'Helix Windows'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -311,6 +321,7 @@ extends:
 
           - job: Helix_Windows_SqlServer
             displayName: 'Helix Windows SQL Server'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows_SqlServer')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -353,6 +364,7 @@ extends:
 
           - job: Helix_Windows_Arm64
             displayName: 'Helix Windows ARM64'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows_Arm64')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -395,6 +407,7 @@ extends:
 
           - job: Helix_Windows_Cosmos
             displayName: 'Helix Windows Cosmos'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows_Cosmos')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -437,6 +450,7 @@ extends:
 
           - job: Helix_macOS_x64
             displayName: 'Helix macOS x64'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_macOS_x64')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -479,6 +493,7 @@ extends:
 
           - job: Helix_macOS_ARM64
             displayName: 'Helix macOS ARM64'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_macOS_ARM64')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -521,6 +536,7 @@ extends:
 
           - job: Helix_Ubuntu_SqlServer
             displayName: 'Helix Ubuntu SQL Server'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Ubuntu_SqlServer')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -564,6 +580,7 @@ extends:
 
           - job: Helix_Ubuntu_Cosmos
             displayName: 'Helix Ubuntu Cosmos'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Ubuntu_Cosmos')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -606,6 +623,7 @@ extends:
 
           - job: Helix_Ubuntu
             displayName: 'Helix Ubuntu'
+            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Ubuntu')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -652,6 +670,7 @@ extends:
       jobs:
       - job: Validate_Job_Results
         displayName: Job Results
+        timeoutInMinutes: 200
         pool:
           name: $(DncEngInternalBuildPool)
           demands: ImageOverride -equals 1es-windows-2022
@@ -672,46 +691,23 @@ extends:
           HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
         steps:
           - pwsh: |
-              $groupResults = @{
-                  Windows = @("$(WindowsResult)", "$(HelixWindowsResult)")
-                  Linux = @("$(LinuxResult)", "$(HelixUbuntuResult)")
-                  MacOS = @("$(MacOsResult)", "$(HelixMacOsX64Result)")
-                  Arm64 = @("$(HelixWindowsArm64Result)", "$(HelixMacOsArm64Result)")
-                  Cosmos = @("$(HelixWindowsCosmosResult)", "$(HelixUbuntuCosmosResult)")
-                  SqlServer = @("$(WindowsSqlServerResult)", "$(HelixWindowsSqlServerResult)", "$(HelixUbuntuSqlServerResult)")
+              $jobResults = @{
+                Windows = "$(WindowsResult)"
+                Helix_Windows = "$(HelixWindowsResult)"
+                Windows_SqlServer = "$(WindowsSqlServerResult)"
+                Helix_Windows_SqlServer = "$(HelixWindowsSqlServerResult)"
+                Helix_Windows_Cosmos = "$(HelixWindowsCosmosResult)"
+                Linux = "$(LinuxResult)"
+                Helix_Ubuntu = "$(HelixUbuntuResult)"
+                Helix_Ubuntu_SqlServer = "$(HelixUbuntuSqlServerResult)"
+                macOS = "$(MacOsResult)"
+                Helix_macOS_x64 = "$(HelixMacOsX64Result)"
+                Helix_macOS_ARM64 = "$(HelixMacOsArm64Result)"
+                Helix_Windows_Arm64 = "$(HelixWindowsArm64Result)"
+                Helix_Ubuntu_Cosmos = "$(HelixUbuntuCosmosResult)"
               }
 
-              $failedGroups = @()
-
-              foreach ($groupName in $groupResults.Keys)
-              {
-                  $results = $groupResults[$groupName]
-                  Write-Host "$groupName results: $($results -join ', ')"
-
-                  # Ignore jobs that were skipped (e.g. condition-gated)
-                  $ran = $results | Where-Object { $_ -ne 'Skipped' }
-                  if (-not $ran)
-                  {
-                      Write-Host "  -> all jobs skipped, treating group as successful"
-                      continue
-                  }
-
-                  # Only 'Succeeded' counts as success. 'SucceededWithIssues' is treated as failure
-                  # because the jobs run with continueOnError: true, which maps task failures to warnings.
-                  $hasSuccess = $ran | Where-Object { $_ -eq 'Succeeded' }
-                  if ($hasSuccess)
-                  {
-                      continue
-                  }
-
-                  $failedGroups += $groupName
-              }
-
-              if ($failedGroups.Count -gt 0)
-              {
-                  Write-Error "No jobs succeeded for group(s): $($failedGroups -join ', ')."
-                  exit 1
-              }
-
-              Write-Host 'Group validation passed.'
+              & eng/aggregate-azdo-tests.ps1 -JobResults $jobResults
             displayName: Evaluate grouped job outcomes
+            env:
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
