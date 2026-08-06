@@ -5,8 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-// Whether an optional entity-splitting fragment's row needs to be inserted, updated, or left alone when the entity
-// is deleted is decided from the entry's tracked original values rather than from provider-specific SQL, so these
+// Whether an optional entity-splitting fragment's row needs to be inserted, updated, deleted, or left alone is
+// decided from the entry's tracked original and current values rather than from provider-specific SQL, so these
 // scenarios work identically on every relational provider, including ones like Sqlite that have no special support
 // for conditional upserts/deletes.
 public class OptionalEntitySplittingSqliteTest : NonSharedModelTestBase, IClassFixture<NonSharedFixture>
@@ -132,6 +132,74 @@ public class OptionalEntitySplittingSqliteTest : NonSharedModelTestBase, IClassF
         {
             var customer = await context.Customers.SingleAsync();
             Assert.Equal("Other details", customer.Description);
+        }
+    }
+
+    [Fact]
+    public async Task Clearing_a_present_optional_fragment_back_to_null_deletes_the_row()
+    {
+        var contextFactory = await InitializeContextAsync();
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice", Description = "Some details" });
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            customer.Description = null;
+
+            // Every payload value mapped to the fragment is now null, so the row is deleted rather than left
+            // behind with an all-null payload that would be indistinguishable from an absent row.
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            // Reading the mapped property back as null isn't proof the row is gone: a LEFT JOIN reads back
+            // null for Description whether the CustomerDetails row is absent or present-with-null. Check the
+            // fragment table directly to actually prove the row was deleted rather than updated to all-null.
+            var detailsRowCount = await context.Database
+                .SqlQuery<int>($"SELECT COUNT(*) AS Value FROM CustomerDetails WHERE Id = 1")
+                .SingleAsync();
+            Assert.Equal(0, detailsRowCount);
+        }
+    }
+
+    [Fact]
+    public async Task Setting_a_cleared_optional_fragment_back_to_non_null_does_not_throw()
+    {
+        var contextFactory = await InitializeContextAsync();
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            context.Customers.Add(new Customer { Id = 1, Name = "Alice", Description = "Some details" });
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            customer.Description = null;
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            customer.Description = "New details";
+
+            // Without deleting the row in the previous save, this would be misdetected as still-absent and sent
+            // as an INSERT, violating the primary key against the row left behind by that save.
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = contextFactory.CreateDbContext())
+        {
+            var customer = await context.Customers.SingleAsync();
+            Assert.Equal("New details", customer.Description);
         }
     }
 

@@ -8562,6 +8562,9 @@
           "Member": "virtual bool IsOptionalSplitFragment { get; }"
         },
         {
+          "Member": "virtual bool IsOptionalSplitFragmentPayloadAllNull { get; }"
+        },
+        {
           "Member": "virtual bool IsOptionalSplitFragmentRowAssumedAbsent { get; }"
         },
         {
