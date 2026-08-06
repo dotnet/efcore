@@ -18,7 +18,7 @@ public class HierarchyId : IComparable<HierarchyId>
     private readonly SqlHierarchyId _value;
 
     /// <summary>
-    ///     Initializes a new instance of the<see cref="HierarchyId" /> class. Equivalent to <see cref="GetRoot" />.
+    ///     Initializes a new instance of the <see cref="HierarchyId" /> class. Equivalent to <see cref="GetRoot" />.
     /// </summary>
     public HierarchyId()
         : this(SqlHierarchyId.GetRoot())
@@ -26,7 +26,7 @@ public class HierarchyId : IComparable<HierarchyId>
     }
 
     /// <summary>
-    ///     Initializes a new instance of the<see cref="HierarchyId" /> class. Equivalent to <see cref="Parse(string?)" />.
+    ///     Initializes a new instance of the <see cref="HierarchyId" /> class. Equivalent to <see cref="Parse(string?)" />.
     /// </summary>
     /// <param name="value">The string representation of the node.</param>
     public HierarchyId(string value)
@@ -35,7 +35,7 @@ public class HierarchyId : IComparable<HierarchyId>
     }
 
     /// <summary>
-    ///     Initializes a new instance of the<see cref="HierarchyId" /> class.
+    ///     Initializes a new instance of the <see cref="HierarchyId" /> class.
     /// </summary>
     /// <param name="value">The <see cref="SqlHierarchyId" /> representation of the node.</param>
     public HierarchyId(SqlHierarchyId value)

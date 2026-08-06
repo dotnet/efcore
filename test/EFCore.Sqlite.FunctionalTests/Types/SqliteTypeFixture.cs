@@ -5,5 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Types;
 
 public abstract class SqliteTypeFixture<T> : RelationalTypeFixtureBase<T>
 {
-    protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 }

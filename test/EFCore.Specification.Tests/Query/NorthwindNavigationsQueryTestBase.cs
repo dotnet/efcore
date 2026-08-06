@@ -713,7 +713,7 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(
             async,
             ss => from o in ss.Set<Order>()
-                  // ReSharper disable once UseMethodAny.0
+                      // ReSharper disable once UseMethodAny.0
                   where (from od in ss.Set<OrderDetail>()
                          where o.Customer.Country == od.Order.Customer.Country
                          select od).Count()

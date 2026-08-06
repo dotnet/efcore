@@ -13,12 +13,11 @@ public class SqlServerAutoLoadConventionTest
     public void Vector_property_configured_as_not_auto_loaded_by_convention()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithVector>(
-            b =>
-            {
-                b.Property(e => e.Vector).HasColumnType("vector(3)");
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityWithVector>(b =>
+        {
+            b.Property(e => e.Vector).HasColumnType("vector(3)");
+            b.Property(e => e.Name);
+        });
 
         var model = modelBuilder.FinalizeModel();
 
@@ -30,12 +29,11 @@ public class SqlServerAutoLoadConventionTest
     public void Vector_property_can_be_manually_configured_as_not_auto_loaded()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithVector>(
-            b =>
-            {
-                b.Property(e => e.Vector).HasColumnType("vector(3)");
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityWithVector>(b =>
+        {
+            b.Property(e => e.Vector).HasColumnType("vector(3)");
+            b.Property(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(EntityWithVector))!.FindProperty(nameof(EntityWithVector.Vector))!;
@@ -49,12 +47,11 @@ public class SqlServerAutoLoadConventionTest
     public void Explicit_auto_load_overrides_convention()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithVector>(
-            b =>
-            {
-                b.Property(e => e.Vector).HasColumnType("vector(3)");
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityWithVector>(b =>
+        {
+            b.Property(e => e.Vector).HasColumnType("vector(3)");
+            b.Property(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(EntityWithVector))!.FindProperty(nameof(EntityWithVector.Vector))!;
@@ -68,12 +65,11 @@ public class SqlServerAutoLoadConventionTest
     public void Non_vector_property_remains_auto_loaded()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        modelBuilder.Entity<EntityWithVector>(
-            b =>
-            {
-                b.Property(e => e.Vector).HasColumnType("vector(3)");
-                b.Property(e => e.Name);
-            });
+        modelBuilder.Entity<EntityWithVector>(b =>
+        {
+            b.Property(e => e.Vector).HasColumnType("vector(3)");
+            b.Property(e => e.Name);
+        });
 
         var model = modelBuilder.FinalizeModel();
 

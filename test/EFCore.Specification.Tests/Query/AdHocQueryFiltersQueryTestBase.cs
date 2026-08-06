@@ -38,11 +38,12 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     public virtual async Task Named_query_filters_caching()
     {
         var cacheLog = new List<string>();
-        var contextFactory = await InitializeNonSharedTest<Context8576_NamedFilters>(seed: c => c.SeedAsync(), onConfiguring: builder =>
-        {
-            builder.EnableSensitiveDataLogging();
-            builder.LogTo(cacheLog.Add, filter: (eventid, _) => eventid.Name == CoreEventId.QueryCompilationStarting.Name);
-        });
+        var contextFactory = await InitializeNonSharedTest<Context8576_NamedFilters>(
+            seed: c => c.SeedAsync(), onConfiguring: builder =>
+            {
+                builder.EnableSensitiveDataLogging();
+                builder.LogTo(cacheLog.Add, filter: (eventid, _) => eventid.Name == CoreEventId.QueryCompilationStarting.Name);
+            });
 
         using var context = contextFactory.CreateDbContext();
 
@@ -229,16 +230,14 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
     {
         var contextFactory = await InitializeNonSharedTest<FilterContext10301>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateDbContext())
-        {
-            Assert.Empty(context.Blogs.ToList());
+        using var context = contextFactory.CreateDbContext();
+        Assert.Empty(context.Blogs.ToList());
 
-            context.Tenant = 1;
-            Assert.Single(context.Blogs.ToList());
+        context.Tenant = 1;
+        Assert.Single(context.Blogs.ToList());
 
-            context.Tenant = 2;
-            Assert.Equal(2, context.Blogs.Count());
-        }
+        context.Tenant = 2;
+        Assert.Equal(2, context.Blogs.Count());
     }
 
     protected class FilterContextBase10301(DbContextOptions options) : DbContext(options)
@@ -824,7 +823,8 @@ public abstract class AdHocQueryFiltersQueryTestBase(NonSharedFixture fixture)
         var contextFactory = await InitializeNonSharedTest<Context38132>(
             addServices: s =>
             {
-                s.AddSingleton(typeof(Guid),
+                s.AddSingleton(
+                    typeof(Guid),
                     new Guid("00000001-0000-0000-0000-000000000001"));
                 return s;
             },

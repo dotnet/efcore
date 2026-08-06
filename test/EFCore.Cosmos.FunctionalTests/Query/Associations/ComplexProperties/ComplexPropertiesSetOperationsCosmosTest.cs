@@ -6,7 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 public class ComplexPropertiesSetOperationsCosmosTest
     : ComplexPropertiesSetOperationsTestBase<ComplexPropertiesCosmosFixture>
 {
-    public ComplexPropertiesSetOperationsCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
+    public ComplexPropertiesSetOperationsCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
@@ -33,9 +34,28 @@ WHERE (ARRAY_LENGTH(ARRAY_CONCAT(ARRAY(
     public override Task Over_associate_collection_projected(QueryTrackingBehavior queryTrackingBehavior)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Over_associate_collection_projected(queryTrackingBehavior)); // #37918
 
-    public override Task Over_assocate_collection_Select_nested_with_aggregates_projected(QueryTrackingBehavior queryTrackingBehavior)
-        => Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Over_assocate_collection_Select_nested_with_aggregates_projected(queryTrackingBehavior));
+    public override async Task Over_assocate_collection_Select_nested_with_aggregates_projected(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        await base.Over_assocate_collection_Select_nested_with_aggregates_projected(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE (
+    SELECT VALUE SUM((
+        SELECT VALUE SUM(n["Int"])
+        FROM n IN a1["NestedCollection"]))
+    FROM a1 IN (SELECT VALUE ARRAY_CONCAT(ARRAY(
+        SELECT VALUE a
+        FROM a IN c["AssociateCollection"]
+        WHERE (a["Int"] = 8)), ARRAY(
+        SELECT VALUE a0
+        FROM a0 IN c["AssociateCollection"]
+        WHERE (a0["String"] = "foo")))))
+FROM root c
+""");
+    }
 
     public override async Task Over_nested_associate_collection()
     {

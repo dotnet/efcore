@@ -105,7 +105,7 @@ public partial class InternalEntryBase
         {
             if (original)
             {
-                _originalEntries ??= new List<InternalComplexEntry?>(capacity);
+                _originalEntries ??= [with(capacity)];
                 for (var i = _originalEntries.Count; i < capacity; i++)
                 {
                     _originalEntries.Add(null);
@@ -122,7 +122,7 @@ public partial class InternalEntryBase
                 return _originalEntries;
             }
 
-            _entries ??= new List<InternalComplexEntry?>(capacity);
+            _entries ??= [with(capacity)];
             for (var i = _entries.Count; i < capacity; i++)
             {
                 _entries.Add(null);
@@ -179,7 +179,7 @@ public partial class InternalEntryBase
 
             if (_entries != null)
             {
-                _originalEntries ??= new List<InternalComplexEntry?>(_entries.Count);
+                _originalEntries ??= [with(_entries.Count)];
                 _originalEntries.Clear();
                 for (var i = 0; i < _entries.Count; i++)
                 {
@@ -217,7 +217,7 @@ public partial class InternalEntryBase
 
             if (_originalEntries != null)
             {
-                _entries ??= new List<InternalComplexEntry?>(_originalEntries.Count);
+                _entries ??= [with(_originalEntries.Count)];
                 _entries.Clear();
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < _originalEntries.Count; i++)
@@ -246,13 +246,6 @@ public partial class InternalEntryBase
                         CoreStrings.ComplexCollectionOriginalEntryAddedEntity(
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
-
-                if (_containingEntry.GetOriginalValue(_complexCollection) == null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionEntryOriginalNull(
-                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
-                }
             }
             else
             {
@@ -262,7 +255,28 @@ public partial class InternalEntryBase
                         CoreStrings.ComplexCollectionEntryDeletedEntity(
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
+            }
 
+            // Must check tracked entries first to allow reindexing during cleanup when the parent is null.
+            var existingEntries = original ? _originalEntries : _entries;
+            if (existingEntries != null
+                && (uint)ordinal < (uint)existingEntries.Count
+                && existingEntries[ordinal] is { } existingEntry)
+            {
+                return existingEntry;
+            }
+
+            if (original)
+            {
+                if (_containingEntry.GetOriginalValue(_complexCollection) == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexCollectionEntryOriginalNull(
+                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                }
+            }
+            else
+            {
                 if (_containingEntry[_complexCollection] == null)
                 {
                     throw new InvalidOperationException(
@@ -280,12 +294,6 @@ public partial class InternalEntryBase
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count)
                         : CoreStrings.ComplexCollectionEntryOrdinalInvalid(
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count));
-            }
-
-            var complexEntry = entries[ordinal];
-            if (complexEntry != null)
-            {
-                return complexEntry;
             }
 
             // The entry is created in Detached state, so it's not added to the entries list yet.

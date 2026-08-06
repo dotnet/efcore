@@ -15,6 +15,7 @@ public class JsonReaderData
     private byte[]? _mutableBuffer;
     private int _positionInBuffer;
     private int _bytesAvailable;
+    private int _bytesRead;
     private JsonReaderState _readerState;
 
     /// <summary>
@@ -48,6 +49,12 @@ public class JsonReaderData
     }
 
     /// <summary>
+    ///     The number of bytes read from the JSON data at the last captured state.
+    /// </summary>
+    public virtual int BytesConsumed
+        => _bytesRead + _positionInBuffer;
+
+    /// <summary>
     ///     Called to capture the state of the given <see cref="Utf8JsonReaderManager" /> so that a new <see cref="Utf8JsonReaderManager" />
     ///     can later be created to pick up at the same position in the JSON document.
     /// </summary>
@@ -74,9 +81,10 @@ public class JsonReaderData
         {
             var buffer = _mutableBuffer!;
             var totalConsumed = bytesConsumed + _positionInBuffer;
-            if (_bytesAvailable != 0 && totalConsumed < buffer.Length)
+            _bytesRead += totalConsumed;
+            if (totalConsumed < _bytesAvailable)
             {
-                var leftover = buffer.AsSpan(totalConsumed);
+                var leftover = buffer.AsSpan(totalConsumed, _bytesAvailable - totalConsumed);
 
                 if (leftover.Length == buffer.Length)
                 {
@@ -84,11 +92,13 @@ public class JsonReaderData
                 }
 
                 leftover.CopyTo(buffer);
-                _bytesAvailable = _stream.Read(buffer.AsSpan(leftover.Length)) + leftover.Length;
+                _bytesAvailable = _stream.ReadAtLeast(
+                        buffer.AsSpan(leftover.Length), buffer.Length - leftover.Length, throwOnEndOfStream: false)
+                    + leftover.Length;
             }
             else
             {
-                _bytesAvailable = _stream.Read(buffer);
+                _bytesAvailable = _stream.ReadAtLeast(buffer, buffer.Length, throwOnEndOfStream: false);
             }
 
             _mutableBuffer = buffer;

@@ -679,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, typeName);
 
         /// <summary>
-        ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.
+        ///     The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string ComplexCollectionWrongClrType(object? property, object? type, object? clrType, object? targetType)
             => string.Format(
@@ -869,20 +869,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertyList, entityType, principalEntityType);
 
         /// <summary>
-        ///     The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.
-        /// </summary>
-        public static string ConflictingNamedIndex(object? indexName, object? entityType, object? propertyList)
-            => string.Format(
-                GetString("ConflictingNamedIndex", nameof(indexName), nameof(entityType), nameof(propertyList)),
-                indexName, entityType, propertyList);
-
-        /// <summary>
         ///     The entity type '{entity}' has both [Keyless] and [PrimaryKey] attributes; one must be removed.
         /// </summary>
         public static string ConflictingKeylessAndPrimaryKeyAttributes(object? entity)
             => string.Format(
                 GetString("ConflictingKeylessAndPrimaryKeyAttributes", nameof(entity)),
                 entity);
+
+        /// <summary>
+        ///     The index named '{indexName}' on entity type '{entityType}' cannot be configured on properties {propertyList} because an index with the same name has already been defined on different properties or with different complex-collection indices. Use a different name for this index.
+        /// </summary>
+        public static string ConflictingNamedIndex(object? indexName, object? entityType, object? propertyList)
+            => string.Format(
+                GetString("ConflictingNamedIndex", nameof(indexName), nameof(entityType), nameof(propertyList)),
+                indexName, entityType, propertyList);
 
         /// <summary>
         ///     The member '{member}' cannot be added to the '{type}' type because a {conflictingMemberKind} with the same name already exists on the '{conflictingType}' type. Remove the existing {conflictingMemberKind} first.
@@ -1187,14 +1187,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.
-        /// </summary>
-        public static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? firstOwnerType, object? secondNavigation, object? secondOwnerType)
-            => string.Format(
-                GetString("DuplicateOwnedEntityInstance", nameof(entityType), nameof(firstNavigation), nameof(firstOwnerType), nameof(secondNavigation), nameof(secondOwnerType)),
-                entityType, firstNavigation, firstOwnerType, secondNavigation, secondOwnerType);
-
-        /// <summary>
         ///     The foreign key {foreignKeyProperties} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {keyProperties} on '{principalType}'.
         /// </summary>
         public static string DuplicateForeignKey(object? foreignKeyProperties, object? entityType, object? duplicateEntityType, object? keyProperties, object? principalType)
@@ -1225,6 +1217,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateNamedIndex", nameof(indexName), nameof(indexProperties), nameof(entityType), nameof(duplicateEntityType)),
                 indexName, indexProperties, entityType, duplicateEntityType);
+
+        /// <summary>
+        ///     The same object instance of type '{entityType}' is being referenced from the navigation '{firstNavigation}' on '{firstOwnerType}' and from the navigation '{secondNavigation}' on '{secondOwnerType}'. Owned entity types cannot have multiple owners pointing to the same instance. Consider creating a copy of the object to use for each navigation.
+        /// </summary>
+        public static string DuplicateOwnedEntityInstance(object? entityType, object? firstNavigation, object? firstOwnerType, object? secondNavigation, object? secondOwnerType)
+            => string.Format(
+                GetString("DuplicateOwnedEntityInstance", nameof(entityType), nameof(firstNavigation), nameof(firstOwnerType), nameof(secondNavigation), nameof(secondOwnerType)),
+                entityType, firstNavigation, firstOwnerType, secondNavigation, secondOwnerType);
 
         /// <summary>
         ///     The type '{entityType}' cannot have base type '{baseType}' because the properties '{derivedPropertyType}.{derivedProperty}' and '{basePropertyType}.{baseProperty}' are in conflict.
@@ -1307,7 +1307,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFParameterInvoked");
 
         /// <summary>
-        ///     Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model.
+        ///     The element type '{elementType}' of the primitive collection '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the element value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string ElementNotMapped(object? elementType, object? entityType, object? property)
+            => string.Format(
+                GetString("ElementNotMapped", nameof(elementType), nameof(entityType), nameof(property)),
+                elementType, entityType, property);
+
+        /// <summary>
+        ///     The element type '{elementType}' is not compatible with the type '{collectionType}' of the primitive collection '{entityType}.{property}'. The collection type must implement 'IEnumerable&lt;T&gt;' where 'T' is assignable to the element type.
+        /// </summary>
+        public static string ElementTypeNotCompatible(object? elementType, object? collectionType, object? entityType, object? property)
+            => string.Format(
+                GetString("ElementTypeNotCompatible", nameof(elementType), nameof(collectionType), nameof(entityType), nameof(property)),
+                elementType, collectionType, entityType, property);
+
+        /// <summary>
+        ///     Complex type '{complexType}' has no properties defined. Configure at least one property or don't include this type in the model. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string EmptyComplexType(object? complexType)
             => string.Format(
@@ -1808,7 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, indexProperties, actualCount, expectedCount);
 
         /// <summary>
-        ///     The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type.
+        ///     The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string InvalidComplexType(object? type)
             => string.Format(
@@ -2394,7 +2410,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, navigation, propertyType);
 
         /// <summary>
-        ///     Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string NavigationNotAddedComplexType(object? complexType, object? navigation, object? propertyType)
             => string.Format(
@@ -2688,7 +2704,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes.
+        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. See https://aka.ms/efcore-docs-complex-types for more information.
         /// </summary>
         public static string NullRequiredComplexProperty(object? type, object? property)
             => string.Format(
@@ -4557,6 +4573,56 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     An owned entity of type '{entityType}' was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        /// </summary>
+        public static EventDefinition<string, string> LogInconsistentOwnedData(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedData,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.InconsistentOwnedDataWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.InconsistentOwnedDataWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.InconsistentOwnedDataWarning,
+                            _resourceManager.GetString("LogInconsistentOwnedData")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     An owned entity of type '{entityType}' with key values {keyValues} was loaded through navigation '{navigation}', but the owner entity was null. This can indicate inconsistent data in the database. The owned entity will be ignored.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogInconsistentOwnedDataSensitive(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogInconsistentOwnedDataSensitive,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.InconsistentOwnedDataWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.InconsistentOwnedDataWarning",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.InconsistentOwnedDataWarning,
+                            _resourceManager.GetString("LogInconsistentOwnedDataSensitive")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     Unable to find navigation '{navigation}' specified in string based include path '{navigationChain}'.
         /// </summary>
         public static EventDefinition<object, object> LogInvalidIncludePath(IDiagnosticsLogger logger)
@@ -5576,6 +5642,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.ShadowPropertyCreated,
                             _resourceManager.GetString("LogShadowPropertyCreated")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The shadow property '{entityType}.{property}' has a name that is not a valid identifier. This can cause issues in generated code. Consider renaming the property to use only letters, digits (except for the first character), and underscore.
+        /// </summary>
+        public static EventDefinition<string, string> LogShadowPropertyNameNotValidIdentifier(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogShadowPropertyNameNotValidIdentifier;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogShadowPropertyNameNotValidIdentifier,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.ShadowPropertyNameNotValidIdentifierWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.ShadowPropertyNameNotValidIdentifierWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.ShadowPropertyNameNotValidIdentifierWarning,
+                            _resourceManager.GetString("LogShadowPropertyNameNotValidIdentifier")!)));
             }
 
             return (EventDefinition<string, string>)definition;

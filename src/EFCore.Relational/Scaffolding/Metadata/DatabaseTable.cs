@@ -40,27 +40,27 @@ public class DatabaseTable : Annotatable
     /// <summary>
     ///     The ordered list of columns in the table.
     /// </summary>
-    public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
+    public virtual IList<DatabaseColumn> Columns { get; } = [];
 
     /// <summary>
     ///     The list of unique constraints defined on the table.
     /// </summary>
-    public virtual IList<DatabaseUniqueConstraint> UniqueConstraints { get; } = new List<DatabaseUniqueConstraint>();
+    public virtual IList<DatabaseUniqueConstraint> UniqueConstraints { get; } = [];
 
     /// <summary>
     ///     The list of indexes defined on the table.
     /// </summary>
-    public virtual IList<DatabaseIndex> Indexes { get; } = new List<DatabaseIndex>();
+    public virtual IList<DatabaseIndex> Indexes { get; } = [];
 
     /// <summary>
     ///     The list of foreign key constraints defined on the table.
     /// </summary>
-    public virtual IList<DatabaseForeignKey> ForeignKeys { get; } = new List<DatabaseForeignKey>();
+    public virtual IList<DatabaseForeignKey> ForeignKeys { get; } = [];
 
     /// <summary>
     ///     The list of triggers defined on the table.
     /// </summary>
-    public virtual IList<DatabaseTrigger> Triggers { get; } = new List<DatabaseTrigger>();
+    public virtual IList<DatabaseTrigger> Triggers { get; } = [];
 
     /// <inheritdoc />
     public override string ToString()

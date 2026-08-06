@@ -896,6 +896,40 @@ public class RelationalBuilderExtensionsTest
     }
 
     [Fact]
+    public void Embedded_discriminator_name_is_used_for_json_entity_and_complex_discriminators()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.HasEmbeddedDiscriminatorName("Terminator");
+        modelBuilder.Entity<JsonContainer>(b =>
+        {
+            b.OwnsOne(
+                e => e.JsonOwned, bb => bb.ToJson());
+            b.ComplexProperty(
+                e => e.JsonComplex, bb =>
+                {
+                    bb.ToJson();
+                    bb.HasDiscriminator<string>("ComplexDiscriminator");
+                });
+        });
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(JsonContainer))!;
+        var ownedEntityType = entityType.FindNavigation(nameof(JsonContainer.JsonOwned))!.TargetEntityType;
+        var discriminatorBuilder = ((EntityType)ownedEntityType).Builder.HasDiscriminator(
+            "EntityDiscriminator", typeof(string), ConfigurationSource.Explicit)!;
+        discriminatorBuilder.HasValue(typeof(JsonOwned), "Owned");
+        var complexType = entityType.FindComplexProperty(nameof(JsonContainer.JsonComplex))!.ComplexType;
+
+        var ownedDiscriminatorProperty = ownedEntityType.FindDiscriminatorProperty()!;
+        var complexDiscriminatorProperty = complexType.FindDiscriminatorProperty()!;
+
+        Assert.Equal("EntityDiscriminator", ownedDiscriminatorProperty.Name);
+        Assert.Equal("Terminator", ownedDiscriminatorProperty.GetJsonPropertyName());
+        Assert.Equal("ComplexDiscriminator", complexDiscriminatorProperty.Name);
+        Assert.Equal("Terminator", complexDiscriminatorProperty.GetJsonPropertyName());
+    }
+
+    [Fact]
     public void Can_set_schema_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -1063,13 +1097,10 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .HasSequence<int>(
-                "Snook", b =>
-                {
-                    b.IncrementsBy(11)
-                        .StartsAt(1729)
-                        .HasMin(111)
-                        .HasMax(2222);
-                });
+                "Snook", b => b.IncrementsBy(11)
+                    .StartsAt(1729)
+                    .HasMin(111)
+                    .HasMax(2222));
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
 
@@ -1083,13 +1114,10 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .HasSequence(
-                typeof(int), "Snook", b =>
-                {
-                    b.IncrementsBy(11)
-                        .StartsAt(1729)
-                        .HasMin(111)
-                        .HasMax(2222);
-                });
+                typeof(int), "Snook", b => b.IncrementsBy(11)
+                    .StartsAt(1729)
+                    .HasMin(111)
+                    .HasMax(2222));
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
 
@@ -1520,6 +1548,23 @@ public class RelationalBuilderExtensionsTest
 
         public int OrderId { get; set; }
         public Order Order { get; }
+    }
+
+    private class JsonContainer
+    {
+        public int Id { get; set; }
+        public JsonOwned JsonOwned { get; set; } = null!;
+        public JsonComplex JsonComplex { get; set; } = null!;
+    }
+
+    private class JsonOwned
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    private class JsonComplex
+    {
+        public string Name { get; set; } = null!;
     }
 
     private class Splot

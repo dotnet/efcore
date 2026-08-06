@@ -74,12 +74,10 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
     }
 
     private static void ValidateNoIdentifyingRelationshipCycles(Multigraph<IEntityType, IForeignKey> graph)
-    {
-        graph.TopologicalSort(
+        => graph.TopologicalSort(
             tryBreakEdge: null,
             formatCycle: c => c.Select(d => d.Item1.DisplayName()).Join(" -> "),
             CoreStrings.IdentifyingRelationshipCycle);
-    }
 
     /// <summary>
     ///     Validates a single entity type.
@@ -174,6 +172,37 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         ValidateTypeMapping(property, logger);
         ValidatePrimitiveCollection(property, logger);
         ValidateAutoLoaded(property, structuralType, logger);
+
+        if (property.IsShadowProperty()
+            && !IsValidIdentifier(property.Name))
+        {
+            logger.ShadowPropertyNameNotValidIdentifierWarning(property);
+        }
+    }
+
+    /// <summary>
+    ///     Returns <see langword="true" /> if the given name only uses letters, ASCII digits and underscores and does not start with a digit;
+    ///     that is, if it can be used as-is as an identifier in generated code.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static bool IsValidIdentifier(string? name)
+    {
+        if (string.IsNullOrEmpty(name)
+            || (!char.IsLetter(name[0]) && name[0] != '_'))
+        {
+            return false;
+        }
+
+        for (var i = 1; i < name.Length; i++)
+        {
+            var ch = name[i];
+            if (!char.IsLetter(ch) && !char.IsAsciiDigit(ch) && ch != '_')
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -306,9 +335,9 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IPropertyBase property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         => ValidateComplexPropertyChainForKeyOrIndex(
-                property,
-                propName => CoreStrings.IndexOnComplexCollection(index.Properties.Format(), index.DeclaringEntityType.DisplayName(), propName),
-                nullableErrorFactory: null);
+            property,
+            propName => CoreStrings.IndexOnComplexCollection(index.Properties.Format(), index.DeclaringEntityType.DisplayName(), propName),
+            nullableErrorFactory: null);
 
     /// <summary>
     ///     Validates an index that contains a complex property.
@@ -348,7 +377,8 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             ValidateComplexPropertyChainForKeyOrIndex(
                 property,
                 propName => CoreStrings.KeyOnComplexCollection(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName),
-                propName => CoreStrings.KeyOnNullableComplexProperty(key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName));
+                propName => CoreStrings.KeyOnNullableComplexProperty(
+                    key.Properties.Format(), key.DeclaringEntityType.DisplayName(), propName));
         }
     }
 
@@ -548,7 +578,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
 
             // elementType is the collection element type for collection navigations and null for reference navigations.
             var targetType = Dependencies.MemberClassifier.IsCandidateNavigationProperty(
-                    clrProperty, conventionModel, useAttributes: true, out var elementType, out var targetOwned, out _)
+                clrProperty, conventionModel, useAttributes: true, out var elementType, out var targetOwned, out _)
                 ? elementType ?? propertyType
                 : null;
             if (targetType == null
@@ -613,7 +643,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 // ReSharper restore CheckForReferenceEqualityInstead.3
                 // ReSharper restore CheckForReferenceEqualityInstead.1
             }
-            else if (targetSequenceType == null && propertyType.IsInterface
+            else if ((targetSequenceType == null && propertyType.IsInterface)
                      || targetSequenceType?.IsInterface == true)
             {
                 throw new InvalidOperationException(
@@ -677,7 +707,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
                 || genericTypeDefinition == typeof(Collection<>)
                 || genericTypeDefinition == typeof(ObservableCollection<>))
             {
-                logger.AccidentalComplexPropertyCollection((IComplexProperty)complexProperty);
+                logger.AccidentalComplexPropertyCollection(complexProperty);
             }
         }
 
@@ -1037,6 +1067,7 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
             discriminatorValues[discriminatorValue] = derivedType;
         }
     }
+
     private void ValidateChangeTrackingStrategy(
         ITypeBase structuralType,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
@@ -1399,16 +1430,30 @@ public class ModelValidator(ModelValidatorDependencies dependencies) : IModelVal
         IProperty property,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var elementClrType = property.GetElementType()?.ClrType;
-        if (property is { IsPrimitiveCollection: true, ClrType.IsArray: false })
+        var elementType = property.GetElementType();
+        if (elementType == null)
         {
-            if (property.ClrType.IsSealed && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.BadListType(
-                        property.ClrType.ShortDisplayName(),
-                        typeof(IList<>).MakeGenericType(elementClrType!).ShortDisplayName()));
-            }
+            return;
+        }
+
+        if (elementType.FindTypeMapping() == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ElementNotMapped(
+                    elementType.ClrType.ShortDisplayName(),
+                    property.DeclaringType.DisplayName(),
+                    property.Name));
+        }
+
+        var elementClrType = elementType.ClrType;
+        if (property is { ClrType.IsArray: false }
+            && property.ClrType.IsSealed
+            && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.BadListType(
+                    property.ClrType.ShortDisplayName(),
+                    typeof(IList<>).MakeGenericType(elementClrType).ShortDisplayName()));
         }
     }
 

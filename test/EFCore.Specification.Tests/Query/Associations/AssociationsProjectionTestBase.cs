@@ -6,6 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations;
 public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : AssociationsQueryFixtureBase, new()
 {
+    public virtual bool AssertQueryTrackingBehaviour { get; } = true;
+
     [Theory, MemberData(nameof(TrackingData))]
     public virtual Task Select_root(QueryTrackingBehavior queryTrackingBehavior)
         => AssertQuery(
@@ -99,7 +101,8 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             ss => ss.Set<RootEntity>().Select(e => UntranslatableMethod(e.RequiredAssociate.Int)),
             queryTrackingBehavior: queryTrackingBehavior);
 
-    private static int UntranslatableMethod(int i) => i + 1;
+    private static int UntranslatableMethod(int i)
+        => i + 1;
 
     #endregion Structural properties
 
@@ -166,6 +169,64 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
             {
                 AssertEqual(e.First, a.First);
                 AssertEqual(e.Second, a.Second);
+                if (AssertQueryTrackingBehaviour)
+                {
+                    if (queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                    {
+                        Assert.Same(a.First, a.Second);
+                    }
+                    else
+                    {
+                        Assert.NotSame(a.First, a.Second);
+                    }
+                }
+            },
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    [Theory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_required_associate_duplicated(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => new { First = x.RequiredAssociate, Second = x.RequiredAssociate }),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+                if (AssertQueryTrackingBehaviour)
+                {
+                    if (queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                    {
+                        Assert.Same(a.First, a.Second);
+                    }
+                    else
+                    {
+                        Assert.NotSame(a.First, a.Second);
+                    }
+                }
+            },
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    [Theory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_required_associate_and_optional_associate(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => new { First = x.RequiredAssociate, Second = x.OptionalAssociate }),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            },
+            queryTrackingBehavior: queryTrackingBehavior);
+
+    [Theory, MemberData(nameof(TrackingData))]
+    public virtual Task Select_optional_associate_and_ints(QueryTrackingBehavior queryTrackingBehavior)
+        => AssertQuery(
+            ss => ss.Set<RootEntity>().Select(x => new { First = x.OptionalAssociate, x.RequiredAssociate.Ints }),
+            elementSorter: e => e.First?.Id ?? -1,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                Assert.Equal(e.Ints, a.Ints);
             },
             queryTrackingBehavior: queryTrackingBehavior);
 
@@ -174,7 +235,12 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
     {
         var obj = new object();
         return AssertQuery(
-            ss => ss.Set<RootEntity>().Select(x => new { Obj = obj, x.Id, x.RequiredAssociate }),
+            ss => ss.Set<RootEntity>().Select(x => new
+            {
+                Obj = obj,
+                x.Id,
+                x.RequiredAssociate
+            }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -289,9 +355,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Select(x => ss.Set<RootEntity>()
-                .OrderBy(e => e.Id)
-                .Select(e => e.RequiredAssociate)
-                .FirstOrDefault()!.RequiredNestedAssociate),
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.RequiredAssociate)
+                    .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [Theory, MemberData(nameof(TrackingData))]
@@ -299,9 +365,9 @@ public abstract class AssociationsProjectionTestBase<TFixture>(TFixture fixture)
         => AssertQuery(
             ss => ss.Set<RootEntity>()
                 .Select(x => ss.Set<RootEntity>()
-                .OrderBy(e => e.Id)
-                .Select(e => e.OptionalAssociate)
-                .FirstOrDefault()!.RequiredNestedAssociate),
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.OptionalAssociate)
+                    .FirstOrDefault()!.RequiredNestedAssociate),
             queryTrackingBehavior: queryTrackingBehavior);
 
     [Theory, MemberData(nameof(TrackingData))]

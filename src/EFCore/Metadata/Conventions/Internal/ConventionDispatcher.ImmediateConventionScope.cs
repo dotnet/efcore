@@ -31,7 +31,6 @@ public partial class ConventionDispatcher
         private readonly ConventionContext<string> _stringConventionContext = new(dispatcher);
         private readonly ConventionContext<string?> _nullableStringConventionContext = new(dispatcher);
         private readonly ConventionContext<FieldInfo> _fieldInfoConventionContext = new(dispatcher);
-        private readonly ConventionContext<IElementType> _elementTypeConventionContext = new(dispatcher);
         private readonly ConventionContext<bool?> _boolConventionContext = new(dispatcher);
         private readonly ConventionContext<IReadOnlyList<bool>?> _boolListConventionContext = new(dispatcher);
 
@@ -1708,38 +1707,6 @@ public partial class ConventionDispatcher
             }
 
             return _fieldInfoConventionContext.Result;
-        }
-
-        public override IElementType? OnPropertyElementTypeChanged(
-            IConventionPropertyBuilder propertyBuilder,
-            IElementType? newElementType,
-            IElementType? oldElementType)
-        {
-            if (!propertyBuilder.Metadata.IsInModel
-                || !propertyBuilder.Metadata.DeclaringType.IsInModel)
-            {
-                return null;
-            }
-#if DEBUG
-            var initialValue = propertyBuilder.Metadata.GetElementType();
-#endif
-            _elementTypeConventionContext.ResetState(newElementType);
-            foreach (var propertyConvention in conventionSet.PropertyElementTypeChangedConventions)
-            {
-                propertyConvention.ProcessPropertyElementTypeChanged(
-                    propertyBuilder, newElementType, oldElementType, _elementTypeConventionContext);
-                if (_elementTypeConventionContext.ShouldStopProcessing())
-                {
-                    return _elementTypeConventionContext.Result;
-                }
-#if DEBUG
-                Check.DebugAssert(
-                    initialValue == propertyBuilder.Metadata.GetElementType(),
-                    $"Convention {propertyConvention.GetType().Name} changed value without terminating");
-#endif
-            }
-
-            return _elementTypeConventionContext.Result;
         }
 
         public override IConventionAnnotation? OnPropertyAnnotationChanged(

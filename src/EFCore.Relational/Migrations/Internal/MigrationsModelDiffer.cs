@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Globalization;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -140,9 +141,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var dropColumnOperations = new List<MigrationOperation>();
         var dropComputedColumnOperations = new List<MigrationOperation>();
         var dropTableOperations = new List<DropTableOperation>();
-        var dropSequenceOperations = new List<MigrationOperation>();
+        var dropSequenceOperations = new List<DropSequenceOperation>();
         var ensureSchemaOperations = new List<MigrationOperation>();
-        var createSequenceOperations = new List<MigrationOperation>();
+        var createSequenceOperations = new List<CreateSequenceOperation>();
         var createTableOperations = new List<CreateTableOperation>();
         var alterDatabaseOperations = new List<MigrationOperation>();
         var alterTableOperations = new List<MigrationOperation>();
@@ -193,7 +194,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
             else if (type == typeof(CreateSequenceOperation))
             {
-                createSequenceOperations.Add(operation);
+                createSequenceOperations.Add((CreateSequenceOperation)operation);
             }
             else if (type == typeof(CreateTableOperation))
             {
@@ -319,13 +320,31 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return true;
         });
 
+        var dropReplacedSequenceOperations = new List<DropSequenceOperation>();
+        var dropObsoleteSequenceOperations = new List<DropSequenceOperation>();
+
+        var createdSequenceIds = new HashSet<(string Name, string? Schema)>(
+            createSequenceOperations.Select(o => (o.Name, o.Schema)));
+
+        foreach (var dropSequenceOperation in dropSequenceOperations)
+        {
+            if (createdSequenceIds.Contains((dropSequenceOperation.Name, dropSequenceOperation.Schema)))
+            {
+                dropReplacedSequenceOperations.Add(dropSequenceOperation);
+            }
+            else
+            {
+                dropObsoleteSequenceOperations.Add(dropSequenceOperation);
+            }
+        }
+
         return dropForeignKeyOperations
             .Concat(dropTableOperations)
             .Concat(dropOperations)
             .Concat(sourceDataOperations)
             .Concat(dropComputedColumnOperations)
             .Concat(dropColumnOperations)
-            .Concat(dropSequenceOperations)
+            .Concat(dropReplacedSequenceOperations)
             .Concat(ensureSchemaOperations)
             .Concat(renameTableOperations)
             .Concat(renameOperations)
@@ -336,6 +355,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(computedColumnOperations)
             .Concat(alterOperations)
             .Concat(restartSequenceOperations)
+            .Concat(dropObsoleteSequenceOperations)
             .Concat(createTableOperations)
             .Concat(targetDataOperations)
             .Concat(constraintOperations)
@@ -367,7 +387,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             {
                 var alterDatabaseOperation = new AlterDatabaseOperation
                 {
-                    Collation = target.Collation, OldDatabase = { Collation = source.Collation }
+                    Collation = target.Collation,
+                    OldDatabase = { Collation = source.Collation }
                 };
 
                 alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
@@ -794,7 +815,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
                 var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
                 if (linkingNavigationProperty == null
-                    || (linkingForeignKey.PrincipalToDependent!.IsIndexerProperty()))
+                    || linkingForeignKey.PrincipalToDependent!.IsIndexerProperty())
                 {
                     leastPriorityProperties.AddRange(properties);
 
@@ -1089,7 +1110,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             || source.Order != target.Order
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
         {
-            var isDestructiveChange = isNullableChanged && source.IsNullable
+            var isDestructiveChange = (isNullableChanged && source.IsNullable)
                 // TODO: Detect type narrowing
                 || columnTypeChanged;
 
@@ -1266,22 +1287,22 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.ClrType = typeof(string);
         columnOperation.DefaultValue = inline || isNullable
             ? null
-            : IsJsonCollectionColumn(jsonColumn) ? "[]" : "{}";
+            : IsJsonCollectionColumn(jsonColumn)
+                ? "[]"
+                : "{}";
 
         columnOperation.AddAnnotations(migrationsAnnotations);
     }
 
     private static bool IsJsonCollectionColumn(JsonColumn jsonColumn)
-        => jsonColumn.Table.ComplexTypeMappings.Any(
-               m => m.TypeBase is IComplexType ct
-                   && ct.GetContainerColumnName() == jsonColumn.Name
-                   && ct.ComplexProperty.IsCollection
-                   && !ct.ComplexProperty.DeclaringType.IsMappedToJson())
-           || jsonColumn.Table.EntityTypeMappings.Any(
-               m => m.TypeBase is IEntityType et
-                   && et.GetContainerColumnName() == jsonColumn.Name
-                   && et.FindOwnership() is { IsUnique: false, PrincipalEntityType: var principal }
-                   && !principal.IsMappedToJson());
+        => jsonColumn.Table.ComplexTypeMappings.Any(m => m.TypeBase is IComplexType ct
+                && ct.GetContainerColumnName() == jsonColumn.Name
+                && ct.ComplexProperty.IsCollection
+                && !ct.ComplexProperty.DeclaringType.IsMappedToJson())
+            || jsonColumn.Table.EntityTypeMappings.Any(m => m.TypeBase is IEntityType et
+                && et.GetContainerColumnName() == jsonColumn.Name
+                && et.FindOwnership() is { IsUnique: false, PrincipalEntityType: var principal }
+                && !principal.IsMappedToJson());
 
     #endregion
 
@@ -1330,14 +1351,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     /// </summary>
     protected virtual IEnumerable<MigrationOperation> Add(IUniqueConstraint target, DiffContext diffContext)
     {
-        if (target.GetIsPrimaryKey())
-        {
-            yield return AddPrimaryKeyOperation.CreateFrom((IPrimaryKeyConstraint)target);
-        }
-        else
-        {
-            yield return AddUniqueConstraintOperation.CreateFrom(target);
-        }
+        yield return target.GetIsPrimaryKey()
+            ? AddPrimaryKeyOperation.CreateFrom((IPrimaryKeyConstraint)target)
+            : AddUniqueConstraintOperation.CreateFrom(target);
     }
 
     /// <summary>
@@ -1352,26 +1368,19 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
         var table = source.Table;
 
-        MigrationOperation operation;
-        if (source.GetIsPrimaryKey())
-        {
-            operation = new DropPrimaryKeyOperation
+        var operation = source.GetIsPrimaryKey()
+            ? new DropPrimaryKeyOperation
+            {
+                Schema = table.Schema,
+                Table = table.Name,
+                Name = source.Name
+            }
+            : (MigrationOperation)new DropUniqueConstraintOperation
             {
                 Schema = table.Schema,
                 Table = table.Name,
                 Name = source.Name
             };
-        }
-        else
-        {
-            operation = new DropUniqueConstraintOperation
-            {
-                Schema = table.Schema,
-                Table = table.Name,
-                Name = source.Name
-            };
-        }
-
         operation.AddAnnotations(MigrationsAnnotationProvider.ForRemove(source));
 
         yield return operation;
@@ -1399,6 +1408,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Add,
             Remove,
             (s, t, context) => s.Name == t.Name
+                && s.Table == context.FindSource(t.Table)
                 && s.IsExcludedFromMigrations == t.IsExcludedFromMigrations
                 && s.Columns.Select(c => c.Name).SequenceEqual(
                     t.Columns.Select(c => context.FindSource(c)?.Name))
@@ -1501,7 +1511,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Remove,
             (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                 && IndexStructureEquals(s, t, c),
-            (s, t, c) => IndexStructureEquals(s, t, c));
+            IndexStructureEquals);
 
     private bool IndexStructureEquals(ITableIndex source, ITableIndex target, DiffContext diffContext)
         => source.IsUnique == target.IsUnique
@@ -1522,17 +1532,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         // element identity (column + path) and the parallel collection-indices list.
         var sourceJson = source[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
         var targetJson = target[RelationalAnnotationNames.JsonIndex] as RelationalJsonIndex;
-        if (sourceJson is null && targetJson is null)
-        {
-            return true;
-        }
-
-        if (sourceJson is null || targetJson is null)
-        {
-            return false;
-        }
-
-        return sourceJson.Equals(targetJson);
+        return (sourceJson is null && targetJson is null)
+            || (sourceJson is not null && targetJson is not null && sourceJson.Equals(targetJson));
     }
 
     /// <summary>
@@ -1823,7 +1824,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_targetIdentityMaps == null)
         {
-            _targetIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
+            _targetIdentityMaps = [with(TableBaseIdentityComparer.Instance)];
         }
         else
         {
@@ -1843,7 +1844,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_sourceIdentityMaps == null)
         {
-            _sourceIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
+            _sourceIdentityMaps = [with(TableBaseIdentityComparer.Instance)];
         }
         else
         {
@@ -1908,9 +1909,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
 
                     var valueConverter = columnMapping.TypeMapping.Converter;
-                    key[i] = valueConverter == null
-                        ? value
-                        : valueConverter.ConvertToProvider(value);
+                    key[i] = NormalizeSeedValue(
+                        valueConverter == null
+                            ? value
+                            : valueConverter.ConvertToProvider(value));
                 }
 
                 if (!keyFound)
@@ -2001,7 +2003,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     var existingColumnModification = command.ColumnModifications.FirstOrDefault(c => c.ColumnName == column.Name);
                     if (existingColumnModification != null)
                     {
-                        if (!Equals(existingColumnModification.Value, value))
+                        if (!Equals(NormalizeSeedValue(existingColumnModification.Value), NormalizeSeedValue(value)))
                         {
                             if (sensitiveLoggingEnabled)
                             {
@@ -2075,6 +2077,27 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
 
             return (value, true);
+        }
+    }
+
+    // Seed data string values can differ only by Unicode normalization form (e.g. "Café" in NFC vs NFD), which can happen when
+    // the model and the migration snapshot are authored on different operating systems. These are canonically equivalent, so
+    // normalize to NFC before comparing to avoid scaffolding spurious migrations (see #38191).
+    private static object? NormalizeSeedValue(object? value)
+    {
+        if (value is not string stringValue)
+        {
+            return value;
+        }
+
+        try
+        {
+            return stringValue.Normalize(NormalizationForm.FormC);
+        }
+        catch (ArgumentException)
+        {
+            // The string contains invalid Unicode (e.g. an unpaired surrogate) and cannot be normalized; compare it as-is.
+            return stringValue;
         }
     }
 
@@ -2152,7 +2175,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 for (var i = 0; i < keyValues.Length; i++)
                 {
                     var modification = targetRow.ColumnModifications.First(m => m.ColumnName == key.Columns[i].Name);
-                    keyValues[i] = modification.Value;
+                    keyValues[i] = NormalizeSeedValue(modification.Value);
                 }
 
                 var sourceRow = sourceIdentityMap.FindCommand(keyValues);
@@ -2218,8 +2241,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         continue;
                     }
 
-                    var sourceValue = sourceColumnModification.OriginalValue;
-                    var targetValue = targetColumnModification.Value;
+                    var sourceValue = NormalizeSeedValue(sourceColumnModification.OriginalValue);
+                    var targetValue = NormalizeSeedValue(targetColumnModification.Value);
                     var comparer = targetColumn.ProviderValueComparer;
                     if (sourceColumn.ProviderClrType == targetColumn.ProviderClrType
                         && comparer.Equals(sourceValue, targetValue))
@@ -2521,7 +2544,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 : StructuralComparisons.StructuralEqualityComparer.Equals(left.Value, right.Value);
     }
 
-    private static bool MultilineEquals(string? sourceString, string? targetString, StringComparison comparisonType = StringComparison.Ordinal)
+    private static bool MultilineEquals(
+        string? sourceString,
+        string? targetString,
+        StringComparison comparisonType = StringComparison.Ordinal)
         => ReferenceEquals(sourceString, targetString)
             || (sourceString is not null
                 && targetString is not null

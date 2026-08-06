@@ -233,7 +233,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedResultColumn)
                     .Message);
         }
 
@@ -260,7 +260,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedParameter)
                     .Message);
         }
 
@@ -568,7 +568,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedResultColumn)
                     .Message);
         }
 
@@ -595,7 +595,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             Assert.Equal(
                 RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
-                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                Assert.Throws<InvalidOperationException>(sproc.AddRowsAffectedParameter)
                     .Message);
         }
 
@@ -721,17 +721,18 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer, b =>
-                {
-                    b.ToJson("customer_data");
-                    b.Ignore(c => c.Details);
-                    b.Ignore(c => c.Orders);
-                    b.HasDiscriminator<string>("CustomerType");
-                    // Issue #31250
-                    // .HasValue<Customer>("Customer")
-                    // .HasValue<SpecialCustomer>("Special")
-                    // .HasValue<OtherCustomer>("Other");
-                });
+                .ComplexProperty(
+                    e => e.Customer, b =>
+                    {
+                        b.ToJson("customer_data");
+                        b.Ignore(c => c.Details);
+                        b.Ignore(c => c.Orders);
+                        b.HasDiscriminator<string>("CustomerType");
+                        // Issue #31250
+                        // .HasValue<Customer>("Customer")
+                        // .HasValue<SpecialCustomer>("Special")
+                        // .HasValue<OtherCustomer>("Other");
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -790,23 +791,25 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Entity<ComplexProperties>(b =>
                 {
                     b.Ignore(e => e.Customers);
-                    b.ComplexProperty(e => e.Customer, cb =>
-                    {
-                        cb.ToJson();
-                        cb.Ignore(c => c.Orders);
-                        cb.Ignore(c => c.Details);
-                    });
-                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>("Customer.SomeOrders", ob =>
-                    {
-                        ob.Ignore(o => o.Customer);
-                        ob.Ignore(o => o.Products);
-                        ob.Ignore(o => o.Details);
-                        ob.Ignore(o => o.OrderCombination);
-                        ob.Ignore(o => o.SpecialCustomer);
-                        ob.Ignore(o => o.BackOrder);
-                        ob.Ignore(o => o.SpecialOrderCombination);
-                        ob.Ignore(o => o.ShippingAddress);
-                    });
+                    b.ComplexProperty(
+                        e => e.Customer, cb =>
+                        {
+                            cb.ToJson();
+                            cb.Ignore(c => c.Orders);
+                            cb.Ignore(c => c.Details);
+                        });
+                    b.ComplexCollection<List<SpecialOrder>, SpecialOrder>(
+                        "Customer.SomeOrders", ob =>
+                        {
+                            ob.Ignore(o => o.Customer);
+                            ob.Ignore(o => o.Products);
+                            ob.Ignore(o => o.Details);
+                            ob.Ignore(o => o.OrderCombination);
+                            ob.Ignore(o => o.SpecialCustomer);
+                            ob.Ignore(o => o.BackOrder);
+                            ob.Ignore(o => o.SpecialOrderCombination);
+                            ob.Ignore(o => o.ShippingAddress);
+                        });
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -828,10 +831,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexCollection(
-                    e => e.QuarksCollection, b =>
-                    {
-                        b.ToJson(); // No column name specified
-                    });
+                    e => e.QuarksCollection, b => b.ToJson());
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
@@ -854,15 +854,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference2);
                         cp.Ignore(x => x.Collection2);
                         cp.ComplexProperty(
-                            x => x.Reference1, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference");
-                            });
+                            x => x.Reference1, np => np.HasJsonPropertyName("CustomNestedReference"));
                         cp.ComplexCollection(
-                            x => x.Collection1, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection");
-                            });
+                            x => x.Collection1, nc => nc.HasJsonPropertyName("CustomNestedCollection"));
                     });
                 b.ComplexProperty(
                     e => e.OwnedReference2, cp =>
@@ -871,15 +865,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference1);
                         cp.Ignore(x => x.Collection1);
                         cp.ComplexProperty(
-                            x => x.Reference2, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference2");
-                            });
+                            x => x.Reference2, np => np.HasJsonPropertyName("CustomNestedReference2"));
                         cp.ComplexCollection(
-                            x => x.Collection2, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection2");
-                            });
+                            x => x.Collection2, nc => nc.HasJsonPropertyName("CustomNestedCollection2"));
                     });
 
                 b.ComplexCollection(
@@ -889,15 +877,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference2);
                         cp.Ignore(x => x.Collection2);
                         cp.ComplexProperty(
-                            x => x.Reference1, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference3");
-                            });
+                            x => x.Reference1, np => np.HasJsonPropertyName("CustomNestedReference3"));
                         cp.ComplexCollection(
-                            x => x.Collection1, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection3");
-                            });
+                            x => x.Collection1, nc => nc.HasJsonPropertyName("CustomNestedCollection3"));
                     });
                 b.ComplexCollection(
                     e => e.OwnedCollection2, cp =>
@@ -906,17 +888,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                         cp.Ignore(x => x.Reference1);
                         cp.Ignore(x => x.Collection1);
                         cp.ComplexProperty(
-                            x => x.Reference2, np =>
-                            {
-                                np.HasJsonPropertyName("CustomNestedReference4");
-                            });
+                            x => x.Reference2, np => np.HasJsonPropertyName("CustomNestedReference4"));
                         cp.ComplexCollection(
-                            x => x.Collection2, nc =>
-                            {
-                                nc.HasJsonPropertyName("CustomNestedCollection4");
-                            });
+                            x => x.Collection2, nc => nc.HasJsonPropertyName("CustomNestedCollection4"));
                     });
-                });
+            });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(JsonEntityWithNesting))!;
@@ -1125,12 +1101,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArt>(entity =>
-            {
-                entity.HasMany(d => d.MotorBauArt)
-                    .WithMany(p => p.MotorArt)
-                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart");
-            });
+            modelBuilder.Entity<MotorArt>(entity => entity.HasMany(d => d.MotorBauArt)
+                .WithMany(p => p.MotorArt)
+                .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart"));
 
             var model = modelBuilder.FinalizeModel();
 

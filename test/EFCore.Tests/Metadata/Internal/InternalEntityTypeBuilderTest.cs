@@ -1786,7 +1786,7 @@ public class InternalEntityTypeBuilderTest
         var principalKey = principalEntityBuilder.HasKey(
         [
             principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit).Metadata,
-                principalEntityBuilder.Property(typeof(int), "AlternateId", ConfigurationSource.Explicit).Metadata
+            principalEntityBuilder.Property(typeof(int), "AlternateId", ConfigurationSource.Explicit).Metadata
         ], ConfigurationSource.Explicit).Metadata;
         var dependentEntityBuilder = modelBuilder.Entity(nameof(Order), ConfigurationSource.Explicit);
         var foreignKey = dependentEntityBuilder.HasRelationship(
@@ -1815,7 +1815,7 @@ public class InternalEntityTypeBuilderTest
         var principalKey = principalEntityBuilder.HasKey(
         [
             principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit).Metadata,
-                principalEntityBuilder.Property(typeof(Guid), "AlternateId", ConfigurationSource.Explicit).Metadata
+            principalEntityBuilder.Property(typeof(Guid), "AlternateId", ConfigurationSource.Explicit).Metadata
         ], ConfigurationSource.Explicit).Metadata;
         var dependentEntityBuilder = modelBuilder.Entity(nameof(Order), ConfigurationSource.Explicit);
         var foreignKey = dependentEntityBuilder.HasRelationship(
@@ -1844,7 +1844,7 @@ public class InternalEntityTypeBuilderTest
         var principalKey = principalEntityBuilder.HasKey(
         [
             principalEntityBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit).Metadata,
-                principalEntityBuilder.Property(typeof(int), "Unique", ConfigurationSource.Explicit).Metadata
+            principalEntityBuilder.Property(typeof(int), "Unique", ConfigurationSource.Explicit).Metadata
         ], ConfigurationSource.Explicit).Metadata;
         var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
         var foreignKey = dependentEntityBuilder.HasRelationship(
@@ -2037,7 +2037,7 @@ public class InternalEntityTypeBuilderTest
                 .HasForeignKey(
                 [
                     dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
                 ], ConfigurationSource.DataAnnotation)
                 .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.DataAnnotation)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
@@ -2261,7 +2261,7 @@ public class InternalEntityTypeBuilderTest
             .HasForeignKey(
             [
                 dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                    dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
             ], ConfigurationSource.Convention)
             .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.Convention)
             .Metadata;
@@ -3155,10 +3155,54 @@ public class InternalEntityTypeBuilderTest
     }
 
     [Fact]
-    public void Can_access_discriminator()
+    public void Can_add_primitive_collection_property_with_element_type()
+    {
+        IConventionEntityType entityType = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention).Metadata;
+
+        var shadowProperty = entityType.AddPrimitiveCollection("Shadow", typeof(List<int>), typeof(int));
+        Assert.NotNull(shadowProperty);
+        Assert.Equal(typeof(int), shadowProperty.GetElementType().ClrType);
+        Assert.True(shadowProperty.IsPrimitiveCollection);
+
+        var memberProperty = entityType.AddPrimitiveCollection(
+            nameof(Order.Numbers), typeof(List<int>), Order.NumbersProperty, typeof(int));
+        Assert.NotNull(memberProperty);
+        Assert.Equal(typeof(int), memberProperty.GetElementType().ClrType);
+        Assert.True(memberProperty.IsPrimitiveCollection);
+        Assert.Same(Order.NumbersProperty, memberProperty.GetIdentifyingMemberInfo());
+    }
+
+    [Fact]
+    public void CanHavePrimitiveCollection_compares_element_type_with_the_configured_one()
     {
         IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
 
+        Assert.NotNull(typeBuilder.PrimitiveCollection(Order.NumbersProperty, typeof(int), fromDataAnnotation: true));
+
+        // A matching element type is compatible, and a null element type reuses the configured one.
+        Assert.True(typeBuilder.CanHavePrimitiveCollection(Order.NumbersProperty, typeof(int)));
+        Assert.True(typeBuilder.CanHavePrimitiveCollection(Order.NumbersProperty, elementType: null));
+        Assert.True(typeBuilder.CanHavePrimitiveCollection(typeof(List<int>), nameof(Order.Numbers), typeof(int)));
+        Assert.True(typeBuilder.CanHavePrimitiveCollection(typeof(List<int>), nameof(Order.Numbers), elementType: null));
+
+        // A different element type cannot override the configured one from a lower configuration source.
+        Assert.False(typeBuilder.CanHavePrimitiveCollection(Order.NumbersProperty, typeof(long)));
+        Assert.False(typeBuilder.CanHavePrimitiveCollection(typeof(List<int>), nameof(Order.Numbers), typeof(long)));
+
+        // A different element type can override the configured one from an equal/higher configuration source.
+        Assert.True(typeBuilder.CanHavePrimitiveCollection(Order.NumbersProperty, typeof(long), fromDataAnnotation: true));
+        Assert.True(
+            typeBuilder.CanHavePrimitiveCollection(typeof(List<int>), nameof(Order.Numbers), typeof(long), fromDataAnnotation: true));
+
+        // Without a configured element type a non-collection type with no requested element type cannot be a collection.
+        Assert.False(typeBuilder.CanHavePrimitiveCollection(typeof(int), "Scalar", elementType: null));
+        Assert.True(typeBuilder.CanHavePrimitiveCollection(typeof(List<int>), "Other", elementType: null));
+    }
+
+    [Fact]
+    public void Can_access_discriminator()
+    {
+        IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
         Assert.NotNull(typeBuilder.HasDiscriminator());
         Assert.Equal("Discriminator", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
         Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
@@ -3463,7 +3507,7 @@ public class InternalEntityTypeBuilderTest
         // Public API should be able to override it
         var publicBuilder = new EntityTypeBuilder(entityBuilder.Metadata);
         publicBuilder.HasQueryFilter(filterKey, explicitFilter);
-        
+
         // Verify the filter was replaced with the explicit one
         Assert.Same(explicitFilter, entityBuilder.Metadata.FindDeclaredQueryFilter(filterKey).Expression);
         Assert.Equal(ConfigurationSource.Explicit, entityBuilder.Metadata.GetQueryFilterConfigurationSource(filterKey));
@@ -3505,6 +3549,7 @@ public class InternalEntityTypeBuilderTest
         public static readonly PropertyInfo CustomerProperty = typeof(Order).GetProperty(nameof(Customer));
         public static readonly PropertyInfo ContextProperty = typeof(Order).GetProperty(nameof(Context));
         public static readonly PropertyInfo ProductsProperty = typeof(Order).GetProperty(nameof(Products));
+        public static readonly PropertyInfo NumbersProperty = typeof(Order).GetProperty(nameof(Numbers));
 
         public int Id { get; set; }
         public int CustomerId { get; set; }
@@ -3512,6 +3557,7 @@ public class InternalEntityTypeBuilderTest
         public Customer Customer { get; set; }
         public DbContext Context { get; set; }
         public ICollection<Product> Products { get; set; }
+        public List<int> Numbers { get; set; }
     }
 
     private class SpecialOrder : Order, IEnumerable<Order>

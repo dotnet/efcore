@@ -4,8 +4,8 @@
 
   <PropertyGroup Label="Version settings">
     <VersionPrefix>11.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>6</PreReleaseVersionIteration>
+    <PreReleaseVersionLabel>rc</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
     <DotNetFinalVersionKind></DotNetFinalVersionKind>
 
@@ -48,13 +48,14 @@
     <MicrosoftCodeAnalysisAnalyzerTestingVersion>1.1.4</MicrosoftCodeAnalysisAnalyzerTestingVersion>
     <MicrosoftCodeAnalysisCSharpTestingVersion>1.1.4</MicrosoftCodeAnalysisCSharpTestingVersion>
     <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
-    <AzureResourceManagerCosmosDBVersion>1.4.1</AzureResourceManagerCosmosDBVersion>
-    <OpenTelemetryExporterInMemoryVersion>1.16.0</OpenTelemetryExporterInMemoryVersion>
-    <SQLitePCLRawVersion>3.0.3</SQLitePCLRawVersion>
-    <SQLite3MCPCLRawBundleVersion>2.3.5</SQLite3MCPCLRawBundleVersion>
+    <AzureResourceManagerCosmosDBVersion>1.5.0</AzureResourceManagerCosmosDBVersion>
+    <OpenTelemetryExporterInMemoryVersion>1.17.0</OpenTelemetryExporterInMemoryVersion>
+    <SQLitePCLRawVersion>3.0.5</SQLitePCLRawVersion>
+    <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.0-pre.108</XUnitV3Version>
-    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26319.1</MicrosoftDotNetXUnitV3ExtensionsVersion>
-    <MicrosoftTestingPlatformVersion>2.2.2</MicrosoftTestingPlatformVersion>
+    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26403.1</MicrosoftDotNetXUnitV3ExtensionsVersion>
+    <MicrosoftTestingPlatformVersion>2.3.2</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingExtensionsCodeCoverageVersion>18.9.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
@@ -63,8 +64,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Tooling dependencies">
-    <ICSharpCodeDecompilerVersion>10.1.0.8386</ICSharpCodeDecompilerVersion>
-    <SystemCommandLineVersion>2.0.9</SystemCommandLineVersion>
+    <ICSharpCodeDecompilerVersion>10.1.1.8388</ICSharpCodeDecompilerVersion>
+    <SystemCommandLineVersion>2.0.10</SystemCommandLineVersion>
   </PropertyGroup>
 
 </Project>

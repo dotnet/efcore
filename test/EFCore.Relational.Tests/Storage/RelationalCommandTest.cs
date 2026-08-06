@@ -5,21 +5,18 @@ using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using CommandAction = System.Action<
+    Microsoft.EntityFrameworkCore.Storage.IRelationalConnection,
+    Microsoft.EntityFrameworkCore.Storage.IRelationalCommand, System.Collections.Generic.IReadOnlyDictionary<string, object>,
+    Microsoft.EntityFrameworkCore.Diagnostics.IRelationalCommandDiagnosticsLogger>;
+using CommandFunc = System.Func<
+    Microsoft.EntityFrameworkCore.Storage.IRelationalConnection,
+    Microsoft.EntityFrameworkCore.Storage.IRelationalCommand, System.Collections.Generic.IReadOnlyDictionary<string, object>,
+    Microsoft.EntityFrameworkCore.Diagnostics.IRelationalCommandDiagnosticsLogger,
+    System.Threading.Tasks.Task>;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage;
-
-using CommandAction = Action<
-    IRelationalConnection,
-    IRelationalCommand,
-    IReadOnlyDictionary<string, object>,
-    IRelationalCommandDiagnosticsLogger>;
-using CommandFunc = Func<
-    IRelationalConnection,
-    IRelationalCommand,
-    IReadOnlyDictionary<string, object>,
-    IRelationalCommandDiagnosticsLogger,
-    Task>;
 
 public class RelationalCommandTest
 {
@@ -359,8 +356,8 @@ public class RelationalCommandTest
             new NullDbContextLogger(),
             CreateOptions());
 
-        DbDataReader CreateDbDataReader()
-            => new FakeDbDataReader(["Id", "Name"], new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
+        static DbDataReader CreateDbDataReader()
+            => new FakeDbDataReader(["Id", "Name"], [new object[] { 1, "Foo" }, new object[] { 2, "Bar" }]);
 
         var fakeDbConnection = new FakeDbConnection(
             ConnectionString,

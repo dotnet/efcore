@@ -3,9 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -26,8 +24,7 @@ public class ManyToManyLoaderTest
         var tracked = context.Set<Left>().Single();
 
         // Accessing the collection loader must route through the replaced factory.
-        Assert.Throws<CustomLoaderSentinelException>(
-            () => context.Entry(tracked).Collection(e => e.Rights).Load());
+        Assert.Throws<CustomLoaderSentinelException>(() => context.Entry(tracked).Collection(e => e.Rights).Load());
     }
 
     [Fact]
@@ -41,8 +38,7 @@ public class ManyToManyLoaderTest
 
         // Simulate what the compiled-model generator emits for native AOT: a static delegate
         // that carries the concrete generic types but defers creation to the runtime factory.
-        skipNavigation.SetManyToManyLoaderFactory(
-            static (factory, navigation) => factory.Create<Right, Left>(navigation));
+        skipNavigation.SetManyToManyLoaderFactory(static (factory, navigation) => factory.Create<Right, Left>(navigation));
 
         var loader = ((IRuntimeSkipNavigation)skipNavigation)
             .GetManyToManyLoader(new CustomManyToManyLoaderFactory());
@@ -94,7 +90,9 @@ public class ManyToManyLoaderTest
             => throw new CustomLoaderSentinelException();
     }
 
-    private sealed class CustomLoaderSentinelException : Exception { }
+    private sealed class CustomLoaderSentinelException : Exception
+    {
+    }
 
     private class Left
     {

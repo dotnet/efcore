@@ -40,7 +40,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(query);
-        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[0..^1], exception.Message);
+        Assert.StartsWith(CoreStrings.NonQueryTranslationFailed("")[..^1], exception.Message);
         var innerException = Assert.IsType<InvalidOperationException>(exception.InnerException);
         Assert.Equal(details, innerException.Message);
     }

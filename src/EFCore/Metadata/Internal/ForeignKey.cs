@@ -545,24 +545,17 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         {
             Check.DebugAssert(oldNavigation.Name != null, "oldNavigation.Name is null");
 
-            string? removedNavigationName;
-            if (pointsToPrincipal)
-            {
-                removedNavigationName = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+            var removedNavigationName = pointsToPrincipal
+                ? DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                     DeclaringEntityType.Builder,
                     PrincipalEntityType.Builder,
                     oldNavigation.Name,
-                    oldNavigation.GetIdentifyingMemberInfo());
-            }
-            else
-            {
-                removedNavigationName = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                    oldNavigation.GetIdentifyingMemberInfo())
+                : DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
                     PrincipalEntityType.Builder,
                     DeclaringEntityType.Builder,
                     oldNavigation.Name,
                     oldNavigation.GetIdentifyingMemberInfo());
-            }
-
             if (navigation == null)
             {
                 DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyNullNavigationSet(Builder, pointsToPrincipal);
@@ -1141,38 +1134,30 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         Check.NotNull(principalEntityType);
         Check.NotNull(dependentEntityType);
 
-        if (navigationToPrincipal != null
-            && !Internal.Navigation.IsCompatible(
-                navigationToPrincipal.Name,
-                navigationToPrincipal,
-                dependentEntityType,
-                principalEntityType,
-                shouldBeCollection: false,
-                shouldThrow: shouldThrow))
-        {
-            return false;
-        }
-
-        if (navigationToDependent != null
-            && !Internal.Navigation.IsCompatible(
-                navigationToDependent.Name,
-                navigationToDependent,
-                principalEntityType,
-                dependentEntityType,
-                shouldBeCollection: !unique,
-                shouldThrow: shouldThrow))
-        {
-            return false;
-        }
-
-        return principalProperties == null
-            || dependentProperties == null
-            || AreCompatible(
-                principalProperties,
-                dependentProperties,
-                principalEntityType,
-                dependentEntityType,
-                shouldThrow);
+        return (navigationToPrincipal == null
+                || Internal.Navigation.IsCompatible(
+                    navigationToPrincipal.Name,
+                    navigationToPrincipal,
+                    dependentEntityType,
+                    principalEntityType,
+                    shouldBeCollection: false,
+                    shouldThrow: shouldThrow))
+            && (navigationToDependent == null
+                || Internal.Navigation.IsCompatible(
+                    navigationToDependent.Name,
+                    navigationToDependent,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldBeCollection: !unique,
+                    shouldThrow: shouldThrow))
+            && (principalProperties == null
+                || dependentProperties == null
+                || AreCompatible(
+                    principalProperties,
+                    dependentProperties,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldThrow));
     }
 
     /// <summary>
@@ -1193,44 +1178,27 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
         Check.NotNull(principalEntityType);
         Check.NotNull(dependentEntityType);
 
-        if (!ArePropertyCountsEqual(principalProperties, dependentProperties))
-        {
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+        return !ArePropertyCountsEqual(principalProperties, dependentProperties)
+            ? shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.ForeignKeyCountMismatch(
                         dependentProperties.Format(),
                         dependentEntityType.DisplayName(),
                         principalProperties.Format(),
-                        principalEntityType.DisplayName()));
-            }
-
-            return false;
-        }
-
-        if (!ArePropertyTypesCompatible(principalProperties, dependentProperties))
-        {
-            if (principalEntityType.Model is Model model
+                        principalEntityType.DisplayName()))
+                : false
+            : ArePropertyTypesCompatible(principalProperties, dependentProperties)
+            || (principalEntityType.Model is Model model
                 && ReferenceEquals(model, dependentEntityType.Model)
                 && model.IsInModelSnapshot)
-            {
-                return true;
-            }
-
-            if (shouldThrow)
-            {
-                throw new InvalidOperationException(
+            || (shouldThrow
+                ? throw new InvalidOperationException(
                     CoreStrings.ForeignKeyTypeMismatch(
                         dependentProperties.Format(includeTypes: true),
                         dependentEntityType.DisplayName(),
                         principalProperties.Format(includeTypes: true),
-                        principalEntityType.DisplayName()));
-            }
-
-            return false;
-        }
-
-        return true;
+                        principalEntityType.DisplayName()))
+                : false);
     }
 
     private static bool ArePropertyCountsEqual(

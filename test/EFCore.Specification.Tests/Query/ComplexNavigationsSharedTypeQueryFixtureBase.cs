@@ -250,17 +250,13 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
                 return (IQueryable<TEntity>)GetLevelOne(_context);
             }
 
-            if (typeof(TEntity) == typeof(Level2))
-            {
-                return (IQueryable<TEntity>)GetLevelTwo(_context);
-            }
-
-            if (typeof(TEntity) == typeof(Level3))
-            {
-                return (IQueryable<TEntity>)GetLevelThree(_context);
-            }
-
-            return typeof(TEntity) == typeof(Level4) ? (IQueryable<TEntity>)GetLevelFour(_context) : _context.Set<TEntity>();
+            return typeof(TEntity) == typeof(Level2)
+                ? (IQueryable<TEntity>)GetLevelTwo(_context)
+                : typeof(TEntity) == typeof(Level3)
+                    ? (IQueryable<TEntity>)GetLevelThree(_context)
+                    : typeof(TEntity) == typeof(Level4)
+                        ? (IQueryable<TEntity>)GetLevelFour(_context)
+                        : _context.Set<TEntity>();
         }
 
         private static IQueryable<Level1> GetLevelOne(DbContext context)
@@ -316,17 +312,11 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
                 return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(InheritanceLeaf1))
-            {
-                return (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(InheritanceLeaf2))
-            {
-                return (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(InheritanceLeaf1)
+                ? (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable()
+                : typeof(TEntity) == typeof(InheritanceLeaf2)
+                    ? (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         private IQueryable<Level1> GetExpectedLevelOne()

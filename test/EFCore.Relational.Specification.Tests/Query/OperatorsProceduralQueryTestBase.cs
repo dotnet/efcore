@@ -958,10 +958,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
             setSourceTemplate,
             actualSetSource,
             resultRewriter,
-            resultVerifier: (e, a, i) =>
-            {
-                Assert.Equal(e[i].Item1.Id, a[i].Item1.Id);
-            });
+            resultVerifier: (e, a, i) => Assert.Equal(e[i].Item1.Id, a[i].Item1.Id));
     }
 
     private void TestPredicateQueryWithTwoSources<TEntity1, TEntity2>(
@@ -1295,23 +1292,17 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
         {
             if (methodCallExpression.Method == LikeMethodInfo)
             {
-                if (methodCallExpression.Arguments[2] is ConstantExpression { Value: "A%" })
-                {
-                    return Expression.Call(
+                return methodCallExpression.Arguments[2] is ConstantExpression { Value: "A%" }
+                    ? Expression.Call(
                         methodCallExpression.Arguments[1],
                         _startsWithMethodInfo,
-                        Expression.Constant("A"));
-                }
-
-                if (methodCallExpression.Arguments[2] is ConstantExpression { Value: "%B" })
-                {
-                    return Expression.Call(
-                        methodCallExpression.Arguments[1],
-                        _endsWithMethodInfo,
-                        Expression.Constant("B"));
-                }
-
-                return Expression.Equal(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2]);
+                        Expression.Constant("A"))
+                    : methodCallExpression.Arguments[2] is ConstantExpression { Value: "%B" }
+                        ? Expression.Call(
+                            methodCallExpression.Arguments[1],
+                            _endsWithMethodInfo,
+                            Expression.Constant("B"))
+                        : Expression.Equal(methodCallExpression.Arguments[1], methodCallExpression.Arguments[2]);
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -1379,7 +1370,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase,
     }
 
     protected virtual bool DivideByZeroException(Exception ex)
-        => ex.Message.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("").Substring(0, 90))
+        => ex.Message.StartsWith(CoreStrings.ExpressionParameterizationExceptionSensitive("")[..90])
             && ex.InnerException is DivideByZeroException;
 
     #endregion

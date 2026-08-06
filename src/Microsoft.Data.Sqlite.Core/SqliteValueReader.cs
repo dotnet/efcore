@@ -94,24 +94,18 @@ internal abstract class SqliteValueReader
         }
     }
 
-#if NET6_0_OR_GREATER
     public virtual DateOnly GetDateOnly(int ordinal)
     {
         var sqliteType = GetSqliteType(ordinal);
-        switch (sqliteType)
+        return sqliteType switch
         {
-            case SQLITE_FLOAT:
-            case SQLITE_INTEGER:
-                return DateOnly.FromDateTime(FromJulianDate(GetDouble(ordinal)));
-
-            default:
-                return DateOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
-        }
+            SQLITE_FLOAT or SQLITE_INTEGER => DateOnly.FromDateTime(FromJulianDate(GetDouble(ordinal))),
+            _ => DateOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture),
+        };
     }
 
     public virtual TimeOnly GetTimeOnly(int ordinal)
         => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
-#endif
 
     public virtual decimal GetDecimal(int ordinal)
         => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
@@ -145,14 +139,11 @@ internal abstract class SqliteValueReader
     public virtual TimeSpan GetTimeSpan(int ordinal)
     {
         var sqliteType = GetSqliteType(ordinal);
-        switch (sqliteType)
+        return sqliteType switch
         {
-            case SQLITE_FLOAT:
-            case SQLITE_INTEGER:
-                return TimeSpan.FromDays(GetDouble(ordinal));
-            default:
-                return TimeSpan.Parse(GetString(ordinal));
-        }
+            SQLITE_FLOAT or SQLITE_INTEGER => TimeSpan.FromDays(GetDouble(ordinal)),
+            _ => TimeSpan.Parse(GetString(ordinal)),
+        };
     }
 
     public virtual short GetInt16(int ordinal)
@@ -203,7 +194,6 @@ internal abstract class SqliteValueReader
             return (T)(object)GetDateTimeOffset(ordinal);
         }
 
-#if NET6_0_OR_GREATER
         if (typeof(T) == typeof(DateOnly))
         {
             return (T)(object)GetDateOnly(ordinal);
@@ -213,7 +203,6 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetTimeOnly(ordinal);
         }
-#endif
 
         if (typeof(T) == typeof(decimal))
         {
@@ -229,6 +218,13 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetFloat(ordinal);
         }
+
+#if NET6_0_OR_GREATER
+        if (typeof(T) == typeof(Half))
+        {
+            return (T)(object)(Half)GetDouble(ordinal);
+        }
+#endif
 
         if (typeof(T) == typeof(Guid))
         {
@@ -267,7 +263,7 @@ internal abstract class SqliteValueReader
 
         if (typeof(T) == typeof(ulong))
         {
-            return (T)(object)((ulong)GetInt64(ordinal));
+            return (T)(object)(ulong)GetInt64(ordinal);
         }
 
         if (typeof(T) == typeof(ushort))
@@ -320,7 +316,6 @@ internal abstract class SqliteValueReader
             return (T)(object)GetDateTimeOffset(ordinal);
         }
 
-#if NET6_0_OR_GREATER
         if (type == typeof(DateOnly))
         {
             return (T)(object)GetDateOnly(ordinal);
@@ -330,7 +325,6 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetTimeOnly(ordinal);
         }
-#endif
 
         if (type == typeof(decimal))
         {
@@ -346,6 +340,13 @@ internal abstract class SqliteValueReader
         {
             return (T)(object)GetFloat(ordinal);
         }
+
+#if NET6_0_OR_GREATER
+        if (type == typeof(Half))
+        {
+            return (T)(object)(Half)GetDouble(ordinal);
+        }
+#endif
 
         if (type == typeof(Guid))
         {
@@ -372,27 +373,15 @@ internal abstract class SqliteValueReader
             return (T)(object)GetInt16(ordinal);
         }
 
-        if (type == typeof(TimeSpan))
-        {
-            return (T)(object)GetTimeSpan(ordinal);
-        }
-
-        if (type == typeof(uint))
-        {
-            return (T)(object)checked((uint)GetInt64(ordinal));
-        }
-
-        if (type == typeof(ulong))
-        {
-            return (T)(object)((ulong)GetInt64(ordinal));
-        }
-
-        if (type == typeof(ushort))
-        {
-            return (T)(object)checked((ushort)GetInt64(ordinal));
-        }
-
-        return (T)GetValue(ordinal)!;
+        return type == typeof(TimeSpan)
+            ? (T)(object)GetTimeSpan(ordinal)
+            : type == typeof(uint)
+                ? (T)(object)checked((uint)GetInt64(ordinal))
+                : type == typeof(ulong)
+                    ? (T)(object)(ulong)GetInt64(ordinal)
+                    : type == typeof(ushort)
+                        ? (T)(object)checked((ushort)GetInt64(ordinal))
+                        : (T)GetValue(ordinal)!;
     }
 
     public virtual object? GetValue(int ordinal)
@@ -441,13 +430,13 @@ internal abstract class SqliteValueReader
         }
 
         // computeYMD
-        var iJD = (long)(julianDate * 86400000.0 + 0.5);
+        var iJD = (long)((julianDate * 86400000.0) + 0.5);
         var Z = (int)((iJD + 43200000) / 86400000);
         var A = (int)((Z - 1867216.25) / 36524.25);
         A = Z + 1 + A - (A / 4);
         var B = A + 1524;
         var C = (int)((B - 122.1) / 365.25);
-        var D = (36525 * (C & 32767)) / 100;
+        var D = 36525 * (C & 32767) / 100;
         var E = (int)((B - D) / 30.6001);
         var X1 = (int)(30.6001 * E);
         var day = B - D - X1;
@@ -462,7 +451,7 @@ internal abstract class SqliteValueReader
         var hour = s / 3600;
         s -= hour * 3600;
         var minute = s / 60;
-        fracSecond += s - minute * 60;
+        fracSecond += s - (minute * 60);
 
         var second = (int)fracSecond;
         var millisecond = (int)Math.Round((fracSecond - second) * 1000.0);

@@ -22,48 +22,48 @@ public class MiscellaneousTranslationsCosmosTest : MiscellaneousTranslationsTest
             """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
+WHERE ((RAND() >= 0) AND (RAND() < 1))
 """);
     }
 
     public override async Task Random_Shared_Next_with_no_args()
     {
-        await AssertTranslationFailed(() => base.Random_Shared_Next_with_no_args());
+        await AssertTranslationFailed(base.Random_Shared_Next_with_no_args);
 
         AssertSql();
     }
 
     public override async Task Random_Shared_Next_with_one_arg()
     {
-        await AssertTranslationFailed(() => base.Random_Shared_Next_with_one_arg());
+        await AssertTranslationFailed(base.Random_Shared_Next_with_one_arg);
 
         AssertSql();
     }
 
     public override async Task Random_Shared_Next_with_two_args()
     {
-        await AssertTranslationFailed(() => base.Random_Shared_Next_with_two_args());
+        await AssertTranslationFailed(base.Random_Shared_Next_with_two_args);
 
         AssertSql();
     }
 
     public override async Task Random_new_Next_with_no_args()
     {
-        await AssertTranslationFailed(() => base.Random_new_Next_with_no_args());
+        await AssertTranslationFailed(base.Random_new_Next_with_no_args);
 
         AssertSql();
     }
 
     public override async Task Random_new_Next_with_one_arg()
     {
-        await AssertTranslationFailed(() => base.Random_new_Next_with_one_arg());
+        await AssertTranslationFailed(base.Random_new_Next_with_one_arg);
 
         AssertSql();
     }
 
     public override async Task Random_new_Next_with_two_args()
     {
-        await AssertTranslationFailed(() => base.Random_new_Next_with_two_args());
+        await AssertTranslationFailed(base.Random_new_Next_with_two_args);
 
         AssertSql();
     }
@@ -75,7 +75,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToBoolean()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToBoolean());
+        await AssertTranslationFailed(base.Convert_ToBoolean);
 
         AssertSql();
     }
@@ -83,7 +83,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToByte()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToByte());
+        await AssertTranslationFailed(base.Convert_ToByte);
 
         AssertSql();
     }
@@ -91,7 +91,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToDecimal()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToDecimal());
+        await AssertTranslationFailed(base.Convert_ToDecimal);
 
         AssertSql();
     }
@@ -99,7 +99,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToDouble()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToDouble());
+        await AssertTranslationFailed(base.Convert_ToDouble);
 
         AssertSql();
     }
@@ -107,7 +107,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToInt16()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToInt16());
+        await AssertTranslationFailed(base.Convert_ToInt16);
 
         AssertSql();
     }
@@ -115,7 +115,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToInt32()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToInt32());
+        await AssertTranslationFailed(base.Convert_ToInt32);
 
         AssertSql();
     }
@@ -123,7 +123,7 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToInt64()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToInt64());
+        await AssertTranslationFailed(base.Convert_ToInt64);
 
         AssertSql();
     }
@@ -131,12 +131,64 @@ WHERE ((RAND() >= 0.0) AND (RAND() < 1.0))
     public override async Task Convert_ToString()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Convert_ToString());
+        await AssertTranslationFailed(base.Convert_ToString);
 
         AssertSql();
     }
 
     #endregion Convert
+
+    #region Parse
+
+    public override async Task Byte_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Byte_Parse);
+
+        AssertSql();
+    }
+
+    public override async Task Decimal_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Decimal_Parse);
+
+        AssertSql();
+    }
+
+    public override async Task Double_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Double_Parse);
+
+        AssertSql();
+    }
+
+    public override async Task Short_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Short_Parse);
+
+        AssertSql();
+    }
+
+    public override async Task Int_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Int_Parse);
+
+        AssertSql();
+    }
+
+    public override async Task Long_Parse()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.Long_Parse);
+
+        AssertSql();
+    }
+
+    #endregion
 
     #region Compare
 

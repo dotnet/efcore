@@ -104,6 +104,7 @@ public abstract class CSharpMigrationsGeneratorTestBase
         var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
         return processor.Process(builder.Model);
     }
+
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         => (MigrationsModelDiffer)TestHelpers.CreateContext(options).GetService<IMigrationsModelDiffer>();
 

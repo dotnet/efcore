@@ -15,7 +15,6 @@ public class TitleSponsor : Sponsor
     }
 
     private readonly ILazyLoader _loader;
-    private SponsorDetails _details;
 
     public TitleSponsor()
     {
@@ -30,7 +29,7 @@ public class TitleSponsor : Sponsor
 
     public SponsorDetails Details
     {
-        get => _loader.Load(this, ref _details);
-        set => _details = value;
+        get => _loader.Load(this, ref field);
+        set;
     }
 }

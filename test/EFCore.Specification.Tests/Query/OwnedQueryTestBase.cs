@@ -22,7 +22,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             await context.AddAsync(
                 new HeliumBalloon
                 {
-                    Id = Guid.NewGuid().ToString(), Gas = new Helium(),
+                    Id = Guid.NewGuid().ToString(),
+                    Gas = new Helium(),
                 });
 
             await context.AddAsync(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
@@ -226,7 +227,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => new
             {
-                Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(), p.PersonAddress.Country.Planet
+                Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(),
+                p.PersonAddress.Country.Planet
             }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -1149,7 +1151,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     }
                 }
             },
-            { typeof(OwnedAddress), (e, a) => { AssertAddress(((OwnedAddress)e), ((OwnedAddress)a)); } },
+            { typeof(OwnedAddress), (e, a) => AssertAddress((OwnedAddress)e, (OwnedAddress)a) },
             {
                 typeof(OwnedCountry), (e, a) =>
                 {
@@ -1310,38 +1312,35 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         );
 
                         ob.OwnsMany(
-                            e => e.Details, odb =>
-                            {
-                                odb.HasData(
-                                    new
-                                    {
-                                        Id = -100,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Discounted Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -101,
-                                        OrderId = -10,
-                                        OrderClientId = 1,
-                                        Detail = "Full Price Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -200,
-                                        OrderId = -20,
-                                        OrderClientId = 2,
-                                        Detail = "Internal Order"
-                                    },
-                                    new
-                                    {
-                                        Id = -300,
-                                        OrderId = -30,
-                                        OrderClientId = 3,
-                                        Detail = "Bulk Order"
-                                    });
-                            });
+                            e => e.Details, odb => odb.HasData(
+                                new
+                                {
+                                    Id = -100,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Discounted Order"
+                                },
+                                new
+                                {
+                                    Id = -101,
+                                    OrderId = -10,
+                                    OrderClientId = 1,
+                                    Detail = "Full Price Order"
+                                },
+                                new
+                                {
+                                    Id = -200,
+                                    OrderId = -20,
+                                    OrderClientId = 2,
+                                    Detail = "Internal Order"
+                                },
+                                new
+                                {
+                                    Id = -300,
+                                    OrderId = -30,
+                                    OrderClientId = 3,
+                                    Detail = "Bulk Order"
+                                }));
                     });
             });
 
@@ -1368,22 +1367,19 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb =>
-                            {
-                                cb.HasData(
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 2,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    },
-                                    new
-                                    {
-                                        OwnedAddressBranchId = 3,
-                                        PlanetId = 1,
-                                        Name = "Canada"
-                                    });
-                            });
+                            a => a.Country, cb => cb.HasData(
+                                new
+                                {
+                                    OwnedAddressBranchId = 2,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                },
+                                new
+                                {
+                                    OwnedAddressBranchId = 3,
+                                    PlanetId = 1,
+                                    Name = "Canada"
+                                }));
                     });
             });
 
@@ -1590,33 +1586,27 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 return (IQueryable<TEntity>)_finks.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(Barton))
-            {
-                return (IQueryable<TEntity>)_bartons.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(Star))
-            {
-                return (IQueryable<TEntity>)_stars.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(Barton)
+                ? (IQueryable<TEntity>)_bartons.AsQueryable()
+                : typeof(TEntity) == typeof(Star)
+                    ? (IQueryable<TEntity>)_stars.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         private static IReadOnlyList<Planet> CreatePlanets()
-            => new List<Planet>
-            {
+            =>
+            [
                 new()
                 {
                     Id = 1,
                     StarId = 1,
                     Name = "Earth"
                 }
-            };
+            ];
 
         private static IReadOnlyList<Star> CreateStars()
-            => new List<Star>
-            {
+            =>
+            [
                 new()
                 {
                     Id = 1,
@@ -1637,18 +1627,18 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         }
                     ]
                 }
-            };
+            ];
 
         private static IReadOnlyList<Moon> CreateMoons()
-            => new List<Moon>
-            {
+            =>
+            [
                 new()
                 {
                     Id = 1,
                     PlanetId = 1,
                     Diameter = 3474
                 }
-            };
+            ];
 
         private static IReadOnlyList<OwnedPerson> CreateOwnedPeople()
         {
@@ -1759,7 +1749,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 ["OrderDate"] = Convert.ToDateTime("2015-03-03 04:37:59"),
                 Details = []
             };
-            ownedPerson1.Orders = new List<Order> { order1, order2 };
+            ownedPerson1.Orders = [order1, order2];
 
             var order3 = new Order
             {
@@ -1768,7 +1758,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 ["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48"),
                 Details = [new OrderDetail { Detail = "Internal Order" }]
             };
-            ownedPerson2.Orders = new List<Order> { order3 };
+            ownedPerson2.Orders = [order3];
 
             var order4 = new Order
             {
@@ -1777,7 +1767,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 ["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42"),
                 Details = [new OrderDetail { Detail = "Bulk Order" }]
             };
-            ownedPerson3.Orders = new List<Order> { order4 };
+            ownedPerson3.Orders = [order4];
 
             var order5 = new Order
             {
@@ -1786,23 +1776,23 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 ["OrderDate"] = Convert.ToDateTime("2016-04-25 19:23:56"),
                 Details = []
             };
-            ownedPerson4.Orders = new List<Order> { order5 };
+            ownedPerson4.Orders = [order5];
 
-            return new List<OwnedPerson>
-            {
+            return
+            [
                 ownedPerson1,
                 ownedPerson2,
                 ownedPerson3,
                 ownedPerson4
-            };
+            ];
         }
 
         private static IReadOnlyList<Fink> CreateFinks()
-            => new List<Fink> { new() { Id = 1 } };
+            => [new() { Id = 1 }];
 
         private static IReadOnlyList<Barton> CreateBartons()
-            => new List<Barton>
-            {
+            =>
+            [
                 new()
                 {
                     Id = 1,
@@ -1813,7 +1803,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     Id = 2, Simple = "Not",
                 }
-            };
+            ];
 
         private static void WireUp(
             IReadOnlyList<OwnedPerson> ownedPeople,

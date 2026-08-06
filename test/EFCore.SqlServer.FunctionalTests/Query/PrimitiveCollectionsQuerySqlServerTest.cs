@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Xunit.Sdk;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
-using static System.Linq.Expressions.Expression;
-using Xunit.Sdk;
 
 public class PrimitiveCollectionsQuerySqlServerTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerTest.PrimitiveCollectionsQuerySqlServerFixture>
@@ -1284,9 +1283,11 @@ WHERE (
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
-        await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
+        await base
+            .Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property();
 
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
         Assert.Contains("OPENJSON(@ints) WITH ([Value] int '$')", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
@@ -1302,7 +1303,8 @@ WHERE (
         Assert.Contains("@ints2=", Fixture.TestSqlLoggerFactory.SqlStatements[1], StringComparison.Ordinal);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    public override async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         await base.Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants();
 
@@ -1360,6 +1362,7 @@ WHERE (
     WHERE [i].[value] > [t].[Id]) = 1
 """);
                 }
+
                 break;
             }
 
@@ -1432,6 +1435,7 @@ WHERE [t].[Id] IN (
 )
 """);
                 }
+
                 break;
             }
 
@@ -1667,6 +1671,7 @@ WHERE EXISTS (
     WHERE [f].[value] = [t].[Status])
 """);
                 }
+
                 break;
             }
 
@@ -2022,6 +2027,58 @@ WHERE [p].[Int] IN (10, 999)
 """);
     }
 
+    public override async Task Min_on_MemoryExtensions()
+    {
+        await base.Min_on_MemoryExtensions();
+
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE LEAST(30, [p].[Int]) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
+""");
+        }
+    }
+
+    public override async Task Max_on_MemoryExtensions()
+    {
+        await base.Max_on_MemoryExtensions();
+
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE GREATEST(30, [p].[Int]) = 30
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
+""");
+        }
+    }
+
     public override async Task Column_collection_Count_method()
     {
         await base.Column_collection_Count_method();
@@ -2301,15 +2358,12 @@ WHERE (
 """);
     }
 
-        public override async Task Parameter_collection_index_Column_equal_Column()
+    public override async Task Parameter_collection_index_Column_equal_Column()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_index_Column_equal_Column();
@@ -2338,15 +2392,12 @@ WHERE CAST(JSON_VALUE(@ints, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS i
         }
     }
 
-        public override async Task Parameter_collection_index_Column_equal_constant()
+    public override async Task Parameter_collection_index_Column_equal_constant()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_index_Column_equal_constant();
@@ -2758,15 +2809,12 @@ WHERE (
 """);
     }
 
-        public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
+    public override async Task Parameter_collection_with_type_inference_for_JsonScalarExpression()
     {
-
         if (!SqlServerTestEnvironment.SupportsJsonPathExpressions)
 
         {
-
             throw SkipException.ForSkip("Requires SupportsJsonPathExpressions");
-
         }
 
         await base.Parameter_collection_with_type_inference_for_JsonScalarExpression();
@@ -3690,10 +3738,26 @@ WHERE (
 """);
     }
 
-    // On relational databases, byte[] gets mapped to a special binary data type, which isn't queryable as a regular primitive collection.
     [Fact]
     public virtual async Task Ordered_array_of_byte()
-        => await AssertTranslationFailed(() => TestOrderedArray((byte)1, (byte)2));
+    {
+        await TestOrderedArray((byte)1, (byte)2);
+
+        AssertSql(
+            """
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT CAST([s].[value] AS tinyint) AS [value]
+        FROM OPENJSON([t].[SomeArray]) AS [s]
+        ORDER BY CAST([s].[key] AS int)
+        OFFSET 1 ROWS
+    ) AS [s0]
+    WHERE [s0].[value] = CAST(1 AS tinyint)) = 2
+""");
+    }
 
     [Fact]
     public virtual async Task Ordered_array_of_double()
@@ -3927,7 +3991,7 @@ WHERE (
         var arrayClrType = typeof(TElement).MakeArrayType();
 
         var contextFactory = await InitializeNonSharedTest<TestContext>(
-            onModelCreating: onModelCreating ?? (mb => mb.Entity<TestEntity>().Property(arrayClrType, "SomeArray")),
+            onModelCreating: onModelCreating ?? (mb => mb.Entity<TestEntity>().PrimitiveCollection(arrayClrType, "SomeArray")),
             seed: context =>
             {
                 var instance1 = new TestEntity { Id = 1 };
@@ -4150,10 +4214,7 @@ WHERE (
         Assert.Contains("@ints2071)", Fixture.TestSqlLoggerFactory.SqlStatements[0], StringComparison.Ordinal);
     }
 
-    [Theory]
-    [InlineData(2098)]
-    [InlineData(2099)]
-    [InlineData(2100)]
+    [Theory, InlineData(2098), InlineData(2099), InlineData(2100)]
     public virtual Task Parameter_collection_of_ints_Contains_int_parameters_limit(int count)
     {
         var ints = Enumerable.Range(10, count);
@@ -4162,10 +4223,7 @@ WHERE (
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
     }
 
-    [Theory]
-    [InlineData(2098)]
-    [InlineData(2099)]
-    [InlineData(2100)]
+    [Theory, InlineData(2098), InlineData(2099), InlineData(2100)]
     public virtual Task Parameter_collection_Count_parameters_limit(int count)
     {
         var ids = Enumerable.Range(1000, count);

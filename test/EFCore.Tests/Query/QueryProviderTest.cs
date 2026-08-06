@@ -17,7 +17,8 @@ public class QueryProviderTest
 
         Assert.Equal(
             CoreStrings.ExecuteQueriesNotSupported("ExecuteUpdate", "ExecuteUpdateAsync"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteUpdateAsync(s => s.SetProperty(e => e.Id, 1)))).InnerException!.Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => set.ExecuteUpdateAsync(s => s.SetProperty(e => e.Id, 1))))
+            .InnerException!.Message);
 
         Assert.Equal(
             CoreStrings.ExecuteQueriesNotSupported("ExecuteDelete", "ExecuteDeleteAsync"),

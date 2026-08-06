@@ -76,9 +76,13 @@ public class SqlServerQueryStringFactory : IRelationalQueryStringFactory
                     .Append(
                         parameter.Value is SqlBytes sqlBytes
                             ? new SqlServerByteArrayTypeMapping(typeName).GenerateSqlLiteral(sqlBytes.Value)
-                            : typeMapping != null
-                                ? typeMapping.GenerateSqlLiteral(parameter.Value)
-                                : parameter.Value.ToString());
+                            : parameter.Value is SqlXml sqlXml
+                                ? new SqlServerStringTypeMapping(
+                                        typeName, unicode: true, sqlDbType: SqlDbType.Xml, storeTypePostfix: StoreTypePostfix.None)
+                                    .GenerateSqlLiteral(sqlXml.Value)
+                                : typeMapping != null
+                                    ? typeMapping.GenerateSqlLiteral(parameter.Value)
+                                    : parameter.Value.ToString());
             }
 
             builder.AppendLine(";");
@@ -146,19 +150,14 @@ internal static class TypeNameBuilder
     }
 
     private static StringBuilder AppendPrecisionAndScale(this StringBuilder builder, DbParameter parameter)
-    {
-        if (parameter is { Precision: > 0, Scale: > 0 })
-        {
-            return builder
+        => parameter is { Precision: > 0, Scale: > 0 }
+            ? builder
                 .Append('(')
                 .Append(parameter.Precision.ToString(CultureInfo.InvariantCulture))
                 .Append(',')
                 .Append(parameter.Scale.ToString(CultureInfo.InvariantCulture))
-                .Append(')');
-        }
-
-        return builder.AppendPrecision(parameter);
-    }
+                .Append(')')
+            : builder.AppendPrecision(parameter);
 
     public static string CreateTypeName(DbParameter parameter)
     {

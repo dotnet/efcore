@@ -19,11 +19,10 @@
   <ItemGroup>
     <!--
       Register the SQLitePCLRaw provider via the bundle's [ModuleInitializer].
-      Required since the SQLitePCLRaw 3.x bump (#36551): without this, every
-      benchmark throws "You need to call SQLitePCL.raw.SetProvider()" from
-      [GlobalSetup] and BenchmarkDotNet reports NA for every method.
+      Without this, every benchmark throws "You need to call SQLitePCL.raw.SetProvider()"
+      from [GlobalSetup] and BenchmarkDotNet reports NA for every method.
     -->
-    <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
   </ItemGroup>
 
   <ItemGroup>

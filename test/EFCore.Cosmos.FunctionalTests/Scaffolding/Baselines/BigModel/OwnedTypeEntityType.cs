@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -30,7 +29,7 @@ public partial class OwnedTypeEntityType
             baseEntityType,
             sharedClrType: true,
             changeTrackingStrategy: ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues,
-            propertyCount: 11,
+            propertyCount: 10,
             servicePropertyCount: 1,
             foreignKeyCount: 1,
             keyCount: 1);
@@ -52,8 +51,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: 0,
             relationshipIndex: 0,
             storeGenerationIndex: 0);
-        principalBaseId.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        principalBaseId.TypeMapping = CosmosTypeMapping<long>.Default;
         principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalBaseId));
 
         var principalBaseAlternateId = runtimeEntityType.AddProperty(
@@ -115,8 +113,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        details.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        details.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var number = runtimeEntityType.AddProperty(
             "Number",
@@ -151,8 +148,7 @@ public partial class OwnedTypeEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        number.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        number.TypeMapping = CosmosTypeMapping<int>.Default;
 
         var refTypeEnumerable = runtimeEntityType.AddProperty(
             "RefTypeEnumerable",
@@ -192,8 +188,7 @@ public partial class OwnedTypeEntityType
             keyComparer: ValueComparer<IEnumerable<string>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
         refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -235,8 +230,7 @@ public partial class OwnedTypeEntityType
             keyComparer: ValueComparer<IList<string>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
         refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -278,8 +272,7 @@ public partial class OwnedTypeEntityType
             keyComparer: ValueComparer<DateTime[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                 JsonDateTimeReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<DateTime>.Default.Clone(
-                jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<DateTime>.Default);
         var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
         valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -321,8 +314,7 @@ public partial class OwnedTypeEntityType
             keyComparer: ValueComparer<IEnumerable<byte>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
         valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -364,8 +356,7 @@ public partial class OwnedTypeEntityType
             keyComparer: ValueComparer<IList<byte>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
         valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -407,32 +398,9 @@ public partial class OwnedTypeEntityType
             keyComparer: ValueComparer<List<short>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<short>.Default);
         var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
         valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            propertyAccessMode: PropertyAccessMode.Field,
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.SetAccessors(
-            JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(10) ? entry.ReadStoreGeneratedValue<JObject>(2) : (entry.FlaggedAsTemporary(10) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(2) : entry.ReadShadowValue<JObject>(2))),
-            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(2),
-            JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 10),
-            JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-        __jObject.SetPropertyIndexes(
-            index: 10,
-            originalValueIndex: 10,
-            shadowIndex: 2,
-            relationshipIndex: -1,
-            storeGenerationIndex: 2);
-        __jObject.TypeMapping = CosmosTypeMapping<JObject>.Default;
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var context = runtimeEntityType.AddServiceProperty(
             "Context",
@@ -513,7 +481,6 @@ public partial class OwnedTypeEntityType
         var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable");
         var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList");
         var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList");
-        var __jObject = runtimeEntityType.FindProperty("__jObject");
         var key = runtimeEntityType.FindKey(new[] { principalBaseId, principalBaseAlternateId });
         key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
         key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
@@ -521,16 +488,16 @@ public partial class OwnedTypeEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType5 = ((CompiledModelTestBase.OwnedType)(source.Entity));
-                return ((ISnapshot)(new Snapshot<long, Guid, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, JObject>(((ValueComparer<long>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))))));
+                return ((ISnapshot)(new Snapshot<long, Guid, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))))));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, JObject>(((ValueComparer<long>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetValueComparer())).Snapshot(default(Guid)), (default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid>(((ValueComparer<long>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(default(long)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetValueComparer())).Snapshot(default(Guid))))));
         runtimeEntityType.SetTemporaryValuesFactory(
-            ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid, JObject>(default(long), default(Guid), default(JObject)))));
+            ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long, Guid>(default(long), default(Guid)))));
         runtimeEntityType.SetShadowValuesFactory(
-            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<long, Guid, JObject>((source.ContainsKey("PrincipalBaseId") ? ((long)(source["PrincipalBaseId"])) : 0L), (source.ContainsKey("PrincipalBaseAlternateId") ? ((Guid)(source["PrincipalBaseAlternateId"])) : new Guid("00000000-0000-0000-0000-000000000000")), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<long, Guid>((source.ContainsKey("PrincipalBaseId") ? ((long)(source["PrincipalBaseId"])) : 0L), (source.ContainsKey("PrincipalBaseAlternateId") ? ((Guid)(source["PrincipalBaseAlternateId"])) : new Guid("00000000-0000-0000-0000-000000000000"))))));
         runtimeEntityType.SetEmptyShadowValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid, JObject>(default(long), default(Guid), default(JObject)))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<long, Guid>(default(long), default(Guid)))));
         runtimeEntityType.SetRelationshipSnapshotFactory(
             ISnapshot (IInternalEntry source) =>
             {
@@ -538,14 +505,14 @@ public partial class OwnedTypeEntityType
                 return ((ISnapshot)(new Snapshot<long, Guid>(((ValueComparer<long>)(((IProperty)principalBaseId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)(((IProperty)principalBaseAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 11,
+            propertyCount: 10,
             navigationCount: 0,
             complexPropertyCount: 0,
             complexCollectionCount: 0,
-            originalValueCount: 11,
-            shadowCount: 3,
+            originalValueCount: 10,
+            shadowCount: 2,
             relationshipCount: 2,
-            storeGeneratedCount: 3));
+            storeGeneratedCount: 2));
 
         Customize(runtimeEntityType);
     }

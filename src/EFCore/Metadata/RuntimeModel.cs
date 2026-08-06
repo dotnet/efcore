@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
 {
-    private bool _skipDetectChanges;
-    private Guid _modelId;
+    private readonly bool _skipDetectChanges;
+    private readonly Guid _modelId;
     private readonly Dictionary<string, RuntimeEntityType> _entityTypes;
-    private readonly Dictionary<Type, List<RuntimeEntityType>> _sharedTypes = new();
+    private readonly Dictionary<Type, List<RuntimeEntityType>> _sharedTypes = [];
     private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations;
 
     private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
@@ -56,7 +56,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         _skipDetectChanges = skipDetectChanges;
         _modelId = modelId;
         _entityTypes = new Dictionary<string, RuntimeEntityType>(entityTypeCount, StringComparer.Ordinal);
-        _typeConfigurations = new Dictionary<Type, RuntimeTypeMappingConfiguration>(typeConfigurationCount);
+        _typeConfigurations = [with(typeConfigurationCount)];
     }
 
     /// <summary>

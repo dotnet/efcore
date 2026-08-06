@@ -6,7 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 public class ComplexPropertiesPrimitiveCollectionCosmosTest
     : ComplexPropertiesPrimitiveCollectionTestBase<ComplexPropertiesCosmosFixture>
 {
-    public ComplexPropertiesPrimitiveCollectionCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper) : base(fixture)
+    public ComplexPropertiesPrimitiveCollectionCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(outputHelper);
@@ -88,6 +89,33 @@ FROM root c
 WHERE ((
     SELECT VALUE SUM(i)
     FROM i IN c["RequiredAssociate"]["Ints"]) >= 6)
+""");
+    }
+
+    [Fact]
+    public virtual async Task Where_constant()
+    {
+        await AssertQuery(
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints
+            == new List<int>
+            {
+                1,
+                2,
+                3
+            }),
+            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.Ints.SequenceEqual(
+                new List<int>
+                {
+                    1,
+                    2,
+                    3
+                })));
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["RequiredAssociate"]["Ints"] = [1,2,3])
 """);
     }
 

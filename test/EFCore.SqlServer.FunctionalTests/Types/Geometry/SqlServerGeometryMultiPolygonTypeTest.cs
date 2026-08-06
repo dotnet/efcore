@@ -38,9 +38,7 @@ WHERE [t].[Value].STEquals('MULTIPOLYGON (((0 0, 0 5, 5 5, 5 0, 0 0)), ((10 10, 
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -217,40 +215,48 @@ FROM [JsonTypeEntity] AS [j]
 
     public class MultiPolygonTypeFixture : GeometryTypeFixture
     {
-        public override MultiPolygon Value { get; } = new MultiPolygon(
+        public override MultiPolygon Value { get; } = new(
         [
-            new Polygon(new LinearRing([
-                new Coordinate(0, 0),    // NW
-                new Coordinate(0, 5),    // SW
-                new Coordinate(5, 5),    // SE
-                new Coordinate(5, 0),    // NE
-                new Coordinate(0, 0)
-            ])),
-            new Polygon(new LinearRing([
-                new Coordinate(10, 10),  // NW
-                new Coordinate(10, 15),  // SW
-                new Coordinate(15, 15),  // SE
-                new Coordinate(15, 10),  // NE
-                new Coordinate(10, 10)
-            ]))
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(0, 0), // NW
+                    new Coordinate(0, 5), // SW
+                    new Coordinate(5, 5), // SE
+                    new Coordinate(5, 0), // NE
+                    new Coordinate(0, 0)
+                ])),
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(10, 10), // NW
+                    new Coordinate(10, 15), // SW
+                    new Coordinate(15, 15), // SE
+                    new Coordinate(15, 10), // NE
+                    new Coordinate(10, 10)
+                ]))
         ]);
 
-        public override MultiPolygon OtherValue { get; } = new MultiPolygon(
+        public override MultiPolygon OtherValue { get; } = new(
         [
-            new Polygon(new LinearRing([
-                new Coordinate(20, 20),  // NW
-                new Coordinate(20, 25),  // SW
-                new Coordinate(25, 25),  // SE
-                new Coordinate(25, 20),  // NE
-                new Coordinate(20, 20)
-            ])),
-            new Polygon(new LinearRing([
-                new Coordinate(30, 30),  // NW
-                new Coordinate(30, 35),  // SW
-                new Coordinate(35, 35),  // SE
-                new Coordinate(35, 30),  // NE
-                new Coordinate(30, 30)
-            ]))
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(20, 20), // NW
+                    new Coordinate(20, 25), // SW
+                    new Coordinate(25, 25), // SE
+                    new Coordinate(25, 20), // NE
+                    new Coordinate(20, 20)
+                ])),
+            new Polygon(
+                new LinearRing(
+                [
+                    new Coordinate(30, 30), // NW
+                    new Coordinate(30, 35), // SW
+                    new Coordinate(35, 35), // SE
+                    new Coordinate(35, 30), // NE
+                    new Coordinate(30, 30)
+                ]))
         ]);
     }
 

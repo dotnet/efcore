@@ -228,10 +228,7 @@ public class SqlServerModelValidator(
 
         ValidateIndexIncludeProperties(index);
         ValidateFullTextIndex(index);
-
-#pragma warning disable EF9105 // Vector indexes are experimental
         ValidateVectorIndex(index);
-#pragma warning restore EF9105
     }
 
     /// <summary>
@@ -327,7 +324,7 @@ public class SqlServerModelValidator(
 
         ValidateUnsupportedIndexOptions(
             index,
-            (option) => SqlServerStrings.FullTextIndexUnsupportedOption(index.DisplayName(), entityType.DisplayName(), option));
+            option => SqlServerStrings.FullTextIndexUnsupportedOption(index.DisplayName(), entityType.DisplayName(), option));
 
         if (++_entityFullTextIndexCount > 1)
         {
@@ -390,7 +387,7 @@ public class SqlServerModelValidator(
         {
             ValidateUnsupportedIndexOptions(
                 index,
-                (option) => SqlServerStrings.VectorIndexUnsupportedOption(
+                option => SqlServerStrings.VectorIndexUnsupportedOption(
                     index.DisplayName(), index.DeclaringEntityType.DisplayName(), option));
 
             if (index.Properties is not [var propertyBase])
@@ -416,7 +413,6 @@ public class SqlServerModelValidator(
                         index.DisplayName(),
                         index.DeclaringEntityType.DisplayName()));
             }
-
 
             if (propertyBase is IProperty property && property.FindTypeMapping() is not SqlServerVectorTypeMapping)
             {

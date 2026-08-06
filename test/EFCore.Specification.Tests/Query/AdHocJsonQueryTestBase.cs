@@ -127,7 +127,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
 
         var query = context.Set<Context21006.Entity>().Where(x => x.Id == 4).Select(x => new
         {
-            x.Id, x.RequiredReference,
+            x.Id,
+            x.RequiredReference,
         }).AsNoTracking();
 
         var result = async
@@ -263,7 +264,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             .Where(x => x.Id == 4)
             .Select(x => new
             {
-                x.Id, Number = (double?)x.RequiredReference.Number,
+                x.Id,
+                Number = (double?)x.RequiredReference.Number,
             });
 
         var result = async
@@ -362,7 +364,6 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
                         new() { DoB = new DateTime(2000, 1, 1), Text = "e1 c2 c2" }
                     ]
                 }
-
             ]
         };
 
@@ -643,7 +644,8 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     {
         var user = new Context32310.Pub
         {
-            Name = "FBI", Visits = new Context32310.Visits { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
+            Name = "FBI",
+            Visits = new Context32310.Visits { LocationTag = "tag", DaysVisited = [new DateOnly(2023, 1, 1)] }
         };
 
         context.Add(user);
@@ -738,10 +740,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         {
             b.Property(x => x.Id).ValueGeneratedNever();
             b.OwnsMany(
-                x => x.Rounds, ownedBuilder =>
-                {
-                    ownedBuilder.OwnsMany(r => r.SubRounds);
-                });
+                x => x.Rounds, ownedBuilder => ownedBuilder.OwnsMany(r => r.SubRounds));
         });
 
     protected abstract Task Seed33046(DbContext ctx);
@@ -1423,28 +1422,16 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
             b.Property(x => x.Id).ValueGeneratedNever();
 
             b.OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.Property<string>("ShadowString");
-                });
+                x => x.Reference, b => b.Property<string>("ShadowString"));
 
             b.OwnsOne(
-                x => x.ReferenceWithCtor, b =>
-                {
-                    b.Property<int>("Shadow_Int");
-                });
+                x => x.ReferenceWithCtor, b => b.Property<int>("Shadow_Int"));
 
             b.OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.Property<double>("ShadowDouble");
-                });
+                x => x.Collection, b => b.Property<double>("ShadowDouble"));
 
             b.OwnsMany(
-                x => x.CollectionWithCtor, b =>
-                {
-                    b.Property<byte?>("ShadowNullableByte");
-                });
+                x => x.CollectionWithCtor, b => b.Property<byte?>("ShadowNullableByte"));
         });
 
     protected class ContextShadowProperties(DbContextOptions options) : DbContext(options)
@@ -1495,6 +1482,36 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         Assert.Equal(2, result.Count);
     }
 
+    [Fact] // Issue #38466
+    public virtual async Task Project_proxies_entity_with_json_with_primitive_collection()
+    {
+        var contextFactory = await InitializeNonSharedTest<ContextLazyLoadingProxies>(
+            onModelCreating: OnModelCreatingLazyLoadingProxies,
+            seed: SeedLazyLoadingProxies,
+            onConfiguring: b =>
+            {
+                b = b.ConfigureWarnings(ConfigureWarnings);
+                OnConfiguringLazyLoadingProxies(b);
+            },
+            addServices: AddServicesLazyLoadingProxies);
+
+        using var context = contextFactory.CreateDbContext();
+        var result = await context.Set<ContextLazyLoadingProxies.MyEntity>().OrderBy(x => x.Id).ToListAsync();
+
+        Assert.Equal(2, result.Count);
+
+        var e1Collection = result[0].Collection.OrderBy(x => x.Number).ToList();
+        Assert.Equal(3, e1Collection.Count);
+        Assert.Equal(new long[] { 110, 111 }, e1Collection[0].Ints);
+        Assert.Equal(new long[] { 120, 121, 122 }, e1Collection[1].Ints);
+        Assert.Empty(e1Collection[2].Ints);
+
+        var e2Collection = result[1].Collection.OrderBy(x => x.Number).ToList();
+        Assert.Equal(2, e2Collection.Count);
+        Assert.Equal(new long[] { 210 }, e2Collection[0].Ints);
+        Assert.Equal(new long[] { 220, 221 }, e2Collection[1].Ints);
+    }
+
     protected void OnConfiguringLazyLoadingProxies(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseLazyLoadingProxies();
 
@@ -1504,13 +1521,38 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
     private Task SeedLazyLoadingProxies(DbContext ctx)
     {
         var r1 = new ContextLazyLoadingProxies.MyJsonEntityWithCtor("r1", 1);
-        var c11 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c11", Number = 11 };
-        var c12 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c12", Number = 12 };
-        var c13 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c13", Number = 13 };
+        var c11 = new ContextLazyLoadingProxies.MyJsonEntity
+        {
+            Name = "c11",
+            Number = 11,
+            Ints = [110, 111]
+        };
+        var c12 = new ContextLazyLoadingProxies.MyJsonEntity
+        {
+            Name = "c12",
+            Number = 12,
+            Ints = [120, 121, 122]
+        };
+        var c13 = new ContextLazyLoadingProxies.MyJsonEntity
+        {
+            Name = "c13",
+            Number = 13,
+            Ints = []
+        };
 
         var r2 = new ContextLazyLoadingProxies.MyJsonEntityWithCtor("r2", 2);
-        var c21 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c21", Number = 21 };
-        var c22 = new ContextLazyLoadingProxies.MyJsonEntity { Name = "c22", Number = 22 };
+        var c21 = new ContextLazyLoadingProxies.MyJsonEntity
+        {
+            Name = "c21",
+            Number = 21,
+            Ints = [210]
+        };
+        var c22 = new ContextLazyLoadingProxies.MyJsonEntity
+        {
+            Name = "c22",
+            Number = 22,
+            Ints = [220, 221]
+        };
 
         var e1 = new ContextLazyLoadingProxies.MyEntity
         {
@@ -1565,6 +1607,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         {
             public string Name { get; set; }
             public int Number { get; set; }
+            public IList<long> Ints { get; set; }
         }
     }
 
@@ -1594,10 +1637,7 @@ public abstract class AdHocJsonQueryTestBase(NonSharedFixture fixture) : NonShar
         {
             b.Property(x => x.Id).ValueGeneratedNever();
             b.OwnsOne(
-                cr => cr.Json, nb =>
-                {
-                    nb.OwnsMany(x => x.Collection);
-                });
+                cr => cr.Json, nb => nb.OwnsMany(x => x.Collection));
         });
 
     protected class ContextNotICollection(DbContextOptions options) : DbContext(options)

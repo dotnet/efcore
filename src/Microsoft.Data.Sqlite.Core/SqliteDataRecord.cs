@@ -31,7 +31,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     private Dictionary<string, int>? _columnNameOrdinalCache;
     private string[]? _columnNameCache;
     private bool _stepped;
-    private readonly Dictionary<string, RowIdInfo> RowIds = new();
+    private readonly Dictionary<string, RowIdInfo> RowIds = [];
 
     private bool _alreadyThrown;
     private bool _alreadyAddedChanges;
@@ -69,19 +69,11 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         => sqlite3_column_text(Handle, ordinal).utf8_to_string();
 
     public override T GetFieldValue<T>(int ordinal)
-    {
-        if (typeof(T) == typeof(Stream))
-        {
-            return (T)(object)GetStream(ordinal);
-        }
-
-        if (typeof(T) == typeof(TextReader))
-        {
-            return (T)(object)GetTextReader(ordinal);
-        }
-
-        return base.GetFieldValue<T>(ordinal)!;
-    }
+        => typeof(T) == typeof(Stream)
+            ? (T)(object)GetStream(ordinal)
+            : typeof(T) == typeof(TextReader)
+                ? (T)(object)GetTextReader(ordinal)
+                : base.GetFieldValue<T>(ordinal)!;
 
     protected override byte[] GetBlob(int ordinal)
         => base.GetBlob(ordinal)!;
@@ -127,7 +119,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     {
         if (_columnNameOrdinalCache == null)
         {
-            _columnNameOrdinalCache = new Dictionary<string, int>();
+            _columnNameOrdinalCache = [];
             for (var i = 0; i < FieldCount; i++)
             {
                 _columnNameOrdinalCache[GetName(i)] = i;
@@ -174,7 +166,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
 
             return i == -1
                 ? typeName
-                : typeName.Substring(0, i);
+                : typeName[..i];
         }
 
         var sqliteType = GetSqliteType(ordinal);
@@ -195,9 +187,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         }
     }
 
-#if NET6_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     public virtual Type GetFieldType(int ordinal)
     {
         var sqliteType = GetSqliteType(ordinal);
@@ -214,9 +204,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         return GetFieldTypeFromSqliteType(sqliteType);
     }
 
-#if NET6_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     internal static Type GetFieldTypeFromSqliteType(int sqliteType)
     {
         switch (sqliteType)
@@ -236,9 +224,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         }
     }
 
-#if NET6_0_OR_GREATER
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
-#endif
     public static Type GetFieldType(string type)
     {
         switch (type)
@@ -311,9 +297,8 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
         var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
         var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
-        RowIdInfo? rowIdForOrdinal = null;
         var rowidkey = $"{blobDatabaseName}_{blobTableName}";
-        if (!RowIds.TryGetValue(rowidkey, out rowIdForOrdinal))
+        if (!RowIds.TryGetValue(rowidkey, out var rowIdForOrdinal))
         {
             var pkColumns = -1L;
             for (var i = 0; i < FieldCount; i++)
@@ -359,13 +344,11 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
                 {
                     if (pkColumns < 0L)
                     {
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
-                            command.Parameters.AddWithValue("$table", tableName);
+                        using var command = connection.CreateCommand();
+                        command.CommandText = "SELECT COUNT(*) FROM pragma_table_info($table) WHERE pk != 0;";
+                        command.Parameters.AddWithValue("$table", tableName);
 
-                            pkColumns = (long)command.ExecuteScalar()!;
-                        }
+                        pkColumns = (long)command.ExecuteScalar()!;
                     }
 
                     if (pkColumns == 1L)
@@ -443,7 +426,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
     }
 
     public void Dispose()
-            => DisposeWithBusyHandling(timeout: -1, totalElapsedTime: default);
+        => DisposeWithBusyHandling(timeout: -1, totalElapsedTime: default);
 
     internal void DisposeWithBusyHandling(int timeout, TimeSpan totalElapsedTime)
     {
@@ -457,6 +440,7 @@ internal class SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnectio
             {
                 break;
             }
+
             if (timeout != 0
                 && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= timeout * 1000L)
             {

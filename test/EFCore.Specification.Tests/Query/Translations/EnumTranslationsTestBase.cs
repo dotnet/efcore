@@ -82,13 +82,11 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
 
     [Fact]
     public virtual Task Where_bitwise_and_nullable_enum_with_null_constant()
-    {
-        return AssertQuery(
+        => AssertQuery(
 #pragma warning disable CS0458 // The result of the expression is always 'null'
             ss => ss.Set<NullableBasicTypesEntity>().Where(w => (w.FlagsEnum & null) > 0),
 #pragma warning restore CS0458 // The result of the expression is always 'null'
             assertEmpty: true);
-    }
 
     [Fact]
     public virtual Task Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
@@ -153,7 +151,8 @@ public abstract class EnumTranslationsTestBase<TFixture>(TFixture fixture) : Que
             .Where(b => b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight))
             .Select(b => new
             {
-                hasFlagTrue = b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight), hasFlagFalse = b.FlagsEnum.HasFlag(BasicFlagsEnum.Four)
+                hasFlagTrue = b.FlagsEnum.HasFlag(BasicFlagsEnum.Eight),
+                hasFlagFalse = b.FlagsEnum.HasFlag(BasicFlagsEnum.Four)
             }));
     }
 

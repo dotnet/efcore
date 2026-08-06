@@ -385,21 +385,12 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     }
 
     private bool Equal(long left, long right)
-    {
-        if (left >= 0
-            && right >= 0)
-        {
-            return Equal((ulong)left, (ulong)right);
-        }
-
-        if (left < 0
-            && right < 0)
-        {
-            return Equal((ulong)-left, (ulong)-right);
-        }
-
-        return false;
-    }
+        => left >= 0
+            && right >= 0
+                ? Equal((ulong)left, (ulong)right)
+                : left < 0
+                && right < 0
+                && Equal((ulong)-left, (ulong)-right);
 
     private bool Equal(ulong left, ulong right)
     {
@@ -428,12 +419,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     public static Type UnwrapNullableEnumType(Type type)
     {
         var underlyingNonNullableType = UnwrapNullableType(type);
-        if (!underlyingNonNullableType.IsEnum)
-        {
-            return underlyingNonNullableType;
-        }
-
-        return Enum.GetUnderlyingType(underlyingNonNullableType);
+        return !underlyingNonNullableType.IsEnum ? underlyingNonNullableType : Enum.GetUnderlyingType(underlyingNonNullableType);
     }
 
     private static bool IsSignedInteger(Type type)
@@ -570,9 +556,9 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     {
         var method = IdentificationMethod.EarTag;
         using var context = CreateContext();
-        var query = (await context.Set<AnimalIdentification>()
+        var query = await context.Set<AnimalIdentification>()
             .Where(a => a.Method == method)
-            .ToListAsync());
+            .ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal(IdentificationMethod.EarTag, result.Method);
@@ -660,7 +646,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
     {
         using var context = CreateContext();
 
-        Assert.Equal(Fixture.ReallyLargeString, Assert.Single((await context.Set<StringEnclosure>().ToListAsync())).Value);
+        Assert.Equal(Fixture.ReallyLargeString, Assert.Single(await context.Set<StringEnclosure>().ToListAsync()).Value);
     }
 
     public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
@@ -783,14 +769,12 @@ public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : ICl
                 b.Property(e => e.StringUnicode).IsUnicode();
             });
 
-            modelBuilder.Entity<EmailTemplate>(b =>
-            {
-                b.HasData(
-                    new EmailTemplate
-                    {
-                        Id = Guid.Parse("3C56082A-005A-4FFB-A9CF-F5EBD641E07D"), TemplateType = EmailTemplateType.PasswordResetRequest
-                    });
-            });
+            modelBuilder.Entity<EmailTemplate>(b => b.HasData(
+                new EmailTemplate
+                {
+                    Id = Guid.Parse("3C56082A-005A-4FFB-A9CF-F5EBD641E07D"),
+                    TemplateType = EmailTemplateType.PasswordResetRequest
+                }));
 
             modelBuilder.Entity<ObjectBackedDataTypes>()
                 .HasData(

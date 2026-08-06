@@ -31,12 +31,9 @@ public class SqlServerStringMethodTranslator(
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.DeclaringType == typeof(string))
-        {
-            if (instance is not null)
-            {
-                return method.Name switch
+        => method.DeclaringType == typeof(string)
+            ? instance is not null
+                ? method.Name switch
                 {
                     nameof(string.IndexOf) when arguments is [var search]
                         => TranslateIndexOf(instance, method, search, null),
@@ -81,77 +78,66 @@ public class SqlServerStringMethodTranslator(
                             instance.TypeMapping),
 
                     _ => null
-                };
-            }
+                }
+                : method.Name switch
+                {
+                    nameof(string.IsNullOrEmpty) when arguments is [var argument]
+                        => sqlExpressionFactory.OrElse(
+                            sqlExpressionFactory.IsNull(argument),
+                            sqlExpressionFactory.Like(
+                                argument,
+                                sqlExpressionFactory.Constant(string.Empty))),
 
-            return method.Name switch
-            {
-                nameof(string.IsNullOrEmpty) when arguments is [var argument]
-                    => sqlExpressionFactory.OrElse(
-                        sqlExpressionFactory.IsNull(argument),
-                        sqlExpressionFactory.Like(
-                            argument,
-                            sqlExpressionFactory.Constant(string.Empty))),
+                    nameof(string.IsNullOrWhiteSpace) when arguments is [var argument]
+                        => sqlExpressionFactory.OrElse(
+                            sqlExpressionFactory.IsNull(argument),
+                            sqlExpressionFactory.Equal(
+                                argument,
+                                sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping))),
 
-                nameof(string.IsNullOrWhiteSpace) when arguments is [var argument]
-                    => sqlExpressionFactory.OrElse(
-                        sqlExpressionFactory.IsNull(argument),
-                        sqlExpressionFactory.Equal(
-                            argument,
-                            sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping))),
-
-                _ => null
-            };
-        }
-
-        if (method.DeclaringType == typeof(Enumerable)
+                    _ => null
+                }
+            : method.DeclaringType == typeof(Enumerable)
             && method.IsGenericMethod
             && arguments is [var source]
-            && source.Type == typeof(string))
-        {
-            return method.Name switch
-            {
-                nameof(Enumerable.FirstOrDefault)
-                    => sqlExpressionFactory.Function(
-                        "SUBSTRING",
-                        [source, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1)],
+            && source.Type == typeof(string)
+                ? method.Name switch
+                {
+                    nameof(Enumerable.FirstOrDefault)
+                        => sqlExpressionFactory.Function(
+                            "SUBSTRING",
+                            [source, sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1)],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[3],
+                            method.ReturnType),
+
+                    nameof(Enumerable.LastOrDefault)
+                        => sqlExpressionFactory.Function(
+                            "SUBSTRING",
+                            [
+                                source,
+                                sqlExpressionFactory.Function(
+                                    "LEN", [source], nullable: true,
+                                    argumentsPropagateNullability: Statics.TrueArrays[1],
+                                    typeof(int)),
+                                sqlExpressionFactory.Constant(1)
+                            ],
+                            nullable: true,
+                            argumentsPropagateNullability: Statics.TrueArrays[3],
+                            method.ReturnType),
+
+                    _ => null
+                }
+                : method.DeclaringType == typeof(SqlServerDbFunctionsExtensions)
+                && method.Name == nameof(SqlServerDbFunctionsExtensions.PatIndex)
+                && arguments is [_, var pattern, var expression]
+                    ? sqlExpressionFactory.Function(
+                        "PATINDEX",
+                        [pattern, expression],
                         nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[3],
-                        method.ReturnType),
-
-                nameof(Enumerable.LastOrDefault)
-                    => sqlExpressionFactory.Function(
-                        "SUBSTRING",
-                        [
-                            source,
-                            sqlExpressionFactory.Function(
-                                "LEN", [source], nullable: true,
-                                argumentsPropagateNullability: Statics.TrueArrays[1],
-                                typeof(int)),
-                            sqlExpressionFactory.Constant(1)
-                        ],
-                        nullable: true,
-                        argumentsPropagateNullability: Statics.TrueArrays[3],
-                        method.ReturnType),
-
-                _ => null
-            };
-        }
-
-        if (method.DeclaringType == typeof(SqlServerDbFunctionsExtensions)
-            && method.Name == nameof(SqlServerDbFunctionsExtensions.PatIndex)
-            && arguments is [_, var pattern, var expression])
-        {
-            return sqlExpressionFactory.Function(
-                "PATINDEX",
-                [pattern, expression],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType);
-        }
-
-        return null;
-    }
+                        argumentsPropagateNullability: Statics.TrueArrays[2],
+                        method.ReturnType)
+                    : null;
 
     private SqlExpression TranslateReplace(
         SqlExpression instance,
@@ -186,7 +172,8 @@ public class SqlServerStringMethodTranslator(
             [
                 instance,
                 sqlExpressionFactory.Add(startIndex, sqlExpressionFactory.Constant(1)),
-                length ?? sqlExpressionFactory.Function(
+                length
+                ?? sqlExpressionFactory.Function(
                     "LEN", [instance], nullable: true,
                     argumentsPropagateNullability: Statics.TrueArrays[1],
                     typeof(int))
@@ -200,7 +187,7 @@ public class SqlServerStringMethodTranslator(
         => arguments switch
         {
             // No args or empty char[] constant - whitespace trim, always supported
-            ([]) or ([SqlConstantExpression { Value: char[] { Length: 0 } }])
+            [] or [SqlConstantExpression { Value: char[] { Length: 0 } }]
                 => ProcessTrimStartEnd(instance, arguments, functionName),
 
             // Char or char[] argument - requires SQL Server 2022+ (compatibility level 160)
@@ -232,7 +219,7 @@ public class SqlServerStringMethodTranslator(
         if (startIndex is not null)
         {
             charIndexArguments.Add(
-                startIndex is SqlConstantExpression { Value : int constantStartIndex }
+                startIndex is SqlConstantExpression { Value: int constantStartIndex }
                     ? sqlExpressionFactory.Constant(constantStartIndex + 1, typeof(int))
                     : sqlExpressionFactory.Add(startIndex, sqlExpressionFactory.Constant(1)));
         }

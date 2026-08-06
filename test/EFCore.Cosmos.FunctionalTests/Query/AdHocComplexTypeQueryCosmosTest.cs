@@ -32,10 +32,9 @@ OFFSET 0 LIMIT 2
     {
         await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
-        // #34067: Cosmos: Projecting out nested documents retrieves the entire document
         AssertSql(
             """
-SELECT VALUE c
+SELECT VALUE c["Complex"]
 FROM root c
 """);
     }
@@ -75,7 +74,7 @@ OFFSET 0 LIMIT 2
         Assert.Equal(
             CosmosStrings.UpdateConflict("1"),
             (await Assert.ThrowsAsync<DbUpdateException>(
-                () => base.Non_optional_complex_type_with_all_nullable_properties_via_left_join())).Message);
+                base.Non_optional_complex_type_with_all_nullable_properties_via_left_join)).Message);
 
         AssertSql();
     }
@@ -164,9 +163,7 @@ OFFSET 0 LIMIT 2
     }
 
     public override async Task Nullable_complex_type_with_discriminator_set_to_different_value()
-    {
-        await base.Nullable_complex_type_with_discriminator_set_to_different_value();
-    }
+        => await base.Nullable_complex_type_with_discriminator_set_to_different_value();
 
     public override async Task Nullable_complex_type_with_discriminator_set_to_null()
     {
@@ -197,7 +194,6 @@ OFFSET 0 LIMIT 2
             Assert.NotNull(entity.Prop);
             Assert.True(entity.Prop.OptionalValue);
         }
-
     }
 
     public override async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
@@ -218,6 +214,67 @@ OFFSET 0 LIMIT 2
 """);
     }
 
+    public override async Task Can_query_by_complex_type_property_with_index()
+    {
+        await base.Can_query_by_complex_type_property_with_index();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Address"]["City"] = "Seattle")
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_update_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_delete_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+""");
+    }
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+    {
+        await base.Can_query_by_alternate_key_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Address"]["City"] = "Redmond")
+OFFSET 0 LIMIT 2
+""");
+    }
+
     public override async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
     {
         // Unlike relational providers, Cosmos can't ORDER BY the primary-key path 'Id.Id': the model defines an
@@ -228,8 +285,16 @@ OFFSET 0 LIMIT 2
             seed: context =>
             {
                 context.AddRange(
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(1), Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" } },
-                    new Context31246.Person { Id = new Context31246.StronglyTypedId(2), Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" } });
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(1),
+                        Address = new Context31246.Address { City = "Seattle", PostalCode = "98101" }
+                    },
+                    new Context31246.Person
+                    {
+                        Id = new Context31246.StronglyTypedId(2),
+                        Address = new Context31246.Address { City = "Redmond", PostalCode = "98052" }
+                    });
                 return context.SaveChangesAsync();
             });
 
@@ -285,12 +350,18 @@ OFFSET 0 LIMIT 2
                 context.AddRange(
                     new NestedComplexKeyDiscriminatorContext.Order
                     {
-                        Key = new NestedComplexKeyDiscriminatorContext.OrderKey { Inner = new NestedComplexKeyDiscriminatorContext.InnerKey { Value = 1 } },
+                        Key = new NestedComplexKeyDiscriminatorContext.OrderKey
+                        {
+                            Inner = new NestedComplexKeyDiscriminatorContext.InnerKey { Value = 1 }
+                        },
                         Description = "First"
                     },
                     new NestedComplexKeyDiscriminatorContext.Order
                     {
-                        Key = new NestedComplexKeyDiscriminatorContext.OrderKey { Inner = new NestedComplexKeyDiscriminatorContext.InnerKey { Value = 2 } },
+                        Key = new NestedComplexKeyDiscriminatorContext.OrderKey
+                        {
+                            Inner = new NestedComplexKeyDiscriminatorContext.InnerKey { Value = 2 }
+                        },
                         Description = "Second"
                     });
                 return context.SaveChangesAsync();
@@ -360,8 +431,8 @@ OFFSET 0 LIMIT 2
     }
 
     protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
-       => base.AddNonSharedOptions(builder)
-               .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+        => base.AddNonSharedOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
 
     [Fact]
     public virtual void Check_all_tests_overridden()

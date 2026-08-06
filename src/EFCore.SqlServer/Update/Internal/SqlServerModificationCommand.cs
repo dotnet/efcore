@@ -58,10 +58,10 @@ public class SqlServerModificationCommand : ModificationCommand
             parameters = parameters with
             {
                 TypeMapping = propertyProviderClrType == typeof(string)
-                    || propertyProviderClrType == typeof(bool)
-                    || propertyProviderClrType.IsNumeric()
-                        ? mapping
-                        : SqlServerStringTypeMapping.UnicodeDefault
+                || propertyProviderClrType == typeof(bool)
+                || propertyProviderClrType.IsNumeric()
+                    ? mapping
+                    : SqlServerStringTypeMapping.UnicodeDefault
             };
 
             return;
@@ -99,7 +99,8 @@ public class SqlServerModificationCommand : ModificationCommand
 
             return;
         }
-        else if (mapping.Converter != null)
+
+        if (mapping.Converter != null)
         {
             value = mapping.Converter.ConvertToProvider(value);
         }

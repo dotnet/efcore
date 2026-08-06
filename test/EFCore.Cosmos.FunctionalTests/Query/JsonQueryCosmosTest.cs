@@ -4,6 +4,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
@@ -28,7 +29,7 @@ public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
                     """
 SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Enum"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -37,9 +38,24 @@ WHERE (c["Discriminator"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(()
-                => base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async));
+            await AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>()
+                    .Select(x => new { x.Id, x.OwnedReferenceRoot.OwnedCollectionBranch })
+                    .AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.OwnedCollectionBranch, a.OwnedCollectionBranch, ordered: true);
+                });
+
+            AssertSql(
+                """
+SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
+FROM root c
+WHERE (c["$type"] = "Basic")
+""");
         }
     }
 
@@ -48,66 +64,145 @@ WHERE (c["Discriminator"] = "Basic")
         // Always throws for sync.
         if (async)
         {
-            //issue #31696
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Basic_json_projection_owned_collection_leaf(async));
+            await base.Basic_json_projection_owned_collection_leaf(async);
+
+            AssertSql(
+                """
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
+FROM root c
+WHERE (c["$type"] = "Basic")
+""");
         }
     }
 
     public override Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(a);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, x.OwnedCollectionRoot })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertCollection(e.OwnedCollectionRoot, a.OwnedCollectionRoot, ordered: true);
+                    });
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["OwnedCollectionRoot"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
     public override Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .Select(x => new { x.Id, x.OwnedReferenceRoot.OwnedReferenceBranch })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
     public override Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Root1 = x.OwnedReferenceRoot,
+                            Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                            Root2 = x.OwnedReferenceRoot,
+                            Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        }).AsNoTrackingWithIdentityResolution(),
+                    assertOrder: true,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.Root1, a.Root1);
+                        AssertEqual(e.Root2, a.Root2);
+                        AssertEqual(e.Leaf1, a.Leaf1);
+                        AssertEqual(e.Leaf2, a.Leaf2);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Root1" : c["OwnedReferenceRoot"],
+    "Leaf1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]
+}
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
+    }
 
     public override Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(async);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .OrderBy(x => x.Id)
+                        .Select(x => new
+                        {
+                            x.Id,
+                            Root1 = x.OwnedReferenceRoot,
+                            Branch1 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                            Root2 = x.OwnedReferenceRoot,
+                            Branch2 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                        }).AsNoTrackingWithIdentityResolution(),
+                    assertOrder: true,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.Root1, a.Root1);
+                        AssertEqual(e.Root2, a.Root2);
+                        AssertEqual(e.Branch1, a.Branch1);
+                        AssertEqual(e.Branch2, a.Branch2);
+                    });
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "Root1" : c["OwnedReferenceRoot"],
+    "Branch1" : c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
+}
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
@@ -120,24 +215,32 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
     public override Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
         => Fixture.NoSyncTest(
-            async, async a =>
+            async, async asyncQuery =>
             {
-                await base.Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(a);
+                await AssertQuery(
+                    asyncQuery,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot, x.Id })
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => e.Id,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Id, a.Id);
+                        AssertEqual(e.OwnedReferenceRoot, a.OwnedReferenceRoot);
+                    });
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT c["Id"], c["OwnedReferenceRoot"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -151,7 +254,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "SingleOwned")
+WHERE (c["$type"] = "SingleOwned")
 """);
             });
 
@@ -165,7 +268,7 @@ WHERE (c["Discriminator"] = "SingleOwned")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -179,7 +282,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -193,7 +296,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c["OwnedReferenceRoot"]["Name"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -213,12 +316,11 @@ WHERE (c["Discriminator"] = "Basic")
             {
                 await base.Custom_naming_projection_owned_collection(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedCollectionRoot"]
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 ORDER BY c["Id"]
 """);
             });
@@ -231,9 +333,9 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -247,7 +349,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT VALUE c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"]
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -261,13 +363,37 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
     public override async Task Entity_including_collection_with_json(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Entity_including_collection_with_json(async)))
+            .Message;
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: EntityBasic.JsonEntityBasics (List<JsonEntityBasic>) Collection ToDependent JsonEntityBasic"),
+            message);
+    }
+
+    public override async Task Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+            => base.Entity_including_collection_with_json_AsNoTrackingWithIdentityResolution(async))).Message;
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: EntityBasic.JsonEntityBasics (List<JsonEntityBasic>) Collection ToDependent JsonEntityBasic"),
+            message);
+    }
+
+    public override async Task Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(
+        bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Entity_including_collection_with_json_and_separate_json_projection_AsNoTrackingWithIdentityResolution(async)))
             .Message;
 
         Assert.Equal(
@@ -315,7 +441,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -326,17 +452,20 @@ WHERE (c["Discriminator"] = "AllTypes")
             {
                 await base.Json_all_types_projection_from_owned_entity_reference(a);
 
-                // TODO: issue #34067 (?)
                 AssertSql(
                     """
-SELECT VALUE c
+SELECT VALUE c["Reference"]
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
     public override Task Json_all_types_projection_individual_properties(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Json_all_types_projection_individual_properties(a);
@@ -345,9 +474,10 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT c["Reference"]["TestDefaultString"], c["Reference"]["TestMaxLengthString"], c["Reference"]["TestBoolean"], c["Reference"]["TestByte"], c["Reference"]["TestCharacter"], c["Reference"]["TestDateTime"], c["Reference"]["TestDateTimeOffset"], c["Reference"]["TestDecimal"], c["Reference"]["TestDouble"], c["Reference"]["TestGuid"], c["Reference"]["TestInt16"], c["Reference"]["TestInt32"], c["Reference"]["TestInt64"], c["Reference"]["TestSignedByte"], c["Reference"]["TestSingle"], c["Reference"]["TestTimeSpan"], c["Reference"]["TestDateOnly"], c["Reference"]["TestTimeOnly"], c["Reference"]["TestUnsignedInt16"], c["Reference"]["TestUnsignedInt32"], c["Reference"]["TestUnsignedInt64"], c["Reference"]["TestEnum"], c["Reference"]["TestEnumWithIntConverter"], c["Reference"]["TestNullableEnum"], c["Reference"]["TestNullableEnumWithIntConverter"], c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"]
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
+    }
 
     [SkipOnCI("Test does not run on CI")]
     public override Task Json_boolean_predicate(bool async)
@@ -360,7 +490,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND c["Reference"]["TestBoolean"])
+WHERE ((c["$type"] = "AllTypes") AND c["Reference"]["TestBoolean"])
 """);
             });
 
@@ -374,7 +504,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND c["Reference"]["TestBoolean"])
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
+WHERE ((c["$type"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
 """);
             });
 
@@ -388,7 +518,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND NOT(c["Reference"]["TestBoolean"]))
                     """
 SELECT VALUE c["Reference"]["TestBoolean"]
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -402,7 +532,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE NOT(c["Reference"]["TestBoolean"])
 FROM root c
-WHERE (c["Discriminator"] = "AllTypes")
+WHERE (c["$type"] = "AllTypes")
 """);
             });
 
@@ -468,7 +598,7 @@ WHERE (c["Discriminator"] = "AllTypes")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
+WHERE ((c["$type"] = "Basic") AND EXISTS (
     SELECT 1
     FROM o IN c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
     WHERE (o["OwnedReferenceLeaf"]["SomethingSomething"] = "e1_r_c1_r")))
@@ -515,7 +645,7 @@ SELECT VALUE
     "CollectionElement" : c["OwnedCollectionRoot"][0]["Number"]
 }
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -529,7 +659,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] != "Foo"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] != "Foo"))
 """);
             });
 
@@ -554,7 +684,22 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
             });
 
     public override Task Json_collection_filter_in_projection(bool async)
-        => AssertTranslationFailed(() => base.Json_collection_filter_in_projection(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Json_collection_filter_in_projection(async);
+
+                AssertSql(
+                    """
+SELECT VALUE ARRAY(
+    SELECT VALUE o
+    FROM o IN c["OwnedCollectionRoot"]
+    WHERE (o["Name"] != "Foo"))
+FROM root c
+WHERE (c["$type"] = "Basic")
+ORDER BY c["Id"]
+""");
+            });
 
     public override async Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
@@ -570,7 +715,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         // Always throws for sync.
         if (async)
         {
-            var exception = (await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_column(async)));
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_column(async));
         }
     }
 
@@ -580,7 +725,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         if (async)
         {
             var exception =
-                (await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_complex_expression1(async)));
+                await Assert.ThrowsAsync<CosmosException>(() => base.Json_collection_index_in_predicate_using_complex_expression1(async));
         }
     }
 
@@ -597,7 +742,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
                     """
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] != "Foo"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] != "Foo"))
 """);
             });
 
@@ -613,7 +758,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][0]["Name"] !
 
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"] != "Foo"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"] != "Foo"))
 """);
             });
 
@@ -863,7 +1008,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][@prm]["Name"
                     """
 SELECT VALUE ARRAY_LENGTH(c["OwnedCollectionRoot"])
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["Id"]
 """);
             });
@@ -877,7 +1022,22 @@ ORDER BY c["Id"]
         => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async);
 
     public override Task Json_collection_leaf_filter_in_projection(bool async)
-        => AssertTranslationFailed(() => base.Json_collection_leaf_filter_in_projection(async));
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Json_collection_leaf_filter_in_projection(a);
+
+                AssertSql(
+                    """
+SELECT VALUE ARRAY(
+    SELECT VALUE o
+    FROM o IN c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedCollectionLeaf"]
+    WHERE (o["SomethingSomething"] != "Baz"))
+FROM root c
+WHERE (c["$type"] = "Basic")
+ORDER BY c["Id"]
+""");
+            });
 
     public override Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => Fixture.NoSyncTest(
@@ -889,7 +1049,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]["Names"], "e1_r1"))
+WHERE ((c["$type"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]["Names"], "e1_r1"))
 """);
             });
 
@@ -903,7 +1063,7 @@ WHERE ((c["Discriminator"] = "Basic") AND ARRAY_CONTAINS(c["OwnedReferenceRoot"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 ORDER BY c["OwnedReferenceRoot"]["Numbers"][0]
 """);
             });
@@ -918,7 +1078,7 @@ ORDER BY c["OwnedReferenceRoot"]["Numbers"][0]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] = "e1_r1"))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["Names"][0] = "e1_r1"))
 """);
             });
 
@@ -949,7 +1109,7 @@ ORDER BY c["Id"]
 SELECT VALUE n
 FROM root c
 JOIN n IN c["OwnedReferenceRoot"]["Names"]
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -987,7 +1147,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
+WHERE ((c["$type"] = "Basic") AND (ARRAY(
     SELECT VALUE o["OwnedReferenceLeaf"]["SomethingSomething"]
     FROM o IN (SELECT VALUE ARRAY_SLICE(c["OwnedReferenceRoot"]["OwnedCollectionBranch"], 1)))[0] = "e1_r_c2_r"))
 """);
@@ -1019,7 +1179,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
+WHERE ((c["$type"] = "Basic") AND (ARRAY(
     SELECT VALUE o["OwnedReferenceLeaf"]["SomethingSomething"]
     FROM o IN c["OwnedReferenceRoot"]["OwnedCollectionBranch"]
     WHERE (o["Enum"] = -3))[0] = "e1_r_c2_r"))
@@ -1036,7 +1196,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (ARRAY(
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
+WHERE ((c["$type"] = "Basic") AND EXISTS (
     SELECT 1
     FROM o IN c["OwnedCollectionRoot"]
     WHERE (ARRAY_LENGTH(o["OwnedCollectionBranch"]) = 2)))
@@ -1127,7 +1287,7 @@ WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 1))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 1))
 """);
             });
 
@@ -1141,7 +1301,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToI
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 0))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToIntZeroOne"] = 0))
 """);
             });
 
@@ -1155,7 +1315,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToI
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
 """);
             });
 
@@ -1169,7 +1329,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringTrueFalse"] = "True"))
 """);
             });
 
@@ -1183,7 +1343,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "Y"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "Y"))
 """);
             });
 
@@ -1197,7 +1357,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "N"))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["BoolConvertedToStringYN"] = "N"))
 """);
             });
 
@@ -1212,7 +1372,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
 """);
             });
 
@@ -1227,7 +1387,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] != "AQID"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestByteArray"] != "AQID"))
 """);
             });
 
@@ -1242,7 +1402,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] !=
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] != "z"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestCharacter"] != "z"))
 """);
             });
 
@@ -1257,7 +1417,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] !=
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02-01"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != "0003-02-01"))
 """);
             });
 
@@ -1272,7 +1432,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != "2000-01-03T00:00:00"))
 """);
             });
 
@@ -1287,7 +1447,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset"] != "2000-01-04T00:00:00+03:02"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset"] != "2000-01-04T00:00:00+03:02"))
 """);
             });
 
@@ -1302,7 +1462,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1.35))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1.35))
 """);
             });
 
@@ -1317,7 +1477,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"] != "MyDefaultStringInReference1"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDefaultString"] != "MyDefaultStringInReference1"))
 """);
             });
 
@@ -1332,7 +1492,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33.25))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33.25))
 """);
             });
 
@@ -1347,7 +1507,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
 """);
             });
 
@@ -1362,7 +1522,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntConverter"] != -3))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntConverter"] != -3))
 """);
             });
 
@@ -1377,7 +1537,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntCon
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "00000000-0000-0000-0000-000000000000"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "00000000-0000-0000-0000-000000000000"))
 """);
             });
 
@@ -1392,7 +1552,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "000
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
 """);
             });
 
@@ -1407,7 +1567,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33))
 """);
             });
 
@@ -1422,7 +1582,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33)
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333))
 """);
             });
 
@@ -1436,7 +1596,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt64"] != 333
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConvertedToBool"] = true))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["IntZeroOneConvertedToBool"] = true))
 """);
             });
 
@@ -1451,7 +1611,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConver
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthString"] != "Foo"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestMaxLengthString"] != "Foo"))
 """);
             });
 
@@ -1466,7 +1626,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthStrin
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != -1))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != -1))
 """);
             });
 
@@ -1481,7 +1641,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != null))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"] != null))
 """);
             });
 
@@ -1496,7 +1656,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != 2))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != 2))
 """);
             });
 
@@ -1511,7 +1671,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != null))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithIntConverter"] != null))
 """);
             });
 
@@ -1526,7 +1686,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"] != "One"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWithConverterThatHandlesNulls"] != "One"))
 """);
             });
 
@@ -1550,7 +1710,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != 100))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != 100))
 """);
             });
 
@@ -1565,7 +1725,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != null))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"] != null))
 """);
             });
 
@@ -1580,7 +1740,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] != 100))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] != 100))
 """);
             });
 
@@ -1595,7 +1755,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] !
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10.4))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10.4))
 """);
             });
 
@@ -1610,7 +1770,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]) ? c["Reference"]["TestMaxLengthString"] : c["Reference"]["TestDefaultString"]) = "MyDefaultStringInReference1"))
+WHERE ((c["$type"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]) ? c["Reference"]["TestMaxLengthString"] : c["Reference"]["TestDefaultString"]) = "MyDefaultStringInReference1"))
 """);
             });
 
@@ -1624,7 +1784,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND ((NOT(c["Reference"]["TestBoolean"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringTrueFalseConvertedToBool"] = false))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["StringTrueFalseConvertedToBool"] = false))
 """);
             });
 
@@ -1638,7 +1798,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringTrueFalseC
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConvertedToBool"] = false))
+WHERE ((c["$type"] = "Converters") AND (c["Reference"]["StringYNConvertedToBool"] = false))
 """);
             });
 
@@ -1653,7 +1813,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConverte
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != "03:02:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != "03:02:00"))
 """);
             });
 
@@ -1668,7 +1828,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != "03:02:00"))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != "03:02:00"))
 """);
             });
 
@@ -1683,7 +1843,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"] != 100))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"] != 100))
 """);
             });
 
@@ -1698,7 +1858,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"] != 1000))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"] != 1000))
 """);
             });
 
@@ -1713,24 +1873,18 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 10000))
+WHERE ((c["$type"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"] != 10000))
 """);
             });
 
     public override Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(() => base.Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_original(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_original(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(() => base.Json_projection_deduplication_with_collection_indexer_in_original(async));
 
     public override Task Json_projection_deduplication_with_collection_indexer_in_target(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_deduplication_with_collection_indexer_in_target(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(() => base.Json_projection_deduplication_with_collection_indexer_in_target(async));
 
     public override async Task Json_projection_deduplication_with_collection_in_original_and_collection_indexer_in_target(bool async)
     {
@@ -1751,7 +1905,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt64"
                     """
 SELECT c["Id"], c["OwnedReferenceRoot"]["Enum"]
 FROM root c
-WHERE (c["Discriminator"] = "CustomNaming")
+WHERE (c["$type"] = "CustomNaming")
 """);
             });
 
@@ -1782,7 +1936,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
                     """
 SELECT c["Id"], c["Name"]
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
@@ -1811,18 +1965,27 @@ WHERE (c["Discriminator"] = "Basic")
     }
 
     public override Task Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(bool async)
-        => Fixture.NoSyncTest(
+    {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
+        return Fixture.NoSyncTest(
             async, async a =>
             {
                 await base.Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(a);
 
                 AssertSql(
                     """
-SELECT c["Id"], c
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "x" : c
+}
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
+    }
 
     public override Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(bool async)
         => AssertTranslationFailedWithDetails(
@@ -1831,9 +1994,8 @@ WHERE (c["Discriminator"] = "Basic")
 
     public override Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(
         bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async),
-            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+        => AssertTranslationFailed(()
+            => base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async));
 
     [Theory(Skip = "issue #34350")]
     public override Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(
@@ -1887,7 +2049,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c["Id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"] < 20.5))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["Fraction"] < 20.5))
 """);
             });
 
@@ -1901,7 +2063,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["OwnedReferen
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"]) > 2))
+WHERE ((c["$type"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"]) > 2))
 """);
             });
 
@@ -1915,7 +2077,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (LENGTH(c["OwnedReferenceRoot"]["Name"
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]["SomethingSomething"]))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c["OwnedReferenceRoot"]["OwnedReferenceBranch"]["OwnedReferenceLeaf"]["SomethingSomething"]))
 """);
             });
 
@@ -1929,7 +2091,7 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Name"] != c[
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != LENGTH(c["OwnedReferenceRoot"]["Name"])))
+WHERE ((c["$type"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != LENGTH(c["OwnedReferenceRoot"]["Name"])))
 """);
             });
 
@@ -1995,26 +2157,42 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedReferenceRoot"]["Number"] != 
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Basic")
+WHERE (c["$type"] = "Basic")
 """);
             });
 
-    public override Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_collection_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_collection_and_entity_collection(async))).Message);
 
     public override Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Json_with_projection_of_json_collection_element_and_entity_collection(async),
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
-    public override Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async))).Message);
 
-    public override Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_reference_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_reference_and_entity_collection(async))).Message);
 
-    public override Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
-        => AssertTranslationFailed(() => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async));
+    public override async Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
+        => Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: JsonEntityBasic.EntityCollection (List<JsonEntityBasicForCollection>) Collection ToDependent JsonEntityBasicForCollection Inverse: Parent"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.Json_with_projection_of_json_reference_leaf_and_entity_collection(async))).Message);
 
     public override Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
@@ -2061,7 +2239,7 @@ WHERE (c["Discriminator"] = "Basic")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "SingleOwned")
+WHERE (c["$type"] = "SingleOwned")
 """);
             });
 

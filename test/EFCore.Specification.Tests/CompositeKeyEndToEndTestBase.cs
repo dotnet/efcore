@@ -206,15 +206,12 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Flyer>(b =>
+            modelBuilder.Entity<Flyer>(b => b.HasKey(e => new
             {
-                b.HasKey(e => new
-                {
-                    e.Id1,
-                    e.Id2,
-                    e.Discriminator
-                });
-            });
+                e.Id1,
+                e.Id2,
+                e.Discriminator
+            }));
 
             modelBuilder.Entity<Pegasus>();
 

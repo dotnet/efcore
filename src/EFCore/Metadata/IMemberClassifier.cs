@@ -50,13 +50,13 @@ public interface IMemberClassifier
             return navigationCandidates;
         }
 
-        navigationCandidates = new Utilities.OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
+        navigationCandidates = [];
 
         var model = entityType.Model;
         if (model.FindAnnotation(inverseAnnotationName)?.Value
             is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup)
         {
-            inverseCandidatesLookup = new Dictionary<Type, SortedSet<Type>>();
+            inverseCandidatesLookup = [];
             model.SetAnnotation(inverseAnnotationName, inverseCandidatesLookup);
         }
 
@@ -74,7 +74,7 @@ public interface IMemberClassifier
 
             if (!inverseCandidatesLookup.TryGetValue(targetType, out var inverseCandidates))
             {
-                inverseCandidates = new SortedSet<Type>(TypeFullNameComparer.Instance);
+                inverseCandidates = [with(TypeFullNameComparer.Instance)];
                 inverseCandidatesLookup[targetType] = inverseCandidates;
             }
 
@@ -104,14 +104,11 @@ public interface IMemberClassifier
         var annotationName = useAttributes
             ? CoreAnnotationNames.InverseNavigations
             : CoreAnnotationNames.InverseNavigationsNoAttribute;
-        if (entityType.Model.FindAnnotation(annotationName)?.Value
+        return entityType.Model.FindAnnotation(annotationName)?.Value
                 is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
-            || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates))
-        {
-            return Type.EmptyTypes;
-        }
-
-        return inverseCandidates;
+            || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates)
+            ? Type.EmptyTypes
+            : inverseCandidates;
     }
 
     /// <summary>
@@ -143,6 +140,10 @@ public interface IMemberClassifier
     /// <param name="model">The model.</param>
     /// <param name="useAttributes">Whether attributes found on the member should be considered.</param>
     /// <param name="typeMapping">When this method returns, the type mapping for the member, if one was found.</param>
+    /// <param name="elementType">
+    ///     When this method returns <see langword="true" />, the element type if the member is a primitive collection;
+    ///     otherwise <see langword="null" />.
+    /// </param>
     /// <param name="explicitlyConfigured">When this method returns, indicates whether the type was explicitly configured.</param>
     /// <returns><see langword="true" /> if the member is a candidate primitive property; otherwise <see langword="false" />.</returns>
     bool IsCandidatePrimitiveProperty(
@@ -150,6 +151,7 @@ public interface IMemberClassifier
         IConventionModel model,
         bool useAttributes,
         out CoreTypeMapping? typeMapping,
+        out Type? elementType,
         out bool explicitlyConfigured);
 
     /// <summary>

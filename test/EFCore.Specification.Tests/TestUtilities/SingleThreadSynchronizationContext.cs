@@ -9,14 +9,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class SingleThreadSynchronizationContext : SynchronizationContext, IDisposable
 {
-    private readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = new();
+    private readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = [];
 
     public Thread Thread { get; }
 
     public SingleThreadSynchronizationContext()
     {
-        Thread = new Thread(WorkLoop);
-        Thread.IsBackground = true;
+        Thread = new Thread(WorkLoop) { IsBackground = true };
         Thread.Start();
     }
 

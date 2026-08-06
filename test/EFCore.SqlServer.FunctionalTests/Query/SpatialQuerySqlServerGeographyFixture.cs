@@ -13,12 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class SpatialQuerySqlServerGeographyFixture : SpatialQuerySqlServerFixture
 {
-    private NtsGeometryServices _geometryServices;
     private GeometryFactory _geometryFactory;
 
     public NtsGeometryServices GeometryServices
         => LazyInitializer.EnsureInitialized(
-            ref _geometryServices,
+            ref field,
             () => CreateGeometryServices());
 
     protected static NtsGeometryServices CreateGeometryServices()

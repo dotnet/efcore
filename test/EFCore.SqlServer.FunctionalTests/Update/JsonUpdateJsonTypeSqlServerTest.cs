@@ -622,7 +622,6 @@ WHERE [j].[Id] = 1
 """);
     }
 
-
     public override async Task Edit_single_property_with_non_ascii_characters()
     {
         await base.Edit_single_property_with_non_ascii_characters();

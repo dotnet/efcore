@@ -778,10 +778,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
 
-            modelBuilder.Entity<Hob>(b =>
-            {
-                b.HasKey(e => e.Id1);
-            });
+            modelBuilder.Entity<Hob>(b => b.HasKey(e => e.Id1));
             modelBuilder.Ignore<Nob>();
 
             modelBuilder.Entity<Quarks>(b =>
@@ -1128,10 +1125,7 @@ public abstract partial class ModelBuilderTest
                     .HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>, CustomValueComparer<string>>();
             });
 
-            modelBuilder.Entity<Quarks>(b =>
-            {
-                b.Property<int?>("Wierd");
-            });
+            modelBuilder.Entity<Quarks>(b => b.Property<int?>("Wierd"));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks))!;
@@ -1150,10 +1144,8 @@ public abstract partial class ModelBuilderTest
         [Fact]
         public virtual void Value_converter_configured_on_base_type_is_not_applied()
         {
-            var modelBuilder = CreateModelBuilder(c =>
-            {
-                c.Properties<WrappedStringBase>().HaveConversion(typeof(WrappedStringToStringConverter));
-            });
+            var modelBuilder =
+                CreateModelBuilder(c => c.Properties<WrappedStringBase>().HaveConversion(typeof(WrappedStringToStringConverter)));
 
             modelBuilder.Entity<WrappedStringEntity>();
 
@@ -1162,7 +1154,7 @@ public abstract partial class ModelBuilderTest
                     nameof(WrappedString),
                     nameof(WrappedStringEntity),
                     nameof(WrappedStringEntity.WrappedString)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         private class WrappedStringToStringConverter()
@@ -1181,7 +1173,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.TypeConfigurationConflict(
                     nameof(WrappedString), "Property",
                     "IWrapped<string>", "Ignored"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<WrappedStringEntity>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<WrappedStringEntity>).Message);
         }
 
         [Fact]
@@ -1189,13 +1181,10 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Quarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.ConverterPropertyMismatch("string", "Quarks", "Up", "int"),
-                    Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).HasConversion(
-                        new StringToBytesConverter(Encoding.UTF8))).Message);
-            });
+            modelBuilder.Entity<Quarks>(b => Assert.Equal(
+                CoreStrings.ConverterPropertyMismatch("string", "Quarks", "Up", "int"),
+                Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).HasConversion(
+                    new StringToBytesConverter(Encoding.UTF8))).Message));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks))!;
@@ -1227,12 +1216,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Quarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), nameof(Quarks)),
-                    Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
-            });
+            modelBuilder.Entity<Quarks>(b => Assert.Equal(
+                CoreStrings.MissingBackingField("_notFound", nameof(Quarks.Down), nameof(Quarks)),
+                Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message));
         }
 
         [Fact]
@@ -1240,12 +1226,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Quarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
-                    Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
-            });
+            modelBuilder.Entity<Quarks>(b => Assert.Equal(
+                CoreStrings.BadBackingFieldType("_forUp", "int", nameof(Quarks), nameof(Quarks.Down), "string"),
+                Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message));
         }
 
         [Fact]
@@ -1404,13 +1387,10 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Quarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.IncompatibleSentinelValue("System.Byte[]", nameof(Quarks), nameof(Quarks.Up), "int"),
-                    Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Metadata.Sentinel = Array.Empty<byte>())
-                        .Message);
-            });
+            modelBuilder.Entity<Quarks>(b => Assert.Equal(
+                CoreStrings.IncompatibleSentinelValue("System.Byte[]", nameof(Quarks), nameof(Quarks.Up), "int"),
+                Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Metadata.Sentinel = Array.Empty<byte>())
+                    .Message));
         }
 
         [Fact]
@@ -1589,12 +1569,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Quarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                    Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message);
-            });
+            modelBuilder.Entity<Quarks>(b => Assert.Equal(
+                CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                Assert.Throws<ArgumentException>(() => b.Property(e => e.Down).HasValueGenerator(typeof(Random))).Message));
         }
 
         [Fact]
@@ -1731,7 +1708,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(
                 CoreStrings.NavigationNotAdded(
                     nameof(IntDict), nameof(IntDict.Notes), typeof(Dictionary<int, string>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         protected class IntDict
@@ -1919,16 +1896,18 @@ public abstract partial class ModelBuilderTest
                     b.Ignore(e => e.QuarksCollection);
                     b.Ignore(e => e.DoubleProperty);
                     b.Ignore(e => e.Quarks);
-                    b.ComplexProperty(e => e.Customer!, cb =>
-                    {
-                        cb.Ignore(c => c.Details);
-                        cb.Ignore(c => c.Orders);
-                    });
-                    b.ComplexCollection(e => e.Customers, cb =>
-                    {
-                        cb.Ignore(c => c.Details);
-                        cb.Ignore(c => c.Orders);
-                    });
+                    b.ComplexProperty(
+                        e => e.Customer!, cb =>
+                        {
+                            cb.Ignore(c => c.Details);
+                            cb.Ignore(c => c.Orders);
+                        });
+                    b.ComplexCollection(
+                        e => e.Customers, cb =>
+                        {
+                            cb.Ignore(c => c.Details);
+                            cb.Ignore(c => c.Orders);
+                        });
                     configure(b);
                 });
 
@@ -2107,13 +2086,12 @@ public abstract partial class ModelBuilderTest
         public virtual void HasIndex_named_with_conflicting_collection_indices_throws()
         {
             var modelBuilder = CreateModelBuilder();
-            var caught = Assert.Throws<InvalidOperationException>(
-                () => ConfigureComplexIndexEntity(
-                    modelBuilder, b =>
-                    {
-                        b.HasIndex(e => e.Customers[0].Name, "MyIdx");
-                        b.HasIndex(e => e.Customers.Select(c => c.Name), "MyIdx");
-                    }));
+            var caught = Assert.Throws<InvalidOperationException>(() => ConfigureComplexIndexEntity(
+                modelBuilder, b =>
+                {
+                    b.HasIndex(e => e.Customers[0].Name, "MyIdx");
+                    b.HasIndex(e => e.Customers.Select(c => c.Name), "MyIdx");
+                }));
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!;
             Assert.Equal(
@@ -2531,7 +2509,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
             var model = modelBuilder.FinalizeModel();
             Assert.Equal(2, model.GetEntityTypes().Count());
@@ -2668,6 +2646,24 @@ public abstract partial class ModelBuilderTest
             var property = customer.FindProperty(nameof(Customer.Orders));
             Assert.NotNull(property);
             Assert.NotNull(property.GetElementType());
+        }
+
+        [Fact]
+        public virtual void Can_override_primitive_collection_as_scalar_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<CollectionQuarks>().PrimitiveCollection(e => e.Up);
+
+            var entityType = model.FindEntityType(typeof(CollectionQuarks))!;
+            Assert.NotNull(entityType.FindProperty(nameof(CollectionQuarks.Up))!.GetElementType());
+
+            modelBuilder.Entity<CollectionQuarks>().Property(e => e.Up);
+
+            var property = entityType.FindProperty(nameof(CollectionQuarks.Up));
+            Assert.NotNull(property);
+            Assert.Null(property.GetElementType());
         }
 
         [Fact]
@@ -2849,12 +2845,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<CollectionQuarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.MissingBackingField("_notFound", nameof(CollectionQuarks.Down), nameof(CollectionQuarks)),
-                    Assert.Throws<InvalidOperationException>(() => b.PrimitiveCollection(e => e.Down).HasField("_notFound")).Message);
-            });
+            modelBuilder.Entity<CollectionQuarks>(b => Assert.Equal(
+                CoreStrings.MissingBackingField("_notFound", nameof(CollectionQuarks.Down), nameof(CollectionQuarks)),
+                Assert.Throws<InvalidOperationException>(() => b.PrimitiveCollection(e => e.Down).HasField("_notFound")).Message));
         }
 
         [Fact]
@@ -2862,14 +2855,11 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<CollectionQuarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.BadBackingFieldType(
-                        "_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down),
-                        "ObservableCollection<string>"),
-                    Assert.Throws<InvalidOperationException>(() => b.PrimitiveCollection(e => e.Down).HasField("_forUp")).Message);
-            });
+            modelBuilder.Entity<CollectionQuarks>(b => Assert.Equal(
+                CoreStrings.BadBackingFieldType(
+                    "_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down),
+                    "ObservableCollection<string>"),
+                Assert.Throws<InvalidOperationException>(() => b.PrimitiveCollection(e => e.Down).HasField("_forUp")).Message));
         }
 
         [Fact]
@@ -2983,13 +2973,10 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<CollectionQuarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                    Assert.Throws<ArgumentException>(() => b.PrimitiveCollection(e => e.Down).HasValueGenerator(typeof(Random)))
-                        .Message);
-            });
+            modelBuilder.Entity<CollectionQuarks>(b => Assert.Equal(
+                CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
+                Assert.Throws<ArgumentException>(() => b.PrimitiveCollection(e => e.Down).HasValueGenerator(typeof(Random)))
+                    .Message));
         }
 
         [Fact]
@@ -3451,12 +3438,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<DerivedCollectionQuarks>();
-            modelBuilder.Entity<CollectionQuarks>(b =>
-            {
-                b.Property(c => c.Down).HasConversion(
-                    gs => string.Join(',', gs!),
-                    s => new ObservableCollection<string>(s.Split(',', StringSplitOptions.RemoveEmptyEntries)));
-            });
+            modelBuilder.Entity<CollectionQuarks>(b => b.Property(c => c.Down).HasConversion(
+                gs => string.Join(',', gs!),
+                s => new ObservableCollection<string>(s.Split(',', StringSplitOptions.RemoveEmptyEntries))));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -3469,12 +3453,9 @@ public abstract partial class ModelBuilderTest
         public virtual void Conversion_on_base_property_prevents_primitive_collection_when_base_first()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<CollectionQuarks>(b =>
-            {
-                b.Property(c => c.Down).HasConversion(
-                    gs => string.Join(',', gs!),
-                    s => new ObservableCollection<string>(s.Split(',', StringSplitOptions.RemoveEmptyEntries)));
-            });
+            modelBuilder.Entity<CollectionQuarks>(b => b.Property(c => c.Down).HasConversion(
+                gs => string.Join(',', gs!),
+                s => new ObservableCollection<string>(s.Split(',', StringSplitOptions.RemoveEmptyEntries))));
 
             var property =
                 (IProperty)modelBuilder.Model.FindEntityType(typeof(CollectionQuarks))!.FindProperty(nameof(CollectionQuarks.Down))!;
@@ -3643,13 +3624,10 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<CollectionQuarks>(b =>
-            {
-                Assert.Equal(
-                    CoreStrings.ConverterPropertyMismatchElement("string", "CollectionQuarks", "Up", "int"),
-                    Assert.Throws<InvalidOperationException>(() => b.PrimitiveCollection(e => e.Up).ElementType().HasConversion(
-                        new StringToBytesConverter(Encoding.UTF8))).Message);
-            });
+            modelBuilder.Entity<CollectionQuarks>(b => Assert.Equal(
+                CoreStrings.ConverterPropertyMismatchElement("string", "CollectionQuarks", "Up", "int"),
+                Assert.Throws<InvalidOperationException>(() => b.PrimitiveCollection(e => e.Up).ElementType().HasConversion(
+                    new StringToBytesConverter(Encoding.UTF8))).Message));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(CollectionQuarks))!;

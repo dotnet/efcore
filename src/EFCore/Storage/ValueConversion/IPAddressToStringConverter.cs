@@ -52,7 +52,8 @@ public class IPAddressToStringConverter : ValueConverter<IPAddress?, string?>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(IPAddress), typeof(string),
+        = new(
+            typeof(IPAddress), typeof(string),
             i => ReferenceEquals(i.MappingHints, Instance.MappingHints) ? Instance : new IPAddressToStringConverter(i.MappingHints),
             DefaultHints);
 

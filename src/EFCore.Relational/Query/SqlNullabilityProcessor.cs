@@ -538,7 +538,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 test = _sqlExpressionFactory.Not(test);
             }
 
-            whenClauses = [new(test, clause.Result)];
+            whenClauses = [new CaseWhenClause(test, clause.Result)];
         }
 
         return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
@@ -584,11 +584,14 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     DetectNullPropagatingNodes(unary.Operand, operands);
                     break;
 
-                case SqlBinaryExpression { OperatorType: not (
-                        ExpressionType.AndAlso or
-                        ExpressionType.OrElse or
-                        ExpressionType.Coalesce
-                    ) } binary:
+                case SqlBinaryExpression
+                {
+                    OperatorType: not (
+                    ExpressionType.AndAlso or
+                    ExpressionType.OrElse or
+                    ExpressionType.Coalesce
+                    )
+                } binary:
                     DetectNullPropagatingNodes(binary.Left, operands);
                     DetectNullPropagatingNodes(binary.Right, operands);
                     break;
@@ -609,6 +612,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                             }
                         }
                     }
+
                     break;
             }
         }
@@ -908,7 +912,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // optimized mode:
         // non_nullable IN (1, 2, NULL, nullable) -> non_nullable IN (1, 2, nullable) (optimized)
         // nullable IN (1, 2) -> nullable IN (1, 2) (optimized)
-        if (allowOptimizedExpansion && (!itemNullable || !valuesHasNull && nullableValues.Count == 0))
+        if (allowOptimizedExpansion && (!itemNullable || (!valuesHasNull && nullableValues.Count == 0)))
         {
             return inExpression;
         }
@@ -1087,7 +1091,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
                     void CreateProcessedValues()
                     {
-                        processedValues = new List<SqlExpression>(inExpression.Values!.Count - 1);
+                        processedValues = [with(inExpression.Values!.Count - 1)];
                         for (var j = 0; j < i; j++)
                         {
                             processedValues.Add(inExpression.Values[j]);
@@ -1691,7 +1695,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         };
 
     /// <summary>
-    /// Calculates the number of padding parameters needed to align the total count to the nearest bucket size.
+    ///     Calculates the number of padding parameters needed to align the total count to the nearest bucket size.
     /// </summary>
     /// <param name="count">Number of value parameters.</param>
     /// <param name="padFactor">Padding factor.</param>
@@ -1701,8 +1705,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
     /// <summary>
     ///     Calculates the number of padding parameters to append to a multi-parameter collection expansion so that
-    ///     parameter counts align to a shared bucket size. This is composed from <see cref="CalculateParameterBucketSize"/>
-    ///     and <see cref="CalculatePadding"/>.
+    ///     parameter counts align to a shared bucket size. This is composed from <see cref="CalculateParameterBucketSize" />
+    ///     and <see cref="CalculatePadding" />.
     /// </summary>
     /// <param name="count">Number of value parameters.</param>
     /// <param name="elementTypeMapping">The type mapping for the collection element.</param>
@@ -1713,7 +1717,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: null }
-            || expression is SqlParameterExpression { Name: { } parameterName } && ParametersDecorator.IsNull(parameterName);
+            || (expression is SqlParameterExpression { Name: { } parameterName } && ParametersDecorator.IsNull(parameterName));
 
     private bool IsTrue(SqlExpression? expression)
         => expression is SqlConstantExpression { Value: true };
@@ -2068,10 +2072,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
             // We clone the select expression since Update below doesn't create a pure copy, mutating the original as well (because of
             // TableReferenceExpression). TODO: Remove this after SelectExpression becomes fully mutable (#32927).
-#pragma warning disable EF1001
             rewrittenSelectExpression = selectExpression.Clone();
-#pragma warning restore EF1001
-
             rewrittenSelectExpression = rewrittenSelectExpression.Update(
                 [rewrittenCollectionTable],
                 selectExpression.Predicate,
@@ -2226,8 +2227,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             }
 
             case SqlBinaryExpression sqlBinaryOperand
-                when sqlBinaryOperand.OperatorType != ExpressionType.AndAlso
-                && sqlBinaryOperand.OperatorType != ExpressionType.OrElse:
+                when sqlBinaryOperand.OperatorType is not ExpressionType.AndAlso
+                    and not ExpressionType.OrElse:
             {
                 // in general:
                 // binaryOp(a, b) == null -> a == null || b == null
@@ -2336,7 +2337,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
@@ -2355,9 +2356,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
     {
         if (expandedParameters.Count <= index)
         {
-#pragma warning disable EF1001
             var parameterName = Uniquifier.Uniquify(valuesParameterName, parameters, maxLength: int.MaxValue, uniquifier: index + 1);
-#pragma warning restore EF1001
             parameters.Add(parameterName, value);
             var parameterExpression = new SqlParameterExpression(parameterName, value?.GetType() ?? typeof(object), typeMapping);
             expandedParameters.Add(parameterExpression);

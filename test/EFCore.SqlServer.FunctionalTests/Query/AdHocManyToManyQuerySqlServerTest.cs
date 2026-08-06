@@ -98,4 +98,8 @@ WHERE [m].[Id] = @p
 ORDER BY [m].[Id], [s].[Id0]
 """);
     }
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

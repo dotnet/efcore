@@ -298,10 +298,7 @@ public abstract class GearsOfWarQueryFixtureBase : QueryFixtureBase<GearsOfWarCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        modelBuilder.Entity<City>(b =>
-        {
-            b.HasKey(c => c.Name);
-        });
+        modelBuilder.Entity<City>(b => b.HasKey(c => c.Name));
 
         modelBuilder.Entity<Gear>(b =>
         {

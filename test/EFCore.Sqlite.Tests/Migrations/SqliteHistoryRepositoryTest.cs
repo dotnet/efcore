@@ -87,7 +87,7 @@ VALUES ('Migration1', '7.0.0');
     public void GetEndIfScript_works()
     {
         var repository = CreateHistoryRepository();
-        var ex = Assert.Throws<NotSupportedException>(() => repository.GetEndIfScript());
+        var ex = Assert.Throws<NotSupportedException>(repository.GetEndIfScript);
 
         Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
     }

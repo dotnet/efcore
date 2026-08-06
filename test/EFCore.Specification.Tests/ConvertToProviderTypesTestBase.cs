@@ -80,10 +80,7 @@ public abstract class ConvertToProviderTypesTestBase<TFixture>(TFixture fixture)
                 b.Property(e => e.ByteArray9000).HasConversion<string>().HasMaxLength(LongStringLength * 2);
             });
 
-            modelBuilder.Entity<AnimalIdentification>(b =>
-            {
-                b.Property(e => e.Method).HasConversion<string>().HasMaxLength(6);
-            });
+            modelBuilder.Entity<AnimalIdentification>(b => b.Property(e => e.Method).HasConversion<string>().HasMaxLength(6));
         }
     }
 }

@@ -92,13 +92,11 @@ FROM "BasicTypesEntities" AS "b"
 """);
     }
 
-    [Fact(Skip = "Issue #16645 bitwise xor support")]
     public override Task Xor()
-        => AssertTranslationFailed(() => base.Xor());
+        => AssertTranslationFailed(base.Xor);
 
-    [Fact(Skip = "Issue #16645 bitwise xor support")]
     public override Task Xor_over_boolean()
-        => AssertTranslationFailed(() => base.Xor_over_boolean());
+        => AssertTranslationFailed(base.Xor_over_boolean);
 
     public override async Task Complement()
     {
@@ -173,10 +171,10 @@ WHERE ("b"."Int" = 12 AND "b"."Short" = 12) OR "b"."String" = 'Seattle'
     }
 
     public override Task Left_shift()
-        => AssertTranslationFailed(() => base.Left_shift());
+        => AssertTranslationFailed(base.Left_shift);
 
     public override Task Right_shift()
-        => AssertTranslationFailed(() => base.Right_shift());
+        => AssertTranslationFailed(base.Right_shift);
 
     [Fact]
     public virtual void Check_all_tests_overridden()

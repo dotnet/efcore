@@ -263,8 +263,10 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         {
             var typeSymbol = GetTypeSymbol(semanticModel.Compilation, constant.Type);
 
-            var syntax = _linqToCSharpTranslator.TranslateExpression(constant.InitializeExpression, constantReplacements: null, _namespaces, _unsafeAccessors);
-            _code.AppendLine($"private static readonly {typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
+            var syntax = _linqToCSharpTranslator.TranslateExpression(
+                constant.InitializeExpression, constantReplacements: null, _namespaces, _unsafeAccessors);
+            _code.AppendLine(
+                $"private static readonly {typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} {fieldName} = {syntax.NormalizeWhitespace().ToFullString()};");
         }
 
         _code
@@ -961,11 +963,13 @@ namespace System.Runtime.CompilerServices
             {
                 name = baseName + j;
             }
+
             _runtimeConstants.Add(name, runtimeConstant);
             _constantReplacements.Add(runtimeConstant.Value, name);
         }
 
-        HashSet<string> variableNames = [.. _constantReplacements.Values, "relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
+        HashSet<string> variableNames =
+            [.. _constantReplacements.Values, "relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
 
         var materializerLiftableConstantContext =
             Expression.Parameter(typeof(RelationalMaterializerLiftableConstantContext), "materializerLiftableConstantContext");
@@ -1312,7 +1316,7 @@ namespace System.Runtime.CompilerServices
 
     /// <summary>
     ///     Contains information on a failure to precompile a specific query in the user's source code.
-    ///     Includes information about the query, its location, and the exception that occured.
+    ///     Includes information about the query, its location, and the exception that occurred.
     /// </summary>
     public sealed record QueryPrecompilationError(SyntaxNode SyntaxNode, Exception Exception);
 

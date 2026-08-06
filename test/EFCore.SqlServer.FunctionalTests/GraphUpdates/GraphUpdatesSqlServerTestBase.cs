@@ -61,72 +61,61 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
 
     protected class StringKeyAndIndexParent : NotifyingEntity
     {
-        private string _id;
-        private string _alternateId;
-        private string _uniqueIndex;
-        private string _index;
-        private StringKeyAndIndexChild _child;
-
         public string Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string AlternateId
         {
-            get => _alternateId;
-            set => SetWithNotify(value, ref _alternateId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string Index
         {
-            get => _index;
-            set => SetWithNotify(value, ref _index);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string UniqueIndex
         {
-            get => _uniqueIndex;
-            set => SetWithNotify(value, ref _uniqueIndex);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public StringKeyAndIndexChild Child
         {
-            get => _child;
-            set => SetWithNotify(value, ref _child);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
     protected class StringKeyAndIndexChild : NotifyingEntity
     {
-        private string _id;
-        private string _parentId;
-        private int _foo;
-        private StringKeyAndIndexParent _parent;
-
         public string Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public string ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int Foo
         {
-            get => _foo;
-            set => SetWithNotify(value, ref _foo);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public StringKeyAndIndexParent Parent
         {
-            get => _parent;
-            set => SetWithNotify(value, ref _parent);
+            get;
+            set => SetWithNotify(value, ref field);
         }
     }
 
@@ -175,33 +164,18 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
             modelBuilder.Entity<SomethingOfCategoryA>().Property<int>("CategoryId").HasDefaultValue(1);
             modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);
 
-            modelBuilder.Entity<StringKeyAndIndexParent>(b =>
-            {
-                b.HasOne(e => e.Child)
-                    .WithOne(e => e.Parent)
-                    .HasForeignKey<StringKeyAndIndexChild>(e => e.ParentId)
-                    .HasPrincipalKey<StringKeyAndIndexParent>(e => e.AlternateId);
-            });
+            modelBuilder.Entity<StringKeyAndIndexParent>(b => b.HasOne(e => e.Child)
+                .WithOne(e => e.Parent)
+                .HasForeignKey<StringKeyAndIndexChild>(e => e.ParentId)
+                .HasPrincipalKey<StringKeyAndIndexParent>(e => e.AlternateId));
 
-            modelBuilder.Entity<CompositeKeyWith<int>>(b =>
-            {
-                b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1);
-            });
+            modelBuilder.Entity<CompositeKeyWith<int>>(b => b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1));
 
-            modelBuilder.Entity<CompositeKeyWith<bool>>(b =>
-            {
-                b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
-            });
+            modelBuilder.Entity<CompositeKeyWith<bool>>(b => b.Property(e => e.PrimaryGroup).HasDefaultValue(true));
 
-            modelBuilder.Entity<CompositeKeyWith<bool?>>(b =>
-            {
-                b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
-            });
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(b => b.Property(e => e.PrimaryGroup).HasDefaultValue(true));
 
-            modelBuilder.Entity<ParentWithSetDefault>(b =>
-            {
-                b.Property(e => e.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<ParentWithSetDefault>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
             modelBuilder.Entity<ChildWithSetDefault>(b =>
             {
@@ -216,13 +190,12 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
 
     protected class ParentWithSetDefault : NotifyingEntity
     {
-        private int _id;
         private ICollection<ChildWithSetDefault> _children = new ObservableHashSet<ChildWithSetDefault>();
 
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual ICollection<ChildWithSetDefault> Children
@@ -234,20 +207,18 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) 
 
     protected class ChildWithSetDefault : NotifyingEntity
     {
-        private int _id;
-        private int _parentId;
         private ParentWithSetDefault _parent;
 
         public int Id
         {
-            get => _id;
-            set => SetWithNotify(value, ref _id);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public int ParentId
         {
-            get => _parentId;
-            set => SetWithNotify(value, ref _parentId);
+            get;
+            set => SetWithNotify(value, ref field);
         }
 
         public virtual ParentWithSetDefault Parent

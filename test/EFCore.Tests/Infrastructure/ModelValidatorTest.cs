@@ -17,13 +17,13 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     [Fact] // Issue #33913
     public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type()
     {
-        Detects_well_known_concrete_collections_mapped_as_entity_type<List<Customer>>();
-        Detects_well_known_concrete_collections_mapped_as_entity_type<HashSet<Customer>>();
-        Detects_well_known_concrete_collections_mapped_as_entity_type<Collection<Customer>>();
-        Detects_well_known_concrete_collections_mapped_as_entity_type<ObservableCollection<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type_implementation<List<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type_implementation<HashSet<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type_implementation<Collection<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type_implementation<ObservableCollection<Customer>>();
     }
 
-    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type<T>()
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type_implementation<T>()
         where T : class
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -460,6 +460,40 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         VerifyWarning(
             CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>())
                 .GenerateMessage("A", "Key"), modelBuilder, LogLevel.Debug);
+    }
+
+    [Fact]
+    public virtual void Warns_on_shadow_property_name_that_is_not_a_valid_identifier()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(A));
+        SetPrimaryKey(entityType);
+        AddProperties(entityType);
+
+        entityType.AddProperty("NOT VALID !!!1", typeof(string));
+
+        VerifyWarning(
+            CoreResources.LogShadowPropertyNameNotValidIdentifier(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("A", "NOT VALID !!!1"), modelBuilder);
+    }
+
+    [Fact]
+    public virtual void Does_not_warn_on_shadow_property_with_valid_identifier_name()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(A));
+        SetPrimaryKey(entityType);
+        AddProperties(entityType);
+
+        entityType.AddProperty("ValidName", typeof(string));
+
+        VerifyLogDoesNotContain(
+            CoreResources.LogShadowPropertyNameNotValidIdentifier(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("A", "ValidName"), modelBuilder);
     }
 
     [Fact] // Issue #33484
@@ -1185,7 +1219,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var modelBuilder = CreateConventionModelBuilder();
 
-        modelBuilder.Entity<UnionEntity>();
+        modelBuilder.Entity(typeof(UnionEntity));
 
         VerifyError(
             CoreStrings.UnionTypeNotSupported(nameof(UnionEntity)),
@@ -1205,11 +1239,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    [System.Runtime.CompilerServices.Union]
-    protected class UnionEntity
-    {
-        public int Id { get; set; }
-    }
+    protected union UnionEntity(int);
 
     protected class WithUnionComplexProperty
     {
@@ -1299,10 +1329,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         modelBuilder.Entity<SampleEntity>(eb =>
         {
-            eb.ComplexProperty(e => e.ReferencedEntity, cpb =>
-            {
-                cpb.HasDiscriminator();
-            });
+            eb.ComplexProperty(
+                e => e.ReferencedEntity, cpb =>
+                {
+                    cpb.HasDiscriminator();
+                });
             eb.Ignore(e => e.AnotherReferencedEntity);
         });
 
@@ -1321,12 +1352,13 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         modelBuilder.Entity<SampleEntity>(eb =>
         {
-            eb.ComplexCollection(e => e.OtherSamples, ccb =>
-            {
-                var complexType = ccb.Metadata.ComplexType;
-                var discriminatorProperty = complexType.AddProperty("Discriminator", typeof(string));
-                complexType.SetDiscriminatorProperty(discriminatorProperty);
-            });
+            eb.ComplexCollection(
+                e => e.OtherSamples, ccb =>
+                {
+                    var complexType = ccb.Metadata.ComplexType;
+                    var discriminatorProperty = complexType.AddProperty("Discriminator", typeof(string));
+                    complexType.SetDiscriminatorProperty(discriminatorProperty);
+                });
         });
 
         VerifyError(
@@ -1499,7 +1531,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             b.Ignore(e => e.Name);
             b.Ignore(e => e.Number);
             b.ComplexProperty(e => e.ReferencedEntity);
-            b.HasIndex(e => e.ReferencedEntity );
+            b.HasIndex(e => e.ReferencedEntity);
         });
 
         VerifyError(
@@ -2527,12 +2559,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadEntity>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name);
-            });
+        modelBuilder.Entity<AutoLoadEntity>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Id))!;
@@ -2547,13 +2578,12 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_alternate_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadEntity>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name);
-                eb.HasAlternateKey(e => e.Name);
-            });
+        modelBuilder.Entity<AutoLoadEntity>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name);
+            eb.HasAlternateKey(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
@@ -2568,19 +2598,17 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_foreign_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadPrincipal>(
-            eb =>
-            {
-                eb.HasKey(e => e.Id);
-                eb.Property(e => e.Name);
-            });
-        modelBuilder.Entity<AutoLoadDependent>(
-            eb =>
-            {
-                eb.HasKey(e => e.Id);
-                eb.Property(e => e.PrincipalId);
-                eb.HasOne<AutoLoadPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId);
-            });
+        modelBuilder.Entity<AutoLoadPrincipal>(eb =>
+        {
+            eb.HasKey(e => e.Id);
+            eb.Property(e => e.Name);
+        });
+        modelBuilder.Entity<AutoLoadDependent>(eb =>
+        {
+            eb.HasKey(e => e.Id);
+            eb.Property(e => e.PrincipalId);
+            eb.HasOne<AutoLoadPrincipal>().WithMany().HasForeignKey(e => e.PrincipalId);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(AutoLoadDependent))!.FindProperty(nameof(AutoLoadDependent.PrincipalId))!;
@@ -2595,12 +2623,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_concurrency_token_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadEntity>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name).IsConcurrencyToken();
-            });
+        modelBuilder.Entity<AutoLoadEntity>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name).IsConcurrencyToken();
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
@@ -2615,13 +2642,12 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_discriminator_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadEntity>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name);
-                eb.HasDiscriminator(e => e.Name);
-            });
+        modelBuilder.Entity<AutoLoadEntity>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name);
+            eb.HasDiscriminator(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
@@ -2636,12 +2662,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Allows_non_key_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadEntity>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name);
-            });
+        modelBuilder.Entity<AutoLoadEntity>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
         var property = model.FindEntityType(typeof(AutoLoadEntity))!.FindProperty(nameof(AutoLoadEntity.Name))!;
@@ -2654,15 +2679,15 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_constructor_bound_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadEntityWithConstructor>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name);
-            });
+        modelBuilder.Entity<AutoLoadEntityWithConstructor>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name);
+        });
 
         var model = modelBuilder.Model;
-        var property = model.FindEntityType(typeof(AutoLoadEntityWithConstructor))!.FindProperty(nameof(AutoLoadEntityWithConstructor.Name))!;
+        var property =
+            model.FindEntityType(typeof(AutoLoadEntityWithConstructor))!.FindProperty(nameof(AutoLoadEntityWithConstructor.Name))!;
         property.IsAutoLoaded = false;
 
         VerifyError(
@@ -2674,12 +2699,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     public virtual void Detects_derived_constructor_bound_property_not_auto_loaded()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<AutoLoadBaseEntity>(
-            eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.Property(e => e.Name);
-            });
+        modelBuilder.Entity<AutoLoadBaseEntity>(eb =>
+        {
+            eb.Property(e => e.Id);
+            eb.Property(e => e.Name);
+        });
         modelBuilder.Entity<AutoLoadDerivedEntityWithConstructor>();
 
         var model = modelBuilder.Model;
@@ -2700,9 +2724,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     protected class AutoLoadEntityWithConstructor
     {
         public AutoLoadEntityWithConstructor(string name)
-        {
-            Name = name;
-        }
+            => Name = name;
 
         public int Id { get; set; }
         public string Name { get; set; }
@@ -2729,8 +2751,6 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     protected class AutoLoadDerivedEntityWithConstructor : AutoLoadBaseEntity
     {
         public AutoLoadDerivedEntityWithConstructor(string name)
-        {
-            Name = name;
-        }
+            => Name = name;
     }
 }

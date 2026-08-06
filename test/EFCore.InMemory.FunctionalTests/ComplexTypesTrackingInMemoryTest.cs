@@ -14,7 +14,8 @@ public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.I
     {
         try
         {
-            await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            await base.ExecuteWithStrategyInTransactionAsync(
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
         }
         finally
         {

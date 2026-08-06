@@ -154,32 +154,27 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     {
         var contextFactory = await InitializeNonSharedTest<Context13157>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateDbContext())
-        {
-            var partners = context.Partners
-                .Select(x => new
+        using var context = contextFactory.CreateDbContext();
+        var partners = context.Partners
+            .Select(x => new
+            {
+                Addresses = x.Addresses.Select(y => new
                 {
-                    Addresses = x.Addresses.Select(y => new
-                    {
-                        Turnovers = y.Turnovers == null
-                            ? null
-                            : new { y.Turnovers.AmountIn }
-                    }).ToList()
-                }).ToList();
+                    Turnovers = y.Turnovers == null
+                        ? null
+                        : new { y.Turnovers.AmountIn }
+                }).ToList()
+            }).ToList();
 
-            Assert.Single(partners);
-            Assert.Collection(
-                partners[0].Addresses,
-                t =>
-                {
-                    Assert.NotNull(t.Turnovers);
-                    Assert.Equal(10, t.Turnovers.AmountIn);
-                },
-                t =>
-                {
-                    Assert.Null(t.Turnovers);
-                });
-        }
+        Assert.Single(partners);
+        Assert.Collection(
+            partners[0].Addresses,
+            t =>
+            {
+                Assert.NotNull(t.Turnovers);
+                Assert.Equal(10, t.Turnovers.AmountIn);
+            },
+            t => Assert.Null(t.Turnovers));
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -195,10 +190,10 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             AddRange(
                 new Partner
                 {
-                    Addresses = new List<Address>
-                    {
-                        new() { Turnovers = new AddressTurnovers { AmountIn = 10 } }, new() { Turnovers = null },
-                    }
+                    Addresses =
+                    [
+                        new Address { Turnovers = new AddressTurnovers { AmountIn = 10 } }, new Address { Turnovers = null },
+                    ]
                 }
             );
 
@@ -245,48 +240,39 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
             {
                 builder.HasKey(e => e.Id);
                 builder.OwnsOne(
-                    e => e.FirstValueObject, dr =>
-                    {
-                        dr.OwnsMany(
-                            d => d.SecondValueObjects, c =>
-                            {
-                                c.Property<int>("Id").IsRequired();
-                                c.HasKey("Id");
-                                c.OwnsOne(
-                                    b => b.FourthValueObject, b =>
+                    e => e.FirstValueObject, dr => dr.OwnsMany(
+                        d => d.SecondValueObjects, c =>
+                        {
+                            c.Property<int>("Id").IsRequired();
+                            c.HasKey("Id");
+                            c.OwnsOne(
+                                b => b.FourthValueObject, b => b.OwnsMany(
+                                    t => t.FifthValueObjects, sp =>
                                     {
-                                        b.OwnsMany(
-                                            t => t.FifthValueObjects, sp =>
+                                        sp.Property<int>("Id").IsRequired();
+                                        sp.HasKey("Id");
+                                        sp.Property(e => e.AnyValue).IsRequired();
+                                        sp.WithOwner().HasForeignKey("SecondValueObjectId");
+                                    }));
+                            c.OwnsMany(
+                                b => b.ThirdValueObjects, b =>
+                                {
+                                    b.Property<int>("Id").IsRequired();
+                                    b.HasKey("Id");
+
+                                    b.OwnsOne(
+                                        d => d.FourthValueObject, dpd => dpd.OwnsMany(
+                                            d => d.FifthValueObjects, sp =>
                                             {
                                                 sp.Property<int>("Id").IsRequired();
                                                 sp.HasKey("Id");
                                                 sp.Property(e => e.AnyValue).IsRequired();
-                                                sp.WithOwner().HasForeignKey("SecondValueObjectId");
-                                            });
-                                    });
-                                c.OwnsMany(
-                                    b => b.ThirdValueObjects, b =>
-                                    {
-                                        b.Property<int>("Id").IsRequired();
-                                        b.HasKey("Id");
-
-                                        b.OwnsOne(
-                                            d => d.FourthValueObject, dpd =>
-                                            {
-                                                dpd.OwnsMany(
-                                                    d => d.FifthValueObjects, sp =>
-                                                    {
-                                                        sp.Property<int>("Id").IsRequired();
-                                                        sp.HasKey("Id");
-                                                        sp.Property(e => e.AnyValue).IsRequired();
-                                                        sp.WithOwner().HasForeignKey("ThirdValueObjectId");
-                                                    });
-                                            });
-                                        b.WithOwner().HasForeignKey("SecondValueObjectId");
-                                    });
-                                c.WithOwner().HasForeignKey("AggregateId");
-                            });
-                    });
+                                                sp.WithOwner().HasForeignKey("ThirdValueObjectId");
+                                            }));
+                                    b.WithOwner().HasForeignKey("SecondValueObjectId");
+                                });
+                            c.WithOwner().HasForeignKey("AggregateId");
+                        }));
             });
 
         public Task SeedAsync()
@@ -367,7 +353,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         using var context = contextFactory.CreateDbContext();
         var query = context.Warehouses.Select(x => new Context18582.WarehouseModel
         {
-            WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+            WarehouseCode = x.WarehouseCode,
+            DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
         }).AsNoTracking();
 
         var result = async
@@ -536,14 +523,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Entity>(cfg =>
-            {
-                cfg.OwnsMany(
-                    e => e.Children, inner =>
-                    {
-                        inner.OwnsOne(e => e.Owned);
-                    });
-            });
+            modelBuilder.Entity<Entity>(cfg => cfg.OwnsMany(
+                e => e.Children, inner => inner.OwnsOne(e => e.Owned)));
         }
 
         public class Entity
@@ -706,10 +687,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
                 builder.HasKey(x => x.Id);
 
                 builder.OwnsOne(
-                    x => x.Contact, contact =>
-                    {
-                        contact.OwnsOne(c => c.Address);
-                    });
+                    x => x.Contact, contact => contact.OwnsOne(c => c.Address));
 
                 builder.Navigation(x => x.Contact).IsRequired();
             });
@@ -754,7 +732,8 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         var results = await context.Contacts.Select(contact
                 => new Context22089.ContactDto
                 {
-                    Id = contact.Id, Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
+                    Id = contact.Id,
+                    Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
                 })
             .ToListAsync();
     }
@@ -773,7 +752,7 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
         public class Contact
         {
             public Guid Id { get; set; }
-            public IReadOnlyList<Name> Names { get; protected set; } = new List<Name>();
+            public IReadOnlyList<Name> Names { get; protected set; } = [];
         }
 
         public class ContactDto
@@ -821,15 +800,12 @@ public abstract class OwnedEntityQueryTestBase(NonSharedFixture fixture) : NonSh
     protected class Context24133(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Blog>(blog =>
-            {
-                blog.OwnsMany(
-                    b => b.Posts, p =>
-                    {
-                        p.WithOwner().HasForeignKey("BlogId");
-                        p.Property("BlogId").HasMaxLength(40);
-                    });
-            });
+            => modelBuilder.Entity<Blog>(blog => blog.OwnsMany(
+                b => b.Posts, p =>
+                {
+                    p.WithOwner().HasForeignKey("BlogId");
+                    p.Property("BlogId").HasMaxLength(40);
+                }));
 
         public class Blog
         {

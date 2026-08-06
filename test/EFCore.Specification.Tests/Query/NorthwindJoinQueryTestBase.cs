@@ -101,7 +101,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss =>
                 from c in ss.Set<Customer>()
                 join o1 in
-                    (from o2 in ss.Set<Order>() orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                    from o2 in ss.Set<Order>() orderby o2.OrderID select o2 on c.CustomerID equals o1.CustomerID
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID },
             e => e.OrderID);
@@ -125,9 +125,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss =>
                 from c in ss.Set<Customer>()
                 join o1 in
-                    (from o2 in ss.Set<Order>()
-                     orderby o2.OrderID
-                     select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
+                    from o2 in ss.Set<Order>()
+                    orderby o2.OrderID
+                    select new { o2 } on c.CustomerID equals o1.o2.CustomerID
                 where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
                 select new
                 {
@@ -163,7 +163,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
             ss =>
                 from c in ss.Set<Customer>()
                 join o1 in
-                    (from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                    from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2 on c.CustomerID equals o1.CustomerID
                 where o1.CustomerID == "ALFKI"
                 select new { c.ContactName, o1.OrderID },
             e => e.OrderID);
@@ -219,25 +219,27 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                   select e.EmployeeID);
     }
 
-    [Theory(Skip = "#30677"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
         var ids = "12";
-        await AssertTranslationFailed(() => AssertQueryScalar(
+        await AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>()
                   join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID));
+                  select e.EmployeeID,
+            assertEmpty: true);
 
         ids = "3";
-        await AssertTranslationFailed(() => AssertQueryScalar(
+        await AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>()
                   join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID));
+                  select e.EmployeeID,
+            assertEmpty: true);
     }
 
-    [Theory(Skip = "#30677"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool async)
     {
         var ids = new byte[] { 1, 2 };
@@ -335,17 +337,16 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task FullJoin_with_custom_comparer_does_not_translate(bool async)
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Customer>()
-                    .FullJoin(
-                        ss.Set<Order>(),
-                        c => c.CustomerID,
-                        o => o.CustomerID,
-                        (c, o) => new { c, o },
-                        StringComparer.Ordinal),
-                e => (e.c?.CustomerID, e.o?.OrderID)));
+        => AssertTranslationFailed(() => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .FullJoin(
+                    ss.Set<Order>(),
+                    c => c.CustomerID,
+                    o => o.CustomerID,
+                    (c, o) => new { c, o },
+                    StringComparer.Ordinal),
+            e => (e.c?.CustomerID, e.o?.OrderID)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_customers_employees_shadow(bool async)
@@ -482,9 +483,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss =>
-                from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                           join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                           select new { c, orders })
+                from i in from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                          join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
+                          select new { c, orders }
                 where i.c.City == "Lisboa"
                 select i,
             e => e.c.CustomerID,
@@ -499,9 +500,9 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQuery(
             async,
             ss =>
-                from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                           join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                           select new { c, orders })
+                from i in from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                          join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
+                          select new { c, orders }
                 join c2 in ss.Set<Customer>().Where(n => n.City == "Lisboa") on i.c.CustomerID equals c2.CustomerID
                 select new { i, c2 },
             e => e.i.c.CustomerID,
@@ -587,8 +588,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_DefaultIfEmpty_Where(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss =>
                 from c in ss.Set<Customer>()
@@ -598,7 +598,6 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
                 where o != null && o.CustomerID == "ALFKI"
 #pragma warning restore RCS1146 // Use conditional access.
                 select o);
-    }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_GroupJoin_DefaultIfEmpty_Where(bool async)
@@ -813,16 +812,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         public OrderDetailViewModel[] Views { get; } = views;
 
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                || obj.GetType() == GetType()
-                && Equals((CustomerViewModel)obj);
-        }
+            => obj is not null
+                && (ReferenceEquals(this, obj)
+                    || (obj.GetType() == GetType()
+                        && Equals((CustomerViewModel)obj)));
 
         private bool Equals(CustomerViewModel customerViewModel)
             => CustomerID == customerViewModel.CustomerID
@@ -839,16 +832,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture>(TFixture fixture) : Q
         public int ProductID { get; } = productID;
 
         public override bool Equals(object obj)
-        {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                || obj.GetType() == GetType()
-                && Equals((OrderDetailViewModel)obj);
-        }
+            => obj is not null
+                && (ReferenceEquals(this, obj)
+                    || (obj.GetType() == GetType()
+                        && Equals((OrderDetailViewModel)obj)));
 
         private bool Equals(OrderDetailViewModel orderDetailViewModel)
             => OrderID == orderDetailViewModel.OrderID

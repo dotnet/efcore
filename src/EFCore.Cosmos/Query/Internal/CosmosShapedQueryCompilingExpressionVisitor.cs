@@ -4,7 +4,6 @@
 #nullable disable
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -22,8 +21,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     IQuerySqlGeneratorFactory querySqlGeneratorFactory)
     : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
-    private int _currentComplexIndex;
-    private ParameterExpression _parentJObject;
+    private delegate T Shaper<T>(QueryContext queryContext, ReadOnlyMemory<byte> data, int ordinal, out int bytesConsumed);
+
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
@@ -39,9 +38,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         {
             throw new UnreachableException("No root entity type was set during query processing.");
         }
-
-        var jTokenParameter = Parameter(typeof(JToken), "jToken");
-        _parentJObject = jTokenParameter;
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
 
@@ -61,23 +57,21 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             shaperBody = pagingExpression.Expression;
         }
 
-        shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
-        shaperBody = InjectStructuralTypeMaterializers(shaperBody);
-
         if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {
             throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
 
-        shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
-                selectExpression, jTokenParameter,
-                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-            .Visit(shaperBody);
+        VerifyNoClientConstant(shaperBody);
 
-        var shaperLambda = Lambda(
-            shaperBody,
-            QueryCompilationContext.QueryContextParameter,
-            jTokenParameter);
+        // Because the shaper might process the data twice (duplicated shaper),
+        // we pass the data as ROM, and the shaper will create a JsonReaderData where needed.
+        var dataParameter = Parameter(typeof(ReadOnlyMemory<byte>), "data");
+        // The shaper will always read the whole next json token/object, and will know how many bytes that was
+        // we get the amount of bytes read from the shaper, so that we can advance the data in the QueryingEnumerable as needed, without having to scan the data twice (once for shaper, once for advancing the data).
+        var bytesConsumedParameter = Parameter(typeof(int).MakeByRefType(), "bytesConsumed");
+        var shaperLambda = new ShaperProcessingExpressionVisitor(this, selectExpression, dataParameter, bytesConsumedParameter)
+            .ProcessShaper(shaperBody);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
         var shaperConstant = Constant(shaperLambda.Compile());
@@ -172,125 +166,5 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         return builder.Build();
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override void AddStructuralTypeInitialization(StructuralTypeShaperExpression shaper, ParameterExpression instanceVariable, List<ParameterExpression> variables, List<Expression> expressions)
-    {
-        foreach (var complexProperty in shaper.StructuralType.GetComplexProperties())
-        {
-            var member = MakeMemberAccess(instanceVariable, complexProperty.GetMemberInfo(true, true));
-            expressions.Add(complexProperty.IsCollection
-                ? CreateComplexCollectionAssignmentBlock(member, complexProperty)
-                : CreateComplexPropertyAssignmentBlock(member, complexProperty));
-        }
-    }
-
-    private BlockExpression CreateComplexPropertyAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
-    {
-        var jObjectVariable = Parameter(typeof(JObject), "complexJObject" + ++_currentComplexIndex);
-        var assignJObjectVariable = Assign(jObjectVariable,
-            Call(
-                CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JObject)),
-                Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
-                    Constant(complexProperty.GetJsonPropertyName()))));
-
-        var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectVariable);
-        if (complexProperty.IsNullable)
-        {
-            materializeExpression = Condition(Equal(jObjectVariable, Constant(null)),
-                Default(complexProperty.ClrType.MakeNullable()),
-                ConvertChecked(materializeExpression, complexProperty.ClrType.MakeNullable()));
-        }
-
-        return Block(
-            [jObjectVariable],
-            [
-                assignJObjectVariable,
-                memberExpression.Assign(materializeExpression)
-            ]
-        );
-    }
-
-    private BlockExpression CreateComplexCollectionAssignmentBlock(MemberExpression memberExpression, IComplexProperty complexProperty)
-    {
-        var complexJArrayVariable = Variable(
-            typeof(JArray),
-            "complexJArray" + ++_currentComplexIndex);
-
-        var assignJArrayVariable = Assign(complexJArrayVariable,
-            Call(
-                CosmosProjectionBindingRemovingExpressionVisitorBase.ToObjectWithSerializerMethodInfo.MakeGenericMethod(typeof(JArray)),
-                Call(_parentJObject, CosmosProjectionBindingRemovingExpressionVisitorBase.GetItemMethodInfo,
-                    Constant(complexProperty.GetJsonPropertyName()))));
-
-        var jObjectParameter = Parameter(typeof(JObject), "complexJObject" + _currentComplexIndex);
-        var materializeExpression = CreateComplexTypeMaterializeExpression(complexProperty, jObjectParameter);
-
-        var select = Call(
-                    EnumerableMethods.Select.MakeGenericMethod(typeof(JObject), complexProperty.ComplexType.ClrType),
-                    Call(
-                        EnumerableMethods.Cast.MakeGenericMethod(typeof(JObject)),
-                        complexJArrayVariable),
-                    Lambda(materializeExpression, jObjectParameter));
-
-        Expression populateExpression =
-            Call(
-                CosmosProjectionBindingRemovingExpressionVisitorBase.PopulateCollectionMethodInfo.MakeGenericMethod(complexProperty.ComplexType.ClrType, complexProperty.ClrType),
-                Constant(complexProperty.GetCollectionAccessor()),
-                select);
-
-        if (complexProperty.IsNullable)
-        {
-            populateExpression = Condition(Equal(complexJArrayVariable, Constant(null)),
-                Default(complexProperty.ClrType.MakeNullable()),
-                ConvertChecked(populateExpression, complexProperty.ClrType.MakeNullable()));
-        }
-
-        return Block(
-            [complexJArrayVariable],
-            [
-                assignJArrayVariable,
-                memberExpression.Assign(populateExpression)
-            ]
-        );
-    }
-
-    private Expression CreateComplexTypeMaterializeExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter)
-    {
-        var tempValueBuffer = new ComplexPropertyBindingExpression(complexProperty, jObjectParameter);
-        var structuralTypeShaperExpression = new StructuralTypeShaperExpression(
-            complexProperty.ComplexType,
-            tempValueBuffer,
-            false);
-
-        var oldParentJObject = _parentJObject;
-        _parentJObject = jObjectParameter;
-        var materializeExpression = InjectStructuralTypeMaterializers(structuralTypeShaperExpression);
-        _parentJObject = oldParentJObject;
-
-        if (complexProperty.ComplexType.ClrType.IsNullableType())
-        {
-            materializeExpression = Condition(Equal(jObjectParameter, Constant(null)),
-                Default(complexProperty.ComplexType.ClrType),
-                materializeExpression);
-        }
-
-        return materializeExpression;
-    }
-
-    private sealed class ComplexPropertyBindingExpression(IComplexProperty complexProperty, ParameterExpression jObjectParameter) : Expression
-    {
-        public override Type Type => typeof(ValueBuffer);
-
-        public override ExpressionType NodeType => ExpressionType.Extension;
-
-        public IComplexProperty ComplexProperty { get; } = complexProperty;
-        public ParameterExpression JObjectParameter { get; } = jObjectParameter;
     }
 }

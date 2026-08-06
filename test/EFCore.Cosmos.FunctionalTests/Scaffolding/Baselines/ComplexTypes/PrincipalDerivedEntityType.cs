@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -30,7 +29,7 @@ public partial class PrincipalDerivedEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>",
             typeof(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalDerived",
             propertyCount: 0,
             complexPropertyCount: 2);
@@ -76,7 +75,7 @@ public partial class PrincipalDerivedEntityType
                 CompiledModelTestBase.DependentBase<byte?> (IInternalEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(complexProperty));
             complexProperty.SetPropertyIndexes(
                 index: 2,
-                originalValueIndex: 36,
+                originalValueIndex: 35,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -116,16 +115,15 @@ public partial class PrincipalDerivedEntityType
             id.SetAccessors(
                 byte? (IInternalEntry entry) => (PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))) == null ? default(byte? ) : DependentBaseUnsafeAccessors<byte?>.Id(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))))),
                 byte? (IInternalEntry entry) => (PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))) == null ? default(byte? ) : DependentBaseUnsafeAccessors<byte?>.Id(PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.Dependent(((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(entry.Entity))))),
-                byte? (IInternalEntry entry) => entry.ReadOriginalValue<byte?>(id, 37),
+                byte? (IInternalEntry entry) => entry.ReadOriginalValue<byte?>(id, 36),
                 byte? (IInternalEntry entry) => entry.GetCurrentValue<byte?>(id));
             id.SetPropertyIndexes(
-                index: 35,
-                originalValueIndex: 37,
+                index: 34,
+                originalValueIndex: 36,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            id.TypeMapping = CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance);
+            id.TypeMapping = CosmosTypeMapping<byte>.Default;
             id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
 
             return complexProperty;
@@ -175,7 +173,7 @@ public partial class PrincipalDerivedEntityType
                 IList<CompiledModelTestBase.OwnedType> (IInternalEntry entry) => entry.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(complexProperty));
             complexProperty.SetPropertyIndexes(
                 index: 0,
-                originalValueIndex: 38,
+                originalValueIndex: 37,
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
@@ -236,8 +234,7 @@ public partial class PrincipalDerivedEntityType
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            details.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            details.TypeMapping = CosmosTypeMapping<string>.Default;
             details.AddAnnotation("foo", "bar");
 
             var number = complexType.AddProperty(
@@ -294,8 +291,7 @@ public partial class PrincipalDerivedEntityType
                 shadowIndex: -1,
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
-            number.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+            number.TypeMapping = CosmosTypeMapping<int>.Default;
 
             var refTypeEnumerable = complexType.AddProperty(
                 "RefTypeEnumerable",
@@ -356,8 +352,7 @@ public partial class PrincipalDerivedEntityType
                 keyComparer: ValueComparer<IEnumerable<string>>.Default,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                    jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                elementMapping: CosmosTypeMapping<string>.Default);
             var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
             refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -420,8 +415,7 @@ public partial class PrincipalDerivedEntityType
                 keyComparer: ValueComparer<IList<string>>.Default,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                    jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                elementMapping: CosmosTypeMapping<string>.Default);
             var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
             refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -484,8 +478,7 @@ public partial class PrincipalDerivedEntityType
                 keyComparer: ValueComparer<DateTime[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<DateTime>.Default.Clone(
-                    jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+                elementMapping: CosmosTypeMapping<DateTime>.Default);
             var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
             valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -548,8 +541,7 @@ public partial class PrincipalDerivedEntityType
                 keyComparer: ValueComparer<IEnumerable<byte>>.Default,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                    jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                elementMapping: CosmosTypeMapping<byte>.Default);
             var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
             valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -612,8 +604,7 @@ public partial class PrincipalDerivedEntityType
                 keyComparer: ValueComparer<IList<byte>>.Default,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                    jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                elementMapping: CosmosTypeMapping<byte>.Default);
             var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
             valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -676,8 +667,7 @@ public partial class PrincipalDerivedEntityType
                 keyComparer: ValueComparer<List<short>>.Default,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                    jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+                elementMapping: CosmosTypeMapping<short>.Default);
             var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
             valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
@@ -1125,8 +1115,7 @@ public partial class PrincipalDerivedEntityType
                     shadowIndex: -1,
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
-                id.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-                    jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+                id.TypeMapping = CosmosTypeMapping<long>.Default;
                 id.SetComparer(new NullableValueComparer<long>(id.TypeMapping.Comparer));
 
                 var refTypeEnumerable = complexType.AddProperty(
@@ -1190,8 +1179,7 @@ public partial class PrincipalDerivedEntityType
                     keyComparer: ValueComparer<IEnumerable<string>>.Default,
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                         JsonStringReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                        jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                    elementMapping: CosmosTypeMapping<string>.Default);
                 var refTypeEnumerableElementType = refTypeEnumerable.SetElementType(typeof(string));
                 refTypeEnumerableElementType.TypeMapping = refTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -1256,8 +1244,7 @@ public partial class PrincipalDerivedEntityType
                     keyComparer: ValueComparer<IList<string>>.Default,
                     jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                         JsonStringReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                        jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+                    elementMapping: CosmosTypeMapping<string>.Default);
                 var refTypeIListElementType = refTypeIList.SetElementType(typeof(string));
                 refTypeIListElementType.TypeMapping = refTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -1322,8 +1309,7 @@ public partial class PrincipalDerivedEntityType
                     keyComparer: ValueComparer<DateTime[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                         JsonDateTimeReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<DateTime>.Default.Clone(
-                        jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
+                    elementMapping: CosmosTypeMapping<DateTime>.Default);
                 var valueTypeArrayElementType = valueTypeArray.SetElementType(typeof(DateTime));
                 valueTypeArrayElementType.TypeMapping = valueTypeArray.TypeMapping.ElementTypeMapping;
 
@@ -1388,8 +1374,7 @@ public partial class PrincipalDerivedEntityType
                     keyComparer: ValueComparer<IEnumerable<byte>>.Default,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                         JsonByteReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                        jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                    elementMapping: CosmosTypeMapping<byte>.Default);
                 var valueTypeEnumerableElementType = valueTypeEnumerable.SetElementType(typeof(byte));
                 valueTypeEnumerableElementType.TypeMapping = valueTypeEnumerable.TypeMapping.ElementTypeMapping;
 
@@ -1454,8 +1439,7 @@ public partial class PrincipalDerivedEntityType
                     keyComparer: ValueComparer<IList<byte>>.Default,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                         JsonByteReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                        jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+                    elementMapping: CosmosTypeMapping<byte>.Default);
                 var valueTypeIListElementType = valueTypeIList.SetElementType(typeof(byte));
                 valueTypeIListElementType.TypeMapping = valueTypeIList.TypeMapping.ElementTypeMapping;
 
@@ -1520,8 +1504,7 @@ public partial class PrincipalDerivedEntityType
                     keyComparer: ValueComparer<List<short>>.Default,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                         JsonInt16ReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                        jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+                    elementMapping: CosmosTypeMapping<short>.Default);
                 var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
                 valueTypeListElementType.TypeMapping = valueTypeList.TypeMapping.ElementTypeMapping;
 
@@ -1533,7 +1516,7 @@ public partial class PrincipalDerivedEntityType
     public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
     {
         var id = runtimeEntityType.FindProperty("Id");
-        var type = runtimeEntityType.FindProperty("$type");
+        var discriminator = runtimeEntityType.FindProperty("Discriminator");
         var enum1 = runtimeEntityType.FindProperty("Enum1");
         var enum2 = runtimeEntityType.FindProperty("Enum2");
         var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1");
@@ -1546,7 +1529,6 @@ public partial class PrincipalDerivedEntityType
         var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList");
         var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList");
         var __id = runtimeEntityType.FindProperty("__id");
-        var __jObject = runtimeEntityType.FindProperty("__jObject");
         var owned = runtimeEntityType.FindComplexProperty("Owned");
         var ownedType = owned.ComplexType;
         var details = ownedType.FindProperty("Details");
@@ -1603,18 +1585,18 @@ public partial class PrincipalDerivedEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType1 = ((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(source.Entity));
-                var liftedArg0 = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, JObject, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(principal))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))))));
+                var liftedArg0 = ((ISnapshot)(new Snapshot<long?, string, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, string, int, IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, Guid, CompiledModelTestBase.AnEnum, CompiledModelTestBase.AnEnum?, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, long?, IEnumerable<string>>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum2))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum1).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum2).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList))))))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)(((IProperty)details).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(details))), ((ValueComparer<int>)(((IProperty)number).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(number)), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList0).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList0))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray0).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray0))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable0).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList0).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList0))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList0).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList0))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(principal))), ((ValueComparer<Guid>)(((IProperty)alternateId).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)(((IProperty)enum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), (source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20) == null ? null : ((ValueComparer<CompiledModelTestBase.AnEnum?>)(((IProperty)enum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum?>(enum20))), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum10).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)(((IProperty)flagsEnum20).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)), (source.GetCurrentValue<long?>(id0) == null ? null : ((ValueComparer<long?>)(((IProperty)id0).GetValueComparer())).Snapshot(source.GetCurrentValue<long?>(id0))), (((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))))));
                 var structuralType2 = ((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>)(source.Entity));
-                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg0, ((ISnapshot)(new Snapshot<IEnumerable<string>, IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, byte?, object>((((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))) == null ? null : ((IEnumerable<string>)(((ValueComparer<object>)(((IProperty)refTypeEnumerable1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1))))))), (((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(dependent))), (source.GetCurrentValue<byte?>(id1) == null ? null : ((ValueComparer<byte?>)(((IProperty)id1).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id1))), SnapshotFactoryFactory.SnapshotComplexCollection(((IList)(source.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(manyOwned))), manyOwned)))) })));
+                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg0, ((ISnapshot)(new Snapshot<IList<string>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, object, byte?, object>((((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))) == null ? null : ((IList<string>)(((ValueComparer<object>)(((IProperty)refTypeIList1).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IList<string>>(refTypeIList1))))))), (((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))) == null ? null : ((DateTime[])(((ValueComparer<IEnumerable<DateTime>>)(((IProperty)valueTypeArray1).GetValueComparer())).Snapshot(((IEnumerable<DateTime>)(source.GetCurrentValue<DateTime[]>(valueTypeArray1))))))), (source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeEnumerable1).GetValueComparer())).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1))), (((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))) == null ? null : ((IList<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)valueTypeIList1).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IList<byte>>(valueTypeIList1))))))), (((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))) == null ? null : ((List<short>)(((ValueComparer<IEnumerable<short>>)(((IProperty)valueTypeList1).GetValueComparer())).Snapshot(((IEnumerable<short>)(source.GetCurrentValue<List<short>>(valueTypeList1))))))), ((object)(source.GetCurrentValue<CompiledModelTestBase.DependentBase<byte?>>(dependent))), (source.GetCurrentValue<byte?>(id1) == null ? null : ((ValueComparer<byte?>)(((IProperty)id1).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(id1))), SnapshotFactoryFactory.SnapshotComplexCollection(((IList)(source.GetCurrentValue<IList<CompiledModelTestBase.OwnedType>>(manyOwned))), manyOwned)))) })));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
             ISnapshot () => ((ISnapshot)(new Snapshot<long?>((default(long? ) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetValueComparer())).Snapshot(default(long? )))))));
         runtimeEntityType.SetTemporaryValuesFactory(
             ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<long?>(default(long? )))));
         runtimeEntityType.SetShadowValuesFactory(
-            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, long?, string, JObject>((source.ContainsKey("$type") ? ((string)(source["$type"])) : null), (source.ContainsKey("PrincipalBaseId") ? ((long? )(source["PrincipalBaseId"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, long?, string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("PrincipalBaseId") ? ((long? )(source["PrincipalBaseId"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
         runtimeEntityType.SetEmptyShadowValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<string, long?, string, JObject>(default(string), default(long? ), default(string), default(JObject)))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<string, long?, string>(default(string), default(long? ), default(string)))));
         runtimeEntityType.SetRelationshipSnapshotFactory(
             ISnapshot (IInternalEntry source) =>
             {
@@ -1622,12 +1604,12 @@ public partial class PrincipalDerivedEntityType
                 return ((ISnapshot)(new Snapshot<long?, long?, object>((source.GetCurrentValue<long?>(id) == null ? null : ((ValueComparer<long?>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(id))), (source.GetCurrentValue<long?>(principalBaseId) == null ? null : ((ValueComparer<long?>)(((IProperty)principalBaseId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(principalBaseId))), SnapshotFactoryFactory.SnapshotCollection(source.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 36,
+            propertyCount: 35,
             navigationCount: 1,
             complexPropertyCount: 3,
             complexCollectionCount: 1,
-            originalValueCount: 39,
-            shadowCount: 4,
+            originalValueCount: 38,
+            shadowCount: 3,
             relationshipCount: 3,
             storeGeneratedCount: 1));
 

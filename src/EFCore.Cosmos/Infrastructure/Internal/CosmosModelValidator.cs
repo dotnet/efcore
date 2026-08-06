@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
@@ -291,7 +292,8 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                             currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput,
                             container));
                 }
-                else if ((throughput.AutoscaleMaxThroughput == null)
+                else if (throughput.AutoscaleMaxThroughput
+                         == null
                          != (currentThroughput.AutoscaleMaxThroughput == null))
                 {
                     var conflictingEntityType = mappedTypes.First(et => et.GetThroughput() != null);
@@ -332,11 +334,11 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
             }
 
             var currentEnabled = entityType.BaseType is null
-                 ? (bool?)entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled)?.Value
-                 : null;
-             var currentExceptions = entityType.BaseType is null
-                 ? (IReadOnlyList<string>?)entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions)?.Value
-                 : null;
+                ? (bool?)entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingEnabled)?.Value
+                : null;
+            var currentExceptions = entityType.BaseType is null
+                ? (IReadOnlyList<string>?)entityType.FindAnnotation(CosmosAnnotationNames.AutomaticIndexingExceptions)?.Value
+                : null;
             if (currentEnabled is not null || currentExceptions is not null)
             {
                 if (automaticIndexingOwner is null)
@@ -362,7 +364,8 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                     // them when it is disabled.
                     if ((automaticIndexingEnabled ?? true)
                         && ((currentExceptions is null) != (automaticIndexingExceptions is null)
-                            || (currentExceptions is not null && automaticIndexingExceptions is not null
+                            || (currentExceptions is not null
+                                && automaticIndexingExceptions is not null
                                 && !currentExceptions.SequenceEqual(automaticIndexingExceptions, StringComparer.Ordinal))))
                     {
                         throw new InvalidOperationException(
@@ -409,7 +412,6 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
             }
         }
     }
-
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -510,13 +512,9 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var properties = new Dictionary<string, IPropertyBase>();
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetProperties().Where(x => x.IsPersisted()))
         {
             var jsonName = property.GetJsonPropertyName();
-            if (string.IsNullOrWhiteSpace(jsonName))
-            {
-                continue;
-            }
 
             if (properties.TryGetValue(jsonName, out var otherProperty))
             {
@@ -619,8 +617,7 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                     string.Join(",", index.Properties.Select(e => e.Name))));
         }
 
-        var firstVectorIndexProperty = index.Properties[0] as IProperty;
-        if (firstVectorIndexProperty == null
+        if (index.Properties[0] is not IProperty firstVectorIndexProperty
             || firstVectorIndexProperty.GetVectorDistanceFunction() == null
             || firstVectorIndexProperty.GetVectorDimensions() == null)
         {
@@ -649,8 +646,7 @@ public class CosmosModelValidator(ModelValidatorDependencies dependencies) : Mod
                     string.Join(",", index.Properties.Select(e => e.Name))));
         }
 
-        var firstFullTextProperty = index.Properties[0] as IProperty;
-        if (firstFullTextProperty == null
+        if (index.Properties[0] is not IProperty firstFullTextProperty
             || firstFullTextProperty.GetIsFullTextSearchEnabled() != true)
         {
             throw new InvalidOperationException(

@@ -38,18 +38,12 @@ public class DbContextServices : IDbContextServices
         var providers = _scopedProvider.GetService<IEnumerable<IDatabaseProvider>>()?.ToList();
         var providerCount = providers?.Count ?? 0;
 
-        if (providerCount > 1)
-        {
-            throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers!)));
-        }
-
-        if (providerCount == 0
-            || !providers![0].IsConfigured(contextOptions))
-        {
-            throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
-        }
-
-        return this;
+        return providerCount > 1
+            ? throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers!)))
+            : providerCount == 0
+            || !providers![0].IsConfigured(contextOptions)
+                ? throw new InvalidOperationException(CoreStrings.NoProviderConfigured)
+                : (IDbContextServices)this;
     }
 
     private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
@@ -99,7 +93,7 @@ public class DbContextServices : IDbContextServices
             }
 
             if (modelFromOptions == null
-                || (designTime && !(modelFromOptions is Model)))
+                || (designTime && modelFromOptions is not Metadata.Internal.Model))
             {
                 return RuntimeFeature.IsDynamicCodeSupported
                     ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)

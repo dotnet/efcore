@@ -1433,23 +1433,21 @@ GROUP BY "b"."Int"
     }
 
     public override Task Join_non_aggregate()
-        => AssertTranslationFailed(() => base.Join_non_aggregate());
+        => AssertTranslationFailed(base.Join_non_aggregate);
 
     [Fact]
     public virtual async Task Join_with_distinct()
-    {
-        // SQLite's group_concat() accepts only a single argument when DISTINCT is used, so it cannot be combined
-        // with the separator that string.Join always supplies ("DISTINCT aggregates must have exactly one argument").
-        // We therefore don't translate it; the query then falls back to APPLY, which SQLite does not support.
-        Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
+        =>
+            // SQLite's group_concat() accepts only a single argument when DISTINCT is used, so it cannot be combined
+            // with the separator that string.Join always supplies ("DISTINCT aggregates must have exactly one argument").
+            // We therefore don't translate it; the query then falls back to APPLY, which SQLite does not support.
+            Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
                     ss => ss.Set<BasicTypesEntity>()
                         .GroupBy(c => c.Int)
                         .Select(g => new { g.Key, Strings = string.Join("|", g.Select(e => e.String).Distinct()) }),
                     elementSorter: x => x.Key))).Message);
-    }
 
     #endregion Join
 

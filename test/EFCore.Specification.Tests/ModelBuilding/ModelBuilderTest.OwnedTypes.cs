@@ -286,11 +286,8 @@ public abstract partial class ModelBuilderTest
                     nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => customerBuilder.OwnsOne(
                     c => c.Details,
-                    r =>
-                    {
-                        r.HasOne(d => d.Customer)
-                            .WithMany();
-                    })).Message);
+                    r => r.HasOne(d => d.Customer)
+                        .WithMany())).Message);
         }
 
         [Fact]
@@ -829,7 +826,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.AmbiguousOwnedNavigation(
                     "Book.AlternateLabel#BookLabel.Book",
                     nameof(Book)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -1147,14 +1144,17 @@ public abstract partial class ModelBuilderTest
 
             var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
             Assert.NotNull(ownedPkProperty.GetValueConverter());
+            Assert.Null(ownedPkProperty.GetElementType());
 
             var category = model.FindEntityType(typeof(ValueCategory));
             Assert.Null(category.FindProperty("TempId"));
+            Assert.Null(category.FindPrimaryKey().Properties.Single().GetElementType());
 
             var categoryNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
             Assert.Same(category, categoryNavigation.TargetEntityType);
             var fkProperty = categoryNavigation.ForeignKey.Properties.Single();
             Assert.Equal("CategoryId", fkProperty.Name);
+            Assert.Null(fkProperty.GetElementType());
 
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
@@ -1185,6 +1185,42 @@ public abstract partial class ModelBuilderTest
 
             var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
             Assert.NotNull(ownedPkProperty.GetValueConverter());
+            Assert.Null(ownedPkProperty.GetElementType());
+
+            Assert.DoesNotContain(owned.GetDeclaredNavigations(), n => !n.ForeignKey.IsOwnership);
+            Assert.Equal(2, model.GetEntityTypes().Count());
+        }
+
+        [Fact]
+        public virtual void Can_configure_relationship_with_PK_ValueConverter_after_FK()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<QueryResult>(eb => eb.OwnsOne(q => q.Value)
+                .WithOwner()
+                .HasForeignKey(q => q.CategoryId));
+
+            // Configure the value converter on the principal key after the foreign key has been created.
+            // This recreates the principal key property as a scalar, which must also recreate the dependent
+            // foreign key property (a primitive collection by default) as a scalar.
+            modelBuilder.Entity<QueryResult>()
+                .Property(x => x.Id)
+                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+
+            modelBuilder.Ignore<ValueCategory>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var result = model.FindEntityType(typeof(QueryResult));
+            Assert.Null(result.FindProperty("TempId"));
+            Assert.Null(result.FindPrimaryKey().Properties.Single().GetElementType());
+
+            var owned = result.GetDeclaredNavigations().Single().TargetEntityType;
+            Assert.Null(owned.FindProperty("TempId"));
+
+            var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
+            Assert.NotNull(ownedPkProperty.GetValueConverter());
+            Assert.Null(ownedPkProperty.GetElementType());
 
             Assert.DoesNotContain(owned.GetDeclaredNavigations(), n => !n.ForeignKey.IsOwnership);
             Assert.Equal(2, model.GetEntityTypes().Count());
@@ -1208,7 +1244,7 @@ public abstract partial class ModelBuilderTest
                     nameof(BookLabel),
                     nameof(Book) + "." + nameof(Book.AlternateLabel),
                     "{'" + nameof(BookLabel.BookId) + "'}"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -1293,26 +1329,20 @@ public abstract partial class ModelBuilderTest
                 });
 
             modelBuilder.Entity<Book>().OwnsOne(
-                b => b.Label, bb =>
-                {
-                    bb.OwnsOne(
-                        l => l.SpecialBookLabel, sb =>
-                        {
-                            sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
-                            sb.Ignore(l => l.Book);
-                        });
-                });
+                b => b.Label, bb => bb.OwnsOne(
+                    l => l.SpecialBookLabel, sb =>
+                    {
+                        sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
+                        sb.Ignore(l => l.Book);
+                    }));
 
             modelBuilder.Entity<Book>().OwnsOne(
-                b => b.AlternateLabel, bb =>
-                {
-                    bb.OwnsOne(
-                        l => l.SpecialBookLabel, sb =>
-                        {
-                            sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
-                            sb.Ignore(l => l.Book);
-                        });
-                });
+                b => b.AlternateLabel, bb => bb.OwnsOne(
+                    l => l.SpecialBookLabel, sb =>
+                    {
+                        sb.OwnsOne(l => l.AnotherBookLabel).Ignore(l => l.Book);
+                        sb.Ignore(l => l.Book);
+                    }));
 
             modelBuilder.Entity<BookDetails>();
 
@@ -1585,20 +1615,14 @@ public abstract partial class ModelBuilderTest
             {
                 HasPrecision(b.Property(x => x.Number), mainPrecision, mainScale);
                 b.OwnsOne(
-                    b => b.OwnedEntity, b =>
-                    {
-                        HasPrecision(b.Property(x => x.Number), onePrecision, oneScale);
-                    });
+                    b => b.OwnedEntity, b => HasPrecision(b.Property(x => x.Number), onePrecision, oneScale));
             });
 
             modelBuilder.Entity<OtherOtter>(b =>
             {
                 HasPrecision(b.Property(x => x.Number), otherPrecision, otherScale);
                 b.OwnsMany(
-                    b => b.OwnedEntities, b =>
-                    {
-                        HasPrecision(b.Property(x => x.Number), manyPrecision, manyScale);
-                    });
+                    b => b.OwnedEntities, b => HasPrecision(b.Property(x => x.Number), manyPrecision, manyScale));
             });
 
             var model = modelBuilder.FinalizeModel();
@@ -1620,7 +1644,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(manyPrecision ?? defaultPrecision, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
             Assert.Equal(manyScale ?? defaultScale, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
 
-            void HasPrecision(TestPropertyBuilder<decimal> testPropertyBuilder, int? precision, int? scale)
+            static void HasPrecision(TestPropertyBuilder<decimal> testPropertyBuilder, int? precision, int? scale)
             {
                 if (precision.HasValue)
                 {
@@ -1983,20 +2007,14 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<OwnerOfSharedType>(b =>
             {
                 b.OwnsOne(
-                    "Shared1", e => e.Reference, sb =>
-                    {
-                        sb.IndexerProperty<int>("Value");
-                    });
+                    "Shared1", e => e.Reference, sb => sb.IndexerProperty<int>("Value"));
                 b.OwnsMany("Shared2", e => e.Collection).IndexerProperty<bool>("IsDeleted");
                 b.OwnsOne(
                     e => e.OwnedNavigation,
                     o =>
                     {
                         o.OwnsOne(
-                            "Shared3", e => e.Reference, sb =>
-                            {
-                                sb.IndexerProperty<int>("NestedValue");
-                            });
+                            "Shared3", e => e.Reference, sb => sb.IndexerProperty<int>("NestedValue"));
                         o.OwnsMany("Shared4", e => e.Collection).IndexerProperty<long>("NestedLong");
                     });
             });
@@ -2005,8 +2023,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(e => e.Name),
-                t => { Assert.Equal(typeof(NestedOwnerOfSharedType), t.ClrType); },
-                t => { Assert.Equal(typeof(OwnerOfSharedType), t.ClrType); },
+                t => Assert.Equal(typeof(NestedOwnerOfSharedType), t.ClrType),
+                t => Assert.Equal(typeof(OwnerOfSharedType), t.ClrType),
                 t =>
                 {
                     Assert.Equal("Shared1", t.Name);
@@ -2149,8 +2167,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidMember(nameof(Customer.Details), nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<Customer>().Property(c => c.Details.CustomerId)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Customer>().Property(c => c.Details.CustomerId))
+                    .Message);
         }
 
         [Fact]
@@ -2166,8 +2184,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ComplexPropertyChainInvalidMember(nameof(CustomerDetails.Customer), "CustomerDetails"),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Entity<CustomerDetails>().Property<string>("Customer.Name")).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<CustomerDetails>().Property<string>("Customer.Name"))
+                    .Message);
         }
     }
 }

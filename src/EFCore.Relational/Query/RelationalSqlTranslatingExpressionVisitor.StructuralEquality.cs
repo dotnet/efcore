@@ -160,14 +160,15 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
                     // Scope to actually-projected tables when known (entity-splitting).
-                    var tableMap = (nonNullEntityReference.Parameter?.ValueBufferExpression as StructuralTypeProjectionExpression)?.TableMap;
+                    var tableMap = (nonNullEntityReference.Parameter?.ValueBufferExpression as StructuralTypeProjectionExpression)
+                        ?.TableMap;
                     var table = nullComparedEntityType.GetProjectedQueryMappings(tableMap) switch
                     {
                         [var singleMapping] => singleMapping.Table,
 
                         // For entity splitting we get multiple table mappings, but can simply choose the principal table.
                         var multipleMappings when multipleMappings.SingleOrDefault(m => m.IsSplitEntityTypePrincipal is true)
-                            is { Table: var principalSplitTable }
+                                is { Table: var principalSplitTable }
                             => principalSplitTable,
 
                         _ => null
@@ -475,7 +476,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             default:
                                 result = null;
                                 return false;
-                        };
+                        }
+
+                        ;
                     }
                 }
 
@@ -538,8 +541,9 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                             // Find the corresponding property on the right-side complex type (which is different than the left-side complex type,
                             // despite the two having the same CLR type, e.g. compare ShippingAddress to BillingAddress)
                             var rightComplexProperty = secondComplexType!.FindComplexProperty(firstComplexProperty.Name)
-                                ?? throw new InvalidOperationException(RelationalStrings.IncompatibleComplexTypesInComparison(
-                                    firstComplexType.DisplayName(), secondComplexType.DisplayName(), firstComplexProperty.Name));
+                                ?? throw new InvalidOperationException(
+                                    RelationalStrings.IncompatibleComplexTypesInComparison(
+                                        firstComplexType.DisplayName(), secondComplexType.DisplayName(), firstComplexProperty.Name));
                             nestedRight = BindComplexProperty(rightReference, rightComplexProperty);
                             nestedRightType = rightComplexProperty.ComplexType;
                             break;
@@ -549,7 +553,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor
                     }
 
                     if (!TryGenerateComparisons(
-                        nestedLeftType, nestedRightType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
+                            nestedLeftType, nestedRightType, nestedLeft, nestedRight, ref comparisons, out exitImmediately))
                     {
                         return false;
                     }

@@ -579,6 +579,15 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 property.GetColumnName());
         }
 
+        if (!annotations.ContainsKey(RelationalAnnotationNames.JsonPropertyName)
+            && property.GetJsonPropertyName() is { } jsonPropertyName
+            && property.Name != jsonPropertyName)
+        {
+            annotations[RelationalAnnotationNames.JsonPropertyName] = new Annotation(
+                RelationalAnnotationNames.JsonPropertyName,
+                jsonPropertyName);
+        }
+
         return Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(annotations.Values)
             .ToDictionary(a => a.Name, a => a);
@@ -952,21 +961,23 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var collectionSegmentIndex = (collectionIndices?.Count ?? 0) - 1;
 
         // The indexed leaf may itself be a complex collection (e.g. "Posts[]" / "Posts[3]").
-        segments.Add(BuildSegment(
-            property.Name,
-            property is IComplexProperty { IsCollection: true },
-            collectionIndices,
-            ref collectionSegmentIndex));
+        segments.Add(
+            BuildSegment(
+                property.Name,
+                property is IComplexProperty { IsCollection: true },
+                collectionIndices,
+                ref collectionSegmentIndex));
 
         var declaringType = property.DeclaringType;
         while (declaringType is IComplexType complexType)
         {
             var complexProperty = complexType.ComplexProperty;
-            segments.Add(BuildSegment(
-                complexProperty.Name,
-                complexProperty.IsCollection,
-                collectionIndices,
-                ref collectionSegmentIndex));
+            segments.Add(
+                BuildSegment(
+                    complexProperty.Name,
+                    complexProperty.IsCollection,
+                    collectionIndices,
+                    ref collectionSegmentIndex));
 
             declaringType = complexProperty.DeclaringType;
         }
@@ -987,9 +998,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             var indexEntry = collectionIndices?[collectionSegmentIndex];
             collectionSegmentIndex--;
-            return name + (indexEntry is null
-                ? "[]"
-                : "[" + indexEntry.Value.ToString(CultureInfo.InvariantCulture) + "]");
+            return name
+                + (indexEntry is null
+                    ? "[]"
+                    : "[" + indexEntry.Value.ToString(CultureInfo.InvariantCulture) + "]");
         }
     }
 
@@ -2206,17 +2218,22 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             return entityTypeName;
         }
 
-        if (entityType.HasSharedClrType
-            && entityTypeName
-            == ownership.PrincipalEntityType.GetOwnedName(
-                entityType.ClrType.ShortDisplayName(), ownership.PrincipalToDependent!.Name))
+        var ownerNavigation = ownership.PrincipalToDependent!.Name;
+        if (entityType.HasSharedClrType)
         {
-            entityTypeName = entityType.ClrType.DisplayName();
+            if (entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ClrType.DisplayName();
+            }
+            else if (entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ShortName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ShortName();
+            }
         }
 
         return GetFullName(ownership.PrincipalEntityType)
             + "."
-            + ownership.PrincipalToDependent!.Name
+            + ownerNavigation
             + "#"
             + entityTypeName;
     }

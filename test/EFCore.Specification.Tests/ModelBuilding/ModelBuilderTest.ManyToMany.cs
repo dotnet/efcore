@@ -634,7 +634,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey(nameof(SelfRefManyToOne)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [Fact]
@@ -709,12 +709,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArtMatching>(entity =>
-            {
-                entity.HasMany(d => d.MotorBauArtMatching)
-                    .WithMany(p => p.MotorArtMatching)
-                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMatching");
-            });
+            modelBuilder.Entity<MotorArtMatching>(entity => entity.HasMany(d => d.MotorBauArtMatching)
+                .WithMany(p => p.MotorArtMatching)
+                .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMatching"));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -782,12 +779,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<MotorArtMismatching>(entity =>
-            {
-                entity.HasMany(d => d.MotorBauArtMismatching)
-                    .WithMany(p => p.MotorArtMismatching)
-                    .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMismatching");
-            });
+            modelBuilder.Entity<MotorArtMismatching>(entity => entity.HasMany(d => d.MotorBauArtMismatching)
+                .WithMany(p => p.MotorArtMismatching)
+                .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMismatching"));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -970,7 +964,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
             modelBuilder.FinalizeModel();
         }
@@ -1032,7 +1026,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
             modelBuilder.FinalizeModel();
         }
@@ -1096,7 +1090,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
             modelBuilder.FinalizeModel();
         }
@@ -1339,7 +1333,7 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.NavigationNotAdded(
                     typeof(AmbiguousManyToManyImplicitLeft).DisplayName(fullName: false), "Navigation1",
                     typeof(List<AmbiguousManyToManyImplicitRight>).DisplayName(fullName: false)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
     }
 }

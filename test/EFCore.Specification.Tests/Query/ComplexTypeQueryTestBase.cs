@@ -301,7 +301,8 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Project_nullable_struct_complex_type_via_optional_navigation(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<ValuedCustomerGroup>().Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : (AddressStruct?)null));
+            ss => ss.Set<ValuedCustomerGroup>()
+                .Select(cg => cg.OptionalCustomer != null ? cg.OptionalCustomer.ShippingAddress : (AddressStruct?)null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_struct_complex_type_via_required_navigation(bool async)
@@ -720,7 +721,7 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.Complex?.Two, a.Complex?.Two);
             });
 
-    [Theory(Skip = "issue #31376"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(bool async)
         => AssertQuery(
             async,

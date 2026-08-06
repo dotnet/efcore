@@ -64,13 +64,11 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
         public DbSet<JsonTranslationsEntity> JsonEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<JsonTranslationsEntity>(b =>
+            => modelBuilder.Entity<JsonTranslationsEntity>(b =>
             {
                 b.ComplexProperty(j => j.JsonComplexType, j => j.ToJson());
                 b.OwnsOne(j => j.JsonOwnedType, j => j.ToJson());
             });
-        }
     }
 
     // The translation tests usually use BasicTypesQueryFixtureBase, which manages a single database with all the data needed for the tests.
@@ -157,78 +155,53 @@ public abstract class JsonTranslationsRelationalTestBase<TFixture>(TFixture fixt
                 ? (IQueryable<TEntity>)JsonTranslationsEntities.AsQueryable()
                 : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 
-        public static IReadOnlyList<JsonTranslationsEntity> CreateJsonTranslationsEntities() =>
-        [
-            // In the following, JsonString should correspond exactly to JsonComplexType and JsonOwnedType;
-            // we don't currently support mapping both a string scalar property and a complex/owned JSON property
-            // to the same column in the database.
+        public static IReadOnlyList<JsonTranslationsEntity> CreateJsonTranslationsEntities()
+            =>
+            [
+                // In the following, JsonString should correspond exactly to JsonComplexType and JsonOwnedType;
+                // we don't currently support mapping both a string scalar property and a complex/owned JSON property
+                // to the same column in the database.
 
-            new()
-            {
-                Id = 1,
-                JsonString = """{ "RequiredInt": 8, "OptionalInt": 8 }""",
-                JsonComplexType = new()
+                new()
                 {
-                    RequiredInt = 8,
-                    OptionalInt = 8
+                    Id = 1,
+                    JsonString = """{ "RequiredInt": 8, "OptionalInt": 8 }""",
+                    JsonComplexType = new JsonComplexType { RequiredInt = 8, OptionalInt = 8 },
+                    JsonOwnedType = new JsonOwnedType { RequiredInt = 8, OptionalInt = 8 }
                 },
-                JsonOwnedType = new()
+                // Different values
+                new()
                 {
-                    RequiredInt = 8,
-                    OptionalInt = 8
-                }
-            },
-            // Different values
-            new()
-            {
-                Id = 2,
-                JsonString = """{ "RequiredInt": 9, "OptionalInt": 9 }""",
-                JsonComplexType = new()
-                {
-                    RequiredInt = 9,
-                    OptionalInt = 9
+                    Id = 2,
+                    JsonString = """{ "RequiredInt": 9, "OptionalInt": 9 }""",
+                    JsonComplexType = new JsonComplexType { RequiredInt = 9, OptionalInt = 9 },
+                    JsonOwnedType = new JsonOwnedType { RequiredInt = 9, OptionalInt = 9 }
                 },
-                JsonOwnedType = new()
+                // OptionalInt is null.
+                new()
                 {
-                    RequiredInt = 9,
-                    OptionalInt = 9
-                }
-            },
-            // OptionalInt is null.
-            new()
-            {
-                Id = 3,
-                JsonString = """{ "RequiredInt": 10, "OptionalInt": null }""",
-                JsonComplexType = new()
-                {
-                    RequiredInt = 10,
-                    OptionalInt = null
+                    Id = 3,
+                    JsonString = """{ "RequiredInt": 10, "OptionalInt": null }""",
+                    JsonComplexType = new JsonComplexType { RequiredInt = 10, OptionalInt = null },
+                    JsonOwnedType = new JsonOwnedType { RequiredInt = 10, OptionalInt = null }
                 },
-                JsonOwnedType = new()
+                // OptionalInt is missing (not null).
+                // Note that this requires a manual SQL update since EF's complex/owned type support always writes out the property (with null);
+                // any change here requires updating JsonTranslationsQueryContext.SeedAsync as well.
+                new()
                 {
-                    RequiredInt = 10,
-                    OptionalInt = null
+                    Id = 4,
+                    JsonString = """{ "RequiredInt": 10 }""",
+                    JsonComplexType = new JsonComplexType
+                    {
+                        RequiredInt = 10, OptionalInt = null // This will be replaced by a missing property
+                    },
+                    JsonOwnedType = new JsonOwnedType
+                    {
+                        RequiredInt = 10, OptionalInt = null // This will be replaced by a missing property
+                    }
                 }
-            },
-            // OptionalInt is missing (not null).
-            // Note that this requires a manual SQL update since EF's complex/owned type support always writes out the property (with null);
-            // any change here requires updating JsonTranslationsQueryContext.SeedAsync as well.
-            new()
-            {
-                Id = 4,
-                JsonString = """{ "RequiredInt": 10 }""",
-                JsonComplexType = new()
-                {
-                    RequiredInt = 10,
-                    OptionalInt = null // This will be replaced by a missing property
-                },
-                JsonOwnedType = new()
-                {
-                    RequiredInt = 10,
-                    OptionalInt = null // This will be replaced by a missing property
-                }
-            }
-        ];
+            ];
     }
 
     protected JsonTranslationsQueryContext CreateContext()

@@ -843,7 +843,7 @@ WHERE LTRIM([b].[String], N'S') = N'eattle'
         }
         else
         {
-            await AssertTranslationFailed(() => base.TrimStart_with_char_argument());
+            await AssertTranslationFailed(base.TrimStart_with_char_argument);
         }
     }
 
@@ -862,7 +862,7 @@ WHERE LTRIM([b].[String], N'Se') = N'attle'
         }
         else
         {
-            await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument());
+            await AssertTranslationFailed(base.TrimStart_with_char_array_argument);
         }
     }
 
@@ -897,7 +897,7 @@ WHERE RTRIM([b].[String], N'e') = N'Seattl'
         }
         else
         {
-            await AssertTranslationFailed(() => base.TrimEnd_with_char_argument());
+            await AssertTranslationFailed(base.TrimEnd_with_char_argument);
         }
     }
 
@@ -916,7 +916,7 @@ WHERE RTRIM([b].[String], N'le') = N'Seatt'
         }
         else
         {
-            await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument());
+            await AssertTranslationFailed(base.TrimEnd_with_char_array_argument);
         }
     }
 
@@ -939,7 +939,7 @@ WHERE LTRIM(RTRIM([b].[String])) = N'Boston'
     public override async Task Trim_with_char_argument_in_predicate()
     {
         // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_argument_in_predicate);
 
         AssertSql();
     }
@@ -947,7 +947,7 @@ WHERE LTRIM(RTRIM([b].[String])) = N'Boston'
     public override async Task Trim_with_char_array_argument_in_predicate()
     {
         // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_array_argument_in_predicate);
 
         AssertSql();
     }
@@ -1416,15 +1416,12 @@ WHERE [b].[String] >= N'Seattle' AND [b].[String] < N'Toronto'
 
     #region Join
 
-        public override async Task Join_over_non_nullable_column()
+    public override async Task Join_over_non_nullable_column()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2017Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2017Supported");
-
         }
 
         await base.Join_over_non_nullable_column();
@@ -1437,15 +1434,12 @@ GROUP BY [b].[Int]
 """);
     }
 
-        public override async Task Join_over_nullable_column()
+    public override async Task Join_over_nullable_column()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2017Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2017Supported");
-
         }
 
         await base.Join_over_nullable_column();
@@ -1461,15 +1455,12 @@ GROUP BY [n0].[Key]
 """);
     }
 
-        public override async Task Join_with_predicate()
+    public override async Task Join_with_predicate()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2017Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2017Supported");
-
         }
 
         await base.Join_with_predicate();
@@ -1484,15 +1475,12 @@ GROUP BY [b].[Int]
 """);
     }
 
-        public override async Task Join_with_ordering()
+    public override async Task Join_with_ordering()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2017Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2017Supported");
-
         }
 
         await base.Join_with_ordering();
@@ -1505,15 +1493,12 @@ GROUP BY [b].[Int]
 """);
     }
 
-        public override async Task Join_non_aggregate()
+    public override async Task Join_non_aggregate()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2017Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2017Supported");
-
         }
 
         await base.Join_non_aggregate();
@@ -1544,15 +1529,12 @@ WHERE [b].[String] + N'Boston' = N'SeattleBoston'
 """);
     }
 
-        public override async Task Concat_aggregate()
+    public override async Task Concat_aggregate()
     {
-
         if (!SqlServerTestEnvironment.IsFunctions2017Supported)
 
         {
-
             throw SkipException.ForSkip("Requires IsFunctions2017Supported");
-
         }
 
         await base.Concat_aggregate();
@@ -1762,10 +1744,10 @@ WHERE CAST([b].[Int] AS nvarchar(max)) LIKE N'%5%'
     #region Regex
 
     public override Task Regex_IsMatch()
-        => AssertTranslationFailed(() => base.Regex_IsMatch());
+        => AssertTranslationFailed(base.Regex_IsMatch);
 
     public override Task Regex_IsMatch_constant_input()
-        => AssertTranslationFailed(() => base.Regex_IsMatch_constant_input());
+        => AssertTranslationFailed(base.Regex_IsMatch_constant_input);
 
     #endregion Regex
 

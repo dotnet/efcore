@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -31,9 +30,9 @@ public partial class ManyTypesEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
             typeof(CompiledModelTestBase.ManyTypes),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "ManyTypes",
-            propertyCount: 170,
+            propertyCount: 169,
             keyCount: 1);
 
         var id = runtimeEntityType.AddProperty(
@@ -44,12 +43,6 @@ public partial class ManyTypesEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueConverter: new CompiledModelTestBase.ManyTypesIdConverter());
         id.SetSentinelFromProviderValue(0);
-
-        var type = runtimeEntityType.AddProperty(
-            "$type",
-            typeof(string),
-            afterSaveBehavior: PropertySaveBehavior.Throw,
-            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
 
         var @bool = runtimeEntityType.AddProperty(
             "Bool",
@@ -258,6 +251,13 @@ public partial class ManyTypesEntityType
             fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
             valueConverter: new NumberToStringConverter<decimal>());
         decimalNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
+
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var @double = runtimeEntityType.AddProperty(
             "Double",
@@ -1268,15 +1268,6 @@ public partial class ManyTypesEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new IdValueGeneratorFactory().Create);
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

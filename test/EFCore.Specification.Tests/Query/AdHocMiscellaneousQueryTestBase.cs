@@ -239,15 +239,18 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Contacts.AddRange(
                 new ServiceOperatorContact
                 {
-                    UserName = "service.operator@esoterix.co.uk", ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk",
+                    ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact
                 {
-                    UserName = "uwe@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk",
+                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact
                 {
-                    UserName = "hp@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk",
+                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact { UserName = "noroles@esoterix.co.uk" });
 
@@ -302,7 +305,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         using (var context = contextFactory.CreateDbContext())
         {
-            Assert.Throws<InvalidOperationException>(() => context.RunQuery());
+            Assert.Throws<InvalidOperationException>(context.RunQuery);
         }
     }
 
@@ -404,12 +407,12 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             Add(
                 new Blog
                 {
-                    Posts = new List<Post>
-                    {
+                    Posts =
+                    [
                         new() { Title = "First" },
                         new() { Title = "Second" },
                         new() { Title = "Third" }
-                    }
+                    ]
                 });
 
             return SaveChangesAsync();
@@ -632,7 +635,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(0, context.Cache.Count);
 
         var entityParam = Expression.Parameter(typeof(Context8909.Entity), "e");
-        var idPropertyInfo = context.Model.FindEntityType((typeof(Context8909.Entity)))
+        var idPropertyInfo = context.Model.FindEntityType(typeof(Context8909.Entity))
             .FindProperty(nameof(Context8909.Entity.Id))
             .PropertyInfo;
         for (var i = 0; i < 1100; i++)
@@ -957,29 +960,27 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     {
         var contextFactory = await InitializeNonSharedTest<Context12549>();
 
-        using (var context = contextFactory.CreateDbContext())
-        {
-            var id1 = 1;
-            var id2 = 2;
+        using var context = contextFactory.CreateDbContext();
+        var id1 = 1;
+        var id2 = 2;
 
-            var ids1 = context.Set<Context12549.Table1>()
-                .Where(x => x.Id == id1)
-                .Select(x => x.Id);
+        var ids1 = context.Set<Context12549.Table1>()
+            .Where(x => x.Id == id1)
+            .Select(x => x.Id);
 
-            var ids2 = context.Set<Context12549.Table2>()
-                .Where(x => x.Id == id2)
-                .Select(x => x.Id);
+        var ids2 = context.Set<Context12549.Table2>()
+            .Where(x => x.Id == id2)
+            .Select(x => x.Id);
 
-            var results = ids1.Union(ids2).ToList();
+        var results = ids1.Union(ids2).ToList();
 
-            context.AddRange(
-                new Context12549.Table1(),
-                new Context12549.Table2(),
-                new Context12549.Table1(),
-                new Context12549.Table2());
+        context.AddRange(
+            new Context12549.Table1(),
+            new Context12549.Table2(),
+            new Context12549.Table1(),
+            new Context12549.Table2());
 
-            await context.SaveChangesAsync();
-        }
+        await context.SaveChangesAsync();
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
@@ -1318,33 +1319,27 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IceCream>(entity =>
-            {
-                entity.HasData(
-                    new IceCream
-                    {
-                        IceCreamId = 1,
-                        Name = "Vanilla",
-                        Taste = (byte)Taste.Sweet
-                    },
-                    new IceCream
-                    {
-                        IceCreamId = 2,
-                        Name = "Chocolate",
-                        Taste = (byte)Taste.Sweet
-                    },
-                    new IceCream
-                    {
-                        IceCreamId = 3,
-                        Name = "Match",
-                        Taste = (byte)Taste.Bitter
-                    });
-            });
+            modelBuilder.Entity<IceCream>(entity => entity.HasData(
+                new IceCream
+                {
+                    IceCreamId = 1,
+                    Name = "Vanilla",
+                    Taste = (byte)Taste.Sweet
+                },
+                new IceCream
+                {
+                    IceCreamId = 2,
+                    Name = "Chocolate",
+                    Taste = (byte)Taste.Sweet
+                },
+                new IceCream
+                {
+                    IceCreamId = 3,
+                    Name = "Match",
+                    Taste = (byte)Taste.Bitter
+                }));
 
-            modelBuilder.Entity<Food>(entity =>
-            {
-                entity.HasData(new Food { Id = 1, Taste = null });
-            });
+            modelBuilder.Entity<Food>(entity => entity.HasData(new Food { Id = 1, Taste = null }));
         }
 
         public enum Taste : byte
@@ -1422,15 +1417,13 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id
             {
-                get => _id;
+                get;
                 set
                 {
-                    _id = value;
+                    field = value;
                     Event?.Invoke();
                 }
             }
-
-            private int _id;
 
             public event Action Event;
         }
@@ -1637,7 +1630,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                 o => o.OrderId,
                 (o, g) => new
                 {
-                    Key = o, IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                    Key = o,
+                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
                 })
             .OrderBy(e => e.Key);
 
@@ -1892,7 +1886,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     into tg
                     select new
                     {
-                        A = tg.Key, B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        A = tg.Key,
+                        B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
                     };
 
         var orders = async
@@ -2150,7 +2145,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                         CountryId = m.Company.CountryId,
                         Country = new Context31961.CountryDto
                         {
-                            Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
+                            Id = m.Company.Country.Id,
+                            CountryName = m.Company.Country.CountryName,
                         },
                     }
                     : null,
@@ -2302,10 +2298,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public FooConverter()
                 : base(
-                    x => x == true ? (short?)10 : (short?)99,
+                    x => x == true ? 10 : (short?)99,
                     x => x == 10 ? true : x == 99 ? false : null,
                     convertsNulls: true)
-            { }
+            {
+            }
         }
     }
 

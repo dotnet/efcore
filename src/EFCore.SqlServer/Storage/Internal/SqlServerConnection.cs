@@ -89,15 +89,10 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Task OpenDbConnectionAsync(bool errorsExpected, CancellationToken cancellationToken)
-    {
-        if (errorsExpected
-            && DbConnection is SqlConnection sqlConnection)
-        {
-            return sqlConnection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
-        }
-
-        return DbConnection.OpenAsync(cancellationToken);
-    }
+        => errorsExpected
+            && DbConnection is SqlConnection sqlConnection
+                ? sqlConnection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken)
+                : DbConnection.OpenAsync(cancellationToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

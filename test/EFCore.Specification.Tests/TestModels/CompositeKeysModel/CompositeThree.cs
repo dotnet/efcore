@@ -42,14 +42,7 @@ public class CompositeThree
     public CompositeThree OneToMany_Optional_Self_Inverse3 { get; set; }
 
     public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompositeThree)obj);
-    }
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((CompositeThree)obj)));
 
     protected bool Equals(CompositeThree other)
         => Id1 == other.Id1

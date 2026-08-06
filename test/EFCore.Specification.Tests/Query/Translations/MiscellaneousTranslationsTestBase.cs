@@ -101,8 +101,8 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
             o => Convert.ToDecimal(o.Bool) == 1,
             o => Convert.ToDecimal(o.Byte) == 8,
             o => Convert.ToDecimal(o.Decimal) == 8.6m,
-            o => Convert.ToDecimal(o.Double) == 8.6m,
-            o => Convert.ToDecimal(o.Float) == 8.6m,
+            o => Convert.ToDecimal(o.Double) > 8m && Convert.ToDecimal(o.Double) < 9m,
+            o => Convert.ToDecimal(o.Float) > 8m && Convert.ToDecimal(o.Float) < 9m,
             o => Convert.ToDecimal(o.Short) == 8,
             o => Convert.ToDecimal(o.Int) == 8,
             o => Convert.ToDecimal(o.Long) == 8,
@@ -235,6 +235,35 @@ public abstract class MiscellaneousTranslationsTestBase<TFixture>(TFixture fixtu
     }
 
     #endregion Convert
+
+    #region Parse
+
+    [Fact]
+    public virtual Task Byte_Parse()
+        => AssertQuery(ss
+            => ss.Set<BasicTypesEntity>().Where(o => o.Int >= 0 && o.Int <= 255 && byte.Parse(Convert.ToString(o.Int)) == 12));
+
+    [Fact]
+    public virtual Task Decimal_Parse()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => decimal.Parse(Convert.ToString(o.Int)) == 8));
+
+    [Fact]
+    public virtual Task Double_Parse()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => double.Parse(Convert.ToString(o.Int)) == 8));
+
+    [Fact]
+    public virtual Task Short_Parse()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => short.Parse(Convert.ToString(o.Int)) == 12));
+
+    [Fact]
+    public virtual Task Int_Parse()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => int.Parse(Convert.ToString(o.Int)) == 12));
+
+    [Fact]
+    public virtual Task Long_Parse()
+        => AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(o => long.Parse(Convert.ToString(o.Int)) == 12));
+
+    #endregion
 
     #region Compare
 

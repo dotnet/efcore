@@ -25,7 +25,8 @@ public class CosmosTimeOnlyTypeMapping : CosmosTypeMapping<TimeOnly>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosTimeOnlyTypeMapping() : base(jsonValueReaderWriter: CosmosJsonTimeOnlyReaderWriter.Instance)
+    public CosmosTimeOnlyTypeMapping()
+        : base(jsonValueReaderWriter: CosmosJsonTimeOnlyReaderWriter.Instance)
     {
     }
 
@@ -35,11 +36,12 @@ public class CosmosTimeOnlyTypeMapping : CosmosTypeMapping<TimeOnly>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected CosmosTimeOnlyTypeMapping(CoreTypeMappingParameters parameters) : base(parameters)
+    protected CosmosTimeOnlyTypeMapping(CoreTypeMappingParameters parameters)
+        : base(parameters)
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
         => new CosmosTimeOnlyTypeMapping(parameters);
 }

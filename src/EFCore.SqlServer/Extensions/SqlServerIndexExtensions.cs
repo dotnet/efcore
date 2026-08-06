@@ -293,17 +293,12 @@ public static class SqlServerIndexExtensions
         this IConventionIndex index,
         int? fillFactor,
         bool fromDataAnnotation = false)
-    {
-        if (fillFactor is <= 0 or > 100)
-        {
-            throw new ArgumentOutOfRangeException(nameof(fillFactor));
-        }
-
-        return (int?)index.SetAnnotation(
-            SqlServerAnnotationNames.FillFactor,
-            fillFactor,
-            fromDataAnnotation)?.Value;
-    }
+        => fillFactor is <= 0 or > 100
+            ? throw new ArgumentOutOfRangeException(nameof(fillFactor))
+            : (int?)index.SetAnnotation(
+                SqlServerAnnotationNames.FillFactor,
+                fillFactor,
+                fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for whether the index uses the fill factor.

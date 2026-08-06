@@ -27,6 +27,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("TEXT", typeof(TimeSpan), DbType.Time),
      InlineData("TEXT", typeof(decimal), DbType.Decimal),
      InlineData("REAL", typeof(float), DbType.Single),
+     InlineData("REAL", typeof(Half), null),
      InlineData("REAL", typeof(double), DbType.Double),
      InlineData("INTEGER", typeof(ByteEnum), DbType.Byte),
      InlineData("INTEGER", typeof(ShortEnum), DbType.Int16),
@@ -50,6 +51,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("TEXT", typeof(TimeSpan?), DbType.Time),
      InlineData("TEXT", typeof(decimal?), DbType.Decimal),
      InlineData("REAL", typeof(float?), DbType.Single),
+     InlineData("REAL", typeof(Half?), null),
      InlineData("REAL", typeof(double?), DbType.Double),
      InlineData("INTEGER", typeof(ByteEnum?), DbType.Byte),
      InlineData("INTEGER", typeof(ShortEnum?), DbType.Int16),
@@ -115,7 +117,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("DISCOMBOBULATED", typeof(byte[]), DbType.Binary)]
     public void Does_mappings_for_store_type(string storeType, Type clrType, DbType? dbType)
     {
-        foreach (var type in new[] { storeType, storeType.ToLower(), storeType.Substring(0, 1) + storeType.Substring(1).ToLower() })
+        foreach (var type in new[] { storeType, storeType.ToLower(), storeType[..1] + storeType[1..].ToLower() })
         {
             var mapping = CreateRelationalTypeMappingSource(CreateModel()).FindMapping(type)!;
             Assert.Equal(storeType.ToLower(), mapping.StoreType.ToLower());
@@ -176,6 +178,9 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("REAL", typeof(float), DbType.Single),
      InlineData("UNREALISTIC", typeof(float), DbType.Single),
      InlineData("RUBBISH", typeof(float), DbType.Single),
+     InlineData("REAL", typeof(Half), null),
+     InlineData("UNREALISTIC", typeof(Half), null),
+     InlineData("RUBBISH", typeof(Half), null),
      InlineData("REAL", typeof(double), DbType.Double),
      InlineData("UNREALISTIC", typeof(double), DbType.Double),
      InlineData("RUBBISH", typeof(double), DbType.Double),
@@ -245,6 +250,9 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("REAL", typeof(float?), DbType.Single),
      InlineData("UNREALISTIC", typeof(float?), DbType.Single),
      InlineData("RUBBISH", typeof(float?), DbType.Single),
+     InlineData("REAL", typeof(Half?), null),
+     InlineData("UNREALISTIC", typeof(Half?), null),
+     InlineData("RUBBISH", typeof(Half?), null),
      InlineData("REAL", typeof(double?), DbType.Double),
      InlineData("UNREALISTIC", typeof(double?), DbType.Double),
      InlineData("RUBBISH", typeof(double?), DbType.Double),
@@ -274,7 +282,7 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
      InlineData("RUBBISH", typeof(ULongEnum?), DbType.UInt64)]
     public void Does_mappings_for_both_store_and_CLR_type(string storeType, Type clrType, DbType? dbType)
     {
-        foreach (var type in new[] { storeType, storeType.ToLower(), storeType.Substring(0, 1) + storeType.Substring(1).ToLower() })
+        foreach (var type in new[] { storeType, storeType.ToLower(), storeType[..1] + storeType[1..].ToLower() })
         {
             var mapping = GetTypeMapping(clrType, storeTypeName: type);
             Assert.Equal(storeType.ToLower(), mapping.StoreType.ToLower());

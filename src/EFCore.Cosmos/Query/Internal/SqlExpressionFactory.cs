@@ -38,9 +38,31 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     /// </summary>
     [return: NotNullIfNotNull(nameof(sqlExpression))]
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
+        => sqlExpression?.TypeMapping is not null
+            ? sqlExpression
+            : SetTypeMappingInternal(sqlExpression, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
+    public virtual SqlExpression? SetTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping typeMapping)
+        => SetTypeMappingInternal(sqlExpression, typeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
+    private SqlExpression? SetTypeMappingInternal(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
         => sqlExpression switch
         {
-            null or { TypeMapping: not null } => sqlExpression,
+            null => sqlExpression,
 
             ScalarSubqueryExpression e => e.ApplyTypeMapping(typeMapping),
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
@@ -159,6 +181,16 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                 inferredTypeMapping = _boolTypeMapping;
                 resultType = typeof(bool);
                 resultTypeMapping = _boolTypeMapping;
+                break;
+            }
+
+            case ExpressionType.Subtract
+                when left.Type == typeof(TimeOnly) && right.Type == typeof(TimeOnly):
+            {
+                inferredTypeMapping = typeMapping
+                    ?? ExpressionExtensions.InferTypeMapping(left, right) ?? typeMappingSource.FindMapping(typeof(TimeOnly), model);
+                resultType = typeof(TimeSpan);
+                resultTypeMapping = typeMappingSource.FindMapping(resultType, model);
                 break;
             }
 
@@ -474,14 +506,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             return Constant(false);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
     }
 
     /// <summary>
@@ -523,14 +552,11 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             return Constant(true);
         }
 
-        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+        return existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
-            && right == binaryExpr.Right)
-        {
-            return existingExpression;
-        }
-
-        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
+            && right == binaryExpr.Right
+                ? existingExpression
+                : new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
     }
 
     /// <summary>

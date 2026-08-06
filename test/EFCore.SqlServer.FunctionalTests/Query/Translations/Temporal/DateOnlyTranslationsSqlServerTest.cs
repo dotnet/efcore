@@ -64,7 +64,7 @@ WHERE DATEPART(dayofyear, [b].[DateOnly]) = 314
 
     public override async Task DayOfWeek()
     {
-        await AssertTranslationFailed(() => base.DayOfWeek());
+        await AssertTranslationFailed(base.DayOfWeek);
 
         AssertSql();
     }
@@ -207,14 +207,14 @@ WHERE DATETIME2FROMPARTS(1990, 11, 10, DATEPART(hour, [b].[TimeOnly]), DATEPART(
 
     public override async Task ToDateTime_with_complex_DateTime()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_with_complex_DateTime());
+        await AssertTranslationFailed(base.ToDateTime_with_complex_DateTime);
 
         AssertSql();
     }
 
     public override async Task ToDateTime_with_complex_TimeOnly()
     {
-        await AssertTranslationFailed(() => base.ToDateTime_with_complex_TimeOnly());
+        await AssertTranslationFailed(base.ToDateTime_with_complex_TimeOnly);
 
         AssertSql();
     }

@@ -7,8 +7,8 @@ using System.IO;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-using static SQLitePCL.raw;
 using static Microsoft.Data.Sqlite.Utilities.IsBusyHelper;
+using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite;
 
@@ -85,7 +85,7 @@ internal class SqliteConnectionInternal
         {
             if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
             {
-                filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
+                filename = Path.Combine(dataDirectory, filename[DataDirectoryMacro.Length..]);
             }
             else if (!Path.IsPathRooted(filename))
             {
@@ -179,9 +179,18 @@ internal class SqliteConnectionInternal
 
     public void Deactivate()
     {
-        if (_outerConnection.TryGetTarget(out var outerConnection))
+        // The underlying handle can already be disposed (e.g. the connection is being torn down). In that case there is
+        // nothing to reset and the connection must not be returned to the pool with a dead handle.
+        if (_db is { IsClosed: false, IsInvalid: false })
         {
-            outerConnection!.Deactivate();
+            if (_outerConnection.TryGetTarget(out var outerConnection))
+            {
+                outerConnection!.Deactivate();
+            }
+        }
+        else
+        {
+            _canBePooled = false;
         }
 
         _outerConnection.SetTarget(null);

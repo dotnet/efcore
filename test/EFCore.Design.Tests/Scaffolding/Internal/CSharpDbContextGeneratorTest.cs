@@ -5,7 +5,6 @@ using CustomTestNamespace;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -227,17 +226,14 @@ optionsBuilder
         [Fact]
         public Task IsRequired_is_generated_for_ref_property_without_nrt()
             => TestAsync(
-                modelBuilder =>
-                {
-                    modelBuilder.Entity(
-                        "Entity", x =>
-                        {
-                            x.Property<string>("RequiredString").IsRequired();
-                            x.Property<string>("NonRequiredString");
-                            x.Property<int>("RequiredInt");
-                            x.Property<int?>("NonRequiredInt");
-                        });
-                },
+                modelBuilder => modelBuilder.Entity(
+                    "Entity", x =>
+                    {
+                        x.Property<string>("RequiredString").IsRequired();
+                        x.Property<string>("NonRequiredString");
+                        x.Property<int>("RequiredInt");
+                        x.Property<int?>("NonRequiredInt");
+                    }),
                 new ModelCodeGenerationOptions { UseNullableReferenceTypes = false },
                 code =>
                 {
@@ -258,17 +254,14 @@ optionsBuilder
         [Fact]
         public Task IsRequired_is_not_generated_for_ref_property_with_nrt()
             => TestAsync(
-                modelBuilder =>
-                {
-                    modelBuilder.Entity(
-                        "Entity", x =>
-                        {
-                            x.Property<string>("RequiredString").IsRequired();
-                            x.Property<string>("NonRequiredString");
-                            x.Property<int>("RequiredInt");
-                            x.Property<int?>("NonRequiredInt");
-                        });
-                },
+                modelBuilder => modelBuilder.Entity(
+                    "Entity", x =>
+                    {
+                        x.Property<string>("RequiredString").IsRequired();
+                        x.Property<string>("NonRequiredString");
+                        x.Property<int>("RequiredInt");
+                        x.Property<int?>("NonRequiredInt");
+                    }),
                 new ModelCodeGenerationOptions { UseNullableReferenceTypes = true },
                 code =>
                 {
@@ -310,10 +303,7 @@ optionsBuilder
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
                     "Entity",
-                    x =>
-                    {
-                        x.ToTable(tb => tb.HasComment("An entity comment"));
-                    }),
+                    x => x.ToTable(tb => tb.HasComment("An entity comment"))),
                 new ModelCodeGenerationOptions(),
                 code => Assert.Contains(
                     ".HasComment(\"An entity comment\")",
@@ -344,7 +334,8 @@ optionsBuilder
         {
             var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace",
+                ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnotherNamespaceTypeName = "EntityInAnotherNamespace";
@@ -600,10 +591,8 @@ optionsBuilder
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -646,8 +635,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
 
@@ -672,10 +660,8 @@ public partial class TestDbContext : DbContext
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -714,8 +700,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
 
@@ -743,10 +728,8 @@ public partial class TestDbContext : DbContext
                                 .IsDescending(false, true, false);
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -791,8 +774,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes")!;
@@ -839,10 +821,8 @@ public partial class TestDbContext : DbContext
                         });
                 },
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -890,8 +870,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model => { });
 
         [Fact]
@@ -906,10 +885,8 @@ public partial class TestDbContext : DbContext
                             x.Property<DateTime>("HireDate").HasColumnType("date").HasColumnName("hiring_date");
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -948,8 +925,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                     Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
 
@@ -1016,10 +992,7 @@ public partial class TestDbContext : DbContext
 
                     Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
                 },
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("MyEntity"));
-                });
+                model => Assert.NotNull(model.FindEntityType("MyEntity")));
 
         [Fact]
         public Task Global_namespace_works_just_context()
@@ -1032,10 +1005,7 @@ public partial class TestDbContext : DbContext
                     Assert.DoesNotContain("namespace ", code.ContextFile.Code);
                     Assert.Contains("namespace TestNamespace", Assert.Single(code.AdditionalFiles).Code);
                 },
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("TestNamespace.MyEntity"));
-                });
+                model => Assert.NotNull(model.FindEntityType("TestNamespace.MyEntity")));
 
         [Fact]
         public Task Global_namespace_works_just_model()
@@ -1047,10 +1017,7 @@ public partial class TestDbContext : DbContext
                     Assert.Contains("namespace TestNamespace", code.ContextFile.Code);
                     Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
                 },
-                model =>
-                {
-                    Assert.NotNull(model.FindEntityType("MyEntity"));
-                });
+                model => Assert.NotNull(model.FindEntityType("MyEntity")));
 
         [Fact]
         public Task Fluent_calls_in_custom_namespaces_work()
@@ -1104,10 +1071,8 @@ public partial class TestDbContext : DbContext
                         e.ToTable(tb => tb.IsTemporal());
                     }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1153,8 +1118,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.Customer")!;
@@ -1212,10 +1176,8 @@ public partial class TestDbContext : DbContext
                             });
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1258,8 +1220,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = model.FindEntityType("TestNamespace.Employee")!;
@@ -1276,16 +1237,11 @@ public partial class TestDbContext : DbContext
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
                     "Channel",
-                    x =>
-                    {
-                        x.Property<int>("Id")
-                            .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None);
-                    }),
+                    x => x.Property<int>("Id")
+                        .Metadata.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.None)),
                 new ModelCodeGenerationOptions(),
-                code =>
-                {
-                    AssertFileContents(
-                        $$"""
+                code => AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1323,13 +1279,12 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
-                },
+                    code.ContextFile),
                 model =>
                 {
                     var entityType = Assert.Single(model.GetEntityTypes());
                     var property = Assert.Single(entityType.GetProperties());
-                    Assert.Equal(SqlServerValueGenerationStrategy.None, Microsoft.EntityFrameworkCore.SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 });
 
         [Theory, InlineData(false), InlineData(true)]

@@ -12,8 +12,10 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 {
     // List<T> is a regular class
     protected static readonly List<int> StaticReadonlyList = [10, 999];
+
     // FrozenSet<T> is an abstract class
     protected static readonly FrozenSet<int> StaticReadonlyFrozenSet = [10, 999];
+
     // ImmutableArray<T> is a struct
     protected static readonly ImmutableArray<int> StaticReadonlyImmutableArray = [10, 999];
 
@@ -241,8 +243,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         List<string?> data = ["10", "a", "aa",];
 
         return AssertQuery(
-                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(data.Select(x => x)).Contains(c.NullableString)),
-                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => data.Select(x => x).Contains(c.NullableString)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(data.Select(x => x)).Contains(c.NullableString)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => data.Select(x => x).Contains(c.NullableString)));
     }
 
     [Fact]
@@ -272,8 +274,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     [Fact] // #38285
     public virtual Task Inline_collection_SelectMany_with_unreferenced_collection_value()
-        => AssertQuery(
-            ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(e => new[] { "a", "b" }.Select(k => e)));
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(e => new[] { "a", "b" }.Select(k => e)));
 
     [Fact]
     public virtual Task Parameter_collection_Count()
@@ -618,7 +619,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var ids = new[] { 2, 999 };
 
-
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ids.Count(i => i > c.Id) > 0)
             .Where(c => extra1.Count(i => i > c.Id) > 0)
@@ -638,7 +638,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         var extra = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var ids = new[] { 2, 999 };
-
 
         return AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>()
             .Where(c => ids.Count(i => i > c.Id) > 0)
@@ -681,7 +680,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var ids = new[] { 2, 999 };
 
-
         return AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
                 .Where(c => ids.Count(i => i > c.Id) > 0)
@@ -713,7 +711,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         var extra4 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var extra5 = Enumerable.Range(1000, (int)NumberOfValuesForHugeParameterCollectionTests / 5);
         var ids = new[] { 2, 999 };
-
 
         return AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>()
@@ -822,7 +819,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [Fact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
+    public virtual async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_2_operations_same_parameter_different_property()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
         {
@@ -891,7 +889,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     }
 
     [Fact]
-    public virtual async Task Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
+    public virtual async Task
+        Parameter_collection_of_ints_Contains_int_with_huge_number_of_values_over_5_operations_mixed_parameters_constants()
     {
         if (NumberOfValuesForHugeParameterCollectionTests is null)
         {
@@ -1107,22 +1106,32 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [Fact]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_on_Enumerable()
-        => AssertQuery(
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Enumerable.Contains(new[] { 10, 999 }, c.Int)));
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => Enumerable.Contains(new[] { 10, 999 }, c.Int)));
 
     // C# 14 first-class spans caused MemoryExtensions.Contains to get resolved instead of Enumerable.Contains.
     // The following tests that the various overloads are all supported.
     [Fact]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_on_MemoryExtensions()
-        => AssertQuery(
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int)));
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int)));
 
     [Fact]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_MemoryExtensions_with_null_comparer()
-        => AssertQuery(
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
+        => AssertQuery(ss
+            => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Contains(new[] { 10, 999 }, c.Int, comparer: null)));
+
+    // .NET 11 first-class spans caused MemoryExtensions.Min to get resolved instead of Enumerable.Min.
+    // The following tests that the various overloads are all supported.
+    [Fact]
+    public virtual Task Min_on_MemoryExtensions()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Min(new[] { 30, c.Int }) == 30));
+
+    // .NET 11 first-class spans caused MemoryExtensions.Max to get resolved instead of Enumerable.Max.
+    // The following tests that the various overloads are all supported.
+    [Fact]
+    public virtual Task Max_on_MemoryExtensions()
+        => AssertQuery(ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => MemoryExtensions.Max(new[] { 30, c.Int }) == 30));
 
     [Fact]
     public virtual Task Column_collection_Count_method()
@@ -1528,8 +1537,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
     [Fact] // #37370
     public virtual async Task Compiled_query_with_uncorrelated_parameter_collection_expression()
     {
-        var func = EF.CompileAsyncQuery(
-            (PrimitiveCollectionsContext context, int[] ids) => context.Set<PrimitiveCollectionsEntity>().Where(e => ids.Any()));
+        var func = EF.CompileAsyncQuery((PrimitiveCollectionsContext context, int[] ids)
+            => context.Set<PrimitiveCollectionsEntity>().Where(e => ids.Any()));
 
         await using var context = Fixture.CreateContext();
         _ = await func(context, []).ToListAsync();
@@ -1612,7 +1621,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         => AssertQuery(
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => new
             {
-                Empty = x.NullableInts.Where(x => false).ToList(), OnlyNull = x.NullableInts.Where(x => x == null).ToList(),
+                Empty = x.NullableInts.Where(x => false).ToList(),
+                OnlyNull = x.NullableInts.Where(x => x == null).ToList(),
             }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -1889,18 +1899,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
         public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class
-        {
-            if (typeof(TEntity) == typeof(PrimitiveCollectionsEntity))
-            {
-                return (IQueryable<TEntity>)PrimitiveArrayEntities.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
-        }
+            => typeof(TEntity) == typeof(PrimitiveCollectionsEntity)
+                ? (IQueryable<TEntity>)PrimitiveArrayEntities.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 
         private static IReadOnlyList<PrimitiveCollectionsEntity> CreatePrimitiveArrayEntities()
-            => new List<PrimitiveCollectionsEntity>
-            {
+            =>
+            [
                 new()
                 {
                     Id = 1,
@@ -2031,7 +2036,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
                     NullableInts = [],
                     NullableStrings = []
                 }
-            };
+            ];
     }
 
     #region Non-shared test resources
@@ -2081,10 +2086,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 // Keep it outside so it does not inherit the TFixture.
 internal class ReadOnlyCollectionWithContains<T>(params T[] items) : IReadOnlyCollection<T>
 {
-    public int Count => items.Length;
+    public int Count
+        => items.Length;
 
-    public bool Contains(T item) => items.Contains(item);
+    public bool Contains(T item)
+        => items.Contains(item);
 
-    public IEnumerator<T> GetEnumerator() => items.AsEnumerable().GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public IEnumerator<T> GetEnumerator()
+        => items.AsEnumerable().GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
 }

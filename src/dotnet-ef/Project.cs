@@ -35,8 +35,10 @@ internal class Project
     public string? Language { get; set; }
     public string? OutputPath { get; set; }
     public string? PlatformTarget { get; set; }
+    public string? ProjectDepsFileName { get; set; }
     public string? ProjectAssetsFile { get; set; }
     public string? ProjectDir { get; set; }
+    public string? ProjectRuntimeConfigFileName { get; set; }
     public string? RootNamespace { get; set; }
     public string? RuntimeFrameworkVersion { get; set; }
     public string? TargetFileName { get; set; }
@@ -58,7 +60,10 @@ internal class Project
             throw new CommandException(Resources.ProjectFileNotFound(file));
         }
 
-        var args = new List<string> { "build", "--no-restore", };
+        var args = new List<string>
+        {
+            "build", "--no-restore",
+        };
 
         if (framework != null)
         {
@@ -160,8 +165,10 @@ internal class Project
             Language = properties[nameof(Language)],
             OutputPath = normalizedOutputPath,
             PlatformTarget = platformTarget,
+            ProjectDepsFileName = properties[nameof(ProjectDepsFileName)],
             ProjectAssetsFile = normalizedProjectAssetsFile,
             ProjectDir = normalizedProjectDir,
+            ProjectRuntimeConfigFileName = properties[nameof(ProjectRuntimeConfigFileName)],
             RootNamespace = properties[nameof(RootNamespace)],
             RuntimeFrameworkVersion = properties[nameof(RuntimeFrameworkVersion)],
             TargetFileName = properties[nameof(TargetFileName)],
@@ -180,7 +187,13 @@ internal class Project
 
     private static bool HasMultipleTargetFrameworks(string file)
     {
-        var args = new List<string> { "build", "--no-restore", "/getProperty:TargetFrameworks", file };
+        var args = new List<string>
+        {
+            "build",
+            "--no-restore",
+            "/getProperty:TargetFrameworks",
+            file
+        };
 
         var output = new StringBuilder();
         var exitCode = Exe.Run("dotnet", args, handleOutput: line => output.AppendLine(line));
@@ -210,7 +223,7 @@ internal class Project
         }
 
         var contentFilesPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(fullPath)!, "..", "..", "contentFiles", "any", "any"));
-            CopyDirectoryRecursive(contentFilesPath, targetDir);
+        CopyDirectoryRecursive(contentFilesPath, targetDir);
     }
 
     private static void CopyDirectoryRecursive(string sourceDir, string targetDir)

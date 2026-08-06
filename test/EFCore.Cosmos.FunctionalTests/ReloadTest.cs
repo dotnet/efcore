@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Newtonsoft.Json.Linq;
-
 namespace Microsoft.EntityFrameworkCore;
 
 public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
@@ -26,6 +24,9 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
     [Fact]
     public async Task Entity_reference_can_be_reloaded()
     {
+        // https://github.com/Azure/azure-cosmos-db-emulator-docker/issues/335
+        CosmosTestEnvironment.SkipOnLinuxEmulator();
+
         using var context = CreateContext();
 
         var entry = await context.AddAsync(new Item { Id = 1337, PartitionKey = "Foo" });
@@ -42,8 +43,7 @@ SELECT VALUE
     "Id" : c["Id"],
     "PartitionKey" : c["PartitionKey"],
     "$type" : c["$type"],
-    "id0" : c["id"],
-    "" : c
+    "id0" : c["id"]
 }
 FROM root c
 WHERE (c["Id"] = @p)

@@ -208,18 +208,17 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         // In VB.NET, comparison operators between strings (equality, greater-than, less-than) yield
         // calls to a VB-specific CompareString method. Normalize that to string.Compare.
-        if (visited is
-            {
-                Method:
-                {
-                    Name: "CompareString",
-                    DeclaringType: { Name: "Operators" or "EmbeddedOperators", Namespace: "Microsoft.VisualBasic.CompilerServices" }
-                },
-                Object: null,
-                Arguments: [_, _, ConstantExpression textCompareConstantExpression]
-            })
+        return visited is
         {
-            return textCompareConstantExpression.Value is true
+            Method:
+            {
+                Name: "CompareString",
+                DeclaringType: { Name: "Operators" or "EmbeddedOperators", Namespace: "Microsoft.VisualBasic.CompilerServices" }
+            },
+            Object: null,
+            Arguments: [_, _, ConstantExpression textCompareConstantExpression]
+        }
+            ? textCompareConstantExpression.Value is true
                 ? Expression.Call(
                     StringCompareWithComparisonMethod,
                     visited.Arguments[0],
@@ -228,10 +227,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 : Expression.Call(
                     StringCompareWithoutComparisonMethod,
                     visited.Arguments[0],
-                    visited.Arguments[1]);
-        }
-
-        return visited;
+                    visited.Arguments[1])
+            : visited;
     }
 
     /// <summary>

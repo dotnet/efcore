@@ -73,13 +73,19 @@ internal class RootCommand : CommandBase
         var remainingArguments = CreateRemainingArguments(_args!, context);
 
         if (config?.Verbose == true && !ContainsOption(_args!, "-v", "--verbose"))
+        {
             Reporter.IsVerbose = true;
+        }
 
         if (config?.NoColor == true && !ContainsOption(_args!, "--no-color"))
+        {
             Reporter.NoColor = true;
+        }
 
         if (config?.PrefixOutput == true && !ContainsOption(_args!, "--prefix-output"))
+        {
             Reporter.PrefixOutput = true;
+        }
 
         var (projectFile, startupProjectFile) = ResolveProjects(
             projectPath,
@@ -123,11 +129,13 @@ internal class RootCommand : CommandBase
         var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
         var targetPath = Path.Combine(targetDir, project.TargetFileName!);
         var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
-        var depsFile = Path.Combine(
+        var depsFile = ResolveFilePath(
             targetDir,
+            startupProject.ProjectDepsFileName,
             startupProject.AssemblyName + ".deps.json");
-        var runtimeConfig = Path.Combine(
+        var runtimeConfig = ResolveFilePath(
             targetDir,
+            startupProject.ProjectRuntimeConfigFileName,
             startupProject.AssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = startupProject.ProjectAssetsFile;
 
@@ -144,7 +152,8 @@ internal class RootCommand : CommandBase
             throw new CommandException(
                 Resources.NETFrameworkStartupProject(startupProject.ProjectName));
         }
-        else if (targetFramework.Identifier == ".NETCoreApp")
+
+        if (targetFramework.Identifier == ".NETCoreApp")
         {
             if (targetFramework.Version < new Version(5, 0))
             {
@@ -318,15 +327,10 @@ internal class RootCommand : CommandBase
         CommandOption primary,
         CommandOption alias,
         string? configValue)
-    {
-        if (primary.HasValue() && alias.HasValue())
-        {
-            throw new CommandException(
-                Resources.MutuallyExclusiveOptions(primary.LongName!, alias.LongName!));
-        }
-
-        return alias.Value() ?? primary.Value() ?? configValue;
-    }
+        => primary.HasValue() && alias.HasValue()
+            ? throw new CommandException(
+                Resources.MutuallyExclusiveOptions(primary.LongName!, alias.LongName!))
+            : alias.Value() ?? primary.Value() ?? configValue;
 
     private static List<string> ResolveProjects(string? path)
     {
@@ -397,17 +401,22 @@ internal class RootCommand : CommandBase
     private static bool ContainsOption(
         IList<string> args,
         params string[] names)
-        => args.Any(
-            argument => names.Any(
-                name => string.Equals(argument, name, StringComparison.Ordinal)
-                    || argument.StartsWith(name + "=", StringComparison.Ordinal)
-                    || argument.StartsWith(name + ":", StringComparison.Ordinal)));
+        => args.Any(argument => names.Any(name => string.Equals(argument, name, StringComparison.Ordinal)
+            || argument.StartsWith(name + "=", StringComparison.Ordinal)
+            || argument.StartsWith(name + ":", StringComparison.Ordinal)));
 
     internal static bool ShouldSkipOptimization(IList<string> args)
         => args.Count > 2
             && args[0] == "dbcontext"
             && args[1] == "optimize"
             && !args.Any(a => a == "--no-scaffold");
+
+    internal static string ResolveFilePath(string directory, string? fileName, string fallbackFileName)
+        => Path.Combine(
+            directory,
+            string.IsNullOrEmpty(fileName)
+                ? fallbackFileName
+                : fileName);
 
     private static string GetVersion()
         => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!

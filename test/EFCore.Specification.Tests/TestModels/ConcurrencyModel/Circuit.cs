@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 public interface IStreetCircuit<TCity>
 {
-    string Name { get; set; }
+    public string Name { get; set; }
     public TCity City { get; set; }
 }
 

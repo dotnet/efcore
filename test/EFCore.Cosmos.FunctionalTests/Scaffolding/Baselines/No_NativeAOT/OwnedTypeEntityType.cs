@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -24,7 +23,7 @@ public partial class OwnedTypeEntityType
             baseEntityType,
             sharedClrType: true,
             changeTrackingStrategy: ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues,
-            propertyCount: 11,
+            propertyCount: 10,
             servicePropertyCount: 1,
             foreignKeyCount: 1,
             keyCount: 1);
@@ -112,16 +111,6 @@ public partial class OwnedTypeEntityType
             propertyAccessMode: PropertyAccessMode.Field,
             nullable: true);
         var valueTypeListElementType = valueTypeList.SetElementType(typeof(short));
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            propertyAccessMode: PropertyAccessMode.Field,
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var context = runtimeEntityType.AddServiceProperty(
             "Context",

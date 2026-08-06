@@ -129,6 +129,7 @@ public readonly record struct TypeMappingInfo
         int? fallbackScale = null)
     {
         ValueConverter? customConverter = null;
+        CoreTypeMapping? elementMapping = null;
         for (var i = 0; i < principals.Count; i++)
         {
             var principal = principals[i];
@@ -176,12 +177,21 @@ public readonly record struct TypeMappingInfo
                     fallbackUnicode = unicode;
                 }
             }
+
+            if (elementMapping == null)
+            {
+                var element = principal.GetElementType();
+                if (element != null)
+                {
+                    elementMapping = element.FindTypeMapping();
+                }
+            }
         }
 
         var mappingHints = customConverter?.MappingHints;
         var property = principals[0];
 
-        ElementTypeMapping = property.GetElementType()?.FindTypeMapping();
+        ElementTypeMapping = elementMapping;
         IsKey = property.IsKey() || property.IsForeignKey();
         IsKeyOrIndex = IsKey || property.IsIndex();
         Size = fallbackSize ?? mappingHints?.Size;

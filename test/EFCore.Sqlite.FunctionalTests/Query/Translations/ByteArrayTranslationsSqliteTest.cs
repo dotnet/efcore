@@ -26,11 +26,11 @@ WHERE length("b"."ByteArray") = 4
 
     // Array access. Issue #16428.
     public override Task Index()
-        => AssertTranslationFailed(() => base.Index());
+        => AssertTranslationFailed(base.Index);
 
     // Array access. Issue #16428.
     public override Task First()
-        => AssertTranslationFailed(() => base.First());
+        => AssertTranslationFailed(base.First);
 
     public override async Task Contains_with_constant()
     {

@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
@@ -32,7 +31,7 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                     eb.HasKey("Id", "PartitionId");
                     eb.ToContainer("DataContainer");
                     eb.Property<Dictionary<string, string[]>>("Map");
-                    eb.Property<List<Dictionary<string, int>>>("List");
+                    eb.PrimitiveCollection<List<Dictionary<string, int>>>("List");
                     eb.Property<ReadOnlyMemory<byte>>("Bytes");
                     eb.UseETagConcurrency();
                     eb.HasNoDiscriminator();
@@ -179,24 +178,9 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                 Assert.NotNull(blob.GetValueComparer());
                 Assert.NotNull(blob.GetKeyValueComparer());
 
-                var jObject = dataEntity.FindProperty("__jObject")!;
-                Assert.Equal(typeof(JObject), jObject.ClrType);
-                Assert.Null(jObject.PropertyInfo);
-                Assert.Null(jObject.FieldInfo);
-                Assert.True(jObject.IsNullable);
-                Assert.False(jObject.IsConcurrencyToken);
-                Assert.Equal(ValueGenerated.OnAddOrUpdate, jObject.ValueGenerated);
-                Assert.Equal(PropertySaveBehavior.Ignore, jObject.GetAfterSaveBehavior());
-                Assert.Equal(PropertySaveBehavior.Ignore, jObject.GetBeforeSaveBehavior());
-                Assert.Equal("", jObject.GetJsonPropertyName());
-                Assert.Null(jObject.GetValueGeneratorFactory());
-                Assert.Null(jObject.GetValueConverter());
-                Assert.NotNull(jObject.GetValueComparer());
-                Assert.NotNull(jObject.GetKeyValueComparer());
-
                 Assert.Equal(1, dataEntity.GetKeys().Count());
 
-                Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, jObject, eTag], dataEntity.GetProperties());
+                Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, eTag], dataEntity.GetProperties());
             });
 
     [Fact]
@@ -674,19 +658,18 @@ public class CompiledModelCosmosTest(NonSharedFixture fixture) : CompiledModelTe
                 });
         });
 
-        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
-            eb => eb.ComplexCollection<IList<OwnedType>, OwnedType>(
-                    "ManyOwned", "OwnedCollection", ob =>
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(eb => eb.ComplexCollection<IList<OwnedType>, OwnedType>(
+            "ManyOwned", "OwnedCollection", ob =>
+            {
+                ob.Ignore(e => e.RefTypeArray);
+                ob.Ignore(e => e.RefTypeList);
+                ob.ComplexProperty(
+                    o => o.Principal, cb =>
                     {
-                        ob.Ignore(e => e.RefTypeArray);
-                        ob.Ignore(e => e.RefTypeList);
-                        ob.ComplexProperty(
-                            o => o.Principal, cb =>
-                            {
-                                cb.Ignore(e => e.RefTypeList);
-                                cb.Ignore(e => e.RefTypeArray);
-                            });
-                    }));
+                        cb.Ignore(e => e.RefTypeList);
+                        cb.Ignore(e => e.RefTypeArray);
+                    });
+            }));
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)

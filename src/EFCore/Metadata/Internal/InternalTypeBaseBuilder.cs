@@ -57,8 +57,7 @@ public abstract class InternalTypeBaseBuilder :
         }
 
         IMutableEntityType? existingMemberDeclaringEntityType = null;
-        var declaringType = existingProperty.DeclaringType as IMutableEntityType;
-        if (declaringType != null)
+        if (existingProperty.DeclaringType is IMutableEntityType declaringType)
         {
             foreach (var baseType in declaringType.GetAllBaseTypes())
             {
@@ -95,7 +94,8 @@ public abstract class InternalTypeBaseBuilder :
             propertyType, propertyName, memberInfo: null,
             typeConfigurationSource: configurationSource,
             configurationSource: configurationSource,
-            skipTypeCheck);
+            skipTypeCheck,
+            collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,7 +113,8 @@ public abstract class InternalTypeBaseBuilder :
             propertyType, propertyName, memberInfo: null,
             typeConfigurationSource,
             configurationSource,
-            skipTypeCheck);
+            skipTypeCheck,
+            collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -122,7 +123,8 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? Property(string propertyName, ConfigurationSource? configurationSource)
-        => Property(propertyType: null, propertyName, memberInfo: null, typeConfigurationSource: null, configurationSource);
+        => Property(
+            propertyType: null, propertyName, memberInfo: null, typeConfigurationSource: null, configurationSource, collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,7 +133,9 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? Property(MemberInfo memberInfo, ConfigurationSource? configurationSource)
-        => Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource);
+        => Property(
+            memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource,
+            collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -146,13 +150,12 @@ public abstract class InternalTypeBaseBuilder :
         bool skipTypeCheck = false)
     {
         var indexerPropertyInfo = Metadata.FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return Property(propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource, skipTypeCheck);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()))
+            : Property(
+                propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource, skipTypeCheck,
+                collection: false);
     }
 
     /// <summary>
@@ -167,8 +170,14 @@ public abstract class InternalTypeBaseBuilder :
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource? configurationSource,
-        bool skipTypeCheck = false)
+        bool skipTypeCheck = false,
+        Type? elementType = null,
+        bool? collection = null)
     {
+        Check.DebugAssert(
+            collection == true || elementType == null,
+            $"An element type was supplied for non-collection property '{propertyName}'.");
+
         var structuralType = Metadata;
         List<Property>? propertiesToDetach = null;
         var existingProperty = structuralType.FindProperty(propertyName);
@@ -184,8 +193,13 @@ public abstract class InternalTypeBaseBuilder :
                 structuralType = existingProperty.DeclaringType;
             }
 
-            if (IsCompatible(memberInfo, existingProperty)
-                && (propertyType == null || propertyType == existingProperty.ClrType))
+            var typeCompatible = IsCompatible(memberInfo, existingProperty)
+                && (propertyType == null || propertyType == existingProperty.ClrType);
+            var collectionCompatible = collection == false
+                ? existingProperty.GetElementType() == null
+                : elementType == null || elementType == existingProperty.GetElementType()?.ClrType;
+
+            if (typeCompatible && collectionCompatible)
             {
                 if (configurationSource.HasValue)
                 {
@@ -201,24 +215,40 @@ public abstract class InternalTypeBaseBuilder :
                 return existingProperty.Builder;
             }
 
-            if (memberInfo == null
-                || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
+            if (!typeCompatible)
             {
-                if (existingProperty.GetTypeConfigurationSource() is { } existingTypeConfigurationSource
-                    && typeConfigurationSource != null
-                    && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
+                // The existing property is incompatible, so it has to be recreated. This is only allowed when the
+                // requested configuration source can override the existing one. For shadow and indexer properties
+                // the type is governed by the type configuration source instead.
+                if (memberInfo == null
+                    || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
+                {
+                    if (existingProperty.GetTypeConfigurationSource() is { } existingTypeConfigurationSource
+                        && typeConfigurationSource != null
+                        && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
+                    {
+                        return null;
+                    }
+
+                    memberInfo ??= existingProperty.PropertyInfo ?? (MemberInfo?)existingProperty.FieldInfo;
+                }
+                else if (!configurationSource.Overrides(existingProperty.GetConfigurationSource()))
                 {
                     return null;
                 }
-
-                memberInfo ??= existingProperty.PropertyInfo ?? (MemberInfo?)existingProperty.FieldInfo;
             }
-            else if (!configurationSource.Overrides(existingProperty.GetConfigurationSource()))
+
+            if (!collectionCompatible
+                && !configurationSource.Overrides(existingProperty.GetConfigurationSource()))
             {
                 return null;
             }
 
             propertyType ??= existingProperty.ClrType;
+            if (collection != false)
+            {
+                elementType ??= existingProperty.GetElementType()?.ClrType;
+            }
 
             propertiesToDetach = [existingProperty];
         }
@@ -275,7 +305,7 @@ public abstract class InternalTypeBaseBuilder :
             }
 
             builder = structuralType.AddProperty(
-                propertyName, propertyType, memberInfo, typeConfigurationSource, configurationSource.Value)!.Builder;
+                propertyName, propertyType, memberInfo, typeConfigurationSource, configurationSource.Value, elementType)!.Builder;
 
             detachedProperties?.Attach(this);
         }
@@ -344,22 +374,22 @@ public abstract class InternalTypeBaseBuilder :
         string propertyName,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        Type? elementType = null)
     {
-        var builder = Property(propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource);
-
-        if (builder != null)
-        {
-            var elementClrType = builder.Metadata.ClrType.TryGetElementType(typeof(IEnumerable<>));
-            if (elementClrType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.NotCollection(builder.Metadata.ClrType.ShortDisplayName(), propertyName));
-            }
-
-            builder.SetElementType(elementClrType, configurationSource!.Value);
-        }
-
-        return builder;
+        // Resolve the element type up front so it is set when the property is created.
+        var effectiveType = propertyType
+            ?? memberInfo?.GetMemberType()
+            ?? (Metadata.IsPropertyBag
+                ? null
+                : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault()?.GetMemberType());
+        elementType ??= effectiveType?.TryGetElementType(typeof(IEnumerable<>));
+        return elementType == null
+            && effectiveType != null
+                ? throw new InvalidOperationException(CoreStrings.NotCollection(effectiveType.ShortDisplayName(), propertyName))
+                : Property(
+                    propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource, elementType: elementType,
+                    collection: true);
     }
 
     /// <summary>
@@ -548,9 +578,9 @@ public abstract class InternalTypeBaseBuilder :
         {
             var propertyName = propertyNames[i];
 
-            var resolved = ResolveComplexChainByName(propertyName);
-            var typeBuilder = resolved.Builder;
-            var leafName = resolved.FinalName;
+            var (Builder, FinalName) = ResolveComplexChainByName(propertyName);
+            var typeBuilder = Builder;
+            var leafName = FinalName;
             var property = typeBuilder.Metadata.FindProperty(leafName);
             if (property == null)
             {
@@ -565,13 +595,17 @@ public abstract class InternalTypeBaseBuilder :
                     return null;
                 }
 
+                var elementType = referencedProperties?[i].GetElementType()?.ClrType;
                 var propertyBuilder = typeBuilder.Property(
                     required
                         ? type
                         : type?.MakeNullable(),
                     leafName,
+                    memberInfo: null,
                     typeConfigurationSource: null,
-                    configurationSource.Value);
+                    configurationSource.Value,
+                    elementType: elementType,
+                    collection: elementType != null);
 
                 if (propertyBuilder == null)
                 {
@@ -582,21 +616,26 @@ public abstract class InternalTypeBaseBuilder :
             }
             else if (configurationSource.HasValue)
             {
+                Type? propertyType = null;
                 if (ConfigurationSource.Convention.Overrides(property.GetTypeConfigurationSource())
                     && (property.IsShadowProperty() || property.IsIndexerProperty())
                     && (!property.IsNullable || (required && property.GetIsNullableConfigurationSource() == null))
                     && property.ClrType.IsNullableType())
                 {
-                    property = property.DeclaringType.Builder.Property(
-                            property.ClrType.MakeNullable(false),
-                            property.Name,
-                            configurationSource.Value)!
-                        .Metadata;
+                    // The (shadow/indexer) property needs to become non-nullable, so recreate it with the non-nullable
+                    // type and elevate the type configuration source accordingly.
+                    propertyType = property.ClrType.MakeNullable(false);
                 }
-                else
-                {
-                    property = property.DeclaringType.Builder.Property(property.Name, configurationSource.Value)!.Metadata;
-                }
+
+                property = property.DeclaringType.Builder.Property(
+                        propertyType,
+                        property.Name,
+                        memberInfo: null,
+                        typeConfigurationSource: configurationSource,
+                        configurationSource: configurationSource.Value,
+                        elementType: property.GetElementType()?.ClrType,
+                        collection: property.IsCollection)!
+                    .Metadata;
             }
 
             propertyList.Add(property);
@@ -623,7 +662,10 @@ public abstract class InternalTypeBaseBuilder :
         var list = new List<Property>();
         foreach (var propertyInfo in clrMembers)
         {
-            var propertyBuilder = Property(propertyInfo, configurationSource);
+            var existing = Metadata.FindProperty(propertyInfo.GetSimpleMemberName());
+            var propertyBuilder = existing is { IsPrimitiveCollection: true }
+                ? PrimitiveCollection(propertyInfo, configurationSource)
+                : Property(propertyInfo, configurationSource);
             if (propertyBuilder == null)
             {
                 return null;
@@ -654,7 +696,10 @@ public abstract class InternalTypeBaseBuilder :
         foreach (var memberChain in memberChains)
         {
             var (ownerBuilder, finalMember) = ResolveComplexChain(memberChain);
-            var propertyBuilder = ownerBuilder.Property(finalMember, configurationSource);
+            var existing = ownerBuilder.Metadata.FindProperty(finalMember.GetSimpleMemberName());
+            var propertyBuilder = existing is { IsPrimitiveCollection: true }
+                ? ownerBuilder.PrimitiveCollection(finalMember, configurationSource)
+                : ownerBuilder.Property(finalMember, configurationSource);
             if (propertyBuilder == null)
             {
                 return null;
@@ -676,13 +721,13 @@ public abstract class InternalTypeBaseBuilder :
     ///     Resolves one <see cref="PropertyBase" /> per chain, walking intermediate complex properties
     ///     (creating them when missing) and resolving the leaf as either an existing complex property or
     ///     a get-or-created scalar property.
-    ///     <paramref name="isCollection" /> describes, for each chain, whether each member of the chain
+    ///     <paramref name="collection" /> describes, for each chain, whether each member of the chain
     ///     (including the leaf) is reached as a collection; it is <see langword="null" />
     ///     when no chain traverses a complex collection.
     /// </remarks>
     public virtual IReadOnlyList<PropertyBase>? GetOrCreateProperties(
         IReadOnlyList<IReadOnlyList<MemberInfo>> memberChains,
-        IReadOnlyList<IReadOnlyList<bool>>? isCollection,
+        IReadOnlyList<IReadOnlyList<bool>>? collection,
         ConfigurationSource? configurationSource)
     {
         var properties = new List<PropertyBase>(memberChains.Count);
@@ -694,10 +739,10 @@ public abstract class InternalTypeBaseBuilder :
                 return null;
             }
 
-            var chainIsCollection = isCollection?[memberIndex];
+            var chainIsCollection = collection?[memberIndex];
             Check.DebugAssert(
                 chainIsCollection is null || chainIsCollection.Count == chain.Count,
-                $"isCollection length {chainIsCollection?.Count} doesn't match chain length {chain.Count}.");
+                $"collection length {chainIsCollection?.Count} doesn't match chain length {chain.Count}.");
 
             var currentBuilder = this;
             for (var i = 0; i < chain.Count - 1; i++)
@@ -721,7 +766,9 @@ public abstract class InternalTypeBaseBuilder :
                 continue;
             }
 
-            var propertyBuilder = currentBuilder.Property(leafMember, configurationSource);
+            var propertyBuilder = existing is Property { IsPrimitiveCollection: true }
+                ? currentBuilder.PrimitiveCollection(leafMember, configurationSource)
+                : currentBuilder.Property(leafMember, configurationSource);
             if (propertyBuilder is null)
             {
                 return null;
@@ -745,7 +792,7 @@ public abstract class InternalTypeBaseBuilder :
     /// </remarks>
     public virtual IReadOnlyList<PropertyBase>? GetOrCreateProperties(
         IReadOnlyList<IReadOnlyList<string>> propertyPaths,
-        IReadOnlyList<IReadOnlyList<bool>>? isCollection,
+        IReadOnlyList<IReadOnlyList<bool>>? collection,
         ConfigurationSource? configurationSource)
     {
         var properties = new List<PropertyBase>(propertyPaths.Count);
@@ -757,10 +804,10 @@ public abstract class InternalTypeBaseBuilder :
                 return null;
             }
 
-            var chainIsCollection = isCollection?[leafIndex];
+            var chainIsCollection = collection?[leafIndex];
             Check.DebugAssert(
                 chainIsCollection is null || chainIsCollection.Count == names.Count,
-                $"isCollection length {chainIsCollection?.Count} doesn't match chain length {names.Count}.");
+                $"collection length {chainIsCollection?.Count} doesn't match chain length {names.Count}.");
 
             var currentBuilder = this;
             for (var i = 0; i < names.Count - 1; i++)
@@ -801,7 +848,9 @@ public abstract class InternalTypeBaseBuilder :
                 continue;
             }
 
-            var leafProperty = currentBuilder.Property(leafName, configurationSource);
+            var leafProperty = existing is Property { IsPrimitiveCollection: true }
+                ? currentBuilder.PrimitiveCollection(leafName, configurationSource)
+                : currentBuilder.Property(leafName, configurationSource);
             if (leafProperty is null)
             {
                 return null;
@@ -876,7 +925,7 @@ public abstract class InternalTypeBaseBuilder :
                 return null;
             }
 
-            var memberName = segment.Substring(0, bracketStart).Trim();
+            var memberName = segment[..bracketStart].Trim();
             if (memberName.Length == 0)
             {
                 return null;
@@ -1021,9 +1070,10 @@ public abstract class InternalTypeBaseBuilder :
     /// </summary>
     public virtual IReadOnlyList<Property>? GetActualProperties(
         IReadOnlyList<Property>? properties,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        IReadOnlyList<Property>? referencedProperties = null)
     {
-        var actual = GetActualProperties((IReadOnlyList<PropertyBase>?)properties, configurationSource);
+        var actual = GetActualProperties((IReadOnlyList<PropertyBase>?)properties, configurationSource, referencedProperties);
         if (actual == null)
         {
             return null;
@@ -1037,7 +1087,12 @@ public abstract class InternalTypeBaseBuilder :
         var result = new Property[actual.Count];
         for (var i = 0; i < result.Length; i++)
         {
-            result[i] = (Property)actual[i];
+            if (actual[i] is not Property property)
+            {
+                return null;
+            }
+
+            result[i] = property;
         }
 
         return result;
@@ -1051,7 +1106,8 @@ public abstract class InternalTypeBaseBuilder :
     /// </summary>
     public virtual IReadOnlyList<PropertyBase>? GetActualProperties(
         IReadOnlyList<PropertyBase>? properties,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        IReadOnlyList<Property>? referencedProperties = null)
     {
         if (properties == null)
         {
@@ -1063,24 +1119,13 @@ public abstract class InternalTypeBaseBuilder :
             return properties;
         }
 
-        for (var i = 0;; i++)
-        {
-            if (!IsActual(properties[i]))
-            {
-                break;
-            }
-
-            if (i == properties.Count - 1)
-            {
-                return properties;
-            }
-        }
-
-        var actualProperties = new PropertyBase[properties.Count];
-        for (var i = 0; i < actualProperties.Length; i++)
+        PropertyBase[]? actualProperties = null;
+        for (var i = 0; i < properties.Count; i++)
         {
             var member = properties[i];
-            if (member is not Property property)
+            var shouldBeCollection = ShouldBeCollection(referencedProperties, i);
+            if (shouldBeCollection == null
+                && member is not Property _)
             {
                 if (!IsActual(member))
                 {
@@ -1093,37 +1138,75 @@ public abstract class InternalTypeBaseBuilder :
 
                     member = resolved;
                 }
-
-                actualProperties[i] = member;
-                continue;
             }
-
-            var typeConfigurationSource = property.GetTypeConfigurationSource();
-            var typeBuilder = property.IsInModel
-                && property.DeclaringType is ComplexType ownerComplex
-                && ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata)
-                    ? ownerComplex.Builder
-                    : this;
-
-            var builder = typeBuilder.Property(
-                typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
-                || (property.IsInModel && typeBuilder.Metadata.IsAssignableFrom(property.DeclaringType))
-                    ? property.ClrType
-                    : null,
-                property.Name,
-                property.GetIdentifyingMemberInfo(),
-                typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
-                configurationSource);
-
-            if (builder == null)
+            else
             {
-                return null;
+                if (!IsActual(member)
+                    || shouldBeCollection != null)
+                {
+                    var typeConfigurationSource = (member as Property)?.GetTypeConfigurationSource();
+                    var typeBuilder = member.IsInModel
+                        && member.DeclaringType is ComplexType ownerComplex
+                        && ownerComplex.ContainingEntityType.IsAssignableFrom(Metadata)
+                            ? ownerComplex.Builder
+                            : this;
+
+                    var builder = typeBuilder.Property(
+                        typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
+                        || (member.IsInModel && typeBuilder.Metadata.IsAssignableFrom(member.DeclaringType))
+                            ? member.ClrType
+                            : null,
+                        member.Name,
+                        member.GetIdentifyingMemberInfo(),
+                        typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
+                        configurationSource,
+                        collection: shouldBeCollection);
+
+                    if (builder == null)
+                    {
+                        return null;
+                    }
+
+                    member = builder.Metadata;
+                }
             }
 
-            actualProperties[i] = builder.Metadata;
+            if (actualProperties == null)
+            {
+                if (member == properties[i])
+                {
+                    continue;
+                }
+
+                actualProperties = new PropertyBase[properties.Count];
+                for (var j = 0; j < i; j++)
+                {
+                    actualProperties[j] = properties[j];
+                }
+            }
+
+            actualProperties[i] = member;
         }
 
-        return actualProperties;
+        return actualProperties ?? properties;
+    }
+
+    private static bool? ShouldBeCollection(
+        IReadOnlyList<Property>? referencedProperties,
+        int index)
+    {
+        if (referencedProperties == null
+            || index >= referencedProperties.Count)
+        {
+            return null;
+        }
+
+        var referenced = referencedProperties[index];
+        var declaringType = referenced.DeclaringType;
+        var actualReferenced = declaringType.IsInModel && declaringType.Builder.IsActual(referenced)
+            ? referenced
+            : declaringType.FindProperty(referenced.Name);
+        return actualReferenced == null ? null : actualReferenced.GetElementType() != null;
     }
 
     private bool IsActual(PropertyBase property)
@@ -1396,14 +1479,11 @@ public abstract class InternalTypeBaseBuilder :
         ConfigurationSource? configurationSource)
     {
         var indexerPropertyInfo = Metadata.FindIndexerPropertyInfo();
-        if (indexerPropertyInfo == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
-        }
-
-        return ComplexProperty(
-            propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
+        return indexerPropertyInfo == null
+            ? throw new InvalidOperationException(
+                CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()))
+            : ComplexProperty(
+                propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
     }
 
     /// <summary>
@@ -2073,7 +2153,8 @@ public abstract class InternalTypeBaseBuilder :
                 case ComplexProperty { IsCollection: true }:
                     throw new InvalidOperationException(
                         CoreStrings.ComplexPropertyChainOnCollection(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
-                case not null and not Internal.ComplexProperty when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
+                case not null and not Internal.ComplexProperty
+                    when conflictingMember.GetConfigurationSource() == ConfigurationSource.Explicit:
                     throw new InvalidOperationException(
                         CoreStrings.ComplexPropertyChainInvalidMember(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
             }
@@ -2082,11 +2163,12 @@ public abstract class InternalTypeBaseBuilder :
             if (conflictingMember is ComplexProperty complexProperty)
             {
                 complexProperty.UpdateConfigurationSource(ConfigurationSource.Explicit);
-                
+
                 builder = complexProperty.ComplexType.Builder;
                 continue;
             }
-            else if (memberInfo == null)
+
+            if (memberInfo == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ComplexPropertyChainIntermediateNotFound(segment, ((IReadOnlyTypeBase)metadata).DisplayName()));
@@ -2221,6 +2303,132 @@ public abstract class InternalTypeBaseBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IConventionPropertyBuilder? IConventionTypeBaseBuilder.PrimitiveCollection(
+        Type propertyType,
+        string propertyName,
+        Type? elementType,
+        bool setTypeConfigurationSource,
+        bool fromDataAnnotation)
+        => PrimitiveCollection(
+            propertyType,
+            propertyName,
+            memberInfo: null,
+            setTypeConfigurationSource
+                ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                : null,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            elementType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionPropertyBuilder? IConventionTypeBaseBuilder.PrimitiveCollection(
+        MemberInfo memberInfo,
+        Type? elementType,
+        bool fromDataAnnotation)
+        => PrimitiveCollection(
+            memberInfo.GetMemberType(),
+            memberInfo.GetSimpleMemberName(),
+            memberInfo,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            elementType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanHavePrimitiveCollection(
+        Type? propertyType,
+        string propertyName,
+        Type? elementType,
+        bool fromDataAnnotation)
+    {
+        var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
+        var existingProperty = Metadata.FindProperty(propertyName);
+        if (existingProperty?.GetElementType()?.ClrType is { } configuredElementType)
+        {
+            // The property is already a primitive collection; a requested element type must match the configured one
+            // unless this configuration source can override the existing configuration.
+            if (elementType != null
+                && elementType != configuredElementType
+                && !configurationSource.Overrides(existingProperty.GetConfigurationSource()))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            var effectiveType = propertyType
+                ?? (Metadata.IsPropertyBag
+                    ? null
+                    : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault()?.GetMemberType());
+            if (elementType == null
+                && effectiveType != null
+                && effectiveType.TryGetElementType(typeof(IEnumerable<>)) == null)
+            {
+                return false;
+            }
+        }
+
+        return CanHaveProperty(
+            propertyType,
+            propertyName,
+            null,
+            propertyType != null
+                ? configurationSource
+                : null,
+            configurationSource);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionTypeBaseBuilder.CanHavePrimitiveCollection(MemberInfo memberInfo, Type? elementType, bool fromDataAnnotation)
+    {
+        var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
+        var existingProperty = Metadata.FindProperty(memberInfo.GetSimpleMemberName());
+        if (existingProperty?.GetElementType()?.ClrType is { } configuredElementType)
+        {
+            if (elementType != null
+                && elementType != configuredElementType
+                && !configurationSource.Overrides(existingProperty.GetConfigurationSource()))
+            {
+                return false;
+            }
+        }
+        else if (elementType == null
+                 && memberInfo.GetMemberType().TryGetElementType(typeof(IEnumerable<>)) == null)
+        {
+            return false;
+        }
+
+        return CanHaveProperty(
+            memberInfo.GetMemberType(),
+            memberInfo.Name,
+            memberInfo,
+            configurationSource,
+            configurationSource);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     IConventionPropertyBuilder? IConventionTypeBaseBuilder.IndexerProperty(
         Type propertyType,
         string propertyName,
@@ -2230,7 +2438,8 @@ public abstract class InternalTypeBaseBuilder :
             propertyName,
             Metadata.FindIndexerPropertyInfo(),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention,
+            collection: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

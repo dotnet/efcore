@@ -234,8 +234,8 @@ FROM [JsonTypeEntity] AS [j]
 
     public class TimeSpanTypeFixture : SqlServerTypeFixture<TimeSpan>
     {
-        public override TimeSpan Value { get; } = new TimeSpan(12, 30, 45);
-        public override TimeSpan OtherValue { get; } = new TimeSpan(14, 0, 0);
+        public override TimeSpan Value { get; } = new(12, 30, 45);
+        public override TimeSpan OtherValue { get; } = new(14, 0, 0);
     }
 
     [Fact]

@@ -324,7 +324,8 @@ FROM (
     public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(async))).Message);
 
     public override async Task Concat_string_int(bool async)
     {

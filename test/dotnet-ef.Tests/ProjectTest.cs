@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
+
 namespace Microsoft.EntityFrameworkCore.Tools;
 
 public sealed class ProjectTest(ITestOutputHelper output)
@@ -55,8 +56,7 @@ public sealed class ProjectTest(ITestOutputHelper output)
         primary.TryParse("MyApp.csproj");
         alias.TryParse("MyApp.cs");
 
-        Assert.Throws<CommandException>(
-            () => RootCommand.ResolveOption(primary, alias, configValue: null));
+        Assert.Throws<CommandException>(() => RootCommand.ResolveOption(primary, alias, configValue: null));
     }
 
     [Fact]
@@ -75,10 +75,14 @@ public sealed class ProjectTest(ITestOutputHelper output)
         {
             using var directory = new TempDirectory();
             var csprojFile = Path.Combine(directory.Path, "MyApp.csproj");
-            File.WriteAllText(csprojFile, $"""
+            File.WriteAllText(
+                csprojFile, $"""
                 <Project Sdk="Microsoft.NET.Sdk">
                   <PropertyGroup>
                     <TargetFramework>{TargetFramework}</TargetFramework>
+                    <TargetName>service</TargetName>
+                    <ProjectDepsFileName>$(TargetName).deps.json</ProjectDepsFileName>
+                    <ProjectRuntimeConfigFileName>$(TargetName).runtimeconfig.json</ProjectRuntimeConfigFileName>
                   </PropertyGroup>
                 </Project>
                 """);
@@ -92,7 +96,9 @@ public sealed class ProjectTest(ITestOutputHelper output)
             Assert.Equal(TargetFramework, project.TargetFramework);
             Assert.NotNull(project.OutputPath);
             Assert.NotNull(project.ProjectDir);
-            Assert.Equal("MyApp.dll", project.TargetFileName);
+            Assert.Equal("service.dll", project.TargetFileName);
+            Assert.Equal("service.deps.json", project.ProjectDepsFileName);
+            Assert.Equal("service.runtimeconfig.json", project.ProjectRuntimeConfigFileName);
         });
 
         Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
@@ -119,7 +125,8 @@ public sealed class ProjectTest(ITestOutputHelper output)
         {
             using var directory = new TempDirectory();
             var csFile = Path.Combine(directory.Path, "MyApp.cs");
-            File.WriteAllText(csFile, $"""
+            File.WriteAllText(
+                csFile, $"""
                 #:property TargetFramework={TargetFramework}
                 Console.WriteLine("Hello");
                 """);
@@ -144,6 +151,24 @@ public sealed class ProjectTest(ITestOutputHelper output)
 
         Assert.DoesNotContain(Reporter.ErrorPrefix, capturedOutput);
     }
+
+    [Fact]
+    public void Resolve_file_path_uses_specified_file_name()
+        => Assert.Equal(
+            Path.Combine("target", "service.deps.json"),
+            RootCommand.ResolveFilePath("target", "service.deps.json", "MyApp.deps.json"));
+
+    [Fact]
+    public void Resolve_file_path_uses_fallback_file_name_when_unspecified()
+        => Assert.Equal(
+            Path.Combine("target", "MyApp.deps.json"),
+            RootCommand.ResolveFilePath("target", null, "MyApp.deps.json"));
+
+    [Fact]
+    public void Resolve_file_path_uses_fallback_file_name_when_empty()
+        => Assert.Equal(
+            Path.Combine("target", "MyApp.deps.json"),
+            RootCommand.ResolveFilePath("target", "", "MyApp.deps.json"));
 
     private string WithCapturedOutput(Action action)
     {

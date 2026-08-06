@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -30,9 +29,9 @@ public partial class IndexedDataEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelCosmosTest+IndexedData",
             typeof(CompiledModelCosmosTest.IndexedData),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "IndexedData",
-            propertyCount: 10,
+            propertyCount: 9,
             unnamedIndexCount: 3,
             keyCount: 1);
 
@@ -69,8 +68,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: 0,
             storeGenerationIndex: -1);
-        id.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        id.TypeMapping = CosmosTypeMapping<int>.Default;
         id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
         var partitionId = runtimeEntityType.AddProperty(
@@ -105,28 +103,8 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: 1,
             storeGenerationIndex: -1);
-        partitionId.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        partitionId.TypeMapping = CosmosTypeMapping<string>.Default;
         partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(partitionId));
-
-        var type = runtimeEntityType.AddProperty(
-            "$type",
-            typeof(string),
-            afterSaveBehavior: PropertySaveBehavior.Throw,
-            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-        type.SetAccessors(
-            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 2),
-            string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
-        type.SetPropertyIndexes(
-            index: 2,
-            originalValueIndex: 2,
-            shadowIndex: 0,
-            relationshipIndex: -1,
-            storeGenerationIndex: -1);
-        type.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
 
         var category = runtimeEntityType.AddProperty(
             "Category",
@@ -151,16 +129,15 @@ public partial class IndexedDataEntityType
         category.SetAccessors(
             string (IInternalEntry entry) => IndexedDataUnsafeAccessors.Category(((CompiledModelCosmosTest.IndexedData)(entry.Entity))),
             string (IInternalEntry entry) => IndexedDataUnsafeAccessors.Category(((CompiledModelCosmosTest.IndexedData)(entry.Entity))),
-            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(category, 3),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(category, 2),
             string (IInternalEntry entry) => entry.GetCurrentValue<string>(category));
         category.SetPropertyIndexes(
-            index: 3,
-            originalValueIndex: 3,
+            index: 2,
+            originalValueIndex: 2,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        category.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        category.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var description = runtimeEntityType.AddProperty(
             "Description",
@@ -185,18 +162,36 @@ public partial class IndexedDataEntityType
         description.SetAccessors(
             string (IInternalEntry entry) => IndexedDataUnsafeAccessors.Description(((CompiledModelCosmosTest.IndexedData)(entry.Entity))),
             string (IInternalEntry entry) => IndexedDataUnsafeAccessors.Description(((CompiledModelCosmosTest.IndexedData)(entry.Entity))),
-            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(description, 4),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(description, 3),
             string (IInternalEntry entry) => entry.GetCurrentValue<string>(description));
         description.SetPropertyIndexes(
-            index: 4,
-            originalValueIndex: 4,
+            index: 3,
+            originalValueIndex: 3,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        description.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        description.TypeMapping = CosmosTypeMapping<string>.Default;
         description.AddAnnotation("Cosmos:FullTextSearchLanguage", null);
         description.AddAnnotation("Cosmos:IsFullTextSearchEnabled", true);
+
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(discriminator, 4),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(discriminator));
+        discriminator.SetPropertyIndexes(
+            index: 4,
+            originalValueIndex: 4,
+            shadowIndex: 0,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default;
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var embedding = runtimeEntityType.AddProperty(
             "Embedding",
@@ -276,8 +271,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        notes.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        notes.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var region = runtimeEntityType.AddProperty(
             "Region",
@@ -310,8 +304,7 @@ public partial class IndexedDataEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        region.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        region.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var __id = runtimeEntityType.AddProperty(
             "__id",
@@ -329,30 +322,8 @@ public partial class IndexedDataEntityType
             shadowIndex: 1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.SetAccessors(
-            JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(9) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(9) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2))),
-            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(2),
-            JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 9),
-            JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-        __jObject.SetPropertyIndexes(
-            index: 9,
-            originalValueIndex: 9,
-            shadowIndex: 2,
-            relationshipIndex: -1,
-            storeGenerationIndex: 0);
-        __jObject.TypeMapping = CosmosTypeMapping<JObject>.Default;
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var key = runtimeEntityType.AddKey(
             new[] { id, partitionId });
@@ -376,14 +347,13 @@ public partial class IndexedDataEntityType
     {
         var id = runtimeEntityType.FindProperty("Id");
         var partitionId = runtimeEntityType.FindProperty("PartitionId");
-        var type = runtimeEntityType.FindProperty("$type");
         var category = runtimeEntityType.FindProperty("Category");
         var description = runtimeEntityType.FindProperty("Description");
+        var discriminator = runtimeEntityType.FindProperty("Discriminator");
         var embedding = runtimeEntityType.FindProperty("Embedding");
         var notes = runtimeEntityType.FindProperty("Notes");
         var region = runtimeEntityType.FindProperty("Region");
         var __id = runtimeEntityType.FindProperty("__id");
-        var __jObject = runtimeEntityType.FindProperty("__jObject");
         var key = runtimeEntityType.FindKey(new[] { id, partitionId });
         key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
         key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
@@ -391,16 +361,16 @@ public partial class IndexedDataEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType = ((CompiledModelCosmosTest.IndexedData)(source.Entity));
-                return ((ISnapshot)(new Snapshot<int, string, string, string, string, ReadOnlyMemory<float>, string, string, string, JObject>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(partitionId) == null ? null : ((ValueComparer<string>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(partitionId))), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), (source.GetCurrentValue<string>(category) == null ? null : ((ValueComparer<string>)(((IProperty)category).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(category))), (source.GetCurrentValue<string>(description) == null ? null : ((ValueComparer<string>)(((IProperty)description).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(description))), ((ValueComparer<ReadOnlyMemory<float>>)(((IProperty)embedding).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<float>>(embedding)), (source.GetCurrentValue<string>(notes) == null ? null : ((ValueComparer<string>)(((IProperty)notes).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(notes))), (source.GetCurrentValue<string>(region) == null ? null : ((ValueComparer<string>)(((IProperty)region).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(region))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject))))));
+                return ((ISnapshot)(new Snapshot<int, string, string, string, string, ReadOnlyMemory<float>, string, string, string>(((ValueComparer<int>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(partitionId) == null ? null : ((ValueComparer<string>)(((IProperty)partitionId).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(partitionId))), (source.GetCurrentValue<string>(category) == null ? null : ((ValueComparer<string>)(((IProperty)category).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(category))), (source.GetCurrentValue<string>(description) == null ? null : ((ValueComparer<string>)(((IProperty)description).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(description))), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), ((ValueComparer<ReadOnlyMemory<float>>)(((IProperty)embedding).GetValueComparer())).Snapshot(source.GetCurrentValue<ReadOnlyMemory<float>>(embedding)), (source.GetCurrentValue<string>(notes) == null ? null : ((ValueComparer<string>)(((IProperty)notes).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(notes))), (source.GetCurrentValue<string>(region) == null ? null : ((ValueComparer<string>)(((IProperty)region).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(region))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<JObject>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
+            ISnapshot () => Snapshot.Empty);
         runtimeEntityType.SetTemporaryValuesFactory(
-            ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject>(default(JObject)))));
+            ISnapshot (IInternalEntry source) => Snapshot.Empty);
         runtimeEntityType.SetShadowValuesFactory(
-            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string, JObject>((source.ContainsKey("$type") ? ((string)(source["$type"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
         runtimeEntityType.SetEmptyShadowValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<string, string, JObject>(default(string), default(string), default(JObject)))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<string, string>(default(string), default(string)))));
         runtimeEntityType.SetRelationshipSnapshotFactory(
             ISnapshot (IInternalEntry source) =>
             {
@@ -408,14 +378,14 @@ public partial class IndexedDataEntityType
                 return ((ISnapshot)(new Snapshot<int, string>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<string>(partitionId) == null ? null : ((ValueComparer<string>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(partitionId))))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 10,
+            propertyCount: 9,
             navigationCount: 0,
             complexPropertyCount: 0,
             complexCollectionCount: 0,
-            originalValueCount: 10,
-            shadowCount: 3,
+            originalValueCount: 9,
+            shadowCount: 2,
             relationshipCount: 2,
-            storeGeneratedCount: 1));
+            storeGeneratedCount: 0));
         runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "IndexedContainer");
         runtimeEntityType.AddAnnotation("Cosmos:PartitionKeyNames", new List<string> { "PartitionId" });
 

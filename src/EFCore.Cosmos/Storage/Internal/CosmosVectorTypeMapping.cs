@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -62,7 +61,7 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
         : this(
             new CoreTypeMappingParameters(
                 mapping.ClrType,
-                // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
+                // This is a hack to store vector types of bytes as byte arrays in the database, instead of strings
                 converter: mapping.Converter?.GetType() == typeof(BytesToStringConverter) ? null : mapping.Converter,
                 mapping.Comparer,
                 mapping.KeyComparer,
@@ -121,28 +120,31 @@ public class CosmosVectorTypeMapping : CosmosTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override JToken? GenerateJToken(object? value)
+    public override SqlParameter CreateParameter(string name, object? value)
     {
-        // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
-        var type = value?.GetType();
-        if (type?.IsArray is false)
+        // This is a hack to write vector types of bytes as byte arrays in queries, instead of strings
+        if (value is ReadOnlyMemory<byte> romBytes)
         {
-            if (type == typeof(ReadOnlyMemory<byte>))
-            {
-                value = ((ReadOnlyMemory<byte>)value!).ToArray();
-            }
-            else if (type == typeof(ReadOnlyMemory<sbyte>))
-            {
-                value = ((ReadOnlyMemory<sbyte>)value!).ToArray();
-            }
-            else if (type == typeof(ReadOnlyMemory<float>))
-            {
-                value = ((ReadOnlyMemory<float>)value!).ToArray();
-            }
+            value = ToIntArray(romBytes.Span);
+        }
+        else if (value is byte[] byteArray)
+        {
+            value = ToIntArray(byteArray);
         }
 
-        return value == null
-            ? null
-            : JToken.FromObject(value, CosmosClientWrapper.Serializer);
+        // This is a hack to allow both arrays and ROM types without different function overloads or type mappings.
+        return new SqlValueParameter(name, value);
+
+        static int[] ToIntArray(ReadOnlySpan<byte> bytes)
+        {
+            var ints = new int[bytes.Length];
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                ints[i] = bytes[i];
+            }
+
+            return ints;
+        }
     }
 }

@@ -208,8 +208,8 @@ public class NavigationFixer : INavigationFixer
                     // Clear the inverse reference, unless it has already been changed
                     if (inverse != null
                         && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                        && (entry.EntityType.GetNavigations().All(n => n == navigation
-                            || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                        && entry.EntityType.GetNavigations().All(n => n == navigation
+                            || !ReferenceEquals(oldTargetEntry.Entity, entry[n])))
                     {
                         SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
                     }
@@ -1040,7 +1040,7 @@ public class NavigationFixer : INavigationFixer
             // Track the first owned navigation referrer to compare against subsequent ones
             INavigation? firstOwnedNavigation = null;
             InternalEntityEntry? firstOwnerEntry = null;
-            
+
             foreach (var (navigationBase, ownerEntry) in referrers)
             {
                 if (navigationBase is INavigation { IsCollection: false, ForeignKey.IsOwnership: true } ownedNavigation)
@@ -1056,8 +1056,9 @@ public class NavigationFixer : INavigationFixer
                         // Both scenarios are invalid: an owned entity can only have one owner with one navigation
                         if (!ReferenceEquals(firstOwnerEntry, ownerEntry) || firstOwnedNavigation.Name != ownedNavigation.Name)
                         {
-                            Check.DebugAssert(firstOwnerEntry != null, "firstOwnerEntry should not be null when firstOwnedNavigation is set");
-                            
+                            Check.DebugAssert(
+                                firstOwnerEntry != null, "firstOwnerEntry should not be null when firstOwnedNavigation is set");
+
                             throw new InvalidOperationException(
                                 CoreStrings.DuplicateOwnedEntityInstance(
                                     entry.Entity.GetType().ShortDisplayName(),
@@ -1068,7 +1069,7 @@ public class NavigationFixer : INavigationFixer
                         }
                     }
                 }
-                
+
                 DelayedFixup(ownerEntry, navigationBase, entry, fromQuery);
             }
         }
@@ -1077,8 +1078,8 @@ public class NavigationFixer : INavigationFixer
     private static bool IsAmbiguous(InternalEntityEntry dependentEntry)
         => dependentEntry.EntityState is EntityState.Detached or EntityState.Deleted
             && (dependentEntry.SharedIdentityEntry != null
-                || dependentEntry.EntityType.HasSharedClrType
-                && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry);
+                || (dependentEntry.EntityType.HasSharedClrType
+                    && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry));
 
     private void DelayedFixup(
         InternalEntityEntry entry,
@@ -1199,12 +1200,7 @@ public class NavigationFixer : INavigationFixer
         else
         {
             _danglingJoinEntities ??=
-                new List<(
-                    InternalEntityEntry Entry,
-                    InternalEntityEntry OtherEntry,
-                    ISkipNavigation SkipNavigation,
-                    bool FromQuery,
-                    bool SetModified)>();
+                [];
 
             _danglingJoinEntities.Add(arguments);
         }
@@ -1423,6 +1419,7 @@ public class NavigationFixer : INavigationFixer
             var dependentValue = dependentEntry[dependentProperty];
 
             if (!PrincipalValueEqualsDependentValue(principalProperty, dependentValue, principalValue)
+                || StringValuesAreNotOrdinallyEqual(dependentValue, principalValue)
                 || (dependentEntry.IsConceptualNull(dependentProperty)
                     && principalValue != null))
             {
@@ -1450,6 +1447,11 @@ public class NavigationFixer : INavigationFixer
         object? dependentValue,
         object? principalValue)
         => principalProperty.GetKeyValueComparer().Equals(dependentValue, principalValue);
+
+    private static bool StringValuesAreNotOrdinallyEqual(object? dependentValue, object? principalValue)
+        => dependentValue is string dependentString
+            && principalValue is string principalString
+            && !string.Equals(dependentString, principalString, StringComparison.Ordinal);
 
     private void ConditionallyNullForeignKeyProperties(
         InternalEntityEntry dependentEntry,

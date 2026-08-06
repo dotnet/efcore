@@ -33,9 +33,7 @@ public static class CosmosIndexExtensions
     /// <param name="index">The index.</param>
     /// <param name="indexType">The index type to use.</param>
     public static void SetVectorIndexType(this IMutableIndex index, VectorIndexType? indexType)
-    {
-        index.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
-    }
+        => index.SetOrRemoveAnnotation(CosmosAnnotationNames.VectorIndexType, indexType);
 
     /// <summary>
     ///     Sets the vector index type to use, such as "flat", "diskANN", or "quantizedFlat".

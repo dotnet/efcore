@@ -13,11 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilderDependencies dependencies)
     : NonNullableConventionBase(dependencies),
-    IPropertyAddedConvention,
-    IPropertyFieldChangedConvention,
-    IPropertyElementTypeChangedConvention,
-    IComplexPropertyAddedConvention,
-    IComplexPropertyFieldChangedConvention
+        IPropertyAddedConvention,
+        IPropertyFieldChangedConvention,
+        IComplexPropertyAddedConvention,
+        IComplexPropertyFieldChangedConvention
 {
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
@@ -32,8 +31,8 @@ public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilder
             // If there's an element type, this is a primitive collection; check and apply the element's nullability as well.
             if (propertyBuilder.Metadata.GetElementType() is { } elementType
                 && nullabilityInfo is
-                    { ElementType.ReadState: NullabilityState.NotNull } or
-                    { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] })
+            { ElementType.ReadState: NullabilityState.NotNull } or
+            { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] })
             {
                 elementType.SetIsNullable(false);
             }
@@ -64,19 +63,6 @@ public class NonNullableReferencePropertyConvention(ProviderConventionSetBuilder
         IConventionContext<FieldInfo> context)
     {
         if (propertyBuilder.Metadata.PropertyInfo == null)
-        {
-            Process(propertyBuilder);
-        }
-    }
-
-    /// <inheritdoc />
-    public virtual void ProcessPropertyElementTypeChanged(
-        IConventionPropertyBuilder propertyBuilder,
-        IElementType? newElementType,
-        IElementType? oldElementType,
-        IConventionContext<IElementType> context)
-    {
-        if (newElementType != null)
         {
             Process(propertyBuilder);
         }

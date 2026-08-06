@@ -50,15 +50,12 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
     public virtual TKey CreateKeyValue(object?[] keyValues)
     {
         var value = keyValues[0];
-        if (value == null)
-        {
-            throw new InvalidOperationException(
+        return value == null
+            ? throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    _column.Name));
-        }
-
-        return (TKey)value;
+                    _column.Name))
+            : (TKey)value;
     }
 
     /// <summary>
@@ -70,15 +67,12 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
     public virtual TKey CreateKeyValue(IDictionary<string, object?> keyValues)
     {
         var value = keyValues[_column.Name];
-        if (value == null)
-        {
-            throw new InvalidOperationException(
+        return value == null
+            ? throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    _column.Name));
-        }
-
-        return (TKey)value;
+                    _column.Name))
+            : (TKey)value;
     }
 
     /// <summary>
@@ -93,15 +87,12 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
             ? ((Func<IReadOnlyModificationCommand, (TKey, bool)>)_columnAccessors.OriginalValueGetter)(command)
             : ((Func<IReadOnlyModificationCommand, (TKey, bool)>)_columnAccessors.CurrentValueGetter)(command);
 
-        if (!found)
-        {
-            throw new InvalidOperationException(
+        return !found
+            ? throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    _column.Name));
-        }
-
-        return key;
+                    _column.Name))
+            : key;
     }
 
     /// <summary>

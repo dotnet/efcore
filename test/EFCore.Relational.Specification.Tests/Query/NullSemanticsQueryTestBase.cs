@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 // ReSharper disable SimplifyConditionalTernaryExpression
@@ -740,11 +743,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => prm ? list.Contains(e.StringA) : false).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => prm && list.Contains(e.StringA)).Select(e => e.Id));
 
         await AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => !prm ? true : e.StringA.StartsWith("B")).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !prm || e.StringA.StartsWith("B")).Select(e => e.Id));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -757,11 +760,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         return AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e => prm1
-                ? (prm2
-                    ? (e.BoolA
-                        ? e.StringA.StartsWith("A")
-                        : false)
-                    : true)
+                ? (!prm2 || (e.BoolA && e.StringA.StartsWith("A")))
                 : (e.BoolB ? list.Contains(e.StringA) : list.Contains(e.StringB))).Select(e => e.Id));
     }
 
@@ -916,7 +915,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         using var context = CreateContext(useRelationalNulls: true);
         var l = context.Entities1
-            .Where(e => (e.NullableBoolA != e.NullableBoolB) == e.NullableBoolC)
+            .Where(e => e.NullableBoolA != e.NullableBoolB == e.NullableBoolC)
             .Select(e => e.Id).ToList();
 
         Assert.Equal(l.OrderBy(e => e), [1, 5, 11, 13]);
@@ -1030,7 +1029,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) }),
+            ss => ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, Coalesce = e.NullableBoolA ?? e.NullableBoolB ?? false }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1712,9 +1711,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e
-                => (e.NullableStringA != null && e.NullableBoolB != null && e.NullableStringC != null)
-                && ((e.NullableStringA != null || e.NullableBoolC != null)
-                    && e.NullableBoolB != e.NullableBoolC)).Select(e => e.Id));
+                => e.NullableStringA != null
+                && e.NullableBoolB != null
+                && e.NullableStringC != null
+                && (e.NullableStringA != null || e.NullableBoolC != null)
+                && e.NullableBoolB != e.NullableBoolC).Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task String_concat_with_both_arguments_being_null(bool async)
@@ -1993,11 +1994,11 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.IntA == e.IntB) != e.NullableBoolA.HasValue));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.IntA == e.IntB != e.NullableBoolA.HasValue));
 
         await AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.IntA != e.IntB) == (e.NullableBoolA != null)));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.IntA != e.IntB == (e.NullableBoolA != null)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2005,7 +2006,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA != 1 && e.NullableIntA != null).ToList();
+        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA is not 1 and not null).ToList();
         ClearLog();
         var query = ctx.Entities1.Where(e => e.NullableIntA != 1 && e.NullableIntA != null);
 
@@ -2018,7 +2019,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA != 1 && e.NullableIntA != 2 && e.NullableIntA != null)
+        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA is not 1 and not 2 and not null)
             .ToList();
         ClearLog();
         var query = ctx.Entities1.Where(e => e.NullableIntA != 1 && e.NullableIntA != 2);
@@ -2059,8 +2060,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual async Task Multiple_negated_contains_calls_get_combined_into_one_for_relational_null_semantics(bool async)
     {
         var ctx = CreateContext(useRelationalNulls: true);
-        var query = ctx.Entities1.Where(e => !(new int?[] { 1, null }.Contains(e.NullableIntA))
-            && !(new int?[] { 2, null, 3 }.Contains(e.NullableIntA)));
+        var query = ctx.Entities1.Where(e => !new int?[] { 1, null }.Contains(e.NullableIntA)
+            && !new int?[] { 2, null, 3 }.Contains(e.NullableIntA));
 
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Empty(result);
@@ -2087,10 +2088,10 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
         var ctx = CreateContext(useRelationalNulls: true);
 
         var expected = ctx.Entities1.AsEnumerable()
-            .Where(e => !(new int?[] { 1, 2 }.Contains(e.NullableIntA)) && e.NullableIntA != null).ToList();
+            .Where(e => !new int?[] { 1, 2 }.Contains(e.NullableIntA) && e.NullableIntA != null).ToList();
 
         ClearLog();
-        var query = ctx.Entities1.Where(e => e.NullableIntA != null && !(new int?[] { 1, 2 }.Contains(e.NullableIntA)));
+        var query = ctx.Entities1.Where(e => e.NullableIntA != null && !new int?[] { 1, 2 }.Contains(e.NullableIntA));
 
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Equal(expected.Count, result.Count);
@@ -2101,10 +2102,10 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => !(new int?[] { 1, 2, 3, null }.Contains(e.NullableIntA))).ToList();
+        var expected = ctx.Entities1.AsEnumerable().Where(e => !new int?[] { 1, 2, 3, null }.Contains(e.NullableIntA)).ToList();
 
         ClearLog();
-        var query = ctx.Entities1.Where(e => e.NullableIntA != 3 && !(new int?[] { 1, 2 }.Contains(e.NullableIntA)));
+        var query = ctx.Entities1.Where(e => e.NullableIntA != 3 && !new int?[] { 1, 2 }.Contains(e.NullableIntA));
 
         var result = async ? await query.ToListAsync() : query.ToList();
         Assert.Equal(expected.Count, result.Count);
@@ -2186,42 +2187,38 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
     public virtual Task Is_not_null_optimizes_unary_op(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableIntA != null ? ~x.NullableIntA : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableIntA != null ? ~x.NullableIntA : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableIntA != null && x.NullableIntB != null
-                    ? x.NullableIntA + x.NullableIntB
-                    : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableIntA != null && x.NullableIntB != null
+                ? x.NullableIntA + x.NullableIntB
+                : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op_with_partial_checks(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableStringA != null && x.NullableStringB != null
-                    ? x.NullableStringA + x.NullableStringB + x.NullableStringC
-                    : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableStringA != null && x.NullableStringB != null
+                ? x.NullableStringA + x.NullableStringB + x.NullableStringC
+                : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op_with_nested_checks(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableStringA != null
-                    ? x.NullableStringB != null ? x.NullableStringA + x.NullableStringB : null
-                    : null));
+            ss => ss.Set<NullSemanticsEntity1>().Select(x => x.NullableStringA != null
+                ? x.NullableStringB != null ? x.NullableStringA + x.NullableStringB : null
+                : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Is_not_null_optimizes_binary_op_with_mixed_checks(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Select(
-                x => x.NullableStringA != null && x.BoolA ? x.NullableStringA + x.NullableStringB : null));
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Select(x => x.NullableStringA != null && x.BoolA ? x.NullableStringA + x.NullableStringB : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_function_is_always_considered_non_nullable(bool async)
@@ -2262,8 +2259,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
             async,
             ss => from e1 in ss.Set<NullSemanticsEntity1>()
                   join e2 in ss.Set<NullSemanticsEntity2>() on e1.Id equals e2.Id
-                  select (e1.NullableIntA ?? (e1.NullableIntB ?? (e2.NullableIntC ?? e2.NullableIntB)))
-                      ?? e1.NullableIntC ?? (e2.NullableIntA ?? e2.NullableIntC ?? e1.NullableIntA));
+                  select (e1.NullableIntA ?? e1.NullableIntB ?? e2.NullableIntC ?? e2.NullableIntB)
+                      ?? e1.NullableIntC ?? e2.NullableIntA ?? e2.NullableIntC ?? e1.NullableIntA);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Like(bool async)

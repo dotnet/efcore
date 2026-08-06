@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -34,9 +33,9 @@ public partial class ManyTypesEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
             typeof(CompiledModelTestBase.ManyTypes),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "ManyTypes",
-            propertyCount: 170,
+            propertyCount: 169,
             keyCount: 1);
 
         var id = runtimeEntityType.AddProperty(
@@ -82,25 +81,6 @@ public partial class ManyTypesEntityType
         id.SetCurrentValueComparer(new CurrentProviderValueComparer<CompiledModelTestBase.ManyTypesId, int>(id));
         id.SetSentinelFromProviderValue(0);
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
-            typeof(string),
-            afterSaveBehavior: PropertySaveBehavior.Throw,
-            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
-        type.SetAccessors(
-            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
-            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(type, 1),
-            string (IInternalEntry entry) => entry.GetCurrentValue<string>(type));
-        type.SetPropertyIndexes(
-            index: 1,
-            originalValueIndex: 1,
-            shadowIndex: 0,
-            relationshipIndex: -1,
-            storeGenerationIndex: -1);
-        type.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-
         var @bool = runtimeEntityType.AddProperty(
             "Bool",
             typeof(bool),
@@ -125,16 +105,15 @@ public partial class ManyTypesEntityType
         @bool.SetAccessors(
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bool(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bool(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(@bool, 2),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(@bool, 1),
             bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(@bool));
         @bool.SetPropertyIndexes(
-            index: 2,
-            originalValueIndex: 2,
+            index: 1,
+            originalValueIndex: 1,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @bool.TypeMapping = CosmosTypeMapping<bool>.Default.Clone(
-            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        @bool.TypeMapping = CosmosTypeMapping<bool>.Default;
 
         var boolArray = runtimeEntityType.AddProperty(
             "BoolArray",
@@ -159,11 +138,11 @@ public partial class ManyTypesEntityType
         boolArray.SetAccessors(
             bool[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             bool[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            bool[] (IInternalEntry entry) => entry.ReadOriginalValue<bool[]>(boolArray, 3),
+            bool[] (IInternalEntry entry) => entry.ReadOriginalValue<bool[]>(boolArray, 2),
             bool[] (IInternalEntry entry) => entry.GetCurrentValue<bool[]>(boolArray));
         boolArray.SetPropertyIndexes(
-            index: 3,
-            originalValueIndex: 3,
+            index: 2,
+            originalValueIndex: 2,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -172,8 +151,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<bool[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<bool>.Default);
         var boolArrayElementType = boolArray.SetElementType(typeof(bool));
         boolArrayElementType.TypeMapping = boolArray.TypeMapping.ElementTypeMapping;
 
@@ -200,11 +178,11 @@ public partial class ManyTypesEntityType
         boolNestedCollection.SetAccessors(
             bool[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             bool[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            bool[][] (IInternalEntry entry) => entry.ReadOriginalValue<bool[][]>(boolNestedCollection, 4),
+            bool[][] (IInternalEntry entry) => entry.ReadOriginalValue<bool[][]>(boolNestedCollection, 3),
             bool[][] (IInternalEntry entry) => entry.GetCurrentValue<bool[][]>(boolNestedCollection));
         boolNestedCollection.SetPropertyIndexes(
-            index: 4,
-            originalValueIndex: 4,
+            index: 3,
+            originalValueIndex: 3,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -219,8 +197,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<bool[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<bool[], bool>(
                     JsonBoolReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                    jsonValueReaderWriter: JsonBoolReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<bool>.Default));
         var boolNestedCollectionElementType = boolNestedCollection.SetElementType(typeof(bool[]));
         boolNestedCollectionElementType.TypeMapping = boolNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -247,11 +224,11 @@ public partial class ManyTypesEntityType
         boolReadOnlyCollection.SetAccessors(
             IReadOnlyCollection<bool> (IInternalEntry entry) => ((IReadOnlyCollection<bool>)(ManyTypesUnsafeAccessors._boolReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
             IReadOnlyCollection<bool> (IInternalEntry entry) => ((IReadOnlyCollection<bool>)(ManyTypesUnsafeAccessors._boolReadOnlyCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))))),
-            IReadOnlyCollection<bool> (IInternalEntry entry) => entry.ReadOriginalValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection, 5),
+            IReadOnlyCollection<bool> (IInternalEntry entry) => entry.ReadOriginalValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection, 4),
             IReadOnlyCollection<bool> (IInternalEntry entry) => entry.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection));
         boolReadOnlyCollection.SetPropertyIndexes(
-            index: 5,
-            originalValueIndex: 5,
+            index: 4,
+            originalValueIndex: 4,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -260,8 +237,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<bool>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<bool>, bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<bool>.Default);
         var boolReadOnlyCollectionElementType = boolReadOnlyCollection.SetElementType(typeof(bool));
         boolReadOnlyCollectionElementType.TypeMapping = boolReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -288,11 +264,11 @@ public partial class ManyTypesEntityType
         boolToStringConverterProperty.SetAccessors(
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(boolToStringConverterProperty, 6),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(boolToStringConverterProperty, 5),
             bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(boolToStringConverterProperty));
         boolToStringConverterProperty.SetPropertyIndexes(
-            index: 6,
-            originalValueIndex: 6,
+            index: 5,
+            originalValueIndex: 5,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -328,11 +304,11 @@ public partial class ManyTypesEntityType
         boolToTwoValuesConverterProperty.SetAccessors(
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToTwoValuesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(boolToTwoValuesConverterProperty, 7),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(boolToTwoValuesConverterProperty, 6),
             bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(boolToTwoValuesConverterProperty));
         boolToTwoValuesConverterProperty.SetPropertyIndexes(
-            index: 7,
-            originalValueIndex: 7,
+            index: 6,
+            originalValueIndex: 6,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -369,11 +345,11 @@ public partial class ManyTypesEntityType
         boolToZeroOneConverterProperty.SetAccessors(
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             bool (IInternalEntry entry) => ManyTypesUnsafeAccessors.BoolToZeroOneConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(boolToZeroOneConverterProperty, 8),
+            bool (IInternalEntry entry) => entry.ReadOriginalValue<bool>(boolToZeroOneConverterProperty, 7),
             bool (IInternalEntry entry) => entry.GetCurrentValue<bool>(boolToZeroOneConverterProperty));
         boolToZeroOneConverterProperty.SetPropertyIndexes(
-            index: 8,
-            originalValueIndex: 8,
+            index: 7,
+            originalValueIndex: 7,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -409,11 +385,11 @@ public partial class ManyTypesEntityType
         bytes.SetAccessors(
             byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bytes(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.Bytes(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(bytes, 9),
+            byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(bytes, 8),
             byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(bytes));
         bytes.SetPropertyIndexes(
-            index: 9,
-            originalValueIndex: 9,
+            index: 8,
+            originalValueIndex: 8,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -451,11 +427,11 @@ public partial class ManyTypesEntityType
         bytesToStringConverterProperty.SetAccessors(
             byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             byte[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.BytesToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(bytesToStringConverterProperty, 10),
+            byte[] (IInternalEntry entry) => entry.ReadOriginalValue<byte[]>(bytesToStringConverterProperty, 9),
             byte[] (IInternalEntry entry) => entry.GetCurrentValue<byte[]>(bytesToStringConverterProperty));
         bytesToStringConverterProperty.SetPropertyIndexes(
-            index: 10,
-            originalValueIndex: 10,
+            index: 9,
+            originalValueIndex: 9,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -492,11 +468,11 @@ public partial class ManyTypesEntityType
         castingConverterProperty.SetAccessors(
             int (IInternalEntry entry) => ManyTypesUnsafeAccessors.CastingConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             int (IInternalEntry entry) => ManyTypesUnsafeAccessors.CastingConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            int (IInternalEntry entry) => entry.ReadOriginalValue<int>(castingConverterProperty, 11),
+            int (IInternalEntry entry) => entry.ReadOriginalValue<int>(castingConverterProperty, 10),
             int (IInternalEntry entry) => entry.GetCurrentValue<int>(castingConverterProperty));
         castingConverterProperty.SetPropertyIndexes(
-            index: 11,
-            originalValueIndex: 11,
+            index: 10,
+            originalValueIndex: 10,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -505,7 +481,7 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<decimal>.Default,
             converter: new ValueConverter<int, decimal>(decimal (int v) => ((decimal)v), int (decimal v) => ((int)v)),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, decimal>(
-                JsonDecimalReaderWriter.Instance,
+                CosmosJsonDecimalReaderWriter.Instance,
                 new ValueConverter<int, decimal>(decimal (int v) => ((decimal)v), int (decimal v) => ((int)v))));
         castingConverterProperty.SetSentinelFromProviderValue(0m);
 
@@ -533,16 +509,15 @@ public partial class ManyTypesEntityType
         @char.SetAccessors(
             char (IInternalEntry entry) => ManyTypesUnsafeAccessors.Char(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             char (IInternalEntry entry) => ManyTypesUnsafeAccessors.Char(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            char (IInternalEntry entry) => entry.ReadOriginalValue<char>(@char, 12),
+            char (IInternalEntry entry) => entry.ReadOriginalValue<char>(@char, 11),
             char (IInternalEntry entry) => entry.GetCurrentValue<char>(@char));
         @char.SetPropertyIndexes(
-            index: 12,
-            originalValueIndex: 12,
+            index: 11,
+            originalValueIndex: 11,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @char.TypeMapping = CosmosTypeMapping<char>.Default.Clone(
-            jsonValueReaderWriter: JsonCharReaderWriter.Instance);
+        @char.TypeMapping = CosmosTypeMapping<char>.Default;
 
         var charArray = runtimeEntityType.AddProperty(
             "CharArray",
@@ -567,11 +542,11 @@ public partial class ManyTypesEntityType
         charArray.SetAccessors(
             char[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             char[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            char[] (IInternalEntry entry) => entry.ReadOriginalValue<char[]>(charArray, 13),
+            char[] (IInternalEntry entry) => entry.ReadOriginalValue<char[]>(charArray, 12),
             char[] (IInternalEntry entry) => entry.GetCurrentValue<char[]>(charArray));
         charArray.SetPropertyIndexes(
-            index: 13,
-            originalValueIndex: 13,
+            index: 12,
+            originalValueIndex: 12,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -580,8 +555,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<char[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
                 JsonCharReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<char>.Default.Clone(
-                jsonValueReaderWriter: JsonCharReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<char>.Default);
         var charArrayElementType = charArray.SetElementType(typeof(char));
         charArrayElementType.TypeMapping = charArray.TypeMapping.ElementTypeMapping;
 
@@ -608,11 +582,11 @@ public partial class ManyTypesEntityType
         charNestedCollection.SetAccessors(
             char[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             char[][] (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharNestedCollection(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            char[][] (IInternalEntry entry) => entry.ReadOriginalValue<char[][]>(charNestedCollection, 14),
+            char[][] (IInternalEntry entry) => entry.ReadOriginalValue<char[][]>(charNestedCollection, 13),
             char[][] (IInternalEntry entry) => entry.GetCurrentValue<char[][]>(charNestedCollection));
         charNestedCollection.SetPropertyIndexes(
-            index: 14,
-            originalValueIndex: 14,
+            index: 13,
+            originalValueIndex: 13,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -627,8 +601,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<char[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<char[], char>(
                     JsonCharReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<char>.Default.Clone(
-                    jsonValueReaderWriter: JsonCharReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<char>.Default));
         var charNestedCollectionElementType = charNestedCollection.SetElementType(typeof(char[]));
         charNestedCollectionElementType.TypeMapping = charNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -656,11 +629,11 @@ public partial class ManyTypesEntityType
         charToStringConverterProperty.SetAccessors(
             char (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             char (IInternalEntry entry) => ManyTypesUnsafeAccessors.CharToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            char (IInternalEntry entry) => entry.ReadOriginalValue<char>(charToStringConverterProperty, 15),
+            char (IInternalEntry entry) => entry.ReadOriginalValue<char>(charToStringConverterProperty, 14),
             char (IInternalEntry entry) => entry.GetCurrentValue<char>(charToStringConverterProperty));
         charToStringConverterProperty.SetPropertyIndexes(
-            index: 15,
-            originalValueIndex: 15,
+            index: 14,
+            originalValueIndex: 14,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -697,16 +670,15 @@ public partial class ManyTypesEntityType
         dateOnly.SetAccessors(
             DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnly(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateOnly (IInternalEntry entry) => entry.ReadOriginalValue<DateOnly>(dateOnly, 16),
+            DateOnly (IInternalEntry entry) => entry.ReadOriginalValue<DateOnly>(dateOnly, 15),
             DateOnly (IInternalEntry entry) => entry.GetCurrentValue<DateOnly>(dateOnly));
         dateOnly.SetPropertyIndexes(
-            index: 16,
-            originalValueIndex: 16,
+            index: 15,
+            originalValueIndex: 15,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        dateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default.Clone(
-            jsonValueReaderWriter: JsonDateOnlyReaderWriter.Instance);
+        dateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default;
 
         var dateOnlyToStringConverterProperty = runtimeEntityType.AddProperty(
             "DateOnlyToStringConverterProperty",
@@ -732,11 +704,11 @@ public partial class ManyTypesEntityType
         dateOnlyToStringConverterProperty.SetAccessors(
             DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateOnly (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateOnlyToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateOnly (IInternalEntry entry) => entry.ReadOriginalValue<DateOnly>(dateOnlyToStringConverterProperty, 17),
+            DateOnly (IInternalEntry entry) => entry.ReadOriginalValue<DateOnly>(dateOnlyToStringConverterProperty, 16),
             DateOnly (IInternalEntry entry) => entry.GetCurrentValue<DateOnly>(dateOnlyToStringConverterProperty));
         dateOnlyToStringConverterProperty.SetPropertyIndexes(
-            index: 17,
-            originalValueIndex: 17,
+            index: 16,
+            originalValueIndex: 16,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -773,16 +745,15 @@ public partial class ManyTypesEntityType
         dateTime.SetAccessors(
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTime(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTime(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTime, 18),
+            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTime, 17),
             DateTime (IInternalEntry entry) => entry.GetCurrentValue<DateTime>(dateTime));
         dateTime.SetPropertyIndexes(
-            index: 18,
-            originalValueIndex: 18,
+            index: 17,
+            originalValueIndex: 17,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        dateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default.Clone(
-            jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance);
+        dateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default;
 
         var dateTimeOffsetToBinaryConverterProperty = runtimeEntityType.AddProperty(
             "DateTimeOffsetToBinaryConverterProperty",
@@ -808,11 +779,11 @@ public partial class ManyTypesEntityType
         dateTimeOffsetToBinaryConverterProperty.SetAccessors(
             DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTimeOffset (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty, 19),
+            DateTimeOffset (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty, 18),
             DateTimeOffset (IInternalEntry entry) => entry.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty));
         dateTimeOffsetToBinaryConverterProperty.SetPropertyIndexes(
-            index: 19,
-            originalValueIndex: 19,
+            index: 18,
+            originalValueIndex: 18,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -849,11 +820,11 @@ public partial class ManyTypesEntityType
         dateTimeOffsetToBytesConverterProperty.SetAccessors(
             DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTimeOffset (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty, 20),
+            DateTimeOffset (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty, 19),
             DateTimeOffset (IInternalEntry entry) => entry.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty));
         dateTimeOffsetToBytesConverterProperty.SetPropertyIndexes(
-            index: 20,
-            originalValueIndex: 20,
+            index: 19,
+            originalValueIndex: 19,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -890,11 +861,11 @@ public partial class ManyTypesEntityType
         dateTimeOffsetToStringConverterProperty.SetAccessors(
             DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTimeOffset (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeOffsetToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTimeOffset (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty, 21),
+            DateTimeOffset (IInternalEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty, 20),
             DateTimeOffset (IInternalEntry entry) => entry.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty));
         dateTimeOffsetToStringConverterProperty.SetPropertyIndexes(
-            index: 21,
-            originalValueIndex: 21,
+            index: 20,
+            originalValueIndex: 20,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -931,11 +902,11 @@ public partial class ManyTypesEntityType
         dateTimeToBinaryConverterProperty.SetAccessors(
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToBinaryConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToBinaryConverterProperty, 22),
+            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToBinaryConverterProperty, 21),
             DateTime (IInternalEntry entry) => entry.GetCurrentValue<DateTime>(dateTimeToBinaryConverterProperty));
         dateTimeToBinaryConverterProperty.SetPropertyIndexes(
-            index: 22,
-            originalValueIndex: 22,
+            index: 21,
+            originalValueIndex: 21,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -972,11 +943,11 @@ public partial class ManyTypesEntityType
         dateTimeToStringConverterProperty.SetAccessors(
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToStringConverterProperty, 23),
+            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToStringConverterProperty, 22),
             DateTime (IInternalEntry entry) => entry.GetCurrentValue<DateTime>(dateTimeToStringConverterProperty));
         dateTimeToStringConverterProperty.SetPropertyIndexes(
-            index: 23,
-            originalValueIndex: 23,
+            index: 22,
+            originalValueIndex: 22,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -1013,16 +984,15 @@ public partial class ManyTypesEntityType
         dateTimeToTicksConverterProperty.SetAccessors(
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             DateTime (IInternalEntry entry) => ManyTypesUnsafeAccessors.DateTimeToTicksConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToTicksConverterProperty, 24),
+            DateTime (IInternalEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToTicksConverterProperty, 23),
             DateTime (IInternalEntry entry) => entry.GetCurrentValue<DateTime>(dateTimeToTicksConverterProperty));
         dateTimeToTicksConverterProperty.SetPropertyIndexes(
-            index: 24,
-            originalValueIndex: 24,
+            index: 23,
+            originalValueIndex: 23,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        dateTimeToTicksConverterProperty.TypeMapping = CosmosTypeMapping<DateTime>.Default.Clone(
-            jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance);
+        dateTimeToTicksConverterProperty.TypeMapping = CosmosTypeMapping<DateTime>.Default;
 
         var @decimal = runtimeEntityType.AddProperty(
             "Decimal",
@@ -1048,16 +1018,15 @@ public partial class ManyTypesEntityType
         @decimal.SetAccessors(
             decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.Decimal(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.Decimal(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(@decimal, 25),
+            decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(@decimal, 24),
             decimal (IInternalEntry entry) => entry.GetCurrentValue<decimal>(@decimal));
         @decimal.SetPropertyIndexes(
-            index: 25,
-            originalValueIndex: 25,
+            index: 24,
+            originalValueIndex: 24,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @decimal.TypeMapping = CosmosTypeMapping<decimal>.Default.Clone(
-            jsonValueReaderWriter: JsonDecimalReaderWriter.Instance);
+        @decimal.TypeMapping = CosmosDecimalTypeMapping.Default;
 
         var decimalArray = runtimeEntityType.AddProperty(
             "DecimalArray",
@@ -1082,11 +1051,11 @@ public partial class ManyTypesEntityType
         decimalArray.SetAccessors(
             decimal[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             decimal[] (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalArray(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            decimal[] (IInternalEntry entry) => entry.ReadOriginalValue<decimal[]>(decimalArray, 26),
+            decimal[] (IInternalEntry entry) => entry.ReadOriginalValue<decimal[]>(decimalArray, 25),
             decimal[] (IInternalEntry entry) => entry.GetCurrentValue<decimal[]>(decimalArray));
         decimalArray.SetPropertyIndexes(
-            index: 26,
-            originalValueIndex: 26,
+            index: 25,
+            originalValueIndex: 25,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -1094,9 +1063,8 @@ public partial class ManyTypesEntityType
             comparer: new ListOfValueTypesComparer<decimal[], decimal>(DefaultValueComparer<decimal>.Default),
             keyComparer: ValueComparer<decimal[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<decimal[], decimal>(
-                JsonDecimalReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<decimal>.Default.Clone(
-                jsonValueReaderWriter: JsonDecimalReaderWriter.Instance));
+                CosmosJsonDecimalReaderWriter.Instance),
+            elementMapping: CosmosDecimalTypeMapping.Default);
         var decimalArrayElementType = decimalArray.SetElementType(typeof(decimal));
         decimalArrayElementType.TypeMapping = decimalArray.TypeMapping.ElementTypeMapping;
 
@@ -1124,11 +1092,11 @@ public partial class ManyTypesEntityType
         decimalNumberToBytesConverterProperty.SetAccessors(
             decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToBytesConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(decimalNumberToBytesConverterProperty, 27),
+            decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(decimalNumberToBytesConverterProperty, 26),
             decimal (IInternalEntry entry) => entry.GetCurrentValue<decimal>(decimalNumberToBytesConverterProperty));
         decimalNumberToBytesConverterProperty.SetPropertyIndexes(
-            index: 27,
-            originalValueIndex: 27,
+            index: 26,
+            originalValueIndex: 26,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -1165,11 +1133,11 @@ public partial class ManyTypesEntityType
         decimalNumberToStringConverterProperty.SetAccessors(
             decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
             decimal (IInternalEntry entry) => ManyTypesUnsafeAccessors.DecimalNumberToStringConverterProperty(((CompiledModelTestBase.ManyTypes)(entry.Entity))),
-            decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(decimalNumberToStringConverterProperty, 28),
+            decimal (IInternalEntry entry) => entry.ReadOriginalValue<decimal>(decimalNumberToStringConverterProperty, 27),
             decimal (IInternalEntry entry) => entry.GetCurrentValue<decimal>(decimalNumberToStringConverterProperty));
         decimalNumberToStringConverterProperty.SetPropertyIndexes(
-            index: 28,
-            originalValueIndex: 28,
+            index: 27,
+            originalValueIndex: 27,
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
@@ -1181,6 +1149,25 @@ public partial class ManyTypesEntityType
                 JsonStringReaderWriter.Instance,
                 new ValueConverter<decimal, string>(string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)), decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
         decimalNumberToStringConverterProperty.SetSentinelFromProviderValue("0");
+
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
+            typeof(string),
+            afterSaveBehavior: PropertySaveBehavior.Throw,
+            valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.SetAccessors(
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadShadowValue<string>(0),
+            string (IInternalEntry entry) => entry.ReadOriginalValue<string>(discriminator, 28),
+            string (IInternalEntry entry) => entry.GetCurrentValue<string>(discriminator));
+        discriminator.SetPropertyIndexes(
+            index: 28,
+            originalValueIndex: 28,
+            shadowIndex: 0,
+            relationshipIndex: -1,
+            storeGenerationIndex: -1);
+        discriminator.TypeMapping = CosmosTypeMapping<string>.Default;
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var @double = runtimeEntityType.AddProperty(
             "Double",
@@ -1214,8 +1201,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @double.TypeMapping = CosmosTypeMapping<double>.Default.Clone(
-            jsonValueReaderWriter: JsonDoubleReaderWriter.Instance);
+        @double.TypeMapping = CosmosTypeMapping<double>.Default;
 
         var doubleArray = runtimeEntityType.AddProperty(
             "DoubleArray",
@@ -1253,8 +1239,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<double[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<double[], double>(
                 JsonDoubleReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<double>.Default.Clone(
-                jsonValueReaderWriter: JsonDoubleReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<double>.Default);
         var doubleArrayElementType = doubleArray.SetElementType(typeof(double));
         doubleArrayElementType.TypeMapping = doubleArray.TypeMapping.ElementTypeMapping;
 
@@ -2102,8 +2087,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @float.TypeMapping = CosmosTypeMapping<float>.Default.Clone(
-            jsonValueReaderWriter: JsonFloatReaderWriter.Instance);
+        @float.TypeMapping = CosmosTypeMapping<float>.Default;
 
         var floatArray = runtimeEntityType.AddProperty(
             "FloatArray",
@@ -2141,8 +2125,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<float[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<float[], float>(
                 JsonFloatReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<float>.Default.Clone(
-                jsonValueReaderWriter: JsonFloatReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<float>.Default);
         var floatArrayElementType = floatArray.SetElementType(typeof(float));
         floatArrayElementType.TypeMapping = floatArray.TypeMapping.ElementTypeMapping;
 
@@ -2419,8 +2402,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int16.TypeMapping = CosmosTypeMapping<short>.Default.Clone(
-            jsonValueReaderWriter: JsonInt16ReaderWriter.Instance);
+        int16.TypeMapping = CosmosTypeMapping<short>.Default;
 
         var int16Array = runtimeEntityType.AddProperty(
             "Int16Array",
@@ -2458,8 +2440,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<short[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<short[], short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<short>.Default);
         var int16ArrayElementType = int16Array.SetElementType(typeof(short));
         int16ArrayElementType.TypeMapping = int16Array.TypeMapping.ElementTypeMapping;
 
@@ -2495,8 +2476,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int32.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        int32.TypeMapping = CosmosTypeMapping<int>.Default;
 
         var int32Array = runtimeEntityType.AddProperty(
             "Int32Array",
@@ -2534,8 +2514,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<int[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<int>.Default);
         var int32ArrayElementType = int32Array.SetElementType(typeof(int));
         int32ArrayElementType.TypeMapping = int32Array.TypeMapping.ElementTypeMapping;
 
@@ -2581,8 +2560,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<int[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<int[], int>(
                     JsonInt32ReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                    jsonValueReaderWriter: JsonInt32ReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<int>.Default));
         var int32NestedCollectionElementType = int32NestedCollection.SetElementType(typeof(int[]));
         int32NestedCollectionElementType.TypeMapping = int32NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -2622,8 +2600,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<int>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<int>, int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<int>.Default);
         var int32ReadOnlyCollectionElementType = int32ReadOnlyCollection.SetElementType(typeof(int));
         int32ReadOnlyCollectionElementType.TypeMapping = int32ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -2659,8 +2636,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int64.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        int64.TypeMapping = CosmosTypeMapping<long>.Default;
 
         var int64Array = runtimeEntityType.AddProperty(
             "Int64Array",
@@ -2698,8 +2674,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<long[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
                 JsonInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                jsonValueReaderWriter: JsonInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<long>.Default);
         var int64ArrayElementType = int64Array.SetElementType(typeof(long));
         int64ArrayElementType.TypeMapping = int64Array.TypeMapping.ElementTypeMapping;
 
@@ -2752,8 +2727,7 @@ public partial class ManyTypesEntityType
                     keyComparer: ValueComparer<long[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<long[], long>(
                         JsonInt64ReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                        jsonValueReaderWriter: JsonInt64ReaderWriter.Instance))));
+                    elementMapping: CosmosTypeMapping<long>.Default)));
         var int64NestedCollectionElementType = int64NestedCollection.SetElementType(typeof(IList<long[]>));
         int64NestedCollectionElementType.TypeMapping = int64NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -2789,8 +2763,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        int8.TypeMapping = CosmosTypeMapping<sbyte>.Default.Clone(
-            jsonValueReaderWriter: JsonSByteReaderWriter.Instance);
+        int8.TypeMapping = CosmosTypeMapping<sbyte>.Default;
 
         var int8Array = runtimeEntityType.AddProperty(
             "Int8Array",
@@ -2828,8 +2801,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<sbyte[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                 JsonSByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<sbyte>.Default.Clone(
-                jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<sbyte>.Default);
         var int8ArrayElementType = int8Array.SetElementType(typeof(sbyte));
         int8ArrayElementType.TypeMapping = int8Array.TypeMapping.ElementTypeMapping;
 
@@ -2882,8 +2854,7 @@ public partial class ManyTypesEntityType
                     keyComparer: ValueComparer<sbyte[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<sbyte[], sbyte>(
                         JsonSByteReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<sbyte>.Default.Clone(
-                        jsonValueReaderWriter: JsonSByteReaderWriter.Instance))));
+                    elementMapping: CosmosTypeMapping<sbyte>.Default)));
         var int8NestedCollectionElementType = int8NestedCollection.SetElementType(typeof(sbyte[][]));
         int8NestedCollectionElementType.TypeMapping = int8NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -3042,8 +3013,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableBool.TypeMapping = CosmosTypeMapping<bool>.Default.Clone(
-            jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+        nullableBool.TypeMapping = CosmosTypeMapping<bool>.Default;
         nullableBool.SetComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
 
         var nullableBoolArray = runtimeEntityType.AddProperty(
@@ -3082,8 +3052,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<bool?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<bool?[], bool>(
                 JsonBoolReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<bool>.Default.Clone(
-                jsonValueReaderWriter: JsonBoolReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<bool>.Default);
         var nullableBoolArrayElementType = nullableBoolArray.SetElementType(typeof(bool?),
             nullable: true);
         nullableBoolArrayElementType.TypeMapping = nullableBoolArray.TypeMapping.ElementTypeMapping;
@@ -3162,8 +3131,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableChar.TypeMapping = CosmosTypeMapping<char>.Default.Clone(
-            jsonValueReaderWriter: JsonCharReaderWriter.Instance);
+        nullableChar.TypeMapping = CosmosTypeMapping<char>.Default;
         nullableChar.SetComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
 
         var nullableCharArray = runtimeEntityType.AddProperty(
@@ -3202,8 +3170,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<char?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<char?[], char>(
                 JsonCharReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<char>.Default.Clone(
-                jsonValueReaderWriter: JsonCharReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<char>.Default);
         var nullableCharArrayElementType = nullableCharArray.SetElementType(typeof(char?),
             nullable: true);
         nullableCharArrayElementType.TypeMapping = nullableCharArray.TypeMapping.ElementTypeMapping;
@@ -3241,8 +3208,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default.Clone(
-            jsonValueReaderWriter: JsonDateOnlyReaderWriter.Instance);
+        nullableDateOnly.TypeMapping = CosmosTypeMapping<DateOnly>.Default;
         nullableDateOnly.SetComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
 
         var nullableDateTime = runtimeEntityType.AddProperty(
@@ -3277,8 +3243,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default.Clone(
-            jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance);
+        nullableDateTime.TypeMapping = CosmosTypeMapping<DateTime>.Default;
         nullableDateTime.SetComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
 
         var nullableDecimal = runtimeEntityType.AddProperty(
@@ -3313,8 +3278,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDecimal.TypeMapping = CosmosTypeMapping<decimal>.Default.Clone(
-            jsonValueReaderWriter: JsonDecimalReaderWriter.Instance);
+        nullableDecimal.TypeMapping = CosmosDecimalTypeMapping.Default;
         nullableDecimal.SetComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
 
         var nullableDecimalArray = runtimeEntityType.AddProperty(
@@ -3352,9 +3316,8 @@ public partial class ManyTypesEntityType
             comparer: new ListOfNullableValueTypesComparer<decimal?[], decimal>(new NullableValueComparer<decimal>(DefaultValueComparer<decimal>.Default)),
             keyComparer: ValueComparer<decimal?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<decimal?[], decimal>(
-                JsonDecimalReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<decimal>.Default.Clone(
-                jsonValueReaderWriter: JsonDecimalReaderWriter.Instance));
+                CosmosJsonDecimalReaderWriter.Instance),
+            elementMapping: CosmosDecimalTypeMapping.Default);
         var nullableDecimalArrayElementType = nullableDecimalArray.SetElementType(typeof(decimal?),
             nullable: true);
         nullableDecimalArrayElementType.TypeMapping = nullableDecimalArray.TypeMapping.ElementTypeMapping;
@@ -3392,8 +3355,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableDouble.TypeMapping = CosmosTypeMapping<double>.Default.Clone(
-            jsonValueReaderWriter: JsonDoubleReaderWriter.Instance);
+        nullableDouble.TypeMapping = CosmosTypeMapping<double>.Default;
         nullableDouble.SetComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
 
         var nullableDoubleArray = runtimeEntityType.AddProperty(
@@ -3432,8 +3394,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<double?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<double?[], double>(
                 JsonDoubleReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<double>.Default.Clone(
-                jsonValueReaderWriter: JsonDoubleReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<double>.Default);
         var nullableDoubleArrayElementType = nullableDoubleArray.SetElementType(typeof(double?),
             nullable: true);
         nullableDoubleArrayElementType.TypeMapping = nullableDoubleArray.TypeMapping.ElementTypeMapping;
@@ -4127,8 +4088,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableFloat.TypeMapping = CosmosTypeMapping<float>.Default.Clone(
-            jsonValueReaderWriter: JsonFloatReaderWriter.Instance);
+        nullableFloat.TypeMapping = CosmosTypeMapping<float>.Default;
         nullableFloat.SetComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
 
         var nullableFloatArray = runtimeEntityType.AddProperty(
@@ -4167,8 +4127,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<float?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<float?[], float>(
                 JsonFloatReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<float>.Default.Clone(
-                jsonValueReaderWriter: JsonFloatReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<float>.Default);
         var nullableFloatArrayElementType = nullableFloatArray.SetElementType(typeof(float?),
             nullable: true);
         nullableFloatArrayElementType.TypeMapping = nullableFloatArray.TypeMapping.ElementTypeMapping;
@@ -4287,8 +4246,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt16.TypeMapping = CosmosTypeMapping<short>.Default.Clone(
-            jsonValueReaderWriter: JsonInt16ReaderWriter.Instance);
+        nullableInt16.TypeMapping = CosmosTypeMapping<short>.Default;
         nullableInt16.SetComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
 
         var nullableInt16Array = runtimeEntityType.AddProperty(
@@ -4327,8 +4285,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<short?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<short?[], short>(
                 JsonInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<short>.Default.Clone(
-                jsonValueReaderWriter: JsonInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<short>.Default);
         var nullableInt16ArrayElementType = nullableInt16Array.SetElementType(typeof(short?),
             nullable: true);
         nullableInt16ArrayElementType.TypeMapping = nullableInt16Array.TypeMapping.ElementTypeMapping;
@@ -4366,8 +4323,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt32.TypeMapping = CosmosTypeMapping<int>.Default.Clone(
-            jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+        nullableInt32.TypeMapping = CosmosTypeMapping<int>.Default;
         nullableInt32.SetComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
 
         var nullableInt32Array = runtimeEntityType.AddProperty(
@@ -4406,8 +4362,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<int?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
                 JsonInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                jsonValueReaderWriter: JsonInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<int>.Default);
         var nullableInt32ArrayElementType = nullableInt32Array.SetElementType(typeof(int?),
             nullable: true);
         nullableInt32ArrayElementType.TypeMapping = nullableInt32Array.TypeMapping.ElementTypeMapping;
@@ -4455,8 +4410,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<int?[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
                     JsonInt32ReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<int>.Default.Clone(
-                    jsonValueReaderWriter: JsonInt32ReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<int>.Default));
         var nullableInt32NestedCollectionElementType = nullableInt32NestedCollection.SetElementType(typeof(int?[]));
         nullableInt32NestedCollectionElementType.TypeMapping = nullableInt32NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -4492,8 +4446,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt64.TypeMapping = CosmosTypeMapping<long>.Default.Clone(
-            jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+        nullableInt64.TypeMapping = CosmosTypeMapping<long>.Default;
         nullableInt64.SetComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
 
         var nullableInt64Array = runtimeEntityType.AddProperty(
@@ -4532,8 +4485,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<long?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                 JsonInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                jsonValueReaderWriter: JsonInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<long>.Default);
         var nullableInt64ArrayElementType = nullableInt64Array.SetElementType(typeof(long?),
             nullable: true);
         nullableInt64ArrayElementType.TypeMapping = nullableInt64Array.TypeMapping.ElementTypeMapping;
@@ -4588,8 +4540,7 @@ public partial class ManyTypesEntityType
                     keyComparer: ValueComparer<long?[]>.DefaultWithStructuralComparisons,
                     jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                         JsonInt64ReaderWriter.Instance),
-                    elementMapping: CosmosTypeMapping<long>.Default.Clone(
-                        jsonValueReaderWriter: JsonInt64ReaderWriter.Instance))));
+                    elementMapping: CosmosTypeMapping<long>.Default)));
         var nullableInt64NestedCollectionElementType = nullableInt64NestedCollection.SetElementType(typeof(long?[][]));
         nullableInt64NestedCollectionElementType.TypeMapping = nullableInt64NestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -4625,8 +4576,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableInt8.TypeMapping = CosmosTypeMapping<sbyte>.Default.Clone(
-            jsonValueReaderWriter: JsonSByteReaderWriter.Instance);
+        nullableInt8.TypeMapping = CosmosTypeMapping<sbyte>.Default;
         nullableInt8.SetComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
 
         var nullableInt8Array = runtimeEntityType.AddProperty(
@@ -4665,8 +4615,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<sbyte?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<sbyte?[], sbyte>(
                 JsonSByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<sbyte>.Default.Clone(
-                jsonValueReaderWriter: JsonSByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<sbyte>.Default);
         var nullableInt8ArrayElementType = nullableInt8Array.SetElementType(typeof(sbyte?),
             nullable: true);
         nullableInt8ArrayElementType.TypeMapping = nullableInt8Array.TypeMapping.ElementTypeMapping;
@@ -4744,8 +4693,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableString.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        nullableString.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var nullableStringArray = runtimeEntityType.AddProperty(
             "NullableStringArray",
@@ -4783,8 +4731,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var nullableStringArrayElementType = nullableStringArray.SetElementType(typeof(string),
             nullable: true);
         nullableStringArrayElementType.TypeMapping = nullableStringArray.TypeMapping.ElementTypeMapping;
@@ -4831,8 +4778,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                     JsonStringReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                    jsonValueReaderWriter: JsonStringReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<string>.Default));
         var nullableStringNestedCollectionElementType = nullableStringNestedCollection.SetElementType(typeof(string[]));
         nullableStringNestedCollectionElementType.TypeMapping = nullableStringNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -4938,8 +4884,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt16.TypeMapping = CosmosTypeMapping<ushort>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance);
+        nullableUInt16.TypeMapping = CosmosTypeMapping<ushort>.Default;
         nullableUInt16.SetComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
 
         var nullableUInt16Array = runtimeEntityType.AddProperty(
@@ -4978,8 +4923,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ushort?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ushort?[], ushort>(
                 JsonUInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ushort>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ushort>.Default);
         var nullableUInt16ArrayElementType = nullableUInt16Array.SetElementType(typeof(ushort?),
             nullable: true);
         nullableUInt16ArrayElementType.TypeMapping = nullableUInt16Array.TypeMapping.ElementTypeMapping;
@@ -5017,8 +4961,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt32.TypeMapping = CosmosTypeMapping<uint>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance);
+        nullableUInt32.TypeMapping = CosmosTypeMapping<uint>.Default;
         nullableUInt32.SetComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
 
         var nullableUInt32Array = runtimeEntityType.AddProperty(
@@ -5057,8 +5000,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<uint?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<uint?[], uint>(
                 JsonUInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<uint>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<uint>.Default);
         var nullableUInt32ArrayElementType = nullableUInt32Array.SetElementType(typeof(uint?),
             nullable: true);
         nullableUInt32ArrayElementType.TypeMapping = nullableUInt32Array.TypeMapping.ElementTypeMapping;
@@ -5096,8 +5038,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt64.TypeMapping = CosmosTypeMapping<ulong>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance);
+        nullableUInt64.TypeMapping = CosmosTypeMapping<ulong>.Default;
         nullableUInt64.SetComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
 
         var nullableUInt64Array = runtimeEntityType.AddProperty(
@@ -5136,8 +5077,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ulong?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<ulong?[], ulong>(
                 JsonUInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ulong>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ulong>.Default);
         var nullableUInt64ArrayElementType = nullableUInt64Array.SetElementType(typeof(ulong?),
             nullable: true);
         nullableUInt64ArrayElementType.TypeMapping = nullableUInt64Array.TypeMapping.ElementTypeMapping;
@@ -5175,8 +5115,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        nullableUInt8.TypeMapping = CosmosTypeMapping<byte>.Default.Clone(
-            jsonValueReaderWriter: JsonByteReaderWriter.Instance);
+        nullableUInt8.TypeMapping = CosmosTypeMapping<byte>.Default;
         nullableUInt8.SetComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
 
         var nullableUInt8Array = runtimeEntityType.AddProperty(
@@ -5215,8 +5154,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<byte?[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var nullableUInt8ArrayElementType = nullableUInt8Array.SetElementType(typeof(byte?),
             nullable: true);
         nullableUInt8ArrayElementType.TypeMapping = nullableUInt8Array.TypeMapping.ElementTypeMapping;
@@ -5412,8 +5350,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        @string.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        @string.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var stringArray = runtimeEntityType.AddProperty(
             "StringArray",
@@ -5451,8 +5388,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var stringArrayElementType = stringArray.SetElementType(typeof(string));
         stringArrayElementType.TypeMapping = stringArray.TypeMapping.ElementTypeMapping;
 
@@ -5498,8 +5434,7 @@ public partial class ManyTypesEntityType
                 keyComparer: ValueComparer<string[]>.DefaultWithStructuralComparisons,
                 jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<string[], string>(
                     JsonStringReaderWriter.Instance),
-                elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                    jsonValueReaderWriter: JsonStringReaderWriter.Instance)));
+                elementMapping: CosmosTypeMapping<string>.Default));
         var stringNestedCollectionElementType = stringNestedCollection.SetElementType(typeof(string[]));
         stringNestedCollectionElementType.TypeMapping = stringNestedCollection.TypeMapping.ElementTypeMapping;
 
@@ -5539,8 +5474,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<string>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                 JsonStringReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<string>.Default.Clone(
-                jsonValueReaderWriter: JsonStringReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<string>.Default);
         var stringReadOnlyCollectionElementType = stringReadOnlyCollection.SetElementType(typeof(string));
         stringReadOnlyCollectionElementType.TypeMapping = stringReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -5820,7 +5754,7 @@ public partial class ManyTypesEntityType
             providerValueComparer: DefaultValueComparer<decimal>.Default,
             converter: new ValueConverter<string, decimal>(decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v))),
             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, decimal>(
-                JsonDecimalReaderWriter.Instance,
+                CosmosJsonDecimalReaderWriter.Instance,
                 new ValueConverter<string, decimal>(decimal (string v) => decimal.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture), string (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)v)))));
 
         var stringToDoubleNumberConverterProperty = runtimeEntityType.AddProperty(
@@ -5934,8 +5868,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        stringToGuidConverterProperty.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        stringToGuidConverterProperty.TypeMapping = CosmosTypeMapping<string>.Default;
 
         var stringToIntNumberConverterProperty = runtimeEntityType.AddProperty(
             "StringToIntNumberConverterProperty",
@@ -6360,8 +6293,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt16.TypeMapping = CosmosTypeMapping<ushort>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance);
+        uInt16.TypeMapping = CosmosTypeMapping<ushort>.Default;
 
         var uInt16Array = runtimeEntityType.AddProperty(
             "UInt16Array",
@@ -6399,8 +6331,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ushort[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ushort[], ushort>(
                 JsonUInt16ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ushort>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt16ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ushort>.Default);
         var uInt16ArrayElementType = uInt16Array.SetElementType(typeof(ushort));
         uInt16ArrayElementType.TypeMapping = uInt16Array.TypeMapping.ElementTypeMapping;
 
@@ -6436,8 +6367,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt32.TypeMapping = CosmosTypeMapping<uint>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance);
+        uInt32.TypeMapping = CosmosTypeMapping<uint>.Default;
 
         var uInt32Array = runtimeEntityType.AddProperty(
             "UInt32Array",
@@ -6475,8 +6405,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<uint[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<uint[], uint>(
                 JsonUInt32ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<uint>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt32ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<uint>.Default);
         var uInt32ArrayElementType = uInt32Array.SetElementType(typeof(uint));
         uInt32ArrayElementType.TypeMapping = uInt32Array.TypeMapping.ElementTypeMapping;
 
@@ -6512,8 +6441,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt64.TypeMapping = CosmosTypeMapping<ulong>.Default.Clone(
-            jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance);
+        uInt64.TypeMapping = CosmosTypeMapping<ulong>.Default;
 
         var uInt64Array = runtimeEntityType.AddProperty(
             "UInt64Array",
@@ -6551,8 +6479,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<ulong[]>.DefaultWithStructuralComparisons,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<ulong[], ulong>(
                 JsonUInt64ReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<ulong>.Default.Clone(
-                jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<ulong>.Default);
         var uInt64ArrayElementType = uInt64Array.SetElementType(typeof(ulong));
         uInt64ArrayElementType.TypeMapping = uInt64Array.TypeMapping.ElementTypeMapping;
 
@@ -6588,8 +6515,7 @@ public partial class ManyTypesEntityType
             shadowIndex: -1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        uInt8.TypeMapping = CosmosTypeMapping<byte>.Default.Clone(
-            jsonValueReaderWriter: JsonByteReaderWriter.Instance);
+        uInt8.TypeMapping = CosmosTypeMapping<byte>.Default;
 
         var uInt8Array = runtimeEntityType.AddProperty(
             "UInt8Array",
@@ -6667,8 +6593,7 @@ public partial class ManyTypesEntityType
             keyComparer: ValueComparer<IReadOnlyCollection<byte>>.Default,
             jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                 JsonByteReaderWriter.Instance),
-            elementMapping: CosmosTypeMapping<byte>.Default.Clone(
-                jsonValueReaderWriter: JsonByteReaderWriter.Instance));
+            elementMapping: CosmosTypeMapping<byte>.Default);
         var uInt8ReadOnlyCollectionElementType = uInt8ReadOnlyCollection.SetElementType(typeof(byte));
         uInt8ReadOnlyCollectionElementType.TypeMapping = uInt8ReadOnlyCollection.TypeMapping.ElementTypeMapping;
 
@@ -6767,30 +6692,8 @@ public partial class ManyTypesEntityType
             shadowIndex: 1,
             relationshipIndex: -1,
             storeGenerationIndex: -1);
-        __id.TypeMapping = CosmosTypeMapping<string>.Default.Clone(
-            jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+        __id.TypeMapping = CosmosTypeMapping<string>.Default;
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true,
-            valueGenerated: ValueGenerated.OnAddOrUpdate,
-            beforeSaveBehavior: PropertySaveBehavior.Ignore,
-            afterSaveBehavior: PropertySaveBehavior.Ignore);
-        __jObject.SetAccessors(
-            JObject (IInternalEntry entry) => (entry.FlaggedAsStoreGenerated(169) ? entry.ReadStoreGeneratedValue<JObject>(0) : (entry.FlaggedAsTemporary(169) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2))),
-            JObject (IInternalEntry entry) => entry.ReadShadowValue<JObject>(2),
-            JObject (IInternalEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 169),
-            JObject (IInternalEntry entry) => entry.GetCurrentValue<JObject>(__jObject));
-        __jObject.SetPropertyIndexes(
-            index: 169,
-            originalValueIndex: 169,
-            shadowIndex: 2,
-            relationshipIndex: -1,
-            storeGenerationIndex: 0);
-        __jObject.TypeMapping = CosmosTypeMapping<JObject>.Default;
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var key = runtimeEntityType.AddKey(
             new[] { id });
@@ -6802,7 +6705,6 @@ public partial class ManyTypesEntityType
     public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
     {
         var id = runtimeEntityType.FindProperty("Id");
-        var type = runtimeEntityType.FindProperty("$type");
         var @bool = runtimeEntityType.FindProperty("Bool");
         var boolArray = runtimeEntityType.FindProperty("BoolArray");
         var boolNestedCollection = runtimeEntityType.FindProperty("BoolNestedCollection");
@@ -6830,6 +6732,7 @@ public partial class ManyTypesEntityType
         var decimalArray = runtimeEntityType.FindProperty("DecimalArray");
         var decimalNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToBytesConverterProperty");
         var decimalNumberToStringConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToStringConverterProperty");
+        var discriminator = runtimeEntityType.FindProperty("Discriminator");
         var @double = runtimeEntityType.FindProperty("Double");
         var doubleArray = runtimeEntityType.FindProperty("DoubleArray");
         var doubleNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToBytesConverterProperty");
@@ -6970,7 +6873,6 @@ public partial class ManyTypesEntityType
         var uri = runtimeEntityType.FindProperty("Uri");
         var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty");
         var __id = runtimeEntityType.FindProperty("__id");
-        var __jObject = runtimeEntityType.FindProperty("__jObject");
         var key = runtimeEntityType.FindKey(new[] { id });
         key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<CompiledModelTestBase.ManyTypesId>(key));
         key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<CompiledModelTestBase.ManyTypesId>(key));
@@ -6978,7 +6880,7 @@ public partial class ManyTypesEntityType
             ISnapshot (IInternalEntry source) =>
             {
                 var structuralType = ((CompiledModelTestBase.ManyTypes)(source.Entity));
-                var liftedArg = ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId, string, bool, bool[], bool[][], IReadOnlyCollection<bool>, bool, bool, bool, byte[], byte[], int, char, char[], char[][], char, DateOnly, DateOnly, DateTime, DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTime, DateTime, DateTime, decimal, decimal[], decimal, decimal, double>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)), (source.GetCurrentValue<string>(type) == null ? null : ((ValueComparer<string>)(((IProperty)type).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(type))), ((ValueComparer<bool>)(((IProperty)@bool).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(@bool)), (((IEnumerable<bool>)(source.GetCurrentValue<bool[]>(boolArray))) == null ? null : ((bool[])(((ValueComparer<IEnumerable<bool>>)(((IProperty)boolArray).GetValueComparer())).Snapshot(((IEnumerable<bool>)(source.GetCurrentValue<bool[]>(boolArray))))))), (((object)(source.GetCurrentValue<bool[][]>(boolNestedCollection))) == null ? null : ((bool[][])(((ValueComparer<object>)(((IProperty)boolNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<bool[][]>(boolNestedCollection))))))), (((IEnumerable<bool>)(source.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<bool>)(((ValueComparer<IEnumerable<bool>>)(((IProperty)boolReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<bool>)(source.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection))))))), ((ValueComparer<bool>)(((IProperty)boolToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToStringConverterProperty)), ((ValueComparer<bool>)(((IProperty)boolToTwoValuesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToTwoValuesConverterProperty)), ((ValueComparer<bool>)(((IProperty)boolToZeroOneConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToZeroOneConverterProperty)), (source.GetCurrentValue<byte[]>(bytes) == null ? null : ((ValueComparer<byte[]>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(bytes))), (source.GetCurrentValue<byte[]>(bytesToStringConverterProperty) == null ? null : ((ValueComparer<byte[]>)(((IProperty)bytesToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(bytesToStringConverterProperty))), ((ValueComparer<int>)(((IProperty)castingConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(castingConverterProperty)), ((ValueComparer<char>)(((IProperty)@char).GetValueComparer())).Snapshot(source.GetCurrentValue<char>(@char)), (((IEnumerable<char>)(source.GetCurrentValue<char[]>(charArray))) == null ? null : ((char[])(((ValueComparer<IEnumerable<char>>)(((IProperty)charArray).GetValueComparer())).Snapshot(((IEnumerable<char>)(source.GetCurrentValue<char[]>(charArray))))))), (((object)(source.GetCurrentValue<char[][]>(charNestedCollection))) == null ? null : ((char[][])(((ValueComparer<object>)(((IProperty)charNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<char[][]>(charNestedCollection))))))), ((ValueComparer<char>)(((IProperty)charToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<char>(charToStringConverterProperty)), ((ValueComparer<DateOnly>)(((IProperty)dateOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly>(dateOnly)), ((ValueComparer<DateOnly>)(((IProperty)dateOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly>(dateOnlyToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTime).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTime)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToBinaryConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToBinaryConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToBinaryConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToTicksConverterProperty)), ((ValueComparer<decimal>)(((IProperty)@decimal).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(@decimal)), (((IEnumerable<decimal>)(source.GetCurrentValue<decimal[]>(decimalArray))) == null ? null : ((decimal[])(((ValueComparer<IEnumerable<decimal>>)(((IProperty)decimalArray).GetValueComparer())).Snapshot(((IEnumerable<decimal>)(source.GetCurrentValue<decimal[]>(decimalArray))))))), ((ValueComparer<decimal>)(((IProperty)decimalNumberToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToBytesConverterProperty)), ((ValueComparer<decimal>)(((IProperty)decimalNumberToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToStringConverterProperty)), ((ValueComparer<double>)(((IProperty)@double).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(@double)))));
+                var liftedArg = ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId, bool, bool[], bool[][], IReadOnlyCollection<bool>, bool, bool, bool, byte[], byte[], int, char, char[], char[][], char, DateOnly, DateOnly, DateTime, DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTime, DateTime, DateTime, decimal, decimal[], decimal, decimal, string, double>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)), ((ValueComparer<bool>)(((IProperty)@bool).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(@bool)), (((IEnumerable<bool>)(source.GetCurrentValue<bool[]>(boolArray))) == null ? null : ((bool[])(((ValueComparer<IEnumerable<bool>>)(((IProperty)boolArray).GetValueComparer())).Snapshot(((IEnumerable<bool>)(source.GetCurrentValue<bool[]>(boolArray))))))), (((object)(source.GetCurrentValue<bool[][]>(boolNestedCollection))) == null ? null : ((bool[][])(((ValueComparer<object>)(((IProperty)boolNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<bool[][]>(boolNestedCollection))))))), (((IEnumerable<bool>)(source.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<bool>)(((ValueComparer<IEnumerable<bool>>)(((IProperty)boolReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<bool>)(source.GetCurrentValue<IReadOnlyCollection<bool>>(boolReadOnlyCollection))))))), ((ValueComparer<bool>)(((IProperty)boolToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToStringConverterProperty)), ((ValueComparer<bool>)(((IProperty)boolToTwoValuesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToTwoValuesConverterProperty)), ((ValueComparer<bool>)(((IProperty)boolToZeroOneConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<bool>(boolToZeroOneConverterProperty)), (source.GetCurrentValue<byte[]>(bytes) == null ? null : ((ValueComparer<byte[]>)(((IProperty)bytes).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(bytes))), (source.GetCurrentValue<byte[]>(bytesToStringConverterProperty) == null ? null : ((ValueComparer<byte[]>)(((IProperty)bytesToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(bytesToStringConverterProperty))), ((ValueComparer<int>)(((IProperty)castingConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<int>(castingConverterProperty)), ((ValueComparer<char>)(((IProperty)@char).GetValueComparer())).Snapshot(source.GetCurrentValue<char>(@char)), (((IEnumerable<char>)(source.GetCurrentValue<char[]>(charArray))) == null ? null : ((char[])(((ValueComparer<IEnumerable<char>>)(((IProperty)charArray).GetValueComparer())).Snapshot(((IEnumerable<char>)(source.GetCurrentValue<char[]>(charArray))))))), (((object)(source.GetCurrentValue<char[][]>(charNestedCollection))) == null ? null : ((char[][])(((ValueComparer<object>)(((IProperty)charNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<char[][]>(charNestedCollection))))))), ((ValueComparer<char>)(((IProperty)charToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<char>(charToStringConverterProperty)), ((ValueComparer<DateOnly>)(((IProperty)dateOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly>(dateOnly)), ((ValueComparer<DateOnly>)(((IProperty)dateOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateOnly>(dateOnlyToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTime).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTime)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToBinaryConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty)), ((ValueComparer<DateTimeOffset>)(((IProperty)dateTimeOffsetToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToBinaryConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToBinaryConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToStringConverterProperty)), ((ValueComparer<DateTime>)(((IProperty)dateTimeToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToTicksConverterProperty)), ((ValueComparer<decimal>)(((IProperty)@decimal).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(@decimal)), (((IEnumerable<decimal>)(source.GetCurrentValue<decimal[]>(decimalArray))) == null ? null : ((decimal[])(((ValueComparer<IEnumerable<decimal>>)(((IProperty)decimalArray).GetValueComparer())).Snapshot(((IEnumerable<decimal>)(source.GetCurrentValue<decimal[]>(decimalArray))))))), ((ValueComparer<decimal>)(((IProperty)decimalNumberToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToBytesConverterProperty)), ((ValueComparer<decimal>)(((IProperty)decimalNumberToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToStringConverterProperty)), (source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)(((IProperty)discriminator).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(discriminator))), ((ValueComparer<double>)(((IProperty)@double).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(@double)))));
                 var structuralType0 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                 var liftedArg0 = ((ISnapshot)(new Snapshot<double[], double, double, CompiledModelTestBase.Enum16, CompiledModelTestBase.Enum16, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum64, CompiledModelTestBase.Enum64, CompiledModelTestBase.Enum8, CompiledModelTestBase.Enum8, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32, CompiledModelTestBase.EnumU16, CompiledModelTestBase.EnumU16, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU64, CompiledModelTestBase.EnumU64, CompiledModelTestBase.EnumU8, CompiledModelTestBase.EnumU8, float, float[], Guid, Guid, Guid, IPAddress, IPAddress, IPAddress, short>((((IEnumerable<double>)(source.GetCurrentValue<double[]>(doubleArray))) == null ? null : ((double[])(((ValueComparer<IEnumerable<double>>)(((IProperty)doubleArray).GetValueComparer())).Snapshot(((IEnumerable<double>)(source.GetCurrentValue<double[]>(doubleArray))))))), ((ValueComparer<double>)(((IProperty)doubleNumberToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(doubleNumberToBytesConverterProperty)), ((ValueComparer<double>)(((IProperty)doubleNumberToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<double>(doubleNumberToStringConverterProperty)), ((ValueComparer<CompiledModelTestBase.Enum16>)(((IProperty)enum16).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16)), ((ValueComparer<CompiledModelTestBase.Enum16>)(((IProperty)enum16AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16AsString)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enum32).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enum32AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32AsString)), ((ValueComparer<CompiledModelTestBase.Enum64>)(((IProperty)enum64).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64)), ((ValueComparer<CompiledModelTestBase.Enum64>)(((IProperty)enum64AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64AsString)), ((ValueComparer<CompiledModelTestBase.Enum8>)(((IProperty)enum8).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8)), ((ValueComparer<CompiledModelTestBase.Enum8>)(((IProperty)enum8AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8AsString)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enumToNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToNumberConverterProperty)), ((ValueComparer<CompiledModelTestBase.Enum32>)(((IProperty)enumToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToStringConverterProperty)), ((ValueComparer<CompiledModelTestBase.EnumU16>)(((IProperty)enumU16).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16)), ((ValueComparer<CompiledModelTestBase.EnumU16>)(((IProperty)enumU16AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16AsString)), ((ValueComparer<CompiledModelTestBase.EnumU32>)(((IProperty)enumU32).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32)), ((ValueComparer<CompiledModelTestBase.EnumU32>)(((IProperty)enumU32AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32AsString)), ((ValueComparer<CompiledModelTestBase.EnumU64>)(((IProperty)enumU64).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64)), ((ValueComparer<CompiledModelTestBase.EnumU64>)(((IProperty)enumU64AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64AsString)), ((ValueComparer<CompiledModelTestBase.EnumU8>)(((IProperty)enumU8).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8)), ((ValueComparer<CompiledModelTestBase.EnumU8>)(((IProperty)enumU8AsString).GetValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8AsString)), ((ValueComparer<float>)(((IProperty)@float).GetValueComparer())).Snapshot(source.GetCurrentValue<float>(@float)), (((IEnumerable<float>)(source.GetCurrentValue<float[]>(floatArray))) == null ? null : ((float[])(((ValueComparer<IEnumerable<float>>)(((IProperty)floatArray).GetValueComparer())).Snapshot(((IEnumerable<float>)(source.GetCurrentValue<float[]>(floatArray))))))), ((ValueComparer<Guid>)(((IProperty)guid).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(guid)), ((ValueComparer<Guid>)(((IProperty)guidToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(guidToBytesConverterProperty)), ((ValueComparer<Guid>)(((IProperty)guidToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Guid>(guidToStringConverterProperty)), (source.GetCurrentValue<IPAddress>(iPAddress) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)iPAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(iPAddress))), (source.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)iPAddressToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty))), (source.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty) == null ? null : ((ValueComparer<IPAddress>)(((IProperty)iPAddressToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty))), ((ValueComparer<short>)(((IProperty)int16).GetValueComparer())).Snapshot(source.GetCurrentValue<short>(int16)))));
                 var structuralType1 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
@@ -6988,16 +6890,16 @@ public partial class ManyTypesEntityType
                 var structuralType3 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
                 var liftedArg3 = ((ISnapshot)(new Snapshot<TimeSpan?, ushort?, ushort? [], uint?, uint? [], ulong?, ulong? [], byte?, byte? [], Uri, PhysicalAddress, PhysicalAddress, PhysicalAddress, string, string[], string[][], IReadOnlyCollection<string>, string, string, string, string, string, string, string, string, string, string, string, string, string>((source.GetCurrentValue<TimeSpan?>(nullableTimeSpan) == null ? null : ((ValueComparer<TimeSpan?>)(((IProperty)nullableTimeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan?>(nullableTimeSpan))), (source.GetCurrentValue<ushort?>(nullableUInt16) == null ? null : ((ValueComparer<ushort?>)(((IProperty)nullableUInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort?>(nullableUInt16))), (((IEnumerable<ushort?>)(source.GetCurrentValue<ushort? []>(nullableUInt16Array))) == null ? null : ((ushort? [])(((ValueComparer<IEnumerable<ushort?>>)(((IProperty)nullableUInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort?>)(source.GetCurrentValue<ushort? []>(nullableUInt16Array))))))), (source.GetCurrentValue<uint?>(nullableUInt32) == null ? null : ((ValueComparer<uint?>)(((IProperty)nullableUInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint?>(nullableUInt32))), (((IEnumerable<uint?>)(source.GetCurrentValue<uint? []>(nullableUInt32Array))) == null ? null : ((uint? [])(((ValueComparer<IEnumerable<uint?>>)(((IProperty)nullableUInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint?>)(source.GetCurrentValue<uint? []>(nullableUInt32Array))))))), (source.GetCurrentValue<ulong?>(nullableUInt64) == null ? null : ((ValueComparer<ulong?>)(((IProperty)nullableUInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong?>(nullableUInt64))), (((IEnumerable<ulong?>)(source.GetCurrentValue<ulong? []>(nullableUInt64Array))) == null ? null : ((ulong? [])(((ValueComparer<IEnumerable<ulong?>>)(((IProperty)nullableUInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong?>)(source.GetCurrentValue<ulong? []>(nullableUInt64Array))))))), (source.GetCurrentValue<byte?>(nullableUInt8) == null ? null : ((ValueComparer<byte?>)(((IProperty)nullableUInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte?>(nullableUInt8))), (((IEnumerable<byte?>)(source.GetCurrentValue<byte? []>(nullableUInt8Array))) == null ? null : ((byte? [])(((ValueComparer<IEnumerable<byte?>>)(((IProperty)nullableUInt8Array).GetValueComparer())).Snapshot(((IEnumerable<byte?>)(source.GetCurrentValue<byte? []>(nullableUInt8Array))))))), (source.GetCurrentValue<Uri>(nullableUri) == null ? null : ((ValueComparer<Uri>)(((IProperty)nullableUri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(nullableUri))), (source.GetCurrentValue<PhysicalAddress>(physicalAddress) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddress).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddress))), (source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddressToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty))), (source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)(((IProperty)physicalAddressToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty))), (source.GetCurrentValue<string>(@string) == null ? null : ((ValueComparer<string>)(((IProperty)@string).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(@string))), (((object)(source.GetCurrentValue<string[]>(stringArray))) == null ? null : ((string[])(((ValueComparer<object>)(((IProperty)stringArray).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[]>(stringArray))))))), (((object)(source.GetCurrentValue<string[][]>(stringNestedCollection))) == null ? null : ((string[][])(((ValueComparer<object>)(((IProperty)stringNestedCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<string[][]>(stringNestedCollection))))))), (((object)(source.GetCurrentValue<IReadOnlyCollection<string>>(stringReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<string>)(((ValueComparer<object>)(((IProperty)stringReadOnlyCollection).GetValueComparer())).Snapshot(((object)(source.GetCurrentValue<IReadOnlyCollection<string>>(stringReadOnlyCollection))))))), (source.GetCurrentValue<string>(stringToBoolConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToBoolConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToBoolConverterProperty))), (source.GetCurrentValue<string>(stringToBytesConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToBytesConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToBytesConverterProperty))), (source.GetCurrentValue<string>(stringToCharConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToCharConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToCharConverterProperty))), (source.GetCurrentValue<string>(stringToDateOnlyConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateOnlyConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateOnlyConverterProperty))), (source.GetCurrentValue<string>(stringToDateTimeConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateTimeConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateTimeConverterProperty))), (source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDateTimeOffsetConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty))), (source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDecimalNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty))), (source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToDoubleNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty))), (source.GetCurrentValue<string>(stringToEnumConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToEnumConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToEnumConverterProperty))), (source.GetCurrentValue<string>(stringToGuidConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToGuidConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToGuidConverterProperty))), (source.GetCurrentValue<string>(stringToIntNumberConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToIntNumberConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToIntNumberConverterProperty))), (source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToTimeOnlyConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty))), (source.GetCurrentValue<string>(stringToTimeSpanConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToTimeSpanConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToTimeSpanConverterProperty))))));
                 var structuralType4 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
-                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, ((ISnapshot)(new Snapshot<string, TimeOnly, TimeOnly, TimeOnly, TimeSpan, TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], IReadOnlyCollection<byte>, Uri, Uri, string, JObject>((source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToUriConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty))), ((ValueComparer<TimeOnly>)(((IProperty)timeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)(((IProperty)uInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))) == null ? null : ((ushort[])(((ValueComparer<IEnumerable<ushort>>)(((IProperty)uInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))))))), ((ValueComparer<uint>)(((IProperty)uInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(uInt32)), (((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))) == null ? null : ((uint[])(((ValueComparer<IEnumerable<uint>>)(((IProperty)uInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))))))), ((ValueComparer<ulong>)(((IProperty)uInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))) == null ? null : ((ulong[])(((ValueComparer<IEnumerable<ulong>>)(((IProperty)uInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))))))), ((ValueComparer<byte>)(((IProperty)uInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(uInt8)), (source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)(((IProperty)uInt8Array).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array))), (((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)uInt8ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))))))), (source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)(((IProperty)uri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uri))), (source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)(((IProperty)uriToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), (source.GetCurrentValue<JObject>(__jObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(source.GetCurrentValue<JObject>(__jObject)))))) })));
+                return ((ISnapshot)(new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, ((ISnapshot)(new Snapshot<string, TimeOnly, TimeOnly, TimeOnly, TimeSpan, TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], IReadOnlyCollection<byte>, Uri, Uri, string>((source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)(((IProperty)stringToUriConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty))), ((ValueComparer<TimeOnly>)(((IProperty)timeOnly).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)(((IProperty)timeOnlyToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpan).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)(((IProperty)timeSpanToTicksConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)(((IProperty)uInt16).GetValueComparer())).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))) == null ? null : ((ushort[])(((ValueComparer<IEnumerable<ushort>>)(((IProperty)uInt16Array).GetValueComparer())).Snapshot(((IEnumerable<ushort>)(source.GetCurrentValue<ushort[]>(uInt16Array))))))), ((ValueComparer<uint>)(((IProperty)uInt32).GetValueComparer())).Snapshot(source.GetCurrentValue<uint>(uInt32)), (((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))) == null ? null : ((uint[])(((ValueComparer<IEnumerable<uint>>)(((IProperty)uInt32Array).GetValueComparer())).Snapshot(((IEnumerable<uint>)(source.GetCurrentValue<uint[]>(uInt32Array))))))), ((ValueComparer<ulong>)(((IProperty)uInt64).GetValueComparer())).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))) == null ? null : ((ulong[])(((ValueComparer<IEnumerable<ulong>>)(((IProperty)uInt64Array).GetValueComparer())).Snapshot(((IEnumerable<ulong>)(source.GetCurrentValue<ulong[]>(uInt64Array))))))), ((ValueComparer<byte>)(((IProperty)uInt8).GetValueComparer())).Snapshot(source.GetCurrentValue<byte>(uInt8)), (source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)(((IProperty)uInt8Array).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array))), (((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))) == null ? null : ((IReadOnlyCollection<byte>)(((ValueComparer<IEnumerable<byte>>)(((IProperty)uInt8ReadOnlyCollection).GetValueComparer())).Snapshot(((IEnumerable<byte>)(source.GetCurrentValue<IReadOnlyCollection<byte>>(uInt8ReadOnlyCollection))))))), (source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)(((IProperty)uri).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uri))), (source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)(((IProperty)uriToStringConverterProperty).GetValueComparer())).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetValueComparer())).Snapshot(source.GetCurrentValue<string>(__id)))))) })));
             });
         runtimeEntityType.SetStoreGeneratedValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<JObject>((default(JObject) == null ? null : ((ValueComparer<JObject>)(((IProperty)__jObject).GetValueComparer())).Snapshot(default(JObject)))))));
+            ISnapshot () => Snapshot.Empty);
         runtimeEntityType.SetTemporaryValuesFactory(
-            ISnapshot (IInternalEntry source) => ((ISnapshot)(new Snapshot<JObject>(default(JObject)))));
+            ISnapshot (IInternalEntry source) => Snapshot.Empty);
         runtimeEntityType.SetShadowValuesFactory(
-            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string, JObject>((source.ContainsKey("$type") ? ((string)(source["$type"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null), (source.ContainsKey("__jObject") ? ((JObject)(source["__jObject"])) : null)))));
+            ISnapshot (IDictionary<string, object> source) => ((ISnapshot)(new Snapshot<string, string>((source.ContainsKey("Discriminator") ? ((string)(source["Discriminator"])) : null), (source.ContainsKey("__id") ? ((string)(source["__id"])) : null)))));
         runtimeEntityType.SetEmptyShadowValuesFactory(
-            ISnapshot () => ((ISnapshot)(new Snapshot<string, string, JObject>(default(string), default(string), default(JObject)))));
+            ISnapshot () => ((ISnapshot)(new Snapshot<string, string>(default(string), default(string)))));
         runtimeEntityType.SetRelationshipSnapshotFactory(
             ISnapshot (IInternalEntry source) =>
             {
@@ -7005,14 +6907,14 @@ public partial class ManyTypesEntityType
                 return ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)))));
             });
         runtimeEntityType.SetCounts(new PropertyCounts(
-            propertyCount: 170,
+            propertyCount: 169,
             navigationCount: 0,
             complexPropertyCount: 0,
             complexCollectionCount: 0,
-            originalValueCount: 170,
-            shadowCount: 3,
+            originalValueCount: 169,
+            shadowCount: 2,
             relationshipCount: 1,
-            storeGeneratedCount: 1));
+            storeGeneratedCount: 0));
 
         Customize(runtimeEntityType);
     }

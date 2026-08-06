@@ -125,15 +125,18 @@
     such as [ConditionalClass]/[ConditionalAssembly] add `category=failing` to tests whose
     condition evaluates to false; this filter is what actually skips them at the runner.
 
+    The 'report-trx' argument is required so each Helix work item produces a TRX file that Arcade's
+    Helix reporter uploads to Azure DevOps. 
+
     This must run AFTER any per-queue ItemGroup that re-Includes MTPProject items.
   -->
   <ItemGroup>
     <MTPProject Update="@(MTPProject)">
-      <Arguments>$(XUnitV3Arguments) --filter-not-trait category=failing --ignore-exit-code 8</Arguments>
+      <Arguments>--report-trx --filter-not-trait category=failing --ignore-exit-code 8</Arguments>
     </MTPProject>
   </ItemGroup>
 
   <PropertyGroup>
-    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">03:00:00</XUnitWorkItemTimeout>
+    <MTPWorkItemTimeout Condition = "'$(MTPWorkItemTimeout)' == ''">03:00:00</MTPWorkItemTimeout>
   </PropertyGroup>
 </Project>

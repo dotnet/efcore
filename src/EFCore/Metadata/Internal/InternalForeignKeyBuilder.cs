@@ -1424,8 +1424,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             return null;
         }
 
-        var dependentProperties = (IReadOnlyList<Property>) [];
-        var principalProperties = (IReadOnlyList<Property>) [];
+        var dependentProperties = (IReadOnlyList<Property>)[];
+        var principalProperties = (IReadOnlyList<Property>)[];
         var builder = this;
         if (shouldInvert)
         {
@@ -1556,7 +1556,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         using var batch = Metadata.DeclaringEntityType.Model.DelayConventions();
 
         var temporaryProperties = Metadata.Properties.Where(p
-            => (p.IsShadowProperty() || p.DeclaringType.IsPropertyBag && p.IsIndexerProperty())
+            => (p.IsShadowProperty() || (p.DeclaringType.IsPropertyBag && p.IsIndexerProperty()))
             && ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
 
         var keysToDetach = temporaryProperties.SelectMany(p => p.GetContainingKeys()
@@ -1648,12 +1648,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             dependentEntityType,
             configurationSource);
 
-        if (relationship == null)
-        {
-            return null;
-        }
-
-        return (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
+        return relationship == null ? null : (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
     }
 
     /// <summary>
@@ -1682,12 +1677,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             dependentEntityType,
             configurationSource);
 
-        if (relationship == null)
-        {
-            return null;
-        }
-
-        return (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
+        return relationship == null ? null : (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
     }
 
     /// <summary>
@@ -1721,7 +1711,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                     dependentProperties: []);
         }
 
-        properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource)!;
+        properties = dependentEntityType.Builder.GetActualProperties(
+            properties, configurationSource, Metadata.PrincipalKey.Properties)!;
         if (Metadata.Properties.SequenceEqual(properties))
         {
             Metadata.UpdateConfigurationSource(configurationSource);
@@ -1740,19 +1731,16 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             return builder;
         }
 
-        if (!CanSetForeignKey(
-                properties, dependentEntityType, configurationSource, out var resetPrincipalKey))
-        {
-            return null;
-        }
-
-        return ReplaceForeignKey(
-            configurationSource,
-            dependentEntityTypeBuilder: dependentEntityType.Builder,
-            dependentProperties: properties,
-            principalProperties: resetPrincipalKey ? [] : null,
-            principalEndConfigurationSource: configurationSource,
-            removeCurrent: !Property.AreCompatible(properties, Metadata.DeclaringEntityType));
+        return !CanSetForeignKey(
+            properties, dependentEntityType, configurationSource, out var resetPrincipalKey)
+            ? null
+            : ReplaceForeignKey(
+                configurationSource,
+                dependentEntityTypeBuilder: dependentEntityType.Builder,
+                dependentProperties: properties,
+                principalProperties: resetPrincipalKey ? [] : null,
+                principalEndConfigurationSource: configurationSource,
+                removeCurrent: !Property.AreCompatible(properties, Metadata.DeclaringEntityType));
     }
 
     /// <summary>
@@ -1762,19 +1750,14 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetForeignKey(IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
-    {
-        if (propertyNames is not null
-            && ((IReadOnlyEntityType)Metadata.DeclaringEntityType).FindProperties(propertyNames) is { } properties)
-        {
-            return CanSetForeignKey(
-                properties,
-                dependentEntityType: null,
-                configurationSource,
-                out _);
-        }
-
-        return configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource());
-    }
+        => propertyNames is not null
+            && ((IReadOnlyEntityType)Metadata.DeclaringEntityType).FindProperties(propertyNames) is { } properties
+                ? CanSetForeignKey(
+                    properties,
+                    dependentEntityType: null,
+                    configurationSource,
+                    out _)
+                : configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1809,8 +1792,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         bool overrideSameSource = true)
     {
         resetPrincipalKey = false;
-        return properties != null
-            && Metadata.Properties.SequenceEqual(properties)
+        return (properties != null
+                && Metadata.Properties.SequenceEqual(properties))
             || CanSetForeignKey(
                 properties,
                 dependentEntityType,
@@ -1953,18 +1936,15 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             return builder;
         }
 
-        if (!CanSetPrincipalKey(properties, configurationSource, out var resetDependent, out var oldNameDependentProperties))
-        {
-            return null;
-        }
-
-        return ReplaceForeignKey(
-            configurationSource,
-            principalProperties: properties,
-            dependentProperties: resetDependent ? [] : null,
-            principalEndConfigurationSource: configurationSource,
-            oldNameDependentProperties: oldNameDependentProperties,
-            removeCurrent: oldNameDependentProperties != null);
+        return !CanSetPrincipalKey(properties, configurationSource, out var resetDependent, out var oldNameDependentProperties)
+            ? null
+            : ReplaceForeignKey(
+                configurationSource,
+                principalProperties: properties,
+                dependentProperties: resetDependent ? [] : null,
+                principalEndConfigurationSource: configurationSource,
+                oldNameDependentProperties: oldNameDependentProperties,
+                removeCurrent: oldNameDependentProperties != null);
     }
 
     /// <summary>
@@ -1974,19 +1954,14 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetPrincipalKey(IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
-    {
-        if (propertyNames is not null
-            && ((IReadOnlyEntityType)Metadata.PrincipalEntityType).FindProperties(propertyNames) is { } properties)
-        {
-            return CanSetPrincipalKey(
-                properties,
-                configurationSource,
-                out _,
-                out _);
-        }
-
-        return configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource());
-    }
+        => propertyNames is not null
+            && ((IReadOnlyEntityType)Metadata.PrincipalEntityType).FindProperties(propertyNames) is { } properties
+                ? CanSetPrincipalKey(
+                    properties,
+                    configurationSource,
+                    out _,
+                    out _)
+                : configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2089,38 +2064,28 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
         if (navigationToPrincipal == null)
         {
-            if (oldRelationshipInverted)
-            {
-                navigationToPrincipal = Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
-                    ?? false
-                        ? Metadata.PrincipalToDependent.CreateMemberIdentity()
-                        : navigationToPrincipal;
-            }
-            else
-            {
-                navigationToPrincipal = Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
-                    ?? false
-                        ? Metadata.DependentToPrincipal.CreateMemberIdentity()
-                        : navigationToPrincipal;
-            }
+            navigationToPrincipal = oldRelationshipInverted
+                ? Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
+                ?? false
+                    ? Metadata.PrincipalToDependent.CreateMemberIdentity()
+                    : navigationToPrincipal
+                : Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
+                ?? false
+                    ? Metadata.DependentToPrincipal.CreateMemberIdentity()
+                    : navigationToPrincipal;
         }
 
         if (navigationToDependent == null)
         {
-            if (oldRelationshipInverted)
-            {
-                navigationToDependent = Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
-                    ?? false
-                        ? Metadata.DependentToPrincipal.CreateMemberIdentity()
-                        : navigationToDependent;
-            }
-            else
-            {
-                navigationToDependent = Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
-                    ?? false
-                        ? Metadata.PrincipalToDependent.CreateMemberIdentity()
-                        : navigationToDependent;
-            }
+            navigationToDependent = oldRelationshipInverted
+                ? Metadata.GetDependentToPrincipalConfigurationSource()?.Overrides(configurationSource)
+                ?? false
+                    ? Metadata.DependentToPrincipal.CreateMemberIdentity()
+                    : navigationToDependent
+                : Metadata.GetPrincipalToDependentConfigurationSource()?.Overrides(configurationSource)
+                ?? false
+                    ? Metadata.PrincipalToDependent.CreateMemberIdentity()
+                    : navigationToDependent;
         }
 
         dependentProperties ??= ((Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) ?? false)
@@ -3641,28 +3606,20 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         }
 
         IReadOnlyList<Property> dependentProperties;
-        IReadOnlyList<Property> principalProperties;
-        if (Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) != true)
-        {
-            principalProperties = new List<Property>();
-        }
-        else
-        {
-            principalProperties = principalEntityTypeBuilder.GetActualProperties(Metadata.PrincipalKey.Properties, configurationSource)
-                ?? new List<Property>();
-        }
+        var principalProperties = Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) != true
+            ? []
+            : principalEntityTypeBuilder.GetActualProperties(Metadata.PrincipalKey.Properties, configurationSource)
+            ?? [];
 
-        if ((principalProperties.Count == 0
+        dependentProperties = (principalProperties.Count == 0
                 && Metadata.GetPropertiesConfigurationSource()?.Overrides(ConfigurationSource.Explicit) != true)
-            || Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) != true)
-        {
-            dependentProperties = new List<Property>();
-        }
-        else
-        {
-            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(Metadata.Properties, configurationSource)
-                ?? new List<Property>();
-        }
+            || Metadata.GetPropertiesConfigurationSource()?.Overrides(configurationSource) != true
+                ? []
+                : dependentEntityTypeBuilder.GetActualProperties(
+                    Metadata.Properties,
+                    configurationSource,
+                    principalProperties.Count != 0 ? principalProperties : Metadata.PrincipalKey.Properties)
+                ?? [];
 
         if (dependentProperties.Count != 0)
         {
@@ -3674,11 +3631,11 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                     configurationSource,
                     out var resetPrincipalKey))
             {
-                dependentProperties = new List<Property>();
+                dependentProperties = [];
             }
             else if (resetPrincipalKey)
             {
-                principalProperties = new List<Property>();
+                principalProperties = [];
             }
         }
 

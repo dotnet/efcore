@@ -456,8 +456,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Mule", entry[nameProperty]);
     }
 
-    [Fact]
-    [Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
+    [Fact, Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
     public virtual void Can_get_property_value_after_creation_from_value_buffer_using_property_names()
     {
         using var context = new TKContext();
@@ -476,8 +475,7 @@ public abstract class InternalEntityEntryTestBase<
         Assert.Equal("Kool", entry[property]);
     }
 
-    [Fact]
-    [Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
+    [Fact, Obsolete("Tests the obsolete name-keyed CreateEntry overload.")]
     public virtual void Can_set_property_value_after_creation_from_value_buffer_using_property_names()
     {
         using var context = new TKContext();
@@ -1051,32 +1049,32 @@ public abstract class InternalEntityEntryTestBase<
 
 public interface IRoot
 {
-    IFirstDependent First { get; set; }
+    public IFirstDependent First { get; set; }
 }
 
 public interface ICompositeSecondDependent
 {
-    ICompositeFirstDependent First { get; set; }
+    public ICompositeFirstDependent First { get; set; }
 }
 
 public interface IFirstDependent
 {
-    IRoot Root { get; set; }
-    ISecondDependent Second { get; set; }
+    public IRoot Root { get; set; }
+    public ISecondDependent Second { get; set; }
 }
 
 public interface ISecondDependent
 {
-    IFirstDependent First { get; set; }
+    public IFirstDependent First { get; set; }
 }
 
 public interface ICompositeRoot
 {
-    ICompositeFirstDependent First { get; set; }
+    public ICompositeFirstDependent First { get; set; }
 }
 
 public interface ICompositeFirstDependent
 {
-    ICompositeRoot Root { get; set; }
-    ICompositeSecondDependent Second { get; set; }
+    public ICompositeRoot Root { get; set; }
+    public ICompositeSecondDependent Second { get; set; }
 }

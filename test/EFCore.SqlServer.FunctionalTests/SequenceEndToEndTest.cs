@@ -248,7 +248,7 @@ public class SequenceEndToEndTest : IAsyncLifetime
 
                 for (var j = 0; j < 6; j++)
                 {
-                    pegasuses.Single(p => p.Identifier == i * 100 + j);
+                    pegasuses.Single(p => p.Identifier == (i * 100) + j);
                 }
             }
         }
@@ -260,9 +260,9 @@ public class SequenceEndToEndTest : IAsyncLifetime
         for (var i = 1; i < 11; i++)
         {
             context.Add(
-                new Pegasus { Name = "Rainbow Dash " + i, Identifier = i * 100 + idOffset });
+                new Pegasus { Name = "Rainbow Dash " + i, Identifier = (i * 100) + idOffset });
             context.Add(
-                new Pegasus { Name = "Fluttershy " + i, Identifier = i * 100 + idOffset + 1 });
+                new Pegasus { Name = "Fluttershy " + i, Identifier = (i * 100) + idOffset + 1 });
         }
 
         context.SaveChanges();

@@ -907,15 +907,7 @@ ORDER BY [g].[ProductId]
 
         AssertSql(
             """
-SELECT [c].[LastName], (
-    SELECT ISNULL(SUM(CAST(LEN([c1].[FirstName]) AS int)), 0)
-    FROM [Orders] AS [o0]
-    INNER JOIN [Customers] AS [c0] ON [o0].[CustomerId] = [c0].[Id]
-    INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM [dbo].[GetTopTwoSellingProducts]() AS [g0]
-        WHERE [g0].[ProductId] = 25) AND ([c].[LastName] = [c0].[LastName] OR ([c].[LastName] IS NULL AND [c0].[LastName] IS NULL))) AS [SumOfLengths]
+SELECT [c].[LastName], ISNULL(SUM(CAST(LEN([c].[FirstName]) AS int)), 0) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
 WHERE NOT EXISTS (
@@ -932,18 +924,7 @@ GROUP BY [c].[LastName]
 
         AssertSql(
             """
-SELECT [c0].[LastName], (
-    SELECT ISNULL(SUM(CAST(LEN([c3].[FirstName]) AS int)), 0)
-    FROM [Orders] AS [o0]
-    INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
-    INNER JOIN [Customers] AS [c3] ON [o0].[CustomerId] = [c3].[Id]
-    WHERE 25 NOT IN (
-        SELECT [g0].[CustomerId]
-        FROM [dbo].[GetOrdersWithMultipleProducts]((
-            SELECT TOP(1) [c2].[Id]
-            FROM [Customers] AS [c2]
-            ORDER BY [c2].[Id])) AS [g0]
-    ) AND ([c0].[LastName] = [c1].[LastName] OR ([c0].[LastName] IS NULL AND [c1].[LastName] IS NULL))) AS [SumOfLengths]
+SELECT [c0].[LastName], ISNULL(SUM(CAST(LEN([c0].[FirstName]) AS int)), 0) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c0] ON [o].[CustomerId] = [c0].[Id]
 WHERE 25 NOT IN (

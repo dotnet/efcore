@@ -53,10 +53,8 @@ ORDER BY [u].[Id] DESC
                         contact.Property(e => e.SharedProperty).IsRequired().HasColumnName("SharedProperty");
 
                         contact.OwnsOne(
-                            c => c.Address, address =>
-                            {
-                                address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty");
-                            });
+                            c => c.Address,
+                            address => address.Property<string>("SharedProperty").IsRequired().HasColumnName("SharedProperty"));
                     });
 
                 builder.OwnsOne(e => e.Data)
@@ -178,10 +176,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
                 p => p.FungibleBag, p =>
                 {
                     p.OwnsMany(
-                        p => p.Currencies, p =>
-                        {
-                            p.Property(p => p.Amount).IsConcurrencyToken();
-                        });
+                        p => p.Currencies, p => p.Property(p => p.Amount).IsConcurrencyToken());
 
                     p.ToTable("FungibleBag");
                 });
@@ -190,10 +185,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
                 p => p.StaticBag, p =>
                 {
                     p.OwnsMany(
-                        p => p.Currencies, p =>
-                        {
-                            p.Property(p => p.Amount).IsConcurrencyToken();
-                        });
+                        p => p.Currencies, p => p.Property(p => p.Amount).IsConcurrencyToken());
                     p.ToTable("StaticBag");
                 });
         }
@@ -326,7 +318,8 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
             Add(
                 new SecondOwner23211
                 {
-                    Dependents = [new SecondDependent23211(), new SecondDependent23211()], Owned = new OwnedType23211 { Value = "A" }
+                    Dependents = [new SecondDependent23211(), new SecondDependent23211()],
+                    Owned = new OwnedType23211 { Value = "A" }
                 });
 
             return SaveChangesAsync();

@@ -5,7 +5,8 @@ using Microsoft.Azure.Cosmos;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
-[ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential), nameof(CosmosTestEnvironment.IsNotEmulator))]
+[ConditionalClass(
+    typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential), nameof(CosmosTestEnvironment.IsNotEmulator))]
 public class HybridSearchCosmosTest : IClassFixture<HybridSearchCosmosTest.HybridSearchFixture>
 {
     public HybridSearchCosmosTest(HybridSearchFixture fixture, ITestOutputHelper testOutputHelper)
@@ -62,7 +63,7 @@ ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDist
 
 SELECT VALUE c
 FROM root c
-ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector), [2.5,1.0])
+ORDER BY RANK RRF(FullTextScore(c["Description"], "beaver", "otter"), VectorDistance(c["SBytes"], @inputVector), [2.5,1])
 """);
     }
 

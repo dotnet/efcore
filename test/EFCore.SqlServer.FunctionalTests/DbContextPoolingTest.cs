@@ -42,18 +42,12 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .AddDbContextPool<TContextService, TContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .AddDbContextPool<ISecondContext, SecondContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .BuildServiceProvider(validateScopes: true);
 
@@ -63,18 +57,12 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             .AddDbContextPool<TContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .AddDbContextPool<SecondContext>(ob =>
             {
                 var builder = ConfigureOptions(ob);
-                if (optionsAction != null)
-                {
-                    optionsAction(builder);
-                }
+                optionsAction?.Invoke(builder);
             })
             .BuildServiceProvider(validateScopes: true);
 
@@ -397,8 +385,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     {
         var services = new ServiceCollection();
 
-        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                .EnableServiceProviderCaching(false));
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob
+            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+            .EnableServiceProviderCaching(false));
 
         services.AddPooledDbContextFactory<DefaultOptionsPooledContext>();
 
@@ -414,8 +403,9 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
     {
         var services = new ServiceCollection();
 
-        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
-                .EnableServiceProviderCaching(false));
+        services.ConfigureDbContext<DefaultOptionsPooledContext>(ob => ob
+            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+            .EnableServiceProviderCaching(false));
 
         services.AddPooledDbContextFactory<DefaultOptionsPooledContext>(poolSize: 256);
 
@@ -1498,6 +1488,26 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
 
         Assert.Same(context, context1);
         Assert.NotSame(context1, context2);
+    }
+
+    [Theory, InlineData(false), InlineData(true)]
+    public async Task Setting_lease_on_fully_torn_down_context_throws(bool async)
+    {
+        var serviceProvider = BuildServiceProvider<PooledContext>();
+
+        var pool = serviceProvider.GetRequiredService<IDbContextPool<PooledContext>>();
+        var lease = new DbContextLease(pool, standalone: true);
+        var context = (PooledContext)lease.Context;
+        ((IDbContextPoolable)context).SetLease(lease);
+
+        // Fully tear the context down the same way the pool does for a context that overflows it: ClearLease followed by
+        // Dispose clears the captured configuration snapshot.
+        ((IDbContextPoolable)context).ClearLease();
+        await Dispose(context, async);
+
+        // A context that has been fully torn down cannot be resurrected via a new lease; it must throw rather than
+        // dereferencing the now-null configuration snapshot.
+        Assert.Throws<ObjectDisposedException>(() => ((IDbContextPoolable)context).SetLease(lease));
     }
 
     [Theory, InlineData(false, false), InlineData(true, false), InlineData(false, true), InlineData(true, true)]

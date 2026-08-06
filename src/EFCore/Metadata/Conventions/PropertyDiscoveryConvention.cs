@@ -79,19 +79,18 @@ public class PropertyDiscoveryConvention :
         var structuralType = structuralTypeBuilder.Metadata;
         foreach (var propertyInfo in GetMembers(structuralType))
         {
-            if (!IsCandidatePrimitiveProperty(propertyInfo, structuralType, out var mapping))
+            if (!IsCandidatePrimitiveProperty(propertyInfo, structuralType, out _, out var elementType))
             {
                 continue;
             }
 
-            var propertyBuilder = structuralTypeBuilder.Property(propertyInfo);
-            if (mapping?.ElementTypeMapping != null)
+            if (elementType != null)
             {
-                var elementType = propertyInfo.GetMemberType().TryGetElementType(typeof(IEnumerable<>));
-                if (elementType != null)
-                {
-                    propertyBuilder?.SetElementType(elementType);
-                }
+                structuralTypeBuilder.PrimitiveCollection(propertyInfo, elementType);
+            }
+            else
+            {
+                structuralTypeBuilder.Property(propertyInfo);
             }
         }
     }
@@ -113,10 +112,13 @@ public class PropertyDiscoveryConvention :
     /// <param name="memberInfo">The member.</param>
     /// <param name="structuralType">The type for which the properties will be discovered.</param>
     /// <param name="mapping">The type mapping for the property.</param>
+    /// <param name="elementType">The element type if the member is a primitive collection; otherwise <see langword="null" />.</param>
     protected virtual bool IsCandidatePrimitiveProperty(
         MemberInfo memberInfo,
         IConventionTypeBase structuralType,
-        out CoreTypeMapping? mapping)
-        => Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(memberInfo, structuralType.Model, UseAttributes, out mapping, out _)
+        out CoreTypeMapping? mapping,
+        out Type? elementType)
+        => Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(
+                memberInfo, structuralType.Model, UseAttributes, out mapping, out elementType, out _)
             && ((Model)structuralType.Model).FindIsComplexConfigurationSource(memberInfo.GetMemberType().UnwrapNullableType()) == null;
 }

@@ -117,7 +117,7 @@ public class SqlServerDatabaseCreatorTest
         }
         else
         {
-            Assert.Throws<SqlException>(() => creator.Create());
+            Assert.Throws<SqlException>(creator.Create);
         }
     }
 

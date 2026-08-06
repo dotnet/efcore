@@ -70,7 +70,7 @@ WHERE (ABS(c["Float"]) = 9.5)
             """
 SELECT VALUE c
 FROM root c
-WHERE (CEILING(c["Double"]) = 9.0)
+WHERE (CEILING(c["Double"]) = 9)
 """);
     }
 
@@ -82,7 +82,7 @@ WHERE (CEILING(c["Double"]) = 9.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (CEILING(c["Float"]) = 9.0)
+WHERE (CEILING(c["Float"]) = 9)
 """);
     }
 
@@ -94,7 +94,7 @@ WHERE (CEILING(c["Float"]) = 9.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (FLOOR(c["Decimal"]) = 8.0)
+WHERE (FLOOR(c["Decimal"]) = 8)
 """);
     }
 
@@ -106,7 +106,7 @@ WHERE (FLOOR(c["Decimal"]) = 8.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (FLOOR(c["Double"]) = 8.0)
+WHERE (FLOOR(c["Double"]) = 8)
 """);
     }
 
@@ -118,7 +118,7 @@ WHERE (FLOOR(c["Double"]) = 8.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (FLOOR(c["Float"]) = 8.0)
+WHERE (FLOOR(c["Float"]) = 8)
 """);
     }
 
@@ -130,7 +130,7 @@ WHERE (FLOOR(c["Float"]) = 8.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (EXP(c["Double"]) > 1.0)
+WHERE (EXP(c["Double"]) > 1)
 """);
     }
 
@@ -142,7 +142,7 @@ WHERE (EXP(c["Double"]) > 1.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (EXP(c["Float"]) > 1.0)
+WHERE (EXP(c["Float"]) > 1)
 """);
     }
 
@@ -154,7 +154,7 @@ WHERE (EXP(c["Float"]) > 1.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (POWER(c["Int"], 2.0) = 64.0)
+WHERE (POWER(c["Int"], 2) = 64)
 """);
     }
 
@@ -166,7 +166,7 @@ WHERE (POWER(c["Int"], 2.0) = 64.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE ((POWER(c["Float"], 2.0) > 73.0) AND (POWER(c["Float"], 2.0) < 74.0))
+WHERE ((POWER(c["Float"], 2) > 73) AND (POWER(c["Float"], 2) < 74))
 """);
     }
 
@@ -178,7 +178,7 @@ WHERE ((POWER(c["Float"], 2.0) > 73.0) AND (POWER(c["Float"], 2.0) < 74.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE (ROUND(c["Decimal"]) = 9.0)
+WHERE (ROUND(c["Decimal"]) = 9)
 """,
             //
             """
@@ -195,7 +195,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (ROUND(c["Double"]) = 9.0)
+WHERE (ROUND(c["Double"]) = 9)
 """,
             //
             """
@@ -212,7 +212,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (ROUND(c["Float"]) = 9.0)
+WHERE (ROUND(c["Float"]) = 9)
 """,
             //
             """
@@ -224,7 +224,7 @@ FROM root c
     public override async Task Round_with_digits_decimal()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Round_with_digits_decimal());
+        await AssertTranslationFailed(base.Round_with_digits_decimal);
 
         AssertSql();
     }
@@ -232,7 +232,7 @@ FROM root c
     public override async Task Round_with_digits_double()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Round_with_digits_decimal());
+        await AssertTranslationFailed(base.Round_with_digits_decimal);
 
         AssertSql();
     }
@@ -240,7 +240,7 @@ FROM root c
     public override async Task Round_with_digits_float()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Round_with_digits_decimal());
+        await AssertTranslationFailed(base.Round_with_digits_decimal);
 
         AssertSql();
     }
@@ -253,7 +253,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (TRUNC(c["Decimal"]) = 8.0)
+WHERE (TRUNC(c["Decimal"]) = 8)
 """,
             //
             """
@@ -270,7 +270,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (TRUNC(c["Double"]) = 8.0)
+WHERE (TRUNC(c["Double"]) = 8)
 """,
             //
             """
@@ -287,7 +287,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (TRUNC(c["Float"]) = 8.0)
+WHERE (TRUNC(c["Float"]) = 8)
 """,
             //
             """
@@ -299,7 +299,7 @@ FROM root c
     public override async Task Truncate_project_and_order_by_it_twice()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice());
+        await Assert.ThrowsAsync<CosmosException>(base.Truncate_project_and_order_by_it_twice);
 
         AssertSql(
             """
@@ -312,7 +312,7 @@ ORDER BY TRUNC(c["Double"])
     public override async Task Truncate_project_and_order_by_it_twice2()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice2());
+        await Assert.ThrowsAsync<CosmosException>(base.Truncate_project_and_order_by_it_twice2);
 
         AssertSql(
             """
@@ -325,7 +325,7 @@ ORDER BY TRUNC(c["Double"]) DESC
     public override async Task Truncate_project_and_order_by_it_twice3()
     {
         // Unsupported ORDER BY clause. ORDER BY item expression could not be mapped to a document path.
-        await Assert.ThrowsAsync<CosmosException>(() => base.Truncate_project_and_order_by_it_twice3());
+        await Assert.ThrowsAsync<CosmosException>(base.Truncate_project_and_order_by_it_twice3);
 
         AssertSql(
             """
@@ -343,7 +343,7 @@ ORDER BY TRUNC(c["Double"]) DESC
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Double"] > 0.0) AND (LOG(c["Double"]) != 0.0))
+WHERE ((c["Double"] > 0) AND (LOG(c["Double"]) != 0))
 """);
     }
 
@@ -355,7 +355,7 @@ WHERE ((c["Double"] > 0.0) AND (LOG(c["Double"]) != 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Float"] > 0.0) AND (LOG(c["Float"]) != 0.0))
+WHERE ((c["Float"] > 0) AND (LOG(c["Float"]) != 0))
 """);
     }
 
@@ -367,7 +367,7 @@ WHERE ((c["Float"] > 0.0) AND (LOG(c["Float"]) != 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Double"] > 0.0) AND (LOG(c["Double"], 7.0) != 0.0))
+WHERE ((c["Double"] > 0) AND (LOG(c["Double"], 7) != 0))
 """);
     }
 
@@ -379,7 +379,7 @@ WHERE ((c["Double"] > 0.0) AND (LOG(c["Double"], 7.0) != 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Float"] > 0.0) AND (LOG(c["Float"], 7.0) != 0.0))
+WHERE ((c["Float"] > 0) AND (LOG(c["Float"], 7) != 0))
 """);
     }
 
@@ -391,7 +391,7 @@ WHERE ((c["Float"] > 0.0) AND (LOG(c["Float"], 7.0) != 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Double"] > 0.0) AND (LOG10(c["Double"]) != 0.0))
+WHERE ((c["Double"] > 0) AND (LOG10(c["Double"]) != 0))
 """);
     }
 
@@ -403,14 +403,14 @@ WHERE ((c["Double"] > 0.0) AND (LOG10(c["Double"]) != 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Float"] > 0.0) AND (LOG10(c["Float"]) != 0.0))
+WHERE ((c["Float"] > 0) AND (LOG10(c["Float"]) != 0))
 """);
     }
 
     public override async Task Log2()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Log2());
+        await AssertTranslationFailed(base.Log2);
 
         AssertSql();
     }
@@ -423,7 +423,7 @@ WHERE ((c["Float"] > 0.0) AND (LOG10(c["Float"]) != 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Double"] > 0.0) AND (SQRT(c["Double"]) > 0.0))
+WHERE ((c["Double"] > 0) AND (SQRT(c["Double"]) > 0))
 """);
     }
 
@@ -435,7 +435,7 @@ WHERE ((c["Double"] > 0.0) AND (SQRT(c["Double"]) > 0.0))
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Float"] > 0.0) AND (SQRT(c["Float"]) > 0.0))
+WHERE ((c["Float"] > 0) AND (SQRT(c["Float"]) > 0))
 """);
     }
 
@@ -510,7 +510,7 @@ FROM root c
     public override async Task Max()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Max());
+        await AssertTranslationFailed(base.Max);
 
         AssertSql();
     }
@@ -518,7 +518,7 @@ FROM root c
     public override async Task Max_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Max());
+        await AssertTranslationFailed(base.Max);
 
         AssertSql();
     }
@@ -526,7 +526,7 @@ FROM root c
     public override async Task Max_nested_twice()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Max());
+        await AssertTranslationFailed(base.Max);
 
         AssertSql();
     }
@@ -534,7 +534,7 @@ FROM root c
     public override async Task Min()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Min());
+        await AssertTranslationFailed(base.Min);
 
         AssertSql();
     }
@@ -542,7 +542,7 @@ FROM root c
     public override async Task Min_nested()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Min());
+        await AssertTranslationFailed(base.Min);
 
         AssertSql();
     }
@@ -550,7 +550,7 @@ FROM root c
     public override async Task Min_nested_twice()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Min());
+        await AssertTranslationFailed(base.Min);
 
         AssertSql();
     }
@@ -563,7 +563,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (DEGREES(c["Double"]) > 0.0)
+WHERE (DEGREES(c["Double"]) > 0)
 """);
     }
 
@@ -575,7 +575,7 @@ WHERE (DEGREES(c["Double"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (DEGREES(c["Float"]) > 0.0)
+WHERE (DEGREES(c["Float"]) > 0)
 """);
     }
 
@@ -587,7 +587,7 @@ WHERE (DEGREES(c["Float"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (RADIANS(c["Double"]) > 0.0)
+WHERE (RADIANS(c["Double"]) > 0)
 """);
     }
 
@@ -599,7 +599,7 @@ WHERE (RADIANS(c["Double"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (RADIANS(c["Float"]) > 0.0)
+WHERE (RADIANS(c["Float"]) > 0)
 """);
     }
 
@@ -613,7 +613,7 @@ WHERE (RADIANS(c["Float"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (((c["Double"] >= -1.0) AND (c["Double"] <= 1.0)) AND (ACOS(c["Double"]) > 1.0))
+WHERE (((c["Double"] >= -1) AND (c["Double"] <= 1)) AND (ACOS(c["Double"]) > 1))
 """);
     }
 
@@ -625,14 +625,14 @@ WHERE (((c["Double"] >= -1.0) AND (c["Double"] <= 1.0)) AND (ACOS(c["Double"]) >
             """
 SELECT VALUE c
 FROM root c
-WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ACOS(c["Float"]) > 0.0))
+WHERE (((c["Float"] >= -1) AND (c["Float"] <= 1)) AND (ACOS(c["Float"]) > 0))
 """);
     }
 
     public override async Task Acosh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Acosh());
+        await AssertTranslationFailed(base.Acosh);
 
         AssertSql();
     }
@@ -645,7 +645,7 @@ WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ACOS(c["Float"]) > 0.
             """
 SELECT VALUE c
 FROM root c
-WHERE (((c["Double"] >= -1.0) AND (c["Double"] <= 1.0)) AND (ASIN(c["Double"]) > -1.7976931348623157E+308))
+WHERE (((c["Double"] >= -1) AND (c["Double"] <= 1)) AND (ASIN(c["Double"]) > -1.7976931348623157E+308))
 """);
     }
 
@@ -657,14 +657,14 @@ WHERE (((c["Double"] >= -1.0) AND (c["Double"] <= 1.0)) AND (ASIN(c["Double"]) >
             """
 SELECT VALUE c
 FROM root c
-WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ASIN(c["Float"]) > -1.7976931348623157E+308))
+WHERE (((c["Float"] >= -1) AND (c["Float"] <= 1)) AND (ASIN(c["Float"]) > -1.7976931348623157E+308))
 """);
     }
 
     public override async Task Asinh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Asinh());
+        await AssertTranslationFailed(base.Asinh);
 
         AssertSql();
     }
@@ -677,7 +677,7 @@ WHERE (((c["Float"] >= -1.0) AND (c["Float"] <= 1.0)) AND (ASIN(c["Float"]) > -1
             """
 SELECT VALUE c
 FROM root c
-WHERE (ATAN(c["Double"]) > 0.0)
+WHERE (ATAN(c["Double"]) > 0)
 """);
     }
 
@@ -689,14 +689,14 @@ WHERE (ATAN(c["Double"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (ATAN(c["Float"]) > 0.0)
+WHERE (ATAN(c["Float"]) > 0)
 """);
     }
 
     public override async Task Atanh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Atanh());
+        await AssertTranslationFailed(base.Atanh);
 
         AssertSql();
     }
@@ -709,7 +709,7 @@ WHERE (ATAN(c["Float"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (ATN2(c["Double"], 1.0) > 0.0)
+WHERE (ATN2(c["Double"], 1) > 0)
 """);
     }
 
@@ -721,7 +721,7 @@ WHERE (ATN2(c["Double"], 1.0) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (COS(c["Double"]) > 0.0)
+WHERE (COS(c["Double"]) > 0)
 """);
     }
 
@@ -733,14 +733,14 @@ WHERE (COS(c["Double"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (COS(c["Float"]) > 0.0)
+WHERE (COS(c["Float"]) > 0)
 """);
     }
 
     public override async Task Cosh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Cosh());
+        await AssertTranslationFailed(base.Cosh);
 
         AssertSql();
     }
@@ -753,7 +753,7 @@ WHERE (COS(c["Float"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (SIN(c["Double"]) > 0.0)
+WHERE (SIN(c["Double"]) > 0)
 """);
     }
 
@@ -765,14 +765,14 @@ WHERE (SIN(c["Double"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (SIN(c["Float"]) > 0.0)
+WHERE (SIN(c["Float"]) > 0)
 """);
     }
 
     public override async Task Sinh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Sinh());
+        await AssertTranslationFailed(base.Sinh);
 
         AssertSql();
     }
@@ -785,7 +785,7 @@ WHERE (SIN(c["Float"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (TAN(c["Double"]) > 0.0)
+WHERE (TAN(c["Double"]) > 0)
 """);
     }
 
@@ -797,14 +797,14 @@ WHERE (TAN(c["Double"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (TAN(c["Float"]) > 0.0)
+WHERE (TAN(c["Float"]) > 0)
 """);
     }
 
     public override async Task Tanh()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Tanh());
+        await AssertTranslationFailed(base.Tanh);
 
         AssertSql();
     }
@@ -817,7 +817,7 @@ WHERE (TAN(c["Float"]) > 0.0)
             """
 SELECT VALUE c
 FROM root c
-WHERE (ATN2(c["Float"], 1.0) > 0.0)
+WHERE (ATN2(c["Float"], 1) > 0)
 """);
     }
 

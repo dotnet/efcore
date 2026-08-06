@@ -278,11 +278,6 @@ public class ConventionSet
     public virtual List<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } = [];
 
     /// <summary>
-    ///     Conventions to run when the field of a property is changed.
-    /// </summary>
-    public virtual List<IPropertyElementTypeChangedConvention> PropertyElementTypeChangedConventions { get; } = [];
-
-    /// <summary>
     ///     Conventions to run when an annotation is changed on a property.
     /// </summary>
     public virtual List<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = [];
@@ -643,12 +638,6 @@ public class ConventionSet
             PropertyRemovedConventions.Add(propertyRemovedConvention);
         }
 
-        if (newConvention is IPropertyElementTypeChangedConvention propertyElementTypeChangedConvention
-            && !Replace(PropertyElementTypeChangedConventions, propertyElementTypeChangedConvention, oldConventionType))
-        {
-            PropertyElementTypeChangedConventions.Add(propertyElementTypeChangedConvention);
-        }
-
         if (newConvention is IElementTypeNullabilityChangedConvention elementTypeNullabilityChangedConvention
             && !Replace(ElementTypeNullabilityChangedConventions, elementTypeNullabilityChangedConvention, oldConventionType))
         {
@@ -972,11 +961,6 @@ public class ConventionSet
         if (convention is IPropertyFieldChangedConvention propertyFieldChangedConvention)
         {
             PropertyFieldChangedConventions.Add(propertyFieldChangedConvention);
-        }
-
-        if (convention is IPropertyElementTypeChangedConvention propertyElementTypeChangedConvention)
-        {
-            PropertyElementTypeChangedConventions.Add(propertyElementTypeChangedConvention);
         }
 
         if (convention is IPropertyAnnotationChangedConvention propertyAnnotationChangedConvention)
@@ -1335,11 +1319,6 @@ public class ConventionSet
         if (typeof(IPropertyRemovedConvention).IsAssignableFrom(conventionType))
         {
             Remove(PropertyRemovedConventions, conventionType);
-        }
-
-        if (typeof(IPropertyElementTypeChangedConvention).IsAssignableFrom(conventionType))
-        {
-            Remove(PropertyElementTypeChangedConventions, conventionType);
         }
 
         if (typeof(IElementTypeNullabilityChangedConvention).IsAssignableFrom(conventionType))

@@ -21,7 +21,8 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBa
     public Task Returns_false_when_database_does_not_exist(bool async, bool ambientTransaction, bool useCanConnect)
         => Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, false, false), InlineData(false, true, false), InlineData(true, false, true), InlineData(false, true, true)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, false, false),
+     InlineData(false, true, false), InlineData(true, false, true), InlineData(false, true, true)]
     public Task Returns_false_when_database_with_filename_does_not_exist(bool async, bool ambientTransaction, bool useCanConnect)
         => Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: true);
 
@@ -58,7 +59,8 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBa
     public Task Returns_true_when_database_exists(bool async, bool ambientTransaction, bool useCanConnect)
         => Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, true, false), InlineData(false, false, false), InlineData(true, true, true), InlineData(false, false, true)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, true, false),
+     InlineData(false, false, false), InlineData(true, true, true), InlineData(false, false, true)]
     public Task Returns_true_when_database_with_filename_exists(bool async, bool ambientTransaction, bool useCanConnect)
         => Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: true);
 
@@ -92,15 +94,13 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBa
 [SkipOnCI("Flaky on CI")]
 public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTestBase
 {
-    [Theory(Skip = "#36578")]
-    [InlineData(true, true, true)]
-    [InlineData(false, false, true)]
-    [InlineData(true, false, false)]
-    [InlineData(false, true, false)]
+    [Theory(Skip = "#36578"), InlineData(true, true, true), InlineData(false, false, true), InlineData(true, false, false),
+     InlineData(false, true, false)]
     public Task Deletes_database(bool async, bool open, bool ambientTransaction)
         => Delete_database_test(async, open, ambientTransaction, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, true, false), InlineData(true, false, true), InlineData(false, true, true), InlineData(false, false, false)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, true, false),
+     InlineData(true, false, true), InlineData(false, true, true), InlineData(false, false, false)]
     public Task Deletes_database_with_filename(bool async, bool open, bool ambientTransaction)
         => Delete_database_test(async, open, ambientTransaction, file: true);
 
@@ -143,7 +143,8 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
     public Task Noop_when_database_does_not_exist(bool async)
         => Noop_when_database_does_not_exist_test(async, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true), InlineData(false)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true),
+     InlineData(false)]
     public Task Noop_when_database_with_filename_does_not_exist(bool async)
         => Noop_when_database_does_not_exist_test(async, file: true);
 
@@ -175,11 +176,13 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
 [SkipOnCI("Flaky on CI")]
 public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTestBase
 {
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql)), InlineData(true, true), InlineData(false, false)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql)), InlineData(true, true),
+     InlineData(false, false)]
     public Task Creates_schema_in_existing_database(bool async, bool ambientTransaction)
         => Creates_schema_in_existing_database_test(async, ambientTransaction, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, false), InlineData(false, true)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, false),
+     InlineData(false, true)]
     public Task Creates_schema_in_existing_database_with_filename(bool async, bool ambientTransaction)
         => Creates_schema_in_existing_database_test(async, ambientTransaction, file: true);
 
@@ -189,11 +192,13 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
                 (true, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
             : Creates_physical_database_and_schema_test((true, async, ambientTransaction, file));
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql)), InlineData(true, false), InlineData(false, true)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql)), InlineData(true, false),
+     InlineData(false, true)]
     public Task Creates_physical_database_and_schema(bool async, bool ambientTransaction)
         => Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, true), InlineData(false, false)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true, true),
+     InlineData(false, false)]
     public Task Creates_physical_database_with_filename_and_schema(bool async, bool ambientTransaction)
         => Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: true);
 
@@ -276,7 +281,8 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
     public Task Noop_when_database_exists_and_has_schema(bool async)
         => Noop_when_database_exists_and_has_schema_test(async, file: false);
 
-    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true), InlineData(false)]
+    [ConditionalTheory(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SupportsAttach)), InlineData(true),
+     InlineData(false)]
     public Task Noop_when_database_with_filename_exists_and_has_schema(bool async)
         => Noop_when_database_exists_and_has_schema_test(async, file: true);
 
@@ -381,9 +387,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
 [SkipOnCI("Flaky on CI")]
 public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTestBase
 {
-    [Theory(Skip = "#36578")]
-    [InlineData(true, true)]
-    [InlineData(false, false)]
+    [Theory(Skip = "#36578"), InlineData(true, true), InlineData(false, false)]
     public static async Task Deletes_database(bool async, bool ambientTransaction)
     {
         await using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("DeleteBlogging");
@@ -595,8 +599,8 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTestBa
         }
 
         Assert.Empty(
-            (await testDatabase.QueryAsync<string>(
-                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")));
+            await testDatabase.QueryAsync<string>(
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"));
 
         Assert.True(
             await testDatabase.ExecuteScalarAsync<bool>(

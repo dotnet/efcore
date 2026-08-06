@@ -93,7 +93,7 @@ internal static class HashHelpers
 
         //outside of our predefined table.
         //compute the hard way.
-        for (var i = (min | 1); i < int.MaxValue; i += 2)
+        for (var i = min | 1; i < int.MaxValue; i += 2)
         {
             if (IsPrime(i) && ((i - 1) % HashPrime != 0))
             {

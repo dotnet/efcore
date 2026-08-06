@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-[ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
+[ConditionalClass(
+    typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsNotAzureSql), nameof(SqlServerTestEnvironment.IsUtf8Supported))]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {
     private static readonly string _eol = Environment.NewLine;
@@ -3816,6 +3817,95 @@ FROM INFORMATION_SCHEMA.COLUMNS
         return actual;
     }
 
+    // The grinning-face emoji is outside the BMP (a UTF-16 surrogate pair, four UTF-8 bytes) and the euro sign
+    // is a single UTF-16 code unit but three UTF-8 bytes; both are represented differently in UTF-16 than in
+    // UTF-8 and are lost when an xml value is sent to the server as a non-Unicode string, which makes them good
+    // probes for the SqlDbType.Xml parameter path.
+    private const string XmlEmoji = "\U0001F600";
+    private const string XmlEuro = "\u20AC";
+
+    [Theory]
+    [InlineData(
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>",
+        "<root>" + XmlEmoji + XmlEuro + "</root>")]
+    // Only the XML declaration is removed; a following stylesheet PI and the rest of the value are sent verbatim.
+    [InlineData(
+        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone='yes' ?> <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>"
+        + XmlEmoji
+        + "</root>",
+        " <?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?> <root>" + XmlEmoji + "</root>",
+        "<?xml-stylesheet href=\"style.xsl\" type=\"text/xml\"?><root>" + XmlEmoji + "</root>")]
+    // The leading whitespace and the declaration are removed when the value is sent.
+    [InlineData(
+        " <?xml version=\"1.1\" encoding=\"utf-16\"?> <root>" + XmlEuro + "</root>",
+        " <root>" + XmlEuro + "</root>",
+        "<root>" + XmlEuro + "</root>")]
+    // Content forms that the 'xml' store type accepts beyond a single well-formed document.
+    [InlineData("", "", "")]
+    [InlineData("text fragment", "text fragment", "text fragment")]
+    // The content is sent verbatim, but the server expands self-closing tags when the xml column is read back.
+    [InlineData("<a/><b/>", "<a/><b/>", "<a /><b />")]
+    public async Task Xml_value_round_trips(string value, string expected, string roundTripped)
+    {
+        await using var context = CreateContext();
+
+        var document = new XmlTestDocument { Content = value };
+        context.Add(document);
+        await context.SaveChangesAsync();
+
+        var id = document.Id;
+        context.ChangeTracker.Clear();
+
+        // xml columns cannot be compared directly in a WHERE clause, so the row is fetched by its key. Coalescing
+        // the column with the original value sends that value as an 'xml' parameter, exercising the prolog-removal
+        // parameter path in a query in addition to the insert above.
+        var query = context.Set<XmlTestDocument>()
+            .Where(d => d.Id == id)
+            .Select(d => d.Content ?? value);
+
+        Assert.Equal(
+            $"""
+DECLARE @value xml = N'{expected}';
+DECLARE @id int = {id};
+
+SELECT COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""",
+            query.ToQueryString(),
+            ignoreLineEndingDifferences: true);
+
+        var actual = await query.SingleAsync();
+        Assert.Equal(roundTripped, actual);
+
+        AssertSql(
+            $"""
+@p0='{expected}' (Size = -1) (DbType = Xml)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [XmlTestDocument] ([Content])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+            //
+            $"""
+@value='{expected}' (Size = -1) (DbType = Xml)
+@id='{id}'
+
+SELECT TOP(2) COALESCE([x].[Content], @value)
+FROM [XmlTestDocument] AS [x]
+WHERE [x].[Id] = @id
+""");
+    }
+
+    private class XmlTestDocument
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
@@ -3897,6 +3987,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
             });
 
+            modelBuilder.Entity<XmlTestDocument>().Property(e => e.Content).HasColumnType("xml");
+
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);
             MakeRequired<MappedDataTypesWithIdentity>(modelBuilder);
@@ -3907,10 +3999,8 @@ FROM INFORMATION_SCHEMA.COLUMNS
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b =>
-            {
-                b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3);
-            });
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b
+                => b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3));
 
             modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(b =>
             {

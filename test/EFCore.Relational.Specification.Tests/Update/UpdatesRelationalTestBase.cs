@@ -82,7 +82,7 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                 var product = (await context.ProductWithBytes.FindAsync(productId))!;
                 var category = new SpecialCategory { PrincipalId = 777 };
                 var productCategory = new ProductCategory { Category = category };
-                product.ProductCategories = new List<ProductCategory> { productCategory };
+                product.ProductCategories = [productCategory];
 
                 await context.SaveChangesAsync();
 
@@ -108,7 +108,8 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
                 };
 
                 context.Add(person);
@@ -325,22 +326,18 @@ public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : Up
                     .HasColumnName("ZipCode");
             });
 
-            modelBuilder.Entity<CrunchyNougat>(b =>
-            {
-                b.OwnsOne(e => e.Filling, ob =>
+            modelBuilder.Entity<CrunchyNougat>(b => b.OwnsOne(
+                e => e.Filling, ob =>
                 {
                     ob.Property(o => o.Kind).HasColumnName("FillingKind");
                     ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
-                });
-            });
-            modelBuilder.Entity<SoftNougat>(b =>
-            {
-                b.OwnsOne(e => e.Filling, ob =>
+                }));
+            modelBuilder.Entity<SoftNougat>(b => b.OwnsOne(
+                e => e.Filling, ob =>
                 {
                     ob.Property(o => o.Kind).HasColumnName("FillingKind");
                     ob.Property(o => o.IsFresh).HasColumnName("FillingIsFresh");
-                });
-            });
+                }));
 
             modelBuilder
                 .Entity<

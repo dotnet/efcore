@@ -265,7 +265,7 @@ RETURNING 1;
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col1"], new List<object[]> { new object[] { 42 } }));
+                ["Col1"], [new object[] { 42 }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -289,7 +289,7 @@ RETURNING 1;
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col1", "Col2"], new List<object[]> { new object[] { 42, "FortyTwo" } }));
+                ["Col1", "Col2"], [new object[] { 42, "FortyTwo" }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -312,7 +312,7 @@ RETURNING 1;
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col2"], new List<object[]> { new object[] { "FortyTwo" } }));
+                ["Col2"], [new object[] { "FortyTwo" }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -336,7 +336,7 @@ RETURNING 1;
         var connection = CreateConnection(
             CreateFakeDataReader(
                 ["Col1"],
-                new List<object[]> { new object[] { 42 }, new object[] { 43 } }));
+                [new object[] { 42 }, new object[] { 43 }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -357,7 +357,7 @@ RETURNING 1;
 
         var connection = CreateConnection(
             CreateFakeDataReader(
-                ["Col1"], new List<object[]> { new object[] { 42 } }));
+                ["Col1"], [new object[] { 42 }]));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -380,7 +380,7 @@ RETURNING 1;
         command.AddEntry(entry, true);
 
         var connection = CreateConnection(
-            CreateFakeDataReader(["Col1"], new List<object[]>()));
+            CreateFakeDataReader(["Col1"], []));
 
         var batch = new ModificationCommandBatchFake();
         batch.TryAddCommand(command);
@@ -680,7 +680,7 @@ RETURNING 1;
 
     private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
     {
-        results ??= new List<object[]> { new object[] { 1 } };
+        results ??= [new object[] { 1 }];
         columnNames ??= ["RowsAffected"];
 
         return new FakeDbDataReader(columnNames, results);
@@ -688,14 +688,12 @@ RETURNING 1;
 
     private class ModificationCommandBatchFake : AffectedCountModificationCommandBatch
     {
-        private readonly FakeSqlGenerator _fakeSqlGenerator;
-
         public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null, int? maxBatchSize = null)
             : base(CreateDependencies(sqlGenerator), maxBatchSize)
         {
             ShouldBeValid = true;
 
-            _fakeSqlGenerator = Dependencies.UpdateSqlGenerator as FakeSqlGenerator;
+            FakeSqlGenerator = Dependencies.UpdateSqlGenerator as FakeSqlGenerator;
         }
 
         private static ModificationCommandBatchFactoryDependencies CreateDependencies(
@@ -737,7 +735,7 @@ RETURNING 1;
             => base.StoreCommand;
 
         public FakeSqlGenerator FakeSqlGenerator
-            => _fakeSqlGenerator ?? throw new InvalidOperationException("Not using FakeSqlGenerator");
+            => field ?? throw new InvalidOperationException("Not using FakeSqlGenerator");
     }
 
     private class FakeDbContext : DbContext;

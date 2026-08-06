@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : ExpressionVisitor
 {
     private readonly IndentedStringBuilder _sqlBuilder = new();
-    private IReadOnlyDictionary<string, object> _parameterValues = null!;
+    private IReadOnlyDictionary<string, object?> _parameterValues = null!;
 
     /// <summary>
     ///     The Cosmos SqlParameters which will get sent in the CosmosQuery.
@@ -31,7 +31,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
     /// <summary>
     ///     Contains final parameter names (prefixed, uniquified) seen so far, for uniquification purposes.
     /// </summary>
-    private readonly HashSet<string> _prefixedParameterNames = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _prefixedParameterNames = [with(StringComparer.OrdinalIgnoreCase)];
 
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
@@ -43,7 +43,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
     /// </summary>
     public virtual CosmosSqlQuery GetSqlQuery(
         SelectExpression selectExpression,
-        IReadOnlyDictionary<string, object> parameterValues)
+        IReadOnlyDictionary<string, object?> parameterValues)
     {
         _sqlBuilder.Clear();
         _parameterValues = parameterValues;
@@ -469,7 +469,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
                     // Note that we don't go through _sqlParametersByOriginalName, since the FromSql parameters we're adding here cannot
                     // be referenced multiple times.
                     var parameterName = PrefixAndUniquifyParameterName("p");
-                    _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
+                    _sqlParameters.Add(new SqlValueParameter(parameterName, parameterValues[i]));
                     substitutions[i] = parameterName;
                 }
 
@@ -484,7 +484,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
                     var value = constantValues[i];
                     var typeMapping = typeMappingSource.FindMapping(value.GetType());
                     Check.DebugAssert(typeMapping is not null, "Could not find type mapping for FromSql parameter");
-                    substitutions[i] = ((CosmosTypeMapping)typeMapping).GenerateConstant(value);
+                    substitutions[i] = ((CosmosTypeMapping)typeMapping).GenerateSqlLiteral(value);
                 }
 
                 break;
@@ -653,8 +653,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
             {
                 Visit(sqlUnaryExpression.Operand);
             }
+
             return sqlUnaryExpression;
         }
+
         var op = sqlUnaryExpression.OperatorType switch
         {
             ExpressionType.UnaryPlus => "+",
@@ -713,7 +715,14 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
     protected virtual Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
         Check.DebugAssert(sqlConstantExpression.TypeMapping is not null, "SqlConstantExpression without a type mapping");
-        _sqlBuilder.Append(((CosmosTypeMapping)sqlConstantExpression.TypeMapping).GenerateConstant(sqlConstantExpression.Value));
+        if (sqlConstantExpression.Value is null)
+        {
+            _sqlBuilder.Append("null");
+        }
+        else
+        {
+            _sqlBuilder.Append(((CosmosTypeMapping)sqlConstantExpression.TypeMapping).GenerateSqlLiteral(sqlConstantExpression.Value));
+        }
 
         return sqlConstantExpression;
     }
@@ -806,10 +815,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Exp
 
             var parameterName = PrefixAndUniquifyParameterName(sqlParameterExpression.Name);
 
-            sqlParameter = new SqlParameter(
-                    parameterName,
-                    ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name]));
+            var value = _parameterValues[sqlParameterExpression.Name];
+
+            sqlParameter = ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
+                .CreateParameter(parameterName, value);
 
             _sqlParametersByOriginalName[sqlParameterExpression.Name] = sqlParameter;
             _sqlParameters.Add(sqlParameter);

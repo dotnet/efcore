@@ -76,6 +76,7 @@ public static class CoreEventId
         DistinctAfterOrderByWithoutRowLimitingOperatorWarning = CoreBaseId + 114,
         QueryCanceled = CoreBaseId + 115,
         StringEnumValueInJson = CoreBaseId + 116,
+        InconsistentOwnedDataWarning = CoreBaseId + 117,
 
         // Infrastructure events
         SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -129,6 +130,7 @@ public static class CoreEventId
         NoEntityTypeConfigurationsWarning = CoreBaseId + 632,
         AccidentalEntityType = CoreBaseId + 633,
         AccidentalComplexPropertyCollection = CoreBaseId + 634,
+        ShadowPropertyNameNotValidIdentifierWarning = CoreBaseId + 635,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -176,7 +178,7 @@ public static class CoreEventId
     public static readonly EventId SaveChangesCanceled = MakeUpdateId(Id.SaveChangesCanceled);
 
     /// <summary>
-    ///     The same entity is being tracked as a different shared entity entity type.
+    ///     The same entity is being tracked as a different shared entity type.
     ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
     /// </summary>
     public static readonly EventId DuplicateDependentEntityTypeInstanceWarning =
@@ -344,6 +346,16 @@ public static class CoreEventId
     /// </remarks>
     public static readonly EventId StringEnumValueInJson
         = MakeQueryId(Id.StringEnumValueInJson);
+
+    /// <summary>
+    ///     An owned entity was loaded, but the owning entity was null. This indicates inconsistent data in the database.
+    ///     The owned entity will be ignored.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    /// </remarks>
+    public static readonly EventId InconsistentOwnedDataWarning
+        = MakeQueryId(Id.InconsistentOwnedDataWarning);
 
     private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 
@@ -749,6 +761,20 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId AccidentalComplexPropertyCollection = MakeModelValidationId(Id.AccidentalComplexPropertyCollection);
+
+    /// <summary>
+    ///     A shadow property has a name that is not a valid identifier, which can cause issues in generated code.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ShadowPropertyNameNotValidIdentifierWarning =
+        MakeModelValidationId(Id.ShadowPropertyNameNotValidIdentifierWarning);
 
     /// <summary>
     ///     The <see cref="RequiredAttribute" /> on the collection navigation property was ignored.

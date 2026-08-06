@@ -288,16 +288,11 @@ public class StructuralTypeProjectionExpression : Expression
     /// <param name="property">A property to bind.</param>
     /// <returns>A column which is a SQL representation of the property.</returns>
     public virtual ColumnExpression BindProperty(IProperty property)
-    {
-        if (!StructuralType.IsAssignableFrom(property.DeclaringType)
-            && !property.DeclaringType.IsAssignableFrom(StructuralType))
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, StructuralType.DisplayName()));
-        }
-
-        return _propertyExpressionMap[property];
-    }
+        => !StructuralType.IsAssignableFrom(property.DeclaringType)
+            && !property.DeclaringType.IsAssignableFrom(StructuralType)
+                ? throw new InvalidOperationException(
+                    RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, StructuralType.DisplayName()))
+                : _propertyExpressionMap[property];
 
     /// <summary>
     ///     Binds a complex property with this structural type projection to get a shaper expression for the target complex type.
@@ -305,16 +300,12 @@ public class StructuralTypeProjectionExpression : Expression
     /// <param name="complexProperty">A complex property to bind.</param>
     /// <returns>A shaper expression for the target complex type.</returns>
     public virtual Expression BindComplexProperty(IComplexProperty complexProperty)
-    {
-        if (!StructuralType.IsAssignableFrom(complexProperty.DeclaringType)
-            && !complexProperty.DeclaringType.IsAssignableFrom(StructuralType))
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.UnableToBindMemberToEntityProjection("complexProperty", complexProperty.Name, StructuralType.DisplayName()));
-        }
-
-        return _complexPropertyMap[complexProperty];
-    }
+        => !StructuralType.IsAssignableFrom(complexProperty.DeclaringType)
+            && !complexProperty.DeclaringType.IsAssignableFrom(StructuralType)
+                ? throw new InvalidOperationException(
+                    RelationalStrings.UnableToBindMemberToEntityProjection(
+                        "complexProperty", complexProperty.Name, StructuralType.DisplayName()))
+                : _complexPropertyMap[complexProperty];
 
     /// <summary>
     ///     Adds a navigation binding for this entity projection when the target entity type of the navigation is owned or weak.
@@ -345,21 +336,13 @@ public class StructuralTypeProjectionExpression : Expression
     /// <param name="navigation">A navigation to bind.</param>
     /// <returns>An entity shaper expression for the target entity type of the navigation.</returns>
     public virtual StructuralTypeShaperExpression? BindNavigation(INavigation navigation)
-    {
-        if (StructuralType is not IEntityType entityType)
-        {
-            throw new UnreachableException("Navigations are only supported on entity types");
-        }
-
-        if (!entityType.IsAssignableFrom(navigation.DeclaringEntityType)
-            && !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, entityType.DisplayName()));
-        }
-
-        return _ownedNavigationMap.GetValueOrDefault(navigation);
-    }
+        => StructuralType is not IEntityType entityType
+            ? throw new UnreachableException("Navigations are only supported on entity types")
+            : !entityType.IsAssignableFrom(navigation.DeclaringEntityType)
+            && !navigation.DeclaringEntityType.IsAssignableFrom(entityType)
+                ? throw new InvalidOperationException(
+                    RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, entityType.DisplayName()))
+                : _ownedNavigationMap.GetValueOrDefault(navigation);
 
     /// <inheritdoc />
     public override string ToString()

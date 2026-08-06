@@ -171,8 +171,8 @@ FROM "Orders" AS "o"
     public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async))).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async))).Message);
 
     public override async Task SelectMany_correlated_with_outer_2(bool async)
         => Assert.Equal(

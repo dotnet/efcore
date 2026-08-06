@@ -328,14 +328,14 @@ public class JsonQueryData : ISetSource
         e1_c1.Owner = entity1;
         e1_c2.Owner = entity1;
 
-        return new List<JsonEntityBasic> { entity1 };
+        return [entity1];
     }
 
     public static IReadOnlyList<EntityBasic> CreateEntitiesBasic()
     {
         var entity1 = new EntityBasic { Id = 1, Name = "eb 1" };
 
-        return new List<EntityBasic> { entity1 };
+        return [entity1];
     }
 
     public static IReadOnlyList<JsonEntityBasicForReference> CreateJsonEntitiesBasicForReference()
@@ -343,7 +343,7 @@ public class JsonQueryData : ISetSource
         var entity1 = new JsonEntityBasicForReference();
         entity1.SetIdAndName(1, "EntityReference1");
 
-        return new List<JsonEntityBasicForReference> { entity1 };
+        return [entity1];
     }
 
     public static IReadOnlyList<JsonEntityBasicForCollection> CreateJsonEntitiesBasicForCollection()
@@ -352,12 +352,12 @@ public class JsonQueryData : ISetSource
         var entity2 = new JsonEntityBasicForCollection { Id = 2, Name = "EntityCollection2" };
         var entity3 = new JsonEntityBasicForCollection { Id = 3, Name = "EntityCollection3" };
 
-        return new List<JsonEntityBasicForCollection>
-        {
+        return
+        [
             entity1,
             entity2,
             entity3
-        };
+        ];
     }
 
     public static void WireUp(
@@ -391,17 +391,20 @@ public class JsonQueryData : ISetSource
     {
         var e1_r_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2100, 1, 1), Fraction = 10.0,
+            Date = new DateTime(2100, 1, 1),
+            Fraction = 10.0,
         };
 
         var e1_r_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2101, 1, 1), Fraction = 10.1,
+            Date = new DateTime(2101, 1, 1),
+            Fraction = 10.1,
         };
 
         var e1_r_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2102, 1, 1), Fraction = 10.2,
+            Date = new DateTime(2102, 1, 1),
+            Fraction = 10.2,
         };
 
         var e1_r = new JsonOwnedCustomNameRoot
@@ -415,17 +418,20 @@ public class JsonQueryData : ISetSource
 
         var e1_c1_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2110, 1, 1), Fraction = 11.0,
+            Date = new DateTime(2110, 1, 1),
+            Fraction = 11.0,
         };
 
         var e1_c1_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2111, 1, 1), Fraction = 11.1,
+            Date = new DateTime(2111, 1, 1),
+            Fraction = 11.1,
         };
 
         var e1_c1_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2112, 1, 1), Fraction = 11.2,
+            Date = new DateTime(2112, 1, 1),
+            Fraction = 11.2,
         };
 
         var e1_c1 = new JsonOwnedCustomNameRoot
@@ -439,17 +445,20 @@ public class JsonQueryData : ISetSource
 
         var e1_c2_r = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2120, 1, 1), Fraction = 12.0,
+            Date = new DateTime(2120, 1, 1),
+            Fraction = 12.0,
         };
 
         var e1_c2_c1 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2121, 1, 1), Fraction = 12.1,
+            Date = new DateTime(2121, 1, 1),
+            Fraction = 12.1,
         };
 
         var e1_c2_c2 = new JsonOwnedCustomNameBranch
         {
-            Date = new DateTime(2122, 1, 1), Fraction = 12.2,
+            Date = new DateTime(2122, 1, 1),
+            Fraction = 12.2,
         };
 
         var e1_c2 = new JsonOwnedCustomNameRoot
@@ -469,7 +478,7 @@ public class JsonQueryData : ISetSource
             OwnedCollectionRoot = [e1_c1, e1_c2]
         };
 
-        return new List<JsonEntityCustomNaming> { entity1 };
+        return [entity1];
     }
 
     public static IReadOnlyList<JsonEntitySingleOwned> CreateJsonEntitiesSingleOwned()
@@ -503,12 +512,12 @@ public class JsonQueryData : ISetSource
             ]
         };
 
-        return new List<JsonEntitySingleOwned>
-        {
+        return
+        [
             e1,
             e2,
             e3
-        };
+        ];
     }
 
     public static IReadOnlyList<JsonEntityInheritanceBase> CreateJsonEntitiesInheritance()
@@ -702,7 +711,7 @@ public class JsonQueryData : ISetSource
             CollectionOnDerived = [d2_c1, d2_c2],
         };
 
-        return new List<JsonEntityInheritanceBase> { baseEntity, derivedEntity };
+        return [baseEntity, derivedEntity];
     }
 
     public static IReadOnlyList<JsonEntityAllTypes> CreateJsonEntitiesAllTypes()
@@ -776,12 +785,12 @@ public class JsonQueryData : ISetSource
             TestTimeSpanCollection = [new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7)],
             TestDateOnlyCollection = [new DateOnly(1234, 1, 23), new DateOnly(4321, 1, 21)],
             TestTimeOnlyCollection = [new TimeOnly(11, 42, 23), new TimeOnly(7, 17, 27)],
-            TestUnsignedInt16Collection = new List<ushort>
-            {
+            TestUnsignedInt16Collection =
+            [
                 ushort.MinValue,
                 0,
                 ushort.MaxValue
-            },
+            ],
             TestUnsignedInt32Collection = [uint.MinValue, 0, uint.MaxValue],
             TestUnsignedInt64Collection =
             [
@@ -1212,9 +1221,9 @@ public class JsonQueryData : ISetSource
             ],
         };
 
-        return new List<JsonEntityAllTypes>
-        {
-            new()
+        return
+        [
+            new JsonEntityAllTypes
             {
                 Id = 1,
                 Reference = r1,
@@ -1257,12 +1266,12 @@ public class JsonQueryData : ISetSource
                     -1.234F
                 ],
                 TestTimeSpanCollection = [new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, 7, 9, 8, 7)],
-                TestUnsignedInt16Collection = new List<ushort>
-                {
+                TestUnsignedInt16Collection =
+                [
                     ushort.MinValue,
                     0,
                     ushort.MaxValue
-                },
+                ],
                 TestUnsignedInt32Collection = [uint.MinValue, 0, uint.MaxValue],
                 TestUnsignedInt64Collection =
                 [
@@ -1325,7 +1334,7 @@ public class JsonQueryData : ISetSource
                     null
                 ],
             },
-            new()
+            new JsonEntityAllTypes
             {
                 Id = 2,
                 Reference = r2,
@@ -1368,12 +1377,12 @@ public class JsonQueryData : ISetSource
                     -1.234F
                 ],
                 TestTimeSpanCollection = [new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, 7, 9, 8, 7)],
-                TestUnsignedInt16Collection = new List<ushort>
-                {
+                TestUnsignedInt16Collection =
+                [
                     ushort.MinValue,
                     0,
                     ushort.MaxValue
-                },
+                ],
                 TestUnsignedInt32Collection = [uint.MinValue, 0, uint.MaxValue],
                 TestUnsignedInt64Collection =
                 [
@@ -1436,7 +1445,7 @@ public class JsonQueryData : ISetSource
                     null
                 ],
             }
-        };
+        ];
     }
 
     public static IReadOnlyList<JsonEntityConverters> CreateJsonEntitiesConverters()
@@ -1461,17 +1470,17 @@ public class JsonQueryData : ISetSource
             StringYNConvertedToBool = "Y",
         };
 
-        return new List<JsonEntityConverters>
-        {
-            new()
+        return
+        [
+            new JsonEntityConverters
             {
                 Id = 1, Reference = r1,
             },
-            new()
+            new JsonEntityConverters
             {
                 Id = 2, Reference = r2,
             }
-        };
+        ];
     }
 
     public IQueryable<TEntity> Set<TEntity>()
@@ -1517,16 +1526,10 @@ public class JsonQueryData : ISetSource
             return (IQueryable<TEntity>)JsonEntitiesConverters.OfType<JsonEntityConverters>().AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(JsonEntityBasicForReference))
-        {
-            return (IQueryable<TEntity>)JsonEntitiesBasicForReference.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(JsonEntityBasicForCollection))
-        {
-            return (IQueryable<TEntity>)JsonEntitiesBasicForCollection.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(JsonEntityBasicForReference)
+            ? (IQueryable<TEntity>)JsonEntitiesBasicForReference.AsQueryable()
+            : typeof(TEntity) == typeof(JsonEntityBasicForCollection)
+                ? (IQueryable<TEntity>)JsonEntitiesBasicForCollection.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 }

@@ -22,8 +22,8 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
-    ///     If <see langword="true" />, then the nulls will be passed to the writer's <see cref="ToJson"/> method. Otherwise null
-    ///     values will always be written as <see langword="null"/>.
+    ///     If <see langword="true" />, then the nulls will be passed to the writer's <see cref="ToJson" /> method. Otherwise null
+    ///     values will always be written as <see langword="null" />.
     /// </summary>
     /// <remarks>
     ///     The default is <see langword="false" />.
@@ -87,7 +87,7 @@ public abstract class JsonValueReaderWriter
     /// </summary>
     /// <param name="value">The value to write.</param>
     /// <returns>The JSON representation of the given value.</returns>
-    public string ToJsonString(object value)
+    public string ToJsonString(object? value)
     {
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);

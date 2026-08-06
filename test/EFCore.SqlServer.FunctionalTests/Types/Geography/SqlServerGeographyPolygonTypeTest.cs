@@ -6,7 +6,9 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Types.Geography;
 
-public class SqlServerGeographyPolygonTypeTest(SqlServerGeographyPolygonTypeTest.PolygonTypeFixture fixture, ITestOutputHelper testOutputHelper)
+public class SqlServerGeographyPolygonTypeTest(
+    SqlServerGeographyPolygonTypeTest.PolygonTypeFixture fixture,
+    ITestOutputHelper testOutputHelper)
     : SqlServerGeographyTypeTestBase<Polygon, SqlServerGeographyPolygonTypeTest.PolygonTypeFixture>(fixture, testOutputHelper)
 {
     public override async Task Equality_in_query_with_parameter()
@@ -36,9 +38,7 @@ WHERE [t].[Value].STEquals('POLYGON ((-122.35 47.62, -122.35 47.61, -122.34 47.6
     }
 
     public override async Task Primitive_collection_in_query()
-    {
-        await base.Primitive_collection_in_query();
-    }
+        => await base.Primitive_collection_in_query();
 
     public override async Task SaveChanges()
     {
@@ -213,18 +213,20 @@ FROM [JsonTypeEntity] AS [j]
     {
         // Simple rectangle
         public override Polygon Value { get; } = new(
-            new LinearRing([
+            new LinearRing(
+            [
                 new Coordinate(-122.3500, 47.6200), // NW
                 new Coordinate(-122.3500, 47.6100), // SW
                 new Coordinate(-122.3400, 47.6100), // SE
                 new Coordinate(-122.3400, 47.6200), // NE
-                new Coordinate(-122.3500, 47.6200)  // Close
+                new Coordinate(-122.3500, 47.6200) // Close
             ]))
         { SRID = 4326 };
 
         // Shifted rectangle; different area so not topologically equal
         public override Polygon OtherValue { get; } = new(
-            new LinearRing([
+            new LinearRing(
+            [
                 new Coordinate(-121.3000, 46.6000), // NW
                 new Coordinate(-121.3000, 46.5900), // SW
                 new Coordinate(-121.2800, 46.5900), // SE

@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class StructuralTypeProjectionExpression : Expression, IPrintableExpression, IAccessExpression
 {
-    private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = new();
-    private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsMap = new();
-    private readonly Dictionary<IComplexProperty, Expression> _complexPropertyExpressionsMap = new();
+    private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = [];
+    private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsMap = [];
+    private readonly Dictionary<IComplexProperty, Expression> _complexPropertyExpressionsMap = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,10 +116,7 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
         }
 
         if (!clientEval
-            // TODO: Remove once __jObject is translated to the access root in a better fashion and
-            // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
-            // TODO: We shouldn't be returning null from here
-            && property.Name != CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName
+            // TODO: We shouldn't be returning null from here. See issues #17670 and #14121.
             && expression.PropertyName?.Length is null or 0)
         {
             // Non-persisted property can't be translated
@@ -155,7 +152,8 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             expression = navigation.IsCollection
                 ? new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
-                    new ObjectArrayAccessExpression(Object, navigation),
+                    new StructuralTypeProjectionExpression(
+                        new ObjectArrayAccessExpression(Object, navigation), navigation.TargetEntityType),
                     nullable: true)
                 : new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
@@ -197,11 +195,13 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
             expression = complexProperty.IsCollection
                 ? new StructuralTypeShaperExpression(
                     complexProperty.ComplexType,
-                    new ObjectArrayAccessExpression(Object, complexProperty),
+                    new StructuralTypeProjectionExpression(
+                        new ObjectArrayAccessExpression(Object, complexProperty), complexProperty.ComplexType),
                     nullable: true)
                 : new StructuralTypeShaperExpression(
                     complexProperty.ComplexType,
-                    new StructuralTypeProjectionExpression(new ObjectAccessExpression(Object, complexProperty), complexProperty.ComplexType),
+                    new StructuralTypeProjectionExpression(
+                        new ObjectAccessExpression(Object, complexProperty), complexProperty.ComplexType),
                     nullable: complexProperty.IsNullable);
 
             _complexPropertyExpressionsMap[complexProperty] = expression;
@@ -287,21 +287,13 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual StructuralTypeProjectionExpression UpdateEntityType(IEntityType derivedType)
-    {
-        if (StructuralType is not IEntityType entityType)
-        {
-            throw new UnreachableException($"{nameof(UpdateEntityType)} called on non-entity type '{StructuralType.DisplayName()}'");
-        }
-
-        if (!derivedType.GetAllBaseTypes().Contains(StructuralType))
-        {
-            throw new InvalidOperationException(
-                CosmosStrings.InvalidDerivedTypeInEntityProjection(
-                    derivedType.DisplayName(), StructuralType.DisplayName()));
-        }
-
-        return new StructuralTypeProjectionExpression(Object, derivedType);
-    }
+        => StructuralType is not IEntityType entityType
+            ? throw new UnreachableException($"{nameof(UpdateEntityType)} called on non-entity type '{StructuralType.DisplayName()}'")
+            : !derivedType.GetAllBaseTypes().Contains(StructuralType)
+                ? throw new InvalidOperationException(
+                    CosmosStrings.InvalidDerivedTypeInEntityProjection(
+                        derivedType.DisplayName(), StructuralType.DisplayName()))
+                : new StructuralTypeProjectionExpression(Object, derivedType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -321,8 +313,8 @@ public class StructuralTypeProjectionExpression : Expression, IPrintableExpressi
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is StructuralTypeProjectionExpression structuralTypeProjectionExpression
-                && Equals(structuralTypeProjectionExpression));
+                || (obj is StructuralTypeProjectionExpression structuralTypeProjectionExpression
+                    && Equals(structuralTypeProjectionExpression)));
 
     private bool Equals(StructuralTypeProjectionExpression structuralTypeProjectionExpression)
         => Equals(StructuralType, structuralTypeProjectionExpression.StructuralType)

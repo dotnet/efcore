@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Newtonsoft.Json.Linq;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -25,10 +24,10 @@ public partial class PrincipalBaseEntityType
             "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
             typeof(CompiledModelTestBase.PrincipalBase),
             baseEntityType,
-            discriminatorProperty: "$type",
+            discriminatorProperty: "Discriminator",
             discriminatorValue: "PrincipalBase",
             derivedTypesCount: 1,
-            propertyCount: 15,
+            propertyCount: 14,
             navigationCount: 1,
             skipNavigationCount: 1,
             keyCount: 2);
@@ -49,11 +48,12 @@ public partial class PrincipalBaseEntityType
             jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
         alternateId.SetSentinelFromProviderValue("00000000-0000-0000-0000-000000000000");
 
-        var type = runtimeEntityType.AddProperty(
-            "$type",
+        var discriminator = runtimeEntityType.AddProperty(
+            "Discriminator",
             typeof(string),
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+        discriminator.AddAnnotation("Cosmos:PropertyName", "$type");
 
         var enum1 = runtimeEntityType.AddProperty(
             "Enum1",
@@ -138,12 +138,6 @@ public partial class PrincipalBaseEntityType
             afterSaveBehavior: PropertySaveBehavior.Throw,
             valueGeneratorFactory: new IdValueGeneratorFactory().Create);
         __id.AddAnnotation("Cosmos:PropertyName", "id");
-
-        var __jObject = runtimeEntityType.AddProperty(
-            "__jObject",
-            typeof(JObject),
-            nullable: true);
-        __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
         var key = runtimeEntityType.AddKey(
             new[] { id });

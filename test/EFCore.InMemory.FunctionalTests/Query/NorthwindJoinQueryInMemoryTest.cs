@@ -57,4 +57,8 @@ public class NorthwindJoinQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopMo
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID));
     }
+
+    // Joins over a local collection aren't supported in InMemory.
+    public override Task Join_local_string_closure_is_cached_correctly(bool async)
+        => AssertTranslationFailed(() => base.Join_local_string_closure_is_cached_correctly(async));
 }

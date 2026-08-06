@@ -53,7 +53,8 @@ public class RelationalMemberClassifier : MemberClassifier
             return false;
         }
 
-        return base.IsCandidateNavigationProperty(memberInfo, model, useAttributes, out elementType, out shouldBeOwned, out explicitlyConfigured);
+        return base.IsCandidateNavigationProperty(
+            memberInfo, model, useAttributes, out elementType, out shouldBeOwned, out explicitlyConfigured);
     }
 
     /// <inheritdoc />
@@ -62,9 +63,10 @@ public class RelationalMemberClassifier : MemberClassifier
         IConventionModel model,
         bool useAttributes,
         out CoreTypeMapping? typeMapping,
+        out Type? elementType,
         out bool explicitlyConfigured)
     {
-        if (base.IsCandidatePrimitiveProperty(memberInfo, model, useAttributes, out typeMapping, out explicitlyConfigured))
+        if (base.IsCandidatePrimitiveProperty(memberInfo, model, useAttributes, out typeMapping, out elementType, out explicitlyConfigured))
         {
             return true;
         }
@@ -77,6 +79,7 @@ public class RelationalMemberClassifier : MemberClassifier
             && HasExplicitColumnType(memberInfo))
         {
             typeMapping = null;
+            elementType = null;
             explicitlyConfigured = true;
             return true;
         }

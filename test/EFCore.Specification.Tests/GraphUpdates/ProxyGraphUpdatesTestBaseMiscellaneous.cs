@@ -53,7 +53,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                 else
                 {
                     var message = Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message;
-                    Assert.StartsWith(CoreStrings.CircularDependency("").Substring(0, 30), message);
+                    Assert.StartsWith(CoreStrings.CircularDependency("")[..30], message);
                 }
 
                 return Task.CompletedTask;
@@ -65,10 +65,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             context =>
             {
                 context.AddRange(
-                    context.CreateProxy<RecordCar>(car =>
-                    {
-                        car.Owner = context.CreateProxy<RecordPerson>();
-                    }));
+                    context.CreateProxy<RecordCar>(car => car.Owner = context.CreateProxy<RecordPerson>()));
 
                 context.SaveChanges();
                 return Task.CompletedTask;
@@ -92,10 +89,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             context =>
             {
                 context.AddRange(
-                    context.CreateProxy<RecordCar>(car =>
-                    {
-                        car.Owner = context.CreateProxy<RecordPerson>();
-                    }));
+                    context.CreateProxy<RecordCar>(car => car.Owner = context.CreateProxy<RecordPerson>()));
 
                 context.SaveChanges();
                 return Task.CompletedTask;

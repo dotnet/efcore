@@ -214,14 +214,14 @@ public class ExpressionExtensionsTest
     private sealed class ComplexBlog
     {
         public string Title { get; set; }
-        public List<ComplexPost> Posts { get; set; } = [];
-        public ComplexPost[] PostArray { get; set; } = [];
+        public List<ComplexPost> Posts { get; } = [];
+        public ComplexPost[] PostArray { get; } = [];
     }
 
     private sealed class ComplexPost
     {
         public string Title { get; set; }
-        public List<ComplexComment> Comments { get; set; } = [];
+        public List<ComplexComment> Comments { get; } = [];
     }
 
     private sealed class ComplexComment

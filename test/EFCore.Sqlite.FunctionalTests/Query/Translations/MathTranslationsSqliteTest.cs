@@ -13,7 +13,7 @@ public class MathTranslationsSqliteTest : MathTranslationsTestBase<BasicTypesQue
     }
 
     public override async Task Abs_decimal()
-        => await AssertTranslationFailed(() => base.Abs_decimal()); // SQLite decimal support
+        => await AssertTranslationFailed(base.Abs_decimal); // SQLite decimal support
 
     public override async Task Abs_int()
     {
@@ -76,7 +76,7 @@ WHERE ceiling("b"."Float") = 9
     }
 
     public override async Task Floor_decimal()
-        => await AssertTranslationFailed(() => base.Floor_decimal()); // SQLite decimal support
+        => await AssertTranslationFailed(base.Floor_decimal); // SQLite decimal support
 
     public override async Task Floor_double()
     {
@@ -127,7 +127,7 @@ WHERE pow("b"."Float", 2) > 73 AND pow("b"."Float", 2) < 74
     }
 
     public override async Task Round_decimal()
-        => await AssertTranslationFailed(() => base.Round_decimal()); // SQLite decimal support
+        => await AssertTranslationFailed(base.Round_decimal); // SQLite decimal support
 
     public override async Task Round_double()
     {
@@ -164,7 +164,7 @@ FROM "BasicTypesEntities" AS "b"
     }
 
     public override async Task Round_with_digits_decimal()
-        => await AssertTranslationFailed(() => base.Round_with_digits_decimal()); // SQLite decimal support
+        => await AssertTranslationFailed(base.Round_with_digits_decimal); // SQLite decimal support
 
     public override async Task Round_with_digits_double()
     {
@@ -191,7 +191,7 @@ WHERE round("b"."Float", 1) = 255.09999999999999
     }
 
     public override async Task Truncate_decimal()
-        => await AssertTranslationFailed(() => base.Truncate_decimal()); // SQLite decimal support
+        => await AssertTranslationFailed(base.Truncate_decimal); // SQLite decimal support
 
     public override async Task Truncate_double()
     {
@@ -425,10 +425,10 @@ FROM "BasicTypesEntities" AS "b"
     }
 
     public override async Task Sign_decimal()
-        => await AssertTranslationFailed(() => base.Sign_decimal()); // SQLite decimal support
+        => await AssertTranslationFailed(base.Sign_decimal); // SQLite decimal support
 
     public override async Task Sign_int()
-        => await AssertTranslationFailed(() => base.Sign_int()); // SQLite int support
+        => await AssertTranslationFailed(base.Sign_int); // SQLite int support
 
     public override async Task Sign_float()
     {

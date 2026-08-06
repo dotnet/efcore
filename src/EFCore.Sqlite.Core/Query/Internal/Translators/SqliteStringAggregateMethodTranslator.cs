@@ -74,7 +74,7 @@ public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpr
             }
 
             sqlExpression = sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(source.Predicate, sqlExpression) },
+                [new CaseWhenClause(source.Predicate, sqlExpression)],
                 elseResult: null);
         }
 
@@ -83,15 +83,11 @@ public class SqliteStringAggregateMethodTranslator(ISqlExpressionFactory sqlExpr
             sqlExpression = new DistinctExpression(sqlExpression);
         }
 
-        var functionArguments = new[]
-        {
-            sqlExpression,
-            sqlExpressionFactory.ApplyTypeMapping(separator, sqlExpression.TypeMapping)
-        };
+        var functionArguments = new[] { sqlExpression, sqlExpressionFactory.ApplyTypeMapping(separator, sqlExpression.TypeMapping) };
 
         // SQLite supports ORDER BY inside aggregate functions since 3.44.0: group_concat(value, separator ORDER BY ...).
         // When the user specified an ordering we emit our custom expression that renders it; otherwise a plain function call.
-        SqlExpression aggregate = source.Orderings.Count == 0
+        var aggregate = source.Orderings.Count == 0
             ? sqlExpressionFactory.Function(
                 "group_concat",
                 functionArguments,

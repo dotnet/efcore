@@ -23,10 +23,7 @@ public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
         modelBuilder.Entity<Sponsor>().Property<ulong>("Version").HasConversion<byte[]>();
         modelBuilder.Entity<TitleSponsor>()
             .OwnsOne(
-                s => s.Details, eb =>
-                {
-                    eb.Property<ulong>("Version").IsRowVersion();
-                });
+                s => s.Details, eb => eb.Property<ulong>("Version").IsRowVersion());
 
         modelBuilder.Entity<OptimisticOptionalChild>();
 
@@ -176,9 +173,6 @@ public abstract class F1SqlServerFixtureBase<TRowVersion> : F1RelationalFixture<
 
         modelBuilder.Entity<TitleSponsor>()
             .OwnsOne(
-                s => s.Details, eb =>
-                {
-                    eb.Property(d => d.Space).HasColumnType("decimal(18,2)");
-                });
+                s => s.Details, eb => eb.Property(d => d.Space).HasColumnType("decimal(18,2)"));
     }
 }

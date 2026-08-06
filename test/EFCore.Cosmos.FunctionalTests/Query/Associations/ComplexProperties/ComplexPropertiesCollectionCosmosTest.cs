@@ -5,7 +5,8 @@ using Microsoft.Azure.Cosmos;
 
 namespace Microsoft.EntityFrameworkCore.Query.Associations.ComplexProperties;
 
-public class ComplexPropertiesCollectionCosmosTest : ComplexPropertiesCollectionTestBase<ComplexPropertiesCosmosFixture>, IClassFixture<ComplexPropertiesCosmosFixture>
+public class ComplexPropertiesCollectionCosmosTest : ComplexPropertiesCollectionTestBase<ComplexPropertiesCosmosFixture>,
+    IClassFixture<ComplexPropertiesCosmosFixture>
 {
     public ComplexPropertiesCollectionCosmosTest(ComplexPropertiesCosmosFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -53,32 +54,31 @@ WHERE ((
             Name = "Name 1",
             Int = 8,
             String = "String 1",
-            Ints = new List<int> { 1, 2, 3 },
+            Ints = [1, 2, 3],
             RequiredNestedAssociate = new NestedAssociateType
             {
                 Id = 1,
                 Name = "Name 1",
                 Int = 8,
                 String = "String 1",
-                Ints = new List<int> { 1, 2, 3 }
+                Ints = [1, 2, 3]
             },
-            NestedCollection = new List<NestedAssociateType>
-            {
+            NestedCollection =
+            [
                 new NestedAssociateType
                 {
                     Id = 1,
                     Name = "Name 1",
                     Int = 8,
                     String = "String 1",
-                    Ints = new List<int> { 1, 2, 3 }
+                    Ints = [1, 2, 3]
                 }
-            }
+            ]
         };
 
         await AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection[0] != param),
             ss => ss.Set<RootEntity>().Where(e => e.AssociateCollection.Count > 0 && e.AssociateCollection[0] != param));
-
 
         AssertSql(
             """
@@ -93,7 +93,7 @@ WHERE (c["AssociateCollection"][0] != @entity_equality_param)
     public override async Task OrderBy_ElementAt()
     {
         // 'ORDER BY' is not supported in subqueries.
-        await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt());
+        await Assert.ThrowsAsync<CosmosException>(base.OrderBy_ElementAt);
 
         AssertSql(
             """
@@ -111,8 +111,19 @@ WHERE (ARRAY(
     public override Task Distinct()
         => AssertTranslationFailed(base.Distinct);
 
-    public override Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
-        => AssertTranslationFailed(() => base.Distinct_projected(queryTrackingBehavior));
+    public override async Task Distinct_projected(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        await base.Distinct_projected(queryTrackingBehavior);
+
+        AssertSql(
+            """
+SELECT VALUE ARRAY(
+    SELECT DISTINCT VALUE a
+    FROM a IN c["AssociateCollection"])
+FROM root c
+ORDER BY c["Id"]
+""");
+    }
 
     public override Task Distinct_over_projected_nested_collection()
         => AssertTranslationFailed(base.Distinct_over_projected_nested_collection);
@@ -153,7 +164,7 @@ WHERE (c["AssociateCollection"][@i]["Int"] = 8)
     public override async Task Index_column()
     {
         // The specified query includes 'member indexer' which is currently not supported
-        await Assert.ThrowsAsync<CosmosException>(() => base.Index_column());
+        await Assert.ThrowsAsync<CosmosException>(base.Index_column);
 
         AssertSql(
             """
@@ -214,7 +225,6 @@ SELECT VALUE (
 FROM root c
 """);
     }
-
 
     // Cosmos doesn't support entity collection navigations across documents
     public override Task Project_struct_complex_type_with_entity_collection_navigation()

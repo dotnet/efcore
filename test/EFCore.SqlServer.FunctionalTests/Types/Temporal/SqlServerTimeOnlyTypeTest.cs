@@ -234,8 +234,8 @@ FROM [JsonTypeEntity] AS [j]
 
     public class TimeOnlyTypeFixture : SqlServerTypeFixture<TimeOnly>
     {
-        public override TimeOnly Value { get; } = new TimeOnly(12, 30, 45);
-        public override TimeOnly OtherValue { get; } = new TimeOnly(14, 0, 0);
+        public override TimeOnly Value { get; } = new(12, 30, 45);
+        public override TimeOnly OtherValue { get; } = new(14, 0, 0);
     }
 
     [Fact]

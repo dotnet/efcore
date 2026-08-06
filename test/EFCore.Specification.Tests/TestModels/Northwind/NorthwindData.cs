@@ -93,7 +93,7 @@ public partial class NorthwindData : ISetSource
 
         foreach (var order in Orders)
         {
-            order.OrderDetails = new List<OrderDetail>();
+            order.OrderDetails = [];
 
             var customer = Customers.First(c => c.CustomerID == order.CustomerID);
             order.Customer = customer;
@@ -200,17 +200,11 @@ public partial class NorthwindData : ISetSource
             return (IQueryable<TEntity>)ProductQueries.AsQueryable();
         }
 
-        if (typeof(TEntity) == typeof(ProductView))
-        {
-            return (IQueryable<TEntity>)ProductViews.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(CustomerQueryWithQueryFilter))
-        {
-            return (IQueryable<TEntity>)CustomerQueriesWithQueryFilter.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+        return typeof(TEntity) == typeof(ProductView)
+            ? (IQueryable<TEntity>)ProductViews.AsQueryable()
+            : typeof(TEntity) == typeof(CustomerQueryWithQueryFilter)
+                ? (IQueryable<TEntity>)CustomerQueriesWithQueryFilter.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
     public static Task SeedAsync(NorthwindContext context)

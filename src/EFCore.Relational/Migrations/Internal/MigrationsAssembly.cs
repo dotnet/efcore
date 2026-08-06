@@ -19,7 +19,7 @@ public class MigrationsAssembly : IMigrationsAssembly
     private ModelSnapshot? _modelSnapshot;
     private bool _modelSnapshotInitialized;
     private readonly Type _contextType;
-    private readonly List<Assembly> _additionalAssemblies = new();
+    private readonly List<Assembly> _additionalAssemblies = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,19 +127,18 @@ public class MigrationsAssembly : IMigrationsAssembly
             static self => self.GetOrCreateModelSnapshot());
 
     private ModelSnapshot? GetOrCreateModelSnapshot()
-    {
-        // Check additional assemblies first - latest added should have the snapshot
-        return _additionalAssemblies.Count > 0
-            ? GetModelSnapshotFromAssembly(_additionalAssemblies[^1])
-            : GetModelSnapshotFromAssembly(Assembly);
-    }
+        =>
+            // Check additional assemblies first - latest added should have the snapshot
+            _additionalAssemblies.Count > 0
+                ? GetModelSnapshotFromAssembly(_additionalAssemblies[^1])
+                : GetModelSnapshotFromAssembly(Assembly);
 
     private ModelSnapshot? GetModelSnapshotFromAssembly(Assembly assembly)
         => (from t in assembly.GetConstructibleTypes()
             where t.IsSubclassOf(typeof(ModelSnapshot))
                 && GetDbContextType(t) == _contextType
             select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
-        .FirstOrDefault();
+            .FirstOrDefault();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -191,5 +190,4 @@ public class MigrationsAssembly : IMigrationsAssembly
         _modelSnapshot = null;
         _modelSnapshotInitialized = false;
     }
-
 }

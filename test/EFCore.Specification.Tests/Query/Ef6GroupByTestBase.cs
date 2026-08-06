@@ -61,7 +61,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
         return AssertQuery(
             async,
             ss => ss.Set<ArubaOwner>().GroupBy(o => o.FirstName).Select(g
-                => new { keyIsNull = g.Key == null ? "is null" : "not null", logicExpression = (a && b || b && c) }));
+                => new { keyIsNull = g.Key == null ? "is null" : "not null", logicExpression = (a && b) || (b && c) }));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -857,7 +857,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
         public int Id { get; set; }
         public string Region { get; set; }
         public string CompanyName { get; set; }
-        public ICollection<OrderForLinq> Orders { get; } = new List<OrderForLinq>();
+        public ICollection<OrderForLinq> Orders { get; } = [];
     }
 
     public class OrderForLinq
@@ -876,7 +876,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
         public string LastName { get; set; }
         public string MiddleInitial { get; set; }
         public Feet Feet { get; set; }
-        public ICollection<Shoes> Shoes { get; } = new List<Shoes>();
+        public ICollection<Shoes> Shoes { get; } = [];
     }
 
     public class Shoes
@@ -950,22 +950,16 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 return (IQueryable<TEntity>)People.AsQueryable();
             }
 
-            if (typeof(TEntity) == typeof(Shoes))
-            {
-                return (IQueryable<TEntity>)Shoes.AsQueryable();
-            }
-
-            if (typeof(TEntity) == typeof(Feet))
-            {
-                return (IQueryable<TEntity>)Feet.AsQueryable();
-            }
-
-            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
+            return typeof(TEntity) == typeof(Shoes)
+                ? (IQueryable<TEntity>)Shoes.AsQueryable()
+                : typeof(TEntity) == typeof(Feet)
+                    ? (IQueryable<TEntity>)Feet.AsQueryable()
+                    : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         private static IReadOnlyList<NumberForLinq> CreateNumbersForLinq()
-            => new List<NumberForLinq>
-            {
+            =>
+            [
                 new(5, "Five"),
                 new(4, "Four"),
                 new(1, "One"),
@@ -976,11 +970,11 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 new(7, "Seven"),
                 new(2, "Two"),
                 new(0, "Zero"),
-            };
+            ];
 
         private static IReadOnlyList<ProductForLinq> CreateProductsForLinq()
-            => new List<ProductForLinq>
-            {
+            =>
+            [
                 new()
                 {
                     ProductName = "Chai",
@@ -1128,11 +1122,11 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                     UnitPrice = 10.0000M,
                     UnitsInStock = 3
                 }
-            };
+            ];
 
         private static IReadOnlyList<CustomerForLinq> CreateCustomersForLinq()
-            => new List<CustomerForLinq>
-            {
+            =>
+            [
                 new()
                 {
                     Id = 1,
@@ -1157,7 +1151,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                     Region = "CA",
                     CompanyName = "Microsoft"
                 }
-            };
+            ];
 
         private static IReadOnlyList<OrderForLinq> CreateOrdersForLinq(IReadOnlyList<CustomerForLinq> customers)
         {
@@ -1231,7 +1225,7 @@ public abstract class Ef6GroupByTestBase<TFixture>(TFixture fixture) : QueryTest
                 {
                     Id = i,
                     Alias = "Owner Alias " + i,
-                    FirstName = "First Name " + i % 3,
+                    FirstName = "First Name " + (i % 3),
                     LastName = "Last Name " + i,
                 };
                 owners[i] = owner;

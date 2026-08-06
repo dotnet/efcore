@@ -408,7 +408,7 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
-                    && EF.Property<string>(e, "$type") == nameof(SinglePartitionKeyEntity)
+                    && EF.Property<string>(e, "Discriminator") == nameof(SinglePartitionKeyEntity)
                     && e.PartitionKey == partitionKey),
             ss => ss.Set<SinglePartitionKeyEntity>()
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));
@@ -423,7 +423,7 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
-                    && EF.Property<string>(e, "$type") == nameof(DerivedSinglePartitionKeyEntity)
+                    && EF.Property<string>(e, "Discriminator") == nameof(DerivedSinglePartitionKeyEntity)
                     && e.PartitionKey == partitionKey),
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => false),
             assertEmpty: true);
@@ -439,7 +439,7 @@ public abstract class ReadItemPartitionKeyQueryTestBase<TFixture> : QueryTestBas
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
                 .Where(e => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34")
-                    && EF.Property<string>(e, "$type") == discriminator
+                    && EF.Property<string>(e, "Discriminator") == discriminator
                     && e.PartitionKey == partitionKey),
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e
                 => e.Id == Guid.Parse("B29BCED8-E1E5-420E-82D7-1C7A51703D34") && e.PartitionKey == partitionKey));

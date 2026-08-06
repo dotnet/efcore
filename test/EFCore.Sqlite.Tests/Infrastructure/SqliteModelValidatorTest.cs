@@ -103,8 +103,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_for_stored_procedure_without_parameter_for_insert_non_save_property()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(()
-                => base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property());
+            Assert.Throws<InvalidOperationException>(base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -112,8 +111,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_for_stored_procedure_without_parameter_for_update_non_save_property()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(()
-                => base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property());
+            Assert.Throws<InvalidOperationException>(base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -121,7 +119,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_on_valid_UsingDeleteStoredProcedure_in_TPT()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Passes_on_valid_UsingDeleteStoredProcedure_in_TPT());
+            Assert.Throws<InvalidOperationException>(base.Passes_on_valid_UsingDeleteStoredProcedure_in_TPT);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -129,7 +127,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT());
+            Assert.Throws<InvalidOperationException>(base.Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Cat)), exception.Message);
     }
@@ -137,7 +135,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT());
+            Assert.Throws<InvalidOperationException>(base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
@@ -145,7 +143,7 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     public override void Detects_unmapped_concurrency_token()
     {
         var exception =
-            Assert.Throws<InvalidOperationException>(() => base.Detects_unmapped_concurrency_token());
+            Assert.Throws<InvalidOperationException>(base.Detects_unmapped_concurrency_token);
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }

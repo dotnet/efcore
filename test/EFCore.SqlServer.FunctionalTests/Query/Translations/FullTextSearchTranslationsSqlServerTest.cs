@@ -199,10 +199,10 @@ FROM FREETEXTTABLE([Articles], [Content], @p, LANGUAGE N'English', @p1) AS [f]
         using var context = CreateContext();
 
         var results = await (
-            from ft in context.Articles.FreeTextTable<Article, int>("database", a => a.Title)
-            join a in context.Articles on ft.Key equals a.Id
-            orderby ft.Rank descending
-            select new { Article = a, ft.Rank })
+                from ft in context.Articles.FreeTextTable<Article, int>("database", a => a.Title)
+                join a in context.Articles on ft.Key equals a.Id
+                orderby ft.Rank descending
+                select new { Article = a, ft.Rank })
             .ToListAsync();
 
         Assert.Single(results);
@@ -747,17 +747,43 @@ WHERE CONTAINS([b].[Content], N'bomb', LANGUAGE 1033)
         {
             Article[] articles =
             [
-                new() { Id = 1, Title = "Introduction to Database Systems", Content = "This article covers the basics of database systems including data storage, retrieval, and performance optimization." },
-                new() { Id = 2, Title = "Advanced Querying Techniques", Content = "Learn about advanced querying techniques for better performance and data retrieval." },
-                new() { Id = 3, Title = "Data Storage Best Practices", Content = "Best practices for data storage and performance tuning in modern applications." }
+                new()
+                {
+                    Id = 1,
+                    Title = "Introduction to Database Systems",
+                    Content =
+                        "This article covers the basics of database systems including data storage, retrieval, and performance optimization."
+                },
+                new()
+                {
+                    Id = 2,
+                    Title = "Advanced Querying Techniques",
+                    Content = "Learn about advanced querying techniques for better performance and data retrieval."
+                },
+                new()
+                {
+                    Id = 3,
+                    Title = "Data Storage Best Practices",
+                    Content = "Best practices for data storage and performance tuning in modern applications."
+                }
             ];
 
             context.Articles.AddRange(articles);
 
             BinaryArticle[] binaryArticles =
             [
-                new() { Id = 1, FileExtension = ".html", Content = "<h1>Deploy the Lightmass Bomb to destroy the enemy</h1><p>Bombing mission details</p>"u8.ToArray() },
-                new() { Id = 2, FileExtension = ".html", Content = "<h1>Reconnaissance mission</h1><p>Gather intelligence on enemy positions</p>"u8.ToArray() }
+                new()
+                {
+                    Id = 1,
+                    FileExtension = ".html",
+                    Content = "<h1>Deploy the Lightmass Bomb to destroy the enemy</h1><p>Bombing mission details</p>"u8.ToArray()
+                },
+                new()
+                {
+                    Id = 2,
+                    FileExtension = ".html",
+                    Content = "<h1>Reconnaissance mission</h1><p>Gather intelligence on enemy positions</p>"u8.ToArray()
+                }
             ];
 
             context.BinaryArticles.AddRange(binaryArticles);
@@ -765,12 +791,14 @@ WHERE CONTAINS([b].[Content], N'bomb', LANGUAGE 1033)
             await context.SaveChangesAsync();
 
             // Create full-text catalog and index for Articles
-            await context.Database.ExecuteSqlAsync($"""
+            await context.Database.ExecuteSqlAsync(
+                $"""
 IF NOT EXISTS (SELECT * FROM sys.fulltext_catalogs WHERE name = 'ftCatalog')
     CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;
 """);
 
-            await context.Database.ExecuteSqlAsync($"""
+            await context.Database.ExecuteSqlAsync(
+                $"""
 IF NOT EXISTS (SELECT * FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID('Articles'))
     CREATE FULLTEXT INDEX ON Articles([Title], [Content])
         KEY INDEX [PK_Articles]
@@ -778,14 +806,16 @@ IF NOT EXISTS (SELECT * FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID('A
 """);
 
             // Create full-text index for BinaryArticles (binary column with type column)
-            await context.Database.ExecuteSqlAsync($"""
+            await context.Database.ExecuteSqlAsync(
+                $"""
 IF NOT EXISTS (SELECT * FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID('BinaryArticles'))
     CREATE FULLTEXT INDEX ON BinaryArticles([Content] TYPE COLUMN [FileExtension])
         KEY INDEX [PK_BinaryArticles];
 """);
 
             // Wait for the full-text indexes to be populated
-            await context.Database.ExecuteSqlAsync($"""
+            await context.Database.ExecuteSqlAsync(
+                $"""
 WHILE (SELECT FULLTEXTCATALOGPROPERTY('ftCatalog', 'PopulateStatus')) <> 0
 BEGIN
     WAITFOR DELAY '00:00:00.100';

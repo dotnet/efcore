@@ -81,23 +81,18 @@ public partial class TestDbContext : DbContext
     [Fact]
     public Task TableAttribute_is_generated_for_custom_name()
         => TestAsync(
-            modelBuilder =>
-            {
-                modelBuilder.Entity(
-                    "Vista",
-                    b =>
-                    {
-                        b.ToTable("Vistas"); // Default name is "Vista" in the absence of pluralizer
-                        b.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Vista");
-                        b.Property<int>("Id");
-                        b.HasKey("Id");
-                    });
-            },
+            modelBuilder => modelBuilder.Entity(
+                "Vista",
+                b =>
+                {
+                    b.ToTable("Vistas"); // Default name is "Vista" in the absence of pluralizer
+                    b.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Vista");
+                    b.Property<int>("Id");
+                    b.HasKey("Id");
+                }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -113,8 +108,7 @@ public partial class Vista
     public int Id { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Vista");
@@ -138,10 +132,8 @@ public partial class Vista
                     });
             },
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -156,8 +148,7 @@ public partial class Vista
     public int Id { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Vista");
@@ -181,10 +172,8 @@ public partial class Vista
                     });
             },
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -200,8 +189,7 @@ public partial class Vista
     public int Id { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Vista");
@@ -214,10 +202,8 @@ public partial class Vista
         => TestAsync(
             modelBuilder => modelBuilder.Entity("Vista").ToView("Vistas", "dbo"),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -231,8 +217,7 @@ public partial class Vista
 {
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Vista");
@@ -262,10 +247,8 @@ public partial class Vista
                         x.HasIndex("C");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -289,8 +272,7 @@ public partial class EntityWithIndexes
     public int C { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "EntityWithIndexes.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "EntityWithIndexes.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes");
@@ -319,10 +301,8 @@ public partial class EntityWithIndexes
                         x.HasIndex(["A", "B"], "AllDescending").IsDescending();
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -344,8 +324,7 @@ public partial class EntityWithAscendingDescendingIndexes
     public int B { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "EntityWithAscendingDescendingIndexes.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "EntityWithAscendingDescendingIndexes.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.EntityWithAscendingDescendingIndexes");
@@ -621,10 +600,8 @@ public partial class TestDbContext : DbContext
                         x.Property<int?>("NonRequiredInt");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -648,8 +625,7 @@ public partial class Entity
     public string RequiredString { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Entity");
@@ -674,10 +650,8 @@ public partial class Entity
                         x.Property<int?>("NonRequiredInt");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true, UseNullableReferenceTypes = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -700,8 +674,7 @@ public partial class Entity
     public string RequiredString { get; set; } = null!;
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Entity");
@@ -731,10 +704,8 @@ public partial class Entity
                 .Entity("Dependent3", x => x.Property<int>("Id"))
                 .Entity("Dependent4", x => x.Property<int>("Id")),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -774,8 +745,7 @@ public partial class Entity
     public virtual Dependent3 RequiredValueNavigation { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Entity");
@@ -828,10 +798,8 @@ public partial class Entity
                 .Entity("Dependent3", x => x.Property<int>("Id"))
                 .Entity("Dependent4", x => x.Property<int>("Id")),
             new ModelCodeGenerationOptions { UseDataAnnotations = true, UseNullableReferenceTypes = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -858,8 +826,7 @@ public partial class Entity
     public virtual Dependent3? RequiredNavigationWithValueForeignKey { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entityType = model.FindEntityType("TestNamespace.Entity");
@@ -968,10 +935,8 @@ public partial class Entity
                         x.HasKey("RequiredString");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -986,8 +951,7 @@ public partial class Entity
     public string RequiredString { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
                 Assert.False(model.FindEntityType("TestNamespace.Entity").GetProperty("RequiredString").IsNullable));
 
@@ -1099,10 +1063,8 @@ public partial class TestDbContext : DbContext
                         x.Property<byte[]>("B").HasMaxLength(10);
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1123,8 +1085,7 @@ public partial class Entity
     public byte[] B { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entitType = model.FindEntityType("TestNamespace.Entity");
@@ -1146,10 +1107,8 @@ public partial class Entity
                         x.Property<string>("C").HasMaxLength(34);
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1175,8 +1134,7 @@ public partial class Entity
     public string C { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entitType = model.FindEntityType("TestNamespace.Entity");
@@ -1200,10 +1158,8 @@ public partial class Entity
                         x.Property<DateTimeOffset>("D").HasPrecision(3);
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1230,8 +1186,7 @@ public partial class Entity
     public DateTimeOffset D { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
                 var entitType = model.FindEntityType("TestNamespace.Entity");
@@ -1255,10 +1210,8 @@ public partial class Entity
                     })
             ,
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1279,8 +1232,7 @@ public partial class Entity
     public int Id { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model => { });
 
     [Fact]
@@ -1306,10 +1258,8 @@ With XML content <br/>
                     })
             ,
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1334,8 +1284,7 @@ public partial class Entity
     public int Id { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model => { });
 
     [Fact]
@@ -1352,10 +1301,8 @@ public partial class Entity
                         x.Property<string>("FirstProperty");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1374,8 +1321,7 @@ public partial class Entity
     public string LastProperty { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model => { });
 
     [Fact]
@@ -1890,10 +1836,8 @@ public partial class Post
                         x.HasOne("Blog", "Blog").WithMany("Posts");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1914,8 +1858,7 @@ public partial class Post
     public virtual Blog Blog { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
                 var postType = model.FindEntityType("TestNamespace.Post");
@@ -1944,10 +1887,8 @@ public partial class Post
                         x.HasOne("Blog", "BlogNavigation").WithMany("Posts").HasForeignKey("Blog");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1968,8 +1909,7 @@ public partial class Post
     public virtual Blog BlogNavigation { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
                 var postType = model.FindEntityType("TestNamespace.Post");
@@ -1999,10 +1939,8 @@ public partial class Post
                         x.HasOne("Blog", "OriginalBlog").WithMany("OriginalPosts").HasForeignKey("OriginalBlogId");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2029,8 +1967,7 @@ public partial class Post
     public virtual Blog OriginalBlog { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
                 var postType = model.FindEntityType("TestNamespace.Post");
@@ -2069,10 +2006,8 @@ public partial class Post
                         x.HasOne("Blog", "Blog").WithMany();
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
-            code =>
-            {
-                AssertFileContents(
-                    """
+            code => AssertFileContents(
+                """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2090,8 +2025,7 @@ public partial class Post
     public virtual Blog Blog { get; set; }
 }
 """,
-                    code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
-            },
+                code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
                 var postType = model.FindEntityType("TestNamespace.Post");
@@ -2805,10 +2739,11 @@ public partial class Post
                         new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
                         new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
                     },
-                    PrimaryKey = new DatabasePrimaryKey
-                    {
-                        Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
-                    }
+                    PrimaryKey =
+                        new DatabasePrimaryKey
+                        {
+                            Columns = { new DatabaseColumnRef("LearnAimRef"), new DatabaseColumnRef("EffectiveFrom") }
+                        }
                 },
                 new DatabaseTable
                 {
@@ -2816,8 +2751,18 @@ public partial class Post
                     Columns =
                     {
                         new DatabaseColumn { Name = "AcademicYear", StoreType = "varchar(4)" },
-                        new DatabaseColumn { Name = "AcademicYearDesc", StoreType = "varchar(150)", IsNullable = true },
-                        new DatabaseColumn { Name = "AcademicYearDesc2", StoreType = "varchar(100)", IsNullable = true }
+                        new DatabaseColumn
+                        {
+                            Name = "AcademicYearDesc",
+                            StoreType = "varchar(150)",
+                            IsNullable = true
+                        },
+                        new DatabaseColumn
+                        {
+                            Name = "AcademicYearDesc2",
+                            StoreType = "varchar(100)",
+                            IsNullable = true
+                        }
                     },
                     PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("AcademicYear") } }
                 },
@@ -2830,15 +2775,16 @@ public partial class Post
                         new DatabaseColumn { Name = "LearnAimRef", StoreType = "varchar(8)" },
                         new DatabaseColumn { Name = "EffectiveFrom", StoreType = "date" }
                     },
-                    PrimaryKey = new DatabasePrimaryKey
-                    {
-                        Columns =
+                    PrimaryKey =
+                        new DatabasePrimaryKey
                         {
-                            new DatabaseColumnRef("AcademicYear"),
-                            new DatabaseColumnRef("LearnAimRef"),
-                            new DatabaseColumnRef("EffectiveFrom")
-                        }
-                    },
+                            Columns =
+                            {
+                                new DatabaseColumnRef("AcademicYear"),
+                                new DatabaseColumnRef("LearnAimRef"),
+                                new DatabaseColumnRef("EffectiveFrom")
+                            }
+                        },
                     ForeignKeys =
                     {
                         new DatabaseForeignKey
@@ -3007,10 +2953,8 @@ public partial class Post
                                 });
                     }),
             new ModelCodeGenerationOptions(),
-            code =>
-            {
-                AssertFileContents(
-                    $$"""
+            code => AssertFileContents(
+                $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -3065,8 +3009,7 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                    code.ContextFile);
-            },
+                code.ContextFile),
             model => Assert.Collection(
                 model.GetEntityTypes().OrderBy(e => e.Name),
                 t1 =>

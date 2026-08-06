@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : QueryFixtureBase<NorthwindContext>
     where TModelCustomizer : ITestModelCustomizer, new()
 {
-    private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new();
+    private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = [];
 
     public override ISetSource GetExpectedData()
         => NorthwindData.Instance;

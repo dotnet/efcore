@@ -6,6 +6,7 @@
 // without requiring a dependency on the SqlServer.HierarchyId package.
 
 // ReSharper disable CheckNamespace
+
 namespace Microsoft.SqlServer.Types;
 
 public class SqlHierarchyId;

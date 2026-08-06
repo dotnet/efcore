@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
+
 // ReSharper disable StringLiteralTypo
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -282,7 +283,8 @@ CREATE TABLE [People] (
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)),
+     SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_memory_optimized_temporal_table()
     {
         await Test(
@@ -1058,35 +1060,32 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY(100, 5);
                 builder.Entity("Cat").ToTable("Cats", tb => tb.Property("IdentityColumn").UseIdentityColumn(1, 2));
                 builder.Entity("Dog").ToTable("Dogs", tb => tb.Property("IdentityColumn").UseIdentityColumn(2, 2));
             },
-            model =>
-            {
-                Assert.Collection(
-                    model.Tables,
-                    t =>
-                    {
-                        Assert.Equal("Animal", t.Name);
-                        var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
-                        Assert.Null(column.ValueGenerated);
-                    },
-                    t =>
-                    {
-                        Assert.Equal("Cats", t.Name);
-                        var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
-                        Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
-                        // TODO: Do we not reverse-engineer identity facets?
-                        // Assert.Equal(100, column[SqlServerAnnotationNames.IdentitySeed]);
-                        // Assert.Equal(5, column[SqlServerAnnotationNames.IdentityIncrement]);
-                    },
-                    t =>
-                    {
-                        Assert.Equal("Dogs", t.Name);
-                        var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
-                        Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
-                        // TODO: Do we not reverse-engineer identity facets?
-                        // Assert.Equal(100, column[SqlServerAnnotationNames.IdentitySeed]);
-                        // Assert.Equal(5, column[SqlServerAnnotationNames.IdentityIncrement]);
-                    });
-            });
+            model => Assert.Collection(
+                model.Tables,
+                t =>
+                {
+                    Assert.Equal("Animal", t.Name);
+                    var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
+                    Assert.Null(column.ValueGenerated);
+                },
+                t =>
+                {
+                    Assert.Equal("Cats", t.Name);
+                    var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
+                    Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
+                    // TODO: Do we not reverse-engineer identity facets?
+                    // Assert.Equal(100, column[SqlServerAnnotationNames.IdentitySeed]);
+                    // Assert.Equal(5, column[SqlServerAnnotationNames.IdentityIncrement]);
+                },
+                t =>
+                {
+                    Assert.Equal("Dogs", t.Name);
+                    var column = Assert.Single(t.Columns, c => c.Name == "IdentityColumn");
+                    Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
+                    // TODO: Do we not reverse-engineer identity facets?
+                    // Assert.Equal(100, column[SqlServerAnnotationNames.IdentitySeed]);
+                    // Assert.Equal(5, column[SqlServerAnnotationNames.IdentityIncrement]);
+                }));
 
         AssertSql(
             """
@@ -1500,7 +1499,7 @@ CREATE TABLE [Entity_NestedCollection] (
     CONSTRAINT [FK_Entity_NestedCollection_Entity_OwnedEntityId] FOREIGN KEY ([OwnedEntityId]) REFERENCES [Entity] ([Id]) ON DELETE CASCADE
 );
 """,
-//
+            //
             """
 CREATE TABLE [Entity_OwnedCollection] (
     [EntityId] int NOT NULL,
@@ -1599,6 +1598,71 @@ ALTER TABLE [Entity] ADD DEFAULT N'{}' FOR [Name];
         AssertSql();
     }
 
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
+    public virtual async Task Convert_json_column_back_to_string_column()
+    {
+        // Use explicit operation rather than model diffing: the snapshot round-trip of a source model
+        // with HasColumnType("json") does not reliably preserve identity annotations, causing the
+        // model differ to emit a spurious AlterColumnOperation for the PK that hits the identity check.
+        await Test(
+            builder => builder.Entity(
+                "Entity", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedNever();
+                    e.HasKey("Id");
+                    e.Property<string>("Name").HasColumnType("json");
+                }),
+            new MigrationOperation[]
+            {
+                new AlterColumnOperation
+                {
+                    Table = "Entity",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    ColumnType = "nvarchar(450)",
+                    IsNullable = true,
+                    OldColumn = new AddColumnOperation
+                    {
+                        ClrType = typeof(string),
+                        ColumnType = "json",
+                        IsNullable = true
+                    }
+                },
+                new CreateIndexOperation
+                {
+                    Table = "Entity",
+                    Name = "IX_Entity_Name",
+                    Columns = new[] { "Name" }
+                }
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Name");
+                Assert.Equal("nvarchar(450)", column.StoreType);
+                Assert.True(column.IsNullable);
+                var index = Assert.Single(table.Indexes);
+                Assert.Contains(column, index.Columns);
+            });
+
+        AssertSql(
+            """
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME(OBJECT_NAME([c].[default_object_id]))
+FROM [sys].[columns] [c]
+WHERE [c].[object_id] = OBJECT_ID(N'[Entity]') AND [c].[name] = N'Name';
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT ' + @var + ';');
+EXEC sp_rename N'[Entity].[Name]', N'ef_temp_Name', 'COLUMN';
+ALTER TABLE [Entity] ADD [Name] nvarchar(450) NULL;
+EXEC(N'UPDATE [Entity] SET [Name] = CONVERT(nvarchar(450), [ef_temp_Name])');
+ALTER TABLE [Entity] DROP COLUMN [ef_temp_Name];
+""",
+            //
+            """
+CREATE INDEX [IX_Entity_Name] ON [Entity] ([Name]);
+""");
+    }
+
     [Fact]
     public virtual async Task Alter_column_make_required_with_index_with_included_properties()
     {
@@ -1640,7 +1704,8 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)),
+     SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Alter_column_memoryOptimized_with_index()
     {
         await Test(
@@ -2718,7 +2783,7 @@ WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
-//
+            //
             """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WITH (FILLFACTOR = 75, SORT_IN_TEMPDB = ON);
 """);
@@ -2768,13 +2833,14 @@ WHERE [c].[object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name';
 IF @var IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT ' + @var + ';');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
-//
+            //
             $"""
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WITH (SORT_IN_TEMPDB = ON, DATA_COMPRESSION = {dataCompressionSql});
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)),
+     SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
         await Test(
@@ -2849,7 +2915,8 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
 
-    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)), SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsMemoryOptimizedTablesSupported)),
+     SkipOnPlatform(TestPlatforms.OSX, "Test does not run on macOS")]
     public virtual async Task Create_index_memoryOptimized_unique_nonclustered_not_nullable()
     {
         await Test(
@@ -2983,10 +3050,9 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public virtual Task Create_json_index_over_complex_collection_all_elements()
-    {
-        // SQL Server doesn't support indexes over all elements of JSON arrays
-        return Assert.ThrowsAsync<SqlException>(
-            () => Test(
+        =>
+            // SQL Server doesn't support indexes over all elements of JSON arrays
+            Assert.ThrowsAsync<SqlException>(() => Test(
                 builder => builder.Entity(
                     "JsonIndexEntities", e =>
                     {
@@ -3008,7 +3074,6 @@ CREATE VECTOR INDEX [IX_VectorEntities_Vector] ON [VectorEntities]([Vector]) WIT
                     Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
                     Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
                 }));
-    }
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public virtual async Task Create_json_index_over_complex_collection_specific_element()
@@ -3151,30 +3216,29 @@ CREATE JSON INDEX [IX_Items] ON [JsonIndexEntities]([ItemsJson]) FOR (N'$[0].Oth
     {
         // generates `FOR (N'$[*]')` but rejects indexes that span all array elements at execution time,
         // so we assert the resulting SqlException and the SQL we produced.
-        await Assert.ThrowsAsync<SqlException>(
-            () => Test(
-                builder => builder.Entity(
-                    "JsonIndexEntities", e =>
-                    {
-                        e.Property<int>("Id");
-                        e.HasKey("Id");
-                        e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
-                            "Items", cb =>
-                            {
-                                cb.ToJson("ItemsJson").HasColumnType("json");
-                                cb.Property(i => i.Value);
-                                cb.Property(i => i.Other);
-                            });
-                    }),
-                builder => { },
-                builder => builder.Entity("JsonIndexEntities").HasIndex("Items"),
-                model =>
+        await Assert.ThrowsAsync<SqlException>(() => Test(
+            builder => builder.Entity(
+                "JsonIndexEntities", e =>
                 {
-                    var table = Assert.Single(model.Tables);
-                    var index = Assert.Single(table.Indexes);
-                    Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
-                    Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
-                }));
+                    e.Property<int>("Id");
+                    e.HasKey("Id");
+                    e.ComplexCollection<List<JsonIndexItem>, JsonIndexItem>(
+                        "Items", cb =>
+                        {
+                            cb.ToJson("ItemsJson").HasColumnType("json");
+                            cb.Property(i => i.Value);
+                            cb.Property(i => i.Other);
+                        });
+                }),
+            builder => { },
+            builder => builder.Entity("JsonIndexEntities").HasIndex("Items"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Same(table.Columns.Single(c => c.Name == "ItemsJson"), Assert.Single(index.Columns));
+                Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
+            }));
 
         AssertSql(
             """
@@ -3218,10 +3282,9 @@ CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEn
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public virtual async Task Create_regular_index_on_json_column_and_regular_column()
-    {
-        // SQL Server does not allow an nvarchar(max) column to participate in a regular index.
-        await Assert.ThrowsAsync<SqlException>(
-            () => Test(
+        =>
+            // SQL Server does not allow an nvarchar(max) column to participate in a regular index.
+            await Assert.ThrowsAsync<SqlException>(() => Test(
                 builder => builder.Entity(
                     "JsonRegularIndexEntities", e =>
                     {
@@ -3239,7 +3302,6 @@ CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEn
                 builder => { },
                 builder => builder.Entity("JsonRegularIndexEntities").HasIndex("Name", "Details"),
                 model => { }));
-    }
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public virtual async Task Drop_json_index_over_complex_collection()
@@ -3307,11 +3369,10 @@ CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEn
 
     [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsJsonTypeSupported))]
     public virtual Task Create_json_index_over_multiple_paths_with_wildcard_and_indexer()
-    {
-        // Mix of "all elements" (Items[].Value) and a specific element (Items[0].Other) in one FOR clause.
-        // SQL Server rejects mixing [*] and [N] in the same JSON index FOR list.
-        return Assert.ThrowsAsync<SqlException>(
-            () => Test(
+        =>
+            // Mix of "all elements" (Items[].Value) and a specific element (Items[0].Other) in one FOR clause.
+            // SQL Server rejects mixing [*] and [N] in the same JSON index FOR list.
+            Assert.ThrowsAsync<SqlException>(() => Test(
                 builder => builder.Entity(
                     "JsonIndexEntities", e =>
                     {
@@ -3333,7 +3394,6 @@ CREATE JSON INDEX [IX_JsonIndexEntities_Items_Value_Items_Other] ON [JsonIndexEn
                     var index = Assert.Single(table.Indexes);
                     Assert.NotNull(index[RelationalAnnotationNames.JsonIndexPaths]);
                 }));
-    }
 
     #endregion
 

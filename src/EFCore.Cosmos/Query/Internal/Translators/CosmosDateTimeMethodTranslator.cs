@@ -45,7 +45,7 @@ public class CosmosDateTimeMethodTranslator(ISqlExpressionFactory sqlExpressionF
             nameof(DateTime.AddSeconds) => "ss",
             nameof(DateTime.AddMilliseconds) => "ms",
             nameof(DateTime.AddMicroseconds) => "mcs",
-            _ => (string?)null
+            _ => null
         };
 
         return datePart is not null

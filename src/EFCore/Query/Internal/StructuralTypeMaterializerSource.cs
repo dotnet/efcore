@@ -101,29 +101,31 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
             // don't get intercepted. #35883
             || structuralType is not IEntityType
-            ? properties.Count == 0 && blockExpressions.Count == 0
-                ? constructorExpression
-                : CreateMaterializeExpression(blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo, parameters.IsNullable)
-            : CreateInterceptionMaterializeExpression(
-                structuralType,
-                properties,
-                _materializationInterceptor,
-                bindingInfo,
-                constructorExpression,
-                getValueBufferExpression,
-                instanceVariable,
-                blockExpressions,
-                parameters.IsNullable);
+                ? properties.Count == 0 && blockExpressions.Count == 0
+                    ? constructorExpression
+                    : CreateMaterializeExpression(
+                        blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo,
+                        parameters.IsNullable)
+                : CreateInterceptionMaterializeExpression(
+                    structuralType,
+                    properties,
+                    _materializationInterceptor,
+                    bindingInfo,
+                    constructorExpression,
+                    getValueBufferExpression,
+                    instanceVariable,
+                    blockExpressions,
+                    parameters.IsNullable);
 
         return structuralType is IComplexType complexType
             && ReadComplexTypeDirectly(complexType)
             && parameters.IsNullable
-            ? HandleNullableComplexTypeMaterialization(
-                complexType,
-                parameters.ClrType,
-                materializationExpression,
-                getValueBufferExpression)
-            : materializationExpression;
+                ? HandleNullableComplexTypeMaterialization(
+                    complexType,
+                    parameters.ClrType,
+                    materializationExpression,
+                    getValueBufferExpression)
+                : materializationExpression;
 
         // Creates a conditional expression that handles materialization of nullable complex types.
         // For nullable complex types, the method checks if all scalar properties are null
@@ -142,7 +144,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
             var nullCheck = requiredProperty is not null
                 // If there's a required property, it's enough to check just that one for null.
                 ? Equal(
-                    getValueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), requiredProperty.GetIndex(), requiredProperty),
+                    getValueBufferExpression.CreateValueBufferReadValueExpression(
+                        typeof(object), requiredProperty.GetIndex(), requiredProperty),
                     Constant(null, typeof(object)))
                 // Create null checks for all scalar properties.
                 : allScalarProperties
@@ -541,7 +544,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         {
             var initializeBlockExpressions = new List<Expression>();
 
-            AddInitializeExpressions(properties, bindingInfo, instanceVariable, getValueBufferExpression, initializeBlockExpressions, nullable);
+            AddInitializeExpressions(
+                properties, bindingInfo, instanceVariable, getValueBufferExpression, initializeBlockExpressions, nullable);
 
             if (bindingInfo.StructuralType is IEntityType)
             {
@@ -568,7 +572,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         // for complex types)
         return Lambda<Func<MaterializationContext, object>>(
                 ((IStructuralTypeMaterializerSource)this).CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, IsNullable: false, null), materializationContextParameter),
+                    new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, IsNullable: false, null),
+                    materializationContextParameter),
                 materializationContextParameter)
             .Compile();
     }
@@ -588,7 +593,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
         // for complex types)
         return Lambda<Func<MaterializationContext, object>>(
                 ((IStructuralTypeMaterializerSource)this).CreateMaterializeExpression(
-                    new StructuralTypeMaterializerSourceParameters(complexType, "instance", complexType.ClrType, IsNullable: false, null), materializationContextParameter),
+                    new StructuralTypeMaterializerSourceParameters(complexType, "instance", complexType.ClrType, IsNullable: false, null),
+                    materializationContextParameter),
                 materializationContextParameter)
             .Compile();
     }
@@ -636,7 +642,9 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Func<MaterializationContext, object> GetEmptyMaterializer(
-        ITypeBase entityType, InstantiationBinding binding, List<IServiceProperty> serviceProperties)
+        ITypeBase entityType,
+        InstantiationBinding binding,
+        List<IServiceProperty> serviceProperties)
     {
         // GetEmptyMaterializer only gets called from the model/change tracking, and not from the materializer;
         // all such usages assume non-nullable materialization (i.e. no checking of scalar properties is needed
@@ -647,7 +655,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
 
         var materializationContextExpression = Parameter(typeof(MaterializationContext), "mc");
         var bindingInfo = new ParameterBindingInfo(
-            new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, nullable, null), materializationContextExpression);
+            new StructuralTypeMaterializerSourceParameters(entityType, "instance", entityType.ClrType, nullable, null),
+            materializationContextExpression);
 
         var blockExpressions = new List<Expression>();
         var instanceVariable = Variable(binding.RuntimeType, "instance");
@@ -669,7 +678,8 @@ public class StructuralTypeMaterializerSource : IStructuralTypeMaterializerSourc
                     ? properties.Count == 0 && blockExpressions.Count == 0
                         ? constructorExpression
                         : CreateMaterializeExpression(
-                            blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo, nullable)
+                            blockExpressions, instanceVariable, constructorExpression, getValueBufferExpression, properties, bindingInfo,
+                            nullable)
                     : CreateInterceptionMaterializeExpression(
                         entityType,
                         [],

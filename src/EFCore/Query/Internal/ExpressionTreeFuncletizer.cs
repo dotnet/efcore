@@ -74,7 +74,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     A cache of tree fragments that have already been parameterized, along with their parameter. This allows us to reuse the same
     ///     query parameter twice when the same captured variable is referenced in the query.
     /// </summary>
-    private readonly Dictionary<Expression, QueryParameterExpression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
+    private readonly Dictionary<Expression, QueryParameterExpression> _parameterizedValues = [with(ExpressionEqualityComparer.Instance)];
 
     /// <summary>
     ///     A set of the names of parameters that have already been created. Used to ensure different parameters have unique names.
@@ -209,7 +209,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         // In precompilation mode we don't actually extract parameter values; but we do need to generate the parameter names, using the
         // same logic (and via the same code) used in parameter extraction, and that logic requires _parameterValues.
-        _parameters = new Dictionary<string, object?>();
+        _parameters = [];
     }
 
     /// <summary>
@@ -392,8 +392,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     left = Constant(leftBoolValue);
                     leftState = leftState with { StateType = StateType.EvaluatableWithoutCapturedVariable };
 
-                    if (leftBoolValue && binary.NodeType is ExpressionType.OrElse
-                        || !leftBoolValue && binary.NodeType is ExpressionType.AndAlso)
+                    if ((leftBoolValue && binary.NodeType is ExpressionType.OrElse)
+                        || (!leftBoolValue && binary.NodeType is ExpressionType.AndAlso))
                     {
                         _state = leftState;
                         return left;
@@ -830,7 +830,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             // The lambda body is evaluatable. If all lambda parameters are also in the _allowedParameters set (this happens for
             // Select() over an evaluatable source, see VisitMethodCall()), then the whole lambda is evaluatable. Otherwise, evaluate
             // the body.
-            if (lambda.Parameters.All(parameter => _evaluatableParameters.Contains(parameter)))
+            if (lambda.Parameters.All(_evaluatableParameters.Contains))
             {
                 _state = State.CreateEvaluatable(typeof(LambdaExpression), _state.ContainsCapturedVariable);
                 return lambda;
@@ -979,13 +979,39 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 case nameof(MemoryExtensions.Contains)
                     when methodCall.Arguments is [var spanArg, var valueArg, ..]
                     && (methodCall.Arguments.Count is 2
-                        || methodCall.Arguments.Count is 3 && methodCall.Arguments[2] is ConstantExpression { Value: null })
+                        || (methodCall.Arguments.Count is 3 && methodCall.Arguments[2] is ConstantExpression { Value: null }))
                     && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
                 {
                     return Visit(
                         Call(
                             EnumerableMethods.Contains.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
                             unwrappedSpanArg, valueArg));
+                }
+
+                // Note that MemoryExtensions.Min/Max have an overload taking an IComparer<T>; we only match the
+                // overload taking just the span.
+                case nameof(MemoryExtensions.Min)
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.GetGenericArguments()[0];
+                    var enumerableMin = EnumerableMethods.GetMinWithoutSelector(elementType);
+                    return Visit(
+                        Call(
+                            enumerableMin.IsGenericMethodDefinition ? enumerableMin.MakeGenericMethod(elementType) : enumerableMin,
+                            unwrappedSpanArg));
+                }
+
+                case nameof(MemoryExtensions.Max)
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.GetGenericArguments()[0];
+                    var enumerableMax = EnumerableMethods.GetMaxWithoutSelector(elementType);
+                    return Visit(
+                        Call(
+                            enumerableMax.IsGenericMethodDefinition ? enumerableMax.MakeGenericMethod(elementType) : enumerableMax,
+                            unwrappedSpanArg));
                 }
 
                 case nameof(MemoryExtensions.SequenceEqual)
@@ -996,6 +1022,37 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         Call(
                             EnumerableMethods.SequenceEqual.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
                             unwrappedSpanArg, unwrappedOtherArg));
+
+                // .NET 11 added Min/Max Span overloads; rewrite to Enumerable.Min/Max.
+                case "Min"
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.ReturnType;
+                    var enumerableMin = EnumerableMethods.GetMinWithoutSelector(elementType);
+
+                    if (enumerableMin.IsGenericMethodDefinition)
+                    {
+                        enumerableMin = enumerableMin.MakeGenericMethod(elementType);
+                    }
+
+                    return Visit(Call(enumerableMin, unwrappedSpanArg));
+                }
+
+                case "Max"
+                    when methodCall.Arguments is [var spanArg]
+                    && TryUnwrapSpanImplicitCast(spanArg, out var unwrappedSpanArg):
+                {
+                    var elementType = methodCall.Method.ReturnType;
+                    var enumerableMax = EnumerableMethods.GetMaxWithoutSelector(elementType);
+
+                    if (enumerableMax.IsGenericMethodDefinition)
+                    {
+                        enumerableMax = enumerableMax.MakeGenericMethod(elementType);
+                    }
+
+                    return Visit(Call(enumerableMax, unwrappedSpanArg));
+                }
             }
 
             static bool TryUnwrapSpanImplicitCast(Expression expression, [NotNullWhen(true)] out Expression? result)
@@ -1094,7 +1151,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                             argumentStates[i] = argumentState with
                             {
-                                StateType = StateType.EvaluatableWithoutCapturedVariable, ForceConstantization = true
+                                StateType = StateType.EvaluatableWithoutCapturedVariable,
+                                ForceConstantization = true
                             };
                         }
                     }
@@ -1487,10 +1545,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 }
             }
 
-            if (visitedInitializersArguments is not null)
-            {
-                visitedInitializersArguments[i] = (IReadOnlyList<Expression>?)visitedArguments ?? initializer.Arguments;
-            }
+            visitedInitializersArguments?[i] = (IReadOnlyList<Expression>?)visitedArguments ?? initializer.Arguments;
 
             initializerArgumentStates[i] = argumentStates;
         }
@@ -1564,10 +1619,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         }
                     }
 
-                    if (visitedInitializersArguments is not null)
-                    {
-                        visitedInitializersArguments[i] = (IReadOnlyList<Expression>?)visitedArguments ?? initializer.Arguments;
-                    }
+                    visitedInitializersArguments?[i] = (IReadOnlyList<Expression>?)visitedArguments ?? initializer.Arguments;
                 }
 
                 _state = children is null
@@ -1871,10 +1923,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 }
             }
 
-            if (newExpressions is not null)
-            {
-                newExpressions[i] = newExpression;
-            }
+            newExpressions?[i] = newExpression;
 
             expressionStates[i] = expressionState;
 
@@ -1911,9 +1960,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 visitedExpressions[i] = ProcessEvaluatableRoot(expressions[i], ref argumentState);
                 expressionStates[i] = argumentState;
             }
-            else if (visitedExpressions is not null)
+            else
             {
-                visitedExpressions[i] = expressions[i];
+                visitedExpressions?[i] = expressions[i];
             }
 
             if (argumentState.ContainsEvaluatable && _calculatingPath)
@@ -2041,7 +2090,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         return constantExpression;
 
-        bool TryHandleNonEvaluatableAsRoot(Expression root, State state, bool asParameter, [NotNullWhen(true)] out Expression? result)
+        static bool TryHandleNonEvaluatableAsRoot(
+            Expression root,
+            State state,
+            bool asParameter,
+            [NotNullWhen(true)] out Expression? result)
         {
             switch (root)
             {
@@ -2066,7 +2119,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return false;
             }
 
-            bool PreserveConvertNode(Expression expression)
+            static bool PreserveConvertNode(Expression expression)
             {
                 if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression)
                 {
@@ -2078,17 +2131,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     }
 
                     var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-                    if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
-                        && (innerType == typeof(byte)
-                            || innerType == typeof(sbyte)
-                            || innerType == typeof(char)
-                            || innerType == typeof(short)
-                            || innerType == typeof(ushort)))
-                    {
-                        return true;
-                    }
-
-                    return PreserveConvertNode(unaryExpression.Operand);
+                    return (unaryExpression.Type.UnwrapNullableType() == typeof(int)
+                            && (innerType == typeof(byte)
+                                || innerType == typeof(sbyte)
+                                || innerType == typeof(char)
+                                || innerType == typeof(short)
+                                || innerType == typeof(ushort)))
+                        || PreserveConvertNode(unaryExpression.Operand);
                 }
 
                 return false;
@@ -2226,7 +2275,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     break;
 
                 case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
-                    when (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
+                    when unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type:
                     return EvaluateCore(unaryExpression.Operand, ref evaluateAsParameter, out parameterName, out isContextAccessor);
             }
 
@@ -2283,7 +2332,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             // parameterized (we always evaluate it as a constant, like a [NotParameterized]-annotated argument). This matters for operators
             // with a single overload taking an optional comparer (e.g. Queryable.FullJoin), where the compiler-supplied default null would
             // otherwise be parameterized, hiding from the translator whether a (non-translatable) custom comparer was supplied.
-            && !(parameter.ParameterType.IsGenericType && parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEqualityComparer<>));
+            && !(parameter.ParameterType.IsGenericType
+                && parameter.ParameterType.GetGenericTypeDefinition() == typeof(IEqualityComparer<>));
 
     private enum StateType
     {
@@ -2333,7 +2383,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         public static State CreateContainsEvaluatable(Type expressionType, IReadOnlyList<PathNode> children)
             => new()
             {
-                StateType = StateType.ContainsEvaluatable, Path = new PathNode { ExpressionType = expressionType, Children = children }
+                StateType = StateType.ContainsEvaluatable,
+                Path = new PathNode { ExpressionType = expressionType, Children = children }
             };
 
         /// <summary>

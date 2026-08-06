@@ -499,10 +499,8 @@ public abstract class InheritanceRelationshipsQueryTestBase<TFixture>(TFixture f
                 .Where(b => b.Id >= 4)
                 .Cast<DerivedInheritanceRelationshipEntity>()
                 .Include(e => e.DerivedCollectionOnDerived),
-            elementAsserter: (e, a) =>
-            {
-                AssertInclude(e, a, new ExpectedInclude<DerivedInheritanceRelationshipEntity>(i => i.DerivedCollectionOnDerived));
-            });
+            elementAsserter: (e, a) => AssertInclude(
+                e, a, new ExpectedInclude<DerivedInheritanceRelationshipEntity>(i => i.DerivedCollectionOnDerived)));
 
     protected InheritanceRelationshipsContext CreateContext()
         => Fixture.CreateContext();

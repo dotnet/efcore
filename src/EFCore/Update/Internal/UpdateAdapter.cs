@@ -151,9 +151,7 @@ public class UpdateAdapter : IUpdateAdapter
     public virtual IUpdateEntry CreateEntry(
         IDictionary<string, object?> values,
         IEntityType entityType)
-#pragma warning disable CS0618 // Type or member is obsolete
         => _stateManager.CreateEntry(values, entityType);
-#pragma warning restore CS0618 // Type or member is obsolete
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

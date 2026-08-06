@@ -46,7 +46,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,
-            Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
+            Assert.Throws<InvalidOperationException>(context.Database.GetDbConnection).Message);
     }
 
     [Theory, InlineData(true), InlineData(false)]
@@ -248,7 +248,8 @@ public class RelationalDatabaseFacadeExtensionsTest
         // This project has NO existing migrations right now but does have information in the DbContext
         var migrationsAssembly = new FakeIMigrationsAssembly
         {
-            ModelSnapshot = null, Migrations = new Dictionary<string, TypeInfo>(),
+            ModelSnapshot = null,
+            Migrations = new Dictionary<string, TypeInfo>(),
         };
 
         var testHelper = FakeRelationalTestHelpers.Instance;
@@ -264,23 +265,21 @@ public class RelationalDatabaseFacadeExtensionsTest
     [Fact]
     public void HasPendingModelChanges_has_migrations_and_no_new_context_changes_returns_false()
     {
-        var fakeModelSnapshot = new FakeModelSnapshot(builder =>
-        {
-            builder.Entity(
-                "Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensionsTests.TestDbContext.Simple", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("default_int_mapping");
+        var fakeModelSnapshot = new FakeModelSnapshot(builder => builder.Entity(
+            "Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensionsTests.TestDbContext.Simple", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("default_int_mapping");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Simples");
-                });
-        });
+                b.ToTable("Simples");
+            }));
         var migrationsAssembly = new FakeIMigrationsAssembly
         {
-            ModelSnapshot = fakeModelSnapshot, Migrations = new Dictionary<string, TypeInfo>(),
+            ModelSnapshot = fakeModelSnapshot,
+            Migrations = new Dictionary<string, TypeInfo>(),
         };
 
         var testHelper = FakeRelationalTestHelpers.Instance;

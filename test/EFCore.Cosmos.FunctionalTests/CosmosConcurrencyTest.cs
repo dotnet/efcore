@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) : IClassFixture<CosmosConcurrencyTest.CosmosFixture>, IAsyncLifetime
+public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
+    : IClassFixture<CosmosConcurrencyTest.CosmosFixture>, IAsyncLifetime
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
 
@@ -22,7 +23,8 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
             ctx.Customers.Add(
                 new Customer
                 {
-                    Id = "1", Name = "CreatedTwice",
+                    Id = "1",
+                    Name = "CreatedTwice",
                 });
             return Task.CompletedTask;
         });
@@ -35,7 +37,8 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                 ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "2", Name = "Added",
+                        Id = "2",
+                        Name = "Added",
                     });
                 return Task.CompletedTask;
             }, async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "2")).Name = "Updated",
@@ -49,7 +52,8 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                 ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "3", Name = "Added",
+                        Id = "3",
+                        Name = "Added",
                     });
                 return Task.CompletedTask;
             }, async ctx => (await ctx.Customers.SingleAsync(c => c.Id == "3")).Name = "Updated",
@@ -58,16 +62,18 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
     [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
-            .UseCosmos(o =>
-            {
-                if (contentResponseOnWriteEnabled != null)
-                {
+        var options = Fixture.TestStore.AddProviderOptions(
+                Fixture.AddOptions(
+                    new DbContextOptionsBuilder()
+                        .UseCosmos(o =>
+                        {
+                            if (contentResponseOnWriteEnabled != null)
+                            {
 #pragma warning disable CS0618 // Type or member is obsolete
-                    o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+                                o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
-                }
-            })))
+                            }
+                        })))
             .UseInternalServiceProvider(ServiceProvider)
             .Options;
 
@@ -121,16 +127,18 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
     [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_derived_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        var options = Fixture.TestStore.AddProviderOptions(Fixture.AddOptions(new DbContextOptionsBuilder()
-            .UseCosmos(o =>
-            {
-                if (contentResponseOnWriteEnabled != null)
-                {
+        var options = Fixture.TestStore.AddProviderOptions(
+                Fixture.AddOptions(
+                    new DbContextOptionsBuilder()
+                        .UseCosmos(o =>
+                        {
+                            if (contentResponseOnWriteEnabled != null)
+                            {
 #pragma warning disable CS0618 // Type or member is obsolete
-                    o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
+                                o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
 #pragma warning restore CS0618 // Type or member is obsolete
-                }
-            })))
+                            }
+                        })))
             .UseInternalServiceProvider(ServiceProvider)
             .Options;
 
@@ -246,10 +254,13 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
         => Fixture.CreateContext();
 
     protected virtual ConcurrencyContext CreateContext(DbContextOptions options)
-        => new ConcurrencyContext(options);
+        => new(options);
 
-    public virtual ValueTask InitializeAsync() => ValueTask.CompletedTask;
-    public virtual async ValueTask DisposeAsync() => await ServiceProvider.DisposeAsync();
+    public virtual ValueTask InitializeAsync()
+        => ValueTask.CompletedTask;
+
+    public virtual async ValueTask DisposeAsync()
+        => await ServiceProvider.DisposeAsync();
 
     public class CosmosFixture : SharedStoreFixtureBase<ConcurrencyContext>
     {
