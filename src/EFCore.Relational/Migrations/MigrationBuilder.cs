@@ -53,8 +53,14 @@ public class MigrationBuilder
     /// </param>
     /// <param name="schema">The schema that contains the table, or <see langword="null" /> if the default schema should be used.</param>
     /// <param name="nullable">Indicates whether or not the column can store <see langword="null" /> values.</param>
-    /// <param name="defaultValue">The default value for the column.</param>
-    /// <param name="defaultValueSql">The SQL expression to use for the column's default constraint.</param>
+    /// <param name="defaultValue">
+    ///     The constant value for the column's default constraint. This value is used for new rows that don't specify a value
+    ///     for the column.
+    /// </param>
+    /// <param name="defaultValueSql">
+    ///     The SQL expression to use for the column's default constraint. This value is used for new rows that don't specify a value
+    ///     for the column.
+    /// </param>
     /// <param name="computedColumnSql">The SQL expression to use to compute the column value.</param>
     /// <param name="fixedLength">Indicates whether or not the column is constrained to fixed-length data.</param>
     /// <param name="comment">A comment to associate with the column.</param>
@@ -343,8 +349,14 @@ public class MigrationBuilder
     /// </param>
     /// <param name="schema">The schema that contains the table, or <see langword="null" /> if the default schema should be used.</param>
     /// <param name="nullable">Indicates whether or not the column can store <see langword="null" /> values.</param>
-    /// <param name="defaultValue">The default value for the column.</param>
-    /// <param name="defaultValueSql">The SQL expression to use for the column's default constraint.</param>
+    /// <param name="defaultValue">
+    ///     The constant value for the column's default constraint. This value is used for new rows that don't specify a value
+    ///     for the column.
+    /// </param>
+    /// <param name="defaultValueSql">
+    ///     The SQL expression to use for the column's default constraint. This value is used for new rows that don't specify a value
+    ///     for the column.
+    /// </param>
     /// <param name="computedColumnSql">The SQL expression to use to compute the column value.</param>
     /// <param name="oldClrType">
     ///     The CLR type that the column was previously mapped to. Can be <see langword="null" />, in which case previous value is considered
