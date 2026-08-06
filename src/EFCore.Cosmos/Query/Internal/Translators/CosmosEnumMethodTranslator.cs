@@ -67,9 +67,13 @@ public class CosmosEnumMethodTranslator : IMethodCallTranslator
                                 _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
                         .ToArray();
 
-                    var elseResult = _sqlExpressionFactory.CoalesceUndefined(
-                        _sqlExpressionFactory.Convert(instance, typeof(string)),
-                        _sqlExpressionFactory.Constant(string.Empty));
+                    var elseResult = _sqlExpressionFactory.Case(
+                        [
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.IsNull(instance),
+                                _sqlExpressionFactory.Constant(string.Empty))
+                        ],
+                        _sqlExpressionFactory.Convert(instance, typeof(string)));
 
                     return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
 

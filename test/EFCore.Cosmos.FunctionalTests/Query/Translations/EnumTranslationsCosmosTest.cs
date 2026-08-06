@@ -329,7 +329,7 @@ WHERE ((c["FlagsEnum"] & @flagsEnum) = @flagsEnum)
                     """
 SELECT VALUE c["Enum"]
 FROM root c
-WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", (ToString(c["Enum"]) ?? "")))), "One")
+WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", IIF((c["Enum"] = null), "", ToString(c["Enum"]))))), "One")
 """);
             });
 
@@ -341,10 +341,10 @@ WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"]
 
                 AssertSql(
                     """
-    SELECT VALUE c["Enum"]
-    FROM root c
-    WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", (ToString(c["Enum"]) ?? "")))), "One")
-    """);
+SELECT VALUE c["Enum"]
+FROM root c
+WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", IIF((c["Enum"] = null), "", ToString(c["Enum"]))))), "One")
+""");
             });
 
     public override Task ToString_enum_property_projection(bool async)
@@ -355,7 +355,7 @@ WHERE CONTAINS(IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"]
 
                 AssertSql(
                     """
-SELECT VALUE IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", (ToString(c["Enum"]) ?? ""))))
+SELECT VALUE IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", IIF((c["Enum"] = null), "", ToString(c["Enum"])))))
 FROM root c
 """);
             });
@@ -368,7 +368,7 @@ FROM root c
 
                 AssertSql(
                     """
-SELECT VALUE c["Enum"]
+SELECT VALUE IIF(c["Enum"] = 0, "One", IIF(c["Enum"] = 1, "Two", IIF(c["Enum"] = 2, "Three", IIF((c["Enum"] = null), "", ToString(c["Enum"])))))
 FROM root c
 """);
             });
