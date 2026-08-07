@@ -377,19 +377,6 @@ public partial class CosmosSqlTranslatingExpressionVisitor(
                 return extensionExpression;
 
             case QueryParameterExpression queryParameter:
-                // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
-                // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
-                if (queryParameter.IsNonNullableReferenceType)
-                {
-                    /*Check.DebugAssert(
-                        _queryCompilationContext.IsPrecompiling,
-                        "Parameters can only be known to has non-nullable reference types in query precompilation.");*/
-                    return new SqlParameterExpression(
-                        name: queryParameter.Name,
-                        queryParameter.Type,
-                        typeMapping: null);
-                }
-
                 return new SqlParameterExpression(
                     name: queryParameter.Name,
                     queryParameter.Type.UnwrapNullableType(),

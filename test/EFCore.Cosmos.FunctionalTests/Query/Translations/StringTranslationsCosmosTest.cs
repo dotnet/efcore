@@ -1025,7 +1025,7 @@ WHERE (42 > IIF((c["String"] = "Seattle"), 0, IIF((c["String"] > "Seattle"), 1, 
 """);
     }
 
-    public override async  Task Compare_nested()
+    public override async Task Compare_nested()
     {
         await base.Compare_nested();
 
