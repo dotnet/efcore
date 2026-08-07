@@ -2783,27 +2783,6 @@ CROSS JOIN (
 
         AssertSql(
             """
-SET NOCOUNT ON;
-INSERT INTO [ManyM_DB]
-OUTPUT INSERTED.[Id]
-DEFAULT VALUES;
-INSERT INTO [ManyN_DB]
-OUTPUT INSERTED.[Id]
-DEFAULT VALUES;
-""",
-            //
-            """
-@p0='1'
-@p1='1' (Nullable = true)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-INSERT INTO [ManyMN_DB] ([ManyM_Id], [ManyN_Id])
-OUTPUT INSERTED.[Id]
-VALUES (@p0, @p1);
-""",
-            //
-            """
 @p='1'
 
 SELECT TOP(1) [m].[Id]

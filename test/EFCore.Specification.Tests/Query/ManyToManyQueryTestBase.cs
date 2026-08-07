@@ -986,6 +986,7 @@ public abstract class ManyToManyQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     protected virtual void ClearLog()
     {
+        ListLoggerFactory.Clear();
     }
 
     #region Non-shared test resources

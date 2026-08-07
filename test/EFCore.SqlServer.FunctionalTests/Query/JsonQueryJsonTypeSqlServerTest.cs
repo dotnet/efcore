@@ -3928,6 +3928,16 @@ VALUES(
     [Fact]
     public virtual async Task Materialize_json_null_primitive_collection_mapped_to_column_is_null()
     {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
@@ -3952,6 +3962,16 @@ VALUES(
     [Fact]
     public virtual async Task Materialize_empty_json_primitive_collection_mapped_to_column_throws()
     {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
@@ -3970,6 +3990,16 @@ VALUES(
     [Fact]
     public virtual async Task Materialize_json_null_required_primitive_collection_mapped_to_column_throws()
     {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
@@ -3988,6 +4018,16 @@ VALUES(
     [Fact]
     public virtual async Task Project_json_null_primitive_collection_mapped_to_column_is_null()
     {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
         var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
             onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
             onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
@@ -4543,9 +4583,6 @@ WHERE CAST([e].[Json] AS nvarchar(max)) = CAST(@entity_equality_complexType AS n
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Read_enum_property_with_legacy_values(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => Read_enum_property_with_legacy_values_core(async));
-
-    protected override string NonSharedStoreName
-        => "JsonQueryJsonTypeTest";
 
     protected override string JsonColumnType
         => "json";

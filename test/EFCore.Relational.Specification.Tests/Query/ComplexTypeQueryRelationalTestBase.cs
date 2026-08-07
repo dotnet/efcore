@@ -130,10 +130,8 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
         var contextFactory = await InitializeNonSharedTest<Context35025>();
         using var context = contextFactory.CreateDbContext();
 
-        var count = await context.TpcBases.ToListAsync();
-
-        // TODO: Seed data and assert materialization as well
-        // Assert.Equal(0, count);
+        var entities = await context.TpcBases.ToListAsync();
+        Assert.Empty(entities);
     }
 
     protected class Context35025(DbContextOptions options) : DbContext(options)
