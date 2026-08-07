@@ -12,6 +12,9 @@ public class JsonQuerySqlServerFixture : JsonQueryRelationalFixture
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Query.Name;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         base.OnModelCreating(modelBuilder, context);
