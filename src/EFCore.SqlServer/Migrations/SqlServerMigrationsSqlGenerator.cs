@@ -321,7 +321,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 || operation is { IsNullable: false, OldColumn.IsNullable: true };
         }
 
-        var sparseChanged = operation[SqlServerAnnotationNames.Sparse] != operation.OldColumn[SqlServerAnnotationNames.Sparse];
+        var sparseChanged = ((bool?)operation[SqlServerAnnotationNames.Sparse] ?? false)
+            != ((bool?)operation.OldColumn[SqlServerAnnotationNames.Sparse] ?? false);
         if (narrowed || sparseChanged)
         {
             indexesToRebuild = GetIndexesToRebuild(column, operation).ToList();
