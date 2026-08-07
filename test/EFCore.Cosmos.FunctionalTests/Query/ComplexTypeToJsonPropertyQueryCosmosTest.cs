@@ -495,14 +495,46 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
         await base.Complex_type_equals_parameter_with_nested_types_with_property_of_same_name();
     }
 
-    public override Task Projecting_complex_property_does_not_auto_include_owned_types()
-        => base.Projecting_complex_property_does_not_auto_include_owned_types();
+    public override async Task Projecting_complex_property_does_not_auto_include_owned_types()
+    {
+        await base.Projecting_complex_property_does_not_auto_include_owned_types();
 
-    public override Task Optional_complex_type_with_discriminator()
-        => base.Optional_complex_type_with_discriminator();
+        AssertSql(
+            """
+SELECT VALUE c["Complex"]
+FROM root c
+""");
+    }
 
-    public override Task Non_optional_complex_type_with_all_nullable_properties()
-        => base.Non_optional_complex_type_with_all_nullable_properties();
+    public override async Task Optional_complex_type_with_discriminator()
+    {
+        await base.Optional_complex_type_with_discriminator();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["AllOptionalsComplexType"] = null)
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
+
+    public override async Task Non_optional_complex_type_with_all_nullable_properties()
+    {
+        await base.Non_optional_complex_type_with_all_nullable_properties();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
 
     public override async Task Non_optional_complex_type_with_all_nullable_properties_via_left_join()
     {
@@ -510,19 +542,74 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
             CosmosStrings.UpdateConflict("1"),
             (await Assert.ThrowsAsync<DbUpdateException>(
                 base.Non_optional_complex_type_with_all_nullable_properties_via_left_join)).Message);
+
+        AssertSql();
     }
 
-    public override Task Nullable_complex_type_with_discriminator_and_shadow_property()
-        => base.Nullable_complex_type_with_discriminator_and_shadow_property();
+    public override async Task Nullable_complex_type_with_discriminator_and_shadow_property()
+    {
+        await base.Nullable_complex_type_with_discriminator_and_shadow_property();
 
-    public override Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
-        => base.Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+""");
+    }
 
-    public override Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
-        => base.Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip();
+    public override async Task Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
 
-    public override Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
-        => base.Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_non_null_to_null_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip()
+    {
+        await base.Nullable_complex_type_with_discriminator_update_non_null_entity_roundtrip();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
 
     public override Task Nullable_complex_type_with_discriminator_set_to_different_value()
         => base.Nullable_complex_type_with_discriminator_set_to_different_value();
@@ -558,23 +645,102 @@ WHERE (c["ShippingAddressRenamed"] = @entity_equality_address)
         }
     }
 
-    public override Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
-        => base.Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
+    public override async Task Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip()
+    {
+        await base.Nested_nullable_complex_type_with_discriminator_null_to_non_null_roundtrip();
 
-    public override Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
-        => base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
 
-    public override Task Can_query_by_complex_type_property_with_index()
-        => base.Can_query_by_complex_type_property_with_index();
+    public override async Task Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw()
+    {
+        await base.Update_entity_with_nullable_complex_type_and_discriminator_does_not_throw();
 
-    public override Task Can_update_entity_with_index_on_complex_type_property()
-        => base.Can_update_entity_with_index_on_complex_type_property();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
 
-    public override Task Can_delete_entity_with_index_on_complex_type_property()
-        => base.Can_delete_entity_with_index_on_complex_type_property();
+    public override async Task Can_query_by_complex_type_property_with_index()
+    {
+        await base.Can_query_by_complex_type_property_with_index();
 
-    public override Task Can_query_by_alternate_key_on_complex_type_property()
-        => base.Can_query_by_alternate_key_on_complex_type_property();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Address"]["City"] = "Seattle")
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_update_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_update_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""");
+    }
+
+    public override async Task Can_delete_entity_with_index_on_complex_type_property()
+    {
+        await base.Can_delete_entity_with_index_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+OFFSET 0 LIMIT 2
+""",
+            //
+            """
+SELECT VALUE COUNT(1)
+FROM root c
+""");
+    }
+
+    public override async Task Can_query_by_alternate_key_on_complex_type_property()
+    {
+        await base.Can_query_by_alternate_key_on_complex_type_property();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Address"]["City"] = "Redmond")
+OFFSET 0 LIMIT 2
+""");
+    }
 
     public override async Task Can_save_batch_swapping_alternate_key_values_on_complex_type_property()
     {
