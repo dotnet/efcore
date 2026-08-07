@@ -2338,7 +2338,7 @@ public abstract partial class ModelBuilderTest
                 .ComplexType;
             var upProperty = quarksType.FindProperty(nameof(Quarks.Up))!;
 
-            var foreignKey = model.FindEntityType(typeof(Customer))!.GetForeignKeys()
+            var foreignKey = model.GetEntityTypes().Single(t => t.ClrType == typeof(Customer)).GetForeignKeys()
                 .Single(fk => fk.PrincipalEntityType == entityType);
             Assert.Same(upProperty, foreignKey.PrincipalKey.Properties.Single());
         }
