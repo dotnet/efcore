@@ -9,11 +9,9 @@ public class DatabaseOperationsTest
 {
     [ConditionalFact]
     public void Can_pass_null_args()
-    {
         // Even though newer versions of the tools will pass an empty array
         // older versions of the tools can pass null args.
-        CreateOperations(null);
-    }
+        => CreateOperations(null);
 
     [ConditionalFact]
     public void ScaffoldContext_throws_exceptions_for_invalid_context_name()
@@ -29,27 +27,25 @@ public class DatabaseOperationsTest
 
         Assert.Equal(
             DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
-            Assert.Throws<ArgumentException>(
-                    () => operations.ScaffoldContext(
-                        "Microsoft.EntityFrameworkCore.SqlServer",
-                        "connectionstring",
-                        "",
-                        "",
-                        dbContextClassName: contextName,
-                        null,
-                        null,
-                        "FakeNamespace",
-                        contextNamespace: null,
-                        useDataAnnotations: false,
-                        overwriteFiles: true,
-                        useDatabaseNames: false,
-                        suppressOnConfiguring: true,
-                        noPluralize: false))
+            Assert.Throws<ArgumentException>(() => operations.ScaffoldContext(
+                    "Microsoft.EntityFrameworkCore.SqlServer",
+                    "connectionstring",
+                    "",
+                    "",
+                    dbContextClassName: contextName,
+                    null,
+                    null,
+                    "FakeNamespace",
+                    contextNamespace: null,
+                    useDataAnnotations: false,
+                    overwriteFiles: true,
+                    useDatabaseNames: false,
+                    suppressOnConfiguring: true,
+                    noPluralize: false))
                 .Message);
     }
 
-    [ConditionalFact]
-    [SqlServerConfiguredCondition]
+    [ConditionalFact, SqlServerConfiguredCondition]
     public void ScaffoldContext_sets_environment()
     {
         var operations = CreateOperations([]);

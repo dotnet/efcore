@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  devcontainer:
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    volumes:
+      - ..:/workspace/efcore:cached
+    tty: true

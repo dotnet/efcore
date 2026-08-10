@@ -21,7 +21,6 @@ public static class PropertyBaseExtensions
         => "{"
             + string.Join(
                 ", ",
-                properties.Select(
-                    p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+                properties.Select(p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
             + "}";
 }

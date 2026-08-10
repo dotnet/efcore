@@ -72,11 +72,19 @@ public class QueryAsserter(
         bool assertOrder,
         bool assertEmpty,
         bool async,
+        QueryTrackingBehavior? queryTrackingBehavior,
         string testMethodName,
         bool filteredQuery = false)
     {
         using var context = _contextCreator();
+
         var query = RewriteServerQuery(actualQuery(SetSourceCreator(context)));
+
+        if (queryTrackingBehavior.HasValue)
+        {
+            query = query.Provider.CreateQuery<TResult>(new TrackingRewriter(queryTrackingBehavior.Value).Visit(query.Expression));
+        }
+
 #pragma warning disable CS0162 // Unreachable code detected
         if (ProceduralQueryGeneration && !async)
         {
@@ -1625,9 +1633,11 @@ public class QueryAsserter(
             case (null, null):
                 return;
             case (null, not null):
+                Assert.Null(actual);
+                throw new UnreachableException();
             case (not null, null):
-                throw new InvalidOperationException(
-                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
+                Assert.NotNull(actual);
+                throw new UnreachableException();
             case (not null, not null):
                 break;
         }
@@ -1695,8 +1705,8 @@ public class QueryAsserter(
 
         var expectedType = expected!.GetType();
         if (expectedType.IsGenericType
-            && expectedType.GetTypeInfo().ImplementedInterfaces.Any(
-                i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
+            && expectedType.GetTypeInfo().ImplementedInterfaces
+                .Any(i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
         {
             _assertIncludeCollectionMethodInfo.MakeGenericMethod(expectedType.GenericTypeArguments[0])
                 .Invoke(this, [expected, actual, expectedIncludes, assertOrder]);
@@ -1810,4 +1820,30 @@ public class QueryAsserter(
         => query.Provider.CreateQuery<T>(_rewriteExpectedQueryExpression(query.Expression));
 
     #endregion
+
+    private class TrackingRewriter(QueryTrackingBehavior queryTrackingBehavior) : ExpressionVisitor
+    {
+        private static readonly MethodInfo AsNoTrackingMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!;
+
+        private static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo()
+                .GetDeclaredMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTrackingWithIdentityResolution))!;
+
+        protected override Expression VisitExtension(Expression expression)
+            => expression is EntityQueryRootExpression root
+                ? queryTrackingBehavior switch
+                {
+                    QueryTrackingBehavior.NoTracking
+                        => Expression.Call(AsNoTrackingMethodInfo.MakeGenericMethod(root.ElementType), root),
+                    QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                        => Expression.Call(AsNoTrackingWithIdentityResolutionMethodInfo.MakeGenericMethod(root.ElementType), root),
+                    QueryTrackingBehavior.TrackAll
+                        => base.VisitExtension(expression),
+
+                    _ => throw new UnreachableException()
+                }
+                : base.VisitExtension(expression);
+    }
 }

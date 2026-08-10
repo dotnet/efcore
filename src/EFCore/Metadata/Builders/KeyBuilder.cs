@@ -30,7 +30,7 @@ public class KeyBuilder : IInfrastructure<IConventionKeyBuilder>
     [EntityFrameworkInternal]
     public KeyBuilder(IMutableKey key)
     {
-        Check.NotNull(key, nameof(key));
+        Check.NotNull(key);
 
         Builder = ((Key)key).Builder;
     }
@@ -59,7 +59,7 @@ public class KeyBuilder : IInfrastructure<IConventionKeyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual KeyBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

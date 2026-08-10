@@ -24,7 +24,7 @@ public static class RelationalCommandResolverExtensions
         this RelationalCommandResolver relationalCommandResolver,
         RelationalQueryContext queryContext)
     {
-        var relationalCommandTemplate = relationalCommandResolver(queryContext.ParameterValues);
+        var relationalCommandTemplate = relationalCommandResolver(queryContext.Parameters);
         var relationalCommand = queryContext.Connection.RentCommand();
         relationalCommand.PopulateFrom(relationalCommandTemplate);
         return relationalCommand;

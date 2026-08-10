@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     'UseChangeTrackingProxies' and 'UseLazyLoadingProxies' each require AddEntityFrameworkProxies to be called on the internal service provider used.
+        ///     'UseChangeTrackingProxies' and 'UseLazyLoadingProxies' each require 'AddEntityFrameworkProxies' to be called on the internal service provider used.
         /// </summary>
         public static string ProxyServicesMissing
             => GetString("ProxyServicesMissing");

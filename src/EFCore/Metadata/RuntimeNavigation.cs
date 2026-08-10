@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeNavigation : RuntimePropertyBase, INavigation
+public class RuntimeNavigation : RuntimePropertyBase, IRuntimeNavigation
 {
     // Warning: Never access these fields directly as access needs to be thread-safe
     private IClrCollectionAccessor? _collectionAccessor;
@@ -75,6 +74,15 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
     public override RuntimeTypeBase DeclaringType
         => DeclaringEntityType;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool IsCollection
+        => !((IReadOnlyNavigation)this).IsOnDependent && !((IReadOnlyForeignKey)ForeignKey).IsUnique;
+
     /// <inheritdoc />
     public override object? Sentinel
         => null;
@@ -96,7 +104,7 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
         where TCollection : class, IEnumerable<TElement>
         where TElement : class
     {
-        _collectionAccessor = new ClrICollectionAccessor<TEntity, TCollection, TElement>(
+        _collectionAccessor = new ClrCollectionAccessor<TEntity, TCollection, TElement>(
             Name,
             ((INavigation)this).IsShadowProperty(),
             getCollection,
@@ -135,7 +143,7 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+    IClrCollectionAccessor? IPropertyBase.GetCollectionAccessor()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,

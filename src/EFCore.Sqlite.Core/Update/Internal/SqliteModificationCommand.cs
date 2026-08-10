@@ -51,7 +51,7 @@ public class SqliteModificationCommand : ModificationCommand
         // Here we convert the .NET bool to a "true"/"false" string, and SqliteUpdateSqlGenerator will add the enclosing json().
         if (propertyProviderClrType == typeof(bool))
         {
-            var value = property.GetTypeMapping().Converter is ValueConverter converter
+            var value = property.GetTypeMapping().Converter is { } converter
                 ? converter.ConvertToProvider(parameters.Value)
                 : parameters.Value;
 

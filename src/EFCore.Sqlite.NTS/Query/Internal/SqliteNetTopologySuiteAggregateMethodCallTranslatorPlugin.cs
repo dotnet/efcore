@@ -18,7 +18,7 @@ public class SqliteNetTopologySuiteAggregateMethodCallTranslatorPlugin : IAggreg
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqliteNetTopologySuiteAggregateMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
-        => Translators = new IAggregateMethodCallTranslator[] { new SqliteNetTopologySuiteAggregateMethodTranslator(sqlExpressionFactory) };
+        => Translators = [new SqliteNetTopologySuiteAggregateMethodTranslator(sqlExpressionFactory)];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

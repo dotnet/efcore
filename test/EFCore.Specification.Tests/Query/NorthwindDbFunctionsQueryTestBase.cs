@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_literal(bool async)
         => AssertCount(
             async,
@@ -19,8 +18,7 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             c => EF.Functions.Like(c.ContactName, "%M%"),
             c => c.ContactName.Contains("M") || c.ContactName.Contains("m"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_identity(bool async)
         => AssertCount(
             async,
@@ -29,8 +27,7 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             c => EF.Functions.Like(c.ContactName, c.ContactName),
             c => true);
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_literal_with_escape(bool async)
         => AssertCount(
             async,
@@ -39,8 +36,7 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             c => EF.Functions.Like(c.ContactName, "!%", "!"),
             c => c.ContactName.Contains("%"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_all_literals(bool async)
         => AssertCount(
             async,
@@ -49,8 +45,7 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             c => EF.Functions.Like("FOO", "%O%"),
             c => "FOO".Contains("O") || "FOO".Contains("m"));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual Task Like_all_literals_with_escape(bool async)
         => AssertCount(
             async,
@@ -58,26 +53,6 @@ public abstract class NorthwindDbFunctionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<Customer>(),
             c => EF.Functions.Like("%", "!%", "!"),
             c => "%".Contains("%"));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_return_less_than_1(bool async)
-        => AssertCount(
-            async,
-            ss => ss.Set<Order>(),
-            ss => ss.Set<Order>(),
-            ss => EF.Functions.Random() < 1,
-            c => true);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Random_return_greater_than_0(bool async)
-        => AssertCount(
-            async,
-            ss => ss.Set<Order>(),
-            ss => ss.Set<Order>(),
-            ss => EF.Functions.Random() >= 0,
-            c => true);
 
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();

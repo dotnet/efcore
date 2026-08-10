@@ -72,14 +72,14 @@ public class ObservableHashSetTest
         Assert.Equal(2, countChanging);
         Assert.Equal(2, countChanged);
         Assert.Equal(2, collectionChanged);
-        Assert.Equal(new[] { "Carmack", "Palmer" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Carmack", "Palmer"], hashSet.OrderBy(i => i));
 
         Assert.False(hashSet.Add("Palmer"));
 
         Assert.Equal(2, countChanging);
         Assert.Equal(2, countChanged);
         Assert.Equal(2, collectionChanged);
-        Assert.Equal(new[] { "Carmack", "Palmer" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Carmack", "Palmer"], hashSet.OrderBy(i => i));
     }
 
     [ConditionalFact]
@@ -236,19 +236,19 @@ public class ObservableHashSetTest
             collectionChanged++;
         };
 
-        hashSet.UnionWith(new[] { "Carmack", "Nate", "Brendan" });
+        hashSet.UnionWith(["Carmack", "Nate", "Brendan"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Brendan", "Carmack", "Nate", "Palmer" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Brendan", "Carmack", "Nate", "Palmer"], hashSet.OrderBy(i => i));
 
-        hashSet.UnionWith(new[] { "Brendan" });
+        hashSet.UnionWith(["Brendan"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Brendan", "Carmack", "Nate", "Palmer" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Brendan", "Carmack", "Nate", "Palmer"], hashSet.OrderBy(i => i));
     }
 
     [ConditionalFact]
@@ -278,19 +278,19 @@ public class ObservableHashSetTest
             collectionChanged++;
         };
 
-        hashSet.IntersectWith(new[] { "Carmack", "Palmer", "Abrash" });
+        hashSet.IntersectWith(["Carmack", "Palmer", "Abrash"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Carmack", "Palmer" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Carmack", "Palmer"], hashSet.OrderBy(i => i));
 
-        hashSet.IntersectWith(new[] { "Carmack", "Palmer", "Abrash" });
+        hashSet.IntersectWith(["Carmack", "Palmer", "Abrash"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Carmack", "Palmer" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Carmack", "Palmer"], hashSet.OrderBy(i => i));
     }
 
     [ConditionalFact]
@@ -320,19 +320,19 @@ public class ObservableHashSetTest
             collectionChanged++;
         };
 
-        hashSet.ExceptWith(new[] { "Carmack", "Palmer", "Abrash" });
+        hashSet.ExceptWith(["Carmack", "Palmer", "Abrash"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Brendan", "Nate"], hashSet.OrderBy(i => i));
 
-        hashSet.ExceptWith(new[] { "Abrash", "Carmack", "Palmer" });
+        hashSet.ExceptWith(["Abrash", "Carmack", "Palmer"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Brendan", "Nate"], hashSet.OrderBy(i => i));
     }
 
     [ConditionalFact]
@@ -363,19 +363,19 @@ public class ObservableHashSetTest
             collectionChanged++;
         };
 
-        hashSet.SymmetricExceptWith(new[] { "Carmack", "Palmer", "Abrash" });
+        hashSet.SymmetricExceptWith(["Carmack", "Palmer", "Abrash"]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Abrash", "Brendan", "Nate" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Abrash", "Brendan", "Nate"], hashSet.OrderBy(i => i));
 
         hashSet.SymmetricExceptWith([]);
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Abrash", "Brendan", "Nate" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Abrash", "Brendan", "Nate"], hashSet.OrderBy(i => i));
     }
 
     [ConditionalFact]
@@ -491,14 +491,14 @@ public class ObservableHashSetTest
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Brendan", "Nate"], hashSet.OrderBy(i => i));
 
         Assert.Equal(0, hashSet.RemoveWhere(i => i.Contains("m")));
 
         Assert.Equal(1, countChanging);
         Assert.Equal(1, countChanged);
         Assert.Equal(1, collectionChanged);
-        Assert.Equal(new[] { "Brendan", "Nate" }, hashSet.OrderBy(i => i));
+        Assert.Equal(["Brendan", "Nate"], hashSet.OrderBy(i => i));
     }
 
     [ConditionalFact]

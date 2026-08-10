@@ -87,10 +87,10 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Function(
                     instance,
                     functionName,
-                    Enumerable.Empty<SqlExpression>(),
+                    [],
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                    argumentsPropagateNullability: [],
                     returnType,
                     resultTypeMapping);
             }
@@ -142,10 +142,10 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
                     _sqlExpressionFactory.Function(
                         instance,
                         "STGeometryType",
-                        Enumerable.Empty<SqlExpression>(),
+                        [],
                         nullable: true,
                         instancePropagatesNullability: true,
-                        argumentsPropagateNullability: Enumerable.Empty<bool>(),
+                        argumentsPropagateNullability: [],
                         typeof(string)),
                     whenClauses,
                     null);

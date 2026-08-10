@@ -27,8 +27,7 @@ public class MigrationsIdGeneratorTest
         Assert.NotEqual(id1, id2);
     }
 
-    [ConditionalFact]
-    [UseCulture("fa")]
+    [ConditionalFact, UseCulture("fa")]
     public void CreateId_uses_invariant_calendar()
     {
         var invariantYear = CultureInfo.InvariantCulture.Calendar.GetYear(DateTime.Today).ToString();

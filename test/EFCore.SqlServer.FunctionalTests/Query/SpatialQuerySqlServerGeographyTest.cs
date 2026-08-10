@@ -153,9 +153,9 @@ GROUP BY [p].[Group]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000D03F000000000000D03F' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000D03F000000000000D03F' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STContains(@__point_0) AS [Contains]
+SELECT [p].[Id], [p].[Polygon].STContains(@point) AS [Contains]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -218,8 +218,7 @@ FROM [LineStringEntity] AS [l]
     public override Task Crosses(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
     public virtual async Task CurveToLine(bool async)
     {
         await AssertQuery(
@@ -246,9 +245,9 @@ FROM [PolygonEntity] AS [p]
 
         AssertSql(
             """
-@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+@polygon='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STDifference(@__polygon_0) AS [Difference]
+SELECT [p].[Id], [p].[Polygon].STDifference(@polygon) AS [Difference]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -270,9 +269,9 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
+SELECT [p].[Id], [p].[Polygon].STDisjoint(@point) AS [Disjoint]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -283,11 +282,11 @@ FROM [PolygonEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
 
 SELECT [p].[Id], CASE
     WHEN [p].[Polygon] IS NULL THEN NULL
-    ELSE [p].[Polygon].STDisjoint(@__point_0)
+    ELSE [p].[Polygon].STDisjoint(@point)
 END AS [Disjoint]
 FROM [PolygonEntity] AS [p]
 """);
@@ -299,9 +298,9 @@ FROM [PolygonEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], [p].[Point].STDistance(@__point_0) AS [Distance]
+SELECT [p].[Id], [p].[Point].STDistance(@point) AS [Distance]
 FROM [PointEntity] AS [p]
 """);
     }
@@ -312,9 +311,9 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], [p].[Point].STDistance(@__point_0) AS [Distance]
+SELECT [p].[Id], [p].[Point].STDistance(@point) AS [Distance]
 FROM [PointEntity] AS [p]
 """);
     }
@@ -325,9 +324,9 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], [p].[Geometry].STDistance(@__point_0) AS [Distance]
+SELECT [p].[Id], [p].[Geometry].STDistance(@point) AS [Distance]
 FROM [PointEntity] AS [p]
 """);
     }
@@ -357,9 +356,9 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Object)
 
-SELECT [g].[Id], [g].[Location].STDistance(@__point_0) AS [Distance]
+SELECT [g].[Id], [g].[Location].STDistance(@point) AS [Distance]
 FROM [GeoPointEntity] AS [g]
 """);
     }
@@ -370,9 +369,9 @@ FROM [GeoPointEntity] AS [g]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F0000000000000000' (Nullable = false) (Size = 22) (DbType = Object)
 
-SELECT [g].[Id], @__point_0.STDistance([g].[Location]) AS [Distance]
+SELECT [g].[Id], @point.STDistance([g].[Location]) AS [Distance]
 FROM [GeoPointEntity] AS [g]
 """);
     }
@@ -406,9 +405,9 @@ FROM [LineStringEntity] AS [l]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Object)
+@point='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], [p].[Point].STEquals(@__point_0) AS [EqualsTopologically]
+SELECT [p].[Id], [p].[Point].STEquals(@point) AS [EqualsTopologically]
 FROM [PointEntity] AS [p]
 """);
     }
@@ -485,9 +484,9 @@ FROM [LineStringEntity] AS [l]
 
         AssertSql(
             """
-@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+@polygon='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
+SELECT [p].[Id], [p].[Polygon].STIntersection(@polygon) AS [Intersection]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -498,9 +497,9 @@ FROM [PolygonEntity] AS [p]
 
         AssertSql(
             """
-@__lineString_0='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Object)
+@lineString='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Object)
 
-SELECT [l].[Id], [l].[LineString].STIntersects(@__lineString_0) AS [Intersects]
+SELECT [l].[Id], [l].[LineString].STIntersects(@lineString) AS [Intersects]
 FROM [LineStringEntity] AS [l]
 """);
     }
@@ -563,10 +562,10 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+@point='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
 SELECT [p].[Id], CASE
-    WHEN [p].[Point].STDistance(@__point_0) <= 1.0E0 THEN CAST(1 AS bit)
+    WHEN [p].[Point].STDistance(@point) <= 1.0E0 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [IsWithinDistance]
 FROM [PointEntity] AS [p]
@@ -672,9 +671,9 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+@polygon='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STOverlaps(@__polygon_0) AS [Overlaps]
+SELECT [p].[Id], [p].[Polygon].STOverlaps(@polygon) AS [Overlaps]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -730,9 +729,9 @@ FROM [LineStringEntity] AS [l]
 
         AssertSql(
             """
-@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+@polygon='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STSymDifference(@__polygon_0) AS [SymmetricDifference]
+SELECT [p].[Id], [p].[Polygon].STSymDifference(@polygon) AS [SymmetricDifference]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -769,9 +768,9 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+@polygon='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-SELECT [p].[Id], [p].[Polygon].STUnion(@__polygon_0) AS [Union]
+SELECT [p].[Id], [p].[Polygon].STUnion(@polygon) AS [Union]
 FROM [PolygonEntity] AS [p]
 """);
     }
@@ -799,9 +798,9 @@ GROUP BY [p].[Group]
 
         AssertSql(
             """
-@__polygon_0='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Object)
+@polygon='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Object)
 
-SELECT [p].[Id], [p].[Point].STWithin(@__polygon_0) AS [Within]
+SELECT [p].[Id], [p].[Point].STWithin(@polygon) AS [Within]
 FROM [PointEntity] AS [p]
 """);
     }
