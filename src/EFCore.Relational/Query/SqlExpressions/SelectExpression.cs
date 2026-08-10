@@ -3252,7 +3252,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // If this is a to-one join, then we know that it doesn't increase cardinality — the outer identifiers are already sufficient.
         // Skipping the inner's identifiers avoids unnecessary ORDER BY columns and projections (#29182).
-        if (_identifier.Count == 0 || innerSelect._identifier.Count == 0)
+        if (_identifier.Count == 0 || (innerSelect._identifier.Count == 0 && !isToOneJoin))
         {
             // Either the outer and inner sides aren't uniquely identifiable; mark everything as non-uniquely-identifiable.
             _identifier.Clear();
