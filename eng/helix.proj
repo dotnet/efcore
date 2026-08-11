@@ -11,6 +11,7 @@
     <DotNetCliVersion>$(NETCoreSdkVersion)</DotNetCliVersion>
 
     <EnableAzurePipelinesReporter>true</EnableAzurePipelinesReporter>
+    <EnableHelixJobMonitor Condition = "'$(SYSTEM_ACCESSTOKEN)' != ''">true</EnableHelixJobMonitor>
     <FailOnTestFailure>true</FailOnTestFailure>
     <SqlServerTests>$(RepoRoot)/test/EFCore.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.SqlServer.HierarchyId.Tests/*.csproj;$(RepoRoot)/test/EFCore.CrossStore.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.OData.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.AspNet.SqlServer.FunctionalTests/*.csproj;$(RepoRoot)/test/EFCore.VisualBasic.FunctionalTests/*.vbproj;$(RepoRoot)/test/EFCore.FSharp.FunctionalTests/*.fsproj</SqlServerTests>
     <CosmosTests>$(RepoRoot)/test/EFCore.Cosmos.FunctionalTests/*.csproj</CosmosTests>
