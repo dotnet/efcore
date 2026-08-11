@@ -687,6 +687,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Order>().Property(o => o.Id).ValueGeneratedNever();
             modelBuilder.Entity<OrderLine>().HasKey(l => new { l.OrderId, l.LineNo });
             modelBuilder.Entity<Order>().HasMany(o => o.Lines).WithOne().HasForeignKey(l => l.OrderId);
         }
@@ -703,8 +704,8 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                         new OrderLine { OrderId = 1, LineNo = 2 },
                     ],
                 });
-            Add(new TaxA { Id = 1, OrderId = 1, LineNo = 1, Kind = 10 });
-            Add(new TaxB { Id = 1, OrderId = 1, LineNo = 2, Kind = 20 });
+            Add(new TaxA { OrderId = 1, LineNo = 1, Kind = 10 });
+            Add(new TaxB { OrderId = 1, LineNo = 2, Kind = 20 });
 
             return SaveChangesAsync();
         }
