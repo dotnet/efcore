@@ -509,9 +509,9 @@ public abstract partial class ModelBuilderTest
 
         [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_provider_type_set()
-            => Properties_can_have_provider_type_set<byte[]>();
+            => Properties_can_have_provider_type_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_provider_type_set<TBytes>()
+        protected virtual void Properties_can_have_provider_type_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -590,9 +590,9 @@ public abstract partial class ModelBuilderTest
 
         [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_non_generic_value_converter_set()
-            => Properties_can_have_non_generic_value_converter_set<byte[]>();
+            => Properties_can_have_non_generic_value_converter_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_non_generic_value_converter_set<TBytes>()
+        protected virtual void Properties_can_have_non_generic_value_converter_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -634,9 +634,9 @@ public abstract partial class ModelBuilderTest
 
         [Fact(Skip = "Issue #35613")]
         public virtual void Properties_can_have_custom_type_value_converter_type_set()
-            => Properties_can_have_custom_type_value_converter_type_set<byte[]>();
+            => Properties_can_have_custom_type_value_converter_type_set_implementation<byte[]>();
 
-        protected virtual void Properties_can_have_custom_type_value_converter_type_set<TBytes>()
+        protected virtual void Properties_can_have_custom_type_value_converter_type_set_implementation<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
