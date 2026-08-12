@@ -48,6 +48,69 @@ public class AdHocQuerySplittingQuerySqlServerTest(NonSharedFixture fixture) : A
         return testStore;
     }
 
+    public override async Task To_one_join_with_keyless_inner_preserves_outer_collection_identifiers(bool async, bool splitQuery)
+    {
+        await base.To_one_join_with_keyless_inner_preserves_outer_collection_identifiers(async, splitQuery);
+
+        if (splitQuery)
+        {
+            AssertSql(
+                """
+SELECT [o].[Id]
+FROM [Orders] AS [o]
+ORDER BY [o].[Id]
+""",
+                //
+                """
+SELECT [o2].[LineNo], [u9].[Kind], [u9].[c], [o].[Id]
+FROM [Orders] AS [o]
+INNER JOIN [OrderLine] AS [o2] ON [o].[Id] = [o2].[OrderId]
+LEFT JOIN (
+    SELECT [u8].[Kind], [u8].[c], [u8].[OrderId], [u8].[LineNo]
+    FROM (
+        SELECT [u7].[Kind], 1 AS [c], [u7].[OrderId], [u7].[LineNo], ROW_NUMBER() OVER(PARTITION BY [u7].[OrderId], [u7].[LineNo] ORDER BY (SELECT 1)) AS [row]
+        FROM (
+            SELECT [t15].[OrderId], [t15].[LineNo], [t15].[Kind]
+            FROM [TaxesA] AS [t15]
+            UNION ALL
+            SELECT [t16].[OrderId], [t16].[LineNo], [t16].[Kind]
+            FROM [TaxesB] AS [t16]
+        ) AS [u7]
+    ) AS [u8]
+    WHERE [u8].[row] <= 1
+) AS [u9] ON [o2].[OrderId] = [u9].[OrderId] AND [o2].[LineNo] = [u9].[LineNo]
+ORDER BY [o].[Id]
+""");
+        }
+        else
+        {
+            AssertSql(
+                """
+SELECT [o].[Id], [s].[LineNo], [s].[Kind], [s].[c], [s].[OrderId]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [o0].[LineNo], [u1].[Kind], [u1].[c], [o0].[OrderId]
+    FROM [OrderLine] AS [o0]
+    LEFT JOIN (
+        SELECT [u0].[Kind], [u0].[c], [u0].[OrderId], [u0].[LineNo]
+        FROM (
+            SELECT [u].[Kind], 1 AS [c], [u].[OrderId], [u].[LineNo], ROW_NUMBER() OVER(PARTITION BY [u].[OrderId], [u].[LineNo] ORDER BY (SELECT 1)) AS [row]
+            FROM (
+                SELECT [t].[OrderId], [t].[LineNo], [t].[Kind]
+                FROM [TaxesA] AS [t]
+                UNION ALL
+                SELECT [t0].[OrderId], [t0].[LineNo], [t0].[Kind]
+                FROM [TaxesB] AS [t0]
+            ) AS [u]
+        ) AS [u0]
+        WHERE [u0].[row] <= 1
+    ) AS [u1] ON [o0].[OrderId] = [u1].[OrderId] AND [o0].[LineNo] = [u1].[LineNo]
+) AS [s] ON [o].[Id] = [s].[OrderId]
+ORDER BY [o].[Id], [s].[OrderId]
+""");
+        }
+    }
+
     public override async Task Can_configure_SingleQuery_at_context_level()
     {
         await base.Can_configure_SingleQuery_at_context_level();
