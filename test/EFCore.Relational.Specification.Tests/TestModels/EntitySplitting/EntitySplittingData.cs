@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
-#nullable disable
-
 public class EntitySplittingData : ISetSource
 {
     public static readonly EntitySplittingData Instance = new();

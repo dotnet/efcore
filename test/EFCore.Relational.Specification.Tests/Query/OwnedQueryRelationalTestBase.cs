@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) : OwnedQueryTestBase<TFixture>(fixture)
     where TFixture : OwnedQueryRelationalTestBase<TFixture>.RelationalOwnedQueryFixture, new()
 {
@@ -60,7 +58,7 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
                 {
                     p.Orders,
                     p.PersonAddress,
-                    p.PersonAddress.Country.Planet
+                    p.PersonAddress!.Country!.Planet
                 }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -74,7 +72,7 @@ public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) :
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons).AsSplitQuery(),
+            ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress!.Country!.Planet!.Moons).AsSplitQuery(),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 

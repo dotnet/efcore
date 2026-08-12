@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture>(TFixture fixture)
     : NorthwindKeylessEntitiesQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()

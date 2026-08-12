@@ -161,19 +161,19 @@ public class MigrationsScaffolderTest
             => LockReleaseBehavior.Explicit;
 
         public string GetBeginIfExistsScript(string migrationId)
-            => null;
+            => null!;
 
         public string GetBeginIfNotExistsScript(string migrationId)
-            => null;
+            => null!;
 
         public string GetCreateScript()
-            => null;
+            => null!;
 
         public string GetCreateIfNotExistsScript()
-            => null;
+            => null!;
 
         public string GetEndIfScript()
-            => null;
+            => null!;
 
         public bool Exists()
             => false;
@@ -182,16 +182,16 @@ public class MigrationsScaffolderTest
             => Task.FromResult(false);
 
         public IReadOnlyList<HistoryRow> GetAppliedMigrations()
-            => null;
+            => null!;
 
         public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
-            => Task.FromResult<IReadOnlyList<HistoryRow>>(null);
+            => Task.FromResult<IReadOnlyList<HistoryRow>>(null!);
 
         public string GetDeleteScript(string migrationId)
-            => null;
+            => null!;
 
         public string GetInsertScript(HistoryRow row)
-            => null;
+            => null!;
 
         public void Create()
             => throw new NotImplementedException();

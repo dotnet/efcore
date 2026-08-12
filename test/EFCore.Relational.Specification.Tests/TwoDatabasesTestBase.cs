@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class TwoDatabasesTestBase(FixtureBase fixture)
 {
     protected FixtureBase Fixture { get; } = fixture;
@@ -83,7 +81,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
                    CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString)
                        .AddInterceptors(
                            new ConnectionStringConnectionInterceptor(
-                               connectionString1, withConnectionString ? DummyConnectionString : ""))
+                               connectionString1!, withConnectionString ? DummyConnectionString : ""))
                        .Options))
         {
             var data = context.Foos.ToList();
@@ -107,7 +105,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
             ConnectionEventData eventData,
             InterceptionResult result)
         {
-            Assert.Equal(_dummyConnectionString, eventData.Context.Database.GetConnectionString());
+            Assert.Equal(_dummyConnectionString, eventData.Context!.Database.GetConnectionString());
             eventData.Context.Database.SetConnectionString(_goodConnectionString);
 
             return result;
@@ -115,7 +113,7 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
 
         public override void ConnectionClosed(DbConnection connection, ConnectionEndEventData eventData)
         {
-            Assert.Equal(_goodConnectionString, eventData.Context.Database.GetConnectionString());
+            Assert.Equal(_goodConnectionString, eventData.Context!.Database.GetConnectionString());
             eventData.Context.Database.SetConnectionString(_dummyConnectionString);
         }
     }
@@ -157,6 +155,6 @@ public abstract class TwoDatabasesTestBase(FixtureBase fixture)
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Bar { get; set; }
+        public string? Bar { get; set; }
     }
 }

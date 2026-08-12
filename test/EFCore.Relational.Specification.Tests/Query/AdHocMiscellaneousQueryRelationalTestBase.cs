@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using NameSpace1;
@@ -48,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => modelBuilder.Entity<ZeroKey2951>().ToTable("ZeroKey", t => t.ExcludeFromMigrations())
                     .Property(z => z.Id).ValueGeneratedNever();
 
-            public DbSet<ZeroKey2951> ZeroKeys { get; set; }
+            public DbSet<ZeroKey2951> ZeroKeys { get; set; } = null!;
 
             public class ZeroKey2951
             {
@@ -138,20 +136,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             public class Entity11818
             {
                 public int Id { get; set; }
-                public string Name { get; set; }
+                public string? Name { get; set; }
             }
 
             public class AnotherEntity11818
             {
                 public int Id { get; set; }
-                public string Name { get; set; }
+                public string? Name { get; set; }
                 public bool Exists { get; set; }
             }
 
             public class MaumarEntity11818
             {
                 public int Id { get; set; }
-                public string Name { get; set; }
+                public string? Name { get; set; }
                 public bool Exists { get; set; }
             }
         }
@@ -176,15 +174,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var mb = modelBuilder.Entity(typeof(TestQuery));
 
-                mb.HasBaseType((Type)null);
+                mb.HasBaseType((Type)null!);
                 mb.HasNoKey();
-                mb.ToTable((string)null);
+                mb.ToTable((string)null!);
 
                 mb = modelBuilder.Entity(typeof(NameSpace2.TestQuery));
 
-                mb.HasBaseType((Type)null);
+                mb.HasBaseType((Type)null!);
                 mb.HasNoKey();
-                mb.ToTable((string)null);
+                mb.ToTable((string)null!);
             }
         }
 
@@ -216,11 +214,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Context27954(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<MyEntity> MyEntities { get; set; }
+            public DbSet<MyEntity> MyEntities { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder
-                    .HasDbFunction(typeof(MyEntity).GetMethod(nameof(MyEntity.Modify)))
+                    .HasDbFunction(typeof(MyEntity).GetMethod(nameof(MyEntity.Modify))!)
                     .HasName("ModifyDate")
                     .HasStoreType("datetime")
                     .HasSchema("dbo");
@@ -253,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Context34752(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Entity> Entities { get; set; }
+            public DbSet<Entity> Entities { get; set; } = null!;
 
             public class Entity
             {
@@ -299,12 +297,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class InlinedRedactingContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<TestEntity> TestEntities { get; set; }
+            public DbSet<TestEntity> TestEntities { get; set; } = null!;
 
             public class TestEntity
             {
                 public int Id { get; set; }
-                public string Name { get; set; }
+                public string Name { get; set; } = null!;
             }
         }
 
@@ -322,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = contextFactory.CreateDbContext();
 
             List<Context36311.BlogDetails> details = [new() { Id = 1 }, new() { Id = 2 }];
-            var query = context.Blogs.Where(b => details.Contains(b.Details));
+            var query = context.Blogs.Where(b => details.Contains(b.Details!));
 
             var result = async
                 ? await query.ToListAsync()
@@ -331,20 +329,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Context36311(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Blog> Blogs { get; set; }
+            public DbSet<Blog> Blogs { get; set; } = null!;
 
             public class Blog
             {
                 public int Id { get; set; }
-                public string Name { get; set; }
+                public string? Name { get; set; }
 
-                public BlogDetails Details { get; set; }
+                public BlogDetails? Details { get; set; }
             }
 
             public class BlogDetails
             {
                 public int Id { get; set; }
-                public string Name { get; set; }
+                public string? Name { get; set; }
             }
         }
 
@@ -376,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Context36247(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<User> Users { get; set; }
+            public DbSet<User> Users { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<User>().Property(e => e.Name)
@@ -456,8 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> matched, Count 2
             Assert.Equal(1, result[0].PickupStatusId);
             Assert.NotNull(result[0].countInfo);
-            Assert.Equal(1, result[0].countInfo.pickupStatusId);
-            Assert.Equal(2, result[0].countInfo.Count);
+            Assert.Equal(1, result[0].countInfo!.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo!.Count);
 
             // status 2 -> no match, whole non-entity object is null
             Assert.Equal(2, result[1].PickupStatusId);
@@ -466,8 +464,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 3 -> matched, Count 1
             Assert.Equal(3, result[2].PickupStatusId);
             Assert.NotNull(result[2].countInfo);
-            Assert.Equal(3, result[2].countInfo.pickupStatusId);
-            Assert.Equal(1, result[2].countInfo.Count);
+            Assert.Equal(3, result[2].countInfo!.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo!.Count);
         }
 
         [Fact]
@@ -490,8 +488,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> matched, Count 2
             Assert.Equal(1, result[0].PickupStatusId);
             Assert.NotNull(result[0].countInfo);
-            Assert.Equal(1, result[0].countInfo.pickupStatusId);
-            Assert.Equal(2, result[0].countInfo.Count);
+            Assert.Equal(1, result[0].countInfo!.pickupStatusId);
+            Assert.Equal(2, result[0].countInfo!.Count);
 
             // status 2 -> no match, whole non-entity object is null
             Assert.Equal(2, result[1].PickupStatusId);
@@ -500,8 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 3 -> matched, Count 1
             Assert.Equal(3, result[2].PickupStatusId);
             Assert.NotNull(result[2].countInfo);
-            Assert.Equal(3, result[2].countInfo.pickupStatusId);
-            Assert.Equal(1, result[2].countInfo.Count);
+            Assert.Equal(3, result[2].countInfo!.pickupStatusId);
+            Assert.Equal(1, result[2].countInfo!.Count);
         }
 
         [Fact]
@@ -595,8 +593,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> matched, Count 2
             Assert.Equal(1, result[0].PickupStatusId);
             Assert.NotNull(result[0].countInfo);
-            Assert.Equal(1, result[0].countInfo.PickupStatusId);
-            Assert.Equal(2, result[0].countInfo.Count);
+            Assert.Equal(1, result[0].countInfo!.PickupStatusId);
+            Assert.Equal(2, result[0].countInfo!.Count);
 
             // status 2 -> no match, whole DTO object is null
             Assert.Equal(2, result[1].PickupStatusId);
@@ -605,8 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 3 -> matched, Count 1
             Assert.Equal(3, result[2].PickupStatusId);
             Assert.NotNull(result[2].countInfo);
-            Assert.Equal(3, result[2].countInfo.PickupStatusId);
-            Assert.Equal(1, result[2].countInfo.Count);
+            Assert.Equal(3, result[2].countInfo!.PickupStatusId);
+            Assert.Equal(1, result[2].countInfo!.Count);
         }
 
         [Fact]
@@ -787,8 +785,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> matched, Count 2
             Assert.Equal(1, result[0].key);
             Assert.NotNull(result[0].anyInfo);
-            Assert.Equal(1, result[0].anyInfo.pickupStatusId);
-            Assert.Equal(2, result[0].anyInfo.Count);
+            Assert.Equal(1, result[0].anyInfo!.pickupStatusId);
+            Assert.Equal(2, result[0].anyInfo!.Count);
 
             // status 2 -> no match on the left join; whole non-entity object is null after grouping
             Assert.Equal(2, result[1].key);
@@ -797,8 +795,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 3 -> matched, Count 1
             Assert.Equal(3, result[2].key);
             Assert.NotNull(result[2].anyInfo);
-            Assert.Equal(3, result[2].anyInfo.pickupStatusId);
-            Assert.Equal(1, result[2].anyInfo.Count);
+            Assert.Equal(3, result[2].anyInfo!.pickupStatusId);
+            Assert.Equal(1, result[2].anyInfo!.Count);
         }
 
         [Fact]
@@ -826,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, result[0].key);
             Assert.NotNull(result[0].wrapper);
             Assert.NotNull(result[0].wrapper.anyInfo);
-            Assert.Equal(2, result[0].wrapper.anyInfo.Count);
+            Assert.Equal(2, result[0].wrapper.anyInfo!.Count);
 
             Assert.Equal(2, result[1].key);
             Assert.NotNull(result[1].wrapper);
@@ -835,7 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(3, result[2].key);
             Assert.NotNull(result[2].wrapper);
             Assert.NotNull(result[2].wrapper.anyInfo);
-            Assert.Equal(1, result[2].wrapper.anyInfo.Count);
+            Assert.Equal(1, result[2].wrapper.anyInfo!.Count);
         }
 
         [Fact]
@@ -865,8 +863,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> matched, Count 2
             Assert.Equal(1, result[0].key);
             Assert.NotNull(result[0].anyInfo);
-            Assert.Equal(1, result[0].anyInfo.PickupStatusId);
-            Assert.Equal(2, result[0].anyInfo.Count);
+            Assert.Equal(1, result[0].anyInfo!.PickupStatusId);
+            Assert.Equal(2, result[0].anyInfo!.Count);
 
             // status 2 -> no match on the left join; whole DTO object is null after grouping
             Assert.Equal(2, result[1].key);
@@ -875,8 +873,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 3 -> matched, Count 1
             Assert.Equal(3, result[2].key);
             Assert.NotNull(result[2].anyInfo);
-            Assert.Equal(3, result[2].anyInfo.PickupStatusId);
-            Assert.Equal(1, result[2].anyInfo.Count);
+            Assert.Equal(3, result[2].anyInfo!.PickupStatusId);
+            Assert.Equal(1, result[2].anyInfo!.Count);
         }
 
         [Fact]
@@ -1484,11 +1482,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> both joins matched, Count 2
             Assert.Equal(1, result[0].PickupStatusId);
             Assert.NotNull(result[0].first);
-            Assert.Equal(1, result[0].first.pickupStatusId);
-            Assert.Equal(2, result[0].first.Count);
+            Assert.Equal(1, result[0].first!.pickupStatusId);
+            Assert.Equal(2, result[0].first!.Count);
             Assert.NotNull(result[0].second);
-            Assert.Equal(1, result[0].second.pickupStatusId);
-            Assert.Equal(2, result[0].second.Count);
+            Assert.Equal(1, result[0].second!.pickupStatusId);
+            Assert.Equal(2, result[0].second!.Count);
 
             // status 2 -> neither join matched; both whole non-entity objects are null.
             // The first object's marker passes through the second join's outer-shaper remap,
@@ -1500,11 +1498,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 3 -> both joins matched, Count 1
             Assert.Equal(3, result[2].PickupStatusId);
             Assert.NotNull(result[2].first);
-            Assert.Equal(3, result[2].first.pickupStatusId);
-            Assert.Equal(1, result[2].first.Count);
+            Assert.Equal(3, result[2].first!.pickupStatusId);
+            Assert.Equal(1, result[2].first!.Count);
             Assert.NotNull(result[2].second);
-            Assert.Equal(3, result[2].second.pickupStatusId);
-            Assert.Equal(1, result[2].second.Count);
+            Assert.Equal(3, result[2].second!.pickupStatusId);
+            Assert.Equal(1, result[2].second!.Count);
         }
 
         [Fact]
@@ -1785,23 +1783,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             // status 1 -> two matched rows, each with a pair whose entities reference status 1
             Assert.Equal(1, result[0].PickupStatusId);
             Assert.NotNull(result[0].pair);
-            Assert.Equal(1, result[0].pair.s2.PickupStatusId);
+            Assert.Equal(1, result[0].pair!.s2!.PickupStatusId);
             Assert.Equal(1, result[1].PickupStatusId);
             Assert.NotNull(result[1].pair);
-            Assert.Equal(1, result[1].pair.s2.PickupStatusId);
+            Assert.Equal(1, result[1].pair!.s2!.PickupStatusId);
 
             // status 2 -> no match. The inner shaper is a transparent-identifier { r, s2 } whose decomposed
             // members are entities; the wrapper itself materializes (non-null) with both entity members null,
             // rather than the whole pair being nulled (the pair is not a single user-projected non-entity object).
             Assert.Equal(2, result[2].PickupStatusId);
             Assert.NotNull(result[2].pair);
-            Assert.Null(result[2].pair.r);
-            Assert.Null(result[2].pair.s2);
+            Assert.Null(result[2].pair!.r);
+            Assert.Null(result[2].pair!.s2);
 
             // status 3 -> matched
             Assert.Equal(3, result[3].PickupStatusId);
             Assert.NotNull(result[3].pair);
-            Assert.Equal(3, result[3].pair.s2.PickupStatusId);
+            Assert.Equal(3, result[3].pair!.s2!.PickupStatusId);
         }
 
         [Fact]
@@ -1979,8 +1977,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected class Context30915(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<PickupStatus30915> Statuses { get; set; }
-            public DbSet<PickupRequest30915> Requests { get; set; }
+            public DbSet<PickupStatus30915> Statuses { get; set; } = null!;
+            public DbSet<PickupRequest30915> Requests { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<PickupStatus30915>(b =>
@@ -1992,7 +1990,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public class PickupStatus30915
             {
                 public int PickupStatusId { get; set; }
-                public string Name { get; set; }
+                public string Name { get; set; } = null!;
             }
 
             public class PickupRequest30915

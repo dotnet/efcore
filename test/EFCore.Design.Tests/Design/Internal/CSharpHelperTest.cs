@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
-#nullable enable
-
 public class CSharpHelperTest
 {
     private static readonly string EOL = Environment.NewLine;

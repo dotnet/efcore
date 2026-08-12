@@ -271,7 +271,7 @@ public class RelationalMetadataExtensionsTest
 
         property.SetDefaultValue(MyEnum.Mon);
 
-        Assert.Equal(typeof(MyEnum), property.GetDefaultValue().GetType());
+        Assert.Equal(typeof(MyEnum), property.GetDefaultValue()!.GetType());
         Assert.Equal(MyEnum.Mon, property.GetDefaultValue());
 
         property.SetDefaultValue(null);
@@ -441,7 +441,7 @@ public class RelationalMetadataExtensionsTest
     [Fact]
     public void Can_get_and_set_dbfunction()
     {
-        var testMethod = typeof(RelationalMetadataExtensionsTest).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
+        var testMethod = typeof(RelationalMetadataExtensionsTest).GetTypeInfo().GetDeclaredMethod(nameof(MethodA))!;
 
         var modelBuilder = new ModelBuilder();
         var model = modelBuilder.Model;
@@ -473,7 +473,7 @@ public class RelationalMetadataExtensionsTest
 
         var sequence = model.AddSequence("Foo");
 
-        Assert.Equal("Foo", model.FindSequence("Foo").Name);
+        Assert.Equal("Foo", model.FindSequence("Foo")!.Name);
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Null(sequence.Schema);
@@ -516,8 +516,8 @@ public class RelationalMetadataExtensionsTest
 
         var sequence = model.AddSequence("Foo", "Smoo");
 
-        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
-        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
+        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo")!.Name);
+        Assert.Equal("Foo", model.FindSequence("Foo", "Smoo")!.Name);
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Equal("Smoo", sequence.Schema);
@@ -668,7 +668,7 @@ public class RelationalMetadataExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public Guid AlternateId { get; set; }
         public MyEnum? EnumValue { get; set; }
     }
@@ -679,6 +679,6 @@ public class RelationalMetadataExtensionsTest
     {
         public int OrderId { get; set; }
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 }

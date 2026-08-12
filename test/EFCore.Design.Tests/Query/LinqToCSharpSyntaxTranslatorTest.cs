@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Xunit.Sdk;
 using static System.Linq.Expressions.Expression;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper)

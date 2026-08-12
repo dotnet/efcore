@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
@@ -53,7 +51,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual void FirstOrDefault_without_orderby_and_filter_issues_warning_subquery()
     {
         using var context = CreateContext();
-        var query = context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.FirstOrDefault().OrderID > 1000).ToList();
+        var query = context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.FirstOrDefault()!.OrderID > 1000).ToList();
         Assert.Single(query);
     }
 
@@ -81,7 +79,7 @@ public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
     {
         using var context = CreateContext();
         var query1 = context.Customers
-            .Where(c => c.CustomerID == "ALFKI" && c.Orders.OrderBy(o => o.OrderID).LastOrDefault().OrderID > 1000).ToList();
+            .Where(c => c.CustomerID == "ALFKI" && c.Orders.OrderBy(o => o.OrderID).LastOrDefault()!.OrderID > 1000).ToList();
         Assert.NotNull(query1);
 
         var query2 = context.Customers.OrderBy(c => c.CustomerID).LastOrDefault();

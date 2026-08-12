@@ -84,25 +84,25 @@ public abstract class CSharpMigrationsGeneratorTestBase
         }
 
         var assembly = build.BuildInMemory();
-        var snapshotType = assembly.GetType("RootNamespace.Snapshot");
+        var snapshotType = assembly.GetType("RootNamespace.Snapshot")!;
 
         var buildModelMethod = snapshotType.GetMethod(
             "BuildModel",
             BindingFlags.Instance | BindingFlags.NonPublic,
             null,
             [typeof(ModelBuilder)],
-            null);
+            null)!;
 
         var builder = new ModelBuilder();
         builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
 
         buildModelMethod.Invoke(
-            Activator.CreateInstance(snapshotType),
+            Activator.CreateInstance(snapshotType)!,
             [builder]);
 
         var services = TestHelpers.CreateContextServices(GetServices());
-        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
-        return processor.Process(builder.Model);
+        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetRequiredService<IModelRuntimeInitializer>());
+        return processor.Process(builder.Model)!;
     }
 
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
@@ -122,13 +122,13 @@ public abstract class CSharpMigrationsGeneratorTestBase
 
         var assembly = build.BuildInMemory();
 
-        var snapshotType = assembly.GetType(modelSnapshotTypeName, throwOnError: true, ignoreCase: false);
+        var snapshotType = assembly.GetType(modelSnapshotTypeName, throwOnError: true, ignoreCase: false)!;
 
         var contextTypeAttribute = snapshotType.GetCustomAttribute<DbContextAttribute>();
         Assert.NotNull(contextTypeAttribute);
         Assert.Equal(contextType, contextTypeAttribute.ContextType);
 
-        return (ModelSnapshot)Activator.CreateInstance(snapshotType);
+        return (ModelSnapshot)Activator.CreateInstance(snapshotType)!;
     }
 
     protected class EntityWithAutoincrement

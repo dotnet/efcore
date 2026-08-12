@@ -440,7 +440,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                     x.Id,
                     Duplicate1 = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
                     Original = x.OwnedReferenceRoot,
-                    Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[prm]
+                    Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[prm]
                 }).AsNoTrackingWithIdentityResolution(),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
@@ -549,7 +549,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 ss => ss.Set<JsonEntityBasic>().Select(x => new
                 {
                     x.Id,
-                    Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1],
+                    Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[1],
                     Original = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
                     Parent = x.OwnedReferenceRoot.OwnedReferenceBranch,
                 }).AsNoTrackingWithIdentityResolution(),
@@ -570,9 +570,6 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     #region Non-shared test resources
 
-#nullable disable
-
-
     protected override void ConfigureWarnings(WarningsConfigurationBuilder builder)
     {
         base.ConfigureWarnings(builder);
@@ -583,7 +580,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected virtual string JsonColumnType
+    protected virtual string? JsonColumnType
         => null;
 
     #region 21006
@@ -751,30 +748,31 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     protected class Context34293(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
             public int Id { get; set; }
-            public JsonRoot Json { get; set; }
+            public JsonRoot Json { get; set; } = null!;
         }
 
         public class JsonRoot
         {
             public DateTime Date { get; set; }
 
-            public JsonBranch Required { get; set; }
+            public JsonBranch Required { get; set; } = null!;
         }
 
         public class JsonBranch
         {
             public int Number { get; set; }
-            public JsonLeaf Optional { get; set; }
+            public JsonLeaf? Optional { get; set; }
         }
 
         public class JsonLeaf
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public async Task Seed()
@@ -804,7 +802,7 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
                 Json = new JsonRoot
                 {
                     Date = new DateTime(2003, 3, 3),
-                    Required = null,
+                    Required = null!,
                 }
             };
 
@@ -1128,15 +1126,15 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         public class MyEntity
         {
             public int Id { get; set; }
-            public string PropertyInMainTable { get; set; } // TODO: currently required because of #36171
-            public string PropertyInOtherTable { get; set; }
+            public string? PropertyInMainTable { get; set; }
+            public string PropertyInOtherTable { get; set; } = null!;
 
-            public List<JsonEntity> Json { get; set; }
+            public List<JsonEntity> Json { get; set; } = null!;
         }
 
         public class JsonEntity
         {
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
         }
     }
 
@@ -1195,20 +1193,21 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     protected class Context37009(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
             public int Id { get; set; }
-            public JsonComplexType Json { get; set; }
+            public JsonComplexType Json { get; set; } = null!;
         }
 
         public class JsonComplexType
         {
-            public string String { get; set; }
+            public string String { get; set; } = null!;
 
-            public JsonNestedType Nested { get; set; }
-            public List<JsonNestedType> NestedCollection { get; set; }
+            public JsonNestedType Nested { get; set; } = null!;
+            public List<JsonNestedType> NestedCollection { get; set; } = null!;
         }
 
         public class JsonNestedType
@@ -1294,21 +1293,21 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
         public class Car
         {
             public int CarId { get; set; }
-            public string Vin { get; set; }
-            public string DealerId { get; set; }
-            public CarConfiguration CarConfiguration { get; set; }
+            public string Vin { get; set; } = null!;
+            public string DealerId { get; set; } = null!;
+            public CarConfiguration CarConfiguration { get; set; } = null!;
         }
 
         public class CarConfiguration
         {
-            public string CurrentTrim { get; set; }
-            public List<OptionPackage> OptionPackages { get; set; }
+            public string CurrentTrim { get; set; } = null!;
+            public List<OptionPackage> OptionPackages { get; set; } = null!;
         }
 
         public class OptionPackage
         {
-            public string PackageId { get; set; }
-            public ICollection<string> PartNumbers { get; set; }
+            public string PackageId { get; set; } = null!;
+            public ICollection<string> PartNumbers { get; set; } = null!;
         }
     }
 
@@ -1347,12 +1346,13 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     protected class Context37983(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
             public int Id { get; set; }
-            public JsonComplexType Json { get; set; }
+            public JsonComplexType Json { get; set; } = null!;
         }
 
         public class JsonComplexType
@@ -1365,8 +1365,8 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
     {
         public Context37983_StringToIntConverter()
             : base(
-                v => v == null ? "<null>" : v.ToString(),
-                v => int.Parse(v))
+                v => v == null ? "<null>" : v.ToString()!,
+                v => int.Parse(v!))
         {
         }
 
@@ -1422,8 +1422,11 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
 
     protected class Context38315(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Person> Persons { get; set; }
-        public DbSet<PersonOrdersView> PersonOrdersViews { get; set; }
+        public DbSet<Person> Persons
+            => Set<Person>();
+
+        public DbSet<PersonOrdersView> PersonOrdersViews
+            => Set<PersonOrdersView>();
 
         public class Person
         {
@@ -1444,8 +1447,6 @@ public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : 
     }
 
     #endregion
-
-#nullable restore
 
     #endregion
 }

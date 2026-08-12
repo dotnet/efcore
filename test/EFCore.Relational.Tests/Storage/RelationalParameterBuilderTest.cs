@@ -26,7 +26,7 @@ public class RelationalParameterBuilderTest
         parameterBuilder.AddParameter(
             "InvariantName",
             "Name",
-            typeMapping,
+            typeMapping!,
             nullable);
 
         Assert.Equal(1, parameterBuilder.Parameters.Count);
@@ -53,7 +53,7 @@ public class RelationalParameterBuilderTest
 
         var model = modelBuilder.FinalizeModel(designTime: false, skipValidation: true);
 
-        var property = model.GetEntityTypes().Single().FindProperty("MyProp");
+        var property = model.GetEntityTypes().Single().FindProperty("MyProp")!;
 
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(typeMapper, new ExceptionDetector(), new LoggingOptions()));
@@ -135,5 +135,5 @@ public class RelationalParameterBuilderTest
     public static RelationalTypeMapping GetMapping(
         IRelationalTypeMappingSource typeMappingSource,
         IProperty property)
-        => typeMappingSource.FindMapping(property);
+        => typeMappingSource.FindMapping(property)!;
 }

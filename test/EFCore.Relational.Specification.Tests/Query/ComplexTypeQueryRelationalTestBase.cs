@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixture) : ComplexTypeQueryTestBase<TFixture>(fixture)
     where TFixture : ComplexTypeQueryRelationalFixtureBase, new()
 {
@@ -72,8 +70,6 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
     }
 
     #region Non-shared test resources
-
-#nullable enable
 
     #region 37205
 
@@ -302,8 +298,6 @@ public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixt
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
-
-#nullable disable
 
     #endregion Non-shared test resources
 
