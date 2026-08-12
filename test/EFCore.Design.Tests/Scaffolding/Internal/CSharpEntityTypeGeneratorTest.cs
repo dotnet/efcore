@@ -74,7 +74,7 @@ public partial class TestDbContext : DbContext
             },
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Vista");
+                var entityType = model.FindEntityType("TestNamespace.Vista")!;
                 Assert.Null(entityType.FindPrimaryKey());
             });
 
@@ -111,7 +111,7 @@ public partial class Vista
                 code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Vista");
+                var entityType = model.FindEntityType("TestNamespace.Vista")!;
                 Assert.Equal("Vistas", entityType.GetTableName());
                 Assert.Null(entityType.GetSchema());
             });
@@ -151,7 +151,7 @@ public partial class Vista
                 code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Vista");
+                var entityType = model.FindEntityType("TestNamespace.Vista")!;
                 Assert.Equal("Vista", entityType.GetTableName());
                 Assert.Null(entityType.GetSchema()); // Takes through model default schema
             });
@@ -192,7 +192,7 @@ public partial class Vista
                 code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Vista");
+                var entityType = model.FindEntityType("TestNamespace.Vista")!;
                 Assert.Equal("Vista", entityType.GetTableName());
                 Assert.Equal("custom", entityType.GetSchema());
             });
@@ -220,7 +220,7 @@ public partial class Vista
                 code.AdditionalFiles.Single(f => f.Path == "Vista.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Vista");
+                var entityType = model.FindEntityType("TestNamespace.Vista")!;
                 Assert.Equal("Vistas", entityType.GetViewName());
                 Assert.Null(entityType.GetTableName());
                 Assert.Equal("dbo", entityType.GetViewSchema());
@@ -275,7 +275,7 @@ public partial class EntityWithIndexes
                 code.AdditionalFiles.Single(f => f.Path == "EntityWithIndexes.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes");
+                var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes")!;
                 var indexes = entityType.GetIndexes();
                 Assert.Collection(
                     indexes,
@@ -327,7 +327,7 @@ public partial class EntityWithAscendingDescendingIndexes
                 code.AdditionalFiles.Single(f => f.Path == "EntityWithAscendingDescendingIndexes.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.EntityWithAscendingDescendingIndexes");
+                var entityType = model.FindEntityType("TestNamespace.EntityWithAscendingDescendingIndexes")!;
                 var indexes = entityType.GetIndexes();
                 Assert.Collection(
                     indexes,
@@ -435,7 +435,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
             },
             model =>
-                Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
+                Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes")!.GetIndexes().Count()));
 
     [Fact]
     public Task KeyAttribute_is_generated_for_single_property_and_no_fluent_api()
@@ -505,7 +505,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
             },
             model =>
-                Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity").FindPrimaryKey().Properties[0].Name));
+                Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity")!.FindPrimaryKey()!.Properties[0].Name));
 
     [Fact]
     public Task KeyAttribute_is_generated_on_multiple_properties_but_and_uses_PrimaryKeyAttribute_for_composite_key()
@@ -581,8 +581,8 @@ public partial class TestDbContext : DbContext
             },
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                Assert.Equal(["Key", "Serial"], postType.FindPrimaryKey().Properties.Select(p => p.Name));
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                Assert.Equal(["Key", "Serial"], postType.FindPrimaryKey()!.Properties.Select(p => p.Name));
             });
 
     [Fact]
@@ -628,7 +628,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Entity");
+                var entityType = model.FindEntityType("TestNamespace.Entity")!;
                 Assert.False(entityType.GetProperty("RequiredString").IsNullable);
                 Assert.True(entityType.GetProperty("NonRequiredString").IsNullable);
                 Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
@@ -677,7 +677,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Entity");
+                var entityType = model.FindEntityType("TestNamespace.Entity")!;
                 Assert.False(entityType.GetProperty("RequiredString").IsNullable);
                 Assert.True(entityType.GetProperty("NonRequiredString").IsNullable);
                 Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
@@ -748,7 +748,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Entity");
+                var entityType = model.FindEntityType("TestNamespace.Entity")!;
 
                 Assert.False(entityType.GetProperty("RequiredReferenceNavigationId").IsNullable);
                 Assert.True(entityType.GetProperty("OptionalReferenceNavigationId").IsNullable);
@@ -829,7 +829,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Entity");
+                var entityType = model.FindEntityType("TestNamespace.Entity")!;
 
                 Assert.True(entityType.FindNavigation("RequiredNavigationWithReferenceForeignKey")!.ForeignKey.IsRequired);
                 Assert.False(entityType.FindNavigation("OptionalNavigationWithReferenceForeignKey")!.ForeignKey.IsRequired);
@@ -910,7 +910,7 @@ public partial class Entity
             },
             model =>
             {
-                var entityType = model.FindEntityType("TestNamespace.Entity");
+                var entityType = model.FindEntityType("TestNamespace.Entity")!;
 
                 Assert.False(entityType.GetProperty("RequiredNavigationWithReferenceForeignKeyId").IsNullable);
                 Assert.True(entityType.GetProperty("OptionalNavigationWithReferenceForeignKeyId").IsNullable);
@@ -953,7 +953,7 @@ public partial class Entity
 """,
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
-                Assert.False(model.FindEntityType("TestNamespace.Entity").GetProperty("RequiredString").IsNullable));
+                Assert.False(model.FindEntityType("TestNamespace.Entity")!.GetProperty("RequiredString").IsNullable));
 
     [Fact]
     public Task ColumnAttribute_is_generated_for_property()
@@ -1043,7 +1043,7 @@ public partial class TestDbContext : DbContext
             },
             model =>
             {
-                var entitType = model.FindEntityType("TestNamespace.Entity");
+                var entitType = model.FindEntityType("TestNamespace.Entity")!;
                 Assert.Equal("propertyA", entitType.GetProperty("A").GetColumnName());
                 Assert.Equal("nchar(10)", entitType.GetProperty("B").GetColumnType());
                 Assert.Equal("random", entitType.GetProperty("C").GetColumnName());
@@ -1088,7 +1088,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entitType = model.FindEntityType("TestNamespace.Entity");
+                var entitType = model.FindEntityType("TestNamespace.Entity")!;
                 Assert.Equal(34, entitType.GetProperty("A").GetMaxLength());
                 Assert.Equal(10, entitType.GetProperty("B").GetMaxLength());
             });
@@ -1137,7 +1137,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entitType = model.FindEntityType("TestNamespace.Entity");
+                var entitType = model.FindEntityType("TestNamespace.Entity")!;
                 Assert.True(entitType.GetProperty("A").IsUnicode());
                 Assert.False(entitType.GetProperty("B").IsUnicode());
                 Assert.Null(entitType.GetProperty("C").IsUnicode());
@@ -1189,7 +1189,7 @@ public partial class Entity
                 code.AdditionalFiles.Single(f => f.Path == "Entity.cs")),
             model =>
             {
-                var entitType = model.FindEntityType("TestNamespace.Entity");
+                var entitType = model.FindEntityType("TestNamespace.Entity")!;
                 Assert.Equal(10, entitType.GetProperty("A").GetPrecision());
                 Assert.Equal(14, entitType.GetProperty("B").GetPrecision());
                 Assert.Equal(3, entitType.GetProperty("B").GetScale());
@@ -1396,12 +1396,12 @@ public partial class Person
             },
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                var authorNavigation = postType.FindNavigation("Author");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                var authorNavigation = postType.FindNavigation("Author")!;
                 Assert.True(authorNavigation.IsOnDependent);
                 Assert.Equal("TestNamespace.Person", authorNavigation.ForeignKey.PrincipalEntityType.Name);
 
-                var contributionsNav = postType.FindNavigation("Contributions");
+                var contributionsNav = postType.FindNavigation("Contributions")!;
                 Assert.False(contributionsNav.IsOnDependent);
                 Assert.Equal("TestNamespace.Contribution", contributionsNav.ForeignKey.DeclaringEntityType.Name);
             });
@@ -1494,8 +1494,8 @@ public partial class TestDbContext : DbContext
             },
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                var blogNavigation = postType.FindNavigation("BlogNavigation");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                var blogNavigation = postType.FindNavigation("BlogNavigation")!;
                 Assert.Equal("TestNamespace.Blog", blogNavigation.ForeignKey.PrincipalEntityType.Name);
                 Assert.Equal(["BlogId1", "BlogId2"], blogNavigation.ForeignKey.Properties.Select(p => p.Name));
             });
@@ -1597,8 +1597,8 @@ public partial class TestDbContext : DbContext
             },
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                var blogNavigation = postType.FindNavigation("BlogNavigation");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                var blogNavigation = postType.FindNavigation("BlogNavigation")!;
                 Assert.Equal("TestNamespace.Blog", blogNavigation.ForeignKey.PrincipalEntityType.Name);
                 Assert.Equal(["BlogId1", "BlogId2"], blogNavigation.ForeignKey.Properties.Select(p => p.Name));
                 Assert.Equal(["Id1", "Id2"], blogNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
@@ -1721,8 +1721,8 @@ public partial class TestDbContext : DbContext
             },
             model =>
             {
-                var carType = model.FindEntityType("TestNamespace.Car");
-                var colorNavigation = carType.FindNavigation("Color");
+                var carType = model.FindEntityType("TestNamespace.Car")!;
+                var colorNavigation = carType.FindNavigation("Color")!;
                 Assert.Equal("TestNamespace.Color", colorNavigation.ForeignKey.PrincipalEntityType.Name);
                 Assert.Equal(["ColorCode"], colorNavigation.ForeignKey.Properties.Select(p => p.Name));
                 Assert.Equal(["ColorCode"], colorNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
@@ -1815,9 +1815,9 @@ public partial class Post
             },
             model =>
             {
-                var post = model.FindEntityType("TestNamespace.Post");
+                var post = model.FindEntityType("TestNamespace.Post")!;
                 var foreignKey = Assert.Single(post.GetForeignKeys());
-                Assert.Equal("Blog", foreignKey.DependentToPrincipal.Name);
+                Assert.Equal("Blog", foreignKey.DependentToPrincipal!.Name);
                 Assert.Null(foreignKey.PrincipalToDependent);
             });
 
@@ -1861,13 +1861,13 @@ public partial class Post
                 code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                var blogNavigation = postType.FindNavigation("Blog");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                var blogNavigation = postType.FindNavigation("Blog")!;
 
                 var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                 Assert.Equal("BlogId", foreignKeyProperty.Name);
 
-                var inverseNavigation = blogNavigation.Inverse;
+                var inverseNavigation = blogNavigation.Inverse!;
                 Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                 Assert.Equal("Posts", inverseNavigation.Name);
             });
@@ -1912,13 +1912,13 @@ public partial class Post
                 code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                var blogNavigation = postType.FindNavigation("BlogNavigation");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                var blogNavigation = postType.FindNavigation("BlogNavigation")!;
 
                 var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                 Assert.Equal("Blog", foreignKeyProperty.Name);
 
-                var inverseNavigation = blogNavigation.Inverse;
+                var inverseNavigation = blogNavigation.Inverse!;
                 Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                 Assert.Equal("Posts", inverseNavigation.Name);
             });
@@ -1970,23 +1970,23 @@ public partial class Post
                 code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
 
-                var blogNavigation = postType.FindNavigation("Blog");
+                var blogNavigation = postType.FindNavigation("Blog")!;
 
                 var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                 Assert.Equal("BlogId", foreignKeyProperty.Name);
 
-                var inverseNavigation = blogNavigation.Inverse;
+                var inverseNavigation = blogNavigation.Inverse!;
                 Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                 Assert.Equal("Posts", inverseNavigation.Name);
 
-                var originalBlogNavigation = postType.FindNavigation("OriginalBlog");
+                var originalBlogNavigation = postType.FindNavigation("OriginalBlog")!;
 
                 var originalForeignKeyProperty = Assert.Single(originalBlogNavigation.ForeignKey.Properties);
                 Assert.Equal("OriginalBlogId", originalForeignKeyProperty.Name);
 
-                var originalInverseNavigation = originalBlogNavigation.Inverse;
+                var originalInverseNavigation = originalBlogNavigation.Inverse!;
                 Assert.Equal("TestNamespace.Blog", originalInverseNavigation.DeclaringEntityType.Name);
                 Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
             });
@@ -2028,8 +2028,8 @@ public partial class Post
                 code.AdditionalFiles.Single(f => f.Path == "Post.cs")),
             model =>
             {
-                var postType = model.FindEntityType("TestNamespace.Post");
-                var blogNavigation = postType.FindNavigation("Blog");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
+                var blogNavigation = postType.FindNavigation("Blog")!;
 
                 var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                 Assert.Equal("BlogId", foreignKeyProperty.Name);
@@ -2288,12 +2288,12 @@ public partial class Post
             },
             model =>
             {
-                var blogType = model.FindEntityType("TestNamespace.Blog");
+                var blogType = model.FindEntityType("TestNamespace.Blog")!;
                 Assert.Empty(blogType.GetNavigations());
                 var postsNavigation = Assert.Single(blogType.GetSkipNavigations());
                 Assert.Equal("Posts", postsNavigation.Name);
 
-                var postType = model.FindEntityType("TestNamespace.Post");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
                 Assert.Empty(postType.GetNavigations());
                 var blogsNavigation = Assert.Single(postType.GetSkipNavigations());
                 Assert.Equal("Blogs", blogsNavigation.Name);
@@ -2415,12 +2415,12 @@ public partial class Post
             },
             model =>
             {
-                var blogType = model.FindEntityType("TestNamespace.Blog");
+                var blogType = model.FindEntityType("TestNamespace.Blog")!;
                 Assert.Empty(blogType.GetNavigations());
                 var postsNavigation = Assert.Single(blogType.GetSkipNavigations());
                 Assert.Equal("Posts", postsNavigation.Name);
 
-                var postType = model.FindEntityType("TestNamespace.Post");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
                 Assert.Empty(postType.GetNavigations());
                 var blogsNavigation = Assert.Single(postType.GetSkipNavigations());
                 Assert.Equal("Blogs", blogsNavigation.Name);
@@ -2554,12 +2554,12 @@ public partial class Post
             },
             model =>
             {
-                var blogType = model.FindEntityType("TestNamespace.Blog");
+                var blogType = model.FindEntityType("TestNamespace.Blog")!;
                 Assert.Empty(blogType.GetNavigations());
                 var postsNavigation = Assert.Single(blogType.GetSkipNavigations());
                 Assert.Equal("Posts", postsNavigation.Name);
 
-                var postType = model.FindEntityType("TestNamespace.Post");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
                 Assert.Empty(postType.GetNavigations());
                 var blogsNavigation = Assert.Single(postType.GetSkipNavigations());
                 Assert.Equal("Blogs", blogsNavigation.Name);
@@ -2701,12 +2701,12 @@ public partial class Post
             },
             model =>
             {
-                var blogType = model.FindEntityType("TestNamespace.Blog");
+                var blogType = model.FindEntityType("TestNamespace.Blog")!;
                 Assert.Empty(blogType.GetNavigations());
                 var postsNavigation = Assert.Single(blogType.GetSkipNavigations());
                 Assert.Equal("Posts", postsNavigation.Name);
 
-                var postType = model.FindEntityType("TestNamespace.Post");
+                var postType = model.FindEntityType("TestNamespace.Post")!;
                 Assert.Empty(postType.GetNavigations());
                 var blogsNavigation = Assert.Single(postType.GetSkipNavigations());
                 Assert.Equal("Blogs", blogsNavigation.Name);
@@ -3023,7 +3023,7 @@ public partial class TestDbContext : DbContext
                             Assert.Equal("Post_Blogs_Source", fk1.GetConstraintName());
                             var property = Assert.Single(fk1.Properties);
                             Assert.Equal("PostId", property.Name);
-                            Assert.Equal("Post_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
+                            Assert.Equal("Post_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName()!)));
                             Assert.Equal("TestNamespace.Post", fk1.PrincipalEntityType.Name);
                             Assert.Equal(DeleteBehavior.Cascade, fk1.DeleteBehavior);
                         },
@@ -3032,7 +3032,7 @@ public partial class TestDbContext : DbContext
                             Assert.Equal("Post_Blogs_Target", fk2.GetConstraintName());
                             var property = Assert.Single(fk2.Properties);
                             Assert.Equal("BlogId", property.Name);
-                            Assert.Equal("Blog_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
+                            Assert.Equal("Blog_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName()!)));
                             Assert.Equal("TestNamespace.Blog", fk2.PrincipalEntityType.Name);
                             Assert.Equal(DeleteBehavior.Cascade, fk2.DeleteBehavior);
                         });
@@ -3104,7 +3104,7 @@ public partial class TestDbContext : DbContext
     private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
         : SqlServerAnnotationCodeGenerator(dependencies)
     {
-        protected override AttributeCodeFragment GenerateDataAnnotation(IEntityType entityType, IAnnotation annotation)
+        protected override AttributeCodeFragment? GenerateDataAnnotation(IEntityType entityType, IAnnotation annotation)
             => annotation.Name switch
             {
                 "Custom:EntityAnnotation" => new AttributeCodeFragment(
@@ -3112,7 +3112,7 @@ public partial class TestDbContext : DbContext
                 _ => base.GenerateDataAnnotation(entityType, annotation)
             };
 
-        protected override AttributeCodeFragment GenerateDataAnnotation(IProperty property, IAnnotation annotation)
+        protected override AttributeCodeFragment? GenerateDataAnnotation(IProperty property, IAnnotation annotation)
             => annotation.Name switch
             {
                 "Custom:PropertyAnnotation" => new AttributeCodeFragment(

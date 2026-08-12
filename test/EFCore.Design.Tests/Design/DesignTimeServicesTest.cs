@@ -247,7 +247,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public MethodCallCodeFragment GenerateProviderOptions()
             => throw new NotImplementedException();
 
-        public MethodCallCodeFragment GenerateUseProvider(string connectionString, MethodCallCodeFragment providerOptions)
+        public MethodCallCodeFragment GenerateUseProvider(string connectionString, MethodCallCodeFragment? providerOptions)
             => throw new NotImplementedException();
     }
 
@@ -413,8 +413,8 @@ public class ConcreteDesignTimeServices : IDesignTimeServices
 
     private ServiceProvider CreateDesignServiceProvider(
         string assemblyCode,
-        string startupAssemblyCode = null,
-        DbContext context = null)
+        string? startupAssemblyCode = null,
+        DbContext? context = null)
     {
         var assembly = Compile(assemblyCode);
         var startupAssembly = startupAssemblyCode == null

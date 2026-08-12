@@ -73,17 +73,17 @@ public class BatchExecutorTest
                     new ServiceCollection())
                 .BuildServiceProvider(validateScopes: true);
 
-        public DbSet<Foo> Foos { get; set; }
-        public DbSet<Bar> Bars { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
+        public DbSet<Bar> Bars { get; set; } = null!;
     }
 
     private class Foo
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     private class Bar
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 }

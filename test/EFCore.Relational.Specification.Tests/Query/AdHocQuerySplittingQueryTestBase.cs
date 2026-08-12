@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -145,7 +143,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
     protected class Context21355(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -155,23 +153,23 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
         public class Parent
         {
-            public string Id { get; set; }
-            public List<Child> Children1 { get; set; }
-            public List<AnotherChild> Children2 { get; set; }
+            public string Id { get; set; } = null!;
+            public List<Child> Children1 { get; set; } = null!;
+            public List<AnotherChild> Children2 { get; set; } = null!;
         }
 
         public class Child
         {
             public int Id { get; set; }
-            public string ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public string ParentId { get; set; } = null!;
+            public Parent Parent { get; set; } = null!;
         }
 
         public class AnotherChild
         {
             public int Id { get; set; }
-            public string ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public string ParentId { get; set; } = null!;
+            public Parent Parent { get; set; } = null!;
         }
     }
 
@@ -274,7 +272,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         public static readonly Guid Parent2Id = new("e79c82f4-3ae7-4c65-85db-04e08cba6fa7");
         public static readonly Guid Collection1Id = new("7ce625fb-863d-41b3-b42e-e4e4367f7548");
         public static readonly Guid Collection2Id = new("d347bbd5-003a-441f-a148-df8ab8ac4a29");
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -287,20 +285,20 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         public class Parent
         {
             public Guid Id { get; set; }
-            public ICollection<Collection> Collection { get; set; }
+            public ICollection<Collection> Collection { get; set; } = null!;
         }
 
         public class Collection
         {
             public Guid Id { get; set; }
             public Guid ParentId { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
 
         public class ParentViewModel
         {
             public Guid Id { get; set; }
-            public ICollection<CollectionViewModel> Collection { get; set; }
+            public ICollection<CollectionViewModel> Collection { get; set; } = null!;
         }
 
         public class CollectionViewModel
@@ -335,7 +333,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context25400(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<Test> Tests { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Test>().HasKey(e => e.Id);
@@ -458,11 +456,11 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
     protected class Context33826(DbContextOptions options) : DbContext(options)
     {
-        public static Func<Context33826> ConcurrentContextFactory { get; set; }
+        public static Func<Context33826>? ConcurrentContextFactory { get; set; }
         public static bool InsertConcurrentEntity { get; set; }
         public static bool DeleteOtherParentsChildren { get; set; }
 
-        public DbSet<Blog33826> Blogs { get; set; }
+        public DbSet<Blog33826> Blogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -512,7 +510,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                 {
                     Context33826.InsertConcurrentEntity = false;
 
-                    using var context = Context33826.ConcurrentContextFactory();
+                    using var context = Context33826.ConcurrentContextFactory!();
                     context.Blogs.Add(new Blog33826(15, 3, [new Post33826(5, 3, "Concurrent")]));
                     context.SaveChanges();
                 }
@@ -521,7 +519,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
                 {
                     Context33826.DeleteOtherParentsChildren = false;
 
-                    using var context = Context33826.ConcurrentContextFactory();
+                    using var context = Context33826.ConcurrentContextFactory!();
                     context.Set<Post33826>().Where(p => p.BlogId == 10 && p.BlogSecondId == 2).ExecuteDelete();
                 }
             }
@@ -593,20 +591,20 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
 
     protected class Context34728(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Tests { get; set; }
+        public DbSet<Blog> Tests { get; set; } = null!;
 
         public sealed class Blog
         {
             public long Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public ISet<BlogPost> Posts { get; set; } = new HashSet<BlogPost>();
         }
 
         public sealed class BlogPost
         {
             public long Id { get; set; }
-            public WebAccount Author { get; set; }
-            public List<Tag> Tags { get; set; }
+            public WebAccount Author { get; set; } = null!;
+            public List<Tag> Tags { get; set; } = null!;
         }
 
         public sealed class WebAccount
@@ -617,7 +615,7 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
         public sealed class Tag
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 

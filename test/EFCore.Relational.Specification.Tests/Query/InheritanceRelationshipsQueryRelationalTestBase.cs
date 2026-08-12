@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(TFixture fixture)
     : InheritanceRelationshipsQueryTestBase<TFixture>(fixture)
     where TFixture : InheritanceRelationshipsQueryRelationalFixture, new()
@@ -27,7 +25,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
+                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_with_filter_split(bool async)
@@ -46,7 +44,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             ss => ss.Set<BaseCollectionOnBase>().Include(e => e.BaseParent).Where(e => e.Name != "Bar").AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
+                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_split(bool async)
@@ -64,7 +62,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             ss => ss.Set<CollectionOnBase>().Include(e => e.Parent).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
+                new ExpectedInclude<CollectionOnBase>(x => x.Parent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_without_inheritance_with_filter_split(bool async)
@@ -83,7 +81,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             ss => ss.Set<CollectionOnBase>().Include(e => e.Parent).Where(e => e.Name != "Bar").AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<CollectionOnBase>(x => x.Parent)));
+                new ExpectedInclude<CollectionOnBase>(x => x.Parent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_inheritance_on_derived1_split(bool async)
@@ -119,37 +117,37 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             ss => ss.Set<BaseCollectionOnDerived>().Include(e => e.BaseParent).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<BaseCollectionOnDerived>(x => x.BaseParent)));
+                new ExpectedInclude<BaseCollectionOnDerived>(x => x.BaseParent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection).AsSplitQuery(),
+            ss => ss.Set<BaseInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase!.NestedCollection).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
+                new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase!),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_on_base_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase.NestedCollection).AsSplitQuery(),
+            ss => ss.Set<DerivedInheritanceRelationshipEntity>().Include(e => e.BaseReferenceOnBase!.NestedCollection).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase),
+                new ExpectedInclude<DerivedInheritanceRelationshipEntity>(x => x.BaseReferenceOnBase!),
                 new ExpectedInclude<BaseReferenceOnBase>(x => x.NestedCollection)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_reference_collection_reverse_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentReference.BaseParent).AsSplitQuery(),
+            ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentReference!.BaseParent).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<NestedCollectionBase>(x => x.ParentReference),
-                new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent)));
+                new ExpectedInclude<NestedCollectionBase>(x => x.ParentReference!),
+                new ExpectedInclude<BaseReferenceOnBase>(x => x.BaseParent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_reference_split(bool async)
@@ -160,17 +158,17 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<BaseInheritanceRelationshipEntity>(x => x.BaseCollectionOnBase),
-                new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedReference)));
+                new ExpectedInclude<BaseCollectionOnBase>(x => x.NestedReference!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_reference_reverse_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NestedReferenceBase>().Include(e => e.ParentCollection.BaseParent).AsSplitQuery(),
+            ss => ss.Set<NestedReferenceBase>().Include(e => e.ParentCollection!.BaseParent).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<NestedReferenceBase>(x => x.ParentCollection),
-                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
+                new ExpectedInclude<NestedReferenceBase>(x => x.ParentCollection!),
+                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_with_inheritance_collection_collection_split(bool async)
@@ -187,11 +185,11 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
     public virtual Task Nested_include_with_inheritance_collection_collection_reverse_split(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentCollection.BaseParent).AsSplitQuery(),
+            ss => ss.Set<NestedCollectionBase>().Include(e => e.ParentCollection!.BaseParent).AsSplitQuery(),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<NestedCollectionBase>(x => x.ParentCollection),
-                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent)));
+                new ExpectedInclude<NestedCollectionBase>(x => x.ParentCollection!),
+                new ExpectedInclude<BaseCollectionOnBase>(x => x.BaseParent!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_include_collection_reference_on_non_entity_base_split(bool async)
@@ -201,7 +199,7 @@ public abstract class InheritanceRelationshipsQueryRelationalTestBase<TFixture>(
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<ReferencedEntity>(x => x.Principals),
-                new ExpectedInclude<PrincipalEntity>(x => x.Reference)));
+                new ExpectedInclude<PrincipalEntity>(x => x.Reference!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_projection_on_base_type_split(bool async)

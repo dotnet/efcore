@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixture) : OwnedEntityQueryTestBase(fixture)
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
@@ -42,24 +40,24 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         public class AnAggregateRoot
         {
-            public string Id { get; set; }
-            public AnOwnedTypeWithOwnedProperties AnOwnedTypeWithOwnedProperties { get; set; }
+            public string Id { get; set; } = null!;
+            public AnOwnedTypeWithOwnedProperties? AnOwnedTypeWithOwnedProperties { get; set; }
         }
 
         public class AnOwnedTypeWithOwnedProperties
         {
-            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; set; }
-            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties1? AnOwnedTypeWithPrimitiveProperties1 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties2? AnOwnedTypeWithPrimitiveProperties2 { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties1
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties2
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -84,7 +82,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context24777(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Root> Roots { get; set; }
+        public DbSet<Root> Roots { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Root>(b =>
@@ -147,15 +145,15 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Root
         {
             public int Id { get; init; }
-            public ModdleA ModdleA { get; init; }
-            public MiddleB MiddleB { get; init; }
+            public ModdleA ModdleA { get; init; } = null!;
+            public MiddleB? MiddleB { get; init; }
         }
 
         public class ModdleA
         {
             public int Id { get; init; }
             public int RootId { get; init; }
-            public List<Leaf> Leaves { get; }
+            public List<Leaf> Leaves { get; } = null!;
         }
 
         public class MiddleB
@@ -210,18 +208,18 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     protected class Location25680
     {
         public Guid Id { get; set; }
-        public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; }
+        public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; } = null!;
     }
 
     protected class PublishTokenType25680
     {
-        public Location25680 Location { get; set; }
+        public Location25680 Location { get; set; } = null!;
         public Guid LocationId { get; set; }
 
-        public string ExternalId { get; set; }
-        public string VisualNumber { get; set; }
-        public string TokenGroupId { get; set; }
-        public string IssuerName { get; set; }
+        public string ExternalId { get; set; } = null!;
+        public string VisualNumber { get; set; } = null!;
+        public string TokenGroupId { get; set; } = null!;
+        public string IssuerName { get; set; } = null!;
     }
 
     #endregion
@@ -317,7 +315,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal(1, t.ServiceType);
+                Assert.Equal(1, t!.ServiceType);
                 Assert.Equal("1", t.ApartmentNo);
             });
     }
@@ -343,7 +341,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal("1", t.MyApartmentNo);
+                Assert.Equal("1", t!.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
             Assert.Null);
@@ -370,7 +368,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal("1", t.MyApartmentNo);
+                Assert.Equal("1", t!.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
             Assert.Null);
@@ -382,7 +380,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateDbContext();
-        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot.ApartmentNo);
+        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot!.ApartmentNo);
 
         var result = async
             ? await query.ToListAsync()
@@ -397,7 +395,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context28247(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RotRutCase> RotRutCases { get; set; }
+        public DbSet<RotRutCase> RotRutCases { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RotRutCase>(b =>
@@ -432,21 +430,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class RotRutCase
         {
             public int Id { get; set; }
-            public string Buyer { get; set; }
-            public Rot Rot { get; set; }
-            public Rut Rut { get; set; }
+            public string Buyer { get; set; } = null!;
+            public Rot? Rot { get; set; }
+            public Rut? Rut { get; set; }
         }
 
         public class Rot
         {
             public int? ServiceType { get; set; }
-            public string ApartmentNo { get; set; }
+            public string? ApartmentNo { get; set; }
         }
 
         public class RotDto
         {
             public int? MyServiceType { get; set; }
-            public string MyApartmentNo { get; set; }
+            public string? MyApartmentNo { get; set; }
         }
 
         public class Rut
@@ -479,8 +477,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context30358(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Monarch> Monarchs { get; set; }
-        public DbSet<Magus> Magi { get; set; }
+        public DbSet<Monarch> Monarchs { get; set; } = null!;
+        public DbSet<Magus> Magi { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Magus>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
@@ -523,21 +521,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Monarch
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string RulerOf { get; set; }
+            public string Name { get; set; } = null!;
+            public string RulerOf { get; set; } = null!;
         }
 
         public class Magus
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Affiliation { get; set; }
-            public MagicTool ToolUsed { get; set; }
+            public string Name { get; set; } = null!;
+            public string Affiliation { get; set; } = null!;
+            public MagicTool ToolUsed { get; set; } = null!;
         }
 
         public class MagicTool
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -592,7 +590,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         public sealed class Child1Entity : BaseEntity
         {
-            public ChildData Data { get; set; }
+            public ChildData Data { get; set; } = null!;
         }
 
         public sealed class Child2Entity : BaseEntity;
@@ -655,7 +653,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class RootEntity
         {
             public Guid Id { get; set; }
-            public Outer Outer { get; set; }
+            public Outer? Outer { get; set; }
         }
 
         public class Outer

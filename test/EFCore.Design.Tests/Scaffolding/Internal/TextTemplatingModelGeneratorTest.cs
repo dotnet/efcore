@@ -15,7 +15,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        Directory.CreateDirectory(Path.GetDirectoryName(template)!);
         File.Create(template).Close();
 
         var generator = CreateGenerator();
@@ -31,7 +31,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        Directory.CreateDirectory(Path.GetDirectoryName(template)!);
         File.Create(template).Close();
 
         var generator = CreateGenerator();
@@ -59,7 +59,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             "My DbContext template");
@@ -104,7 +104,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             "My DbContext template");
@@ -135,7 +135,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        Directory.CreateDirectory(Path.GetDirectoryName(template)!);
         File.WriteAllText(
             template,
             "My entity type template");
@@ -167,7 +167,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        Directory.CreateDirectory(Path.GetDirectoryName(template)!);
         File.Create(template).Close();
 
         var generator = CreateGenerator();
@@ -194,7 +194,7 @@ public class TextTemplatingModelGeneratorTest
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             """
@@ -277,7 +277,7 @@ ProjectDefaultNamespace: RootNamespace
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             @"<#= Session[""NamespaceHint""] #>");
@@ -317,7 +317,7 @@ ProjectDefaultNamespace: RootNamespace
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             @"<#@ output extension="".vb"" #>");
@@ -366,7 +366,7 @@ My entity type configuration template
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             @"<#@ output encoding=""us-ascii"" #>");
@@ -400,7 +400,7 @@ My entity type configuration template
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             @"<# Error(""This is an error""); #>");
@@ -436,7 +436,7 @@ My entity type configuration template
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             @"<# Warning(""Warning about DbContext""); #>");
@@ -490,7 +490,7 @@ My entity type configuration template
         using var projectDir = new TempDirectory();
 
         var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate)!);
         File.WriteAllText(
             contextTemplate,
             "<# #error This is a compiler error #>");
@@ -520,7 +520,7 @@ My entity type configuration template
             });
     }
 
-    private static TemplatedModelGenerator CreateGenerator(IOperationReporter reporter = null)
+    private static TemplatedModelGenerator CreateGenerator(IOperationReporter? reporter = null)
     {
         var serviceCollection = new ServiceCollection()
             .AddEntityFrameworkDesignTimeServices(reporter);

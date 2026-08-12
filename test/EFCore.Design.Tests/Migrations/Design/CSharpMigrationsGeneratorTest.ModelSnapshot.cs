@@ -338,7 +338,7 @@ partial class Snapshot : ModelSnapshot
         foreach (var property in modelBuilder.Model.GetEntityTypes().Single().GetProperties())
         {
             var expected = property.GetDefaultValue();
-            var actual = entityType.FindProperty(property.Name).GetDefaultValue();
+            var actual = entityType.FindProperty(property.Name)!.GetDefaultValue();
 
             if (actual != null
                 && expected != null)
@@ -364,7 +364,7 @@ partial class Snapshot : ModelSnapshot
     {
         public bool Boolean { get; set; }
         public byte Byte { get; set; }
-        public byte[] ByteArray { get; set; }
+        public byte[]? ByteArray { get; set; }
         public char Char { get; set; }
         public DateTime DateTime { get; set; }
         public DateTimeOffset DateTimeOffset { get; set; }
@@ -398,7 +398,7 @@ partial class Snapshot : ModelSnapshot
         public int PrivateSetter { get; private set; }
         public sbyte SByte { get; set; }
         public float Single { get; set; }
-        public string String { get; set; }
+        public string? String { get; set; }
         public TimeSpan TimeSpan { get; set; }
         public ushort UInt16 { get; set; }
         public uint UInt32 { get; set; }
@@ -416,8 +416,8 @@ partial class Snapshot : ModelSnapshot
     private class EntityWithManyProperties
     {
         public int Id { get; set; }
-        public string String { get; set; }
-        public byte[] Bytes { get; set; }
+        public string? String { get; set; }
+        public byte[]? Bytes { get; set; }
         public short Int16 { get; set; }
         public int Int32 { get; set; }
         public long Int64 { get; set; }
@@ -442,26 +442,26 @@ partial class Snapshot : ModelSnapshot
         public EnumU32 EnumU32 { get; set; }
         public EnumU16 EnumU16 { get; set; }
         public EnumS8 EnumS8 { get; set; }
-        public Geometry SpatialBGeometryCollection { get; set; }
-        public Geometry SpatialBLineString { get; set; }
-        public Geometry SpatialBMultiLineString { get; set; }
-        public Geometry SpatialBMultiPoint { get; set; }
-        public Geometry SpatialBMultiPolygon { get; set; }
-        public Geometry SpatialBPoint { get; set; }
-        public Geometry SpatialBPolygon { get; set; }
-        public GeometryCollection SpatialCGeometryCollection { get; set; }
-        public LineString SpatialCLineString { get; set; }
-        public MultiLineString SpatialCMultiLineString { get; set; }
-        public MultiPoint SpatialCMultiPoint { get; set; }
-        public MultiPolygon SpatialCMultiPolygon { get; set; }
-        public Point SpatialCPoint { get; set; }
-        public Polygon SpatialCPolygon { get; set; }
-        public int[] Int32Collection { get; set; }
-        public double[] DoubleCollection { get; set; }
-        public string[] StringCollection { get; set; }
-        public DateTime[] DateTimeCollection { get; set; }
-        public bool[] BoolCollection { get; set; }
-        public byte[][] BytesCollection { get; set; }
+        public Geometry? SpatialBGeometryCollection { get; set; }
+        public Geometry? SpatialBLineString { get; set; }
+        public Geometry? SpatialBMultiLineString { get; set; }
+        public Geometry? SpatialBMultiPoint { get; set; }
+        public Geometry? SpatialBMultiPolygon { get; set; }
+        public Geometry? SpatialBPoint { get; set; }
+        public Geometry? SpatialBPolygon { get; set; }
+        public GeometryCollection? SpatialCGeometryCollection { get; set; }
+        public LineString? SpatialCLineString { get; set; }
+        public MultiLineString? SpatialCMultiLineString { get; set; }
+        public MultiPoint? SpatialCMultiPoint { get; set; }
+        public MultiPolygon? SpatialCMultiPolygon { get; set; }
+        public Point? SpatialCPoint { get; set; }
+        public Polygon? SpatialCPolygon { get; set; }
+        public int[]? Int32Collection { get; set; }
+        public double[]? DoubleCollection { get; set; }
+        public string[]? StringCollection { get; set; }
+        public DateTime[]? DateTimeCollection { get; set; }
+        public bool[]? BoolCollection { get; set; }
+        public byte[][]? BytesCollection { get; set; }
     }
 
     private enum Enum64 : long
@@ -561,7 +561,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var fk = o.FindEntityType(typeof(UnconstrainedFkDependent).FullName)!.GetForeignKeys().Single();
+                var fk = o.FindEntityType(typeof(UnconstrainedFkDependent).FullName!)!.GetForeignKeys().Single();
                 Assert.False(fk.IsConstrained);
             });
 
@@ -574,13 +574,13 @@ partial class Snapshot : ModelSnapshot
     {
         public int Id { get; set; }
         public int PrincipalId { get; set; }
-        public UnconstrainedFkPrincipal Principal { get; set; }
+        public UnconstrainedFkPrincipal Principal { get; set; } = null!;
     }
 
     private class EntityWithOneProperty
     {
         public int Id { get; set; }
-        public EntityWithTwoProperties EntityWithTwoProperties { get; set; }
+        public EntityWithTwoProperties? EntityWithTwoProperties { get; set; }
     }
 
     private class EntityWithTwoProperties
@@ -591,24 +591,24 @@ partial class Snapshot : ModelSnapshot
         public int AlternateId { get; set; }
 
         [NotMapped]
-        public List<string> List { get; set; }
+        public List<string>? List { get; set; }
 
         [NotMapped]
         public Coordinates Coordinates { get; set; }
 
-        public EntityWithOneProperty EntityWithOneProperty { get; set; }
+        public EntityWithOneProperty? EntityWithOneProperty { get; set; }
 
         [NotMapped]
-        public EntityWithStringKey EntityWithStringKey { get; set; }
+        public EntityWithStringKey? EntityWithStringKey { get; set; }
     }
 
     private class EntityWithStringProperty
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [NotMapped]
-        public EntityWithOneProperty EntityWithOneProperty { get; set; }
+        public EntityWithOneProperty? EntityWithOneProperty { get; set; }
     }
 
     private class EntityWithDecimalProperty
@@ -619,15 +619,15 @@ partial class Snapshot : ModelSnapshot
 
     private class EntityWithStringKey
     {
-        public string Id { get; set; }
-        public ICollection<EntityWithStringProperty> Properties { get; set; }
+        public string? Id { get; set; }
+        public ICollection<EntityWithStringProperty>? Properties { get; set; }
     }
 
     private class EntityWithStringAlternateKey
     {
         public int Id { get; set; }
-        public string AlternateId { get; set; }
-        public ICollection<EntityWithStringProperty> Properties { get; set; }
+        public string AlternateId { get; set; } = null!;
+        public ICollection<EntityWithStringProperty> Properties { get; set; } = null!;
     }
 
     private class EntityWithGenericKey<TKey>
@@ -638,7 +638,7 @@ partial class Snapshot : ModelSnapshot
     private class EntityWithGenericProperty<TProperty>
     {
         public int Id { get; set; }
-        public TProperty Property { get; set; }
+        public TProperty Property { get; set; } = default!;
     }
 
     private class EntityWithThreeProperties
@@ -653,30 +653,30 @@ partial class Snapshot : ModelSnapshot
     private class EntityWithIndexAttribute
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
     [Index(nameof(FirstName), nameof(LastName), Name = "NamedIndex")]
     private class EntityWithNamedIndexAttribute
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
     [Index(nameof(FirstName), nameof(LastName), IsUnique = true)]
     private class EntityWithUniqueIndexAttribute
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
     public class TestOwner
     {
         public int Id { get; set; }
-        public ICollection<TestOwnee> OwnedEntities { get; set; }
+        public ICollection<TestOwnee> OwnedEntities { get; set; } = null!;
     }
 
     public class TestOwnee
@@ -699,22 +699,22 @@ partial class Snapshot : ModelSnapshot
 
     private class BaseEntity : AbstractBase
     {
-        public string Discriminator { get; set; }
+        public string? Discriminator { get; set; }
     }
 
     private class DerivedEntity : BaseEntity
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     private class DuplicateDerivedEntity : BaseEntity
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     private class AnotherDerivedEntity : BaseEntity
     {
-        public string Title { get; set; }
+        public string? Title { get; set; }
     }
 
     private readonly struct StructDiscriminator
@@ -731,19 +731,19 @@ partial class Snapshot : ModelSnapshot
 
     private class DerivedEntityWithStructDiscriminator : BaseEntityWithStructDiscriminator
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     private class AnotherDerivedEntityWithStructDiscriminator : BaseEntityWithStructDiscriminator
     {
-        public string Title { get; set; }
+        public string? Title { get; set; }
     }
 
     private class BaseType
     {
         public int Id { get; set; }
 
-        public EntityWithOneProperty Navigation { get; set; }
+        public EntityWithOneProperty? Navigation { get; set; }
     }
 
     private class DerivedType : BaseType;
@@ -774,15 +774,15 @@ partial class Snapshot : ModelSnapshot
     private class ManyToManyLeft
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public List<ManyToManyRight> Rights { get; set; }
+        public string? Name { get; set; }
+        public List<ManyToManyRight> Rights { get; set; } = null!;
     }
 
     private class ManyToManyRight
     {
         public int Id { get; set; }
-        public string Description { get; set; }
-        public List<ManyToManyLeft> Lefts { get; set; }
+        public string? Description { get; set; }
+        public List<ManyToManyLeft> Lefts { get; set; } = null!;
     }
 
     private class CustomValueGenerator : ValueGenerator<int>
@@ -797,28 +797,28 @@ partial class Snapshot : ModelSnapshot
     private abstract class Animal
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     private abstract class Pet : Animal
     {
-        public string Vet { get; set; }
+        public string? Vet { get; set; }
         public ICollection<Human> Humans { get; } = [];
     }
 
     private class Cat : Pet
     {
-        public string EducationLevel { get; set; }
+        public string? EducationLevel { get; set; }
     }
 
     private class Dog : Pet
     {
-        public string FavoriteToy { get; set; }
+        public string? FavoriteToy { get; set; }
     }
 
     private class Human : Animal
     {
-        public Animal FavoriteAnimal { get; set; }
+        public Animal? FavoriteAnimal { get; set; }
         public ICollection<Pet> Pets { get; } = [];
     }
 
@@ -834,26 +834,26 @@ partial class Snapshot : ModelSnapshot
     {
         public int Id { get; set; }
 
-        public T Bar { get; set; }
+        public T Bar { get; set; } = null!;
     }
 
     public class Parrot<TChild>
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public TChild Child { get; set; }
+        public string? Name { get; set; }
+        public TChild? Child { get; set; }
     }
 
     public class Parrot
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public Beak Child { get; set; }
+        public string? Name { get; set; }
+        public Beak? Child { get; set; }
     }
 
     public class Beak
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     #region Model
@@ -1104,17 +1104,17 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
                 var abstractBase = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase")!;
                 Assert.Equal("AbstractBase", abstractBase.GetTableName());
                 Assert.Equal("TPT", abstractBase.GetMappingStrategy());
 
                 var baseType = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity")!;
                 Assert.Equal("BaseEntity", baseType.GetTableName());
                 Assert.Equal("DefaultSchema", baseType.GetSchema());
 
                 var derived = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity")!;
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("foo", derived.GetSchema());
             });
@@ -1178,7 +1178,7 @@ partial class Snapshot : ModelSnapshot
 
                 Assert.Equal(
                     "DerivedEntity",
-                    o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity")
+                    o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity")!
                         .GetTableName());
             });
 
@@ -1312,18 +1312,18 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
                 var abstractBase = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+AbstractBase")!;
                 Assert.Null(abstractBase.GetTableName());
                 Assert.Null(abstractBase.GetViewName());
                 Assert.Equal("TPC", abstractBase.GetMappingStrategy());
 
                 var baseType = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+BaseEntity")!;
                 Assert.Equal("BaseEntity", baseType.GetTableName());
                 Assert.Null(baseType.GetViewName());
 
                 var derived = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DerivedEntity")!;
                 Assert.Equal("DerivedEntity", derived.GetTableName());
                 Assert.Equal("DerivedView", derived.GetViewName());
             });
@@ -1474,28 +1474,28 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(6, model.GetEntityTypes().Count());
 
                 var animalType =
-                    model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal");
+                    model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Animal")!;
                 Assert.Null(animalType.GetTableName());
                 Assert.Null(animalType.GetViewName());
                 Assert.Equal("TPC", animalType.GetMappingStrategy());
 
-                var petType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet");
+                var petType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Pet")!;
                 Assert.Null(petType.GetTableName());
                 Assert.Null(petType.GetViewName());
 
-                var catType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat");
+                var catType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat")!;
                 Assert.Equal("Cat", catType.GetTableName());
                 Assert.Null(catType.GetViewName());
 
-                var dogType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog");
+                var dogType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog")!;
                 Assert.Equal("Dog", dogType.GetTableName());
                 Assert.Null(dogType.GetViewName());
 
-                var humanType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human");
+                var humanType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Human")!;
                 Assert.Equal("Human", humanType.GetTableName());
                 Assert.Null(humanType.GetViewName());
 
-                var humanPetType = model.FindEntityType("HumanPet");
+                var humanPetType = model.FindEntityType("HumanPet")!;
                 Assert.Equal("HumanPet", humanPetType.GetTableName());
                 Assert.Null(humanPetType.GetViewName());
             });
@@ -1588,12 +1588,12 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(5, model.GetAnnotations().Count());
                 Assert.Equal(2, model.GetEntityTypes().Count());
 
-                var catType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat");
+                var catType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Cat")!;
                 Assert.Equal("Cats", catType.GetTableName());
                 Assert.Null(catType.GetViewName());
                 Assert.Null(catType.FindProperty("Discriminator"));
 
-                var dogType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog");
+                var dogType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Dog")!;
                 Assert.Equal("Dogs", dogType.GetTableName());
                 Assert.Null(dogType.GetViewName());
             });
@@ -1801,37 +1801,37 @@ partial class Snapshot : ModelSnapshot
             {
                 Assert.Equal(5, model.GetEntityTypes().Count());
 
-                var orderEntityType = model.FindEntityType(typeof(Order));
+                var orderEntityType = model.FindEntityType(typeof(Order))!;
                 Assert.Equal(nameof(Order), orderEntityType.GetTableName());
 
-                var id = orderEntityType.FindProperty("Id");
+                var id = orderEntityType.FindProperty("Id")!;
                 Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(id));
                 Assert.Equal(1, id.GetIdentitySeed());
                 Assert.Equal(1, id.GetIdentityIncrement());
 
-                var overrides = id.FindOverrides(StoreObjectIdentifier.Create(orderEntityType, StoreObjectType.Table).Value)!;
+                var overrides = id.FindOverrides(StoreObjectIdentifier.Create(orderEntityType, StoreObjectType.Table)!.Value)!;
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(overrides));
                 Assert.Equal(2, overrides.GetIdentitySeed());
                 Assert.Equal(3, overrides.GetIdentityIncrement());
                 Assert.Equal("arr", overrides["fii"]);
 
-                var billingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderBillingDetails))
+                var billingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderBillingDetails))!
                     .ForeignKey;
                 var billingEntityType = billingOwnership.DeclaringEntityType;
                 Assert.Equal("SplitOrder", billingEntityType.GetTableName());
 
-                var billingAddressOwnership = billingEntityType.FindNavigation(nameof(OrderDetails.StreetAddress))
+                var billingAddressOwnership = billingEntityType.FindNavigation(nameof(OrderDetails.StreetAddress))!
                     .ForeignKey;
                 var billingAddress = billingAddressOwnership.DeclaringEntityType;
                 Assert.Equal("SplitOrder", billingAddress.GetTableName());
 
-                var shippingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderShippingDetails))
+                var shippingOwnership = orderEntityType.FindNavigation(nameof(Order.OrderShippingDetails))!
                     .ForeignKey;
                 var shippingEntityType = shippingOwnership.DeclaringEntityType;
                 Assert.Equal(nameof(Order), shippingEntityType.GetTableName());
 
-                var shippingAddressOwnership = shippingEntityType.FindNavigation(nameof(OrderDetails.StreetAddress))
+                var shippingAddressOwnership = shippingEntityType.FindNavigation(nameof(OrderDetails.StreetAddress))!
                     .ForeignKey;
                 var shippingAddress = shippingAddressOwnership.DeclaringEntityType;
                 Assert.Equal("ShippingDetails", shippingAddress.GetTableName());
@@ -1840,16 +1840,16 @@ partial class Snapshot : ModelSnapshot
 
                 Assert.Equal(4, relationalModel.Tables.Count());
 
-                var orderTable = relationalModel.FindTable(orderEntityType.GetTableName()!, orderEntityType.GetSchema());
+                var orderTable = relationalModel.FindTable(orderEntityType.GetTableName()!, orderEntityType.GetSchema())!;
                 Assert.Equal(
                     [orderEntityType, shippingEntityType],
-                    orderTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
+                    orderTable.FindColumn("Shadow")!.PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 var fragment = orderEntityType.GetMappingFragments().Single();
-                var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
+                var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema)!;
                 Assert.Equal(
                     [orderEntityType, billingEntityType],
-                    splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
+                    splitTable.FindColumn("Shadow")!.PropertyMappings.Select(m => m.TableMapping.TypeBase));
                 Assert.Equal("bar", fragment["foo"]);
 
                 var trigger = orderEntityType.GetDeclaredTriggers().Single();
@@ -1858,16 +1858,16 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("rab", trigger["oof"]);
 
                 var billingFragment = billingEntityType.GetMappingFragments().Single();
-                var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema);
+                var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema)!;
                 Assert.Equal(
                     [billingEntityType],
-                    billingTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
+                    billingTable.FindColumn("Shadow")!.PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 var shippingFragment = shippingEntityType.GetMappingFragments().Single();
-                var shippingTable = relationalModel.FindTable(shippingFragment.StoreObject.Name, shippingFragment.StoreObject.Schema);
+                var shippingTable = relationalModel.FindTable(shippingFragment.StoreObject.Name, shippingFragment.StoreObject.Schema)!;
                 Assert.Equal(
                     [shippingEntityType],
-                    shippingTable.FindColumn("ShippingShadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
+                    shippingTable.FindColumn("ShippingShadow")!.PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 Assert.Equal(["Id", "Shadow"], orderTable.Columns.Select(c => c.Name));
                 Assert.Equal(["Id", "OrderBillingDetails_StreetAddress_City", "Shadow"], splitTable.Columns.Select(c => c.Name));
@@ -1960,10 +1960,10 @@ partial class Snapshot : ModelSnapshot
 """),
             model =>
             {
-                var entityWithOneProperty = model.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = model.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal(nameof(EntityWithOneProperty), entityWithOneProperty.GetViewName());
 
-                var ownership = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                var ownership = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!
                     .ForeignKey;
                 var ownedType = ownership.DeclaringEntityType;
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType.GetViewName());
@@ -1973,10 +1973,10 @@ partial class Snapshot : ModelSnapshot
                 Assert.Empty(relationalModel.Tables);
                 Assert.Equal(2, relationalModel.Views.Count());
 
-                var mainView = relationalModel.FindView(entityWithOneProperty.GetViewName(), "DefaultSchema");
+                var mainView = relationalModel.FindView(entityWithOneProperty.GetViewName()!, "DefaultSchema")!;
 
                 var fragment = entityWithOneProperty.GetMappingFragments().Single();
-                var splitView = relationalModel.FindView(fragment.StoreObject.Name, fragment.StoreObject.Schema);
+                var splitView = relationalModel.FindView(fragment.StoreObject.Name, fragment.StoreObject.Schema)!;
 
                 Assert.Equal(["Id", "Shadow", "SomeId"], mainView.Columns.Select(c => c.Name));
                 Assert.Equal(["Id", "Shadow", "SomeOtherId"], splitView.Columns.Select(c => c.Name));
@@ -1988,7 +1988,7 @@ partial class Snapshot : ModelSnapshot
             builder =>
             {
                 builder.HasDefaultSchema("default");
-                builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null)
+                builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null!)
                     .UpdateUsingStoredProcedure("Update", "sproc", p => p.HasParameter(e => e.Id));
             },
             AddBoilerPlate(
@@ -2017,7 +2017,7 @@ partial class Snapshot : ModelSnapshot
 
     private class TestKeylessType
     {
-        public string Something { get; set; }
+        public string? Something { get; set; }
     }
 
     private static IQueryable<TestKeylessType> GetCountByYear(int id)
@@ -2031,9 +2031,9 @@ partial class Snapshot : ModelSnapshot
                 builder.HasDbFunction(
                     typeof(CSharpMigrationsGeneratorTest).GetMethod(
                         nameof(GetCountByYear),
-                        BindingFlags.NonPublic | BindingFlags.Static));
+                        BindingFlags.NonPublic | BindingFlags.Static)!);
 
-                builder.Entity<TestKeylessType>().HasNoKey().ToTable((string)null);
+                builder.Entity<TestKeylessType>().HasNoKey().ToTable((string)null!);
             },
             AddBoilerPlate(
                 GetHeading()
@@ -2263,7 +2263,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var constraint = o.FindEntityType(typeof(DerivedEntity)).GetDeclaredCheckConstraints().Single();
+                var constraint = o.FindEntityType(typeof(DerivedEntity))!.GetDeclaredCheckConstraints().Single();
                 Assert.Equal("CK_BaseEntity_AlternateId", constraint.Name);
             });
 
@@ -2473,7 +2473,7 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(long.MaxValue, o.GetIdentitySeed());
                 Assert.Equal(5, o.GetIdentityIncrement());
 
-                var property = o.FindEntityType("Building").FindProperty("Id");
+                var property = o.FindEntityType("Building")!.FindProperty("Id")!;
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(long.MaxValue, property.GetIdentitySeed());
@@ -2672,12 +2672,12 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                Assert.Equal("Discriminator", o.FindEntityType(typeof(BaseEntity))[CoreAnnotationNames.DiscriminatorProperty]);
-                Assert.Equal("BaseEntity", o.FindEntityType(typeof(BaseEntity))[CoreAnnotationNames.DiscriminatorValue]);
+                Assert.Equal("Discriminator", o.FindEntityType(typeof(BaseEntity))![CoreAnnotationNames.DiscriminatorProperty]);
+                Assert.Equal("BaseEntity", o.FindEntityType(typeof(BaseEntity))![CoreAnnotationNames.DiscriminatorValue]);
                 Assert.Equal(
                     "AnotherDerivedEntity",
-                    o.FindEntityType(typeof(AnotherDerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
-                Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
+                    o.FindEntityType(typeof(AnotherDerivedEntity))![CoreAnnotationNames.DiscriminatorValue]);
+                Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))![CoreAnnotationNames.DiscriminatorValue]);
             });
 
     [Fact]
@@ -2747,7 +2747,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var baseEntityType = o.FindEntityType(typeof(BaseEntityWithStructDiscriminator));
+                var baseEntityType = o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))!;
                 Assert.Equal(
                     "Discriminator",
                     baseEntityType[CoreAnnotationNames.DiscriminatorProperty]);
@@ -2756,17 +2756,17 @@ partial class Snapshot : ModelSnapshot
                     "Base",
                     baseEntityType[CoreAnnotationNames.DiscriminatorValue]);
 
-                var discriminatorProperty = baseEntityType.FindDiscriminatorProperty();
+                var discriminatorProperty = baseEntityType.FindDiscriminatorProperty()!;
                 Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                 Assert.Equal("Discriminator", discriminatorProperty.Name);
 
                 Assert.Equal(
                     "Another",
-                    o.FindEntityType(typeof(AnotherDerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
+                    o.FindEntityType(typeof(AnotherDerivedEntityWithStructDiscriminator))![CoreAnnotationNames.DiscriminatorValue]);
 
                 Assert.Equal(
                     "Derived",
-                    o.FindEntityType(typeof(DerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
+                    o.FindEntityType(typeof(DerivedEntityWithStructDiscriminator))![CoreAnnotationNames.DiscriminatorValue]);
             });
 
     [Fact]
@@ -2832,9 +2832,9 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                Assert.Equal(2, o.GetEntityTypes().First().FindPrimaryKey().Properties.Count);
+                Assert.Equal(2, o.GetEntityTypes().First().FindPrimaryKey()!.Properties.Count);
                 Assert.Collection(
-                    o.GetEntityTypes().First().FindPrimaryKey().Properties,
+                    o.GetEntityTypes().First().FindPrimaryKey()!.Properties,
                     t => Assert.Equal("Id", t.Name),
                     t => Assert.Equal("AlternateId", t.Name)
                 );
@@ -3032,10 +3032,10 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var foreignKey = o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().Single();
+                var foreignKey = o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().Single();
                 Assert.Equal("AlternateId", foreignKey.Properties[0].Name);
-                Assert.Equal("EntityWithTwoProperties", foreignKey.PrincipalToDependent.Name);
-                Assert.Equal("EntityWithOneProperty", foreignKey.DependentToPrincipal.Name);
+                Assert.Equal("EntityWithTwoProperties", foreignKey.PrincipalToDependent!.Name);
+                Assert.Equal("EntityWithOneProperty", foreignKey.DependentToPrincipal!.Name);
             });
 
     [Fact]
@@ -3120,7 +3120,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model =>
             {
-                var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
+                var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight")!;
                 Assert.Equal(typeof(Dictionary<string, object>), joinEntity.ClrType);
                 Assert.Collection(
                     joinEntity.GetDeclaredProperties(),
@@ -3135,7 +3135,7 @@ partial class Snapshot : ModelSnapshot
                         Assert.False(p.IsShadowProperty());
                     });
                 Assert.Collection(
-                    joinEntity.FindDeclaredPrimaryKey().Properties,
+                    joinEntity.FindDeclaredPrimaryKey()!.Properties,
                     p => Assert.Equal("LeftsId", p.Name),
                     p => Assert.Equal("RightsId", p.Name));
                 Assert.Collection(
@@ -3247,7 +3247,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model =>
             {
-                var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight");
+                var joinEntity = model.FindEntityType("ManyToManyLeftManyToManyRight")!;
                 Assert.Equal(typeof(Dictionary<string, object>), joinEntity.ClrType);
                 Assert.Equal("MyJoinTable", joinEntity.GetTableName());
                 Assert.Collection(
@@ -3265,7 +3265,7 @@ partial class Snapshot : ModelSnapshot
                         Assert.True(p.IsIndexerProperty());
                     });
                 Assert.Collection(
-                    joinEntity.FindDeclaredPrimaryKey().Properties,
+                    joinEntity.FindDeclaredPrimaryKey()!.Properties,
                     p => Assert.Equal("LeftsId", p.Name),
                     p => Assert.Equal("RightsId", p.Name));
                 Assert.Collection(
@@ -3299,7 +3299,7 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void TableName_preserved_when_generic()
     {
-        IReadOnlyModel originalModel = null;
+        IReadOnlyModel originalModel = null!;
 
         Test(
             builder =>
@@ -3324,8 +3324,8 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: true),
             model =>
             {
-                var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>));
-                var entity = model.FindEntityType(originalEntity.Name);
+                var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>))!;
+                var entity = model.FindEntityType(originalEntity.Name)!;
 
                 Assert.NotNull(entity);
                 Assert.Equal(originalEntity.GetTableName(), entity.GetTableName());
@@ -3404,15 +3404,15 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: false),
             model =>
             {
-                var entityType = model.FindEntityType(typeof(EntityWithOneProperty));
+                var entityType = model.FindEntityType(typeof(EntityWithOneProperty))!;
 
-                Assert.Equal(ValueGenerated.OnUpdateSometimes, entityType.FindProperty("AlternateId").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnUpdateSometimes, entityType.FindProperty("AlternateId")!.ValueGenerated);
             });
 
     [Fact]
     public virtual void PrimaryKey_name_preserved_when_generic()
     {
-        IReadOnlyModel originalModel = null;
+        IReadOnlyModel originalModel = null!;
 
         Test(
             builder =>
@@ -3437,12 +3437,12 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: true),
             model =>
             {
-                var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>));
-                var entity = model.FindEntityType(originalEntity.Name);
+                var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>))!;
+                var entity = model.FindEntityType(originalEntity.Name)!;
                 Assert.NotNull(entity);
 
-                var originalPrimaryKey = originalEntity.FindPrimaryKey();
-                var primaryKey = entity.FindPrimaryKey();
+                var originalPrimaryKey = originalEntity.FindPrimaryKey()!;
+                var primaryKey = entity.FindPrimaryKey()!;
 
                 Assert.Equal(originalPrimaryKey.GetName(), primaryKey.GetName());
             });
@@ -3451,7 +3451,7 @@ partial class Snapshot : ModelSnapshot
     [Fact]
     public virtual void AlternateKey_name_preserved_when_generic()
     {
-        IReadOnlyModel originalModel = null;
+        IReadOnlyModel originalModel = null!;
 
         Test(
             builder =>
@@ -3483,12 +3483,12 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: true),
             model =>
             {
-                var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericProperty<Guid>));
-                var entity = model.FindEntityType(originalEntity.Name);
+                var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericProperty<Guid>))!;
+                var entity = model.FindEntityType(originalEntity.Name)!;
                 Assert.NotNull(entity);
 
-                var originalAlternateKey = originalEntity.FindKey(originalEntity.FindProperty("Property"));
-                var alternateKey = entity.FindKey(entity.FindProperty("Property"));
+                var originalAlternateKey = originalEntity.FindKey(originalEntity.FindProperty("Property")!)!;
+                var alternateKey = entity.FindKey(entity.FindProperty("Property")!)!;
 
                 Assert.Equal(originalAlternateKey.GetName(), alternateKey.GetName());
             });
@@ -3519,7 +3519,7 @@ partial class Snapshot : ModelSnapshot
                 b.HasDiscriminator<long>("Day");
             });
 """),
-            model => Assert.Equal(typeof(long), model.GetEntityTypes().First().FindDiscriminatorProperty().ClrType));
+            model => Assert.Equal(typeof(long), model.GetEntityTypes().First().FindDiscriminatorProperty()!.ClrType));
 
     [Fact]
     public virtual void Discriminator_of_enum_to_string()
@@ -3553,7 +3553,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model =>
             {
-                var discriminatorProperty = model.GetEntityTypes().First().FindDiscriminatorProperty();
+                var discriminatorProperty = model.GetEntityTypes().First().FindDiscriminatorProperty()!;
                 Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                 Assert.False(discriminatorProperty.IsNullable);
             });
@@ -3602,7 +3602,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model =>
             {
-                var discriminatorProperty = model.FindEntityType(typeof(BaseType))!.FindDiscriminatorProperty();
+                var discriminatorProperty = model.FindEntityType(typeof(BaseType))!.FindDiscriminatorProperty()!;
                 Assert.Equal(typeof(int), discriminatorProperty.ClrType);
                 Assert.Equal("Discriminator", discriminatorProperty.Name);
             });
@@ -3659,7 +3659,7 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var temporalEntity = o.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty")!;
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
                 Assert.Equal(7, annotations.Count);
@@ -3721,7 +3721,7 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var temporalEntity = o.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty")!;
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
                 Assert.Equal(7, annotations.Count);
@@ -3788,7 +3788,7 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var temporalEntity = o.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithStringProperty")!;
 
                 Assert.True(temporalEntity.IsTemporal());
                 Assert.False(temporalEntity.GetProperty("Start").IsHidden());
@@ -3962,18 +3962,18 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
                 Assert.Equal([1], entityWithOneProperty.GetSeedData().Single().Values);
 
-                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!
                     .ForeignKey;
                 Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownership1.Properties[0].Name);
-                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal!.Name);
                 Assert.True(ownership1.IsRequired);
                 Assert.Equal("FK_Custom", ownership1.GetConstraintName());
                 var ownedType1 = ownership1.DeclaringEntityType;
-                Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey()!.Properties[0].Name);
                 Assert.Equal("PK_Custom", ownedType1.GetKeys().Single().GetName());
                 Assert.Equal(2, ownedType1.GetIndexes().Count());
                 var owned1index1 = ownedType1.GetIndexes().First();
@@ -3990,18 +3990,18 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.False(ownedType1.IsTableExcludedFromMigrations());
 
-                var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
+                var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey))!;
                 Assert.Same(
                     entityWithStringKey,
-                    ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey)).TargetEntityType);
+                    ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType);
                 Assert.Equal(nameof(EntityWithStringKey), entityWithStringKey.GetTableName());
 
-                var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties)).ForeignKey;
+                var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties))!.ForeignKey;
                 Assert.Equal("EntityWithStringKeyId", ownership2.Properties[0].Name);
                 Assert.Null(ownership2.DependentToPrincipal);
                 Assert.True(ownership2.IsRequired);
                 var ownedType2 = ownership2.DeclaringEntityType;
-                Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey().Properties[0].Name);
+                Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey()!.Properties[0].Name);
                 Assert.Single(ownedType2.GetKeys());
                 Assert.Equal(2, ownedType2.GetIndexes().Count());
                 var owned2index1 = ownedType2.GetIndexes().First();
@@ -4196,18 +4196,18 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
                 Assert.Equal([1], entityWithOneProperty.GetSeedData().Single().Values);
 
-                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!
                     .ForeignKey;
                 Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownership1.Properties[0].Name);
-                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal!.Name);
                 Assert.True(ownership1.IsRequired);
                 Assert.Equal("FK_Custom", ownership1.GetConstraintName());
                 var ownedType1 = ownership1.DeclaringEntityType;
-                Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey().Properties[0].Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.AlternateId), ownedType1.FindPrimaryKey()!.Properties[0].Name);
                 Assert.Equal("PK_Custom", ownedType1.GetKeys().Single().GetName());
                 Assert.Equal(2, ownedType1.GetIndexes().Count());
                 var owned1index1 = ownedType1.GetIndexes().First();
@@ -4222,19 +4222,19 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                 Assert.True(ownedType1.IsTableExcludedFromMigrations());
 
-                var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey));
+                var entityWithStringKey = o.FindEntityType(typeof(EntityWithStringKey))!;
                 Assert.Same(
                     entityWithStringKey,
-                    ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey)).TargetEntityType);
+                    ownedType1.FindNavigation(nameof(EntityWithTwoProperties.EntityWithStringKey))!.TargetEntityType);
                 Assert.Equal(nameof(EntityWithStringKey), entityWithStringKey.GetTableName());
                 Assert.True(entityWithStringKey.IsTableExcludedFromMigrations());
 
-                var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties)).ForeignKey;
+                var ownership2 = entityWithStringKey.FindNavigation(nameof(EntityWithStringKey.Properties))!.ForeignKey;
                 Assert.Equal("EntityWithStringKeyId", ownership2.Properties[0].Name);
                 Assert.Null(ownership2.DependentToPrincipal);
                 Assert.True(ownership2.IsRequired);
                 var ownedType2 = ownership2.DeclaringEntityType;
-                Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey().Properties[0].Name);
+                Assert.Equal(nameof(EntityWithStringProperty.Id), ownedType2.FindPrimaryKey()!.Properties[0].Name);
                 Assert.Single(ownedType2.GetKeys());
                 Assert.Equal(2, ownedType2.GetIndexes().Count());
                 var owned2index1 = ownedType2.GetIndexes().First();
@@ -4382,27 +4382,27 @@ partial class Snapshot : ModelSnapshot
             {
                 Assert.Equal(7, o.GetEntityTypes().Count());
 
-                var order = (IRuntimeEntityType)o.FindEntityType(typeof(Order).FullName);
+                var order = (IRuntimeEntityType)o.FindEntityType(typeof(Order).FullName!)!;
                 Assert.Equal(1, order.PropertyCount);
 
-                var orderInfo = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderInfo)).TargetEntityType;
+                var orderInfo = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderInfo))!.TargetEntityType;
                 Assert.Equal(1, orderInfo.PropertyCount);
 
-                var orderInfoAddress = (IRuntimeEntityType)orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).TargetEntityType;
+                var orderInfoAddress = (IRuntimeEntityType)orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress))!.TargetEntityType;
                 Assert.Equal(2, orderInfoAddress.PropertyCount);
 
-                var orderBillingDetails = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderBillingDetails)).TargetEntityType;
+                var orderBillingDetails = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderBillingDetails))!.TargetEntityType;
                 Assert.Equal(1, orderBillingDetails.PropertyCount);
 
                 var orderBillingDetailsAddress =
-                    (IRuntimeEntityType)orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
+                    (IRuntimeEntityType)orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress))!.TargetEntityType;
                 Assert.Equal(2, orderBillingDetailsAddress.PropertyCount);
 
-                var orderShippingDetails = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderShippingDetails)).TargetEntityType;
+                var orderShippingDetails = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderShippingDetails))!.TargetEntityType;
                 Assert.Equal(1, orderShippingDetails.PropertyCount);
 
                 var orderShippingDetailsAddress =
-                    (IRuntimeEntityType)orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
+                    (IRuntimeEntityType)orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress))!.TargetEntityType;
                 Assert.Equal(2, orderShippingDetailsAddress.PropertyCount);
             });
 
@@ -4483,9 +4483,9 @@ partial class Snapshot : ModelSnapshot
             {
                 Assert.Equal(2, model.GetEntityTypes().Count());
                 var testOwner = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner")!;
                 var testOwnee = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", testOwner);
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", testOwner)!;
                 Assert.Equal("OwnedView", testOwnee.GetViewName());
             });
 
@@ -4571,9 +4571,9 @@ partial class Snapshot : ModelSnapshot
             {
                 Assert.Equal(2, model.GetEntityTypes().Count());
                 var testOwner = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner");
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwner")!;
                 var testOwnee = model.FindEntityType(
-                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", testOwner);
+                    "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+TestOwnee", "OwnedEntities", testOwner)!;
                 Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
             });
 
@@ -4681,18 +4681,18 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: false),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
 
-                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!
                     .ForeignKey;
                 Assert.Equal("EntityWithOnePropertyId", ownership1.Properties[0].Name);
 
-                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal.Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithOneProperty), ownership1.DependentToPrincipal!.Name);
                 Assert.True(ownership1.IsRequired);
                 Assert.Equal("FK_EntityWithOneProperty_EntityWithOneProperty_EntityWithOnePropertyId", ownership1.GetConstraintName());
                 var ownedType1 = ownership1.DeclaringEntityType;
-                Assert.Equal("EntityWithOnePropertyId", ownedType1.FindPrimaryKey().Properties[0].Name);
+                Assert.Equal("EntityWithOnePropertyId", ownedType1.FindPrimaryKey()!.Properties[0].Name);
 
                 var ownedProperties1 = ownedType1.GetProperties().ToList();
                 Assert.Equal("EntityWithOnePropertyId", ownedProperties1[0].Name);
@@ -4703,29 +4703,29 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal("EntityWithTwoProperties", ownedType1.GetContainerColumnName());
                 Assert.Equal("nvarchar(max)", ownedType1.GetContainerColumnType());
 
-                var ownership2 = ownedType1.FindNavigation(nameof(EntityWithStringKey)).ForeignKey;
+                var ownership2 = ownedType1.FindNavigation(nameof(EntityWithStringKey))!.ForeignKey;
                 Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownership2.Properties[0].Name);
-                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithStringKey), ownership2.PrincipalToDependent.Name);
+                Assert.Equal(nameof(EntityWithTwoProperties.EntityWithStringKey), ownership2.PrincipalToDependent!.Name);
                 Assert.True(ownership2.IsRequired);
 
                 var ownedType2 = ownership2.DeclaringEntityType;
                 Assert.Equal(nameof(EntityWithStringKey), ownedType2.DisplayName());
-                Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownedType2.FindPrimaryKey().Properties[0].Name);
+                Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownedType2.FindPrimaryKey()!.Properties[0].Name);
 
                 var ownedProperties2 = ownedType2.GetProperties().ToList();
                 Assert.Equal("EntityWithTwoPropertiesEntityWithOnePropertyId", ownedProperties2[0].Name);
 
-                var navigation3 = ownedType2.FindNavigation(nameof(EntityWithStringKey.Properties));
+                var navigation3 = ownedType2.FindNavigation(nameof(EntityWithStringKey.Properties))!;
                 Assert.Equal("JsonProps", navigation3.TargetEntityType.GetJsonPropertyName());
                 var ownership3 = navigation3.ForeignKey;
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", ownership3.Properties[0].Name);
-                Assert.Equal(nameof(EntityWithStringKey.Properties), ownership3.PrincipalToDependent.Name);
+                Assert.Equal(nameof(EntityWithStringKey.Properties), ownership3.PrincipalToDependent!.Name);
                 Assert.True(ownership3.IsRequired);
                 Assert.False(ownership3.IsUnique);
 
                 var ownedType3 = ownership3.DeclaringEntityType;
                 Assert.Equal(nameof(EntityWithStringProperty), ownedType3.DisplayName());
-                var pkProperties3 = ownedType3.FindPrimaryKey().Properties;
+                var pkProperties3 = ownedType3.FindPrimaryKey()!.Properties;
                 Assert.Equal("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", pkProperties3[0].Name);
                 Assert.Equal("__synthesizedOrdinal", pkProperties3[1].Name);
 
@@ -4799,10 +4799,10 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: false),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
 
-                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))
+                var ownership1 = entityWithOneProperty.FindNavigation(nameof(EntityWithOneProperty.EntityWithTwoProperties))!
                     .ForeignKey;
                 var ownedType1 = ownership1.DeclaringEntityType;
                 Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
@@ -4813,24 +4813,24 @@ partial class Snapshot : ModelSnapshot
     private class Order
     {
         public int Id { get; set; }
-        public OrderDetails OrderBillingDetails { get; set; }
-        public OrderDetails OrderShippingDetails { get; set; }
-        public OrderInfo OrderInfo { get; set; }
+        public OrderDetails? OrderBillingDetails { get; set; }
+        public OrderDetails? OrderShippingDetails { get; set; }
+        public OrderInfo? OrderInfo { get; set; }
     }
 
     private class OrderDetails
     {
-        public StreetAddress StreetAddress { get; set; }
+        public StreetAddress? StreetAddress { get; set; }
     }
 
     private class OrderInfo
     {
-        public StreetAddress StreetAddress { get; set; }
+        public StreetAddress? StreetAddress { get; set; }
     }
 
     private class StreetAddress
     {
-        public string City { get; set; }
+        public string? City { get; set; }
     }
 
     #endregion
@@ -4865,7 +4865,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithOneProperty", "DefaultSchema");
             });
 """),
-            o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"])
+            o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")!["AnnotationName"])
         );
 
     [Fact]
@@ -4892,7 +4892,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithOneProperty", "DefaultSchema");
             });
 """),
-            o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactory])
+            o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")![CoreAnnotationNames.ValueGeneratorFactory])
         );
 
     [Fact]
@@ -4919,7 +4919,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithStringProperty", "DefaultSchema");
             });
 """),
-            o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsNullable));
+            o => Assert.False(o.GetEntityTypes().First().FindProperty("Name")!.IsNullable));
 
     [Fact]
     public virtual void Property_ValueGenerated_value_is_stored_in_snapshot()
@@ -4950,7 +4950,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """, usingSystem: true),
-            o => Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated));
+            o => Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId")!.ValueGenerated));
 
     [Fact]
     public virtual void Property_ValueGenerated_non_identity()
@@ -5015,7 +5015,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithStringProperty", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
+            o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name")!.GetMaxLength()));
 
     [Fact]
     public virtual void Property_maximum_maxLength_is_stored_in_snapshot()
@@ -5041,7 +5041,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithStringProperty", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(-1, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
+            o => Assert.Equal(-1, o.GetEntityTypes().First().FindProperty("Name")!.GetMaxLength()));
 
     [Fact]
     public virtual void Property_unicodeness_is_stored_in_snapshot()
@@ -5067,7 +5067,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithStringProperty", "DefaultSchema");
             });
 """),
-            o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()));
+            o => Assert.False(o.GetEntityTypes().First().FindProperty("Name")!.IsUnicode()));
 
     [Fact]
     public virtual void Property_fixedlengthness_is_stored_in_snapshot()
@@ -5094,7 +5094,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithStringProperty", "DefaultSchema");
             });
 """),
-            o => Assert.True(o.GetEntityTypes().First().FindProperty("Name").IsFixedLength()));
+            o => Assert.True(o.GetEntityTypes().First().FindProperty("Name")!.IsFixedLength()));
 
     [Fact]
     public virtual void Property_precision_is_stored_in_snapshot()
@@ -5125,7 +5125,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
+                var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price))!;
                 Assert.Equal(7, property.GetPrecision());
                 Assert.Null(property.GetScale());
             });
@@ -5159,7 +5159,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
+                var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price))!;
                 Assert.Equal(7, property.GetPrecision());
                 Assert.Equal(3, property.GetScale());
             });
@@ -5196,7 +5196,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.GetEntityTypes().First().FindProperty("Name");
+                var property = o.GetEntityTypes().First().FindProperty("Name")!;
                 Assert.Equal(100, property.GetMaxLength());
                 Assert.False(property.IsUnicode());
                 Assert.Equal("AnnotationValue", property["AnnotationName"]);
@@ -5230,7 +5230,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken));
+            o => Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId")!.IsConcurrencyToken));
 
     [Fact]
     public virtual void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -5260,7 +5260,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]));
+            o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:ColumnName"]));
 
     [Fact]
     public virtual void Property_column_name_is_stored_in_snapshot_when_DefaultColumnName_uses_clr_type()
@@ -5340,7 +5340,7 @@ partial class Snapshot : ModelSnapshot
 """),
             model =>
             {
-                var entityType = model.FindEntityType(typeof(BarA).FullName);
+                var entityType = model.FindEntityType(typeof(BarA).FullName!)!;
                 Assert.NotNull(entityType);
 
                 var property = entityType.FindProperty("FooExtensionId");
@@ -5554,7 +5554,7 @@ partial class Snapshot : ModelSnapshot
                             "Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+DuplicateDerivedEntity", t.Name);
                         Assert.Equal(
                             "DuplicateDerivedEntity_Name",
-                            t.FindProperty(nameof(DuplicateDerivedEntity.Name))
+                            t.FindProperty(nameof(DuplicateDerivedEntity.Name))!
                                 .GetColumnName(StoreObjectIdentifier.Table(nameof(BaseEntity), "DefaultSchema")));
                     }
                 );
@@ -5587,7 +5587,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]));
+            o => Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:ColumnType"]));
 
     [Fact]
     public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -5618,7 +5618,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
+            o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:DefaultValue"]));
 
     [Fact]
     public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
@@ -5650,7 +5650,7 @@ partial class Snapshot : ModelSnapshot
             });
 """,
                 usingSystem: true),
-            o => Assert.Equal(DBNull.Value, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
+            o => Assert.Equal(DBNull.Value, o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:DefaultValue"]));
 
     [Fact]
     public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
@@ -5681,7 +5681,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
+            o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:DefaultValueSql"]));
 
     [Fact]
     public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -5712,7 +5712,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
+            o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:DefaultValueSql"]));
 
     [Fact]
     public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -5743,7 +5743,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
+            o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:ComputedColumnSql"]));
 
     [Fact]
     public virtual void Property_computed_column_sql_stored_annotation_is_stored_in_snapshot_as_fluent_api()
@@ -5776,8 +5776,8 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]);
-                Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:IsStored"]);
+                Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:ComputedColumnSql"]);
+                Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:IsStored"]);
             });
 
     [Fact]
@@ -5809,7 +5809,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
+            o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")!["Relational:ComputedColumnSql"]));
 
     [Fact]
     public virtual void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
@@ -5836,7 +5836,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithEnumType", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
+            o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")!["Relational:DefaultValue"]));
 
     [Fact]
     public virtual void Property_enum_type_is_stored_in_snapshot_with_custom_conversion_and_seed_data()
@@ -5880,7 +5880,7 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var property = o.GetEntityTypes().First().FindProperty("Day");
-                Assert.Equal(typeof(string), property.ClrType);
+                Assert.Equal(typeof(string), property!.ClrType);
                 Assert.Equal(nameof(Days.Wed), property["Relational:DefaultValue"]);
                 Assert.False(property.IsNullable);
             });
@@ -5909,7 +5909,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithNullableEnumType", "DefaultSchema");
             });
 """),
-            o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
+            o => Assert.True(o.GetEntityTypes().First().FindProperty("Day")!.IsNullable));
 
     [Fact]
     public virtual void Property_of_enum_to_nullable()
@@ -5935,7 +5935,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithEnumType", "DefaultSchema");
             });
 """),
-            o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
+            o => Assert.False(o.GetEntityTypes().First().FindProperty("Day")!.IsNullable));
 
     [Fact]
     public virtual void Property_of_nullable_enum_to_string()
@@ -5960,7 +5960,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithNullableEnumType", "DefaultSchema");
             });
 """),
-            o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
+            o => Assert.True(o.GetEntityTypes().First().FindProperty("Day")!.IsNullable));
 
     [Fact]
     public virtual void Property_multiple_annotations_are_stored_in_snapshot()
@@ -5995,7 +5995,7 @@ partial class Snapshot : ModelSnapshot
             o =>
             {
                 var property = o.GetEntityTypes().First().FindProperty("AlternateId");
-                Assert.Equal(3, property.GetAnnotations().Count());
+                Assert.Equal(3, property!.GetAnnotations().Count());
                 Assert.Equal("AnnotationValue", property["AnnotationName"]);
                 Assert.Equal("CName", property["Relational:ColumnName"]);
                 Assert.Equal("int", property["Relational:ColumnType"]);
@@ -6040,7 +6040,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.FindEntityType("Building").FindProperty("Id");
+                var property = o.FindEntityType("Building")!.FindProperty("Id")!;
                 Assert.Equal("int", property.GetColumnType());
             });
 
@@ -6074,7 +6074,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.FindEntityType("Building").FindProperty("Id");
+                var property = o.FindEntityType("Building")!.FindProperty("Id")!;
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(1, property.GetIdentitySeed());
@@ -6111,7 +6111,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.FindEntityType("Building").FindProperty("Id");
+                var property = o.FindEntityType("Building")!.FindProperty("Id")!;
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(5, property.GetIdentitySeed());
@@ -6148,7 +6148,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.FindEntityType("Building").FindProperty("Id");
+                var property = o.FindEntityType("Building")!.FindProperty("Id")!;
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(1, property.GetIdentitySeed());
@@ -6185,7 +6185,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.FindEntityType("Building").FindProperty("Id");
+                var property = o.FindEntityType("Building")!.FindProperty("Id")!;
                 Assert.Equal(
                     SqlServerValueGenerationStrategy.IdentityColumn, SqlServerPropertyExtensions.GetValueGenerationStrategy(property));
                 Assert.Equal(5, property.GetIdentitySeed());
@@ -6220,7 +6220,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId").GetColumnOrder()));
+            o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")!.GetColumnOrder()));
 
     [Fact]
     public virtual void SQLServer_model_legacy_identity_seed_int_annotation()
@@ -6264,7 +6264,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithTwoProperties", "DefaultSchema");
             });
 """),
-            o => Assert.Equal(8L, o.GetEntityTypes().First().FindProperty("Id").GetIdentitySeed()));
+            o => Assert.Equal(8L, o.GetEntityTypes().First().FindProperty("Id")!.GetIdentitySeed()));
 
     #endregion
 
@@ -6329,7 +6329,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var property = o.GetEntityTypes().First().FindProperty("List");
+                var property = o.GetEntityTypes().First().FindProperty("List")!;
                 Assert.Equal("AnnotationValue", property["AnnotationName"]);
             });
 
@@ -6426,10 +6426,10 @@ partial class Snapshot : ModelSnapshot
 """, usingCollections: true),
             (_, o) =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal(nameof(EntityWithOneProperty), entityWithOneProperty.GetTableName());
 
-                var complexProperty = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var complexProperty = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties))!;
                 Assert.False(complexProperty.IsCollection);
                 Assert.False(complexProperty.IsNullable);
                 var complexType = complexProperty.ComplexType;
@@ -6438,12 +6438,12 @@ partial class Snapshot : ModelSnapshot
                     complexType.Name);
                 Assert.Equal("EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", complexType.DisplayName());
                 Assert.Equal(nameof(EntityWithOneProperty), complexType.GetTableName());
-                var alternateIdProperty = complexType.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
+                var alternateIdProperty = complexType.FindProperty(nameof(EntityWithTwoProperties.AlternateId))!;
                 Assert.Equal(1, alternateIdProperty.GetColumnOrder());
                 Assert.Equal(1, complexProperty["PropertyAnnotation"]);
                 Assert.Equal(2, complexProperty.ComplexType["TypeAnnotation"]);
 
-                var coordinateComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates));
+                var coordinateComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates))!;
                 Assert.False(coordinateComplexProperty.IsCollection);
                 Assert.False(coordinateComplexProperty.IsNullable);
                 var coordinateComplexType = coordinateComplexProperty.ComplexType;
@@ -6453,12 +6453,12 @@ partial class Snapshot : ModelSnapshot
                 Assert.Equal(
                     "EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.Coordinates#Coordinates",
                     coordinateComplexType.DisplayName());
-                var coordinateXProperty = coordinateComplexType.FindProperty(nameof(Coordinates.Latitude));
+                var coordinateXProperty = coordinateComplexType.FindProperty(nameof(Coordinates.Latitude))!;
                 Assert.Equal("Coordinate_X", coordinateXProperty.GetColumnName());
-                var coordinateYProperty = coordinateComplexType.FindProperty(nameof(Coordinates.Longitude));
+                var coordinateYProperty = coordinateComplexType.FindProperty(nameof(Coordinates.Longitude))!;
                 Assert.Equal("Coordinate_Y", coordinateYProperty.GetColumnName());
 
-                var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey))!;
                 Assert.False(nestedComplexProperty.IsCollection);
                 Assert.True(nestedComplexProperty.IsNullable);
                 var nestedComplexType = nestedComplexProperty.ComplexType;
@@ -6469,7 +6469,7 @@ partial class Snapshot : ModelSnapshot
                     "EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey",
                     nestedComplexType.DisplayName());
                 Assert.Equal(nameof(EntityWithOneProperty), nestedComplexType.GetTableName());
-                var nestedIdProperty = nestedComplexType.FindProperty(nameof(EntityWithStringKey.Id));
+                var nestedIdProperty = nestedComplexType.FindProperty(nameof(EntityWithStringKey.Id))!;
                 Assert.False(nestedIdProperty.IsNullable);
             },
             validate: true);
@@ -6577,37 +6577,37 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: false, usingCollections: true),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
 
-                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties))!;
                 Assert.False(complexProperty1.IsCollection);
                 Assert.True(complexProperty1.IsNullable);
                 var complexType1 = complexProperty1.ComplexType;
                 Assert.Equal("TwoProps", complexType1.GetContainerColumnName());
                 Assert.Equal("nvarchar(max)", complexType1.GetContainerColumnType());
 
-                var alternateIdProperty = complexType1.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
+                var alternateIdProperty = complexType1.FindProperty(nameof(EntityWithTwoProperties.AlternateId))!;
                 Assert.Equal("NotKey", alternateIdProperty.GetJsonPropertyName());
 
-                var coordinatesComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates));
+                var coordinatesComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates))!;
                 Assert.False(coordinatesComplexProperty.IsCollection);
                 Assert.False(coordinatesComplexProperty.IsNullable);
                 var coordinatesComplexType = coordinatesComplexProperty.ComplexType;
-                var latitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Latitude));
+                var latitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Latitude))!;
                 Assert.Equal("Lat", latitudeProperty.GetJsonPropertyName());
-                var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude));
+                var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude))!;
                 Assert.Equal("Lon", longitudeProperty.GetJsonPropertyName());
 
                 var entityWithStringKeyComplexProperty =
-                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey))!;
                 Assert.False(entityWithStringKeyComplexProperty.IsCollection);
                 Assert.True(entityWithStringKeyComplexProperty.IsNullable);
                 var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
                 Assert.Equal("Terminator", entityWithStringKeyComplexType.FindDiscriminatorProperty()!.GetJsonPropertyName());
 
                 var propertiesComplexCollection =
-                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
                 Assert.True(propertiesComplexCollection.IsCollection);
                 Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
                 Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
@@ -6692,36 +6692,36 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: false, usingCollections: true),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
                 Assert.Equal("PK_Custom", entityWithOneProperty.GetKeys().Single().GetName());
 
-                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties))!;
                 Assert.False(complexProperty1.IsCollection);
                 Assert.True(complexProperty1.IsNullable);
                 var complexType1 = complexProperty1.ComplexType;
                 Assert.Equal("TwoProps", complexType1.GetContainerColumnName());
                 Assert.Equal("json", complexType1.GetContainerColumnType());
 
-                var alternateIdProperty = complexType1.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
+                var alternateIdProperty = complexType1.FindProperty(nameof(EntityWithTwoProperties.AlternateId))!;
                 Assert.Equal("NotKey", alternateIdProperty.GetJsonPropertyName());
 
-                var coordinatesComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates));
+                var coordinatesComplexProperty = complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.Coordinates))!;
                 Assert.False(coordinatesComplexProperty.IsCollection);
                 Assert.False(coordinatesComplexProperty.IsNullable);
                 var coordinatesComplexType = coordinatesComplexProperty.ComplexType;
-                var latitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Latitude));
+                var latitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Latitude))!;
                 Assert.Equal("Lat", latitudeProperty.GetJsonPropertyName());
-                var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude));
+                var longitudeProperty = coordinatesComplexType.FindProperty(nameof(Coordinates.Longitude))!;
                 Assert.Equal("Lon", longitudeProperty.GetJsonPropertyName());
 
                 var entityWithStringKeyComplexProperty =
-                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey))!;
                 Assert.False(entityWithStringKeyComplexProperty.IsCollection);
                 Assert.True(entityWithStringKeyComplexProperty.IsNullable);
                 var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
 
                 var propertiesComplexCollection =
-                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
                 Assert.True(propertiesComplexCollection.IsCollection);
                 Assert.Equal("JsonProps", propertiesComplexCollection.GetJsonPropertyName());
                 Assert.Equal(typeof(List<Dictionary<string, object>>), propertiesComplexCollection.ClrType);
@@ -6800,20 +6800,20 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: false, usingCollections: true),
             o =>
             {
-                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty));
-                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
+                var entityWithOneProperty = o.FindEntityType(typeof(EntityWithOneProperty))!;
+                var complexProperty1 = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties))!;
                 var complexType1 = complexProperty1.ComplexType;
                 var entityWithStringKeyComplexProperty =
-                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                    complexType1.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey))!;
                 var entityWithStringKeyComplexType = entityWithStringKeyComplexProperty.ComplexType;
 
                 var propertiesComplexCollection =
-                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties));
+                    entityWithStringKeyComplexType.FindComplexProperty(nameof(EntityWithStringKey.Properties))!;
                 Assert.True(propertiesComplexCollection.IsCollection);
 
                 // MaxLength is NOT in the snapshot, so it won't be set on the model created from snapshot
                 // This verifies that the snapshot doesn't contain HasMaxLength which would cause a compile error
-                var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name");
+                var nameProperty = propertiesComplexCollection.ComplexType.FindProperty("Name")!;
                 Assert.Null(nameProperty.GetMaxLength());
             });
 
@@ -7376,7 +7376,7 @@ partial class Snapshot : ModelSnapshot
                 b.ToTable("EntityWithStringProperty", "DefaultSchema");
             });
 """),
-            model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
+            model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName()!.Length));
 
     [Fact]
     public virtual void IndexAttribute_causes_column_to_have_key_or_index_column_length()
@@ -7547,7 +7547,7 @@ partial class Snapshot : ModelSnapshot
             model =>
             {
                 var index = model.GetEntityTypes().First().GetIndexes().First();
-                Assert.Equal("Name", Assert.Single(index.GetIncludeProperties()));
+                Assert.Equal("Name", Assert.Single(index.GetIncludeProperties()!));
             });
 
     [Fact]
@@ -7652,21 +7652,21 @@ partial class Snapshot : ModelSnapshot
     private class SnapshotBlog
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public List<SnapshotPost> Posts { get; set; } = [];
-        public SnapshotAddress Owner { get; set; }
+        public string? Title { get; set; }
+        public List<SnapshotPost>? Posts { get; set; } = [];
+        public SnapshotAddress? Owner { get; set; }
     }
 
     private class SnapshotPost
     {
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public int Rating { get; set; }
     }
 
     private class SnapshotAddress
     {
-        public string City { get; set; }
-        public string Country { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
     }
 
     [Fact]
@@ -7689,13 +7689,13 @@ partial class Snapshot : ModelSnapshot
                         cb.Property(p => p.Rating);
                         cb.ToJson();
                     });
-                eb.HasIndex(e => e.Owner.City);
+                eb.HasIndex(e => e.Owner!.City);
             }),
             """b.HasIndex("Owner.City")""",
             model => Assert.Equal(
                 "City",
                 Assert.Single(
-                    model.FindEntityType(typeof(SnapshotBlog)).GetIndexes(),
+                    model.FindEntityType(typeof(SnapshotBlog))!.GetIndexes(),
                     i => i.CollectionIndices is null).Properties.Single().Name),
             fullSnapshot: false);
 
@@ -7719,14 +7719,14 @@ partial class Snapshot : ModelSnapshot
                         cb.Property(p => p.Rating);
                         cb.ToJson();
                     });
-                eb.HasIndex(e => e.Posts.Select(p => p.Title));
+                eb.HasIndex(e => e.Posts!.Select(p => p.Title));
             }),
             """b.HasIndex("Posts[].Title")""",
             model =>
             {
-                var index = model.FindEntityType(typeof(SnapshotBlog)).GetIndexes().Single();
+                var index = model.FindEntityType(typeof(SnapshotBlog))!.GetIndexes().Single();
                 Assert.Equal("Title", index.Properties.Single().Name);
-                Assert.Equal(new int?[] { null }, Assert.Single(index.CollectionIndices));
+                Assert.Equal(new int?[] { null }, Assert.Single(index.CollectionIndices!));
             },
             fullSnapshot: false);
 
@@ -7750,14 +7750,14 @@ partial class Snapshot : ModelSnapshot
                         cb.Property(p => p.Rating);
                         cb.ToJson();
                     });
-                eb.HasIndex(e => e.Posts[0].Rating);
+                eb.HasIndex(e => e.Posts![0].Rating);
             }),
             """b.HasIndex("Posts[0].Rating")""",
             model =>
             {
-                var index = model.FindEntityType(typeof(SnapshotBlog)).GetIndexes().Single();
+                var index = model.FindEntityType(typeof(SnapshotBlog))!.GetIndexes().Single();
                 Assert.Equal("Rating", index.Properties.Single().Name);
-                Assert.Equal(new int?[] { 0 }, Assert.Single(index.CollectionIndices));
+                Assert.Equal(new int?[] { 0 }, Assert.Single(index.CollectionIndices!));
             },
             fullSnapshot: false);
 
@@ -7781,7 +7781,7 @@ partial class Snapshot : ModelSnapshot
                         cb.Property(p => p.Rating);
                         cb.ToJson();
                     });
-                eb.HasIndex(e => e.Owner.City);
+                eb.HasIndex(e => e.Owner!.City);
             }),
             AddBoilerPlate(
                 GetHeading()
@@ -7828,7 +7828,7 @@ partial class Snapshot : ModelSnapshot
 """, usingCollections: true),
             model =>
             {
-                var index = Assert.Single(model.FindEntityType(typeof(SnapshotBlog)).GetIndexes());
+                var index = Assert.Single(model.FindEntityType(typeof(SnapshotBlog))!.GetIndexes());
                 Assert.Equal("City", index.Properties.Single().Name);
                 Assert.Null(index.CollectionIndices);
             });
@@ -7853,7 +7853,7 @@ partial class Snapshot : ModelSnapshot
                         cb.Property(p => p.Rating);
                         cb.ToJson();
                     });
-                eb.HasIndex(e => e.Posts.Select(p => p.Title));
+                eb.HasIndex(e => e.Posts!.Select(p => p.Title));
             }),
             AddBoilerPlate(
                 GetHeading()
@@ -7900,7 +7900,7 @@ partial class Snapshot : ModelSnapshot
 """, usingCollections: true),
             model =>
             {
-                var index = Assert.Single(model.FindEntityType(typeof(SnapshotBlog)).GetIndexes());
+                var index = Assert.Single(model.FindEntityType(typeof(SnapshotBlog))!.GetIndexes());
                 Assert.Equal("Title", index.Properties.Single().Name);
                 Assert.Equal(new int?[] { null }, Assert.Single(index.CollectionIndices!));
             });
@@ -7925,7 +7925,7 @@ partial class Snapshot : ModelSnapshot
                         cb.Property(p => p.Rating);
                         cb.ToJson();
                     });
-                eb.HasIndex(e => e.Posts[0].Rating);
+                eb.HasIndex(e => e.Posts![0].Rating);
             }),
             AddBoilerPlate(
                 GetHeading()
@@ -7972,7 +7972,7 @@ partial class Snapshot : ModelSnapshot
 """, usingCollections: true),
             model =>
             {
-                var index = Assert.Single(model.FindEntityType(typeof(SnapshotBlog)).GetIndexes());
+                var index = Assert.Single(model.FindEntityType(typeof(SnapshotBlog))!.GetIndexes());
                 Assert.Equal("Rating", index.Properties.Single().Name);
                 Assert.Equal(new int?[] { 0 }, Assert.Single(index.CollectionIndices!));
             });
@@ -8042,7 +8042,7 @@ partial class Snapshot : ModelSnapshot
             });
 """),
             o => Assert.Equal(
-                "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]));
+                "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First()["AnnotationName"]));
 
     [Fact]
     public virtual void ForeignKey_isRequired_is_stored_in_snapshot()
@@ -8098,7 +8098,7 @@ partial class Snapshot : ModelSnapshot
                     .IsRequired();
             });
 """),
-            o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable));
+            o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty))!.FindProperty("Name")!.IsNullable));
 
     [Fact]
     public virtual void ForeignKey_isUnique_is_stored_in_snapshot()
@@ -8150,7 +8150,7 @@ partial class Snapshot : ModelSnapshot
                 b.Navigation("Properties");
             });
 """),
-            o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
+            o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty))!.GetForeignKeys().First().IsUnique));
 
     [Fact]
     public virtual void ForeignKey_with_non_primary_principal_is_stored_in_snapshot()
@@ -8211,7 +8211,7 @@ partial class Snapshot : ModelSnapshot
                 b.Navigation("Properties");
             });
 """),
-            o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
+            o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty))!.GetForeignKeys().First().IsUnique));
 
     [Fact]
     public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot()
@@ -8265,7 +8265,7 @@ partial class Snapshot : ModelSnapshot
             });
 """),
             o => Assert.Equal(
-                DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
+                DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty))!.GetForeignKeys().First().DeleteBehavior));
 
     [Fact]
     public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
@@ -8320,12 +8320,12 @@ partial class Snapshot : ModelSnapshot
             });
 """),
             o => Assert.Equal(
-                DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
+                DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty))!.GetForeignKeys().First().DeleteBehavior));
 
     [Fact]
     public virtual void ForeignKey_name_preserved_when_generic()
     {
-        IReadOnlyModel originalModel = null;
+        IReadOnlyModel originalModel = null!;
 
         Test(
             builder =>
@@ -8378,27 +8378,27 @@ partial class Snapshot : ModelSnapshot
 """, usingSystem: true),
             model =>
             {
-                var originalParent = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>));
-                var parent = model.FindEntityType(originalParent.Name);
+                var originalParent = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>))!;
+                var parent = model.FindEntityType(originalParent.Name)!;
                 Assert.NotNull(parent);
 
-                var originalChild = originalModel.FindEntityType(typeof(EntityWithGenericProperty<Guid>));
-                var child = model.FindEntityType(originalChild.Name);
+                var originalChild = originalModel.FindEntityType(typeof(EntityWithGenericProperty<Guid>))!;
+                var child = model.FindEntityType(originalChild.Name)!;
                 Assert.NotNull(child);
 
                 var originalForeignKey = originalChild.FindForeignKey(
-                    originalChild.FindProperty("Property"),
-                    originalParent.FindPrimaryKey(),
-                    originalParent);
+                    originalChild.FindProperty("Property")!,
+                    originalParent.FindPrimaryKey()!,
+                    originalParent)!;
                 var foreignKey = child.FindForeignKey(
-                    child.FindProperty("Property"),
-                    parent.FindPrimaryKey(),
-                    parent);
+                    child.FindProperty("Property")!,
+                    parent.FindPrimaryKey()!,
+                    parent)!;
 
                 Assert.Equal(originalForeignKey.GetConstraintName(), foreignKey.GetConstraintName());
 
-                var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property"));
-                var index = child.FindIndex(child.FindProperty("Property"));
+                var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property")!)!;
+                var index = child.FindIndex(child.FindProperty("Property")!)!;
 
                 Assert.Equal(originalIndex.GetDatabaseName(), index.GetDatabaseName());
             });
@@ -8465,7 +8465,7 @@ partial class Snapshot : ModelSnapshot
             });
 """),
             o => Assert.Equal(
-                "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]));
+                "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First()["Relational:Name"]));
 
     [Fact]
     public virtual void ForeignKey_excluded_from_migrations_is_stored_in_snapshot()
@@ -8528,7 +8528,7 @@ partial class Snapshot : ModelSnapshot
             });
 """),
             o => Assert.True(
-                o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First().IsExcludedFromMigrations()));
+                o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First().IsExcludedFromMigrations()));
 
     [Fact]
     public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
@@ -8594,7 +8594,7 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var fk = o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First();
+                var fk = o.FindEntityType(typeof(EntityWithTwoProperties))!.GetForeignKeys().First();
                 Assert.Equal(2, fk.GetAnnotations().Count());
                 Assert.Equal("AnnotationValue", fk["AnnotationName"]);
                 Assert.Equal("Constraint", fk["Relational:Name"]);
@@ -8726,8 +8726,8 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                Assert.Equal(2, o.FindEntityType(typeof(EntityWithTwoProperties)).GetKeys().Count());
-                Assert.True(o.FindEntityType(typeof(EntityWithTwoProperties)).FindProperty("AlternateId").IsKey());
+                Assert.Equal(2, o.FindEntityType(typeof(EntityWithTwoProperties))!.GetKeys().Count());
+                Assert.True(o.FindEntityType(typeof(EntityWithTwoProperties))!.FindProperty("AlternateId")!.IsKey());
             });
 
     [Fact]
@@ -8794,10 +8794,10 @@ partial class Snapshot : ModelSnapshot
 """),
             o =>
             {
-                var entityType = o.FindEntityType(typeof(EntityWithTwoProperties));
+                var entityType = o.FindEntityType(typeof(EntityWithTwoProperties))!;
 
                 Assert.Equal(2, entityType.GetKeys().Count());
-                Assert.Equal("Value", entityType.FindKey(entityType.FindProperty("AlternateId"))["Name"]);
+                Assert.Equal("Value", entityType.FindKey(entityType.FindProperty("AlternateId")!)!["Name"]);
             });
 
     #endregion
@@ -8870,7 +8870,7 @@ partial class Snapshot : ModelSnapshot
             });
 """),
             o => Assert.Equal(
-                "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetNavigations().First()["AnnotationName"]));
+                "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties))!.GetNavigations().First()["AnnotationName"]));
 
     [Fact]
     public virtual void Navigation_isRequired_is_stored_in_snapshot()
@@ -8937,7 +8937,7 @@ partial class Snapshot : ModelSnapshot
                     .IsRequired();
             });
 """),
-            o => Assert.True(o.FindEntityType(typeof(EntityWithOneProperty)).GetNavigations().First().ForeignKey.IsRequiredDependent));
+            o => Assert.True(o.FindEntityType(typeof(EntityWithOneProperty))!.GetNavigations().First().ForeignKey.IsRequiredDependent));
 
     #endregion
 
@@ -9416,20 +9416,20 @@ partial class Snapshot : ModelSnapshot
                         Assert.Equal(point1, seed["SpatialCPoint"]);
                         Assert.Equal(polygon1, seed["SpatialCPolygon"]);
 
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBGeometryCollection"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBLineString"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBMultiLineString"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBMultiPoint"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBMultiPolygon"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBPoint"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialBPolygon"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCGeometryCollection"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCLineString"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCMultiLineString"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCMultiPoint"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCMultiPolygon"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCPoint"]).SRID);
-                        Assert.Equal(4326, ((Geometry)seed["SpatialCPolygon"]).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBGeometryCollection"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBLineString"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBMultiLineString"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBMultiPoint"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBMultiPolygon"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBPoint"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialBPolygon"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCGeometryCollection"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCLineString"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCMultiLineString"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCMultiPoint"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCMultiPolygon"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCPoint"]!).SRID);
+                        Assert.Equal(4326, ((Geometry)seed["SpatialCPolygon"]!).SRID);
 
                         Assert.Equal("[1,2,3,4]", seed["Int32Collection"]);
                         Assert.Equal("[1.2,3.4]", seed["DoubleCollection"]);

@@ -22,7 +22,7 @@ public abstract class RelationalTypeMappingSourceTestBase
         builder.Entity<MyTypeWithIndexAttribute>();
         builder.Entity<MyTypeWithIndexAttributeOnCollection>();
 
-        return builder.Model.FindEntityType(typeof(TEntity));
+        return builder.Model.FindEntityType(typeof(TEntity))!;
     }
 
     protected IModel CreateModel()
@@ -34,10 +34,10 @@ public abstract class RelationalTypeMappingSourceTestBase
         int? maxLength = null,
         int? precision = null,
         int? scale = null,
-        Type providerType = null,
+        Type? providerType = null,
         bool? unicode = null,
         bool? fixedLength = null,
-        string storeTypeName = null,
+        string? storeTypeName = null,
         bool useConfiguration = false)
     {
         if (useConfiguration)
@@ -134,11 +134,11 @@ public abstract class RelationalTypeMappingSourceTestBase
             }
 
             var model = modelBuilder.Model.FinalizeModel();
-            return CreateRelationalTypeMappingSource(model).GetMapping(model.FindEntityType(typeof(MyType)).FindProperty(property.Name));
+            return CreateRelationalTypeMappingSource(model).GetMapping(model.FindEntityType(typeof(MyType))!.FindProperty(property.Name)!);
         }
     }
 
-    protected abstract ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null);
+    protected abstract ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configureConventions = null);
     protected abstract IRelationalTypeMappingSource CreateRelationalTypeMappingSource(IModel model);
 
     protected class MyType
@@ -155,59 +155,59 @@ public abstract class RelationalTypeMappingSourceTestBase
 
     protected class MyRelatedType1
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
         public decimal Relationship1Id { get; set; }
-        public MyType Relationship1 { get; set; }
+        public MyType Relationship1 { get; set; } = null!;
 
         public decimal Relationship2Id { get; set; }
-        public MyType Relationship2 { get; set; }
+        public MyType Relationship2 { get; set; } = null!;
     }
 
     protected class MyRelatedType2
     {
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = null!;
 
-        public string Relationship1Id { get; set; }
-        public MyRelatedType1 Relationship1 { get; set; }
+        public string Relationship1Id { get; set; } = null!;
+        public MyRelatedType1 Relationship1 { get; set; } = null!;
 
-        public string Relationship2Id { get; set; }
-        public MyRelatedType1 Relationship2 { get; set; }
+        public string Relationship2Id { get; set; } = null!;
+        public MyRelatedType1 Relationship2 { get; set; } = null!;
     }
 
     protected class MyRelatedType3
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public byte[] Relationship1Id { get; set; }
-        public MyRelatedType2 Relationship1 { get; set; }
+        public byte[] Relationship1Id { get; set; } = null!;
+        public MyRelatedType2 Relationship1 { get; set; } = null!;
 
-        public byte[] Relationship2Id { get; set; }
-        public MyRelatedType2 Relationship2 { get; set; }
+        public byte[] Relationship2Id { get; set; } = null!;
+        public MyRelatedType2 Relationship2 { get; set; } = null!;
     }
 
     protected class MyRelatedType4
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public string Relationship1Id { get; set; }
-        public MyRelatedType3 Relationship1 { get; set; }
+        public string Relationship1Id { get; set; } = null!;
+        public MyRelatedType3 Relationship1 { get; set; } = null!;
 
-        public string Relationship2Id { get; set; }
-        public MyRelatedType3 Relationship2 { get; set; }
+        public string Relationship2Id { get; set; } = null!;
+        public MyRelatedType3 Relationship2 { get; set; } = null!;
     }
 
     [Index(nameof(Name))]
     protected class MyTypeWithIndexAttribute
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [Index(nameof(Ints))]
     protected class MyTypeWithIndexAttributeOnCollection
     {
         public int Id { get; set; }
-        public IEnumerable<int> Ints { get; set; }
+        public IEnumerable<int> Ints { get; set; } = null!;
     }
 }

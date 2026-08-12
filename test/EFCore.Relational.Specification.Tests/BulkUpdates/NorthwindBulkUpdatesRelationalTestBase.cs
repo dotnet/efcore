@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-#nullable disable
-
 public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : NorthwindBulkUpdatesTestBase<TFixture>
     where TFixture : NorthwindBulkUpdatesRelationalFixture<NoopModelCustomizer>, new()
 {

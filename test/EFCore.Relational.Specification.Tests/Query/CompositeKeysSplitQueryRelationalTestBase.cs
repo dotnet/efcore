@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture>(TFixture fixture) : CompositeKeysQueryTestBase<TFixture>(fixture)
     where TFixture : CompositeKeysQueryFixtureBase, new()
 {
@@ -18,7 +16,7 @@ public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture>(TFixtu
     private class SplitQueryRewritingExpressionVisitor : ExpressionVisitor
     {
         private readonly MethodInfo _asSplitQueryMethod
-            = typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.AsSplitQuery));
+            = typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.AsSplitQuery))!;
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
