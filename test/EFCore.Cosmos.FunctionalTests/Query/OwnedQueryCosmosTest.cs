@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.OwnedQueryCosmosFixture>
 {
     public OwnedQueryCosmosTest(OwnedQueryCosmosFixture fixture, ITestOutputHelper testOutputHelper)
@@ -1050,7 +1048,7 @@ OFFSET @p LIMIT @p1
                 {
                     await Assert.ThrowsAsync<NullReferenceException>(() => AssertQuery(
                         async,
-                        ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })));
+                        ss => ss.Set<Barton>().Select(e => new { e.Throned!.Value })));
 
                     AssertSql(
                         """
@@ -1078,10 +1076,10 @@ WHERE (c["Terminator"] = "Barton")
             Assert.Equal(4, result.Count);
             Assert.Collection(
                 result.OrderBy(e => e.Id),
-                element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress),
-                element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress),
-                element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress),
-                element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress));
+                element => AssertProjectedPersonAddress(1, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(2, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(3, element.Id, element.PersonAddress!),
+                element => AssertProjectedPersonAddress(4, element.Id, element.PersonAddress!));
             Assert.Empty(context.ChangeTracker.Entries());
 
             AssertSql(
@@ -1097,7 +1095,7 @@ WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
     {
         Assert.Equal(expectedId, id);
         Assert.Equal("Land", personAddress.PlaceType);
-        Assert.Equal("USA", personAddress.Country.Name);
+        Assert.Equal("USA", personAddress.Country!.Name);
     }
 
     public override Task Simple_query_entity_with_owned_collection(bool async)

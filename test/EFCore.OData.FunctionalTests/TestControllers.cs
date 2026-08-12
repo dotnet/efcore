@@ -72,7 +72,7 @@ public class TestActionResult(IActionResult innerResult) : ITestActionResult
         => _innerResult.ExecuteResultAsync(context);
 }
 
-public class TestObjectResult(object innerResult) : ObjectResult(innerResult), ITestActionResult;
+public class TestObjectResult(object? innerResult) : ObjectResult(innerResult), ITestActionResult;
 
 public class TestStatusCodeResult(StatusCodeResult innerResult) : StatusCodeResult(innerResult.StatusCode), ITestActionResult
 {

@@ -141,9 +141,9 @@ WHERE (c["$type"] = "Basic")
                         {
                             x.Id,
                             Root1 = x.OwnedReferenceRoot,
-                            Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                            Leaf1 = x.OwnedReferenceRoot!.OwnedReferenceBranch!.OwnedReferenceLeaf,
                             Root2 = x.OwnedReferenceRoot,
-                            Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                            Leaf2 = x.OwnedReferenceRoot!.OwnedReferenceBranch!.OwnedReferenceLeaf,
                         }).AsNoTrackingWithIdentityResolution(),
                     assertOrder: true,
                     elementAsserter: (e, a) =>
@@ -2286,8 +2286,6 @@ WHERE (c["$type"] = "SingleOwned")
     }
 
     #region Non-shared test resources
-
-#nullable disable
 
     #region 21006
 
@@ -6366,8 +6364,6 @@ WHERE (c["Id"] = 4)
     }
 
     #endregion
-
-#nullable restore
 
     #endregion
 

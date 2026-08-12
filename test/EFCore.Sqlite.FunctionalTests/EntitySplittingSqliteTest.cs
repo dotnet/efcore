@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class EntitySplittingSqliteTest(NonSharedFixture fixture, ITestOutputHelper testOutputHelper)
     : EntitySplittingTestBase(fixture, testOutputHelper)
 {

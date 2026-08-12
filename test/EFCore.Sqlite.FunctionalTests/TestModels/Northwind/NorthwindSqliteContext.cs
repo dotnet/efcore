@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class NorthwindSqliteContext(DbContextOptions options) : NorthwindRelationalContext(options);

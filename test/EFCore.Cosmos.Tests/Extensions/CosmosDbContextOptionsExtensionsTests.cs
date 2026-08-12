@@ -74,7 +74,7 @@ public class CosmosDbContextOptionsExtensionsTests
         Test(o => o.WebProxy(webProxy), o => Assert.Same(webProxy, o.WebProxy));
         Test(
             o => o.ExecutionStrategy(d => new CosmosExecutionStrategy(d)),
-            o => Assert.IsType<CosmosExecutionStrategy>(o.ExecutionStrategyFactory(null)));
+            o => Assert.IsType<CosmosExecutionStrategy>(o.ExecutionStrategyFactory!(null!)));
         Test(o => o.RequestTimeout(TimeSpan.FromMinutes(3)), o => Assert.Equal(TimeSpan.FromMinutes(3), o.RequestTimeout));
         Test(
             o => o.OpenTcpConnectionTimeout(TimeSpan.FromMinutes(3)),
@@ -101,7 +101,7 @@ public class CosmosDbContextOptionsExtensionsTests
                 "authKeyOrResourceToken",
                 "databaseName");
 
-        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>()!;
 
         Assert.Equal("serviceEndPoint", extension.AccountEndpoint);
         Assert.Equal("authKeyOrResourceToken", extension.AccountKey);
@@ -121,7 +121,7 @@ public class CosmosDbContextOptionsExtensionsTests
                 "authKeyOrResourceToken@serviceEndPoint",
                 "databaseName");
 
-        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>()!;
 
         Assert.Null(extension.AccountEndpoint);
         Assert.Null(extension.AccountKey);
@@ -143,7 +143,7 @@ public class CosmosDbContextOptionsExtensionsTests
                 testDatabase.TokenCredential,
                 "databaseName");
 
-        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>()!;
 
         Assert.Equal("serviceEndPoint", extension.AccountEndpoint);
         Assert.Null(extension.AccountKey);
@@ -166,7 +166,7 @@ public class CosmosDbContextOptionsExtensionsTests
                 "authKeyOrResourceToken@serviceEndPoint",
                 "databaseName");
 
-        var extension = options.Options.FindExtension<CosmosOptionsExtension>();
+        var extension = options.Options.FindExtension<CosmosOptionsExtension>()!;
 
         Assert.Null(extension.AccountEndpoint);
         Assert.Null(extension.AccountKey);
@@ -187,13 +187,13 @@ public class CosmosDbContextOptionsExtensionsTests
             cosmosOptionsAction);
 
         var extension = options
-            .Options.FindExtension<CosmosOptionsExtension>();
+            .Options.FindExtension<CosmosOptionsExtension>()!;
 
         extensionAssert(extension);
 
         var clone = new DbContextOptionsBuilder().UseCosmos(
                 cosmosOptionsAction)
-            .Options.FindExtension<CosmosOptionsExtension>();
+            .Options.FindExtension<CosmosOptionsExtension>()!;
 
         Assert.Equal(extension.Info.GetServiceProviderHashCode(), clone.Info.GetServiceProviderHashCode());
         Assert.True(extension.Info.ShouldUseSameServiceProvider(clone.Info));

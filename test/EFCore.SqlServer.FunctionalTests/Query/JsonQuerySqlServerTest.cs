@@ -9,8 +9,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class JsonQuerySqlServerTest : JsonQueryRelationalTestBase<JsonQuerySqlServerFixture>
 {
     public JsonQuerySqlServerTest(JsonQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -3844,9 +3842,9 @@ VALUES(5, N'["a","b"]', N'null')
             public int Id { get; set; }
 
             // IList<string> matches the legacy mapping reported in #34881.
-            public IList<string> Tags { get; set; }
+            public IList<string>? Tags { get; set; }
 
-            public IList<string> RequiredTags { get; set; }
+            public IList<string> RequiredTags { get; set; } = null!;
         }
     }
 
@@ -3865,7 +3863,7 @@ VALUES(5, N'["a","b"]', N'null')
         using var context = contextFactory.CreateDbContext();
         var result = await context.Set<ContextJsonPropertyWithConverters.MyEntity>().SingleAsync(x => x.Id == 1);
 
-        Assert.Equal("e1", result.Reference.Name);
+        Assert.Equal("e1", result.Reference!.Name);
 
         // Both properties have a JSON 'null' token value. The streaming JSON shaper's null guard
         // (CreateReadJsonPropertyValueExpression) routes the null based on the converter's ConvertsNulls flag:
@@ -3892,12 +3890,12 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
                 {
                     b.ToJson().HasColumnType(JsonColumnType);
                     b.Property(x => x.ConvertedHandlingNulls).HasConversion(
-                        new ValueConverter<string, string>(
+                        new ValueConverter<string?, string?>(
                             v => v,
                             v => v ?? "FROM_DB_NULL",
                             convertsNulls: true));
                     b.Property(x => x.ConvertedNotHandlingNulls).HasConversion(
-                        new ValueConverter<string, string>(
+                        new ValueConverter<string?, string?>(
                             v => v,
                             v => "FROM_CONVERTER:" + v,
                             convertsNulls: false));
@@ -3909,14 +3907,14 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
+            public MyJsonEntity? Reference { get; set; }
         }
 
         public class MyJsonEntity
         {
-            public string Name { get; set; }
-            public string ConvertedHandlingNulls { get; set; }
-            public string ConvertedNotHandlingNulls { get; set; }
+            public string? Name { get; set; }
+            public string? ConvertedHandlingNulls { get; set; }
+            public string? ConvertedNotHandlingNulls { get; set; }
         }
     }
 
@@ -3939,12 +3937,12 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
         Assert.Equal(2, result.Count);
 
         // Id == 1: JSON has "NullableStrings": null -> materialized as null.
-        Assert.Null(result[0].Reference.NullableStrings);
-        Assert.Equal(["a", "b"], result[0].Reference.RequiredStrings);
+        Assert.Null(result[0].Reference!.NullableStrings);
+        Assert.Equal(["a", "b"], result[0].Reference!.RequiredStrings);
 
         // Id == 2: JSON has "NullableStrings": ["x", "y"].
-        Assert.Equal(["x", "y"], result[1].Reference.NullableStrings);
-        Assert.Equal(["c", "d"], result[1].Reference.RequiredStrings);
+        Assert.Equal(["x", "y"], result[1].Reference!.NullableStrings);
+        Assert.Equal(["c", "d"], result[1].Reference!.RequiredStrings);
     }
 
     [Fact]
@@ -4008,13 +4006,13 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
+            public MyJsonEntity? Reference { get; set; }
         }
 
         public class MyJsonEntity
         {
-            public List<string> NullableStrings { get; set; }
-            public List<string> RequiredStrings { get; set; }
+            public List<string>? NullableStrings { get; set; }
+            public List<string> RequiredStrings { get; set; } = null!;
         }
     }
 
@@ -4033,7 +4031,7 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
 
         var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
         {
-            x.Reference.IntEnum,
+            x.Reference!.IntEnum,
             x.Reference.ByteEnum,
             x.Reference.LongEnum,
             x.Reference.NullableEnum
@@ -4060,18 +4058,18 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
 
         using (var context = contextFactory.CreateDbContext())
         {
-            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => x.Reference).AsNoTracking();
+            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => x.Reference!).AsNoTracking();
 
             var result = async
                 ? await query.ToListAsync()
                 : query.ToList();
 
             Assert.Equal(1, result.Count);
-            Assert.Equal(ByteEnumLegacyValues.Redmond, result[0].ByteEnum);
-            Assert.Equal(IntEnumLegacyValues.Foo, result[0].IntEnum);
-            Assert.Equal(LongEnumLegacyValues.Three, result[0].LongEnum);
-            Assert.Equal(ULongEnumLegacyValues.Three, result[0].ULongEnum);
-            Assert.Equal(IntEnumLegacyValues.Bar, result[0].NullableEnum);
+            Assert.Equal(ByteEnumLegacyValues.Redmond, result[0]!.ByteEnum);
+            Assert.Equal(IntEnumLegacyValues.Foo, result[0]!.IntEnum);
+            Assert.Equal(LongEnumLegacyValues.Three, result[0]!.LongEnum);
+            Assert.Equal(ULongEnumLegacyValues.Three, result[0]!.ULongEnum);
+            Assert.Equal(IntEnumLegacyValues.Bar, result[0]!.NullableEnum);
         }
 
         var testLogger = new TestLogger<SqlServerLoggingDefinitions>();
@@ -4158,15 +4156,15 @@ N'e1')
     private class MyEntityEnumLegacyValues
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public MyJsonEntityEnumLegacyValues Reference { get; set; }
-        public List<MyJsonEntityEnumLegacyValues> Collection { get; set; }
+        public MyJsonEntityEnumLegacyValues? Reference { get; set; }
+        public List<MyJsonEntityEnumLegacyValues> Collection { get; set; } = null!;
     }
 
     private class MyJsonEntityEnumLegacyValues
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public IntEnumLegacyValues IntEnum { get; set; }

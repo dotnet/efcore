@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ManyToManyFieldsLoadSqlServerTest(ManyToManyFieldsLoadSqlServerTest.ManyToManyFieldsLoadSqlServerFixture fixture)
     : ManyToManyFieldsLoadTestBase<
         ManyToManyFieldsLoadSqlServerTest.ManyToManyFieldsLoadSqlServerFixture>(fixture)
@@ -256,7 +254,7 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
             var testInfo = testName + " : " + lineNumber + FileNewLine;
 
             var newBaseLine = $@"            AssertSql(
-                {"@\"" + Sql.Replace("\"", "\"\"") + "\""});
+                {"@\"" + Sql!.Replace("\"", "\"\"") + "\""});
 
 ";
 
@@ -268,7 +266,7 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[Id], [s1]
         }
     }
 
-    private string Sql { get; set; }
+    private string? Sql { get; set; }
 
     public class ManyToManyFieldsLoadSqlServerFixture : ManyToManyFieldsLoadFixtureBase, ITestSqlLoggerFactory
     {

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqliteValueGenerationScenariosTest
 {
     [Fact]
@@ -61,7 +59,7 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogContextUIntToIdentityUsingValueConverter(string databaseName) : ContextBase(databaseName)
     {
-        public DbSet<BlogWithUIntKey> UnsignedBlogs { get; set; }
+        public DbSet<BlogWithUIntKey> UnsignedBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,7 +75,7 @@ public class SqliteValueGenerationScenariosTest
     public class BlogWithUIntKey
     {
         public uint Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [Fact]
@@ -105,7 +103,7 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogContextIntEnumToIdentity(string databaseName) : ContextBase(databaseName)
     {
-        public DbSet<BlogWithIntEnumKey> EnumBlogs { get; set; }
+        public DbSet<BlogWithIntEnumKey> EnumBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -121,7 +119,7 @@ public class SqliteValueGenerationScenariosTest
     public class BlogWithIntEnumKey
     {
         public IntKey Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public enum IntKey;
@@ -151,7 +149,7 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogContextUShortEnumToIdentity(string databaseName) : ContextBase(databaseName)
     {
-        public DbSet<BlogWithUShortEnumKey> EnumBlogs { get; set; }
+        public DbSet<BlogWithUShortEnumKey> EnumBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -167,7 +165,7 @@ public class SqliteValueGenerationScenariosTest
     public class BlogWithUShortEnumKey
     {
         public UShortKey Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public enum UShortKey : ushort;
@@ -199,7 +197,7 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogContextStringToIdentityUsingValueConverter(string databaseName) : ContextBase(databaseName)
     {
-        public DbSet<BlogWithStringKey> StringyBlogs { get; set; }
+        public DbSet<BlogWithStringKey> StringyBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -221,8 +219,8 @@ public class SqliteValueGenerationScenariosTest
 
     public class BlogWithStringKey
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     [Fact]
@@ -571,9 +569,9 @@ public class SqliteValueGenerationScenariosTest
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime CreatedOn { get; set; }
-        public NeedsConverter NeedsConverter { get; set; }
+        public NeedsConverter NeedsConverter { get; set; } = null!;
         public int? OtherId { get; set; }
     }
 
@@ -581,7 +579,7 @@ public class SqliteValueGenerationScenariosTest
     {
         public int Value { get; } = value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => throw new InvalidOperationException();
 
         public override int GetHashCode()
@@ -591,39 +589,39 @@ public class SqliteValueGenerationScenariosTest
     public class NullableKeyBlog
     {
         public int? Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime CreatedOn { get; set; }
     }
 
     public class FullNameBlog
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string FullName { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public string FullName { get; set; } = null!;
     }
 
     public class GuidBlog
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public Guid NotId { get; set; }
     }
 
     public class ConcurrentBlog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public byte[] Timestamp { get; set; }
+        public string Name { get; set; } = null!;
+        public byte[] Timestamp { get; set; } = null!;
     }
 
     public abstract class ContextBase(string databaseName) : DbContext
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
-        public DbSet<FullNameBlog> FullNameBlogs { get; set; }
-        public DbSet<GuidBlog> GuidBlogs { get; set; }
-        public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; } = null!;
+        public DbSet<FullNameBlog> FullNameBlogs { get; set; } = null!;
+        public DbSet<GuidBlog> GuidBlogs { get; set; } = null!;
+        public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>()

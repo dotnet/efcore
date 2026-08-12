@@ -12,8 +12,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class AdHocMiscellaneousQuerySqlServerTest(NonSharedFixture fixture) : AdHocMiscellaneousQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -67,7 +65,7 @@ INSERT ZeroKey VALUES (NULL)
             0, 10, i =>
             {
                 using var ctx = contextFactory.CreateDbContext();
-                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToList();
+                var result = ctx.Posts.Where(x => x.Blog!.Id > 1).Include(x => x.Blog).ToList();
 
                 Assert.Equal(198, result.Count);
             });
@@ -76,7 +74,7 @@ INSERT ZeroKey VALUES (NULL)
             0, 10, i =>
             {
                 using var ctx = contextFactory.CreateDbContext();
-                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
+                var result = ctx.Posts.Where(x => x.Blog!.Id > 1).Include(x => x.Blog).Include(x => x.Comments).ToList();
 
                 Assert.Equal(198, result.Count);
             });
@@ -85,7 +83,7 @@ INSERT ZeroKey VALUES (NULL)
             0, 10, i =>
             {
                 using var ctx = contextFactory.CreateDbContext();
-                var result = ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author).ToList();
+                var result = ctx.Posts.Where(x => x.Blog!.Id > 1).Include(x => x.Blog).ThenInclude(b => b!.Author).ToList();
 
                 Assert.Equal(198, result.Count);
             });
@@ -102,7 +100,7 @@ INSERT ZeroKey VALUES (NULL)
             0, 10, async (i, ct) =>
             {
                 using var ctx = contextFactory.CreateDbContext();
-                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ToListAsync();
+                var result = await ctx.Posts.Where(x => x.Blog!.Id > 1).Include(x => x.Blog).ToListAsync();
 
                 Assert.Equal(198, result.Count);
             });
@@ -111,7 +109,7 @@ INSERT ZeroKey VALUES (NULL)
             0, 10, async (i, ct) =>
             {
                 using var ctx = contextFactory.CreateDbContext();
-                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
+                var result = await ctx.Posts.Where(x => x.Blog!.Id > 1).Include(x => x.Blog).Include(x => x.Comments)
                     .ToListAsync();
 
                 Assert.Equal(198, result.Count);
@@ -121,7 +119,7 @@ INSERT ZeroKey VALUES (NULL)
             0, 10, async (i, ct) =>
             {
                 using var ctx = contextFactory.CreateDbContext();
-                var result = await ctx.Posts.Where(x => x.Blog.Id > 1).Include(x => x.Blog).ThenInclude(b => b.Author)
+                var result = await ctx.Posts.Where(x => x.Blog!.Id > 1).Include(x => x.Blog).ThenInclude(b => b!.Author)
                     .ToListAsync();
 
                 Assert.Equal(198, result.Count);
@@ -131,10 +129,10 @@ INSERT ZeroKey VALUES (NULL)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context5456(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<Author> Authors { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -150,27 +148,27 @@ INSERT ZeroKey VALUES (NULL)
         public class Blog
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; set; }
-            public Author Author { get; set; }
+            public List<Post> Posts { get; set; } = null!;
+            public Author? Author { get; set; }
         }
 
         public class Author
         {
             public int Id { get; set; }
-            public List<Blog> Blogs { get; set; }
+            public List<Blog> Blogs { get; set; } = null!;
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
-            public List<Comment> Comments { get; set; }
+            public Blog? Blog { get; set; }
+            public List<Comment> Comments { get; set; } = null!;
         }
 
         public class Comment
         {
             public int Id { get; set; }
-            public Post Blog { get; set; }
+            public Post? Blog { get; set; }
         }
     }
 
@@ -223,7 +221,7 @@ WHERE [c].[Id] = @id
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context8864(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -240,7 +238,7 @@ WHERE [c].[Id] = @id
         public class Customer
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -285,7 +283,7 @@ WHERE [w].[Val] = 1
 
     protected class Context9214(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Widget9214> Widgets { get; set; }
+        public DbSet<Widget9214> Widgets { get; set; } = null!;
 
 #pragma warning disable IDE0060 // Remove unused parameter
         public static int AddOne(int num)
@@ -303,8 +301,8 @@ WHERE [w].[Val] = 1
 
             modelBuilder.Entity<Widget9214>().ToTable("Widgets", "foo");
 
-            modelBuilder.HasDbFunction(typeof(Context9214).GetMethod(nameof(AddOne)));
-            modelBuilder.HasDbFunction(typeof(Context9214).GetMethod(nameof(AddTwo))).HasSchema("dbo");
+            modelBuilder.HasDbFunction(typeof(Context9214).GetMethod(nameof(AddOne))!);
+            modelBuilder.HasDbFunction(typeof(Context9214).GetMethod(nameof(AddTwo))!).HasSchema("dbo");
         }
 
         public async Task SeedAsync()
@@ -375,7 +373,7 @@ END
 
     protected class Context9277(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog9277> Blogs { get; set; }
+        public DbSet<Blog9277> Blogs { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -455,7 +453,7 @@ OUTPUT INSERTED.[Id], i._Position;
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12482(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<BaseEntity> BaseEntities { get; set; }
+        public virtual DbSet<BaseEntity> BaseEntities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<BaseEntity>();
@@ -465,7 +463,7 @@ OUTPUT INSERTED.[Id], i._Position;
             public int Id { get; set; }
 
             [Column(TypeName = "sql_variant")]
-            public object Value { get; set; }
+            public object? Value { get; set; }
         }
     }
 
@@ -494,7 +492,7 @@ ORDER BY [p].[Id]
     {
         var contextFactory = await InitializeNonSharedTest<Context12518>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateDbContext();
-        var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child.ULongRowVersion).FirstOrDefault();
+        var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child!.ULongRowVersion).FirstOrDefault();
 
         AssertSql(
             """
@@ -507,8 +505,8 @@ ORDER BY [p].[Id]
 
     protected class Context12518(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Parent12518> Parents { get; set; }
-        public virtual DbSet<Child12518> Children { get; set; }
+        public virtual DbSet<Parent12518> Parents { get; set; } = null!;
+        public virtual DbSet<Child12518> Children { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -535,7 +533,7 @@ ORDER BY [p].[Id]
         {
             public Guid Id { get; set; } = Guid.NewGuid();
             public Guid? ChildId { get; set; }
-            public Child12518 Child { get; set; }
+            public Child12518? Child { get; set; }
         }
 
         public class Child12518
@@ -543,7 +541,7 @@ ORDER BY [p].[Id]
             public Guid Id { get; set; } = Guid.NewGuid();
             public ulong ULongRowVersion { get; set; }
             public Guid ParentId { get; set; }
-            public Parent12518 Parent { get; set; }
+            public Parent12518? Parent { get; set; }
         }
     }
 
@@ -576,7 +574,7 @@ WHERE [r].[MyTime] = @testDateList1
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context13118(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<ReproEntity13118> ReproEntity { get; set; }
+        public virtual DbSet<ReproEntity13118> ReproEntity { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ReproEntity13118>(e => e.Property("MyTime").HasColumnType("smalldatetime"));
@@ -953,7 +951,7 @@ WHERE [d].[SmallDateTime] IN (@dateTimes1, @dateTimes2, @dateTimes3, @dateTimes4
 
     protected class Context14095(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<DatesAndPrunes14095> Dates { get; set; }
+        public DbSet<DatesAndPrunes14095> Dates { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1096,7 +1094,7 @@ ORDER BY [r].[Id]
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context15518(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Repo> Repos { get; set; }
+        public DbSet<Repo> Repos { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1110,7 +1108,7 @@ ORDER BY [r].[Id]
         public class Repo
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -1154,7 +1152,7 @@ CROSS JOIN (
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context19206(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<Test> Tests { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1189,7 +1187,7 @@ CROSS JOIN (
     {
         var contextFactory = await InitializeNonSharedTest<Context21666>(
             onConfiguring: options => ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(
-                options.Options.FindExtension<SqlServerOptionsExtension>()
+                options.Options.FindExtension<SqlServerOptionsExtension>()!
                     .WithConnection(null)
                     .WithConnectionString(SqlServerTestStore.CreateConnectionString(NonSharedStoreName))));
 
@@ -1207,7 +1205,7 @@ CROSS JOIN (
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context21666(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<List> Lists { get; set; }
+        public DbSet<List> Lists { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1248,7 +1246,7 @@ WHERE [l].[Name] = N'My Location'
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context23282(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Location> Locations { get; set; }
+        public DbSet<Location> Locations { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1271,14 +1269,14 @@ WHERE [l].[Name] = N'My Location'
         [Owned]
         public class Address
         {
-            public string Line1 { get; set; }
-            public string Line2 { get; set; }
-            public string Town { get; set; }
-            public string County { get; set; }
-            public string Postcode { get; set; }
+            public string? Line1 { get; set; }
+            public string? Line2 { get; set; }
+            public string? Town { get; set; }
+            public string? County { get; set; }
+            public string? Postcode { get; set; }
             public int Value { get; set; }
 
-            public Point Point { get; set; }
+            public Point? Point { get; set; }
         }
 
         public class Location
@@ -1286,8 +1284,8 @@ WHERE [l].[Name] = N'My Location'
             [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public Guid Id { get; set; }
 
-            public string Name { get; set; }
-            public Address Address { get; set; }
+            public string? Name { get; set; }
+            public Address? Address { get; set; }
         }
     }
 
@@ -1356,7 +1354,7 @@ ORDER BY [m0].[Id]
     {
         public long Id { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 
     protected class Message24216
@@ -1376,14 +1374,14 @@ ORDER BY [m0].[Id]
 
         public long GenderId { get; set; }
 
-        public string StatusMessage { get; set; }
+        public string? StatusMessage { get; set; }
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context24216(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Gender24216> Gender { get; set; }
-        public DbSet<Message24216> Message { get; set; }
+        public DbSet<Gender24216> Gender { get; set; } = null!;
+        public DbSet<Message24216> Message { get; set; } = null!;
 
         public IQueryable<PersonStatus24216> GetPersonStatusAsOf(long personId, DateTime asOf)
             => FromExpression(() => GetPersonStatusAsOf(personId, asOf));
@@ -1395,7 +1393,7 @@ ORDER BY [m0].[Id]
             modelBuilder.HasDbFunction(
                 typeof(Context24216).GetMethod(
                     nameof(GetPersonStatusAsOf),
-                    [typeof(long), typeof(DateTime)]));
+                    [typeof(long), typeof(DateTime)])!);
         }
     }
 
@@ -1444,7 +1442,7 @@ GROUP BY [d].[Id]
 
     protected class Context27427(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<DemoEntity> DemoEntities { get; set; }
+        public DbSet<DemoEntity> DemoEntities { get; set; } = null!;
     }
 
     protected class DemoEntity
@@ -1544,7 +1542,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 
     protected class Context30478(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity30478> Entities { get; set; }
+        public DbSet<Entity30478> Entities { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1616,15 +1614,15 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
     protected class Entity30478
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public Json30478 Reference { get; set; }
-        public List<Json30478> Collection { get; set; }
+        public string? Name { get; set; }
+        public Json30478? Reference { get; set; }
+        public List<Json30478> Collection { get; set; } = null!;
     }
 
     protected class Json30478
     {
-        public string Name { get; set; }
-        public JsonNested30478 Nested { get; set; }
+        public string? Name { get; set; }
+        public JsonNested30478? Nested { get; set; }
     }
 
     protected class JsonNested30478
@@ -2644,7 +2642,7 @@ WHERE 1 = [t].[Id]
 
     protected class Context37327(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<WorkUnit> WorkUnits { get; set; }
+        public DbSet<WorkUnit> WorkUnits { get; set; } = null!;
 
         public class WorkUnit
         {

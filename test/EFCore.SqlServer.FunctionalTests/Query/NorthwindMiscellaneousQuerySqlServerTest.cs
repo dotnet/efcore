@@ -8,8 +8,6 @@ using Xunit.Sdk;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -5950,7 +5948,7 @@ ORDER BY [c].[CustomerID]
                            .Where(c => c.City == "London")
                            .OrderBy(c => c.CustomerID)
                            .Select(c => context.Orders
-                               .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
+                            .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate!.Value.Year == 1997)
                                .OrderBy(o1 => o1.OrderID)
                                .Select(o1 => context.Orders
                                    .Where(o2 => o1.CustomerID == c.CustomerID)

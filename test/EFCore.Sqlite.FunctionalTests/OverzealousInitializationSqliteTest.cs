@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class OverzealousInitializationSqliteTest(OverzealousInitializationSqliteTest.OverzealousInitializationSqliteFixture fixture)
     : OverzealousInitializationTestBase<OverzealousInitializationSqliteTest.OverzealousInitializationSqliteFixture>(fixture)
 {

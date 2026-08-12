@@ -88,25 +88,25 @@ public class FakeScaffoldingModelFactory(
 
 internal class DatabaseTableRef : DatabaseTable
 {
-    public DatabaseTableRef(string name, string schema = null)
+    public DatabaseTableRef(string name, string? schema = null)
     {
         Name = name;
         Schema = schema;
     }
 
-    public override DatabaseModel Database
+    public override DatabaseModel? Database
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string Comment
+    public override string? Comment
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override DatabasePrimaryKey PrimaryKey
+    public override DatabasePrimaryKey? PrimaryKey
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
@@ -142,25 +142,25 @@ internal class DatabaseColumnRef : DatabaseColumn
         set => throw new NotImplementedException();
     }
 
-    public override string StoreType
+    public override string? StoreType
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string DefaultValueSql
+    public override string? DefaultValueSql
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string ComputedColumnSql
+    public override string? ComputedColumnSql
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();
     }
 
-    public override string Comment
+    public override string? Comment
     {
         get => throw new NotImplementedException();
         set => throw new NotImplementedException();

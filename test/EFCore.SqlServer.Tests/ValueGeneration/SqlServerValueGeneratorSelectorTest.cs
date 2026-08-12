@@ -63,7 +63,7 @@ public class SqlServerValueGeneratorSelectorTest
     private static ValueGenerator CreateValueGenerator(IValueGeneratorSelector selector, IProperty property, bool useTry)
     {
         selector.TrySelect(property, property.DeclaringType, out var generator);
-        return generator;
+        return generator!;
     }
 
     [Theory, InlineData(true), InlineData(false)]
@@ -214,9 +214,9 @@ public class SqlServerValueGeneratorSelectorTest
         public long? NullableLong { get; set; }
         public short? NullableShort { get; set; }
         public byte? NullableByte { get; set; }
-        public string String { get; set; }
+        public string String { get; set; } = null!;
         public Guid Guid { get; set; }
-        public byte[] Binary { get; set; }
+        public byte[] Binary { get; set; } = null!;
         public float Float { get; set; }
         public decimal Decimal { get; set; }
         public TimeSpan TimeSpan { get; set; }

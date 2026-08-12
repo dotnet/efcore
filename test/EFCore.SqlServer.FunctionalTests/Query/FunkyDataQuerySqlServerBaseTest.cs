@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class FunkyDataQuerySqlServerBaseTest<TFixture> : FunkyDataQueryTestBase<TFixture>
     where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, ITestSqlLoggerFactory, new()
 {

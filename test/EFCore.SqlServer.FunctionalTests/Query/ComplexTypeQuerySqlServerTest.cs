@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class ComplexTypeQuerySqlServerTest : ComplexTypeQueryRelationalTestBase<
     ComplexTypeQuerySqlServerTest.ComplexTypeQuerySqlServerFixture>
 {

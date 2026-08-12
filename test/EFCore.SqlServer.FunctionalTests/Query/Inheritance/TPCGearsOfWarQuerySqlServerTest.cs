@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPCGearsOfWarQuerySqlServerTest : TPCGearsOfWarQueryRelationalTestBase<TPCGearsOfWarQuerySqlServerFixture>
 {
     public TPCGearsOfWarQuerySqlServerTest(TPCGearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -9961,7 +9959,7 @@ WHERE @rank = [u].[Rank]
         await AssertQueryScalar(
             async,
             ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
-            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName!.Length * 2)));
 
         AssertSql(
             """

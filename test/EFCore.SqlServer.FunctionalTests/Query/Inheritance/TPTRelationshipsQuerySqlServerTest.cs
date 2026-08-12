@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPTRelationshipsQuerySqlServerTest
     : TPTRelationshipsQueryTestBase<TPTRelationshipsQuerySqlServerTest.TPTRelationshipsQuerySqlServerFixture>
 {

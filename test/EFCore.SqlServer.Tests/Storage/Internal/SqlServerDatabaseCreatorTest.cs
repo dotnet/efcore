@@ -186,7 +186,7 @@ public class SqlServerDatabaseCreatorTest
         }
 
         public IRelationalTypeMappingSource TypeMappingSource
-            => null;
+            => null!;
 
         public IRelationalCommand Build()
             => new FakeRelationalCommand();
@@ -232,11 +232,11 @@ public class SqlServerDatabaseCreatorTest
 
     private class FakeRelationalCommand : IRelationalCommand
     {
-        public string CommandText { get; }
+        public string CommandText { get; } = null!;
 
-        public string LogCommandText { get; }
+        public string LogCommandText { get; } = null!;
 
-        public IReadOnlyList<IRelationalParameter> Parameters { get; }
+        public IReadOnlyList<IRelationalParameter> Parameters { get; } = null!;
 
         public IReadOnlyDictionary<string, object> ParameterValues
             => throw new NotImplementedException();
@@ -266,7 +266,7 @@ public class SqlServerDatabaseCreatorTest
         public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
             => throw new NotImplementedException();
 
-        public Task<object> ExecuteScalarAsync(
+        public Task<object?> ExecuteScalarAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
             => throw new NotImplementedException();

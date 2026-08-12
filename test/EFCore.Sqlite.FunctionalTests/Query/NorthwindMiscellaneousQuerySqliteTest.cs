@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -58,7 +56,7 @@ LIMIT -1 OFFSET @p1
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
+            ss => ss.Set<Order>().Select(o => o.OrderDate!.Value.AddYears(1).Millisecond));
 
         AssertSql(
             """
@@ -72,7 +70,7 @@ FROM "Orders" AS "o"
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
+            ss => ss.Set<Order>().Select(o => o.OrderDate!.Value.AddYears(1).TimeOfDay));
 
         AssertSql(
             """
@@ -99,7 +97,7 @@ WHERE "o"."OrderDate" IS NOT NULL
             async,
             ss => ss.Set<Order>()
                 .Where(o => o.OrderDate != null)
-                .Select(o => new Order { OrderDate = o.OrderDate.Value.AddMonths(1) }),
+                .Select(o => new Order { OrderDate = o.OrderDate!.Value.AddMonths(1) }),
             e => e.OrderDate,
             elementAsserter: (e, a) =>
             {
@@ -109,7 +107,7 @@ WHERE "o"."OrderDate" IS NOT NULL
                     // difference between how Sqlite and everyone else add months
                     // e.g. when adding 1 month to Jan 31st, we get March 2/3 on Sqlite and Feb 28th/29ths for everyone else
                     // see notes on issue #25851 for more details
-                    var diff = (e.OrderDate - a.OrderDate).Value;
+                    var diff = (e.OrderDate - a.OrderDate)!.Value;
                     Assert.True(diff.Days is >= -3 and <= 0);
                     Assert.Equal(0, diff.Hours);
                     Assert.Equal(0, diff.Minutes);
@@ -169,7 +167,7 @@ WHERE "o"."OrderDate" IS NOT NULL
         await AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.OrderDate != null)
-                .Select(o => new Order { OrderDate = o.OrderDate.Value.AddTicks(10 * TimeSpan.TicksPerSecond) }),
+                .Select(o => new Order { OrderDate = o.OrderDate!.Value.AddTicks(10 * TimeSpan.TicksPerSecond) }),
             e => e.OrderDate);
 
         AssertSql(
@@ -316,10 +314,10 @@ FROM (
     }
 
     public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
-        => null;
+        => null!;
 
     public override Task SelectMany_correlated_subquery_hard(bool async)
-        => null;
+        => null!;
 
     public override async Task SelectMany_correlated_with_Select_value_type_and_DefaultIfEmpty_in_selector(bool async)
         => Assert.Equal(
