@@ -2699,18 +2699,18 @@ public class RelationalScaffoldingModelFactoryTest
                     Name = "RelatedProducts",
                     Columns =
                     {
-                        new DatabaseColumn { Name = "ProductGuid", StoreType = "int" },
+                        new DatabaseColumn { Name = "Product_Id", StoreType = "int" },
                         new DatabaseColumn { Name = "ProductId", StoreType = "int" }
                     },
                     PrimaryKey = new DatabasePrimaryKey
                     {
-                        Columns = { new DatabaseColumnRef("ProductGuid"), new DatabaseColumnRef("ProductId") }
+                        Columns = { new DatabaseColumnRef("Product_Id"), new DatabaseColumnRef("ProductId") }
                     },
                     ForeignKeys =
                     {
                         new DatabaseForeignKey
                         {
-                            Columns = { new DatabaseColumnRef("ProductGuid") },
+                            Columns = { new DatabaseColumnRef("Product_Id") },
                             PrincipalColumns = { new DatabaseColumnRef("Id") },
                             PrincipalTable = new DatabaseTableRef("Products"),
                         },
