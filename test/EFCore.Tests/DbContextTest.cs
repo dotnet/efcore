@@ -200,11 +200,11 @@ public partial class DbContextTest
         Assert.Equal(
             "entity",
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => context.Entry(null)).ParamName);
+            Assert.Throws<ArgumentNullException>(() => context.Entry(null!)).ParamName);
         Assert.Equal(
             "entity",
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null)).ParamName);
+            Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null!)).ParamName);
     }
 
     private class FakeChangeDetector : IChangeDetector
@@ -234,40 +234,40 @@ public partial class DbContextTest
         {
         }
 
-        public (EventHandler<DetectChangesEventArgs> DetectingAllChanges,
-            EventHandler<DetectedChangesEventArgs> DetectedAllChanges,
-            EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges,
-            EventHandler<DetectedEntityChangesEventArgs>
+        public (EventHandler<DetectChangesEventArgs>? DetectingAllChanges,
+            EventHandler<DetectedChangesEventArgs>? DetectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>?
             DetectedEntityChanges) CaptureEvents()
             => (null, null, null, null);
 
         public void SetEvents(
-            EventHandler<DetectChangesEventArgs> detectingAllChanges,
-            EventHandler<DetectedChangesEventArgs> detectedAllChanges,
-            EventHandler<DetectEntityChangesEventArgs> detectingEntityChanges,
-            EventHandler<DetectedEntityChangesEventArgs> detectedEntityChanges)
+            EventHandler<DetectChangesEventArgs>? detectingAllChanges,
+            EventHandler<DetectedChangesEventArgs>? detectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs>? detectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>? detectedEntityChanges)
         {
         }
 
-        public event EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges;
+        public event EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges;
 
         public void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
-            => DetectingEntityChanges?.Invoke(null, null);
+            => DetectingEntityChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectChangesEventArgs> DetectingAllChanges;
+        public event EventHandler<DetectChangesEventArgs>? DetectingAllChanges;
 
         public void OnDetectingAllChanges(IStateManager stateManager)
-            => DetectingAllChanges?.Invoke(null, null);
+            => DetectingAllChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectedEntityChangesEventArgs> DetectedEntityChanges;
+        public event EventHandler<DetectedEntityChangesEventArgs>? DetectedEntityChanges;
 
         public void OnDetectedEntityChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
-            => DetectedEntityChanges?.Invoke(null, null);
+            => DetectedEntityChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectedChangesEventArgs> DetectedAllChanges;
+        public event EventHandler<DetectedChangesEventArgs>? DetectedAllChanges;
 
         public void OnDetectedAllChanges(IStateManager stateManager, bool changesFound)
-            => DetectedAllChanges?.Invoke(null, null);
+            => DetectedAllChanges?.Invoke(null, null!);
 
         public void ResetState()
         {
@@ -314,8 +314,8 @@ public partial class DbContextTest
     {
         public int Id { get; set; }
         public int AuthorId { get; set; }
-        public virtual User Author { get; set; }
-        public virtual ICollection<Answer> Answers { get; set; }
+        public virtual User Author { get; set; } = null!;
+        public virtual ICollection<Answer> Answers { get; set; } = [];
     }
 
     public class Answer
@@ -323,8 +323,8 @@ public partial class DbContextTest
         public int Id { get; set; }
         public int QuestionId { get; set; }
         public int AuthorId { get; set; }
-        public virtual Question Question { get; set; }
-        public virtual User Author { get; set; }
+        public virtual Question Question { get; set; } = null!;
+        public virtual User Author { get; set; } = null!;
     }
 
     public class User
@@ -336,9 +336,9 @@ public partial class DbContextTest
 
     public class ActiveAddContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Answer> Answers { get; set; }
-        public DbSet<Question> Questions { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Answer> Answers { get; set; } = null!;
+        public DbSet<Question> Questions { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -418,11 +418,11 @@ public partial class DbContextTest
 
     private class ContextWithSets : DbContext
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Category> Categories { get; private set; }
-        private DbSet<TheGu> Gus { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Category> Categories { get; private set; } = null!;
+        private DbSet<TheGu> Gus { get; set; } = null!;
 
-        public DbSet<Random> NoSetter { get; } = null;
+        public DbSet<Random> NoSetter { get; } = null!;
 
         public DbSet<TheGu> GetGus()
             => Gus;
@@ -445,7 +445,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             // ReSharper disable once AssignmentIsFullyDiscarded
@@ -474,7 +474,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
@@ -503,7 +503,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -611,7 +611,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1334,7 +1334,7 @@ public partial class DbContextTest
         public void Dispose()
             => Disposed = true;
 
-        public object GetService(Type serviceType)
+        public object? GetService(Type serviceType)
         {
             if (serviceType == typeof(IServiceProvider))
             {
@@ -1410,29 +1410,29 @@ public partial class DbContextTest
     private class TestAssembly
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public ICollection<TestClass> Classes { get; } = new List<TestClass>();
     }
 
     private class TestClass
     {
-        public TestAssembly Assembly { get; set; }
-        public string Name { get; set; }
+        public TestAssembly Assembly { get; set; } = null!;
+        public string Name { get; set; } = null!;
         public ICollection<Test> Tests { get; } = new List<Test>();
     }
 
     private class Test
     {
-        public TestClass Class { get; set; }
-        public string Name { get; set; }
+        public TestClass Class { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     private class NullShadowKeyContext : DbContext
     {
-        public DbSet<TestAssembly> Assemblies { get; set; }
-        public DbSet<TestClass> Classes { get; set; }
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<TestAssembly> Assemblies { get; set; } = null!;
+        public DbSet<TestClass> Classes { get; set; } = null!;
+        public DbSet<Test> Tests { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             => options

@@ -42,7 +42,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry.PrepareToSave();
 
@@ -56,7 +56,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry[keyProperty] = 1;
 
@@ -71,7 +71,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry1 = context.Entry(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry1.EntityType.FindProperty("Id");
+        var keyProperty = entry1.EntityType.FindProperty("Id")!;
 
         if (useTempValue)
         {
@@ -103,7 +103,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry.SetTemporaryValue(keyProperty, -1, setModified: false);
 
@@ -133,8 +133,8 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
 
-        var keyProperty = entry.EntityType.FindProperty("Id");
-        var nonKeyProperty = entry.EntityType.FindProperty("Name");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
+        var nonKeyProperty = entry.EntityType.FindProperty("Name")!;
 
         Assert.False(entry.IsModified(keyProperty));
         Assert.False(entry.IsModified(nonKeyProperty));
@@ -161,7 +161,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry.SetEntityState(EntityState.Modified);
 
@@ -191,8 +191,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
-        var nonKeyProperty = entry.EntityType.FindProperty("Name");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
+        var nonKeyProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[keyProperty] = 1;
 
@@ -254,7 +254,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry.SetEntityState(EntityState.Added);
         entry.SetTemporaryValue(keyProperty, -1);
@@ -269,7 +269,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry[keyProperty] = 1;
         entry.SetEntityState(EntityState.Added);
@@ -292,7 +292,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry.SetEntityState(EntityState.Added);
         entry.SetTemporaryValue(keyProperty, -1);
@@ -311,8 +311,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
-        var altKeyProperty = entry.EntityType.FindProperty("NonId");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
+        var altKeyProperty = entry.EntityType.FindProperty("NonId")!;
 
         Assert.NotEqual(0, entry[keyProperty]);
         Assert.Equal(entry[keyProperty], entry[altKeyProperty]);
@@ -331,7 +331,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
 
         entry[keyProperty] = 31143;
 
@@ -345,9 +345,9 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Update(new TSomeEntity()).GetInfrastructure();
-        var property = entry.EntityType.FindProperty("Name");
+        var property = entry.EntityType.FindProperty("Name")!;
 
-        entry[entry.EntityType.FindProperty("Id")] = 1;
+        entry[entry.EntityType.FindProperty("Id")!] = 1;
 
         entry.SetEntityState(EntityState.Modified);
         entry.SetPropertyModified(property);
@@ -364,11 +364,11 @@ public abstract class InternalEntityEntryTestBase<
         var entry = context.Entry(new TSomeDependentEntity()).GetInfrastructure();
 
         var entityType = entry.EntityType;
-        entry[entityType.FindProperty("Id1")] = 77;
-        entry[entityType.FindProperty("Id2")] = "Ready Salted";
+        entry[entityType.FindProperty("Id1")!] = 77;
+        entry[entityType.FindProperty("Id2")!] = "Ready Salted";
         entry.SetEntityState(EntityState.Added);
 
-        var property = entityType.FindProperty("JustAProperty");
+        var property = entityType.FindProperty("JustAProperty")!;
 
         Assert.NotEqual(0, entry[property]);
     }
@@ -380,11 +380,11 @@ public abstract class InternalEntityEntryTestBase<
         var entry = context.Entry(new TSomeDependentEntity()).GetInfrastructure();
 
         var entityType = entry.EntityType;
-        entry[entityType.FindProperty("Id1")] = 77;
-        entry[entityType.FindProperty("Id2")] = "Ready Salted";
+        entry[entityType.FindProperty("Id1")!] = 77;
+        entry[entityType.FindProperty("Id2")!] = "Ready Salted";
         entry.SetEntityState(EntityState.Added);
 
-        var fkProperty = entityType.FindProperty("SomeEntityId");
+        var fkProperty = entityType.FindProperty("SomeEntityId")!;
 
         entry[fkProperty] = 77;
         entry.SetRelationshipSnapshotValue(fkProperty, 78);
@@ -402,11 +402,11 @@ public abstract class InternalEntityEntryTestBase<
         var entry = context.Entry(new TSomeDependentEntity()).GetInfrastructure();
 
         var entityType = entry.EntityType;
-        entry[entityType.FindProperty("Id1")] = 77;
-        entry[entityType.FindProperty("Id2")] = "Ready Salted";
+        entry[entityType.FindProperty("Id1")!] = 77;
+        entry[entityType.FindProperty("Id2")!] = "Ready Salted";
         entry.SetEntityState(EntityState.Unchanged);
 
-        var fkProperty = entityType.FindProperty("SomeEntityId");
+        var fkProperty = entityType.FindProperty("SomeEntityId")!;
 
         entry[fkProperty] = 77;
         entry.SetRelationshipSnapshotValue(fkProperty, 78);
@@ -422,13 +422,13 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var stateManager = context.GetService<IStateManager>();
-        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity))!;
 
-        var keyProperty = entityType.FindProperty("Id");
-        var property = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var property = entityType.FindProperty("Name")!;
 
         var entry = stateManager.CreateEntry(
-            new Dictionary<IProperty, object> { { keyProperty, 1 }, { property, "Kool" } },
+            new Dictionary<IProperty, object?> { { keyProperty, 1 }, { property, "Kool" } },
             entityType
         );
 
@@ -441,13 +441,13 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var stateManager = context.GetService<IStateManager>();
-        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity))!;
 
-        var keyProperty = entityType.FindProperty("Id");
-        var nameProperty = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var nameProperty = entityType.FindProperty("Name")!;
 
         var entry = stateManager.CreateEntry(
-            new Dictionary<IProperty, object> { { keyProperty, 1 }, { nameProperty, "Kool" } },
+            new Dictionary<IProperty, object?> { { keyProperty, 1 }, { nameProperty, "Kool" } },
             entityType
         );
 
@@ -461,13 +461,13 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var stateManager = context.GetService<IStateManager>();
-        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity))!;
 
-        var keyProperty = entityType.FindProperty("Id");
-        var property = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var property = entityType.FindProperty("Name")!;
 
         var entry = stateManager.CreateEntry(
-            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
+            new Dictionary<string, object?> { { "Id", 1 }, { "Name", "Kool" } },
             entityType
         );
 
@@ -480,12 +480,12 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var stateManager = context.GetService<IStateManager>();
-        var entityType = context.Model.FindEntityType(typeof(TSomeEntity));
+        var entityType = context.Model.FindEntityType(typeof(TSomeEntity))!;
 
-        var nameProperty = entityType.FindProperty("Name");
+        var nameProperty = entityType.FindProperty("Name")!;
 
         var entry = stateManager.CreateEntry(
-            new Dictionary<string, object> { { "Id", 1 }, { "Name", "Kool" } },
+            new Dictionary<string, object?> { { "Id", 1 }, { "Name", "Kool" } },
             entityType
         );
 
@@ -499,8 +499,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Add(new TSomeEntity()).GetInfrastructure();
-        var keyProperty = entry.EntityType.FindProperty("Id");
-        var nonKeyProperty = entry.EntityType.FindProperty("Name");
+        var keyProperty = entry.EntityType.FindProperty("Id")!;
+        var nonKeyProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[keyProperty] = 77;
         entry[nonKeyProperty] = "Magic Tree House";
@@ -510,15 +510,15 @@ public abstract class InternalEntityEntryTestBase<
             CreateValueBuffer(entry));
     }
 
-    private static object[] CreateValueBuffer(IUpdateEntry entry)
+    private static object?[] CreateValueBuffer(IUpdateEntry entry)
         => entry.EntityType.GetProperties().Select(entry.GetCurrentValue).ToArray();
 
     protected void AllOriginalValuesTest(object entity)
     {
         using var context = new TKSnapContext();
         var entry = context.Entry(entity).GetInfrastructure();
-        var idProperty = entry.EntityType.FindProperty("Id");
-        var nameProperty = entry.EntityType.FindProperty("Name");
+        var idProperty = entry.EntityType.FindProperty("Id")!;
+        var nameProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[idProperty] = 1;
         entry[nameProperty] = "Kool";
@@ -552,8 +552,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(entity).GetInfrastructure();
-        entry[entry.EntityType.FindProperty("Id")] = 1;
-        var nameProperty = entry.EntityType.FindProperty("Name");
+        entry[entry.EntityType.FindProperty("Id")!] = 1;
+        var nameProperty = entry.EntityType.FindProperty("Name")!;
         entry[nameProperty] = "Kool";
         entry.SetEntityState(EntityState.Unchanged);
 
@@ -579,8 +579,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(entity).GetInfrastructure();
-        var idProperty = entry.EntityType.FindProperty("Id");
-        var nameProperty = entry.EntityType.FindProperty("Name");
+        var idProperty = entry.EntityType.FindProperty("Id")!;
+        var nameProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[idProperty] = 77;
         entry[nameProperty] = "Kool";
@@ -608,8 +608,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(entity).GetInfrastructure();
-        var idProperty = entry.EntityType.FindProperty("Id");
-        var nameProperty = entry.EntityType.FindProperty("Name");
+        var idProperty = entry.EntityType.FindProperty("Id")!;
+        var nameProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[idProperty] = 77;
         entry.SetEntityState(EntityState.Unchanged);
@@ -641,8 +641,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(entity).GetInfrastructure();
-        var idProperty = entry.EntityType.FindProperty("Id");
-        var nameProperty = entry.EntityType.FindProperty("Name");
+        var idProperty = entry.EntityType.FindProperty("Id")!;
+        var nameProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[idProperty] = 77;
         entry.SetEntityState(EntityState.Unchanged);
@@ -674,8 +674,8 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new TKContext();
         var entry = context.Entry(entity).GetInfrastructure();
-        var idProperty = entry.EntityType.FindProperty("Id");
-        var nameProperty = entry.EntityType.FindProperty("Name");
+        var idProperty = entry.EntityType.FindProperty("Id")!;
+        var nameProperty = entry.EntityType.FindProperty("Name")!;
 
         entry[idProperty] = 77;
         entry[nameProperty] = "Kool";
@@ -713,8 +713,8 @@ public abstract class InternalEntityEntryTestBase<
         var entity = new TSomeEntity();
         var entry = context.Entry(entity).GetInfrastructure();
         var entityType = entry.EntityType;
-        var keyProperty = entityType.FindProperty("Id");
-        var nonKeyProperty = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var nonKeyProperty = entityType.FindProperty("Name")!;
 
         entry[keyProperty] = 77;
         entry[nonKeyProperty] = "Magic Tree House";
@@ -747,8 +747,8 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new TKContext();
         var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
         var entityType = entry.EntityType;
-        var keyProperty = entityType.FindProperty("Id");
-        var nonKeyProperty = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var nonKeyProperty = entityType.FindProperty("Name")!;
         entry[keyProperty] = 1;
         entry[nonKeyProperty] = "Kool";
 
@@ -765,8 +765,8 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new TKContext();
         var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
         var entityType = entry.EntityType;
-        var keyProperty = entityType.FindProperty("Id");
-        var nameProperty = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var nameProperty = entityType.FindProperty("Name")!;
 
         entry[keyProperty] = 1;
         entry[nameProperty] = "Kool";
@@ -789,8 +789,8 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new TKContext();
         var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
         var entityType = entry.EntityType;
-        var keyProperty = entityType.FindProperty("Id");
-        var nameProperty = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var nameProperty = entityType.FindProperty("Name")!;
 
         entry[keyProperty] = 1;
         entry[nameProperty] = "Kool";
@@ -812,8 +812,8 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new TKContext();
         var entry = context.Entry(new TSomeEntity()).GetInfrastructure();
         var entityType = entry.EntityType;
-        var keyProperty = entityType.FindProperty("Id");
-        var nameProperty = entityType.FindProperty("Name");
+        var keyProperty = entityType.FindProperty("Id")!;
+        var nameProperty = entityType.FindProperty("Name")!;
 
         entry[keyProperty] = 1;
         entry[nameProperty] = "Kool";
@@ -830,7 +830,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new KcContext();
         var entry = context.Entry(new TSecondDependent()).GetInfrastructure();
-        var fkProperty = entry.EntityType.FindProperty("Id");
+        var fkProperty = entry.EntityType.FindProperty("Id")!;
 
         entry[fkProperty] = 77;
         entry.SetEntityState(EntityState.Unchanged);
@@ -846,7 +846,7 @@ public abstract class InternalEntityEntryTestBase<
     {
         using var context = new KcContext();
         var entry = context.Entry(new TSecondDependent()).GetInfrastructure();
-        var fkProperty = entry.EntityType.FindProperty("Id");
+        var fkProperty = entry.EntityType.FindProperty("Id")!;
 
         entry[fkProperty] = 77;
         entry.SetEntityState(EntityState.Added);
@@ -863,11 +863,11 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new KcrContext();
         var entry = context.Entry(new TCompositeSecondDependent()).GetInfrastructure();
         var entityType = entry.EntityType;
-        var fkProperty1 = entityType.FindProperty("FirstId1");
-        var fkProperty2 = entityType.FindProperty("FirstId2");
+        var fkProperty1 = entityType.FindProperty("FirstId1")!;
+        var fkProperty2 = entityType.FindProperty("FirstId2")!;
 
-        entry[entityType.FindProperty("Id1")] = 66;
-        entry[entityType.FindProperty("Id2")] = "Bar";
+        entry[entityType.FindProperty("Id1")!] = 66;
+        entry[entityType.FindProperty("Id2")!] = "Bar";
         entry[fkProperty1] = 77;
         entry[fkProperty2] = "Foo";
         entry.SetEntityState(EntityState.Unchanged);
@@ -884,11 +884,11 @@ public abstract class InternalEntityEntryTestBase<
         using var context = new KcContext();
         var entry = context.Entry(new TCompositeSecondDependent()).GetInfrastructure();
         var entityType = entry.EntityType;
-        var fkProperty1 = entityType.FindProperty("FirstId1");
-        var fkProperty2 = entityType.FindProperty("FirstId2");
+        var fkProperty1 = entityType.FindProperty("FirstId1")!;
+        var fkProperty2 = entityType.FindProperty("FirstId2")!;
 
-        entry[entityType.FindProperty("Id1")] = 66;
-        entry[entityType.FindProperty("Id2")] = "Bar";
+        entry[entityType.FindProperty("Id1")!] = 66;
+        entry[entityType.FindProperty("Id2")!] = "Bar";
         entry[fkProperty1] = 77;
         entry[fkProperty2] = "Foo";
         entry.SetEntityState(EntityState.Unchanged);

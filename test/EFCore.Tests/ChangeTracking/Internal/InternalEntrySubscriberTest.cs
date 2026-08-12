@@ -531,40 +531,40 @@ public class InternalEntrySubscriberTest
         {
         }
 
-        public (EventHandler<DetectChangesEventArgs> DetectingAllChanges,
-            EventHandler<DetectedChangesEventArgs> DetectedAllChanges,
-            EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges,
-            EventHandler<DetectedEntityChangesEventArgs>
+        public (EventHandler<DetectChangesEventArgs>? DetectingAllChanges,
+            EventHandler<DetectedChangesEventArgs>? DetectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>?
             DetectedEntityChanges) CaptureEvents()
             => (null, null, null, null);
 
         public void SetEvents(
-            EventHandler<DetectChangesEventArgs> detectingAllChanges,
-            EventHandler<DetectedChangesEventArgs> detectedAllChanges,
-            EventHandler<DetectEntityChangesEventArgs> detectingEntityChanges,
-            EventHandler<DetectedEntityChangesEventArgs> detectedEntityChanges)
+            EventHandler<DetectChangesEventArgs>? detectingAllChanges,
+            EventHandler<DetectedChangesEventArgs>? detectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs>? detectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>? detectedEntityChanges)
         {
         }
 
-        public event EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges;
+        public event EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges;
 
         public void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
-            => DetectingEntityChanges?.Invoke(null, null);
+            => DetectingEntityChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectChangesEventArgs> DetectingAllChanges;
+        public event EventHandler<DetectChangesEventArgs>? DetectingAllChanges;
 
         public void OnDetectingAllChanges(IStateManager stateManager)
-            => DetectingAllChanges?.Invoke(null, null);
+            => DetectingAllChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectedEntityChangesEventArgs> DetectedEntityChanges;
+        public event EventHandler<DetectedEntityChangesEventArgs>? DetectedEntityChanges;
 
         public void OnDetectedEntityChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
-            => DetectedEntityChanges?.Invoke(null, null);
+            => DetectedEntityChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectedChangesEventArgs> DetectedAllChanges;
+        public event EventHandler<DetectedChangesEventArgs>? DetectedAllChanges;
 
         public void OnDetectedAllChanges(IStateManager stateManager, bool changesFound)
-            => DetectedAllChanges?.Invoke(null, null);
+            => DetectedAllChanges?.Invoke(null, null!);
 
         public void Suspend()
         {
@@ -604,8 +604,8 @@ public class InternalEntrySubscriberTest
         public void NavigationReferenceChanged(
             InternalEntityEntry entry,
             INavigationBase navigationBase,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
         }
 
@@ -637,8 +637,8 @@ public class InternalEntrySubscriberTest
             IProperty property,
             IEnumerable<IKey> containingPrincipalKeys,
             IEnumerable<IForeignKey> containingForeignKeys,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
         }
     }
@@ -661,9 +661,9 @@ public class InternalEntrySubscriberTest
     private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
     {
         private int _id;
-        private string _name;
-        private string _notMapped;
-        private ICollection<ChangedOnlyNotificationEntity> _relatedCollection;
+        private string _name = null!;
+        private string _notMapped = null!;
+        private ICollection<ChangedOnlyNotificationEntity> _relatedCollection = null!;
 
         public int Id
         {
@@ -699,22 +699,22 @@ public class InternalEntrySubscriberTest
             }
         }
 
-        public event PropertyChangingEventHandler PropertyChanging;
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        public void NotifyChanged(string propertyName)
+        public void NotifyChanged(string? propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        public void NotifyChanging(string propertyName)
+        public void NotifyChanging(string? propertyName)
             => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
     }
 
     private class ChangedOnlyNotificationEntity : INotifyPropertyChanged
     {
         private int _id;
-        private string _name;
+        private string _name = null!;
         private int _fk;
-        private FullNotificationEntity _related;
+        private FullNotificationEntity _related = null!;
 
         public int Id
         {
@@ -749,7 +749,7 @@ public class InternalEntrySubscriberTest
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void NotifyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

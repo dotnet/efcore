@@ -231,7 +231,7 @@ public class ShadowFixupTest
             {
                 var fk = b.Metadata.AddForeignKey(
                     [b.Property<int>("CategoryId").Metadata],
-                    category.FindPrimaryKey(),
+                    category.FindPrimaryKey()!,
                     category);
                 fk.SetDependentToPrincipal("Category");
                 fk.SetPrincipalToDependent("Products");
@@ -243,7 +243,7 @@ public class ShadowFixupTest
             {
                 var fk = b.Metadata.AddForeignKey(
                     [b.Property<int>("ParentId").Metadata],
-                    parent.FindPrimaryKey(),
+                    parent.FindPrimaryKey()!,
                     parent);
                 fk.IsUnique = true;
                 fk.SetDependentToPrincipal("Parent");

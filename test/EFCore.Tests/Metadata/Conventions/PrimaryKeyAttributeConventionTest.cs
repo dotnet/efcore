@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-#nullable enable
-
 public class PrimaryKeyAttributeConventionTest
 {
     [Fact]

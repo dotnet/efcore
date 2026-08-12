@@ -20,7 +20,7 @@ public class StringToNumberConverterTest
 
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-9223372036854775809"));
         Assert.Throws<OverflowException>(() => converter("9223372036854775808"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<OverflowException>(() => converter("4294967296"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -191,7 +191,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-2147483649"));
         Assert.Throws<OverflowException>(() => converter("2147483648"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -250,7 +250,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<OverflowException>(() => converter("65536"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -306,7 +306,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-32769"));
         Assert.Throws<OverflowException>(() => converter("32768"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -365,7 +365,7 @@ public class StringToNumberConverterTest
 
         Assert.Throws<OverflowException>(() => converter("-1"));
         Assert.Throws<OverflowException>(() => converter("256"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -420,7 +420,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-129"));
         Assert.Throws<OverflowException>(() => converter("128"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -483,7 +483,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
         Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -516,7 +516,7 @@ public class StringToNumberConverterTest
         Assert.Equal(double.PositiveInfinity, converter("1.7976931348623157E+309"));
         Assert.Equal(double.NegativeInfinity, converter("-1.7976931348623157E+309"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -549,7 +549,7 @@ public class StringToNumberConverterTest
         Assert.Equal(float.PositiveInfinity, converter("3.40282347E+39"));
         Assert.Equal(float.NegativeInfinity, converter("-3.40282347E+39"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
     }
 
     [Fact]
@@ -581,7 +581,7 @@ public class StringToNumberConverterTest
         Assert.Throws<OverflowException>(() => converter("-129"));
         Assert.Throws<OverflowException>(() => converter("128"));
         Assert.Throws<FormatException>(() => converter("Not a number"));
-        Assert.Null(converter(null));
+        Assert.Null(converter(null!));
     }
 
     [Fact]

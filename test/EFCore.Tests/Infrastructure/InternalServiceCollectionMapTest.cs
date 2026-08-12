@@ -267,7 +267,7 @@ public class InternalServiceCollectionMapTest
     public void Throws_if_attempt_is_made_to_register_dependency_as_delegate()
     {
         var serviceCollection = new ServiceCollection();
-        serviceCollection.AddSingleton<DatabaseProviderDependencies>(p => null);
+        serviceCollection.AddSingleton<DatabaseProviderDependencies>(p => null!);
 
         var builder = new EntityFrameworkServicesBuilder(serviceCollection);
 
@@ -305,10 +305,10 @@ public class InternalServiceCollectionMapTest
 
     private class FakeService : IFakeService, IPatchServiceInjectionSite
     {
-        public DbContext Context { get; private set; }
+        public DbContext Context { get; private set; } = null!;
 
         void IPatchServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
-            => Context = serviceProvider.GetService<ICurrentDbContext>().Context;
+            => Context = serviceProvider.GetService<ICurrentDbContext>()!.Context;
     }
 
     private class DerivedFakeService : FakeService;
@@ -317,10 +317,10 @@ public class InternalServiceCollectionMapTest
 
     private class FakeSingletonService : IFakeSingletonService, IPatchServiceInjectionSite
     {
-        public IModelSource ModelSource { get; private set; }
+        public IModelSource ModelSource { get; private set; } = null!;
 
         void IPatchServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
-            => ModelSource = serviceProvider.GetService<IModelSource>();
+            => ModelSource = serviceProvider.GetService<IModelSource>()!;
     }
 
     private class DerivedFakeSingletonService : FakeSingletonService;

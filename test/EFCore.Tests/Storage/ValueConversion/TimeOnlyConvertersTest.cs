@@ -30,7 +30,7 @@ public class TimeOnlyConvertersTest
         Assert.Equal(new TimeOnly(7, 30, 15, 333, 444).Add(new TimeSpan(5)), converter("07:30:15.3334445"));
         Assert.Equal(new TimeOnly(), converter("00:00:00"));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
         Assert.Throws<FormatException>(() => converter("Not a TimeOnly"));
     }
 

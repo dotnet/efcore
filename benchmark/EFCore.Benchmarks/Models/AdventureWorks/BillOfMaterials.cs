@@ -15,9 +15,9 @@ public class BillOfMaterials
     public decimal PerAssemblyQty { get; set; }
     public int? ProductAssemblyID { get; set; }
     public DateTime StartDate { get; set; }
-    public string UnitMeasureCode { get; set; }
+    public string UnitMeasureCode { get; set; } = null!;
 
-    public virtual Product Component { get; set; }
-    public virtual Product ProductAssembly { get; set; }
-    public virtual UnitMeasure UnitMeasureCodeNavigation { get; set; }
+    public virtual Product Component { get; set; } = null!;
+    public virtual Product? ProductAssembly { get; set; }
+    public virtual UnitMeasure UnitMeasureCodeNavigation { get; set; } = null!;
 }

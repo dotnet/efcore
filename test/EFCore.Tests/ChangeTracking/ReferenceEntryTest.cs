@@ -65,7 +65,7 @@ public class ReferenceEntryTest
         Assert.Same(chunky, cherry.Monkeys.Single());
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
 
         reference.CurrentValue = null;
 
@@ -94,7 +94,7 @@ public class ReferenceEntryTest
         Assert.Same(chunky, cherry.Monkeys.Single());
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
 
         reference.CurrentValue = null;
 
@@ -176,7 +176,7 @@ public class ReferenceEntryTest
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
 
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
 
@@ -211,7 +211,7 @@ public class ReferenceEntryTest
         Assert.Equal(cherry.Id, chunky.GarciaId);
         Assert.Same(cherry, reference.CurrentValue);
 
-        Assert.Same(reference.TargetEntry.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
+        Assert.Same(reference.TargetEntry!.GetInfrastructure(), context.Entry(cherry).GetInfrastructure());
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
 
@@ -502,9 +502,9 @@ public class ReferenceEntryTest
         public int Id { get; set; }
 
         public int? GarciaId { get; set; }
-        public Cherry Garcia { get; set; }
+        public Cherry Garcia { get; set; } = null!;
 
-        public Half Baked { get; set; }
+        public Half Baked { get; set; } = null!;
     }
 
     private class Half
@@ -514,7 +514,7 @@ public class ReferenceEntryTest
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int? MonkeyId { get; set; }
-        public Chunky Monkey { get; set; }
+        public Chunky Monkey { get; set; } = null!;
     }
 
     private class Cherry
@@ -522,7 +522,7 @@ public class ReferenceEntryTest
         public int Garcia { get; set; }
         public int Id { get; set; }
 
-        public ICollection<Chunky> Monkeys { get; set; }
+        public ICollection<Chunky> Monkeys { get; set; } = null!;
     }
 
     private class FreezerContext : DbContext
@@ -532,7 +532,7 @@ public class ReferenceEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream { get; set; }
+        public DbSet<Chunky> Icecream { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

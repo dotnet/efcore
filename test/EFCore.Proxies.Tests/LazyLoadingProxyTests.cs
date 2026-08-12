@@ -99,7 +99,7 @@ public class LazyLoadingProxyTests
 
         using (var scope = serviceProvider.CreateScope())
         {
-            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>()!;
             context.Add(new Phone());
             context.SaveChanges();
         }
@@ -107,7 +107,7 @@ public class LazyLoadingProxyTests
         Phone phone;
         using (var scope = serviceProvider.CreateScope())
         {
-            var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+            var context = scope.ServiceProvider.GetService<JammieDodgerContext>()!;
             phone = context.Set<Phone>().Single();
         }
 
@@ -182,21 +182,21 @@ public class LazyLoadingProxyTests
     {
         public int Id { get; set; }
 
-        public LazyNonVirtualNavEntity SelfRef { get; set; }
+        public LazyNonVirtualNavEntity? SelfRef { get; set; }
     }
 
     public class LazyFieldNavEntity
     {
         public int Id { get; set; }
 
-        public LazyFieldNavEntity SelfRef;
+        public LazyFieldNavEntity? SelfRef;
     }
 
     public class LazyNonVirtualOwnedNavEntity
     {
         public int Id { get; set; }
 
-        public OwnedNavEntity NavigationToOwned { get; set; }
+        public OwnedNavEntity? NavigationToOwned { get; set; }
     }
 
     [Owned]
@@ -204,16 +204,16 @@ public class LazyLoadingProxyTests
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public LazyNonVirtualOwnedNavEntity Owner { get; set; }
+        public LazyNonVirtualOwnedNavEntity? Owner { get; set; }
     }
 
     public class LazyFieldOwnedNavEntity
     {
         public int Id { get; set; }
 
-        public OwnedFieldNavEntity NavigationToOwned;
+        public OwnedFieldNavEntity? NavigationToOwned;
     }
 
     [Owned]
@@ -221,19 +221,19 @@ public class LazyLoadingProxyTests
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public LazyFieldOwnedNavEntity Owner;
+        public LazyFieldOwnedNavEntity? Owner;
     }
 
     public class LazyHiddenFieldEntity
     {
-        private LazyHiddenFieldEntity _hiddenBackingField;
+        private LazyHiddenFieldEntity? _hiddenBackingField;
 
         public int Id { get; set; }
 
         // ReSharper disable once ConvertToAutoProperty
-        public virtual LazyHiddenFieldEntity SelfRef
+        public virtual LazyHiddenFieldEntity? SelfRef
         {
             get => _hiddenBackingField;
             set => _hiddenBackingField = value;
@@ -249,7 +249,7 @@ public class LazyLoadingProxyTests
     public class Phone
     {
         public int Id { get; set; }
-        public virtual ICollection<Text> Texts { get; set; }
+        public virtual ICollection<Text> Texts { get; set; } = null!;
     }
 
     public class Text

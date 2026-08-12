@@ -126,7 +126,7 @@ public class InMemoryDatabaseCreatorTest
     private class FraggleContext(bool seed = false, bool asyncSeed = false) : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Fraggle> Fraggles { get; set; }
+        public DbSet<Fraggle> Fraggles { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -149,6 +149,6 @@ public class InMemoryDatabaseCreatorTest
     private class Fraggle
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }
