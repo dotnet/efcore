@@ -38,7 +38,7 @@ public class CurrentValueComparerTest
 
         var factory = CurrentValueComparerFactory.Instance;
 
-        Assert.IsType(expectedComparer, factory.Create(context.Model.FindEntityType(typeof(Godzilla)).FindProperty(property)));
+        Assert.IsType(expectedComparer, factory.Create(context.Model.FindEntityType(typeof(Godzilla))!.FindProperty(property)!));
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class CurrentValueComparerTest
             CoreStrings.NonComparableKeyType(
                 nameof(Godzilla), nameof(Godzilla.NotComparable), nameof(NotComparable)),
             Assert.Throws<InvalidOperationException>(() => factory.Create(
-                context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparable)))).Message);
+                context.Model.FindEntityType(typeof(Godzilla))!.FindProperty(nameof(Godzilla.NotComparable))!)).Message);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class CurrentValueComparerTest
             CoreStrings.NonComparableKeyTypes(
                 nameof(Godzilla), nameof(Godzilla.NotComparableConverted), nameof(NotComparable), nameof(NotComparable)),
             Assert.Throws<InvalidOperationException>(() => factory.Create(
-                context.Model.FindEntityType(typeof(Godzilla)).FindProperty(nameof(Godzilla.NotComparableConverted)))).Message);
+                context.Model.FindEntityType(typeof(Godzilla))!.FindProperty(nameof(Godzilla.NotComparableConverted))!)).Message);
     }
 
     [Fact]
@@ -111,8 +111,8 @@ public class CurrentValueComparerTest
             generator(1), generator(9), generator(7), generator(3));
 
         var comparer = context.Model
-            .FindEntityType(typeof(Godzilla))
-            .FindProperty(propertyName)
+            .FindEntityType(typeof(Godzilla))!
+            .FindProperty(propertyName)!
             .GetCurrentValueComparer();
 
         var entries = context.ChangeTracker.Entries<Godzilla>()
@@ -164,8 +164,8 @@ public class CurrentValueComparerTest
             generator([1, 1]), generator([9]), generator([7]), generator([3, 3]));
 
         var comparer = context.Model
-            .FindEntityType(typeof(Godzilla))
-            .FindProperty(propertyName)
+            .FindEntityType(typeof(Godzilla))!
+            .FindProperty(propertyName)!
             .GetCurrentValueComparer();
 
         var entries = context.ChangeTracker.Entries<Godzilla>()
@@ -221,28 +221,28 @@ public class CurrentValueComparerTest
     public void Can_sort_Strings()
         => CanSortNullable(
             nameof(Godzilla.String),
-            i => new Godzilla { String = i?.ToString() },
+            i => new Godzilla { String = i?.ToString()! },
             g => g.String == null ? null : int.Parse(g.String));
 
     [Fact]
     public void Can_sort_IntClasses()
         => CanSortNullable(
             nameof(Godzilla.IntClass),
-            i => new Godzilla { IntClass = i.HasValue ? new IntClass { Value = i.Value } : null },
+            i => new Godzilla { IntClass = i.HasValue ? new IntClass { Value = i.Value } : null! },
             g => g.IntClass?.Value);
 
     [Fact]
     public void Can_sort_ComparableIntClasses()
         => CanSortNullable(
             nameof(Godzilla.ComparableIntClass),
-            i => new Godzilla { ComparableIntClass = i.HasValue ? new ComparableIntClass { Value = i.Value } : null },
+            i => new Godzilla { ComparableIntClass = i.HasValue ? new ComparableIntClass { Value = i.Value } : null! },
             g => g.ComparableIntClass?.Value);
 
     [Fact]
     public void Can_sort_GenericComparableIntClass()
         => CanSortNullable(
             nameof(Godzilla.GenericComparableIntClass),
-            i => new Godzilla { GenericComparableIntClass = i.HasValue ? new GenericComparableIntClass { Value = i.Value } : null },
+            i => new Godzilla { GenericComparableIntClass = i.HasValue ? new GenericComparableIntClass { Value = i.Value } : null! },
             g => g.GenericComparableIntClass?.Value);
 
     private void CanSortNullable(
@@ -258,8 +258,8 @@ public class CurrentValueComparerTest
             generator(1), generator(9), generator(7), generator(3));
 
         var comparer = context.Model
-            .FindEntityType(typeof(Godzilla))
-            .FindProperty(propertyName)
+            .FindEntityType(typeof(Godzilla))!
+            .FindProperty(propertyName)!
             .GetCurrentValueComparer();
 
         var entries = context.ChangeTracker.Entries<Godzilla>()
@@ -311,13 +311,13 @@ public class CurrentValueComparerTest
     public void Can_sort_Bytes()
         => CanSortNullable(
             nameof(Godzilla.Bytes),
-            i => new Godzilla { Bytes = i },
+            i => new Godzilla { Bytes = i! },
             g => g.Bytes);
 
     private void CanSortNullable(
         string propertyName,
-        Func<byte[], Godzilla> generator,
-        Func<Godzilla, byte[]> selector)
+        Func<byte[]?, Godzilla> generator,
+        Func<Godzilla, byte[]?> selector)
     {
         using var context = new GodzillaContext();
 
@@ -327,8 +327,8 @@ public class CurrentValueComparerTest
             generator([1, 1]), generator([9]), generator([7]), generator([3, 3]));
 
         var comparer = context.Model
-            .FindEntityType(typeof(Godzilla))
-            .FindProperty(propertyName)
+            .FindEntityType(typeof(Godzilla))!
+            .FindProperty(propertyName)!
             .GetCurrentValueComparer();
 
         var entries = context.ChangeTracker.Entries<Godzilla>()
@@ -395,11 +395,11 @@ public class CurrentValueComparerTest
         public StructuralComparableBytesStruct? NullableStructuralComparableBytesStruct { get; set; }
         public int? NullableInt { get; set; }
         public ulong? NullableULong { get; set; }
-        public string String { get; set; }
-        public byte[] Bytes { get; set; }
-        public IntClass IntClass { get; set; }
-        public ComparableIntClass ComparableIntClass { get; set; }
-        public GenericComparableIntClass GenericComparableIntClass { get; set; }
+        public string String { get; set; } = null!;
+        public byte[] Bytes { get; set; } = null!;
+        public IntClass IntClass { get; set; } = null!;
+        public ComparableIntClass ComparableIntClass { get; set; } = null!;
+        public GenericComparableIntClass GenericComparableIntClass { get; set; } = null!;
         public NotComparable NotComparable { get; set; }
         public NotComparable NotComparableConverted { get; set; }
     }
@@ -453,8 +453,8 @@ public class CurrentValueComparerTest
 
         public int Value { get; set; }
 
-        public int CompareTo(object other)
-            => Value - ((ComparableIntStruct)other).Value;
+        public int CompareTo(object? other)
+            => Value - ((ComparableIntStruct)other!).Value;
     }
 
     private struct ComparableBytesStruct : IComparable
@@ -484,9 +484,9 @@ public class CurrentValueComparerTest
             return code.ToHashCode();
         }
 
-        public int CompareTo(object other)
+        public int CompareTo(object? other)
         {
-            var result = Value.Length - ((ComparableBytesStruct)other).Value.Length;
+            var result = Value.Length - ((ComparableBytesStruct)other!).Value.Length;
             if (result != 0)
             {
                 return result;
@@ -573,9 +573,9 @@ public class CurrentValueComparerTest
             return code.ToHashCode();
         }
 
-        public int CompareTo(object other, IComparer comparer)
+        public int CompareTo(object? other, IComparer comparer)
         {
-            var typedOther = ((StructuralComparableBytesStruct)other);
+            var typedOther = ((StructuralComparableBytesStruct)other!);
 
             var i = -1;
             var result = Value.Length - typedOther.Value.Length;
@@ -598,7 +598,7 @@ public class CurrentValueComparerTest
         private bool Equals(IntClass other)
             => other != null && Value == other.Value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
                 || obj?.GetType() == GetType()
                 && Equals((IntClass)obj);
@@ -619,7 +619,7 @@ public class CurrentValueComparerTest
         private bool Equals(ComparableIntClass other)
             => other != null && Value == other.Value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
                 || obj?.GetType() == GetType()
                 && Equals((ComparableIntClass)obj);
@@ -627,8 +627,8 @@ public class CurrentValueComparerTest
         public override int GetHashCode()
             => Value;
 
-        public int CompareTo(object other)
-            => Value - ((ComparableIntClass)other).Value;
+        public int CompareTo(object? other)
+            => Value - ((ComparableIntClass)other!).Value;
     }
 
     private class GenericComparableIntClass : IComparable<GenericComparableIntClass>
@@ -641,7 +641,7 @@ public class CurrentValueComparerTest
         private bool Equals(GenericComparableIntClass other)
             => other != null && Value == other.Value;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj == this
                 || obj?.GetType() == GetType()
                 && Equals((GenericComparableIntClass)obj);
@@ -649,7 +649,7 @@ public class CurrentValueComparerTest
         public override int GetHashCode()
             => Value;
 
-        public int CompareTo(GenericComparableIntClass other)
-            => Value - other.Value;
+        public int CompareTo(GenericComparableIntClass? other)
+            => Value - other!.Value;
     }
 }

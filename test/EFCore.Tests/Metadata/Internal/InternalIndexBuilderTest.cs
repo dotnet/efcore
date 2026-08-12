@@ -44,17 +44,17 @@ public class InternalIndexBuilderTest
     private InternalIndexBuilder CreateInternalIndexBuilder()
     {
         var modelBuilder = new InternalModelBuilder(new Model());
-        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+        var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!;
 
-        return entityBuilder.HasIndex([Customer.IdProperty, Customer.NameProperty], ConfigurationSource.Explicit);
+        return entityBuilder.HasIndex([Customer.IdProperty, Customer.NameProperty], ConfigurationSource.Explicit)!;
     }
 
     private class Customer
     {
-        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
+        public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id")!;
+        public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name")!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

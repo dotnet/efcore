@@ -20,10 +20,10 @@ public class SalesTerritory
     public int TerritoryID { get; set; }
     public decimal CostLastYear { get; set; }
     public decimal CostYTD { get; set; }
-    public string CountryRegionCode { get; set; }
-    public string Group { get; set; }
+    public string CountryRegionCode { get; set; } = null!;
+    public string Group { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
@@ -35,5 +35,5 @@ public class SalesTerritory
     public virtual ICollection<SalesPerson> SalesPerson { get; set; }
     public virtual ICollection<SalesTerritoryHistory> SalesTerritoryHistory { get; set; }
     public virtual ICollection<StateProvince> StateProvince { get; set; }
-    public virtual CountryRegion CountryRegionCodeNavigation { get; set; }
+    public virtual CountryRegion CountryRegionCodeNavigation { get; set; } = null!;
 }

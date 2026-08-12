@@ -70,24 +70,24 @@ public class ConcurrencyDetectorTest
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Order> Orders { get; set; } = null!;
     }
 
     public class Customer
     {
         public int CustomerId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public virtual ICollection<Order> Orders { get; set; }
+        public string FirstName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
+        public virtual ICollection<Order> Orders { get; set; } = [];
     }
 
     public class Order
     {
-        private readonly ILazyLoader _lazyLoader;
-        private Customer _customer;
+        private readonly ILazyLoader? _lazyLoader;
+        private Customer? _customer;
 
         public Order()
         {
@@ -102,7 +102,7 @@ public class ConcurrencyDetectorTest
 
         public Customer Customer
         {
-            get => _lazyLoader.Load(this, ref _customer);
+            get => _lazyLoader.Load(this, ref _customer)!;
             set => _customer = value;
         }
     }

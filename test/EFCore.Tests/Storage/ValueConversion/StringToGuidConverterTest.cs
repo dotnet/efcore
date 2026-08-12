@@ -20,7 +20,7 @@ public class StringToGuidConverterTest
             Guid.Empty,
             converter("00000000-0000-0000-0000-000000000000"));
 
-        Assert.Throws<ArgumentNullException>(() => converter(null));
+        Assert.Throws<ArgumentNullException>(() => converter(null!));
         Assert.Throws<FormatException>(() => converter("Not a GUID"));
     }
 

@@ -46,14 +46,14 @@ public class SkipMemberEntryTest
 
         Assert.Same(cherry, chunky.Cherries.Single());
         Assert.Same(chunky, cherry.Chunkies.Single());
-        Assert.Equal(cherry, ((ICollection<Cherry>)inverseCollection.CurrentValue).Single());
+        Assert.Equal(cherry, ((ICollection<Cherry>)inverseCollection.CurrentValue!).Single());
         Assert.Same(chunky, ((ICollection<Chunky>)collection.CurrentValue).Single());
 
         collection.CurrentValue = null;
 
         Assert.Empty(chunky.Cherries);
         Assert.Null(cherry.Chunkies);
-        Assert.Empty((IEnumerable)inverseCollection.CurrentValue);
+        Assert.Empty((IEnumerable)inverseCollection.CurrentValue!);
         Assert.Null(collection.CurrentValue);
     }
 
@@ -122,13 +122,13 @@ public class SkipMemberEntryTest
     private class Chunky
     {
         public int Id { get; set; }
-        public ICollection<Cherry> Cherries { get; set; }
+        public ICollection<Cherry> Cherries { get; set; } = null!;
     }
 
     private class Cherry
     {
         public int Id { get; set; }
-        public ICollection<Chunky> Chunkies { get; }
+        public ICollection<Chunky> Chunkies { get; } = null!;
     }
 
     private class FreezerContext : DbContext
@@ -138,6 +138,6 @@ public class SkipMemberEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream { get; set; }
+        public DbSet<Chunky> Icecream { get; set; } = null!;
     }
 }

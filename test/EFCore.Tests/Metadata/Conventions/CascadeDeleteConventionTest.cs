@@ -115,14 +115,14 @@ public class CascadeDeleteConventionTest
     {
         public int Id { get; set; }
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post> Posts { get; set; } = null!;
     }
 
     private class Post
     {
         public int Id { get; set; }
 
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
         public int? BlogId { get; set; }
     }
 

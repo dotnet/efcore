@@ -26,14 +26,14 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
-        var fkProperty = dependentTypeBuilder.Property(typeof(int), "No!No!", ConfigurationSource.Convention).Metadata;
+        var fkProperty = dependentTypeBuilder.Property(typeof(int), "No!No!", ConfigurationSource.Convention)!.Metadata;
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
                 PrincipalType,
                 "SomeNav",
                 null,
-                ConfigurationSource.Explicit)
-            .HasForeignKey([fkProperty], ConfigurationSource.Explicit);
+                ConfigurationSource.Explicit)!
+            .HasForeignKey([fkProperty], ConfigurationSource.Explicit)!;
 
         RunConvention(relationshipBuilder);
 
@@ -59,16 +59,16 @@ public class ForeignKeyPropertyDiscoveryConventionTest
             DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyNameProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention);
-        var fkProperty1 = dependentTypeBuilder.Property(typeof(int), "No!No!", ConfigurationSource.Convention);
-        var fkProperty2 = dependentTypeBuilder.Property(typeof(string), "No!No!2", ConfigurationSource.Convention);
+        var fkProperty1 = dependentTypeBuilder.Property(typeof(int), "No!No!", ConfigurationSource.Convention)!;
+        var fkProperty2 = dependentTypeBuilder.Property(typeof(string), "No!No!2", ConfigurationSource.Convention)!;
         fkProperty2.IsRequired(true, ConfigurationSource.Convention);
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
                 PrincipalTypeWithCompositeKey,
                 "NavProp",
                 null,
-                ConfigurationSource.Explicit)
-            .HasForeignKey([fkProperty1.Metadata, fkProperty2.Metadata], ConfigurationSource.Explicit);
+                ConfigurationSource.Explicit)!
+            .HasForeignKey([fkProperty1.Metadata, fkProperty2.Metadata], ConfigurationSource.Explicit)!;
 
         RunConvention(relationshipBuilder);
 
@@ -95,7 +95,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        var fk = relationshipBuilder.Metadata;
+        var fk = relationshipBuilder!.Metadata;
         Assert.Same(fk, DependentType.GetForeignKeys().Single());
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
@@ -108,7 +108,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Matches_navigation_plus_PK_name_property()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention)!.Metadata;
         dependentTypeBuilder.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
@@ -138,9 +138,9 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
         var fkProperty1 = dependentTypeBuilder.Property(
-            DependentEntityWithCompositeKey.NavPropIdProperty, ConfigurationSource.Convention);
+            DependentEntityWithCompositeKey.NavPropIdProperty, ConfigurationSource.Convention)!;
         var fkProperty2 = dependentTypeBuilder.Property(
-            DependentEntityWithCompositeKey.NavPropNameProperty, ConfigurationSource.Convention);
+            DependentEntityWithCompositeKey.NavPropNameProperty, ConfigurationSource.Convention)!;
         fkProperty2.IsRequired(true, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(
             DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyIdProperty, ConfigurationSource.Convention);
@@ -173,7 +173,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Matches_navigation_plus_Id_property()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention).Metadata;
+        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention)!.Metadata;
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
@@ -202,7 +202,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var dependentTypeBuilder = DependentType.Builder;
         var fkProperty = dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention)
-            .Metadata;
+            !.Metadata;
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
@@ -228,7 +228,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var dependentTypeBuilder = DependentType.Builder;
         var fkProperty = dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention)
-            .Metadata;
+            !.Metadata;
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
@@ -253,9 +253,9 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
         var fkProperty1 = dependentTypeBuilder.Property(
-            DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyIdProperty, ConfigurationSource.Convention);
+            DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyIdProperty, ConfigurationSource.Convention)!;
         var fkProperty2 = dependentTypeBuilder.Property(
-            DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyNameProperty, ConfigurationSource.Convention);
+            DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyNameProperty, ConfigurationSource.Convention)!;
         fkProperty2.IsRequired(true, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention);
@@ -306,16 +306,16 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Matches_key_Id_property()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = dependentTypeBuilder.PrimaryKey([DependentEntity.IDProperty], ConfigurationSource.Explicit)
+        var fkProperty = dependentTypeBuilder.PrimaryKey([DependentEntity.IDProperty], ConfigurationSource.Explicit)!
             .Metadata.Properties.Single();
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
                 PrincipalType,
                 "SomeNav",
                 null,
-                ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation)
-            .DependentEntityType(DependentType, ConfigurationSource.DataAnnotation);
+                ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!
+            .DependentEntityType(DependentType, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -332,17 +332,17 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     [Fact]
     public void Does_not_match_non_key_Id_property()
     {
-        var relationshipBuilder = DependentType.Builder.HasRelationship(
+        var relationshipBuilder = DependentType!.Builder!.HasRelationship(
                 PrincipalType,
                 "SomeNav",
                 null,
-                ConfigurationSource.Convention)
+                ConfigurationSource.Convention)!
             .IsUnique(true, ConfigurationSource.DataAnnotation);
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        Assert.NotEqual(DependentEntity.IDProperty.Name, DependentType.FindPrimaryKey().Properties.Single().Name);
+        Assert.NotEqual(DependentEntity.IDProperty.Name, DependentType.FindPrimaryKey()!.Properties.Single().Name);
 
         var fk = (IReadOnlyForeignKey)newRelationshipBuilder.Metadata;
         Assert.Same(fk, DependentType.GetForeignKeys().Single());
@@ -359,7 +359,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         dependentTypeBuilder.Property(
             DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(
-                DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention)
+            DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention)!
             .IsRequired(true, ConfigurationSource.Convention);
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
@@ -385,14 +385,14 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
         var pkProperty1 = dependentTypeBuilder.Property(
-                DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention)
+                DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention)!
             .Metadata;
         var pkProperty2 = dependentTypeBuilder.Property(
-                DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention)
-            .IsRequired(true, ConfigurationSource.Convention)
+                DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention)!
+            .IsRequired(true, ConfigurationSource.Convention)!
             .Metadata;
         var pkProperty3 = dependentTypeBuilder.Property(
-                DependentEntityWithCompositeKey.NavPropIdProperty, ConfigurationSource.Convention)
+                DependentEntityWithCompositeKey.NavPropIdProperty, ConfigurationSource.Convention)!
             .Metadata;
 
         dependentTypeBuilder.PrimaryKey([pkProperty1, pkProperty2, pkProperty3], ConfigurationSource.Explicit);
@@ -420,11 +420,11 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var dependentTypeBuilder = DependentType.Builder;
         var pkProperty = dependentTypeBuilder.Property(
-                DependentEntity.IDProperty, ConfigurationSource.Convention)
-            .IsRequired(true, ConfigurationSource.Convention)
+                DependentEntity.IDProperty, ConfigurationSource.Convention)!
+            .IsRequired(true, ConfigurationSource.Convention)!
             .Metadata;
         var fkProperty = dependentTypeBuilder.Property(
-                DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention)
+                DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention)!
             .Metadata;
 
         dependentTypeBuilder.PrimaryKey([pkProperty, fkProperty], ConfigurationSource.Explicit);
@@ -449,14 +449,14 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Matches_dependent_PK_for_unique_FK_set_by_higher_source_than_convention()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = DependentType.FindPrimaryKey().Properties.Single();
+        var fkProperty = DependentType.FindPrimaryKey()!.Properties.Single();
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
                 PrincipalType,
                 "SomeNav",
                 "InverseReferenceNav",
-                ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation)
-            .DependentEntityType(DependentType, ConfigurationSource.DataAnnotation);
+                ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!
+            .DependentEntityType(DependentType, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -475,7 +475,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Does_not_match_principal_type_plus_PK_name_property_of_different_type()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = dependentTypeBuilder.Property(typeof(string), "PrincipalEntityPeeKay", ConfigurationSource.Explicit).Metadata;
+        var fkProperty = dependentTypeBuilder.Property(typeof(string), "PrincipalEntityPeeKay", ConfigurationSource.Explicit)!.Metadata;
         dependentTypeBuilder.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
@@ -511,8 +511,8 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         var dependentTypeBuilder = DependentType.Builder;
         dependentTypeBuilder.PrimaryKey([DependentEntity.PrincipalEntityPeEKaYProperty], ConfigurationSource.Explicit);
 
-        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, ConfigurationSource.Convention)
-            .IsUnique(false, ConfigurationSource.Convention);
+        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, ConfigurationSource.Convention)!
+            .IsUnique(false, ConfigurationSource.Convention)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -528,11 +528,11 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     [Fact]
     public void Does_not_match_non_nullable_dependent_PK_for_optional_unique_FK()
     {
-        var fkProperty = DependentType.FindPrimaryKey().Properties.Single();
+        var fkProperty = DependentType.FindPrimaryKey()!.Properties.Single();
 
-        var relationshipBuilder = DependentType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation)
-            .IsRequired(false, ConfigurationSource.DataAnnotation);
+        var relationshipBuilder = DependentType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!
+            .IsRequired(false, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -550,8 +550,8 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     [Fact]
     public void Does_not_match_dependent_PK_for_self_ref()
     {
-        var relationshipBuilder = PrincipalType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation);
+        var relationshipBuilder = PrincipalType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -568,13 +568,13 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     [Fact]
     public void Does_not_match_for_convention_identifying_FK()
     {
-        var derivedType = PrincipalType.Builder.ModelBuilder.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention);
+        var derivedType = PrincipalType.Builder.ModelBuilder.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention)!;
         derivedType.HasBaseType(PrincipalType, ConfigurationSource.Convention);
 
         PrincipalType.Builder.Property(typeof(int), nameof(PrincipalEntity.PrincipalEntityId), ConfigurationSource.Convention);
         var relationshipBuilder = derivedType.HasRelationship(
-                PrincipalType, PrincipalType.FindPrimaryKey().Properties, ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation);
+                PrincipalType, PrincipalType.FindPrimaryKey()!.Properties, ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -592,15 +592,15 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Matches_composite_dependent_PK_for_unique_FK()
     {
         var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
-        var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[0];
-        var fkProperty2 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[1];
+        var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey()!.Properties[0];
+        var fkProperty2 = DependentTypeWithCompositeKey.FindPrimaryKey()!.Properties[1];
 
         var relationshipBuilder = dependentTypeBuilder.HasRelationship(
                 PrincipalTypeWithCompositeKey,
                 "NavProp",
-                "InverseReferenceNav", ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation)
-            .DependentEntityType(DependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation);
+                "InverseReferenceNav", ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!
+            .DependentEntityType(DependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -621,15 +621,15 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
 
-        var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit);
+        var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit)!;
         principalTypeWithCompositeKey.PrimaryKey(
             [PrincipalEntityWithCompositeKey.IdProperty, PrincipalEntityWithCompositeKey.NameProperty],
             ConfigurationSource.Explicit);
-        principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit)
+        principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit)!
             .IsRequired(true, ConfigurationSource.Explicit);
 
-        var dependentTypeWithCompositeKeyBase = modelBuilder.Entity(typeof(DependentCompositeBase), ConfigurationSource.Explicit);
-        var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit);
+        var dependentTypeWithCompositeKeyBase = modelBuilder.Entity(typeof(DependentCompositeBase), ConfigurationSource.Explicit)!;
+        var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit)!;
         dependentTypeWithCompositeKey.HasBaseType(dependentTypeWithCompositeKeyBase.Metadata, ConfigurationSource.Explicit);
         dependentTypeWithCompositeKeyBase.PrimaryKey(
             [nameof(DependentEntityWithCompositeKey.NotId), nameof(DependentEntityWithCompositeKey.NotName)],
@@ -638,9 +638,9 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         var relationshipBuilder = dependentTypeWithCompositeKey.HasRelationship(
                 principalTypeWithCompositeKey.Metadata,
                 "NavProp",
-                "InverseReferenceNav", ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.DataAnnotation)
-            .DependentEntityType(dependentTypeWithCompositeKey.Metadata, ConfigurationSource.DataAnnotation);
+                "InverseReferenceNav", ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!
+            .DependentEntityType(dependentTypeWithCompositeKey.Metadata, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
@@ -649,8 +649,8 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         Assert.True(fk.IsUnique);
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Same(principalTypeWithCompositeKey.Metadata.FindPrimaryKey(), fk.PrincipalKey);
-        Assert.NotEqual(dependentTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties[0], fk.Properties[0]);
-        Assert.NotEqual(dependentTypeWithCompositeKey.Metadata.FindPrimaryKey().Properties[1], fk.Properties[1]);
+        Assert.NotEqual(dependentTypeWithCompositeKey.Metadata.FindPrimaryKey()!.Properties[0], fk.Properties[0]);
+        Assert.NotEqual(dependentTypeWithCompositeKey.Metadata.FindPrimaryKey()!.Properties[1], fk.Properties[1]);
         Assert.Equal("NavProp" + CompositePrimaryKey[0].Name + "1", fk.Properties[0].Name);
         Assert.Equal("NavProp" + CompositePrimaryKey[1].Name + "1", fk.Properties[1].Name);
 
@@ -668,13 +668,13 @@ public class ForeignKeyPropertyDiscoveryConventionTest
                 PrincipalTypeWithCompositeKey,
                 "NavProp",
                 null,
-                ConfigurationSource.Convention)
-            .IsUnique(false, ConfigurationSource.DataAnnotation);
+                ConfigurationSource.Convention)!
+            .IsUnique(false, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        var fk = relationshipBuilder.Metadata;
+        var fk = relationshipBuilder!.Metadata;
         Assert.Same(fk, DependentTypeWithCompositeKey.GetForeignKeys().Single());
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Equal("NavProp" + CompositePrimaryKey[0].Name + "1", fk.Properties[0].Name);
@@ -690,13 +690,13 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     [Fact]
     public void Does_not_match_composite_dependent_PK_for_unique_FK_if_count_mismatched()
     {
-        var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[0];
+        var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey()!.Properties[0];
         DependentTypeWithCompositeKey.Builder.PrimaryKey([fkProperty1.Name], ConfigurationSource.Explicit);
 
         var relationshipBuilder = DependentTypeWithCompositeKey.Builder
-            .HasRelationship(PrincipalTypeWithCompositeKey, ConfigurationSource.Convention)
-            .HasPrincipalKey(PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties, ConfigurationSource.DataAnnotation)
-            .IsUnique(true, ConfigurationSource.DataAnnotation);
+            .HasRelationship(PrincipalTypeWithCompositeKey, ConfigurationSource.Convention)!
+            .HasPrincipalKey(PrincipalTypeWithCompositeKey.FindPrimaryKey()!.Properties, ConfigurationSource.DataAnnotation)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -717,19 +717,19 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     [Fact]
     public void Does_not_match_composite_dependent_PK_for_unique_FK_if_order_mismatched()
     {
-        var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[0];
-        var fkProperty2 = DependentTypeWithCompositeKey.FindPrimaryKey().Properties[1];
+        var fkProperty1 = DependentTypeWithCompositeKey.FindPrimaryKey()!.Properties[0];
+        var fkProperty2 = DependentTypeWithCompositeKey.FindPrimaryKey()!.Properties[1];
         DependentTypeWithCompositeKey.Builder.PrimaryKey([fkProperty2.Name, fkProperty1.Name], ConfigurationSource.Explicit);
 
         var relationshipBuilder = DependentTypeWithCompositeKey.Builder.HasRelationship(
-                PrincipalTypeWithCompositeKey, "NavProp", "InverseReferenceNav", ConfigurationSource.Convention)
-            .HasPrincipalKey(PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties, ConfigurationSource.DataAnnotation)
-            .IsUnique(true, ConfigurationSource.DataAnnotation);
+                PrincipalTypeWithCompositeKey, "NavProp", "InverseReferenceNav", ConfigurationSource.Convention)!
+            .HasPrincipalKey(PrincipalTypeWithCompositeKey.FindPrimaryKey()!.Properties, ConfigurationSource.DataAnnotation)!
+            .IsUnique(true, ConfigurationSource.DataAnnotation)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        var fk = relationshipBuilder.Metadata;
+        var fk = relationshipBuilder!.Metadata;
         Assert.Same(fk, DependentTypeWithCompositeKey.GetForeignKeys().Single());
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Equal(2, fk.Properties.Count);
@@ -760,7 +760,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        var fk = relationshipBuilder.Metadata;
+        var fk = relationshipBuilder!.Metadata;
         Assert.Same(fk, DependentTypeWithCompositeKey.GetForeignKeys().Single());
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Same(CompositePrimaryKey[0], fk.PrincipalKey.Properties[0]);
@@ -773,15 +773,15 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Does_not_match_if_a_foreign_key_on_the_best_candidate_property_already_exists()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention)!.Metadata;
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
-        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, [fkProperty], ConfigurationSource.Convention);
+        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, [fkProperty], ConfigurationSource.Convention)!;
 
         var newRelationshipBuilder = dependentTypeBuilder.HasRelationship(
-            PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
+            PrincipalType, "SomeNav", null, ConfigurationSource.Convention)!;
 
         Assert.Equal(
             "SomeNav" + nameof(PrincipalEntity.PeeKay),
@@ -812,21 +812,21 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Does_not_match_if_a_foreign_key_on_the_best_candidate_property_already_configured_explicitly()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention)!.Metadata;
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
-        var derivedTypeBuilder = _model.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention);
+        var derivedTypeBuilder = _model.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention)!;
         derivedTypeBuilder.HasBaseType(PrincipalType, ConfigurationSource.Convention);
 
         var relationshipBuilder = dependentTypeBuilder
-            .HasRelationship(derivedTypeBuilder.Metadata, [fkProperty], ConfigurationSource.Explicit);
+            .HasRelationship(derivedTypeBuilder.Metadata, [fkProperty], ConfigurationSource.Explicit)!;
         var compositeRelationshipBuilder = dependentTypeBuilder
-            .HasRelationship(PrincipalTypeWithCompositeKey, [fkProperty], ConfigurationSource.Explicit);
+            .HasRelationship(PrincipalTypeWithCompositeKey, [fkProperty], ConfigurationSource.Explicit)!;
 
         var newRelationshipBuilder = dependentTypeBuilder.HasRelationship(
-            PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
+            PrincipalType, "SomeNav", null, ConfigurationSource.Convention)!;
 
         Assert.Equal(
             "SomeNav" + nameof(PrincipalEntity.PeeKay),
@@ -850,10 +850,10 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Logs_warning_if_foreign_key_property_names_are_order_dependent()
     {
         var relationshipBuilder = DependentType.Builder.HasRelationship(
-            PrincipalType, (string)null, null, ConfigurationSource.Convention);
+            PrincipalType, (string?)null, null, ConfigurationSource.Convention)!;
 
         var otherRelationshipBuilder = DependentType.Builder.HasRelationship(
-            PrincipalType, (string)null, null, ConfigurationSource.Convention);
+            PrincipalType, (string?)null, null, ConfigurationSource.Convention)!;
 
         Assert.Equal(
             nameof(PrincipalEntity) + nameof(PrincipalEntity.PeeKay),
@@ -881,10 +881,10 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Inverts_if_principal_entity_type_can_have_non_pk_fk_property()
     {
         var fkProperty = DependentType.Builder.Property(
-            DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+            DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention)!.Metadata;
 
-        var relationshipBuilder = PrincipalType.Builder.HasRelationship(DependentType, ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.Convention);
+        var relationshipBuilder = PrincipalType.Builder.HasRelationship(DependentType, ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.Convention)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.NotSame(relationshipBuilder, newRelationshipBuilder);
@@ -906,10 +906,10 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Does_not_invert_if_weak_entity_type_can_have_non_pk_fk_property()
     {
         var fkProperty = DependentType.Builder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention)
-            .Metadata;
+            !.Metadata;
 
-        var relationshipBuilder = DependentType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.Convention);
+        var relationshipBuilder = DependentType.Builder.HasRelationship(PrincipalType, ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.Convention)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -935,8 +935,8 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
         PrincipalType.Builder.Property(PrincipalEntity.DependentEntityKayPeeProperty, ConfigurationSource.Convention);
 
-        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.Convention);
+        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.Convention)!;
 
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
@@ -956,7 +956,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         PrincipalType.Builder.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
         PrincipalType.Model.RemoveEntityType(typeof(DependentEntity));
         var relationshipBuilder = PrincipalType.Builder.HasOwnership(
-            typeof(DependentEntity), nameof(PrincipalEntity.InverseReferenceNav), ConfigurationSource.Convention);
+            typeof(DependentEntity), nameof(PrincipalEntity.InverseReferenceNav), ConfigurationSource.Convention)!;
         var dependentTypeBuilder = relationshipBuilder.Metadata.DeclaringEntityType.Builder;
         dependentTypeBuilder.PrimaryKey([nameof(DependentEntity.KayPee)], ConfigurationSource.Convention);
 
@@ -983,7 +983,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        var fk = relationshipBuilder.Metadata;
+        var fk = relationshipBuilder!.Metadata;
         Assert.Same(fk, DependentType.GetForeignKeys().Single());
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
@@ -1008,7 +1008,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         var newRelationshipBuilder = RunConvention(relationshipBuilder);
         Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-        var fk = (IConventionForeignKey)relationshipBuilder.Metadata;
+        var fk = (IConventionForeignKey)relationshipBuilder!.Metadata;
         Assert.Same(fk, DependentType.GetForeignKeys().Single());
         Assert.Null(fk.GetPropertiesConfigurationSource());
         Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
@@ -1021,7 +1021,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
 
         var newFk = DependentType.GetForeignKeys().Single();
         Assert.Same(fk, newFk);
-        Assert.Equal(property.Metadata, newFk.Properties.Single());
+        Assert.Equal(property!.Metadata, newFk.Properties.Single());
 
         ValidateModel();
     }
@@ -1030,8 +1030,8 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Inverts_and_sets_foreign_key_if_matching_non_shadow_property_added_on_principal_type()
     {
         var relationshipBuilder = PrincipalType.Builder
-            .HasRelationship(DependentType, "InverseReferenceNav", "SomeNav", ConfigurationSource.Convention)
-            .IsUnique(true, ConfigurationSource.Convention);
+            .HasRelationship(DependentType, "InverseReferenceNav", "SomeNav", ConfigurationSource.Convention)!
+            .IsUnique(true, ConfigurationSource.Convention)!;
 
         var fk = (IConventionForeignKey)relationshipBuilder.Metadata;
         Assert.Same(fk, PrincipalType.GetForeignKeys().Single());
@@ -1048,7 +1048,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
 
         var newFk = DependentType.GetForeignKeys().Single();
         Assert.NotSame(fk, newFk);
-        Assert.Equal(property.Metadata, newFk.Properties.Single());
+        Assert.Equal(property!.Metadata, newFk.Properties.Single());
         Assert.Same(newFk.DeclaringEntityType, fk.PrincipalEntityType);
         Assert.Same(newFk.PrincipalEntityType, fk.DeclaringEntityType);
         Assert.True(newFk.IsUnique);
@@ -1075,7 +1075,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
 
         var otherRelationshipBuilder = dependentTypeBuilder.HasRelationship(
             PrincipalType,
-            (string)null,
+            (string?)null,
             null,
             ConfigurationSource.Convention);
 
@@ -1100,20 +1100,20 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     {
         var modelBuilder = new InternalModelBuilder(new Model());
 
-        var principalType = modelBuilder.Entity(typeof(PrincipalEntity), ConfigurationSource.Explicit);
+        var principalType = modelBuilder.Entity(typeof(PrincipalEntity), ConfigurationSource.Explicit)!;
         principalType.PrimaryKey([nameof(PrincipalEntity.PeeKay)], ConfigurationSource.Explicit);
 
-        var dependentType = modelBuilder.Entity(typeof(DependentEntity), ConfigurationSource.Explicit);
+        var dependentType = modelBuilder.Entity(typeof(DependentEntity), ConfigurationSource.Explicit)!;
         dependentType.PrimaryKey([nameof(DependentEntity.KayPee)], ConfigurationSource.Explicit);
 
-        var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit);
+        var principalTypeWithCompositeKey = modelBuilder.Entity(typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Explicit)!;
         principalTypeWithCompositeKey.PrimaryKey(
             [PrincipalEntityWithCompositeKey.IdProperty, PrincipalEntityWithCompositeKey.NameProperty],
             ConfigurationSource.Explicit);
-        principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit)
+        principalTypeWithCompositeKey.Property(PrincipalEntityWithCompositeKey.NameProperty, ConfigurationSource.Explicit)!
             .IsRequired(true, ConfigurationSource.Explicit);
 
-        var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit);
+        var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit)!;
         dependentTypeWithCompositeKey.PrimaryKey(
             [nameof(DependentEntityWithCompositeKey.NotId), nameof(DependentEntityWithCompositeKey.NotName)],
             ConfigurationSource.Explicit);
@@ -1121,32 +1121,36 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         return modelBuilder;
     }
 
-    private InternalForeignKeyBuilder RunConvention(InternalForeignKeyBuilder relationshipBuilder)
+    private InternalForeignKeyBuilder RunConvention(
+        InternalForeignKeyBuilder? relationshipBuilder)
     {
+        var nonNullRelationshipBuilder = relationshipBuilder!;
         var convention = CreateForeignKeyPropertyDiscoveryConvention();
         var context = new ConventionContext<IConventionForeignKeyBuilder>(
-            relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
-        convention.ProcessForeignKeyAdded(relationshipBuilder, context);
+            nonNullRelationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+        convention.ProcessForeignKeyAdded(nonNullRelationshipBuilder, context);
         if (context.ShouldStopProcessing())
         {
-            return (InternalForeignKeyBuilder)context.Result;
+            return (InternalForeignKeyBuilder)context.Result!;
         }
 
-        return relationshipBuilder;
+        return nonNullRelationshipBuilder;
     }
 
-    private InternalPropertyBuilder RunConvention(InternalPropertyBuilder propertyBuilder)
+    private InternalPropertyBuilder RunConvention(
+        InternalPropertyBuilder? propertyBuilder)
     {
+        var nonNullPropertyBuilder = propertyBuilder!;
         var convention = CreateForeignKeyPropertyDiscoveryConvention();
         var context = new ConventionContext<IConventionPropertyBuilder>(
-            propertyBuilder.Metadata.DeclaringType.Model.ConventionDispatcher);
-        convention.ProcessPropertyAdded(propertyBuilder, context);
+            nonNullPropertyBuilder.Metadata.DeclaringType.Model.ConventionDispatcher);
+        convention.ProcessPropertyAdded(nonNullPropertyBuilder, context);
         if (context.ShouldStopProcessing())
         {
-            return (InternalPropertyBuilder)context.Result;
+            return (InternalPropertyBuilder)context.Result!;
         }
 
-        return propertyBuilder;
+        return nonNullPropertyBuilder;
     }
 
     private void ValidateModel()
@@ -1188,51 +1192,51 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         = new(l => l == DbLoggerCategory.Model.Name);
 
     private Property PrimaryKey
-        => PrincipalType.FindPrimaryKey().Properties.Single();
+        => PrincipalType.FindPrimaryKey()!.Properties.Single();
 
     private EntityType PrincipalType
-        => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention).Metadata;
+        => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention)!.Metadata;
 
     private EntityType DependentType
-        => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention).Metadata;
+        => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention)!.Metadata;
 
     private IReadOnlyList<Property> CompositePrimaryKey
-        => PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties;
+        => PrincipalTypeWithCompositeKey.FindPrimaryKey()!.Properties;
 
     private EntityType PrincipalTypeWithCompositeKey
         => _model.Entity(
-            typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
+            typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention)!.Metadata;
 
     private EntityType DependentTypeWithCompositeKey
         => _model.Entity(
-            typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
+            typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention)!.Metadata;
 
     private class PrincipalEntity
     {
         public static readonly PropertyInfo DependentEntityKayPeeProperty =
-            typeof(PrincipalEntity).GetProperty("DependentEntityKayPee");
+            typeof(PrincipalEntity).GetProperty("DependentEntityKayPee")!;
 
         public int PrincipalEntityId { get; set; }
         public int PeeKay { get; set; }
         public int? DependentEntityKayPee { get; set; }
-        public IEnumerable<DependentEntity> InverseNav { get; set; }
-        public DependentEntity InverseReferenceNav { get; set; }
-        public PrincipalEntity SelfRef { get; set; }
+        public IEnumerable<DependentEntity> InverseNav { get; set; } = null!;
+        public DependentEntity InverseReferenceNav { get; set; } = null!;
+        public PrincipalEntity SelfRef { get; set; } = null!;
     }
 
     private class DerivedPrincipalEntity : PrincipalEntity;
 
     private class DependentEntity
     {
-        public static readonly PropertyInfo SomeNavIDProperty = typeof(DependentEntity).GetProperty("SomeNavID");
-        public static readonly PropertyInfo SomeNavPeEKaYProperty = typeof(DependentEntity).GetProperty("SomeNavPeEKaY");
-        public static readonly PropertyInfo PrincipalEntityIDProperty = typeof(DependentEntity).GetProperty("PrincipalEntityID");
+        public static readonly PropertyInfo SomeNavIDProperty = typeof(DependentEntity).GetProperty("SomeNavID")!;
+        public static readonly PropertyInfo SomeNavPeEKaYProperty = typeof(DependentEntity).GetProperty("SomeNavPeEKaY")!;
+        public static readonly PropertyInfo PrincipalEntityIDProperty = typeof(DependentEntity).GetProperty("PrincipalEntityID")!;
 
         public static readonly PropertyInfo PrincipalEntityPeEKaYProperty =
-            typeof(DependentEntity).GetProperty("PrincipalEntityPeEKaY");
+            typeof(DependentEntity).GetProperty("PrincipalEntityPeEKaY")!;
 
-        public static readonly PropertyInfo IDProperty = typeof(DependentEntity).GetProperty("ID");
-        public static readonly PropertyInfo PeEKaYProperty = typeof(DependentEntity).GetProperty("PeEKaY");
+        public static readonly PropertyInfo IDProperty = typeof(DependentEntity).GetProperty("ID")!;
+        public static readonly PropertyInfo PeEKaYProperty = typeof(DependentEntity).GetProperty("PeEKaY")!;
 
         public int KayPee { get; set; }
         public int SomeNavID { get; set; }
@@ -1242,48 +1246,48 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         public int ID { get; set; }
         public int PeEKaY { get; set; }
 
-        public PrincipalEntity SomeNav { get; set; }
-        public PrincipalEntity SomeOtherNav { get; set; }
+        public PrincipalEntity SomeNav { get; set; } = null!;
+        public PrincipalEntity SomeOtherNav { get; set; } = null!;
     }
 
     private class PrincipalEntityWithCompositeKey
     {
-        public static readonly PropertyInfo IdProperty = typeof(PrincipalEntityWithCompositeKey).GetProperty("Id");
-        public static readonly PropertyInfo NameProperty = typeof(PrincipalEntityWithCompositeKey).GetProperty("Name");
+        public static readonly PropertyInfo IdProperty = typeof(PrincipalEntityWithCompositeKey).GetProperty("Id")!;
+        public static readonly PropertyInfo NameProperty = typeof(PrincipalEntityWithCompositeKey).GetProperty("Name")!;
 
         public int Id { get; set; }
-        public string Name { get; set; }
-        public IEnumerable<DependentEntityWithCompositeKey> InverseNav { get; set; }
-        public DependentEntityWithCompositeKey InverseReferenceNav { get; set; }
+        public string Name { get; set; } = null!;
+        public IEnumerable<DependentEntityWithCompositeKey> InverseNav { get; set; } = null!;
+        public DependentEntityWithCompositeKey InverseReferenceNav { get; set; } = null!;
     }
 
     private class DependentCompositeBase
     {
         public int NotId { get; set; }
-        public string NotName { get; set; }
+        public string NotName { get; set; } = null!;
     }
 
     private class DependentEntityWithCompositeKey : DependentCompositeBase
     {
-        public static readonly PropertyInfo NavPropIdProperty = typeof(DependentEntityWithCompositeKey).GetProperty("NavPropId");
-        public static readonly PropertyInfo NavPropNameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("NavPropName");
+        public static readonly PropertyInfo NavPropIdProperty = typeof(DependentEntityWithCompositeKey).GetProperty("NavPropId")!;
+        public static readonly PropertyInfo NavPropNameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("NavPropName")!;
 
         public static readonly PropertyInfo PrincipalEntityWithCompositeKeyIdProperty =
-            typeof(DependentEntityWithCompositeKey).GetProperty("PrincipalEntityWithCompositeKeyId");
+            typeof(DependentEntityWithCompositeKey).GetProperty("PrincipalEntityWithCompositeKeyId")!;
 
         public static readonly PropertyInfo PrincipalEntityWithCompositeKeyNameProperty =
-            typeof(DependentEntityWithCompositeKey).GetProperty("PrincipalEntityWithCompositeKeyName");
+            typeof(DependentEntityWithCompositeKey).GetProperty("PrincipalEntityWithCompositeKeyName")!;
 
-        public static readonly PropertyInfo IdProperty = typeof(DependentEntityWithCompositeKey).GetProperty("Id");
-        public static readonly PropertyInfo NameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("Name");
+        public static readonly PropertyInfo IdProperty = typeof(DependentEntityWithCompositeKey).GetProperty("Id")!;
+        public static readonly PropertyInfo NameProperty = typeof(DependentEntityWithCompositeKey).GetProperty("Name")!;
 
         public int NavPropId { get; set; }
-        public string NavPropName { get; set; }
+        public string NavPropName { get; set; } = null!;
         public int PrincipalEntityWithCompositeKeyId { get; set; }
-        public string PrincipalEntityWithCompositeKeyName { get; set; }
+        public string PrincipalEntityWithCompositeKeyName { get; set; } = null!;
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public PrincipalEntityWithCompositeKey NavProp { get; set; }
+        public PrincipalEntityWithCompositeKey NavProp { get; set; } = null!;
     }
 }

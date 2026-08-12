@@ -13,14 +13,14 @@ public class ProductPhoto
 
     public int ProductPhotoID { get; set; }
 #pragma warning disable CA1819 // Properties should not return arrays
-    public byte[] LargePhoto { get; set; }
+    public byte[]? LargePhoto { get; set; }
 #pragma warning restore CA1819 // Properties should not return arrays
-    public string LargePhotoFileName { get; set; }
+    public string? LargePhotoFileName { get; set; }
     public DateTime ModifiedDate { get; set; }
 #pragma warning disable CA1819 // Properties should not return arrays
-    public byte[] ThumbNailPhoto { get; set; }
+    public byte[]? ThumbNailPhoto { get; set; }
 #pragma warning restore CA1819 // Properties should not return arrays
-    public string ThumbnailPhotoFileName { get; set; }
+    public string? ThumbnailPhotoFileName { get; set; }
 
     public virtual ICollection<ProductProductPhoto> ProductProductPhoto { get; set; }
 }

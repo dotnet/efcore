@@ -22,7 +22,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
 
@@ -36,7 +36,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(Guid), "RowVersion", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);
 
@@ -72,7 +72,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit)!;
 
         propertyBuilder.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
 
@@ -86,7 +86,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit)!;
 
         propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
 
@@ -122,14 +122,14 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit)!;
 
         entityTypeBuilder.PrimaryKey(
             new List<string> { "Id" }, ConfigurationSource.Convention);
 
         RunConvention(propertyBuilder);
 
-        Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
+        Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties[0].Name);
     }
 
     [Fact]
@@ -137,14 +137,14 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit)!;
 
         entityTypeBuilder.PrimaryKey(
             new List<string> { "Id" }, ConfigurationSource.Explicit);
 
         RunConvention(propertyBuilder);
 
-        Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
+        Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties[0].Name);
     }
 
     [Fact]
@@ -152,14 +152,14 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit)!;
 
         Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
 
         RunConvention(propertyBuilder);
 
-        Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
-        Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
+        Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties.Count);
+        Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties[0].Name);
     }
 
     [Fact]
@@ -169,19 +169,19 @@ public class PropertyAttributeConventionTest
 
         Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
 
-        var idPropertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
-        var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
+        var idPropertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit)!;
+        var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit)!;
 
         RunConvention(idPropertyBuilder);
 
-        Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
-        Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
+        Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties.Count);
+        Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties[0].Name);
 
         RunConvention(myPrimaryKeyPropertyBuilder);
 
-        Assert.Equal(2, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
-        Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
-        Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[1].Name);
+        Assert.Equal(2, entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties.Count);
+        Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties[0].Name);
+        Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties[1].Name);
 
         Assert.Equal(
             CoreStrings.CompositePKWithDataAnnotation(entityTypeBuilder.Metadata.DisplayName()),
@@ -193,9 +193,9 @@ public class PropertyAttributeConventionTest
     {
         var model = new MyContext().Model;
 
-        Assert.Equal(2, model.FindEntityType(typeof(B)).FindPrimaryKey().Properties.Count);
-        Assert.Equal("MyPrimaryKey", model.FindEntityType(typeof(B)).FindPrimaryKey().Properties[0].Name);
-        Assert.Equal("Id", model.FindEntityType(typeof(B)).FindPrimaryKey().Properties[1].Name);
+        Assert.Equal(2, model.FindEntityType(typeof(B))!.FindPrimaryKey()!.Properties.Count);
+        Assert.Equal("MyPrimaryKey", model.FindEntityType(typeof(B))!.FindPrimaryKey()!.Properties[0].Name);
+        Assert.Equal("Id", model.FindEntityType(typeof(B))!.FindPrimaryKey()!.Properties[1].Name);
     }
 
     [Fact]
@@ -203,19 +203,19 @@ public class PropertyAttributeConventionTest
     {
         var model = new MyContext().Model;
 
-        Assert.Equal(2, model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties.Count);
-        Assert.Equal("MyPrimaryKey", model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties[0].Name);
-        Assert.Equal("Id", model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties[1].Name);
+        Assert.Equal(2, model.FindEntityType(typeof(B2))!.FindPrimaryKey()!.Properties.Count);
+        Assert.Equal("MyPrimaryKey", model.FindEntityType(typeof(B2))!.FindPrimaryKey()!.Properties[0].Name);
+        Assert.Equal("Id", model.FindEntityType(typeof(B2))!.FindPrimaryKey()!.Properties[1].Name);
     }
 
     [Fact]
     public void KeyAttribute_throws_when_setting_key_in_derived_type()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity>();
-        var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit).Metadata;
+        var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit)!.Metadata;
         derivedEntityTypeBuilder.HasBaseType(baseEntityType, ConfigurationSource.Explicit);
 
-        var propertyBuilder = derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit);
+        var propertyBuilder = derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit)!;
 
         Assert.Equal(
             CoreStrings.KeyAttributeOnDerivedEntity(
@@ -228,7 +228,7 @@ public class PropertyAttributeConventionTest
     public void KeyAttribute_does_not_throw_when_setting_key_in_derived_type_when_base_has_PrimaryKeyAttribute()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity2>();
-        var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity2), ConfigurationSource.Explicit).Metadata;
+        var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity2), ConfigurationSource.Explicit)!.Metadata;
         derivedEntityTypeBuilder.HasBaseType(baseEntityType, ConfigurationSource.Explicit);
 
         derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit);
@@ -240,7 +240,7 @@ public class PropertyAttributeConventionTest
     public void KeyAttribute_allows_composite_key_with_inheritance()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeKeyDerivedEntity>();
-        var baseEntityTypeBuilder = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit);
+        var baseEntityTypeBuilder = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit)!;
         derivedEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
 
         baseEntityTypeBuilder.PrimaryKey(
@@ -248,7 +248,7 @@ public class PropertyAttributeConventionTest
 
         Validate(derivedEntityTypeBuilder);
 
-        Assert.Equal(2, baseEntityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+        Assert.Equal(2, baseEntityTypeBuilder.Metadata.FindPrimaryKey()!.Properties.Count);
     }
 
     [Fact]
@@ -258,7 +258,7 @@ public class PropertyAttributeConventionTest
         var entityTypeBuilder = modelBuilder.Entity<F>();
         entityTypeBuilder.Property<int>(nameof(F.MyPrimaryKey));
 
-        Assert.Equal(nameof(F.MyPrimaryKey), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
+        Assert.Equal(nameof(F.MyPrimaryKey), entityTypeBuilder.Metadata.FindPrimaryKey()!.Properties.Single().Name);
     }
 
     #endregion
@@ -270,7 +270,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
@@ -284,7 +284,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasMaxLength(-1, ConfigurationSource.Convention);
 
@@ -298,7 +298,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
@@ -391,7 +391,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
 
@@ -405,7 +405,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
@@ -441,7 +441,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
@@ -455,7 +455,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "StringLengthProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
@@ -550,7 +550,7 @@ public class PropertyAttributeConventionTest
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
         IConventionPropertyBuilder propertyBuilder = entityTypeBuilder.Property(
-            typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+            typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit)!;
 
         RunConvention(propertyBuilder);
 
@@ -564,7 +564,7 @@ public class PropertyAttributeConventionTest
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
         var propertyBuilder = entityTypeBuilder.Property(
-            typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+            typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasField("_backingFieldForFluentApi", ConfigurationSource.Explicit);
 
@@ -583,7 +583,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsUnicode(false, ConfigurationSource.Convention);
 
@@ -597,7 +597,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsUnicode(false, ConfigurationSource.Explicit);
 
@@ -635,7 +635,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasPrecision(12, ConfigurationSource.Convention);
         propertyBuilder.HasScale(5, ConfigurationSource.Convention);
@@ -651,7 +651,7 @@ public class PropertyAttributeConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasPrecision(12, ConfigurationSource.Explicit);
         propertyBuilder.HasScale(5, ConfigurationSource.Explicit);
@@ -701,7 +701,7 @@ public class PropertyAttributeConventionTest
 
         var modelBuilder = new Model(conventionSet).Builder;
 
-        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit)!;
     }
 
     private static void RunConvention(IConventionPropertyBuilder propertyBuilder)
@@ -773,13 +773,13 @@ public class PropertyAttributeConventionTest
         public Guid RowVersion { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Unicode]
-        public string UnicodeProperty { get; set; }
+        public string UnicodeProperty { get; set; } = null!;
 
         [Unicode(false)]
-        public string NonUnicodeProperty { get; set; }
+        public string NonUnicodeProperty { get; set; } = null!;
 
         [Precision(10, 2)]
         public decimal DecimalProperty { get; set; }
@@ -788,16 +788,16 @@ public class PropertyAttributeConventionTest
         public int MyPrimaryKey { get; set; }
 
         [NotMapped]
-        public string IgnoredProperty { get; set; }
+        public string IgnoredProperty { get; set; } = null!;
 
         [MaxLength(10)]
-        public string MaxLengthProperty { get; set; }
+        public string MaxLengthProperty { get; set; } = null!;
 
         [StringLength(20)]
-        public string StringLengthProperty { get; set; }
+        public string StringLengthProperty { get; set; } = null!;
 
         [Timestamp]
-        public byte[] Timestamp { get; set; }
+        public byte[] Timestamp { get; set; } = null!;
 
         [Timestamp]
         public long LongTimestamp { get; set; }
@@ -853,13 +853,13 @@ public class PropertyAttributeConventionTest
         public Guid RowVersion;
 
         [Required]
-        public string Name;
+        public string Name = null!;
 
         [Unicode]
-        public string UnicodeField;
+        public string UnicodeField = null!;
 
         [Unicode(false)]
-        public string NonUnicodeField;
+        public string NonUnicodeField = null!;
 
         [Precision(10, 2)]
         public decimal DecimalField;
@@ -868,16 +868,16 @@ public class PropertyAttributeConventionTest
         public int MyPrimaryKey;
 
         [NotMapped]
-        public string IgnoredProperty;
+        public string IgnoredProperty = null!;
 
         [MaxLength(10)]
-        public string MaxLengthProperty;
+        public string MaxLengthProperty = null!;
 
         [StringLength(20)]
-        public string StringLengthProperty;
+        public string StringLengthProperty = null!;
 
         [Timestamp]
-        public byte[] Timestamp { get; set; }
+        public byte[] Timestamp { get; set; } = null!;
 
         [Timestamp]
         public long LongTimestamp { get; set; }
@@ -890,7 +890,7 @@ public class PropertyAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class DerivedEntity : BaseEntity
@@ -906,7 +906,7 @@ public class PropertyAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class DerivedEntity2 : BaseEntity2
