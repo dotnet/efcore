@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-#nullable disable
-
 public class Product
 {
     private int? _productId;
@@ -21,13 +19,13 @@ public class Product
     }
 
     [MaxLength(40), Required]
-    public string ProductName { get; set; }
+    public string ProductName { get; set; } = null!;
 
     public int? SupplierID { get; set; }
     public int? CategoryID { get; set; }
 
     [MaxLength(20)]
-    public string QuantityPerUnit { get; set; }
+    public string? QuantityPerUnit { get; set; }
 
     public decimal? UnitPrice { get; set; }
     public ushort UnitsInStock { get; set; }
@@ -40,7 +38,7 @@ public class Product
     protected bool Equals(Product other)
         => Equals(ProductID, other.ProductID);
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is not null
             && (ReferenceEquals(this, obj)
                 || (obj.GetType() == GetType()

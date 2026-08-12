@@ -5,26 +5,24 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
 {
-    private JsonQueryData _expectedData;
+    private JsonQueryData _expectedData = null!;
 
     public override ISetSource GetExpectedData()
         => _expectedData ??= new JsonQueryData();
 
     public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
-        { typeof(EntityBasic), e => ((EntityBasic)e)?.Id },
-        { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e)?.Id },
-        { typeof(JsonEntityBasicForReference), e => ((JsonEntityBasicForReference)e)?.Id },
-        { typeof(JsonEntityBasicForCollection), e => ((JsonEntityBasicForCollection)e)?.Id },
-        { typeof(JsonEntityCustomNaming), e => ((JsonEntityCustomNaming)e)?.Id },
-        { typeof(JsonEntitySingleOwned), e => ((JsonEntitySingleOwned)e)?.Id },
-        { typeof(JsonEntityInheritanceBase), e => ((JsonEntityInheritanceBase)e)?.Id },
-        { typeof(JsonEntityInheritanceDerived), e => ((JsonEntityInheritanceDerived)e)?.Id },
-        { typeof(JsonEntityAllTypes), e => ((JsonEntityAllTypes)e)?.Id },
+        { typeof(EntityBasic), e => ((EntityBasic)e).Id },
+        { typeof(JsonEntityBasic), e => ((JsonEntityBasic)e).Id },
+        { typeof(JsonEntityBasicForReference), e => ((JsonEntityBasicForReference)e).Id },
+        { typeof(JsonEntityBasicForCollection), e => ((JsonEntityBasicForCollection)e).Id },
+        { typeof(JsonEntityCustomNaming), e => ((JsonEntityCustomNaming)e).Id },
+        { typeof(JsonEntitySingleOwned), e => ((JsonEntitySingleOwned)e).Id },
+        { typeof(JsonEntityInheritanceBase), e => ((JsonEntityInheritanceBase)e).Id },
+        { typeof(JsonEntityInheritanceDerived), e => ((JsonEntityInheritanceDerived)e).Id },
+        { typeof(JsonEntityAllTypes), e => ((JsonEntityAllTypes)e).Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -35,7 +33,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (EntityBasic)e;
+                    var ee = (EntityBasic)e!;
                     var aa = (EntityBasic)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -49,7 +47,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityBasic)e;
+                    var ee = (JsonEntityBasic)e!;
                     var aa = (JsonEntityBasic)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -57,7 +55,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
 
                     if (ee.OwnedReferenceRoot is not null || aa.OwnedReferenceRoot is not null)
                     {
-                        AssertOwnedRoot(ee.OwnedReferenceRoot, aa.OwnedReferenceRoot);
+                        AssertOwnedRoot(ee.OwnedReferenceRoot!, aa.OwnedReferenceRoot!);
 
                         Assert.Equal(ee.OwnedCollectionRoot.Count, aa.OwnedCollectionRoot.Count);
                         for (var i = 0; i < ee.OwnedCollectionRoot.Count; i++)
@@ -74,7 +72,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityBasicForReference)e;
+                    var ee = (JsonEntityBasicForReference)e!;
                     var aa = (JsonEntityBasicForReference)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -89,7 +87,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityBasicForCollection)e;
+                    var ee = (JsonEntityBasicForCollection)e!;
                     var aa = (JsonEntityBasicForCollection)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -103,7 +101,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedRoot)e;
+                    var ee = (JsonOwnedRoot)e!;
                     var aa = (JsonOwnedRoot)a;
 
                     AssertOwnedRoot(ee, aa);
@@ -115,7 +113,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedBranch)e;
+                    var ee = (JsonOwnedBranch)e!;
                     var aa = (JsonOwnedBranch)a;
 
                     AssertOwnedBranch(ee, aa);
@@ -127,7 +125,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedLeaf)e;
+                    var ee = (JsonOwnedLeaf)e!;
                     var aa = (JsonOwnedLeaf)a;
 
                     AssertOwnedLeaf(ee, aa);
@@ -140,7 +138,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityCustomNaming)e;
+                    var ee = (JsonEntityCustomNaming)e!;
                     var aa = (JsonEntityCustomNaming)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -161,7 +159,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedCustomNameRoot)e;
+                    var ee = (JsonOwnedCustomNameRoot)e!;
                     var aa = (JsonOwnedCustomNameRoot)a;
 
                     AssertCustomNameRoot(ee, aa);
@@ -173,7 +171,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
             {
                 if (a != null)
                 {
-                    var ee = (JsonOwnedCustomNameBranch)e;
+                    var ee = (JsonOwnedCustomNameBranch)e!;
                     var aa = (JsonOwnedCustomNameBranch)a;
 
                     AssertCustomNameBranch(ee, aa);
@@ -186,16 +184,16 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntitySingleOwned)e;
+                    var ee = (JsonEntitySingleOwned)e!;
                     var aa = (JsonEntitySingleOwned)a;
 
                     Assert.Equal(ee.Id, aa.Id);
                     Assert.Equal(ee.Name, aa.Name);
 
                     Assert.Equal(ee.OwnedCollection?.Count ?? 0, aa.OwnedCollection?.Count ?? 0);
-                    for (var i = 0; i < ee.OwnedCollection.Count; i++)
+                    for (var i = 0; i < ee.OwnedCollection!.Count; i++)
                     {
-                        AssertOwnedLeaf(ee.OwnedCollection[i], aa.OwnedCollection[i]);
+                        AssertOwnedLeaf(ee.OwnedCollection[i], aa.OwnedCollection![i]);
                     }
                 }
             }
@@ -206,7 +204,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityInheritanceBase)e;
+                    var ee = (JsonEntityInheritanceBase)e!;
                     var aa = (JsonEntityInheritanceBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -214,9 +212,9 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
 
                     AssertOwnedBranch(ee.ReferenceOnBase, aa.ReferenceOnBase);
                     Assert.Equal(ee.CollectionOnBase?.Count ?? 0, aa.CollectionOnBase?.Count ?? 0);
-                    for (var i = 0; i < ee.CollectionOnBase.Count; i++)
+                    for (var i = 0; i < ee.CollectionOnBase!.Count; i++)
                     {
-                        AssertOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase[i]);
+                        AssertOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase![i]);
                     }
                 }
             }
@@ -227,7 +225,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityInheritanceDerived)e;
+                    var ee = (JsonEntityInheritanceDerived)e!;
                     var aa = (JsonEntityInheritanceDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -238,15 +236,15 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                     AssertOwnedBranch(ee.ReferenceOnDerived, aa.ReferenceOnDerived);
 
                     Assert.Equal(ee.CollectionOnBase?.Count ?? 0, aa.CollectionOnBase?.Count ?? 0);
-                    for (var i = 0; i < ee.CollectionOnBase.Count; i++)
+                    for (var i = 0; i < ee.CollectionOnBase!.Count; i++)
                     {
-                        AssertOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase[i]);
+                        AssertOwnedBranch(ee.CollectionOnBase[i], aa.CollectionOnBase![i]);
                     }
 
                     Assert.Equal(ee.CollectionOnDerived?.Count ?? 0, aa.CollectionOnDerived?.Count ?? 0);
-                    for (var i = 0; i < ee.CollectionOnDerived.Count; i++)
+                    for (var i = 0; i < ee.CollectionOnDerived!.Count; i++)
                     {
-                        AssertOwnedBranch(ee.CollectionOnDerived[i], aa.CollectionOnDerived[i]);
+                        AssertOwnedBranch(ee.CollectionOnDerived[i], aa.CollectionOnDerived![i]);
                     }
                 }
             }
@@ -257,17 +255,17 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityAllTypes)e;
+                    var ee = (JsonEntityAllTypes)e!;
                     var aa = (JsonEntityAllTypes)a;
 
                     Assert.Equal(ee.Id, aa.Id);
 
-                    AssertAllTypes(ee.Reference, aa.Reference);
+                    AssertAllTypes(ee.Reference!, aa.Reference!);
 
                     Assert.Equal(ee.Collection?.Count ?? 0, aa.Collection?.Count ?? 0);
-                    for (var i = 0; i < ee.Collection.Count; i++)
+                    for (var i = 0; i < ee.Collection!.Count; i++)
                     {
-                        AssertAllTypes(ee.Collection[i], aa.Collection[i]);
+                        AssertAllTypes(ee.Collection[i], aa.Collection![i]);
                     }
                 }
             }
@@ -278,7 +276,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonOwnedAllTypes)e;
+                    var ee = (JsonOwnedAllTypes)e!;
                     var aa = (JsonOwnedAllTypes)a;
 
                     AssertAllTypes(ee, aa);
@@ -291,7 +289,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonEntityConverters)e;
+                    var ee = (JsonEntityConverters)e!;
                     var aa = (JsonEntityConverters)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -306,7 +304,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (JsonOwnedConverters)e;
+                    var ee = (JsonOwnedConverters)e!;
                     var aa = (JsonOwnedConverters)a;
 
                     AssertConverters(ee, aa);
@@ -322,7 +320,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
         Assert.Equal(expected.Names, actual.Names);
         Assert.Equal(expected.Numbers, actual.Numbers);
 
-        AssertOwnedBranch(expected.OwnedReferenceBranch, actual.OwnedReferenceBranch);
+        AssertOwnedBranch(expected.OwnedReferenceBranch!, actual.OwnedReferenceBranch!);
         Assert.Equal(expected.OwnedCollectionBranch.Count, actual.OwnedCollectionBranch.Count);
         for (var i = 0; i < expected.OwnedCollectionBranch.Count; i++)
         {
@@ -364,10 +362,14 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
         }
     }
 
-    public static void AssertCustomNameBranch(JsonOwnedCustomNameBranch expected, JsonOwnedCustomNameBranch actual)
+    public static void AssertCustomNameBranch(JsonOwnedCustomNameBranch? expected, JsonOwnedCustomNameBranch? actual)
     {
-        Assert.Equal(expected.Date, actual.Date);
-        Assert.Equal(expected.Fraction, actual.Fraction);
+        Assert.Equal(expected == null, actual == null);
+        if (expected != null)
+        {
+            Assert.Equal(expected.Date, actual!.Date);
+            Assert.Equal(expected.Fraction, actual.Fraction);
+        }
     }
 
     public static void AssertAllTypes(JsonOwnedAllTypes expected, JsonOwnedAllTypes actual)
@@ -429,7 +431,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
             actual.TestNullableEnumWithConverterThatHandlesNullsCollection);
     }
 
-    public static void AssertPrimitiveCollection<T>(IList<T> expected, IList<T> actual)
+    public static void AssertPrimitiveCollection<T>(IList<T>? expected, IList<T>? actual)
     {
         Assert.Equal(expected?.Count, actual?.Count);
         for (var i = 0; i < (expected?.Count ?? 0); i++)
@@ -451,6 +453,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Name).IsRequired(false);
         modelBuilder.Entity<EntityBasic>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityBasicForReference>(b =>
         {
@@ -462,6 +465,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(
             x => x.OwnedReferenceRoot, b =>
             {
+                b.Property(x => x.Name).IsRequired(false);
                 b.WithOwner(x => x.Owner);
 
                 b.OwnsOne(
@@ -487,6 +491,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
         modelBuilder.Entity<JsonEntityBasic>().OwnsMany(
             x => x.OwnedCollectionRoot, b =>
             {
+                b.Property(x => x.Name).IsRequired(false);
                 b.OwnsOne(
                     x => x.OwnedReferenceBranch, bb =>
                     {
@@ -528,6 +533,7 @@ public abstract class JsonQueryFixtureBase : QueryFixtureBase<JsonQueryContext>
         modelBuilder.Entity<JsonEntityInheritanceBase>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<JsonEntityInheritanceBase>(b =>
         {
+            b.Property(x => x.Name).IsRequired(false);
             b.OwnsOne(
                 x => x.ReferenceOnBase, bb =>
                 {

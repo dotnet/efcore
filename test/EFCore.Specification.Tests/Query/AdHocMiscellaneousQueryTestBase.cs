@@ -7,8 +7,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
@@ -37,7 +35,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         using (var context = contextFactory.CreateDbContext())
         {
             var product = await context.Products.OrderBy(p => p.Id).FirstOrDefaultAsync();
-            context.Products.Remove(product);
+            context.Products.Remove(product!);
             await context.SaveChangesAsync();
         }
     }
@@ -45,7 +43,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context603(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>()
@@ -55,7 +53,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -160,21 +158,21 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             });
         }
 
-        public DbSet<Customer> Customers { get; set; }
-        public DbSet<Postcode> Postcodes { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Postcode> Postcodes { get; set; } = null!;
 
         public class Customer
         {
             public int CustomerID { get; set; }
-            public string CustomerName { get; set; }
+            public string CustomerName { get; set; } = null!;
             public int? PostcodeID { get; set; }
         }
 
         public class Postcode
         {
             public int PostcodeID { get; set; }
-            public string PostcodeValue { get; set; }
-            public string TownName { get; set; }
+            public string PostcodeValue { get; set; } = null!;
+            public string TownName { get; set; } = null!;
         }
     }
 
@@ -221,11 +219,11 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context6986(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Contact> Contacts { get; set; }
-        public DbSet<EmployerContact> EmployerContacts { get; set; }
-        public DbSet<Employer> Employers { get; set; }
-        public DbSet<ServiceOperatorContact> ServiceOperatorContacts { get; set; }
-        public DbSet<ServiceOperator> ServiceOperators { get; set; }
+        public DbSet<Contact> Contacts { get; set; } = null!;
+        public DbSet<EmployerContact> EmployerContacts { get; set; } = null!;
+        public DbSet<Employer> Employers { get; set; } = null!;
+        public DbSet<ServiceOperatorContact> ServiceOperatorContacts { get; set; } = null!;
+        public DbSet<ServiceOperator> ServiceOperators { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -260,33 +258,33 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class EmployerContact : Contact
         {
             [Required]
-            public Employer Employer { get; set; }
+            public Employer Employer { get; set; } = null!;
         }
 
         public class ServiceOperatorContact : Contact
         {
             [Required]
-            public ServiceOperator ServiceOperator { get; set; }
+            public ServiceOperator ServiceOperator { get; set; } = null!;
         }
 
         public class Contact
         {
             public int Id { get; set; }
-            public string UserName { get; set; }
+            public string UserName { get; set; } = null!;
             public bool IsPrimary { get; set; }
         }
 
         public class Employer
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public List<EmployerContact> Contacts { get; set; }
+            public string Name { get; set; } = null!;
+            public List<EmployerContact> Contacts { get; set; } = null!;
         }
 
         public class ServiceOperator
         {
             public int Id { get; set; }
-            public List<ServiceOperatorContact> Contacts { get; set; }
+            public List<ServiceOperatorContact> Contacts { get; set; } = null!;
         }
     }
 
@@ -312,7 +310,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7222(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
 
         public void RunQuery()
             => Blogs.Select(b => ClientMethod(b)).ToList();
@@ -353,7 +351,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7359(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -375,7 +373,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class SpecialProduct : Product;
@@ -399,8 +397,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context7983(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Post> Posts { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -421,23 +419,23 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Blog
         {
             public int Id { get; set; }
-            public string Title { get; set; }
+            public string? Title { get; set; }
 
-            public ICollection<Post> Posts { get; set; }
+            public ICollection<Post> Posts { get; set; } = null!;
         }
 
         public class Post
         {
             public int Id { get; set; }
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public class PostDTO
         {
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
             public PostDTO From(Post post)
             {
@@ -490,7 +488,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context8538(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -616,7 +614,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         using var context = contextFactory.CreateDbContext();
         context.Cache.Compact(1);
 
-        var name = "A";
+        string? name = "A";
 
         context.Entities.Where(e => e.Name == name).ToList();
         Assert.Equal(2, context.Cache.Count);
@@ -635,9 +633,9 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         Assert.Equal(0, context.Cache.Count);
 
         var entityParam = Expression.Parameter(typeof(Context8909.Entity), "e");
-        var idPropertyInfo = context.Model.FindEntityType(typeof(Context8909.Entity))
-            .FindProperty(nameof(Context8909.Entity.Id))
-            .PropertyInfo;
+        var idPropertyInfo = context.Model.FindEntityType(typeof(Context8909.Entity))!
+            .FindProperty(nameof(Context8909.Entity.Id))!
+            .PropertyInfo!;
         for (var i = 0; i < 1100; i++)
         {
             var conditionBody = Expression.Equal(
@@ -679,7 +677,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context8909(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; set; } = null!;
 
         public MemoryCache Cache
         {
@@ -689,14 +687,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
                 return (MemoryCache)typeof(CompiledQueryCache)
                     .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
-                    ?.GetValue(compiledQueryCache);
+                    !.GetValue(compiledQueryCache)!;
             }
         }
 
         public class Entity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -720,7 +718,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context9468(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Cart> Carts { get; set; }
+        public DbSet<Cart> Carts { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -737,7 +735,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
             public int? ConfigurationId { get; set; }
-            public Configuration Configuration { get; set; }
+            public Configuration Configuration { get; set; } = null!;
         }
 
         public class Configuration
@@ -765,7 +763,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11104(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Base> Bases { get; set; }
+        public DbSet<Base> Bases { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Base>()
@@ -787,7 +785,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         public class Derived1 : Base
         {
-            public Stuff MoreStuff { get; set; }
+            public Stuff? MoreStuff { get; set; }
         }
 
         public class Derived2 : Base;
@@ -825,7 +823,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11885(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<PriceEntity> Prices { get; set; }
+        public DbSet<PriceEntity> Prices { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PriceEntity>(b =>
@@ -922,7 +920,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12274(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MyEntity> Entities { get; set; }
+        public DbSet<MyEntity> Entities { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -938,14 +936,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class MyEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class OuterDTO
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public InnerDTO Inner { get; set; }
+            public string Name { get; set; } = null!;
+            public InnerDTO Inner { get; set; } = null!;
         }
 
         public class InnerDTO;
@@ -986,8 +984,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context12549(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Table1> Tables1 { get; set; }
-        public DbSet<Table2> Tables2 { get; set; }
+        public DbSet<Table1> Tables1 { get; set; } = null!;
+        public DbSet<Table2> Tables2 { get; set; } = null!;
 
         public class Table1
         {
@@ -1024,8 +1022,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context15215(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Auto> Autos { get; set; }
-        public DbSet<EqualAuto> EqualAutos { get; set; }
+        public DbSet<Auto> Autos { get; set; } = null!;
+        public DbSet<EqualAuto> EqualAutos { get; set; } = null!;
 
         public async Task SeedAsync()
         {
@@ -1037,8 +1035,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             await SaveChangesAsync();
 
             AddRange(
-                new EqualAuto { Auto = await Autos.FindAsync(1), AnotherAuto = await Autos.FindAsync(2) },
-                new EqualAuto { Auto = await Autos.FindAsync(5), AnotherAuto = await Autos.FindAsync(4) });
+                new EqualAuto { Auto = (await Autos.FindAsync(1))!, AnotherAuto = (await Autos.FindAsync(2))! },
+                new EqualAuto { Auto = (await Autos.FindAsync(5))!, AnotherAuto = (await Autos.FindAsync(4))! });
 
             await SaveChangesAsync();
         }
@@ -1046,14 +1044,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Auto
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class EqualAuto
         {
             public int Id { get; set; }
-            public Auto Auto { get; set; }
-            public Auto AnotherAuto { get; set; }
+            public Auto? Auto { get; set; }
+            public Auto? AnotherAuto { get; set; }
         }
     }
 
@@ -1078,7 +1076,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Concat(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1087,7 +1085,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right })
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
 
@@ -1106,7 +1104,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Union(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1115,7 +1113,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right })
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
 
@@ -1134,7 +1132,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Except(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1143,7 +1141,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right }))
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right }))
                 .ToList();
 
             Assert.Single(query);
@@ -1161,7 +1159,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                     (left, rightg) => new { left, rightg })
                 .SelectMany(
                     r => r.rightg.DefaultIfEmpty(),
-                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y })
+                    (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = x.left, Right = y! })
                 .Intersect(
                     context.Bs.GroupJoin(
                             context.As,
@@ -1170,7 +1168,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right }))
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y!, Right = x.right }))
                 .ToList();
 
             Assert.Single(query);
@@ -1180,8 +1178,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context19253(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<A> As { get; set; }
-        public DbSet<B> Bs { get; set; }
+        public DbSet<A> As { get; set; } = null!;
+        public DbSet<B> Bs { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1222,25 +1220,25 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         public class JoinResult<TLeft, TRight>
         {
-            public TLeft Left { get; set; }
+            public TLeft Left { get; set; } = default!;
 
-            public TRight Right { get; set; }
+            public TRight Right { get; set; } = default!;
         }
 
         public class A
         {
             public int Id { get; set; }
-            public string a { get; set; }
-            public string a1 { get; set; }
-            public string forkey { get; set; }
+            public string a { get; set; } = null!;
+            public string a1 { get; set; } = null!;
+            public string forkey { get; set; } = null!;
         }
 
         public class B
         {
             public int Id { get; set; }
-            public string b { get; set; }
-            public string b1 { get; set; }
-            public string forkey { get; set; }
+            public string b { get; set; } = null!;
+            public string b1 { get; set; } = null!;
+            public string forkey { get; set; } = null!;
         }
     }
 
@@ -1314,8 +1312,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context21770(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<IceCream> IceCreams { get; set; }
-        public DbSet<Food> Foods { get; set; }
+        public DbSet<IceCream> IceCreams { get; set; } = null!;
+        public DbSet<Food> Foods { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1351,7 +1349,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class IceCream
         {
             public int IceCreamId { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int Taste { get; set; }
         }
 
@@ -1411,7 +1409,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                 .Property(o => o.Id)
                 .UsePropertyAccessMode(PropertyAccessMode.Property);
 
-        public DbSet<ObservableThing> ObservableThings { get; set; }
+        public DbSet<ObservableThing> ObservableThings { get; set; } = null!;
 
         public class ObservableThing
         {
@@ -1425,7 +1423,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                 }
             }
 
-            public event Action Event;
+            public event Action Event = null!;
         }
     }
 
@@ -1451,7 +1449,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context24657(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Author> Authors { get; set; }
+        public DbSet<Author> Authors { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>()
@@ -1470,14 +1468,14 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Author
         {
             public int Id { get; set; }
-            public Blog Blog { get; set; }
+            public Blog? Blog { get; set; }
         }
 
         public abstract class Blog
         {
             public int Id { get; set; }
             public bool IsPhotoBlog { get; set; }
-            public string Title { get; set; }
+            public string? Title { get; set; }
         }
 
         public class DevBlog : Blog
@@ -1574,9 +1572,9 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26593(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Group> Groups { get; set; }
-        public DbSet<Membership> Memberships { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; } = null!;
+        public DbSet<Membership> Memberships { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1592,22 +1590,22 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public ICollection<Membership> Memberships { get; set; }
+            public ICollection<Membership> Memberships { get; set; } = null!;
         }
 
         public class Group
         {
             public int Id { get; set; }
 
-            public ICollection<Membership> Memberships { get; set; }
+            public ICollection<Membership> Memberships { get; set; } = null!;
         }
 
         public class Membership
         {
             public int Id { get; set; }
-            public User User { get; set; }
+            public User User { get; set; } = null!;
             public int UserId { get; set; }
-            public Group Group { get; set; }
+            public Group Group { get; set; } = null!;
             public int GroupId { get; set; }
         }
     }
@@ -1647,7 +1645,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26587(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; } = null!;
 
         public class OrderItem
         {
@@ -1687,8 +1685,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26472(DbContextOptions options) : DbContext(options)
     {
-        public virtual DbSet<Order> Orders { get; set; }
-        public virtual DbSet<OrderItem> OrderItems { get; set; }
+        public virtual DbSet<Order> Orders { get; set; } = null!;
+        public virtual DbSet<OrderItem> OrderItems { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<OrderItem>().Property(x => x.Type).HasConversion<string>();
@@ -1697,7 +1695,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public virtual ICollection<OrderItem> Items { get; set; }
+            public virtual ICollection<OrderItem> Items { get; set; } = null!;
         }
 
         public class OrderItem
@@ -1790,8 +1788,8 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context27083(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<TimeSheet> TimeSheets { get; set; }
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<TimeSheet> TimeSheets { get; set; } = null!;
+        public DbSet<Customer> Customers { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1834,19 +1832,19 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         {
             public int Id { get; set; }
 
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<Project> Projects { get; set; }
-            public List<Order> Orders { get; set; }
+            public List<Project> Projects { get; set; } = null!;
+            public List<Order> Orders { get; set; } = null!;
         }
 
         public class Order
         {
             public int Id { get; set; }
-            public string Number { get; set; }
+            public string? Number { get; set; }
 
             public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
+            public Customer Customer { get; set; } = null!;
 
             public int HourlyRate { get; set; }
         }
@@ -1856,7 +1854,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int Id { get; set; }
             public int CustomerId { get; set; }
 
-            public Customer Customer { get; set; }
+            public Customer Customer { get; set; } = null!;
         }
 
         public class TimeSheet
@@ -1864,10 +1862,10 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int Id { get; set; }
 
             public int ProjectId { get; set; }
-            public Project Project { get; set; }
+            public Project Project { get; set; } = null!;
 
             public int? OrderId { get; set; }
-            public Order Order { get; set; }
+            public Order Order { get; set; } = null!;
         }
     }
 
@@ -1923,7 +1921,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context27094(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Table> Tables { get; set; }
+        public DbSet<Table> Tables { get; set; } = null!;
 
         public class Table
         {
@@ -1983,7 +1981,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26744(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         public Task SeedAsync()
         {
@@ -1995,7 +1993,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Parent
         {
             public int Id { get; set; }
-            public List<Child> Children { get; set; }
+            public List<Child> Children { get; set; } = null!;
         }
 
         public class Child
@@ -2004,7 +2002,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int SomeInteger { get; set; }
             public DateTime? SomeNullableDateTime { get; set; }
             public DateTime? SomeOtherNullableDateTime { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
     }
 
@@ -2034,7 +2032,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context27343(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents { get; set; } = null!;
 
         public Task SeedAsync()
             => SaveChangesAsync();
@@ -2047,7 +2045,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
         public class Parent : IDocumentType
         {
             public int Id { get; set; }
-            public List<Child> Children { get; set; }
+            public List<Child> Children { get; set; } = null!;
         }
 
         public class Child
@@ -2056,7 +2054,7 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
             public int SomeInteger { get; set; }
             public DateTime? SomeNullableDateTime { get; set; }
             public DateTime? SomeOtherNullableDateTime { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
     }
 
@@ -2091,15 +2089,15 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context28039(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<IndexData> IndexDatas { get; set; }
-        public DbSet<TableData> TableDatas { get; set; }
+        public DbSet<IndexData> IndexDatas { get; set; } = null!;
+        public DbSet<TableData> TableDatas { get; set; } = null!;
 
         public class TableData : EntityBase
         {
             public int TableId { get; set; }
-            public string ParcelNumber { get; set; }
+            public string ParcelNumber { get; set; } = null!;
             public short RowId { get; set; }
-            public string JSON { get; set; }
+            public string JSON { get; set; } = null!;
         }
 
         public abstract class EntityBase
@@ -2110,15 +2108,15 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
 
         public class IndexData : EntityBase
         {
-            public string Parcel { get; set; }
+            public string Parcel { get; set; } = null!;
             public int RowId { get; set; }
         }
 
         public class SearchResult
         {
-            public string ParcelNumber { get; set; }
+            public string ParcelNumber { get; set; } = null!;
             public int RowId { get; set; }
-            public string DistinctValue { get; set; }
+            public string DistinctValue { get; set; } = null!;
         }
     }
 
@@ -2145,13 +2143,13 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
                         CountryId = m.Company.CountryId,
                         Country = new Context31961.CountryDto
                         {
-                            Id = m.Company.Country.Id,
-                            CountryName = m.Company.Country.CountryName,
+                            Id = m.Company.Country!.Id,
+                            CountryName = m.Company.Country!.CountryName,
                         },
                     }
                     : null,
             })
-            .Where(m => m.Company.Country.CountryName == "COUNTRY");
+            .Where(m => m.Company!.Country!.CountryName == "COUNTRY");
 
         var result = async
             ? await query.ToListAsync()
@@ -2161,91 +2159,91 @@ public abstract class AdHocMiscellaneousQueryTestBase(NonSharedFixture fixture)
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context31961(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; } = null!;
 
-        public DbSet<Company> Companies { get; set; }
+        public DbSet<Company> Companies { get; set; } = null!;
 
-        public DbSet<Country> Countries { get; set; }
+        public DbSet<Country> Countries { get; set; } = null!;
 
         public class Customer
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyId { get; set; }
+            public string? CompanyId { get; set; }
 
-            public Company Company { get; set; }
+            public Company? Company { get; set; }
         }
 
         public class Country
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CountryName { get; set; } = string.Empty;
+            public string? CountryName { get; set; }
         }
 
         public class Company
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyName { get; set; } = string.Empty;
+            public string? CompanyName { get; set; }
 
-            public string CountryId { get; set; }
+            public string? CountryId { get; set; }
 
-            public Country Country { get; set; }
+            public Country? Country { get; set; }
         }
 
         public interface ICustomerDto
         {
             string Id { get; set; }
 
-            string CompanyId { get; set; }
+            string? CompanyId { get; set; }
 
-            ICompanyDto Company { get; set; }
+            ICompanyDto? Company { get; set; }
         }
 
         public interface ICountryDto
         {
             string Id { get; set; }
 
-            string CountryName { get; set; }
+            string? CountryName { get; set; }
         }
 
         public interface ICompanyDto
         {
             string Id { get; set; }
 
-            string CompanyName { get; set; }
+            string? CompanyName { get; set; }
 
-            string CountryId { get; set; }
+            string? CountryId { get; set; }
 
-            ICountryDto Country { get; set; }
+            ICountryDto? Country { get; set; }
         }
 
         public class CustomerDto : ICustomerDto
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyId { get; set; }
+            public string? CompanyId { get; set; }
 
-            public ICompanyDto Company { get; set; }
+            public ICompanyDto? Company { get; set; }
         }
 
         public class CountryDto : ICountryDto
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CountryName { get; set; } = string.Empty;
+            public string? CountryName { get; set; }
         }
 
         public class CompanyDto : ICompanyDto
         {
             public string Id { get; set; } = string.Empty;
 
-            public string CompanyName { get; set; } = string.Empty;
+            public string? CompanyName { get; set; }
 
-            public string CountryId { get; set; }
+            public string? CountryId { get; set; }
 
-            public ICountryDto Country { get; set; }
+            public ICountryDto? Country { get; set; }
         }
     }
 

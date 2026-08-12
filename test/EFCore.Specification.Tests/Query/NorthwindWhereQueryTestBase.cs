@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable RedundantBoolCompare
 // ReSharper disable InconsistentNaming
@@ -232,13 +230,13 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.City == city.Nested.InstanceFieldValue));
+            ss => ss.Set<Customer>().Where(c => c.City == city.Nested!.InstanceFieldValue));
 
-        city.Nested.InstanceFieldValue = "Seattle";
+        city.Nested!.InstanceFieldValue = "Seattle";
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.City == city.Nested.InstanceFieldValue));
+            ss => ss.Set<Customer>().Where(c => c.City == city.Nested!.InstanceFieldValue));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -248,13 +246,13 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.City == city.Nested.InstancePropertyValue));
+            ss => ss.Set<Customer>().Where(c => c.City == city.Nested!.InstancePropertyValue));
 
-        city.Nested.InstancePropertyValue = "Seattle";
+        city.Nested!.InstancePropertyValue = "Seattle";
 
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.City == city.Nested.InstancePropertyValue));
+            ss => ss.Set<Customer>().Where(c => c.City == city.Nested!.InstancePropertyValue));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -264,7 +262,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
         return Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.City == city.Nested.InstanceFieldValue)));
+            ss => ss.Set<Customer>().Where(c => c.City == city.Nested!.InstanceFieldValue)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -305,17 +303,17 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
 
     private class City
     {
-        public static string StaticFieldValue;
-        public static string StaticPropertyValue { get; set; }
+        public static string StaticFieldValue = null!;
+        public static string StaticPropertyValue { get; set; } = null!;
 
-        public string InstanceFieldValue;
-        public string InstancePropertyValue { get; set; }
+        public string InstanceFieldValue = null!;
+        public string InstancePropertyValue { get; set; } = null!;
 
         public int Int { get; set; }
 
         public int? NullableInt { get; set; }
 
-        public City Nested;
+        public City? Nested;
 
         public City Throw()
             => throw new NotImplementedException();
@@ -372,7 +370,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     public virtual async Task Where_subquery_closure_via_query_cache(bool async)
     {
         using var context = CreateContext();
-        string customerID = null;
+        string? customerID = null;
 
         var orders = context.Orders.Where(o => o.CustomerID == customerID);
 
@@ -427,7 +425,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
             ss => from e in ss.Set<Employee>()
                   where EF.Property<string>(e, "Title")
                       == EF.Property<string>(
-                          ss.Set<Employee>().OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault(), "Title")
+                          ss.Set<Employee>().OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault()!, "Title")
                   select e);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -980,7 +978,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_expression_invoke_2(bool async)
     {
-        Expression<Func<Order, Customer>> customer = o => o.Customer;
+        Expression<Func<Order, Customer?>> customer = o => o.Customer;
         Expression<Func<Customer, bool>> predicate = c => c.CustomerID == "ALFKI";
         var exp = Expression.Lambda<Func<Order, bool>>(
             Expression.Invoke(predicate, customer.Body),
@@ -1091,21 +1089,21 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     public virtual Task Where_compare_tuple_constructed_equal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => new Tuple<string>(c.City) == new Tuple<string>("London")),
+            ss => ss.Set<Customer>().Where(c => new Tuple<string?>(c.City) == new Tuple<string?>("London")),
             ss => ss.Set<Customer>().Where(c => c.City == "London"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_multi_value_equal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")),
+            ss => ss.Set<Customer>().Where(c => new Tuple<string?, string?>(c.City, c.Country) == new Tuple<string?, string?>("London", "UK")),
             ss => ss.Set<Customer>().Where(c => c.City == "London" && c.Country == "UK"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_multi_value_not_equal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => new Tuple<string, string>(c.City, c.Country) != new Tuple<string, string>("London", "UK")),
+            ss => ss.Set<Customer>().Where(c => new Tuple<string?, string?>(c.City, c.Country) != new Tuple<string?, string?>("London", "UK")),
             ss => ss.Set<Customer>().Where(c => c.City != "London" || c.Country != "UK"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1146,7 +1144,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
         => AssertQuery(
             async,
             // ReSharper disable twice RedundantCast
-            ss => ss.Set<Customer>().Where(c => (object)c.City == (object)"London"));
+            ss => ss.Set<Customer>().Where(c => (object?)c.City == (object)"London"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_projection(bool async)
@@ -1224,7 +1222,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10276 }),
-            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderID == 10276));
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()!.OrderID == 10276));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task TypeBinary_short_circuit(bool async)
@@ -1289,7 +1287,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Generic_Ilist_contains_translates_to_server(bool async)
     {
-        var cities = new List<string> { "Seattle" } as IList<string>;
+        var cities = new List<string?> { "Seattle" } as IList<string?>;
 
         return AssertQuery(
             async,
@@ -1308,7 +1306,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c
-                => ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
+                => ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault()!.Length == 0),
             ss => ss.Set<Customer>().Where(c => false),
             assertEmpty: true);
 
@@ -1475,7 +1473,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
                 // Check also with Enumerable here so we don't handle the null check
                 // incorrectly because Contains is coverted in
                 // QueryableMethodNormalizingExpressionVisitor.TryConvertCollectionContainsToQueryableContains.
-                List<string> ids = withNull ? null : ["ALFKI", "ANATR"];
+                List<string>? ids = withNull ? null : ["ALFKI", "ANATR"];
                 return ss.Set<Customer>().Where(c => ids != null && ids.Contains(c.CustomerID));
             },
             assertEmpty: withNull);
@@ -1493,7 +1491,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
                 // Check also with Enumerable here so we don't handle the null check
                 // incorrectly because Contains is coverted in
                 // QueryableMethodNormalizingExpressionVisitor.TryConvertCollectionContainsToQueryableContains.
-                List<string> ids = withNull ? null : ["ALFKI", "ANATR"];
+                List<string>? ids = withNull ? null : ["ALFKI", "ANATR"];
                 return ss.Set<Customer>().Where(c => ids == null || !ids.Contains(c.CustomerID));
             });
 
@@ -1676,7 +1674,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_OrElse_on_same_column_with_null_parameter_comparison_converted_to_in(bool async)
     {
-        string prm = null;
+        string? prm = null;
 
         return AssertQuery(
             async,

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
 public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture) : BulkUpdatesTestBase<TFixture>(fixture)
     where TFixture : InheritanceBulkUpdatesFixtureBase, new()
 {

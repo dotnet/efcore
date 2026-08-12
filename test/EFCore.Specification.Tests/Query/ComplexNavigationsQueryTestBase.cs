@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 #pragma warning disable RCS1155 // Use StringComparison when comparing strings.
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsQueryFixtureBase, new()
 {
@@ -15,7 +13,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => Fixture.CreateContext();
 
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
-        => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
+        => new ExpectedQueryRewritingVisitor(
+            Fixture.GetShadowPropertyMappings().ToDictionary(e => e.Key, e => new Func<object, object>(o => e.Value(o)!)))
+            .Visit(expectedQueryExpression);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_equality_empty(bool async)
@@ -28,7 +28,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Key_equality_when_sentinel_ef_property(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Optional_FK1, "Id") == 0),
+            ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Optional_FK1!, "Id") == 0),
             assertEmpty: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -104,9 +104,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         using var context = CreateContext();
 
         var query = context.Fields
-            .Include(x => x.Label.Globalizations)
+            .Include(x => x.Label!.Globalizations)
             .ThenInclude(x => x.Language)
-            .Include(x => x.Placeholder.Globalizations)
+            .Include(x => x.Placeholder!.Globalizations)
             .ThenInclude(x => x.Language);
 
         var result = (async ? await query.ToListAsync() : query.ToList()).OrderBy(e => e.Name).ToList();
@@ -115,33 +115,33 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         Assert.Equal("Field1", result[0].Name);
         Assert.Equal("Field2", result[1].Name);
 
-        Assert.Equal("MLS1", result[0].Label.DefaultText);
-        Assert.Equal("MLS3", result[1].Label.DefaultText);
+        Assert.Equal("MLS1", result[0].Label!.DefaultText);
+        Assert.Equal("MLS3", result[1].Label!.DefaultText);
         Assert.Null(result[0].Placeholder);
-        Assert.Equal("MLS4", result[1].Placeholder.DefaultText);
+        Assert.Equal("MLS4", result[1].Placeholder!.DefaultText);
 
-        var globalizations_0_label = result[0].Label.Globalizations.OrderBy(g => g.Text).ToList();
+        var globalizations_0_label = result[0].Label!.Globalizations.OrderBy(g => g.Text).ToList();
         Assert.Equal(3, globalizations_0_label.Count);
         Assert.Equal("Globalization0", globalizations_0_label[0].Text);
-        Assert.Equal("Language0", globalizations_0_label[0].Language.Name);
+        Assert.Equal("Language0", globalizations_0_label[0].Language!.Name);
         Assert.Equal("Globalization1", globalizations_0_label[1].Text);
-        Assert.Equal("Language1", globalizations_0_label[1].Language.Name);
+        Assert.Equal("Language1", globalizations_0_label[1].Language!.Name);
         Assert.Equal("Globalization2", globalizations_0_label[2].Text);
-        Assert.Equal("Language2", globalizations_0_label[2].Language.Name);
+        Assert.Equal("Language2", globalizations_0_label[2].Language!.Name);
 
-        var globalizations_1_label = result[1].Label.Globalizations.OrderBy(g => g.Text).ToList();
+        var globalizations_1_label = result[1].Label!.Globalizations.OrderBy(g => g.Text).ToList();
         Assert.Equal(3, globalizations_1_label.Count);
         Assert.Equal("Globalization6", globalizations_1_label[0].Text);
-        Assert.Equal("Language6", globalizations_1_label[0].Language.Name);
+        Assert.Equal("Language6", globalizations_1_label[0].Language!.Name);
         Assert.Equal("Globalization7", globalizations_1_label[1].Text);
-        Assert.Equal("Language7", globalizations_1_label[1].Language.Name);
+        Assert.Equal("Language7", globalizations_1_label[1].Language!.Name);
         Assert.Equal("Globalization8", globalizations_1_label[2].Text);
-        Assert.Equal("Language8", globalizations_1_label[2].Language.Name);
+        Assert.Equal("Language8", globalizations_1_label[2].Language!.Name);
 
-        var globalizations_1_placeholder = result[1].Placeholder.Globalizations.OrderBy(g => g.Text).ToList();
+        var globalizations_1_placeholder = result[1].Placeholder!.Globalizations.OrderBy(g => g.Text).ToList();
         Assert.Single(globalizations_1_placeholder);
         Assert.Equal("Globalization9", globalizations_1_placeholder[0].Text);
-        Assert.Equal("Language9", globalizations_1_placeholder[0].Language.Name);
+        Assert.Equal("Language9", globalizations_1_placeholder[0].Language!.Name);
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -149,7 +149,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.Id
+                  join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2!.Id
                   select new { Id1 = e1.Id, Id2 = e2.Id },
             e => (e.Id1, e.Id2));
 
@@ -167,7 +167,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from e2 in ss.Set<Level2>()
-                  where e2.OneToOne_Optional_PK_Inverse2.Id > 5
+                  where e2.OneToOne_Optional_PK_Inverse2!.Id > 5
                   select e2.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -224,10 +224,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Required_FK1.Name.StartsWith("L")
+                  where e1.OneToOne_Required_FK1.Name!.StartsWith("L")
                   select e1,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Required_FK1.Name.MaybeScalar(x => x.StartsWith("L")) == true
+                  where e1.OneToOne_Required_FK1.Name.MaybeScalar(x => x!.StartsWith("L")) == true
                   select e1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -235,7 +235,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e3 in ss.Set<Level3>()
-                  where e3.OneToOne_Required_FK_Inverse3.Name.StartsWith("L")
+                  where e3.OneToOne_Required_FK_Inverse3.Name!.StartsWith("L")
                   select e3);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -243,10 +243,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Optional_FK1.Name.StartsWith("L")
+                  where e1.OneToOne_Optional_FK1!.Name!.StartsWith("L")
                   select e1,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Optional_FK1.Name.MaybeScalar(x => x.StartsWith("L")) == true
+                  where e1.OneToOne_Optional_FK1!.Name.MaybeScalar(x => x!.StartsWith("L")) == true
                   select e1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -262,10 +262,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Optional_FK1.Name.ToUpper().StartsWith("L")
+                  where e1.OneToOne_Optional_FK1!.Name!.ToUpper().StartsWith("L")
                   select e1,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Optional_FK1.Name.MaybeScalar(x => x.ToUpper().StartsWith("L"))
+                  where e1.OneToOne_Optional_FK1!.Name.MaybeScalar(x => x!.ToUpper().StartsWith("L"))
                       == true
                   select e1);
 
@@ -274,10 +274,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Optional_FK1.Name.StartsWith(e1.OneToOne_Optional_FK1.Name)
+                  where e1.OneToOne_Optional_FK1!.Name!.StartsWith(e1.OneToOne_Optional_FK1.Name!)
                   select e1,
             ss => from e1 in ss.Set<Level1>()
-                  where e1.OneToOne_Optional_FK1.Name.MaybeScalar(x => x.StartsWith(e1.OneToOne_Optional_FK1.Name)) == true
+                  where e1.OneToOne_Optional_FK1!.Name.MaybeScalar(x => x!.StartsWith(e1.OneToOne_Optional_FK1.Name!)) == true
                   select e1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -286,11 +286,11 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from e1 in ss.Set<Level1>()
-                where e1.OneToOne_Optional_FK1.Date.AddDays(10) > new DateTime(2000, 2, 1)
+                where e1.OneToOne_Optional_FK1!.Date.AddDays(10) > new DateTime(2000, 2, 1)
                 select e1,
             ss =>
                 from e1 in ss.Set<Level1>()
-                where e1.OneToOne_Optional_FK1.MaybeScalar(x => x.Date.AddDays(10)) > new DateTime(2000, 2, 1)
+                where e1.OneToOne_Optional_FK1!.MaybeScalar(x => x.Date.AddDays(10)) > new DateTime(2000, 2, 1)
                 select e1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -299,11 +299,11 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from e1 in ss.Set<Level1>()
-                where e1.OneToOne_Optional_FK1.Date.AddDays(10).AddDays(15).AddMonths(2) > new DateTime(2002, 2, 1)
+                where e1.OneToOne_Optional_FK1!.Date.AddDays(10).AddDays(15).AddMonths(2) > new DateTime(2002, 2, 1)
                 select e1,
             ss =>
                 from e1 in ss.Set<Level1>()
-                where e1.OneToOne_Optional_FK1.MaybeScalar(x => x.Date.AddDays(10).AddDays(15).AddMonths(2)) > new DateTime(2000, 2, 1)
+                where e1.OneToOne_Optional_FK1!.MaybeScalar(x => x.Date.AddDays(10).AddDays(15).AddMonths(2)) > new DateTime(2000, 2, 1)
                 select e1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -313,11 +313,11 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from e1 in ss.Set<Level1>()
-                where e1.OneToOne_Optional_FK1.Date.AddDays(15).AddDays(e1.OneToOne_Optional_FK1.Id) > new DateTime(2002, 2, 1)
+                where e1.OneToOne_Optional_FK1!.Date.AddDays(15).AddDays(e1.OneToOne_Optional_FK1.Id) > new DateTime(2002, 2, 1)
                 select e1,
             ss =>
                 from e1 in ss.Set<Level1>()
-                where e1.OneToOne_Optional_FK1.MaybeScalar(x => x.Date.AddDays(15).AddDays(x.Id)) > new DateTime(2000, 2, 1)
+                where e1.OneToOne_Optional_FK1!.MaybeScalar(x => x.Date.AddDays(15).AddDays(x.Id)) > new DateTime(2000, 2, 1)
                 select e1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -325,7 +325,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  join e2 in ss.Set<Level2>() on e1.OneToOne_Optional_FK1.Id equals e2.Id
+                  join e2 in ss.Set<Level2>() on e1.OneToOne_Optional_FK1!.Id equals e2.Id
                   select new { Id1 = e1.Id, Id2 = e2.Id },
             e => (e.Id1, e.Id2));
 
@@ -334,7 +334,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  join e3 in ss.Set<Level3>() on e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id equals e3.Id
+                  join e3 in ss.Set<Level3>() on e1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.Id equals e3.Id
                   select new { Id1 = e1.Id, Id3 = e3.Id },
             e => (e.Id1, e.Id3));
 
@@ -343,7 +343,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e3 in ss.Set<Level3>()
-                  join e1 in ss.Set<Level1>() on e3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id equals e1.Id
+                  join e1 in ss.Set<Level1>() on e3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2!.Id equals e1.Id
                   select new { Id3 = e3.Id, Id1 = e1.Id },
             e => (e.Id1, e.Id3));
 
@@ -352,7 +352,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e2 in ss.Set<Level2>()
-                  join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.Id
+                  join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1!.Id
                   select new { Id2 = e2.Id, Id1 = e1.Id },
             e => (e.Id2, e.Id1));
 
@@ -361,8 +361,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e2 in ss.Set<Level2>()
-                  join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1.Id
-                  join e3 in ss.Set<Level3>() on e2.Id equals e3.OneToOne_Optional_FK_Inverse3.Id
+                  join e1 in ss.Set<Level1>() on e2.Id equals e1.OneToOne_Optional_FK1!.Id
+                  join e3 in ss.Set<Level3>() on e2.Id equals e3.OneToOne_Optional_FK_Inverse3!.Id
                   select new
                   {
                       Id2 = e2.Id,
@@ -377,7 +377,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from e2 in ss.Set<Level2>()
-                join e1 in ss.Set<Level1>() on e2.Name equals e1.OneToOne_Optional_FK1.Name
+                join e1 in ss.Set<Level1>() on e2.Name equals e1.OneToOne_Optional_FK1!.Name
                 select new
                 {
                     Id2 = e2.Id,
@@ -393,7 +393,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from e2 in ss.Set<Level2>()
-                join e1 in ss.Set<Level1>().OrderBy(l1 => l1.Id) on e2.Name equals e1.OneToOne_Optional_FK1.Name
+                join e1 in ss.Set<Level1>().OrderBy(l1 => l1.Id) on e2.Name equals e1.OneToOne_Optional_FK1!.Name
                 select new
                 {
                     Id2 = e2.Id,
@@ -408,7 +408,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  join e2 in ss.Set<Level1>() on e1.Id equals e2.OneToMany_Optional_Self_Inverse1.Id
+                  join e2 in ss.Set<Level1>() on e1.Id equals e2.OneToMany_Optional_Self_Inverse1!.Id
                   select new { Id1 = e1.Id, Id2 = e2.Id },
             e => (e.Id1, e.Id2));
 
@@ -417,7 +417,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e3 in ss.Set<Level3>()
-                  join e1 in ss.Set<Level1>() on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
+                  join e1 in ss.Set<Level1>() on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.Id
                   select new { Id3 = e3.Id, Id1 = e1.Id },
             e => (e.Id3, e.Id1));
 
@@ -426,7 +426,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e3 in ss.Set<Level3>()
-                  join e1 in ss.Set<Level1>().OrderBy(ll => ll.Id) on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id
+                  join e1 in ss.Set<Level1>().OrderBy(ll => ll.Id) on e3.Id equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.Id
                   select new { Id3 = e3.Id, Id1 = e1.Id },
             e => (e.Id3, e.Id1));
 
@@ -436,7 +436,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from e4 in ss.Set<Level4>()
-                join e1 in ss.Set<Level1>() on e4.Name equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToOne_Required_PK3.Name
+                join e1 in ss.Set<Level1>() on e4.Name equals e1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.OneToOne_Required_PK3.Name
                 select new
                 {
                     Id4 = e4.Id,
@@ -471,7 +471,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
-                AssertInclude(e.entity, a.entity, new ExpectedInclude<Level1>(ee => ee.OneToOne_Optional_FK1));
+                AssertInclude(e.entity, a.entity, new ExpectedInclude<Level1>(ee => ee.OneToOne_Optional_FK1!));
                 AssertEqual(e.Id, a.Id);
             });
 
@@ -479,7 +479,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Select_nav_prop_reference_optional1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Select(e => e.OneToOne_Optional_FK1.Name));
+            ss => ss.Set<Level1>().Select(e => e.OneToOne_Optional_FK1!.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_nav_prop_reference_optional1_via_DefaultIfEmpty(bool async)
@@ -495,7 +495,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Select_nav_prop_reference_optional2(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Id));
+            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1!.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_nav_prop_reference_optional2_via_DefaultIfEmpty(bool async)
@@ -510,14 +510,14 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Select_nav_prop_reference_optional3(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level2>().Select(e => e.OneToOne_Optional_FK_Inverse2.Name));
+            ss => ss.Set<Level2>().Select(e => e.OneToOne_Optional_FK_Inverse2!.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_nav_prop_reference_optional1(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<Level1>()
-                .Where(e => e.OneToOne_Optional_FK1.Name == "L2 05" || e.OneToOne_Optional_FK1.Name == "L2 07")
+                .Where(e => e.OneToOne_Optional_FK1!.Name == "L2 05" || e.OneToOne_Optional_FK1!.Name == "L2 07")
                 .Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -537,7 +537,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => ss.Set<Level1>()
-                .Where(e => e.OneToOne_Optional_FK1.Name == "L2 05" || e.OneToOne_Optional_FK1.Name != "L2 42")
+                .Where(e => e.OneToOne_Optional_FK1!.Name == "L2 05" || e.OneToOne_Optional_FK1!.Name != "L2 42")
                 .Select(e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -556,7 +556,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Select_multiple_nav_prop_reference_optional(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Id));
+            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1!.OneToOne_Optional_FK2!.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_multiple_nav_prop_reference_optional_member_compared_to_value(bool async)
@@ -564,7 +564,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l1 in ss.Set<Level1>()
-                where l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Name != "L3 05"
+                where l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2!.Name != "L3 05"
                 select l1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -573,7 +573,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l1 in ss.Set<Level1>()
-                where l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Name != null
+                where l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2!.Name != null
                 select l1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -582,7 +582,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l1 in ss.Set<Level1>()
-                where l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2 == null
+                where l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2 == null
                 select l1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -591,7 +591,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l3 in ss.Set<Level3>()
-                where l3.OneToOne_Optional_FK_Inverse3.OneToOne_Optional_FK_Inverse2 == null
+                where l3.OneToOne_Optional_FK_Inverse3!.OneToOne_Optional_FK_Inverse2 == null
                 select l3);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -600,7 +600,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l1 in ss.Set<Level1>()
-                where null != l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2
+                where null != l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2
                 select l1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -609,14 +609,14 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l3 in ss.Set<Level3>()
-                where null != l3.OneToOne_Optional_FK_Inverse3.OneToOne_Optional_FK_Inverse2
+                where null != l3.OneToOne_Optional_FK_Inverse3!.OneToOne_Optional_FK_Inverse2
                 select l3);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_multiple_nav_prop_reference_optional_compared_to_null5(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Where(e => e.OneToOne_Optional_FK1.OneToOne_Required_FK2.OneToOne_Required_FK3 == null));
+            ss => ss.Set<Level1>().Where(e => e.OneToOne_Optional_FK1!.OneToOne_Required_FK2.OneToOne_Required_FK3 == null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_multiple_nav_prop_reference_required(bool async)
@@ -635,7 +635,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from l1 in ss.Set<Level1>()
-                  select (int?)l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.Id);
+                  select (int?)l1.OneToOne_Optional_FK1!.OneToOne_Required_FK2.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_multiple_nav_prop_optional_required(bool async)
@@ -643,7 +643,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l1 in ss.Set<Level1>()
-                where l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.Name != "L3 05"
+                where l1.OneToOne_Optional_FK1!.OneToOne_Required_FK2.Name != "L3 05"
                 select l1);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -674,7 +674,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss =>
                 from l1 in ss.Set<Level1>()
                 from l2 in ss.Set<Level2>()
-                where l1.Id == l2.OneToOne_Optional_FK_Inverse2.Id
+                where l1.Id == l2.OneToOne_Optional_FK_Inverse2!.Id
                 select new { Id1 = l1.Id, Id2 = l2.Id },
             e => (e.Id1, e.Id2));
 
@@ -690,7 +690,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss =>
                 from l1 in ss.Set<Level1>()
                 from l2 in ss.Set<Level2>()
-                where l1.OneToOne_Optional_FK1.Id == l2.Id
+                where l1.OneToOne_Optional_FK1!.Id == l2.Id
                 select new { Id1 = l1.Id, Id2 = l2.Id },
             e => (e.Id1, e.Id2));
 
@@ -701,7 +701,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss =>
                 from l1 in ss.Set<Level1>()
                 from l2 in ss.Set<Level2>()
-                where l1.OneToOne_Optional_FK1.Name == "L2 01" || l2.OneToOne_Required_FK_Inverse2.Name != "Bar"
+                where l1.OneToOne_Optional_FK1!.Name == "L2 01" || l2.OneToOne_Required_FK_Inverse2.Name != "Bar"
                 select new { Id1 = (int?)l1.Id, Id2 = (int?)l2.Id },
             e => (e.Id1, e.Id2));
 
@@ -710,7 +710,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from l1 in ss.Set<Level1>()
-                  where l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.Name == "L3 05" || l1.OneToOne_Optional_FK1.Name != "L2 05"
+                  where l1.OneToOne_Optional_FK1!.OneToOne_Required_FK2.Name == "L3 05" || l1.OneToOne_Optional_FK1!.Name != "L2 05"
                   select l1.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -718,7 +718,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from l1 in ss.Set<Level1>()
-                  where l1.OneToOne_Optional_FK1.Name != "L2 05" || l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.Name == "L3 05"
+                  where l1.OneToOne_Optional_FK1!.Name != "L2 05" || l1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.Name == "L3 05"
                   select l1.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -726,8 +726,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from l3 in ss.Set<Level3>()
-                  where l3.OneToOne_Optional_FK_Inverse3.Name != "L2 05"
-                      || l3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Name == "L1 05"
+                  where l3.OneToOne_Optional_FK_Inverse3!.Name != "L2 05"
+                      || l3.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2!.Name == "L1 05"
                   select l3.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -737,7 +737,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level1>()
                 .Where(e => e.OneToOne_Required_FK1.OneToOne_Required_FK2 == e.OneToOne_Required_FK1.OneToOne_Optional_FK2
                     && e.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id != 7)
-                .Select(e => new { e.Name, Id = (int?)e.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id }),
+                .Select(e => new { e.Name, Id = (int?)e.OneToOne_Required_FK1.OneToOne_Optional_FK2!.Id }),
             elementSorter: e => (e.Name, e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -747,8 +747,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => from e in ss.Set<Level3>()
                   where e.OneToOne_Required_FK_Inverse3.OneToOne_Required_FK_Inverse2
                       != e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2
-                      && e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id != 7
-                  select new { e.Name, Id = (int?)e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2.Id },
+                      && e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2!.Id != 7
+                  select new { e.Name, Id = (int?)e.OneToOne_Required_FK_Inverse3.OneToOne_Optional_FK_Inverse2!.Id },
             e => (e.Name, e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -775,22 +775,22 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public class MyOuterDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public MyInnerDto Inner { get; set; }
+        public MyInnerDto? Inner { get; set; }
     }
 
     public class MyInnerDto
     {
         public int? Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_nav_prop_reference_optional(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Level1>().OrderBy(e => e.OneToOne_Optional_FK1.Name).ThenBy(e => e.Id).Select(e => e.Id),
+            ss => ss.Set<Level1>().OrderBy(e => e.OneToOne_Optional_FK1!.Name).ThenBy(e => e.Id).Select(e => e.Id),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -810,8 +810,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>(),
             ss => ss.Set<Level1>(),
-            actualSelector: e => e.OneToOne_Optional_FK1.Level1_Required_Id,
-            expectedSelector: e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Level1_Required_Id));
+            actualSelector: e => e.OneToOne_Optional_FK1!.Level1_Required_Id,
+            expectedSelector: e => e.OneToOne_Optional_FK1!.MaybeScalar(x => x.Level1_Required_Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Result_operator_nav_prop_reference_optional_Min(bool async)
@@ -819,8 +819,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>(),
             ss => ss.Set<Level1>(),
-            actualSelector: e => e.OneToOne_Optional_FK1.Level1_Required_Id,
-            expectedSelector: e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Level1_Required_Id));
+            actualSelector: e => e.OneToOne_Optional_FK1!.Level1_Required_Id,
+            expectedSelector: e => e.OneToOne_Optional_FK1!.MaybeScalar(x => x.Level1_Required_Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Result_operator_nav_prop_reference_optional_Max(bool async)
@@ -828,8 +828,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>(),
             ss => ss.Set<Level1>(),
-            actualSelector: e => e.OneToOne_Optional_FK1.Level1_Required_Id,
-            expectedSelector: e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Level1_Required_Id));
+            actualSelector: e => e.OneToOne_Optional_FK1!.Level1_Required_Id,
+            expectedSelector: e => e.OneToOne_Optional_FK1!.MaybeScalar(x => x.Level1_Required_Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Result_operator_nav_prop_reference_optional_Average(bool async)
@@ -837,21 +837,21 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>(),
             ss => ss.Set<Level1>(),
-            actualSelector: e => e.OneToOne_Optional_FK1.Level1_Required_Id,
-            expectedSelector: e => e.OneToOne_Optional_FK1.MaybeScalar(x => x.Level1_Required_Id));
+            actualSelector: e => e.OneToOne_Optional_FK1!.Level1_Required_Id,
+            expectedSelector: e => e.OneToOne_Optional_FK1!.MaybeScalar(x => x.Level1_Required_Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Result_operator_nav_prop_reference_optional_Average_with_identity_selector(bool async)
         => AssertAverage(
             async,
-            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
+            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1!.Level1_Required_Id),
             selector: e => e);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Result_operator_nav_prop_reference_optional_Average_without_selector(bool async)
         => AssertAverage(
             async,
-            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id));
+            ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1!.Level1_Required_Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty(bool async)
@@ -868,9 +868,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l1 in ss.Set<Level1>().Include(e => e.OneToOne_Optional_FK1)
-                  where l1.OneToOne_Optional_FK1.Name != "L2 05"
+                  where l1.OneToOne_Optional_FK1!.Name != "L2 05"
                   select l1,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Join_flattening_bug_4539(bool async)
@@ -944,8 +944,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task SelectMany_nested_navigation_property_optional_and_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2).Select(e => e.Name),
-            ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2 ?? new List<Level3>())
+            ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1!.OneToMany_Optional2).Select(e => e.Name),
+            ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1!.OneToMany_Optional2 ?? new List<Level3>())
                 .Select(e => e.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -995,7 +995,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Level1>()
-                  join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2.Id
+                  join e2 in ss.Set<Level2>() on e1.Id equals e2.OneToOne_Optional_FK_Inverse2!.Id
                   where ss.Set<Level2>().Any(l2 => l2.Level1_Required_Id == e1.Id)
                   select new { Name1 = e1.Name, Id2 = e2.Id },
             e => (e.Name1, e.Id2));
@@ -1086,10 +1086,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Select(l1 => l1.OneToOne_Optional_FK1)
+                .Select(l1 => l1.OneToOne_Optional_FK1!)
                 .OrderBy(l2 => (int?)l2.Id)
                 .Take(10)
-                .Select(l2 => l2.OneToOne_Optional_FK2.Name),
+                .Select(l2 => l2.OneToOne_Optional_FK2!.Name),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1196,7 +1196,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level4>()
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3)
                 .Include(l2 => l2.OneToOne_Optional_FK2),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_required_navigation_using_multiple_selects_with_Include(bool async)
@@ -1207,7 +1207,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4)
                 .Select(l3 => l3.OneToOne_Required_FK_Inverse3)
                 .Include(l2 => l2.OneToOne_Optional_FK2),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_required_navigation_with_string_based_Include(bool async)
@@ -1217,7 +1217,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level4>()
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3)
                 .Include("OneToOne_Optional_FK2"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_required_navigation_with_EF_Property_Include(bool async)
@@ -1227,7 +1227,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level4>()
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3)
                 .Include(l2 => EF.Property<Level2>(l2, "OneToOne_Optional_FK2")),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_required_navigation_using_multiple_selects_with_string_based_Include(bool async)
@@ -1238,7 +1238,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4)
                 .Select(l3 => l3.OneToOne_Required_FK_Inverse3)
                 .Include("OneToOne_Optional_FK2"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_required_navigation_using_multiple_selects_with_EF_Property_Include(bool async)
@@ -1249,7 +1249,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4)
                 .Select(l3 => l3.OneToOne_Required_FK_Inverse3)
                 .Include(l2 => EF.Property<Level2>(l2, "OneToOne_Optional_FK2")),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_with_Include(bool async)
@@ -1257,9 +1257,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertIncludeOnNonEntity(() => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Select(l1 => l1.OneToOne_Optional_FK1)
+                .Select(l1 => l1.OneToOne_Optional_FK1!)
                 .Include(l2 => l2.OneToOne_Optional_FK2),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2))));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_with_navigation_and_explicit_DefaultIfEmpty(bool async)
@@ -1298,11 +1298,11 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l1 in ss.Set<Level1>()
-                  from l3 in l1.OneToOne_Optional_FK1.OneToMany_Optional2.Where(l => l.Id > 5).DefaultIfEmpty()
+                  from l3 in l1.OneToOne_Optional_FK1!.OneToMany_Optional2.Where(l => l.Id > 5).DefaultIfEmpty()
                   where l3 != null
                   select l1,
             ss => from l1 in ss.Set<Level1>().Where(l => l.OneToOne_Optional_FK1 != null)
-                  from l3 in l1.OneToOne_Optional_FK1.OneToMany_Optional2.Where(l => l.Id > 5).DefaultIfEmpty()
+                  from l3 in l1.OneToOne_Optional_FK1!.OneToMany_Optional2.Where(l => l.Id > 5).DefaultIfEmpty()
                   where l3 != null
                   select l1);
 
@@ -1325,12 +1325,12 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => from l1 in ss.Set<Level1>()
                   join l2 in ss.Set<Level4>().SelectMany(l4
-                          => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2) on l1.Id
+                          => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3!.OneToMany_Required_Self2) on l1.Id
                       equals l2.Level1_Optional_Id
                   select new { l1, l2 },
             ss => from l1 in ss.Set<Level1>()
                   join l2 in ss.Set<Level4>().SelectMany(l4
-                          => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2
+                          => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3!.OneToMany_Required_Self2
                           ?? new List<Level2>()) on l1.Id
                       equals l2.Level1_Optional_Id
                   select new { l1, l2 },
@@ -1347,7 +1347,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l1 in ss.Set<Level1>()
-                  join l2 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3
+                  join l2 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3!
                           .OneToMany_Required_Self2
                           .DefaultIfEmpty())
                       on l1.Id equals l2.Level1_Optional_Id
@@ -1365,7 +1365,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l2 in ss.Set<Level4>().SelectMany(l4
-                      => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty())
+                      => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3!.OneToMany_Required_Self2.DefaultIfEmpty())
                   join l1 in ss.Set<Level1>() on l2.Level1_Optional_Id equals l1.Id
                   select new { l2, l1 },
             elementSorter: e => (e.l2?.Id, e.l1?.Id),
@@ -1381,7 +1381,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l4 in ss.Set<Level1>()
-                      .SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                      .SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.OneToMany_Required3.DefaultIfEmpty())
                   join l2 in ss.Set<Level2>() on l4.Id equals l2.Id
                   select new { l4, l2 },
             elementSorter: e => (e.l4?.Id, e.l2?.Id),
@@ -1397,7 +1397,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l4 in ss.Set<Level1>()
-                      .SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                      .SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.OneToMany_Required3.DefaultIfEmpty())
                   join l2 in ss.Set<Level2>() on l4.Id equals l2.Id into grouping
                   from l2 in grouping.DefaultIfEmpty()
                   select new { l4, l2 },
@@ -1413,8 +1413,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l4 in ss.Set<Level1>()
-                      .SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
-                  join l2 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3
+                      .SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2!.OneToMany_Required3.DefaultIfEmpty())
+                  join l2 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3!
                           .OneToMany_Required_Self2
                           .DefaultIfEmpty())
                       on l4.Id equals l2.Id
@@ -1442,7 +1442,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             bool async)
         => AssertQuery(
             async,
-            ss => from l3 in ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.DefaultIfEmpty())
+            ss => from l3 in ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Optional_FK1!.OneToMany_Optional2.DefaultIfEmpty())
                   select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_PK_Inverse2);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1497,9 +1497,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Contains_with_subquery_optional_navigation_and_constant_item(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Distinct().Select(l3 => l3.Id).Contains(6)),
+            ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1!.OneToMany_Optional2.Distinct().Select(l3 => l3.Id).Contains(6)),
             ss => ss.Set<Level1>().Where(l1
-                => l1.OneToOne_Optional_FK1.OneToMany_Optional2.MaybeScalar(x => x.Distinct().Select(l3 => l3.Id).Contains(6))
+                => l1.OneToOne_Optional_FK1!.OneToMany_Optional2.MaybeScalar(x => x.Distinct().Select(l3 => l3.Id).Contains(6))
                 == true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1507,9 +1507,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>().Where(l1
-                => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Select(l3 => l3.Name.Length).Distinct().Contains(5)),
+                => l1.OneToOne_Optional_FK1!.OneToMany_Optional2.Select(l3 => l3.Name!.Length).Distinct().Contains(5)),
             ss => ss.Set<Level1>().Where(l1
-                => l1.OneToOne_Optional_FK1.OneToMany_Optional2.MaybeScalar(x => x.Select(l3 => l3.Name.Length).Distinct().Contains(5))
+                => l1.OneToOne_Optional_FK1!.OneToMany_Optional2.MaybeScalar(x => x.Select(l3 => l3.Name!.Length).Distinct().Contains(5))
                 == true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1517,10 +1517,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>().Where(l1 => l1.Id < 3
-                && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id)
+                && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2!.OneToOne_Optional_FK3!.Id)
                     .All(l4 => ClientMethod(l4))),
             ss => ss.Set<Level1>().Where(l1 => l1.Id < 3
-                && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.MaybeScalar(x => x.Id))
+                && !l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2!.OneToOne_Optional_FK3!.MaybeScalar(x => x.Id))
                     .All(a => true)),
             assertEmpty: true);
 
@@ -1586,7 +1586,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                   join l2 in ss.Set<Level2>() on l2_nav.Level1_Required_Id equals l2.Id into grouping
                   from l2 in grouping.DefaultIfEmpty()
                   select new { Id1 = (int?)l2_nav.Id, Id2 = (int?)l2.Id },
-            elementSorter: e => e.Id1);
+            elementSorter: e => e.Id1!);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_propagates_nullability_to_manually_created_left_join2(bool async)
@@ -1769,10 +1769,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task GroupJoin_on_left_side_being_a_subquery(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().OrderBy(l1 => l1.OneToOne_Optional_FK1.Name)
+            ss => ss.Set<Level1>().OrderBy(l1 => l1.OneToOne_Optional_FK1!.Name)
                 .ThenBy(l1 => l1.Id)
                 .Take(2)
-                .Select(x => new { x.Id, Brand = x.OneToOne_Optional_FK1.Name }),
+                .Select(x => new { x.Id, Brand = x.OneToOne_Optional_FK1!.Name }),
             e => e.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1781,7 +1781,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss =>
                 from l2 in ss.Set<Level2>()
-                join l1 in ss.Set<Level1>().OrderBy(x => x.OneToOne_Optional_FK1.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id
+                join l1 in ss.Set<Level1>().OrderBy(x => x.OneToOne_Optional_FK1!.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id
                     into grouping
                 from l1 in grouping.DefaultIfEmpty()
                 select new { l2.Id, Name = l1 != null ? l1.Name : null },
@@ -1856,7 +1856,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 where l1_outer.Id < 2
                 select l1_outer.Name);
 
-    private static string ClientStringMethod(string argument)
+    private static string? ClientStringMethod(string? argument)
         => argument;
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1915,7 +1915,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Optional_navigation_in_subquery_with_unrelated_projection(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1.Name != "Foo")
+            ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1!.Name != "Foo")
                 .OrderBy(l1 => l1.Id)
                 .Take(15)
                 .Select(l1 => l1.Id));
@@ -2063,7 +2063,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from l3 in ss.Set<Level3>()
-                  where l3.OneToMany_Optional_Inverse3.OneToOne_Required_FK_Inverse2 != null
+                  where l3.OneToMany_Optional_Inverse3!.OneToOne_Required_FK_Inverse2 != null
                   select l3.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2071,8 +2071,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQueryScalar(
             async,
             ss => from l3 in ss.Set<Level3>()
-                  where l3.OneToMany_Optional_Inverse3.OneToOne_Required_FK_Inverse2.Name != "L1 07"
-                  where l3.OneToMany_Optional_Inverse3.OneToOne_Required_FK_Inverse2 != null
+                  where l3.OneToMany_Optional_Inverse3!.OneToOne_Required_FK_Inverse2.Name != "L1 07"
+                  where l3.OneToMany_Optional_Inverse3!.OneToOne_Required_FK_Inverse2 != null
                   select l3.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2140,14 +2140,14 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Where(t => t != null)
                 .Select(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3)
                 .Include(l2 => l2.OneToOne_Optional_FK2),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!)),
             elementSorter: e => e.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Comparing_collection_navigation_on_optional_reference_to_null(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2 == null).Select(l1 => l1.Id));
+            ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1!.OneToMany_Optional2 == null).Select(l1 => l1.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_subquery_with_client_eval_and_navigation1(bool async)
@@ -2176,7 +2176,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 from l1 in ss.Set<Level1>()
                 where l1.Id < 3
                 select (from l3 in ss.Set<Level3>()
-                        select l3).Distinct().OrderBy(l => l.Id).Skip(1).FirstOrDefault().Name);
+                    select l3).Distinct().OrderBy(l => l.Id).Skip(1).FirstOrDefault()!.Name);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy(bool async)
@@ -2189,7 +2189,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                       Key = l1.Id,
                       Subquery = (from l3 in ss.Set<Level3>()
                                   orderby l3.Id
-                                  select l3).Distinct().Skip(1).FirstOrDefault().Name
+                                  select l3).Distinct().Skip(1).FirstOrDefault()!.Name
                   },
             elementSorter: e => e.Key,
             elementAsserter: (e, a) => Assert.Equal(e.Key, a.Key));
@@ -2199,9 +2199,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => from l1 in ss.Set<Level1>()
-                  select new { l1.Id, l1.OneToOne_Optional_FK1.OneToMany_Optional2.Count },
+                  select new { l1.Id, l1.OneToOne_Optional_FK1!.OneToMany_Optional2.Count },
             ss => from l1 in ss.Set<Level1>()
-                  select new { l1.Id, Count = l1.OneToOne_Optional_FK1.OneToMany_Optional2.MaybeScalar(x => x.Count) ?? 0 },
+                  select new { l1.Id, Count = l1.OneToOne_Optional_FK1!.OneToMany_Optional2.MaybeScalar(x => x.Count) ?? 0 },
             elementSorter: e => e.Id);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2238,18 +2238,18 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Include(l1 => l1.OneToOne_Optional_FK1)
                 .GroupBy(g => g.Name)
                 .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multi_include_with_groupby_in_subquery(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2)
+                .Include(l1 => l1.OneToOne_Optional_FK1!.OneToMany_Optional2)
                 .GroupBy(g => g.Name)
                 .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(e1 => e1.OneToOne_Optional_FK1),
+                e, a, new ExpectedInclude<Level1>(e1 => e1.OneToOne_Optional_FK1!),
                 new ExpectedInclude<Level2>(e2 => e2.OneToMany_Optional2, "OneToOne_Optional_FK1")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2258,8 +2258,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<InheritanceBase1>().Include("ReferenceSameType"),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<InheritanceDerived1>(e1 => e1.ReferenceSameType),
-                new ExpectedInclude<InheritanceDerived2>(e2 => e2.ReferenceSameType)));
+                e, a, new ExpectedInclude<InheritanceDerived1>(e1 => e1.ReferenceSameType!),
+                new ExpectedInclude<InheritanceDerived2>(e2 => e2.ReferenceSameType!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_include_multiple_derived_navigation_with_same_name_and_different_type(bool async)
@@ -2267,8 +2267,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<InheritanceBase1>().Include("ReferenceDifferentType"),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<InheritanceDerived1>(e1 => e1.ReferenceDifferentType),
-                new ExpectedInclude<InheritanceDerived2>(e2 => e2.ReferenceDifferentType)));
+                e, a, new ExpectedInclude<InheritanceDerived1>(e1 => e1.ReferenceDifferentType!),
+                new ExpectedInclude<InheritanceDerived2>(e2 => e2.ReferenceDifferentType!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task
@@ -2278,8 +2278,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<InheritanceBase1>().Include("ReferenceDifferentType.BaseCollection"),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<InheritanceDerived1>(e1 => e1.ReferenceDifferentType),
-                new ExpectedInclude<InheritanceDerived2>(e2 => e2.ReferenceDifferentType),
+                e, a, new ExpectedInclude<InheritanceDerived1>(e1 => e1.ReferenceDifferentType!),
+                new ExpectedInclude<InheritanceDerived2>(e2 => e2.ReferenceDifferentType!),
                 new ExpectedInclude<InheritanceLeaf2>(e3 => e3.BaseCollection, "ReferenceDifferentType")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2318,19 +2318,19 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<InheritanceBase2>().Include("Reference.CollectionDifferentType").Include("Collection.ReferenceSameType"),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<InheritanceBase2>(e1 => e1.Reference),
+                e, a, new ExpectedInclude<InheritanceBase2>(e1 => e1.Reference!),
                 new ExpectedInclude<InheritanceDerived1>(e2 => e2.CollectionDifferentType, "Reference"),
                 new ExpectedInclude<InheritanceDerived2>(e3 => e3.CollectionDifferentType, "Reference"),
                 new ExpectedInclude<InheritanceBase2>(e4 => e4.Collection),
-                new ExpectedInclude<InheritanceDerived1>(e5 => e5.ReferenceSameType, "Collection"),
-                new ExpectedInclude<InheritanceDerived2>(e6 => e6.ReferenceSameType, "Collection")));
+                new ExpectedInclude<InheritanceDerived1>(e5 => e5.ReferenceSameType!, "Collection"),
+                new ExpectedInclude<InheritanceDerived2>(e6 => e6.ReferenceSameType!, "Collection")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_PK1 != null)
-                .Select(l1 => Math.Max(l1.OneToOne_Optional_PK1.Level1_Required_Id, 7)));
+                .Select(l1 => Math.Max(l1.OneToOne_Optional_PK1!.Level1_Required_Id, 7)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Accessing_optional_property_inside_result_operator_subquery(bool async)
@@ -2339,7 +2339,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
 
         return AssertQuery(
             async,
-            ss => ss.Set<Level1>().Where(l1 => names.All(n => l1.OneToOne_Optional_FK1.Name != n)));
+            ss => ss.Set<Level1>().Where(l1 => names.All(n => l1.OneToOne_Optional_FK1!.Name != n)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2353,7 +2353,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include2(bool async)
@@ -2361,8 +2361,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).Include(l1 => l1.OneToOne_Optional_FK1),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)));
+                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include3(bool async)
@@ -2370,39 +2370,39 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).Include(l1 => l1.OneToOne_Optional_PK1),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1)));
+                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include4(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).ThenInclude(l1 => l1.OneToOne_Optional_PK2),
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).ThenInclude(l1 => l1!.OneToOne_Optional_PK2),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1")));
+                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2!, "OneToOne_Optional_FK1")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include5(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2),
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_PK2),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1")));
+                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2!, "OneToOne_Optional_FK1")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include6(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2).Select(l1 => l1.OneToOne_Optional_FK1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2)));
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_PK2).Select(l1 => l1.OneToOne_Optional_FK1),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include7(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2)
+            ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_PK2)
                 .Select(l1 => l1.OneToOne_Optional_PK1));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2410,9 +2410,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level2>()
-                .Where(l2 => l2.OneToOne_Optional_FK_Inverse2.Name != "Fubar")
+                .Where(l2 => l2.OneToOne_Optional_FK_Inverse2!.Name != "Fubar")
                 .Include(l2 => l2.OneToOne_Optional_FK_Inverse2),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include9(bool async)
@@ -2420,58 +2420,58 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             async,
             ss => ss.Set<Level2>()
                 .Include(l2 => l2.OneToOne_Optional_FK_Inverse2)
-                .Where(l2 => l2.OneToOne_Optional_FK_Inverse2.Name != "Fubar"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2)));
+                .Where(l2 => l2.OneToOne_Optional_FK_Inverse2!.Name != "Fubar"),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK_Inverse2!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include10(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2)
-                .Include(l1 => l1.OneToOne_Optional_PK1.OneToOne_Optional_FK2.OneToOne_Optional_PK3),
+                .Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_PK2)
+                .Include(l1 => l1.OneToOne_Optional_PK1!.OneToOne_Optional_FK2!.OneToOne_Optional_PK3),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_PK3, "OneToOne_Optional_FK1.OneToOne_Optional_FK2")));
+                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2!, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!, "OneToOne_Optional_PK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_PK3!, "OneToOne_Optional_FK1.OneToOne_Optional_FK2")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include11(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2)
-                .Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_PK2)
-                .Include(l1 => l1.OneToOne_Optional_PK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3)
-                .Include(l1 => l1.OneToOne_Optional_PK1.OneToOne_Optional_FK2.OneToOne_Optional_PK3)
-                .Include(l1 => l1.OneToOne_Optional_PK1.OneToOne_Optional_PK2),
+                .Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2)
+                .Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_PK2)
+                .Include(l1 => l1.OneToOne_Optional_PK1!.OneToOne_Optional_FK2!.OneToOne_Optional_FK3)
+                .Include(l1 => l1.OneToOne_Optional_PK1!.OneToOne_Optional_FK2!.OneToOne_Optional_PK3)
+                .Include(l1 => l1.OneToOne_Optional_PK1!.OneToOne_Optional_PK2),
             elementAsserter: (e, a) => AssertInclude(
-                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_FK1"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3, "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
-                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_PK1"),
-                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_PK3, "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2, "OneToOne_Optional_PK1")));
+                e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2!, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!, "OneToOne_Optional_PK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3!, "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
+                new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_PK1!),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!, "OneToOne_Optional_PK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_PK3!, "OneToOne_Optional_PK1.OneToOne_Optional_FK2"),
+                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_PK2!, "OneToOne_Optional_PK1")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include12(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(l1 => l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2)
+                .Include(l1 => l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2)
                 .Select(l1 => l1.OneToOne_Optional_FK1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include13(bool async)
     {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1) };
+        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!) };
 
         return AssertQuery(
             async,
@@ -2491,7 +2491,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(l1 => l1.OneToOne_Optional_FK1).ThenInclude(l2 => l2.OneToOne_Optional_FK2)
+                .Include(l1 => l1.OneToOne_Optional_FK1).ThenInclude(l2 => l2!.OneToOne_Optional_FK2)
                 .Select(l1 => new
                 {
                     one = l1,
@@ -2501,9 +2501,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             elementAsserter: (e, a) =>
             {
                 AssertInclude(
-                    e.one, a.one, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1),
-                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK1"));
-                AssertInclude(e.two, a.two, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2));
+                    e.one, a.one, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!),
+                    new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!, "OneToOne_Optional_FK1"));
+                AssertInclude(e.two, a.two, new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2!));
                 AssertEqual(e.three, a.three);
             },
             elementSorter: e => e.one.Id);
@@ -2513,7 +2513,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     {
         using var ctx = CreateContext();
         var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 })
-            .Include(x => x.foo.OneToOne_Optional_FK2).Distinct();
+            .Include(x => x.foo!.OneToOne_Optional_FK2).Distinct();
 
         // Include after select. Issue #16752.
         return AssertIncludeOnNonEntity(() =>
@@ -2533,21 +2533,21 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>().Include(x => x.OneToOne_Optional_FK1).Distinct(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include18_1_1(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Level1>().OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1).Take(10),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include18_2(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Level1>().Where(x => x.OneToOne_Required_FK1.Name != "Foo").Include(x => x.OneToOne_Optional_FK1).Distinct(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include18_3(bool async)
@@ -2596,10 +2596,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertQuery(
             async,
             ss => ss.Set<Level1>()
-                .Include(x => x.OneToOne_Optional_FK1.OneToOne_Optional_FK2)
-                .Select(l1 => l1.OneToOne_Optional_FK1)
+                .Include(x => x.OneToOne_Optional_FK1!.OneToOne_Optional_FK2)
+                .Select(l1 => l1.OneToOne_Optional_FK1!)
                 .Distinct(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l1 => l1.OneToOne_Optional_FK2)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level2>(l1 => l1.OneToOne_Optional_FK2!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include18_4(bool async)
@@ -2684,7 +2684,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                             .FirstOrDefault())
                         .FirstOrDefault())
                     .FirstOrDefault()
-                    .Name
+                    !.Name
                 != "Foo");
 #pragma warning restore CS9236
 
@@ -2727,7 +2727,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                             select l2.OneToMany_Optional2.Select(l3 => (from l4 in ctx.LevelFour
                                                                         where l4.Level3_Required_Id == l3.Id
                                                                         orderby l4.Id
-                                                                        select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault()
+                                                                        select l4).FirstOrDefault()!).FirstOrDefault()!).FirstOrDefault()!
                         .Name;
 
         _ = async ? await query.ToListAsync() : query.ToList();
@@ -2737,12 +2737,12 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Member_pushdown_with_multiple_collections(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Select(l1 => l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).FirstOrDefault().OneToMany_Optional2
+            ss => ss.Set<Level1>().Select(l1 => l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).FirstOrDefault()!.OneToMany_Optional2
                 .OrderBy(l3 => l3.Id)
-                .FirstOrDefault().Name),
-            ss => ss.Set<Level1>().Select(l1 => l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).FirstOrDefault().Maybe(x => x
+                .FirstOrDefault()!.Name),
+            ss => ss.Set<Level1>().Select(l1 => l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).FirstOrDefault().Maybe(x => x!
                 .OneToMany_Optional2.OrderBy(l3 => l3.Id)
-                .FirstOrDefault().Maybe(xx => xx.Name))));
+                .FirstOrDefault().Maybe(xx => xx!.Name))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_collections_on_same_level(bool async)
@@ -2765,10 +2765,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                             : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2)
                         == null
                             ? null
-                            : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_PK3)
+                            : l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2!.OneToOne_Optional_PK3)
                     == null
                         ? null
-                        : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_PK3.Name)
+                        : l1.OneToOne_Optional_FK1!.OneToOne_Optional_FK2!.OneToOne_Optional_PK3!.Name)
                 == "L4 01"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2785,6 +2785,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                             : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_PK3.Name)
                 == "L4 01"));
 
+#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Union_over_entities_with_different_nullability(bool async)
         => AssertQueryScalar(
@@ -2795,8 +2796,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 .Concat(
                     ss.Set<Level2>().GroupJoin(ss.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
                         .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
-                        .Where(e => e.l1.Equals(null)))
-                .Select(e => (int?)e.l1.Id),
+                        .Where(e => e.l1!.Equals(null)))
+                .Select(e => (int?)e.l1!.Id),
             ss => ss.Set<Level1>()
                 .GroupJoin(ss.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
                 .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
@@ -2805,6 +2806,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                         .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
                         .Where(e => e.l1 == null))
                 .Select(e => e.l1.MaybeScalar(x => x.Id)));
+            #pragma warning restore CS8620
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Including_reference_navigation_and_projecting_collection_navigation_2(bool async)
@@ -2849,7 +2851,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Select_with_joined_where_clause_cast_using_as(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Where(w => (w.Id + 7) == (w.OneToOne_Optional_FK1.Id as int?)));
+            ss => ss.Set<Level1>().Where(w => (w.Id + 7) == (w.OneToOne_Optional_FK1!.Id as int?)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async)
@@ -2866,13 +2868,13 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     public virtual Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Optional1.DefaultIfEmpty().SelectMany(l2 => l2.OneToOne_Required_PK2
+            ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Optional1.DefaultIfEmpty().SelectMany(l2 => l2!.OneToOne_Required_PK2
                 .OneToMany_Optional3.DefaultIfEmpty()
                 .Select(l4 => new
                 {
                     l1Name = l1.Name,
                     l2Name = l2.OneToOne_Required_PK2.Name,
-                    l3Name = l4.OneToOne_Optional_PK_Inverse4.Name
+                    l3Name = l4!.OneToOne_Optional_PK_Inverse4!.Name
                 }))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2901,8 +2903,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level1>().Select(l1 => new
             {
                 l1.Name,
-                OptionalName = l1.OneToOne_Optional_FK1.Name,
-                Contains = ss.Set<Level1>().Select(x => x.OneToOne_Optional_FK1.Name).Contains(l1.OneToOne_Optional_FK1.Name)
+                OptionalName = l1.OneToOne_Optional_FK1!.Name,
+                Contains = ss.Set<Level1>().Select(x => x.OneToOne_Optional_FK1!.Name).Contains(l1.OneToOne_Optional_FK1!.Name)
             }),
             elementSorter: e => (e.Name, e.OptionalName, e.Contains));
 
@@ -2913,7 +2915,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level1>().Select(l1 => new
             {
                 l1.Name,
-                OptionalName = l1.OneToOne_Optional_FK1.Name,
+                OptionalName = l1.OneToOne_Optional_FK1!.Name,
                 Contains = ss.Set<Level1>().Select(x => x.OneToOne_Optional_FK1).Contains(l1.OneToOne_Optional_PK1)
             }),
             elementSorter: e => (e.Name, e.OptionalName, e.Contains));
@@ -2939,10 +2941,10 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     l1.Id,
                     l1.Date,
                     l1.Name,
-                    InnerId = l1.OneToOne_Optional_FK1.Id,
-                    InnerDate = l1.OneToOne_Optional_FK1.Date,
-                    InnerOptionalId = l1.OneToOne_Optional_FK1.Level1_Optional_Id,
-                    InnerRequiredId = l1.OneToOne_Optional_FK1.Level1_Required_Id,
+                    InnerId = l1.OneToOne_Optional_FK1!.Id,
+                    InnerDate = l1.OneToOne_Optional_FK1!.Date,
+                    InnerOptionalId = l1.OneToOne_Optional_FK1!.Level1_Optional_Id,
+                    InnerRequiredId = l1.OneToOne_Optional_FK1!.Level1_Required_Id,
                     InnerName = l1.OneToOne_Required_FK1.Name
                 })
                 .Select(g => new
@@ -2961,7 +2963,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                             Level1_Required_Id = g.Key.InnerRequiredId
                         }
                     },
-                    Aggregate = g.Sum(x => x.Name.Length)
+                    Aggregate = g.Sum(x => x.Name!.Length)
                 }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2999,7 +3001,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                             Name = l1.OneToOne_Optional_FK1.Name,
                         }
                 })
-                .OrderBy(e => e.Level2.Name)
+                .OrderBy(e => e.Level2!.Name)
                 .ThenBy(e => e.Id),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -3013,7 +3015,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 else
                 {
                     Assert.NotNull(a.Level2);
-                    Assert.Equal(e.Level2.Id, a.Level2.Id);
+                    Assert.Equal(e.Level2.Id, a.Level2!.Id);
                     Assert.Equal(e.Level2.Name, a.Level2.Name);
                 }
             });
@@ -3021,14 +3023,14 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
     private class Level1Dto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public Level2Dto Level2 { get; set; }
+        public string? Name { get; set; }
+        public Level2Dto? Level2 { get; set; }
     }
 
     private class Level2Dto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3055,7 +3057,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                                 }
                         }
                 })
-                .Where(e => e.Level2.Level3.Name != "L"),
+                .Where(e => e.Level2!.Level3!.Name != "L"),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -3068,7 +3070,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 else
                 {
                     Assert.NotNull(a.Level2);
-                    Assert.Equal(e.Level2.Id, a.Level2.Id);
+                    Assert.Equal(e.Level2.Id, a.Level2!.Id);
                     Assert.Equal(e.Level2.Name, a.Level2.Name);
                 }
             });
@@ -3113,7 +3115,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 }
                 else
                 {
-                    AssertEqual(e.Level2.Id, a.Level2.Id);
+                    AssertEqual(e.Level2.Id, a.Level2!.Id);
                     AssertEqual(e.Level2.Name, a.Level2.Name);
                 }
             });
@@ -3176,7 +3178,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             ss => ss.Set<Level1>()
                 .Include(x => x.OneToMany_Optional1).ThenInclude(x => x.OneToMany_Optional2)
                 .Where(l1 => l1.Id < 3)
-                .Select(l1 => new { l1.Id, Pushdown = l1.OneToMany_Optional1.Where(x => x.Name == "L2 02").FirstOrDefault().Name }));
+                .Select(l1 => new { l1.Id, Pushdown = l1.OneToMany_Optional1.Where(x => x.Name == "L2 02").FirstOrDefault()!.Name }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_FirstOrDefault_entity_reference_accesses_in_projection(bool async)
@@ -3190,7 +3192,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     l1.Id,
                     Pushdown = l1.OneToMany_Optional1
                         .Where(x => x.Name == "L2 02")
-                        .FirstOrDefault().OneToOne_Optional_FK2
+                        .FirstOrDefault()!.OneToOne_Optional_FK2
                 }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3204,7 +3206,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     l1.Id,
                     Pushdown = l1.OneToMany_Optional1
                         .Where(x => x.Name == "L2 02")
-                        .FirstOrDefault().OneToMany_Optional2.ToList()
+                        .FirstOrDefault()!.OneToMany_Optional2.ToList()
                 }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -3224,9 +3226,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                     l1.Id,
                     Pushdown = l1.OneToMany_Optional1
                         .Where(x => x.Name == "L2 02")
-                        .FirstOrDefault().OneToMany_Optional2
+                        .FirstOrDefault()!.OneToMany_Optional2
                         .OrderBy(x => x.Id)
-                        .FirstOrDefault().Name
+                        .FirstOrDefault()!.Name
                 }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3258,7 +3260,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
             () => AssertQuery(
                 async,
                 ss => from l1 in ss.Set<Level1>()
-                      where l1.Name.StartsWith("L1 0")
+                      where l1.Name!.StartsWith("L1 0")
                       let inner = from i in ss.Set<Level1>()
                                   where i.Id == l1.Id && i.Id > 5
                                   select i
@@ -3622,19 +3624,19 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
         => AssertCount(
             async,
             ss => ss.Set<Level2>().Where(x => (x.OneToMany_Optional_Inverse2 != null
-                    && x.OneToMany_Optional_Inverse2.Name.Contains("L1 01"))
+                    && x.OneToMany_Optional_Inverse2.Name!.Contains("L1 01"))
                 || (x.OneToOne_Optional_FK_Inverse2 != null
-                    && x.OneToOne_Optional_FK_Inverse2.Name.Contains("L1 01"))));
+                    && x.OneToOne_Optional_FK_Inverse2.Name!.Contains("L1 01"))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Null_check_removal_applied_recursively_complex(bool async)
     {
         var userParam = Expression.Parameter(typeof(Level3), "l3");
         var builderProperty = Expression.MakeMemberAccess(
-            userParam, typeof(Level3).GetProperty(nameof(Level3.OneToMany_Required_Inverse3)));
+            userParam, typeof(Level3).GetProperty(nameof(Level3.OneToMany_Required_Inverse3))!);
         var cityProperty = Expression.MakeMemberAccess(
-            builderProperty, typeof(Level2).GetProperty(nameof(Level2.OneToMany_Required_Inverse2)));
-        var nameProperty = Expression.MakeMemberAccess(cityProperty, typeof(Level1).GetProperty(nameof(Level1.Name)));
+            builderProperty, typeof(Level2).GetProperty(nameof(Level2.OneToMany_Required_Inverse2))!);
+        var nameProperty = Expression.MakeMemberAccess(cityProperty, typeof(Level1).GetProperty(nameof(Level1.Name))!);
 
         //{s => (IIF((IIF((l3.Inverse3 == null), null, s.Inverse3.Inverse2) == null), null, s.Inverse3.Inverse2.Name) == "L1 01")}
         var selection = Expression.Lambda<Func<Level3, bool>>(
@@ -3738,7 +3740,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 Collection = x.OneToMany_Optional1
                     .SelectMany(xx => xx.OneToMany_Optional2)
                     .OrderBy(xx => xx.Id).Take(12)
-                    .Select(xx => new { xx.Id, RefId = xx.OneToOne_Optional_FK3.Id }).ToList(),
+                    .Select(xx => new { xx.Id, RefId = xx.OneToOne_Optional_FK3!.Id }).ToList(),
                 Count = x.OneToMany_Optional1
                     .SelectMany(xx => xx.OneToMany_Optional2).Count(xx => xx.Name != "")
             }),
@@ -3768,7 +3770,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture>(TFixture fixture
                 Collection = x.OneToMany_Optional1
                     .SelectMany(xx => xx.OneToMany_Optional2)
                     .OrderBy(xx => xx.Id).Take(12)
-                    .Select(xx => new { xx.Id, RefId = xx.OneToOne_Optional_FK3.Id }).ToList(),
+                    .Select(xx => new { xx.Id, RefId = xx.OneToOne_Optional_FK3!.Id }).ToList(),
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>

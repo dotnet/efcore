@@ -7,8 +7,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
@@ -107,15 +105,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         };
         var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
         var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
-        Root root = null;
-        IReadOnlyList<EntityEntry> entries = null;
-        OptionalSingleAk1 old1 = null;
-        OptionalSingleAk1Derived old1d = null;
-        OptionalSingleAk1MoreDerived old1dd = null;
-        OptionalSingleAk2 old2 = null;
-        OptionalSingleComposite2 old2c = null;
-        OptionalSingleAk2Derived old2d = null;
-        OptionalSingleAk2MoreDerived old2dd = null;
+        Root root = null!;
+        IReadOnlyList<EntityEntry> entries = null!;
+        OptionalSingleAk1 old1 = null!;
+        OptionalSingleAk1Derived old1d = null!;
+        OptionalSingleAk1MoreDerived old1dd = null!;
+        OptionalSingleAk2 old2 = null!;
+        OptionalSingleComposite2 old2c = null!;
+        OptionalSingleAk2Derived old2d = null!;
+        OptionalSingleAk2MoreDerived old2dd = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -131,13 +129,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 root = await LoadOptionalAkGraphAsync(context);
 
-                old1 = root.OptionalSingleAk;
-                old1d = root.OptionalSingleAkDerived;
-                old1dd = root.OptionalSingleAkMoreDerived;
-                old2 = root.OptionalSingleAk.Single;
-                old2c = root.OptionalSingleAk.SingleComposite;
-                old2d = (OptionalSingleAk2Derived)root.OptionalSingleAkDerived.Single;
-                old2dd = (OptionalSingleAk2MoreDerived)root.OptionalSingleAkMoreDerived.Single;
+                old1 = root.OptionalSingleAk!;
+                old1d = root.OptionalSingleAkDerived!;
+                old1dd = root.OptionalSingleAkMoreDerived!;
+                old2 = old1.Single!;
+                old2c = old1.SingleComposite!;
+                old2d = (OptionalSingleAk2Derived)old1d.Single!;
+                old2dd = (OptionalSingleAk2MoreDerived)old1dd.Single!;
 
                 if (useExistingEntities)
                 {
@@ -218,18 +216,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             {
                 var loadedRoot = await LoadOptionalAkGraphAsync(context);
 
-                AssertKeys(root, loadedRoot);
+                AssertKeys(root!, loadedRoot);
                 AssertNavigations(loadedRoot);
 
-                var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1.Id);
-                var loaded1d = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1d.Id);
-                var loaded1dd = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1dd.Id);
-                var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2.Id);
-                var loaded2d = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2d.Id);
-                var loaded2dd = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2dd.Id);
-                var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c.Id);
+                var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1!.Id);
+                var loaded1d = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1d!.Id);
+                var loaded1dd = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1dd!.Id);
+                var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2!.Id);
+                var loaded2d = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2d!.Id);
+                var loaded2dd = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2dd!.Id);
+                var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c!.Id);
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertEntries(entries!, context.ChangeTracker.Entries().ToList());
 
                 Assert.Null(loaded1.Root);
                 Assert.Null(loaded1d.Root);
@@ -264,32 +262,32 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         };
         var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
         var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
-        Root root = null;
-        IReadOnlyList<EntityEntry> entries = null;
-        OptionalSingleAk1 old1 = null;
-        OptionalSingleAk1Derived old1d = null;
-        OptionalSingleAk1MoreDerived old1dd = null;
-        OptionalSingleAk2 old2 = null;
-        OptionalSingleComposite2 old2c = null;
-        OptionalSingleAk2Derived old2d = null;
-        OptionalSingleAk2MoreDerived old2dd = null;
+        Root root = null!;
+        IReadOnlyList<EntityEntry> entries = null!;
+        OptionalSingleAk1 old1 = null!;
+        OptionalSingleAk1Derived old1d = null!;
+        OptionalSingleAk1MoreDerived old1dd = null!;
+        OptionalSingleAk2 old2 = null!;
+        OptionalSingleComposite2 old2c = null!;
+        OptionalSingleAk2Derived old2d = null!;
+        OptionalSingleAk2MoreDerived old2dd = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
                 root = await LoadOptionalAkGraphAsync(context);
 
-                old1 = root.OptionalSingleAk;
-                old1d = root.OptionalSingleAkDerived;
-                old1dd = root.OptionalSingleAkMoreDerived;
-                old2 = root.OptionalSingleAk.Single;
-                old2c = root.OptionalSingleAk.SingleComposite;
-                old2d = (OptionalSingleAk2Derived)root.OptionalSingleAkDerived.Single;
-                old2dd = (OptionalSingleAk2MoreDerived)root.OptionalSingleAkMoreDerived.Single;
+                old1 = root.OptionalSingleAk!;
+                old1d = root.OptionalSingleAkDerived!;
+                old1dd = root.OptionalSingleAkMoreDerived!;
+                old2 = old1.Single!;
+                old2c = old1.SingleComposite!;
+                old2d = (OptionalSingleAk2Derived)old1d.Single!;
+                old2dd = (OptionalSingleAk2MoreDerived)old1dd.Single!;
 
                 using (var context2 = CreateContext())
                 {
-                    UseTransaction(context2.Database, context.Database.CurrentTransaction);
+                    UseTransaction(context2.Database, context.Database.CurrentTransaction!);
                     var root2 = await LoadOptionalAkGraphAsync(context2);
 
                     context2.AddRange(new1, new1d, new1dd, new2, new2d, new2dd, new2c);
@@ -387,18 +385,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             {
                 var loadedRoot = await LoadOptionalAkGraphAsync(context);
 
-                AssertKeys(root, loadedRoot);
+                AssertKeys(root!, loadedRoot);
                 AssertNavigations(loadedRoot);
 
-                var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1.Id);
-                var loaded1d = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1d.Id);
-                var loaded1dd = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1dd.Id);
-                var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2.Id);
-                var loaded2d = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2d.Id);
-                var loaded2dd = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2dd.Id);
-                var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c.Id);
+                var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1!.Id);
+                var loaded1d = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1d!.Id);
+                var loaded1dd = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1dd!.Id);
+                var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2!.Id);
+                var loaded2d = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2d!.Id);
+                var loaded2dd = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2dd!.Id);
+                var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c!.Id);
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
+                AssertEntries(entries!, context.ChangeTracker.Entries().ToList());
 
                 Assert.Null(loaded1.Root);
                 Assert.Null(loaded1d.Root);
@@ -451,10 +449,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         ChangeMechanism changeMechanism,
         CascadeTiming? deleteOrphansTiming)
     {
-        Root root = null;
-        OptionalSingleAk1 old1 = null;
-        OptionalSingleAk2 old2 = null;
-        OptionalSingleComposite2 old2c = null;
+        Root root = null!;
+        OptionalSingleAk1 old1 = null!;
+        OptionalSingleAk2 old2 = null!;
+        OptionalSingleComposite2 old2c = null!;
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -462,9 +460,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 root = await LoadOptionalAkGraphAsync(context);
 
-                old1 = root.OptionalSingleAk;
-                old2 = root.OptionalSingleAk.Single;
-                old2c = root.OptionalSingleAk.SingleComposite;
+                old1 = root.OptionalSingleAk!;
+                old2 = old1.Single!;
+                old2c = old1.SingleComposite!;
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
@@ -502,12 +500,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 {
                     var loadedRoot = await LoadOptionalAkGraphAsync(context);
 
-                    AssertKeys(root, loadedRoot);
+                    AssertKeys(root!, loadedRoot);
                     AssertPossiblyNullNavigations(loadedRoot);
 
-                    var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1.Id);
-                    var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2.Id);
-                    var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c.Id);
+                    var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1!.Id);
+                    var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2!.Id);
+                    var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c!.Id);
 
                     Assert.Null(loaded1.Root);
                     Assert.Same(loaded1, loaded2.Back);
@@ -583,10 +581,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         CascadeTiming? deleteOrphansTiming)
     {
         var newRoot = new Root { AlternateId = Guid.NewGuid() };
-        Root root = null;
-        OptionalSingleAk1 old1 = null;
-        OptionalSingleAk2 old2 = null;
-        OptionalSingleComposite2 old2c = null;
+        Root root = null!;
+        OptionalSingleAk1 old1 = null!;
+        OptionalSingleAk2 old2 = null!;
+        OptionalSingleComposite2 old2c = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -604,9 +602,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
-                old1 = root.OptionalSingleAk;
-                old2 = root.OptionalSingleAk.Single;
-                old2c = root.OptionalSingleAk.SingleComposite;
+                old1 = root.OptionalSingleAk!;
+                old2 = old1.Single!;
+                old2c = old1.SingleComposite!;
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
@@ -642,13 +640,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             {
                 var loadedRoot = await LoadOptionalAkGraphAsync(context);
 
-                AssertKeys(root, loadedRoot);
+                AssertKeys(root!, loadedRoot);
                 AssertPossiblyNullNavigations(loadedRoot);
 
                 newRoot = await context.Set<Root>().SingleAsync(e => e.Id == newRoot.Id);
-                var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1.Id);
-                var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2.Id);
-                var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c.Id);
+                var loaded1 = await context.Set<OptionalSingleAk1>().SingleAsync(e => e.Id == old1!.Id);
+                var loaded2 = await context.Set<OptionalSingleAk2>().SingleAsync(e => e.Id == old2!.Id);
+                var loaded2c = await context.Set<OptionalSingleComposite2>().SingleAsync(e => e.Id == old2c!.Id);
 
                 Assert.Same(newRoot, loaded1.Root);
                 Assert.Same(loaded1, loaded2.Back);
@@ -687,11 +685,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 var root = await LoadOptionalAkGraphAsync(context);
 
-                var removed = root.OptionalSingleAk;
+                var removed = root.OptionalSingleAk!;
 
                 removedId = removed.Id;
-                var orphaned = removed.Single;
-                var orphanedC = removed.SingleComposite;
+                var orphaned = removed.Single!;
+                var orphanedC = removed.SingleComposite!;
                 orphanedId = orphaned.Id;
                 orphanedIdC = orphanedC.Id;
 
@@ -778,11 +776,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var removed = (await LoadOptionalAkGraphAsync(context)).OptionalSingleAk;
+                var removed = (await LoadOptionalAkGraphAsync(context)).OptionalSingleAk!;
 
                 removedId = removed.Id;
-                orphanedId = removed.Single.Id;
-                orphanedIdC = removed.SingleComposite.Id;
+                orphanedId = removed.Single!.Id;
+                orphanedIdC = removed.SingleComposite!.Id;
             }, async context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
@@ -790,8 +788,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 var root = await context.Set<Root>().Include(e => e.OptionalSingleAk).SingleAsync(IsTheRoot);
 
-                var removed = root.OptionalSingleAk;
-                var orphaned = removed.Single;
+                var removed = root.OptionalSingleAk!;
+                var orphaned = removed.Single!;
 
                 context.Remove(removed);
 
@@ -860,7 +858,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         var removedId = 0;
         var orphanedId = 0;
         var orphanedIdC = 0;
-        Root root = null;
+        Root root = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context => root = await LoadOptionalAkGraphAsync(context), async context =>
@@ -868,11 +866,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                var removed = root.OptionalSingleAk;
+                var removed = root!.OptionalSingleAk!;
 
                 removedId = removed.Id;
-                var orphaned = removed.Single;
-                var orphanedC = removed.SingleComposite;
+                var orphaned = removed.Single!;
+                var orphanedC = removed.SingleComposite!;
                 orphanedId = orphaned.Id;
                 orphanedIdC = orphanedC.Id;
 
@@ -991,11 +989,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             SingleComposite = new2c
         };
         var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
-        Root root = null;
-        IReadOnlyList<EntityEntry> entries = null;
-        RequiredSingleAk1 old1 = null;
-        RequiredSingleAk2 old2 = null;
-        RequiredSingleComposite2 old2c = null;
+        Root root = null!;
+        IReadOnlyList<EntityEntry> entries = null!;
+        RequiredSingleAk1 old1 = null!;
+        RequiredSingleAk2 old2 = null!;
+        RequiredSingleComposite2 old2c = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1011,19 +1009,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 root = await LoadRequiredAkGraphAsync(context);
 
-                old1 = root.RequiredSingleAk;
-                old2 = root.RequiredSingleAk.Single;
-                old2c = root.RequiredSingleAk.SingleComposite;
+                old1 = root.RequiredSingleAk!;
+                old2 = old1.Single;
+                old2c = old1.SingleComposite;
 
                 if (useExistingEntities)
                 {
                     newRoot = await context.Set<Root>()
-                        .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
-                        .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
+                        .Include(e => e.RequiredSingleAk).ThenInclude(e => e!.Single)
+                        .Include(e => e.RequiredSingleAk).ThenInclude(e => e!.SingleComposite)
                         .OrderBy(e => e.Id)
                         .SingleAsync(e => e.Id == newRoot.Id);
 
-                    new1 = newRoot.RequiredSingleAk;
+                    new1 = newRoot.RequiredSingleAk!;
                     new2 = new1.Single;
                     new2c = new1.SingleComposite;
                 }
@@ -1121,30 +1119,30 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 {
                     var loadedRoot = await LoadRequiredAkGraphAsync(context);
 
-                    AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                    AssertKeys(root, loadedRoot);
+                    AssertEntries(entries!, context.ChangeTracker.Entries().ToList());
+                    AssertKeys(root!, loadedRoot);
                     AssertNavigations(loadedRoot);
 
-                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == old1.Id);
+                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Count(e => e.Id == old1!.Id);
                     Assert.Equal(0, removedCount);
 
-                    Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null && r.RequiredSingleAk.Id == old1.Id));
+                    Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null && r.RequiredSingleAk.Id == old1!.Id));
 
-                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        .Count(e => e.Id == old2.Id);
+                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.Single)
+                        .Count(e => e.Id == old2!.Id);
                     Assert.Equal(0, orphanedCount);
 
                     Assert.False(
-                        context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.Single != null && r.Single.Id == old2.Id));
+                        context.Set<Root>().Select(r => r.RequiredSingleAk!)
+                            .Any(r => r.Single != null && r.Single.Id == old2!.Id));
 
-                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        .Count(e => e.Id == old2c.Id);
+                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.SingleComposite)
+                        .Count(e => e.Id == old2c!.Id);
                     Assert.Equal(0, orphanedCCount);
 
                     Assert.False(
-                        context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
+                        context.Set<Root>().Select(r => r.RequiredSingleAk!)
+                            .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c!.Id));
                 }
             });
     }
@@ -1235,14 +1233,14 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             RequiredNonPkSingleAkDerived = new1d,
             RequiredNonPkSingleAkMoreDerived = new1dd
         };
-        Root root = null;
-        IReadOnlyList<EntityEntry> entries = null;
-        RequiredNonPkSingleAk1 old1 = null;
-        RequiredNonPkSingleAk1Derived old1d = null;
-        RequiredNonPkSingleAk1MoreDerived old1dd = null;
-        RequiredNonPkSingleAk2 old2 = null;
-        RequiredNonPkSingleAk2Derived old2d = null;
-        RequiredNonPkSingleAk2MoreDerived old2dd = null;
+        Root root = null!;
+        IReadOnlyList<EntityEntry> entries = null!;
+        RequiredNonPkSingleAk1 old1 = null!;
+        RequiredNonPkSingleAk1Derived old1d = null!;
+        RequiredNonPkSingleAk1MoreDerived old1dd = null!;
+        RequiredNonPkSingleAk2 old2 = null!;
+        RequiredNonPkSingleAk2Derived old2d = null!;
+        RequiredNonPkSingleAk2MoreDerived old2dd = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1382,16 +1380,16 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 {
                     var loadedRoot = await LoadRequiredNonPkAkGraphAsync(context);
 
-                    AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                    AssertKeys(root, loadedRoot);
+                    AssertEntries(entries!, context.ChangeTracker.Entries().ToList());
+                    AssertKeys(root!, loadedRoot);
                     AssertNavigations(loadedRoot);
 
-                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1.Id));
-                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1d.Id));
-                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1dd.Id));
-                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2.Id));
-                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2d.Id));
-                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2dd.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1!.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1d!.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1dd!.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2!.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2d!.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2dd!.Id));
                 }
             });
     }
@@ -1413,10 +1411,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         ChangeMechanism changeMechanism,
         CascadeTiming? deleteOrphansTiming)
     {
-        Root root = null;
-        RequiredSingleAk1 old1 = null;
-        RequiredSingleAk2 old2 = null;
-        RequiredSingleComposite2 old2c = null;
+        Root root = null!;
+        RequiredSingleAk1 old1 = null!;
+        RequiredSingleAk2 old2 = null!;
+        RequiredSingleComposite2 old2c = null!;
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -1424,9 +1422,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 root = await LoadRequiredAkGraphAsync(context);
 
-                old1 = root.RequiredSingleAk;
-                old2 = root.RequiredSingleAk.Single;
-                old2c = root.RequiredSingleAk.SingleComposite;
+                old1 = root.RequiredSingleAk!;
+                old2 = old1.Single;
+                old2c = old1.SingleComposite;
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
@@ -1435,7 +1433,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    old1.Root = null;
+                    old1.Root = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Fk) != 0)
@@ -1502,29 +1500,29 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 {
                     var loadedRoot = await LoadRequiredAkGraphAsync(context);
 
-                    AssertKeys(root, loadedRoot);
+                    AssertKeys(root!, loadedRoot);
                     AssertPossiblyNullNavigations(loadedRoot);
 
-                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == old1.Id);
+                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Count(e => e.Id == old1!.Id);
                     Assert.Equal(0, removedCount);
 
-                    Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null && r.RequiredSingleAk.Id == old1.Id));
+                    Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null && r.RequiredSingleAk.Id == old1!.Id));
 
-                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        .Count(e => e.Id == old2.Id);
+                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.Single)
+                        .Count(e => e.Id == old2!.Id);
                     Assert.Equal(0, orphanedCount);
 
                     Assert.False(
-                        context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.Single != null && r.Single.Id == old2.Id));
+                        context.Set<Root>().Select(r => r.RequiredSingleAk!)
+                            .Any(r => r.Single != null && r.Single.Id == old2!.Id));
 
-                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        .Count(e => e.Id == old2c.Id);
+                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.SingleComposite)
+                        .Count(e => e.Id == old2c!.Id);
                     Assert.Equal(0, orphanedCCount);
 
                     Assert.False(
-                        context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
+                        context.Set<Root>().Select(r => r.RequiredSingleAk!)
+                            .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c!.Id));
                 }
             });
     }
@@ -1546,9 +1544,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         ChangeMechanism changeMechanism,
         CascadeTiming? deleteOrphansTiming)
     {
-        Root root = null;
-        RequiredNonPkSingleAk1 old1 = null;
-        RequiredNonPkSingleAk2 old2 = null;
+        Root root = null!;
+        RequiredNonPkSingleAk1 old1 = null!;
+        RequiredNonPkSingleAk2 old2 = null!;
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
@@ -1561,12 +1559,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
-                    root.RequiredNonPkSingleAk = null;
+                    root.RequiredNonPkSingleAk = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    old1.Root = null;
+                    old1.Root = null!;
                 }
 
                 if ((changeMechanism & ChangeMechanism.Fk) != 0)
@@ -1627,11 +1625,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 {
                     var loadedRoot = await LoadRequiredNonPkAkGraphAsync(context);
 
-                    AssertKeys(root, loadedRoot);
+                    AssertKeys(root!, loadedRoot);
                     AssertPossiblyNullNavigations(loadedRoot);
 
-                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1.Id));
-                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1!.Id));
+                    Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2!.Id));
                 }
             });
     }
@@ -1699,10 +1697,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         CascadeTiming? deleteOrphansTiming)
     {
         var newRoot = new Root { AlternateId = Guid.NewGuid() };
-        Root root = null;
-        RequiredSingleAk1 old1 = null;
-        RequiredSingleAk2 old2 = null;
-        RequiredSingleComposite2 old2c = null;
+        Root root = null!;
+        RequiredSingleAk1 old1 = null!;
+        RequiredSingleAk2 old2 = null!;
+        RequiredSingleComposite2 old2c = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1720,9 +1718,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
-                old1 = root.RequiredSingleAk;
-                old2 = root.RequiredSingleAk.Single;
-                old2c = root.RequiredSingleAk.SingleComposite;
+                old1 = root.RequiredSingleAk!;
+                old2 = old1.Single;
+                old2c = old1.SingleComposite;
 
                 if ((changeMechanism & ChangeMechanism.Principal) != 0)
                 {
@@ -1758,21 +1756,21 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             {
                 var loadedRoot = await LoadRequiredAkGraphAsync(context);
 
-                AssertKeys(root, loadedRoot);
+                AssertKeys(root!, loadedRoot);
                 AssertPossiblyNullNavigations(loadedRoot);
 
                 newRoot = await context.Set<Root>()
-                    .Include(r => r.RequiredSingleAk.Single)
-                    .Include(r => r.RequiredSingleAk.SingleComposite)
+                    .Include(r => r.RequiredSingleAk!.Single)
+                    .Include(r => r.RequiredSingleAk!.SingleComposite)
                     .SingleAsync(e => e.Id == newRoot.Id);
 
-                var loaded1 = newRoot.RequiredSingleAk;
+                var loaded1 = newRoot.RequiredSingleAk!;
                 var loaded2 = loaded1.Single;
                 var loaded2c = loaded1.SingleComposite;
 
-                Assert.Equal(old1.Id, loaded1.Id);
-                Assert.Equal(old2.Id, loaded2.Id);
-                Assert.Equal(old2c.Id, loaded2c.Id);
+                Assert.Equal(old1!.Id, loaded1.Id);
+                Assert.Equal(old2!.Id, loaded2.Id);
+                Assert.Equal(old2c!.Id, loaded2c.Id);
 
                 Assert.Same(newRoot, loaded1.Root);
                 Assert.Same(loaded1, loaded2.Back);
@@ -1846,9 +1844,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         CascadeTiming? deleteOrphansTiming)
     {
         var newRoot = new Root { AlternateId = Guid.NewGuid() };
-        Root root = null;
-        RequiredNonPkSingleAk1 old1 = null;
-        RequiredNonPkSingleAk2 old2 = null;
+        Root root = null!;
+        RequiredNonPkSingleAk1 old1 = null!;
+        RequiredNonPkSingleAk2 old2 = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1900,12 +1898,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             {
                 var loadedRoot = await LoadRequiredNonPkAkGraphAsync(context);
 
-                AssertKeys(root, loadedRoot);
+                AssertKeys(root!, loadedRoot);
                 AssertPossiblyNullNavigations(loadedRoot);
 
                 newRoot = await context.Set<Root>().SingleAsync(e => e.Id == newRoot.Id);
-                var loaded1 = await context.Set<RequiredNonPkSingleAk1>().SingleAsync(e => e.Id == old1.Id);
-                var loaded2 = await context.Set<RequiredNonPkSingleAk2>().SingleAsync(e => e.Id == old2.Id);
+                var loaded1 = await context.Set<RequiredNonPkSingleAk1>().SingleAsync(e => e.Id == old1!.Id);
+                var loaded2 = await context.Set<RequiredNonPkSingleAk2>().SingleAsync(e => e.Id == old2!.Id);
 
                 Assert.Same(newRoot, loaded1.Root);
                 Assert.Same(loaded1, loaded2.Back);
@@ -1941,7 +1939,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 var root = await LoadRequiredAkGraphAsync(context);
 
-                var removed = root.RequiredSingleAk;
+                var removed = root.RequiredSingleAk!;
 
                 removedId = removed.Id;
                 var orphaned = removed.Single;
@@ -2004,22 +2002,22 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                     Assert.Null(root.RequiredSingleAk);
 
-                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
+                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Count(e => e.Id == removedId);
                     Assert.Equal(0, removedCount);
 
                     Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null));
 
-                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.Single)
                         .Count(e => e.Id == orphanedId);
                     Assert.Equal(0, orphanedCount);
 
-                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.Single != null));
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk!).Any(r => r.Single != null));
 
-                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.SingleComposite)
                         .Count(e => e.Id == orphanedId);
                     Assert.Equal(0, orphanedCCount);
 
-                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.SingleComposite != null));
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk!).Any(r => r.SingleComposite != null));
                 }
             });
     }
@@ -2132,7 +2130,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var removed = (await LoadRequiredAkGraphAsync(context)).RequiredSingleAk;
+                var removed = (await LoadRequiredAkGraphAsync(context)).RequiredSingleAk!;
 
                 removedId = removed.Id;
                 orphanedId = removed.Single.Id;
@@ -2144,7 +2142,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 var root = await context.Set<Root>().Include(e => e.RequiredSingleAk).SingleAsync(IsTheRoot);
 
-                var removed = root.RequiredSingleAk;
+                var removed = root.RequiredSingleAk!;
                 var orphaned = removed.Single;
 
                 context.Remove(removed);
@@ -2288,7 +2286,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         var removedId = 0;
         var orphanedId = 0;
         var orphanedIdC = 0;
-        Root root = null;
+        Root root = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context => root = await LoadRequiredAkGraphAsync(context), async context =>
@@ -2296,7 +2294,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                var removed = root.RequiredSingleAk;
+                var removed = root!.RequiredSingleAk!;
 
                 removedId = removed.Id;
                 var orphaned = removed.Single;
@@ -2356,22 +2354,22 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                     Assert.Null(root.RequiredSingleAk);
 
-                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
+                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Count(e => e.Id == removedId);
                     Assert.Equal(0, removedCount);
 
                     Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null));
 
-                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.Single)
                         .Count(e => e.Id == orphanedId);
                     Assert.Equal(0, orphanedCount);
 
-                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.Single != null));
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk!).Any(r => r.Single != null));
 
-                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.SingleComposite)
                         .Count(e => e.Id == orphanedId);
                     Assert.Equal(0, orphanedCCount);
 
-                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.SingleComposite != null));
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk!).Any(r => r.SingleComposite != null));
                 }
             });
     }
@@ -2393,7 +2391,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
     {
         var removedId = 0;
         var orphanedId = 0;
-        Root root = null;
+        Root root = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context => root = await LoadRequiredNonPkAkGraphAsync(context), async context =>
@@ -2401,7 +2399,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
                 context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
 
-                var removed = root.RequiredNonPkSingleAk;
+                var removed = root!.RequiredNonPkSingleAk;
 
                 removedId = removed.Id;
                 var orphaned = removed.Single;
@@ -2489,7 +2487,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 var root = await LoadRequiredAkGraphAsync(context);
 
-                var removed = root.RequiredSingleAk;
+                var removed = root.RequiredSingleAk!;
                 removedId = removed.Id;
 
                 var orphaned = removed.Single;
@@ -2567,22 +2565,22 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                     Assert.Null(root.RequiredSingleAk);
 
-                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
+                    var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Count(e => e.Id == removedId);
                     Assert.Equal(0, removedCount);
 
                     Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null));
 
-                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                    var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.Single)
                         .Count(e => e.Id == orphanedId);
                     Assert.Equal(0, orphanedCount);
 
-                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.Single != null));
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk!).Any(r => r.Single != null));
 
-                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                    var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk!).Select(r => r.SingleComposite)
                         .Count(e => e.Id == orphanedId);
                     Assert.Equal(0, orphanedCCount);
 
-                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.SingleComposite != null));
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk!).Any(r => r.SingleComposite != null));
                 }
             });
     }

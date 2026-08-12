@@ -354,12 +354,12 @@ public class IntegerValueGeneratorTest
 
     private class PetsContext(
         string databaseName,
-        InMemoryDatabaseRoot root = null,
-        IServiceProvider internalServiceProvider = null) : DbContext
+        InMemoryDatabaseRoot? root = null,
+        IServiceProvider? internalServiceProvider = null) : DbContext
     {
         private readonly string _databaseName = databaseName;
-        private readonly InMemoryDatabaseRoot _root = root;
-        private readonly IServiceProvider _internalServiceProvider = internalServiceProvider;
+        private readonly InMemoryDatabaseRoot? _root = root;
+        private readonly IServiceProvider? _internalServiceProvider = internalServiceProvider;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -382,19 +382,19 @@ public class IntegerValueGeneratorTest
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Toast> CookedBreads { get; set; }
-        public DbSet<Olive> Olives { get; set; }
+        public DbSet<Toast> CookedBreads { get; set; } = null!;
+        public DbSet<Olive> Olives { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Mac> Macs { get; set; }
-        public DbSet<Smokey> Smokeys { get; set; }
-        public DbSet<Alice> Alices { get; set; }
+        public DbSet<Mac> Macs { get; set; } = null!;
+        public DbSet<Smokey> Smokeys { get; set; } = null!;
+        public DbSet<Alice> Alices { get; set; } = null!;
     }
 
     private class PetsContextWithData(
         string databaseName,
-        InMemoryDatabaseRoot root = null,
-        IServiceProvider internalServiceProvider = null) : PetsContext(databaseName, root, internalServiceProvider)
+        InMemoryDatabaseRoot? root = null,
+        IServiceProvider? internalServiceProvider = null) : PetsContext(databaseName, root, internalServiceProvider)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

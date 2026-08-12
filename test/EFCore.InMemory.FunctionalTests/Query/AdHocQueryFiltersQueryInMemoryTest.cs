@@ -44,9 +44,9 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
 
     protected class Context19708(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Customer19708> Customers { get; set; }
-        public DbSet<CustomerMembership19708> CustomerMemberships { get; set; }
-        public DbSet<CustomerFilter19708> CustomerFilters { get; set; }
+        public DbSet<Customer19708> Customers { get; set; } = null!;
+        public DbSet<CustomerMembership19708> CustomerMemberships { get; set; } = null!;
+        public DbSet<CustomerFilter19708> CustomerFilters { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,16 +99,16 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
         public class Customer19708
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class CustomerMembership19708
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public int CustomerId { get; set; }
-            public Customer19708 Customer { get; set; }
+            public Customer19708 Customer { get; set; } = null!;
         }
 
         public class CustomerFilter19708
@@ -120,9 +120,9 @@ public class AdHocQueryFiltersQueryInMemoryTest(NonSharedFixture fixture) : AdHo
         public class CustomerView19708
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int? CustomerMembershipId { get; set; }
-            public string CustomerMembershipName { get; set; }
+            public string CustomerMembershipName { get; set; } = null!;
         }
     }
 

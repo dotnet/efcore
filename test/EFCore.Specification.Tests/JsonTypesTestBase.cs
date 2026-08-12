@@ -650,7 +650,7 @@ public abstract class JsonTypesTestBase(NonSharedFixture fixture) : NonSharedMod
 
     protected class NullablePhysicalAddressType
     {
-        public PhysicalAddress? PhysicalAddress { get; set; } = null!;
+        public PhysicalAddress? PhysicalAddress { get; set; }
     }
 
     [Theory, InlineData((sbyte)Enum8.Min, """{"Prop":-128}"""), InlineData((sbyte)Enum8.Max, """{"Prop":127}"""),

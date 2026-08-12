@@ -6,8 +6,6 @@ using System.Globalization;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : CompositeKeyEndToEndTestBase<TFixture>.CompositeKeyEndToEndFixtureBase
 {
@@ -198,10 +196,10 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
     protected class BronieContext(DbContextOptions options) : PoolableDbContext(options)
     {
         // ReSharper disable UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
-        public DbSet<Unicorn> Unicorns { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
+        public DbSet<Unicorn> Unicorns { get; set; } = null!;
 
-        public DbSet<EarthPony> EarthPonies { get; set; }
+        public DbSet<EarthPony> EarthPonies { get; set; } = null!;
         // ReSharper restore UnusedAutoPropertyAccessor.Local
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -237,28 +235,28 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture>(TFixture fixture) :
 
     protected abstract class Flyer
     {
-        public string Discriminator { get; set; }
+        public string Discriminator { get; set; } = null!;
         public long Id1 { get; set; }
         public long Id2 { get; set; }
     }
 
     protected class Pegasus : Flyer
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     protected class Unicorn
     {
         public int Id1 { get; set; }
-        public string Id2 { get; set; }
+        public string Id2 { get; set; } = null!;
         public Guid Id3 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     protected class EarthPony
     {
         public int Id1 { get; set; }
         public int Id2 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

@@ -174,13 +174,13 @@ public class CompositeKeyEndToEndTest
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Unicorn> Unicorns { get; set; }
+        public DbSet<Unicorn> Unicorns { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<EarthPony> EarthPonies { get; set; }
+        public DbSet<EarthPony> EarthPonies { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(nameof(BronieContext)).UseInternalServiceProvider(_serviceProvider);
@@ -216,22 +216,22 @@ public class CompositeKeyEndToEndTest
     {
         public long Id1 { get; set; }
         public long Id2 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [PrimaryKey(nameof(Id1), nameof(Id2), nameof(Id3))]
     private class Unicorn
     {
         public int Id1 { get; set; }
-        public string Id2 { get; set; }
+        public string Id2 { get; set; } = null!;
         public Guid Id3 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class EarthPony
     {
         public int Id1 { get; set; }
         public int Id2 { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -32,12 +30,12 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     private class ProjectedType
     {
         public int Order { get; set; }
-        public string Customer { get; set; }
+        public string? Customer { get; set; }
 
         private bool Equals(ProjectedType other)
             => Equals(Order, other.Order);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is not null
                 && (ReferenceEquals(this, obj)
                     || (obj.GetType() == GetType()
@@ -142,15 +140,15 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
-            actualSelector: c => c.Orders.FirstOrDefault().OrderID,
-            expectedSelector: c => c.Orders.Any() ? c.Orders.FirstOrDefault().OrderID : 0);
+            actualSelector: c => c.Orders.FirstOrDefault()!.OrderID,
+            expectedSelector: c => c.Orders.Any() ? c.Orders.FirstOrDefault()!.OrderID : 0);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_over_Any_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
-            selector: c => c.Orders.Any() ? c.Orders.FirstOrDefault().OrderID : 0);
+            selector: c => c.Orders.Any() ? c.Orders.FirstOrDefault()!.OrderID : 0);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Sum_over_uncorrelated_subquery(bool async)
@@ -504,14 +502,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMinBy(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.MinBy(o => 5 + o.OrderDetails.MinBy(int (od) => od.ProductID).ProductID).OrderID);
+            selector: c => c.Orders.MinBy(o => 5 + o.OrderDetails.MinBy(int (od) => od.ProductID)!.ProductID)!.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task MinBy_over_max_subquery(bool async)
         => AssertMinBy(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.MinBy(o => 5 + o.OrderDetails.Max(int (od) => od.ProductID)).OrderID);
+            selector: c => c.Orders.MinBy(o => 5 + o.OrderDetails.Max(int (od) => od.ProductID))!.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Max_with_no_arg(bool async)
@@ -580,14 +578,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMaxBy(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.MaxBy(o => 5 + o.OrderDetails.MaxBy(int (od) => od.ProductID).ProductID).OrderID);
+            selector: c => c.Orders.MaxBy(o => 5 + o.OrderDetails.MaxBy(int (od) => od.ProductID)!.ProductID)!.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task MaxBy_over_sum_subquery(bool async)
         => AssertMaxBy(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
-            selector: c => c.Orders.MaxBy(o => 5 + o.OrderDetails.Sum(int (od) => od.ProductID)).OrderID);
+            selector: c => c.Orders.MaxBy(o => 5 + o.OrderDetails.Sum(int (od) => od.ProductID))!.OrderID);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Count_with_no_predicate(bool async)
@@ -824,30 +822,30 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c
-                => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault().CustomerID == "ALFKI"));
+                => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault()!.CustomerID == "ALFKI"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Select(c
-                => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()),
+                => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()!.OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()),
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Select(c => c.Orders
-                .OrderBy(o => o.OrderID).FirstOrDefault()
-                .Maybe(x => x.OrderDetails)
-                .Maybe(xx => xx.OrderBy(od => od.ProductID).FirstOrDefault())));
+                .OrderBy(o => o.OrderID).FirstOrDefault()!
+                .Maybe(x => x.OrderDetails!)
+                .Maybe(xx => xx!.OrderBy(od => od.ProductID).FirstOrDefault())));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).OrderBy(c => c.CustomerID).Select(c => (int?)c.Orders
-                .OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()
+                .OrderBy(o => o.OrderID).FirstOrDefault()!.OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()!
                 .ProductID),
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).OrderBy(c => c.CustomerID).Select(c => c.Orders
-                .OrderBy(o => o.OrderID).FirstOrDefault()
-                .Maybe(x => x.OrderDetails)
-                .MaybeScalar(x => x.OrderBy(od => od.ProductID).FirstOrDefault().ProductID)));
+                .OrderBy(o => o.OrderID).FirstOrDefault()!
+                .Maybe(x => x.OrderDetails!)
+                .MaybeScalar(x => x!.OrderBy(od => od.ProductID).FirstOrDefault()!.ProductID)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task First_inside_subquery_gets_client_evaluated(bool async)
@@ -1008,7 +1006,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_list_closure_all_null(bool async)
     {
-        var ids = new List<string> { null, null };
+        var ids = new List<string?> { null, null };
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
@@ -1066,7 +1064,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_enumerable_closure_all_null(bool async)
     {
-        var ids = new List<string> { null, null }.Where(e => e != null);
+        var ids = new List<string?> { null, null }.Where(e => e != null);
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
@@ -1124,7 +1122,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_ordered_enumerable_closure_all_null(bool async)
     {
-        var ids = new List<string> { null, null }.Order();
+        var ids = new List<string?> { null, null }.Order();
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
@@ -1182,7 +1180,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
     {
-        var ids = new List<string> { null, null }.AsReadOnly();
+        var ids = new List<string?> { null, null }.AsReadOnly();
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
@@ -1353,7 +1351,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             ss => ss.Set<Order>()
                 .OfType<Order>()
                 .OrderBy(o => o.OrderID)
-                .Select(o => o.Customer.City));
+                .Select(o => o.Customer!.City));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfType_Select_OfType_Select(bool async)
@@ -1364,14 +1362,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
                 .Select(o => o)
                 .OfType<Order>()
                 .OrderBy(o => o.OrderID)
-                .Select(o => o.Customer.City));
+                .Select(o => o.Customer!.City));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Average_with_non_matching_types_in_projection_doesnt_produce_second_explicit_cast(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Order>()
-                .Where(o => o.CustomerID.StartsWith("A"))
+                .Where(o => o.CustomerID!.StartsWith("A"))
                 .OrderBy(o => o.OrderID)
                 .Select(o => (long)o.OrderID));
 
@@ -1380,7 +1378,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMax(
             async,
             ss => ss.Set<Order>()
-                .Where(o => o.CustomerID.StartsWith("A"))
+                .Where(o => o.CustomerID!.StartsWith("A"))
                 .OrderBy(o => o.OrderID)
                 .Select(o => (long)o.OrderID));
 
@@ -1389,7 +1387,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
         => AssertMin(
             async,
             ss => ss.Set<Order>()
-                .Where(o => o.CustomerID.StartsWith("A"))
+                .Where(o => o.CustomerID!.StartsWith("A"))
                 .Select(o => (long)o.OrderID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1735,25 +1733,25 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
     public virtual Task DefaultIfEmpty_selects_only_required_columns(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Product>().Select(p => new { p.ProductID, p.ProductName }).DefaultIfEmpty().Select(p => p.ProductName));
+            ss => ss.Set<Product>().Select(p => new { p.ProductID, p.ProductName }).DefaultIfEmpty().Select(p => p!.ProductName));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_Last_member_access_in_projection_translated(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+            ss => ss.Set<Customer>().Where(c => c.CustomerID!.StartsWith("F"))
                 .Where(c => c.Orders.OrderByDescending(o => o.OrderID).Last().CustomerID == c.CustomerID),
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().Maybe(x => x.CustomerID) == c.CustomerID));
+            ss => ss.Set<Customer>().Where(c => c.CustomerID!.StartsWith("F"))
+                .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault()!.Maybe(x => x.CustomerID) == c.CustomerID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_LastOrDefault_member_access_in_projection_translated(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID == c.CustomerID),
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().Maybe(x => x.CustomerID) == c.CustomerID));
+            ss => ss.Set<Customer>().Where(c => c.CustomerID!.StartsWith("F"))
+                .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault()!.CustomerID == c.CustomerID),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID!.StartsWith("F"))
+                .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault()!.Maybe(x => x.CustomerID) == c.CustomerID));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_over_explicit_cast_over_column(bool async)
@@ -1866,7 +1864,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
                 Assert.Equal(e.Ave.HasValue, a.Ave.HasValue);
                 if (e.Ave.HasValue)
                 {
-                    Assert.InRange(e.Ave.Value - a.Ave.Value, -0.1D, 0.1D);
+                    Assert.InRange(e.Ave.Value - a.Ave!.Value, -0.1D, 0.1D);
                 }
             });
 
@@ -1977,36 +1975,36 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             async,
             ss => ss.Set<Customer>()
                 .Where(x => x.CustomerID == "ALFKI")
-                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID!, City = x.City }),
             asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
 
         await AssertFirstOrDefault<CustomerIdDto>(
             async,
             ss => ss.Set<Customer>()
                 .Where(x => x.CustomerID == "ALFKI")
-                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
-            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID!, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e!.CustomerId, a!.CustomerId));
 
         await AssertSingle<CustomerIdDto>(
             async,
             ss => ss.Set<Customer>()
                 .Where(x => x.CustomerID == "ALFKI")
-                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID!, City = x.City }),
             asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
 
         await AssertSingleOrDefault<CustomerIdDto>(
             async,
             ss => ss.Set<Customer>()
                 .Where(x => x.CustomerID == "ALFKI")
-                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
-            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID!, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e!.CustomerId, a!.CustomerId));
 
         await AssertLast<CustomerIdDto>(
             async,
             ss => ss.Set<Customer>()
                 .Where(x => x.CustomerID.StartsWith("A"))
                 .OrderBy(x => x.CustomerID)
-                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID!, City = x.City }),
             asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
 
         await AssertLastOrDefault<CustomerIdDto>(
@@ -2014,8 +2012,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
             ss => ss.Set<Customer>()
                 .Where(x => x.CustomerID.StartsWith("A"))
                 .OrderBy(x => x.CustomerID)
-                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
-            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID!, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e!.CustomerId, a!.CustomerId));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2028,11 +2026,11 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixtur
 
     private class CustomerIdDto
     {
-        public string CustomerId { get; set; }
+        public string CustomerId { get; set; } = null!;
     }
 
     private class CustomerIdAndCityDto : CustomerIdDto
     {
-        public string City { get; set; }
+        public string? City { get; set; }
     }
 }

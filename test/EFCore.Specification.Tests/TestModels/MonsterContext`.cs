@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
-#nullable disable
-
 public class MonsterContext<
     TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,
     TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
@@ -274,15 +272,15 @@ public class MonsterContext<
             b.HasMany(e => (IEnumerable<TMessage>)e.SentMessages).WithOne(e => (TLogin)e.Sender)
                 .HasForeignKey(e => e.FromUsername);
 
-            b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin)e.Recipient)
+            b.HasMany(e => (IEnumerable<TMessage>)e.ReceivedMessages).WithOne(e => (TLogin?)e.Recipient)
                 .HasForeignKey(e => e.ToUsername);
 
             b.HasMany(e => (IEnumerable<TAnOrder>)e.Orders).WithOne(e => (TLogin)e.Login)
                 .HasForeignKey(e => e.Username);
 
             var entityType = b.Metadata;
-            var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity));
-            activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username"), key.Metadata, entityType);
+            var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity))!;
+            activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username")!, key.Metadata, entityType);
 
             b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
                 .HasForeignKey<TLastLogin>(e => e.Username);
@@ -304,14 +302,14 @@ public class MonsterContext<
         {
             b.HasKey(e => e.Code);
 
-            b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode)
+            b.HasMany(e => (IEnumerable<TIncorrectScan>)e.BadScans).WithOne(e => (TBarcode)e.ExpectedBarcode!)
                 .HasForeignKey(e => e.ExpectedCode);
 
             b.HasOne(e => (TBarcodeDetail)e.Detail).WithOne()
                 .HasForeignKey<TBarcodeDetail>(e => e.Code);
         });
 
-        modelBuilder.Entity<TIncorrectScan>().HasOne(e => (TBarcode)e.ActualBarcode).WithMany()
+        modelBuilder.Entity<TIncorrectScan>().HasOne(e => (TBarcode)e.ActualBarcode!).WithMany()
             .HasForeignKey(e => e.ActualCode);
 
         modelBuilder.Entity<TSupplierInfo>().HasOne(e => (TSupplier)e.Supplier).WithMany();
@@ -335,7 +333,7 @@ public class MonsterContext<
             b.HasOne(e => (TLogin)e.Login).WithOne()
                 .HasForeignKey<TSmartCard>(e => e.Username);
 
-            b.HasOne(e => (TLastLogin)e.LastLogin).WithOne()
+            b.HasOne(e => (TLastLogin)e.LastLogin!).WithOne()
                 .HasForeignKey<TLastLogin>(e => e.SmartcardUsername);
         });
 
@@ -878,7 +876,7 @@ public class MonsterContext<
             new TCustomer { Name = "Tarquin Tiger" }).Entity;
 
         var customer2 = Add(
-            new TCustomer { Name = "Sue Pandy", Husband = dependentNavs ? customer0 : null }).Entity;
+            new TCustomer { Name = "Sue Pandy", Husband = dependentNavs ? customer0 : null! }).Entity;
         if (principalNavs)
         {
             customer0.Wife = customer2;
@@ -914,7 +912,7 @@ public class MonsterContext<
                 new TBarcode
                 {
                     Code = [1, 2, 3, 4],
-                    Product = dependentNavs ? product1 : null,
+                    Product = dependentNavs ? product1 : null!,
                     Text = "Barcode 1 2 3 4"
                 })
             .Entity;
@@ -922,7 +920,7 @@ public class MonsterContext<
                 new TBarcode
                 {
                     Code = [2, 2, 3, 4],
-                    Product = dependentNavs ? product2 : null,
+                    Product = dependentNavs ? product2 : null!,
                     Text = "Barcode 2 2 3 4"
                 })
             .Entity;
@@ -930,7 +928,7 @@ public class MonsterContext<
                 new TBarcode
                 {
                     Code = [3, 2, 3, 4],
-                    Product = dependentNavs ? product3 : null,
+                    Product = dependentNavs ? product3 : null!,
                     Text = "Barcode 3 2 3 4"
                 })
             .Entity;
@@ -960,7 +958,7 @@ public class MonsterContext<
                 ScanDate = new DateTime(2014, 5, 28, 19, 9, 6),
                 Details = "Treats not Donuts",
                 ActualBarcode = barcode3,
-                ExpectedBarcode = dependentNavs ? barcode2 : null
+                ExpectedBarcode = dependentNavs ? barcode2 : null!
             }).Entity;
         if (principalNavs)
         {
@@ -974,7 +972,7 @@ public class MonsterContext<
                 ScanDate = new DateTime(2014, 5, 28, 19, 15, 31),
                 Details = "Wot no waffles?",
                 ActualBarcode = barcode2,
-                ExpectedBarcode = dependentNavs ? barcode1 : null
+                ExpectedBarcode = dependentNavs ? barcode1 : null!
             }).Entity;
         if (principalNavs)
         {
@@ -1001,7 +999,7 @@ public class MonsterContext<
             }).Entity;
 
         var resolution = Add(
-                new TResolution { Complaint = dependentNavs ? complaint2 : null, Details = "Destroyed all coffee in Redmond area." })
+                new TResolution { Complaint = dependentNavs ? complaint2 : null!, Details = "Destroyed all coffee in Redmond area." })
             .Entity;
         if (principalNavs)
         {
@@ -1011,21 +1009,21 @@ public class MonsterContext<
         var login1 = Add(
             new TLogin
             {
-                Customer = dependentNavs ? customer1 : null,
+                Customer = dependentNavs ? customer1 : null!,
                 Username = "MrsKoalie73",
                 AlternateUsername = "Sheila"
             }).Entity;
         var login2 = Add(
             new TLogin
             {
-                Customer = dependentNavs ? customer2 : null,
+                Customer = dependentNavs ? customer2 : null!,
                 Username = "MrsBossyPants",
                 AlternateUsername = "Sue"
             }).Entity;
         var login3 = Add(
                 new TLogin
                 {
-                    Customer = dependentNavs ? customer3 : null,
+                    Customer = dependentNavs ? customer3 : null!,
                     Username = "TheStripedMenace",
                     AlternateUsername = "Tarquin"
                 })
@@ -1156,7 +1154,7 @@ public class MonsterContext<
                 Body = "Fancy a cup of tea?",
                 FromUsername = Entry(login1).Property(e => e.Username).CurrentValue,
                 Sender = login1,
-                Recipient = dependentNavs ? login2 : null,
+                Recipient = dependentNavs ? login2 : null!,
                 Sent = DateTime.Now
             }).Entity;
         if (principalNavs)
@@ -1174,7 +1172,7 @@ public class MonsterContext<
                 Body = "Love one!",
                 FromUsername = Entry(login2).Property(e => e.Username).CurrentValue,
                 Sender = login2,
-                Recipient = dependentNavs ? login1 : null,
+                Recipient = dependentNavs ? login1 : null!,
                 Sent = DateTime.Now
             }).Entity;
         if (principalNavs)
@@ -1190,7 +1188,7 @@ public class MonsterContext<
                 Body = "I'll put the kettle on.",
                 FromUsername = Entry(login1).Property(e => e.Username).CurrentValue,
                 Sender = login1,
-                Recipient = dependentNavs ? login2 : null,
+                Recipient = dependentNavs ? login2 : null!,
                 Sent = DateTime.Now
             }).Entity;
         if (principalNavs)
@@ -1202,24 +1200,24 @@ public class MonsterContext<
         var order1 = Add(
                 new TAnOrder
                 {
-                    Customer = dependentNavs ? customer1 : null,
-                    Login = dependentNavs ? login1 : null,
+                    Customer = dependentNavs ? customer1 : null!,
+                    Login = dependentNavs ? login1 : null!,
                     AlternateId = 77
                 })
             .Entity;
         var order2 = Add(
                 new TAnOrder
                 {
-                    Customer = dependentNavs ? customer2 : null,
-                    Login = dependentNavs ? login2 : null,
+                    Customer = dependentNavs ? customer2 : null!,
+                    Login = dependentNavs ? login2 : null!,
                     AlternateId = 78
                 })
             .Entity;
         var order3 = Add(
                 new TAnOrder
                 {
-                    Customer = dependentNavs ? customer3 : null,
-                    Login = dependentNavs ? login3 : null,
+                    Customer = dependentNavs ? customer3 : null!,
+                    Login = dependentNavs ? login3 : null!,
                     AlternateId = 79
                 })
             .Entity;
@@ -1235,11 +1233,11 @@ public class MonsterContext<
         }
 
         var orderNote1 = Add(
-            new TOrderNote { Note = "Must have tea!", Order = dependentNavs ? order1 : null }).Entity;
+            new TOrderNote { Note = "Must have tea!", Order = dependentNavs ? order1 : null! }).Entity;
         var orderNote2 = Add(
-            new TOrderNote { Note = "And donuts!", Order = dependentNavs ? order1 : null }).Entity;
+            new TOrderNote { Note = "And donuts!", Order = dependentNavs ? order1 : null! }).Entity;
         var orderNote3 = Add(
-            new TOrderNote { Note = "But no coffee. :-(", Order = dependentNavs ? order1 : null }).Entity;
+            new TOrderNote { Note = "But no coffee. :-(", Order = dependentNavs ? order1 : null! }).Entity;
         if (principalNavs)
         {
             order1.InitializeCollections();
@@ -1335,11 +1333,11 @@ public class MonsterContext<
         }
 
         var productReview1 = Add(
-            new TProductReview { Product = dependentNavs ? product1 : null, Review = "Better than Tarqies!" }).Entity;
+            new TProductReview { Product = dependentNavs ? product1 : null!, Review = "Better than Tarqies!" }).Entity;
         var productReview2 = Add(
-            new TProductReview { Product = dependentNavs ? product1 : null, Review = "Good with maple syrup." }).Entity;
+            new TProductReview { Product = dependentNavs ? product1 : null!, Review = "Good with maple syrup." }).Entity;
         var productReview3 = Add(
-            new TProductReview { Product = dependentNavs ? product2 : null, Review = "Eeky says yes!" }).Entity;
+            new TProductReview { Product = dependentNavs ? product2 : null!, Review = "Eeky says yes!" }).Entity;
         if (principalNavs)
         {
             product1.Reviews.Add(productReview1);
@@ -1367,9 +1365,9 @@ public class MonsterContext<
             new TProductWebFeature
             {
                 Heading = "Waffle Style",
-                Photo = dependentNavs ? productPhoto1 : null,
+                Photo = dependentNavs ? productPhoto1 : null!,
                 ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue,
-                Review = dependentNavs ? productReview1 : null
+                Review = dependentNavs ? productReview1 : null!
             }).Entity;
         if (principalNavs)
         {
@@ -1384,7 +1382,7 @@ public class MonsterContext<
             {
                 Heading = "What does the waffle say?",
                 ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue,
-                Review = dependentNavs ? productReview3 : null
+                Review = dependentNavs ? productReview3 : null!
             }).Entity;
         if (principalNavs)
         {
@@ -1980,7 +1978,7 @@ internal static class Adder
 {
     public static TValue AddEx<TValue>(this List<object> list, TValue value)
     {
-        list.Add(value);
+        list.Add(value!);
         return value;
     }
 }

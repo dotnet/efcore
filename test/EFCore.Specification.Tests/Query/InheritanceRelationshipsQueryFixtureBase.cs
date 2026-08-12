@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBase<InheritanceRelationshipsContext>
 {
     protected override string StoreName
@@ -17,27 +15,27 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
     public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
-        { typeof(BaseCollectionOnBase), e => ((BaseCollectionOnBase)e)?.Id },
-        { typeof(DerivedCollectionOnBase), e => ((DerivedCollectionOnBase)e)?.Id },
-        { typeof(BaseCollectionOnDerived), e => ((BaseCollectionOnDerived)e)?.Id },
-        { typeof(DerivedCollectionOnDerived), e => ((DerivedCollectionOnDerived)e)?.Id },
-        { typeof(BaseInheritanceRelationshipEntity), e => ((BaseInheritanceRelationshipEntity)e)?.Id },
-        { typeof(DerivedInheritanceRelationshipEntity), e => ((DerivedInheritanceRelationshipEntity)e)?.Id },
-        { typeof(BaseReferenceOnBase), e => ((BaseReferenceOnBase)e)?.Id },
-        { typeof(DerivedReferenceOnBase), e => ((DerivedReferenceOnBase)e)?.Id },
-        { typeof(BaseReferenceOnDerived), e => ((BaseReferenceOnDerived)e)?.Id },
-        { typeof(DerivedReferenceOnDerived), e => ((DerivedReferenceOnDerived)e)?.Id },
-        { typeof(CollectionOnBase), e => ((CollectionOnBase)e)?.Id },
-        { typeof(CollectionOnDerived), e => ((CollectionOnDerived)e)?.Id },
-        { typeof(NestedCollectionBase), e => ((NestedCollectionBase)e)?.Id },
-        { typeof(NestedCollectionDerived), e => ((NestedCollectionDerived)e)?.Id },
-        { typeof(NestedReferenceBase), e => ((NestedReferenceBase)e)?.Id },
-        { typeof(NonEntityBase), e => ((NonEntityBase)e)?.Id },
-        { typeof(PrincipalEntity), e => ((PrincipalEntity)e)?.Id },
-        { typeof(OwnedEntity), e => ((OwnedEntity)e)?.Id },
-        { typeof(ReferencedEntity), e => ((ReferencedEntity)e)?.Id },
-        { typeof(ReferenceOnBase), e => ((ReferenceOnBase)e)?.Id },
-        { typeof(ReferenceOnDerived), e => ((ReferenceOnDerived)e)?.Id },
+        { typeof(BaseCollectionOnBase), e => ((BaseCollectionOnBase)e).Id },
+        { typeof(DerivedCollectionOnBase), e => ((DerivedCollectionOnBase)e).Id },
+        { typeof(BaseCollectionOnDerived), e => ((BaseCollectionOnDerived)e).Id },
+        { typeof(DerivedCollectionOnDerived), e => ((DerivedCollectionOnDerived)e).Id },
+        { typeof(BaseInheritanceRelationshipEntity), e => ((BaseInheritanceRelationshipEntity)e).Id },
+        { typeof(DerivedInheritanceRelationshipEntity), e => ((DerivedInheritanceRelationshipEntity)e).Id },
+        { typeof(BaseReferenceOnBase), e => ((BaseReferenceOnBase)e).Id },
+        { typeof(DerivedReferenceOnBase), e => ((DerivedReferenceOnBase)e).Id },
+        { typeof(BaseReferenceOnDerived), e => ((BaseReferenceOnDerived)e).Id },
+        { typeof(DerivedReferenceOnDerived), e => ((DerivedReferenceOnDerived)e).Id },
+        { typeof(CollectionOnBase), e => ((CollectionOnBase)e).Id },
+        { typeof(CollectionOnDerived), e => ((CollectionOnDerived)e).Id },
+        { typeof(NestedCollectionBase), e => ((NestedCollectionBase)e).Id },
+        { typeof(NestedCollectionDerived), e => ((NestedCollectionDerived)e).Id },
+        { typeof(NestedReferenceBase), e => ((NestedReferenceBase)e).Id },
+        { typeof(NonEntityBase), e => ((NonEntityBase)e).Id },
+        { typeof(PrincipalEntity), e => ((PrincipalEntity)e).Id },
+        { typeof(OwnedEntity), e => ((OwnedEntity)e).Id },
+        { typeof(ReferencedEntity), e => ((ReferencedEntity)e).Id },
+        { typeof(ReferenceOnBase), e => ((ReferenceOnBase)e).Id },
+        { typeof(ReferenceOnDerived), e => ((ReferenceOnDerived)e).Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -49,7 +47,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (BaseCollectionOnBase)e;
+                    var ee = (BaseCollectionOnBase)e!;
                     var aa = (BaseCollectionOnBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -65,7 +63,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (DerivedCollectionOnBase)e;
+                    var ee = (DerivedCollectionOnBase)e!;
                     var aa = (DerivedCollectionOnBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -82,7 +80,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (BaseCollectionOnDerived)e;
+                    var ee = (BaseCollectionOnDerived)e!;
                     var aa = (BaseCollectionOnDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -98,7 +96,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (DerivedCollectionOnDerived)e;
+                    var ee = (DerivedCollectionOnDerived)e!;
                     var aa = (DerivedCollectionOnDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -114,7 +112,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (BaseInheritanceRelationshipEntity)e;
+                    var ee = (BaseInheritanceRelationshipEntity)e!;
                     var aa = (BaseInheritanceRelationshipEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -127,7 +125,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
                     if (ee.OwnedCollectionOnBase?.Count > 0)
                     {
                         var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
-                        var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                        var orderedActual = aa.OwnedCollectionOnBase!.OrderBy(x => x.Id).ToList();
                         for (var i = 0; i < orderedExpected.Count; i++)
                         {
                             Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
@@ -144,7 +142,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (DerivedInheritanceRelationshipEntity)e;
+                    var ee = (DerivedInheritanceRelationshipEntity)e!;
                     var aa = (DerivedInheritanceRelationshipEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -161,7 +159,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
                     if (ee.OwnedCollectionOnBase?.Count > 0)
                     {
                         var orderedExpected = ee.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
-                        var orderedActual = aa.OwnedCollectionOnBase.OrderBy(x => x.Id).ToList();
+                        var orderedActual = aa.OwnedCollectionOnBase!.OrderBy(x => x.Id).ToList();
                         for (var i = 0; i < orderedExpected.Count; i++)
                         {
                             Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
@@ -173,7 +171,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
                     if (ee.OwnedCollectionOnDerived?.Count > 0)
                     {
                         var orderedExpected = ee.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
-                        var orderedActual = aa.OwnedCollectionOnDerived.OrderBy(x => x.Id).ToList();
+                        var orderedActual = aa.OwnedCollectionOnDerived!.OrderBy(x => x.Id).ToList();
                         for (var i = 0; i < orderedExpected.Count; i++)
                         {
                             Assert.Equal(orderedExpected[i].Id, orderedActual[i].Id);
@@ -190,7 +188,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (BaseReferenceOnBase)e;
+                    var ee = (BaseReferenceOnBase)e!;
                     var aa = (BaseReferenceOnBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -206,7 +204,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (DerivedReferenceOnBase)e;
+                    var ee = (DerivedReferenceOnBase)e!;
                     var aa = (DerivedReferenceOnBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -222,7 +220,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (BaseReferenceOnDerived)e;
+                    var ee = (BaseReferenceOnDerived)e!;
                     var aa = (BaseReferenceOnDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -238,7 +236,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (DerivedReferenceOnDerived)e;
+                    var ee = (DerivedReferenceOnDerived)e!;
                     var aa = (DerivedReferenceOnDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -254,7 +252,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (CollectionOnBase)e;
+                    var ee = (CollectionOnBase)e!;
                     var aa = (CollectionOnBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -270,7 +268,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (CollectionOnDerived)e;
+                    var ee = (CollectionOnDerived)e!;
                     var aa = (CollectionOnDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -286,7 +284,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (NestedCollectionBase)e;
+                    var ee = (NestedCollectionBase)e!;
                     var aa = (NestedCollectionBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -303,7 +301,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (NestedCollectionDerived)e;
+                    var ee = (NestedCollectionDerived)e!;
                     var aa = (NestedCollectionDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -320,7 +318,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (NestedReferenceBase)e;
+                    var ee = (NestedReferenceBase)e!;
                     var aa = (NestedReferenceBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -337,7 +335,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (NestedReferenceDerived)e;
+                    var ee = (NestedReferenceDerived)e!;
                     var aa = (NestedReferenceDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -354,7 +352,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (NonEntityBase)e;
+                    var ee = (NonEntityBase)e!;
                     var aa = (NonEntityBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -369,7 +367,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (PrincipalEntity)e;
+                    var ee = (PrincipalEntity)e!;
                     var aa = (PrincipalEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -384,7 +382,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (ReferencedEntity)e;
+                    var ee = (ReferencedEntity)e!;
                     var aa = (ReferencedEntity)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -399,7 +397,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (ReferenceOnBase)e;
+                    var ee = (ReferenceOnBase)e!;
                     var aa = (ReferenceOnBase)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -415,7 +413,7 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : QueryFixtureBas
 
                 if (a != null)
                 {
-                    var ee = (ReferenceOnDerived)e;
+                    var ee = (ReferenceOnDerived)e!;
                     var aa = (ReferenceOnDerived)a;
 
                     Assert.Equal(ee.Id, aa.Id);

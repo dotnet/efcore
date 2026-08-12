@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : LoadTestBase<TFixture>.LoadFixtureBase
 {
@@ -3059,7 +3057,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
     public virtual async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
-        var child = context.Attach(new ChildAk { Id = 767, ParentId = null }).Entity;
+        var child = context.Attach(new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -3093,7 +3091,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
     public virtual async Task Load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
-        var single = context.Attach(new SingleAk { Id = 767, ParentId = null }).Entity;
+        var single = context.Attach(new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -3128,7 +3126,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
     public virtual async Task Load_many_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
-        var child = context.Attach(new ChildAk { Id = 767, ParentId = null }).Entity;
+        var child = context.Attach(new ChildAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -3159,7 +3157,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
     public virtual async Task Load_one_to_one_reference_to_principal_using_Query_null_FK_alternate_key(EntityState state, bool async)
     {
         using var context = CreateContext();
-        var single = context.Attach(new SingleAk { Id = 767, ParentId = null }).Entity;
+        var single = context.Attach(new SingleAk { Id = 767, ParentId = null! }).Entity;
 
         ClearLog();
 
@@ -4367,7 +4365,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
         Assert.Equal(newParent.Id, child.ParentId);
         Assert.Equal(EntityState.Modified, childEntry.State);
 
-        child.Parent = null;
+        child.Parent = null!;
         childEntry.DetectChanges();
 
         Assert.Null(child.Parent);
@@ -4499,27 +4497,27 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class Parent
     {
-        private IEnumerable<Child> _children;
-        private SinglePkToPk _singlePkToPk;
-        private Single _single;
-        private RequiredSingle _requiredSingle;
-        private IEnumerable<ChildAk> _childrenAk;
-        private SingleAk _singleAk;
-        private IEnumerable<ChildShadowFk> _childrenShadowFk;
-        private SingleShadowFk _singleShadowFk;
-        private IEnumerable<ChildCompositeKey> _childrenCompositeKey;
-        private SingleCompositeKey _singleCompositeKey;
+        private IEnumerable<Child> _children = null!;
+        private SinglePkToPk _singlePkToPk = null!;
+        private Single _single = null!;
+        private RequiredSingle _requiredSingle = null!;
+        private IEnumerable<ChildAk> _childrenAk = null!;
+        private SingleAk _singleAk = null!;
+        private IEnumerable<ChildShadowFk> _childrenShadowFk = null!;
+        private SingleShadowFk? _singleShadowFk;
+        private IEnumerable<ChildCompositeKey> _childrenCompositeKey = null!;
+        private SingleCompositeKey _singleCompositeKey = null!;
 
-        public ILazyLoader Loader { get; set; }
+        public ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string AlternateId { get; set; }
+        public string AlternateId { get; set; } = null!;
 
         public IEnumerable<Child> Children
         {
-            get => Loader.Load(this, ref _children);
+            get => Loader.Load(this, ref _children!)!;
             set => _children = value;
         }
 
@@ -4536,7 +4534,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SinglePkToPk SinglePkToPk
         {
-            get => Loader.Load(this, ref _singlePkToPk);
+            get => Loader.Load(this, ref _singlePkToPk!)!;
             set => _singlePkToPk = value;
         }
 
@@ -4553,7 +4551,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public Single Single
         {
-            get => Loader.Load(this, ref _single);
+            get => Loader.Load(this, ref _single!)!;
             set => _single = value;
         }
 
@@ -4570,13 +4568,13 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public RequiredSingle RequiredSingle
         {
-            get => Loader.Load(this, ref _requiredSingle);
+            get => Loader.Load(this, ref _requiredSingle!)!;
             set => _requiredSingle = value;
         }
 
         public IEnumerable<ChildAk> ChildrenAk
         {
-            get => Loader.Load(this, ref _childrenAk);
+            get => Loader.Load(this, ref _childrenAk!)!;
             set => _childrenAk = value;
         }
 
@@ -4593,7 +4591,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SingleAk SingleAk
         {
-            get => Loader.Load(this, ref _singleAk);
+            get => Loader.Load(this, ref _singleAk!)!;
             set => _singleAk = value;
         }
 
@@ -4610,7 +4608,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public IEnumerable<ChildShadowFk> ChildrenShadowFk
         {
-            get => Loader.Load(this, ref _childrenShadowFk);
+            get => Loader.Load(this, ref _childrenShadowFk!)!;
             set => _childrenShadowFk = value;
         }
 
@@ -4625,13 +4623,13 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
             return ChildrenShadowFk;
         }
 
-        public SingleShadowFk SingleShadowFk
+        public SingleShadowFk? SingleShadowFk
         {
             get => Loader.Load(this, ref _singleShadowFk);
             set => _singleShadowFk = value;
         }
 
-        public async Task<SingleShadowFk> LazyLoadSingleShadowFk(bool async)
+        public async Task<SingleShadowFk?> LazyLoadSingleShadowFk(bool async)
         {
             if (async)
             {
@@ -4644,7 +4642,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public IEnumerable<ChildCompositeKey> ChildrenCompositeKey
         {
-            get => Loader.Load(this, ref _childrenCompositeKey);
+            get => Loader.Load(this, ref _childrenCompositeKey!)!;
             set => _childrenCompositeKey = value;
         }
 
@@ -4661,7 +4659,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SingleCompositeKey SingleCompositeKey
         {
-            get => Loader.Load(this, ref _singleCompositeKey);
+            get => Loader.Load(this, ref _singleCompositeKey!)!;
             set => _singleCompositeKey = value;
         }
 
@@ -4679,9 +4677,9 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class Child
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -4690,7 +4688,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
 
@@ -4708,25 +4706,25 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class SinglePkToPk
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class Single
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -4735,7 +4733,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
 
@@ -4753,9 +4751,9 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class RequiredSingle
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -4764,57 +4762,57 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class ChildAk
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string ParentId { get; set; }
+        public string ParentId { get; set; } = null!;
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class SingleAk
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string ParentId { get; set; }
+        public string ParentId { get; set; } = null!;
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class ChildShadowFk
     {
-        private Parent _parent;
+        private Parent? _parent;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public Parent Parent
+        public Parent? Parent
         {
             get => Loader.Load(this, ref _parent);
             set => _parent = value;
@@ -4823,14 +4821,14 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class SingleShadowFk
     {
-        private Parent _parent;
+        private Parent? _parent;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public Parent Parent
+        public Parent? Parent
         {
             get => Loader.Load(this, ref _parent);
             set => _parent = value;
@@ -4839,38 +4837,38 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class ChildCompositeKey
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public int? ParentId { get; set; }
-        public string ParentAlternateId { get; set; }
+        public string ParentAlternateId { get; set; } = null!;
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class SingleCompositeKey
     {
-        private Parent _parent;
+        private Parent _parent = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public int? ParentId { get; set; }
-        public string ParentAlternateId { get; set; }
+        public string ParentAlternateId { get; set; } = null!;
 
         public Parent Parent
         {
-            get => Loader.Load(this, ref _parent);
+            get => Loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
     }
@@ -4886,7 +4884,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public int Id { get; set; }
 
-        protected Action<object, string> LazyLoader { get; }
+        protected Action<object, string> LazyLoader { get; } = null!;
     }
 
     protected class Deposit : RootClass
@@ -4914,7 +4912,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public int? DepositID { get; set; }
 
-        private Deposit _deposit;
+        private Deposit _deposit = null!;
 
         public Deposit Deposit
         {
@@ -4937,8 +4935,8 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class OptionalChildView
     {
-        private readonly Action<object, string> _loader;
-        private RootClass _root;
+        private readonly Action<object, string> _loader = null!;
+        private RootClass _root = null!;
 
         public OptionalChildView()
         {
@@ -4958,8 +4956,8 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class RequiredChildView
     {
-        private readonly Action<object, string> _loader;
-        private RootClass _root;
+        private readonly Action<object, string> _loader = null!;
+        private RootClass _root = null!;
 
         public RequiredChildView()
         {
@@ -4979,9 +4977,9 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class ParentFullLoaderByConstructor
     {
-        private readonly ILazyLoader _loader;
-        private IEnumerable<ChildFullLoaderByConstructor> _children;
-        private SingleFullLoaderByConstructor _single;
+        private readonly ILazyLoader _loader = null!;
+        private IEnumerable<ChildFullLoaderByConstructor> _children = null!;
+        private SingleFullLoaderByConstructor _single = null!;
 
         public ParentFullLoaderByConstructor()
         {
@@ -4995,7 +4993,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public IEnumerable<ChildFullLoaderByConstructor> Children
         {
-            get => _loader.Load(this, ref _children);
+            get => _loader.Load(this, ref _children!)!;
             set => _children = value;
         }
 
@@ -5012,7 +5010,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SingleFullLoaderByConstructor Single
         {
-            get => _loader.Load(this, ref _single);
+            get => _loader.Load(this, ref _single!)!;
             set => _single = value;
         }
 
@@ -5030,8 +5028,8 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class ChildFullLoaderByConstructor
     {
-        private readonly ILazyLoader _loader;
-        private ParentFullLoaderByConstructor _parent;
+        private readonly ILazyLoader _loader = null!;
+        private ParentFullLoaderByConstructor _parent = null!;
 
         public ChildFullLoaderByConstructor()
         {
@@ -5047,7 +5045,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public ParentFullLoaderByConstructor Parent
         {
-            get => _loader.Load(this, ref _parent);
+            get => _loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
 
@@ -5065,8 +5063,8 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class SingleFullLoaderByConstructor
     {
-        private readonly ILazyLoader _loader;
-        private ParentFullLoaderByConstructor _parent;
+        private readonly ILazyLoader _loader = null!;
+        private ParentFullLoaderByConstructor _parent = null!;
 
         public SingleFullLoaderByConstructor()
         {
@@ -5082,7 +5080,7 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public ParentFullLoaderByConstructor Parent
         {
-            get => _loader.Load(this, ref _parent);
+            get => _loader.Load(this, ref _parent!)!;
             set => _parent = value;
         }
 
@@ -5100,9 +5098,9 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class ParentDelegateLoaderByConstructor
     {
-        private readonly Action<object, string> _loader;
-        private IEnumerable<ChildDelegateLoaderByConstructor> _children;
-        private SingleDelegateLoaderByConstructor _single;
+        private readonly Action<object, string> _loader = null!;
+        private IEnumerable<ChildDelegateLoaderByConstructor> _children = null!;
+        private SingleDelegateLoaderByConstructor _single = null!;
 
         public ParentDelegateLoaderByConstructor()
         {
@@ -5122,15 +5120,15 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SingleDelegateLoaderByConstructor Single
         {
-            get => _single ?? _loader.Load(this, ref _single);
+            get => _single ?? _loader.Load<SingleDelegateLoaderByConstructor>(this, ref _single!)!;
             set => _single = value;
         }
     }
 
     protected class ChildDelegateLoaderByConstructor
     {
-        private readonly Action<object, string> _loader;
-        private ParentDelegateLoaderByConstructor _parent;
+        private readonly Action<object, string> _loader = null!;
+        private ParentDelegateLoaderByConstructor _parent = null!;
         private int? _parentId;
 
         public ChildDelegateLoaderByConstructor()
@@ -5151,22 +5149,22 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
                 if (_parentId != value)
                 {
                     _parentId = value;
-                    _parent = null;
+                    _parent = null!;
                 }
             }
         }
 
         public ParentDelegateLoaderByConstructor Parent
         {
-            get => _parent ?? _loader.Load(this, ref _parent);
+            get => _parent ?? _loader.Load<ParentDelegateLoaderByConstructor>(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class SingleDelegateLoaderByConstructor
     {
-        private readonly Action<object, string> _loader;
-        private ParentDelegateLoaderByConstructor _parent;
+        private readonly Action<object, string> _loader = null!;
+        private ParentDelegateLoaderByConstructor _parent = null!;
         private int? _parentId;
 
         public SingleDelegateLoaderByConstructor()
@@ -5187,24 +5185,24 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
                 if (_parentId != value)
                 {
                     _parentId = value;
-                    _parent = null;
+                    _parent = null!;
                 }
             }
         }
 
         public ParentDelegateLoaderByConstructor Parent
         {
-            get => _parent ?? _loader.Load(this, ref _parent);
+            get => _parent ?? _loader.Load<ParentDelegateLoaderByConstructor>(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class ParentDelegateLoaderByProperty
     {
-        private IEnumerable<ChildDelegateLoaderByProperty> _children;
-        private SingleDelegateLoaderByProperty _single;
+        private IEnumerable<ChildDelegateLoaderByProperty> _children = null!;
+        private SingleDelegateLoaderByProperty _single = null!;
 
-        private Action<object, string> LazyLoader { get; set; }
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5217,17 +5215,17 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SingleDelegateLoaderByProperty Single
         {
-            get => _single ?? LazyLoader.Load(this, ref _single);
+            get => _single ?? LazyLoader.Load<SingleDelegateLoaderByProperty>(this, ref _single!)!;
             set => _single = value;
         }
     }
 
     protected class ChildDelegateLoaderByProperty
     {
-        private ParentDelegateLoaderByProperty _parent;
+        private ParentDelegateLoaderByProperty _parent = null!;
         private int? _parentId;
 
-        private Action<object, string> LazyLoader { get; set; }
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5240,24 +5238,24 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
                 if (_parentId != value)
                 {
                     _parentId = value;
-                    _parent = null;
+                    _parent = null!;
                 }
             }
         }
 
         public ParentDelegateLoaderByProperty Parent
         {
-            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            get => _parent ?? LazyLoader.Load<ParentDelegateLoaderByProperty>(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class SingleDelegateLoaderByProperty
     {
-        private ParentDelegateLoaderByProperty _parent;
+        private ParentDelegateLoaderByProperty _parent = null!;
         private int? _parentId;
 
-        private Action<object, string> LazyLoader { get; set; }
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5270,25 +5268,25 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
                 if (_parentId != value)
                 {
                     _parentId = value;
-                    _parent = null;
+                    _parent = null!;
                 }
             }
         }
 
         public ParentDelegateLoaderByProperty Parent
         {
-            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            get => _parent ?? LazyLoader.Load<ParentDelegateLoaderByProperty>(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class ParentDelegateLoaderWithStateByProperty
     {
-        private IEnumerable<ChildDelegateLoaderWithStateByProperty> _children;
-        private SingleDelegateLoaderWithStateByProperty _single;
+        private IEnumerable<ChildDelegateLoaderWithStateByProperty> _children = null!;
+        private SingleDelegateLoaderWithStateByProperty _single = null!;
 
-        private object LazyLoaderState { get; set; }
-        private Action<object, string> LazyLoader { get; set; }
+        private object LazyLoaderState { get; set; } = null!;
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5301,18 +5299,18 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
 
         public SingleDelegateLoaderWithStateByProperty Single
         {
-            get => _single ?? LazyLoader.Load(this, ref _single);
+            get => _single ?? LazyLoader.Load<SingleDelegateLoaderWithStateByProperty>(this, ref _single!)!;
             set => _single = value;
         }
     }
 
     protected class ChildDelegateLoaderWithStateByProperty
     {
-        private ParentDelegateLoaderWithStateByProperty _parent;
+        private ParentDelegateLoaderWithStateByProperty _parent = null!;
         private int? _parentId;
 
-        private object LazyLoaderState { get; set; }
-        private Action<object, string> LazyLoader { get; set; }
+        private object LazyLoaderState { get; set; } = null!;
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5325,25 +5323,25 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
                 if (_parentId != value)
                 {
                     _parentId = value;
-                    _parent = null;
+                    _parent = null!;
                 }
             }
         }
 
         public ParentDelegateLoaderWithStateByProperty Parent
         {
-            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            get => _parent ?? LazyLoader.Load<ParentDelegateLoaderWithStateByProperty>(this, ref _parent!)!;
             set => _parent = value;
         }
     }
 
     protected class SingleDelegateLoaderWithStateByProperty
     {
-        private ParentDelegateLoaderWithStateByProperty _parent;
+        private ParentDelegateLoaderWithStateByProperty _parent = null!;
         private int? _parentId;
 
-        private object LazyLoaderState { get; set; }
-        private Action<object, string> LazyLoader { get; set; }
+        private object LazyLoaderState { get; set; } = null!;
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -5356,14 +5354,14 @@ public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassF
                 if (_parentId != value)
                 {
                     _parentId = value;
-                    _parent = null;
+                    _parent = null!;
                 }
             }
         }
 
         public ParentDelegateLoaderWithStateByProperty Parent
         {
-            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            get => _parent ?? LazyLoader.Load<ParentDelegateLoaderWithStateByProperty>(this, ref _parent!)!;
             set => _parent = value;
         }
     }

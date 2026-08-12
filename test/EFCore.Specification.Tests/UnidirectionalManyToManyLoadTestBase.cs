@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ManyToManyLoadTestBase<TFixture>
 {
     [Theory, InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true),
@@ -38,15 +36,15 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkip);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkip);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
         if (ExpectLazyLoading)
         {
-            Assert.Equal(7, left.TwoSkip.Count);
+            Assert.Equal(7, left!.TwoSkip.Count);
         }
         else
         {
@@ -61,7 +59,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         }
 
         Assert.True(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkip)
+        foreach (var entityTwo in left!.TwoSkip)
         {
             Assert.False(context.Entry(entityTwo).Collection("UnidirectionalEntityOne1").IsLoaded);
         }
@@ -72,7 +70,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         Assert.Equal(7, left.TwoSkip.Count);
         foreach (var right in left.TwoSkip)
         {
-            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Collection("UnidirectionalEntityOne1").CurrentValue)!);
+            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Collection("UnidirectionalEntityOne1").CurrentValue!)!);
         }
 
         Assert.Equal(1 + 7 + 7, context.ChangeTracker.Entries().Count());
@@ -89,9 +87,9 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -100,7 +98,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             : collectionEntry.Query().ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry(entityTwo).Collection("UnidirectionalEntityOne").IsLoaded);
         }
@@ -274,7 +272,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         Assert.Equal(7, left.TwoSkip.Count);
         foreach (var right in left.TwoSkip)
         {
-            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Navigation("UnidirectionalEntityOne1").CurrentValue)!);
+            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Navigation("UnidirectionalEntityOne1").CurrentValue!)!);
         }
 
         Assert.Equal(children, left.TwoSkip.ToList());
@@ -293,15 +291,15 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var navigationEntry = context.Entry(left).Navigation("TwoSkip");
+        var navigationEntry = context.Entry(left!).Navigation("TwoSkip");
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(navigationEntry.IsLoaded);
 
         if (ExpectLazyLoading)
         {
-            Assert.Equal(7, left.TwoSkip.Count);
+            Assert.Equal(7, left!.TwoSkip.Count);
         }
         else
         {
@@ -316,7 +314,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         }
 
         Assert.True(navigationEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkip)
+        foreach (var entityTwo in left!.TwoSkip)
         {
             Assert.False(context.Entry((object)entityTwo).Collection("UnidirectionalEntityOne1").IsLoaded);
         }
@@ -327,7 +325,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         Assert.Equal(7, left.TwoSkip.Count);
         foreach (var right in left.TwoSkip)
         {
-            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Member("UnidirectionalEntityOne1").CurrentValue)!);
+            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Member("UnidirectionalEntityOne1").CurrentValue!)!);
         }
 
         Assert.Equal(1 + 7 + 7, context.ChangeTracker.Entries().Count());
@@ -344,9 +342,9 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Navigation("TwoSkipShared");
+        var collectionEntry = context.Entry(left!).Navigation("TwoSkipShared");
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -355,7 +353,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             : collectionEntry.Query().ToList<object>();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry((object)entityTwo).Collection("UnidirectionalEntityOne").IsLoaded);
         }
@@ -563,7 +561,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         Assert.Equal(7, left.TwoSkip.Count);
         foreach (var right in left.TwoSkip)
         {
-            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Collection("UnidirectionalEntityOne1").CurrentValue)!);
+            Assert.Contains(left, ((IEnumerable<object>)context.Entry(right).Collection("UnidirectionalEntityOne1").CurrentValue!)!);
         }
 
         Assert.Equal(children, left.TwoSkip.ToList());
@@ -582,15 +580,15 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.ThreeSkipFull);
+        var collectionEntry = context.Entry(left!).Collection(e => e.ThreeSkipFull);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
         if (ExpectLazyLoading)
         {
-            Assert.Equal(2, left.ThreeSkipFull.Count);
+            Assert.Equal(2, left!.ThreeSkipFull.Count);
         }
         else
         {
@@ -605,7 +603,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         }
 
         Assert.True(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.ThreeSkipFull)
+        foreach (var entityTwo in left!.ThreeSkipFull)
         {
             Assert.False(context.Entry(entityTwo).Collection("UnidirectionalEntityCompositeKey").IsLoaded);
         }
@@ -633,9 +631,9 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.ThreeSkipFull);
+        var collectionEntry = context.Entry(left!).Collection(e => e.ThreeSkipFull);
 
-        context.Entry(left).State = state;
+        context.Entry(left!).State = state;
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -648,7 +646,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, left.ThreeSkipFull.Count);
+        Assert.Equal(2, left!.ThreeSkipFull.Count);
         Assert.Equal(children, left.ThreeSkipFull.ToList());
         Assert.Equal(1 + 2 + 2, context.ChangeTracker.Entries().Count());
     }
@@ -706,7 +704,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -715,7 +713,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             : collectionEntry.Query().Include("UnidirectionalEntityThree").ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             var threeNav = context.Entry(entityTwo).Collection<UnidirectionalEntityThree>("UnidirectionalEntityThree");
             Assert.True(threeNav.IsLoaded);
@@ -751,7 +749,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -761,7 +759,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             : queryable.ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.True(context.Entry(entityTwo).Collection("UnidirectionalEntityOne").IsLoaded);
         }
@@ -790,7 +788,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -803,7 +801,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
                     .Where(e => e.Id == 13 || e.Id == 11)).ToList();
 
         Assert.False(collectionEntry.IsLoaded);
-        foreach (var entityTwo in left.TwoSkipShared)
+        foreach (var entityTwo in left!.TwoSkipShared)
         {
             Assert.False(context.Entry(entityTwo).Collection("UnidirectionalEntityOne").IsLoaded);
             Assert.True(context.Entry(entityTwo).Collection("UnidirectionalEntityThree").IsLoaded);
@@ -843,7 +841,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -865,7 +863,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
         Assert.False(collectionEntry.IsLoaded);
-        Assert.Empty(left.TwoSkipShared);
+        Assert.Empty(left!.TwoSkipShared);
         Assert.Single(context.ChangeTracker.Entries());
 
         Assert.Equal(3, projected.Count);
@@ -889,7 +887,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
 
         ClearLog();
 
-        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkipShared);
+        var collectionEntry = context.Entry(left!).Collection(e => e.TwoSkipShared);
 
         Assert.False(collectionEntry.IsLoaded);
 

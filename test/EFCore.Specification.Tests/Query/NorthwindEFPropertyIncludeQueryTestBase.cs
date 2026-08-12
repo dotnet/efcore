@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -189,7 +187,7 @@ public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture
             }
         }
 
-        private static string GetPath(Expression expression)
+        private static string? GetPath(Expression? expression)
             => expression switch
             {
                 MemberExpression { Expression: ParameterExpression } memberExpression

@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonEntitySingleOwned
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public List<JsonOwnedLeaf> OwnedCollection { get; set; }
+    public List<JsonOwnedLeaf> OwnedCollection { get; set; } = null!;
 }
