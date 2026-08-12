@@ -15,7 +15,7 @@ public class SqlServerValueGeneratorCacheTest
     public void Uses_single_generator_per_property()
     {
         var model = CreateModel();
-        var entityType = model.FindEntityType(typeof(Led));
+        var entityType = model.FindEntityType(typeof(Led))!;
         var property1 = GetProperty1(model);
         var property2 = GetProperty2(model);
         var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorCache>();
@@ -94,8 +94,8 @@ public class SqlServerValueGeneratorCacheTest
     }
 
     private static FakeRelationalConnection CreateConnection(
-        string databaseName = null,
-        string serverName = null)
+        string? databaseName = null,
+        string? serverName = null)
     {
         var connection = new FakeRelationalConnection();
         connection.UseConnection(
@@ -434,13 +434,13 @@ public class SqlServerValueGeneratorCacheTest
     }
 
     private static IProperty GetProperty1(IModel model)
-        => model.FindEntityType(typeof(Led)).FindProperty("Zeppelin");
+        => model.FindEntityType(typeof(Led))!.FindProperty("Zeppelin")!;
 
     private static IProperty GetProperty2(IModel model)
-        => model.FindEntityType(typeof(Led)).FindProperty("Stairway");
+        => model.FindEntityType(typeof(Led))!.FindProperty("Stairway")!;
 
     private static IProperty GetProperty3(IModel model)
-        => model.FindEntityType(typeof(Led)).FindProperty("WholeLotta");
+        => model.FindEntityType(typeof(Led))!.FindProperty("WholeLotta")!;
 
     private static IModel CreateModel()
     {

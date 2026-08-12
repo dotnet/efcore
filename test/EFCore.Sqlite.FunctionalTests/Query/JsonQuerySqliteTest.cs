@@ -8,8 +8,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class JsonQuerySqliteTest : JsonQueryRelationalTestBase<JsonQuerySqliteFixture>
 {
     public JsonQuerySqliteTest(JsonQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)

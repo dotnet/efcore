@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQueryTestBase<
     NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {
@@ -2203,7 +2201,7 @@ WHERE ((c["$type"] = "Order") AND (c["OrderDate"] != null))
                 await AssertQuery(
                     a,
                     ss => ss.Set<Order>().Where(o => o.OrderDate != null)
-                        .Select(o => new Order { OrderDate = o.OrderDate.Value.AddMilliseconds(-1000000000000) }),
+                        .Select(o => new Order { OrderDate = o.OrderDate!.Value.AddMilliseconds(-1000000000000) }),
                     elementSorter: e => e.OrderDate);
 
                 AssertSql(
@@ -4112,8 +4110,8 @@ WHERE (c["$type"] = "Order")
         {
             await AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Select(e => new { e.Region.Length }),
-                ss => ss.Set<Customer>().Where(e => e.Region != null).Select(e => new { e.Region.Length }));
+                ss => ss.Set<Customer>().Select(e => new { e.Region!.Length }),
+                ss => ss.Set<Customer>().Where(e => e.Region != null).Select(e => new { e.Region!.Length }));
 
             AssertSql(
                 """
@@ -4370,7 +4368,7 @@ WHERE (c["Title"] = "Sales Representative")
             {
                 await AssertQuery(
                     a,
-                    ss => ss.Set<Order>().Select(o => new Order { OrderDate = o.OrderDate.Value }),
+                    ss => ss.Set<Order>().Select(o => new Order { OrderDate = o.OrderDate!.Value }),
                     elementSorter: e => e.OrderDate);
 
                 AssertSql(

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsAzureSql))]
 public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixture<BatchingSqlAzureFixture>
 {

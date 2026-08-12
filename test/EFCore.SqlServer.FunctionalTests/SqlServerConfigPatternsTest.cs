@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerConfigPatternsTest
 {
     public class ImplicitServicesAndConfig
@@ -27,7 +25,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -59,7 +57,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -84,7 +82,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(
@@ -115,7 +113,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -145,7 +143,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -171,7 +169,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -206,7 +204,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(
@@ -256,7 +254,7 @@ public class SqlServerConfigPatternsTest
                 : base(options)
                 => Assert.NotNull(options);
 
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlServer(
@@ -308,7 +306,7 @@ public class SqlServerConfigPatternsTest
                 : base(options)
                 => Assert.NotNull(options);
 
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -333,7 +331,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -356,7 +354,7 @@ public class SqlServerConfigPatternsTest
         {
             private readonly string _connectionString = connectionString;
 
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -400,7 +398,7 @@ public class SqlServerConfigPatternsTest
         {
             private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -432,7 +430,7 @@ public class SqlServerConfigPatternsTest
         {
             private readonly bool _useAzure = useAzure;
 
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -470,7 +468,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(bool before) : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -514,7 +512,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(bool before) : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -558,7 +556,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(bool before) : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -602,7 +600,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(bool before) : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -638,7 +636,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -662,7 +660,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext : DbContext
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -768,7 +766,7 @@ public class SqlServerConfigPatternsTest
 
         private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Customer> Customers { get; set; } = null!;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -778,12 +776,12 @@ public class SqlServerConfigPatternsTest
     // ReSharper disable once ClassNeverInstantiated.Local
     private class Customer
     {
-        public string CustomerID { get; set; }
+        public string CustomerID { get; set; } = null!;
 
         // ReSharper disable UnusedMember.Local
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; }
 
-        public string Fax { get; set; }
+        public string? Fax { get; set; }
         // ReSharper restore UnusedMember.Local
     }
 
@@ -802,13 +800,13 @@ public class SqlServerConfigPatternsTest
         public TResult Execute<TState, TResult>(
             TState state,
             Func<DbContext, TState, TResult> operation,
-            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
+            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
             => throw new NotImplementedException();
 
         public Task<TResult> ExecuteAsync<TState, TResult>(
             TState state,
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }

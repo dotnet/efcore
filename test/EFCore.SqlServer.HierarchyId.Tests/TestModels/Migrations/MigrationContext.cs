@@ -17,8 +17,8 @@ internal abstract class MigrationContext<TEntity1, TEntity2> : DbContext
     protected Type ThisType
         => field ??= GetType();
 
-    public DbSet<TEntity1> TestModels { get; set; }
-    public DbSet<TEntity2> ConvertedTestModels { get; set; }
+    public DbSet<TEntity1> TestModels { get; set; } = null!;
+    public DbSet<TEntity2> ConvertedTestModels { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options

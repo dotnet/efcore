@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
@@ -3923,6 +3922,191 @@ VALUES(
 """);
     }
 
+    #region PrimitiveCollectionInColumn
+
+    [Fact]
+    public virtual async Task Materialize_json_null_primitive_collection_mapped_to_column_is_null()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // The primitive collection is mapped to its own column via CollectionToJsonStringConverter (which does NOT
+        // handle the JSON 'null' token). Legacy/external data may store the JSON 'null' token (the literal string
+        // "null", which Utf8JsonReader tokenizes as JsonTokenType.Null) rather than a SQL NULL. The materializer peeks
+        // the first token and short-circuits to null instead of letting JsonCollectionOfReferencesReaderWriter throw
+        // "Invalid token type: 'Null'". See issues #34881 and #38454.
+        var result = await context.Set<ContextPrimitiveCollectionInColumn.MyEntity>()
+            .Where(x => x.Id < 4).OrderBy(x => x.Id).ToListAsync();
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(["a", "b"], result[0].Tags);
+        Assert.Null(result[1].Tags); // JSON 'null' token
+        Assert.Null(result[2].Tags); // SQL NULL
+    }
+
+    [Fact]
+    public virtual async Task Materialize_empty_json_primitive_collection_mapped_to_column_throws()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // An empty/whitespace JSON string in the column isn't valid JSON; the diagnostics here match the converter
+        // path (JsonValueReaderWriter.FromJsonString), which rejects it with CoreStrings.EmptyJsonString.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 4).ToListAsync());
+
+        Assert.Equal(CoreStrings.EmptyJsonString, exception.Message);
+    }
+
+    [Fact]
+    public virtual async Task Materialize_json_null_required_primitive_collection_mapped_to_column_throws()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // The required primitive collection column holds the JSON 'null' token. Since the property is required, the
+        // materializer throws a clear, property-named error rather than silently materializing null. See #34881.
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(()
+            => context.Set<ContextPrimitiveCollectionInColumn.MyEntity>().Where(x => x.Id == 5).ToListAsync());
+
+        Assert.Equal(RelationalStrings.NullValueInRequiredJsonProperty("RequiredTags"), exception.Message);
+    }
+
+    [Fact]
+    public virtual async Task Project_json_null_primitive_collection_mapped_to_column_is_null()
+    {
+        if (JsonColumnType == "json")
+        {
+            await Assert.ThrowsAsync<SqlException>(
+                () => InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+                    onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+                    onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+                    seed: SeedPrimitiveCollectionInColumn));
+            return;
+        }
+
+        var contextFactory = await InitializeNonSharedTest<ContextPrimitiveCollectionInColumn>(
+            onModelCreating: OnModelCreatingPrimitiveCollectionInColumn,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedPrimitiveCollectionInColumn);
+
+        using var context = contextFactory.CreateDbContext();
+
+        // Projecting the collection column directly reaches the materializer without an IProperty. The JSON 'null'
+        // token (and SQL NULL) must still be materialized as null rather than throwing "Invalid token type: 'Null'".
+        var tags = await context.Set<ContextPrimitiveCollectionInColumn.MyEntity>()
+            .Where(x => x.Id < 4).OrderBy(x => x.Id).Select(x => x.Tags).ToListAsync();
+
+        Assert.Equal(3, tags.Count);
+        Assert.Equal(["a", "b"], tags[0]);
+        Assert.Null(tags[1]); // JSON 'null' token
+        Assert.Null(tags[2]); // SQL NULL
+    }
+
+    protected virtual async Task SeedPrimitiveCollectionInColumn(DbContext ctx)
+    {
+        // primitive collection column contains a JSON array
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(1, N'["a","b"]', N'[]')
+""");
+
+        // primitive collection column contains a JSON null token (the literal string "null", not a SQL NULL)
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(2, N'null', N'[]')
+""");
+
+        // primitive collection column is SQL NULL
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(3, NULL, N'[]')
+""");
+
+        // primitive collection column contains an empty (invalid) JSON string
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(4, N'', N'[]')
+""");
+
+        // required primitive collection column contains a JSON null token
+        await ctx.Database.ExecuteSqlAsync(
+            $$"""
+INSERT INTO [Entities] ([Id], [Tags], [RequiredTags])
+VALUES(5, N'["a","b"]', N'null')
+""");
+    }
+
+    protected virtual void OnModelCreatingPrimitiveCollectionInColumn(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<ContextPrimitiveCollectionInColumn.MyEntity>(b =>
+        {
+            b.ToTable("Entities");
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.PrimitiveCollection(x => x.Tags);
+            b.PrimitiveCollection(x => x.RequiredTags).IsRequired();
+        });
+
+    protected class ContextPrimitiveCollectionInColumn(DbContextOptions options) : DbContext(options)
+    {
+        public class MyEntity
+        {
+            public int Id { get; set; }
+
+            // IList<string> matches the legacy mapping reported in #34881.
+            public IList<string>? Tags { get; set; }
+
+            public IList<string> RequiredTags { get; set; } = null!;
+        }
+    }
+
+    #endregion
+
     #region JsonPropertyWithConverters
 
     [Fact]
@@ -3936,7 +4120,7 @@ VALUES(
         using var context = contextFactory.CreateDbContext();
         var result = await context.Set<ContextJsonPropertyWithConverters.MyEntity>().SingleAsync(x => x.Id == 1);
 
-        Assert.Equal("e1", result.Reference.Name);
+        Assert.Equal("e1", result.Reference!.Name);
 
         // Both properties have a JSON 'null' token value. The streaming JSON shaper's null guard
         // (CreateReadJsonPropertyValueExpression) routes the null based on the converter's ConvertsNulls flag:
@@ -3963,12 +4147,12 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
                 {
                     b.ToJson().HasColumnType(JsonColumnType);
                     b.Property(x => x.ConvertedHandlingNulls).HasConversion(
-                        new ValueConverter<string, string>(
+                        new ValueConverter<string?, string?>(
                             v => v,
                             v => v ?? "FROM_DB_NULL",
                             convertsNulls: true));
                     b.Property(x => x.ConvertedNotHandlingNulls).HasConversion(
-                        new ValueConverter<string, string>(
+                        new ValueConverter<string?, string?>(
                             v => v,
                             v => "FROM_CONVERTER:" + v,
                             convertsNulls: false));
@@ -3980,14 +4164,14 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
+            public MyJsonEntity? Reference { get; set; }
         }
 
         public class MyJsonEntity
         {
-            public string Name { get; set; }
-            public string ConvertedHandlingNulls { get; set; }
-            public string ConvertedNotHandlingNulls { get; set; }
+            public string? Name { get; set; }
+            public string? ConvertedHandlingNulls { get; set; }
+            public string? ConvertedNotHandlingNulls { get; set; }
         }
     }
 
@@ -4010,12 +4194,12 @@ VALUES(1, '{"Name":"e1","ConvertedHandlingNulls":null,"ConvertedNotHandlingNulls
         Assert.Equal(2, result.Count);
 
         // Id == 1: JSON has "NullableStrings": null -> materialized as null.
-        Assert.Null(result[0].Reference.NullableStrings);
-        Assert.Equal(["a", "b"], result[0].Reference.RequiredStrings);
+        Assert.Null(result[0].Reference!.NullableStrings);
+        Assert.Equal(["a", "b"], result[0].Reference!.RequiredStrings);
 
         // Id == 2: JSON has "NullableStrings": ["x", "y"].
-        Assert.Equal(["x", "y"], result[1].Reference.NullableStrings);
-        Assert.Equal(["c", "d"], result[1].Reference.RequiredStrings);
+        Assert.Equal(["x", "y"], result[1].Reference!.NullableStrings);
+        Assert.Equal(["c", "d"], result[1].Reference!.RequiredStrings);
     }
 
     [Fact]
@@ -4079,13 +4263,13 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
+            public MyJsonEntity? Reference { get; set; }
         }
 
         public class MyJsonEntity
         {
-            public List<string> NullableStrings { get; set; }
-            public List<string> RequiredStrings { get; set; }
+            public List<string>? NullableStrings { get; set; }
+            public List<string> RequiredStrings { get; set; } = null!;
         }
     }
 
@@ -4104,7 +4288,7 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
 
         var query = context.Set<MyEntityEnumLegacyValues>().Select(x => new
         {
-            x.Reference.IntEnum,
+            x.Reference!.IntEnum,
             x.Reference.ByteEnum,
             x.Reference.LongEnum,
             x.Reference.NullableEnum
@@ -4131,18 +4315,18 @@ VALUES(3, '{"NullableStrings":["x","y"],"RequiredStrings":null}')
 
         using (var context = contextFactory.CreateDbContext())
         {
-            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => x.Reference).AsNoTracking();
+            var query = context.Set<MyEntityEnumLegacyValues>().Select(x => x.Reference!).AsNoTracking();
 
             var result = async
                 ? await query.ToListAsync()
                 : query.ToList();
 
             Assert.Equal(1, result.Count);
-            Assert.Equal(ByteEnumLegacyValues.Redmond, result[0].ByteEnum);
-            Assert.Equal(IntEnumLegacyValues.Foo, result[0].IntEnum);
-            Assert.Equal(LongEnumLegacyValues.Three, result[0].LongEnum);
-            Assert.Equal(ULongEnumLegacyValues.Three, result[0].ULongEnum);
-            Assert.Equal(IntEnumLegacyValues.Bar, result[0].NullableEnum);
+            Assert.Equal(ByteEnumLegacyValues.Redmond, result[0]!.ByteEnum);
+            Assert.Equal(IntEnumLegacyValues.Foo, result[0]!.IntEnum);
+            Assert.Equal(LongEnumLegacyValues.Three, result[0]!.LongEnum);
+            Assert.Equal(ULongEnumLegacyValues.Three, result[0]!.ULongEnum);
+            Assert.Equal(IntEnumLegacyValues.Bar, result[0]!.NullableEnum);
         }
 
         var testLogger = new TestLogger<SqlServerLoggingDefinitions>();
@@ -4229,15 +4413,15 @@ N'e1')
     private class MyEntityEnumLegacyValues
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public MyJsonEntityEnumLegacyValues Reference { get; set; }
-        public List<MyJsonEntityEnumLegacyValues> Collection { get; set; }
+        public MyJsonEntityEnumLegacyValues? Reference { get; set; }
+        public List<MyJsonEntityEnumLegacyValues> Collection { get; set; } = null!;
     }
 
     private class MyJsonEntityEnumLegacyValues
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public IntEnumLegacyValues IntEnum { get; set; }

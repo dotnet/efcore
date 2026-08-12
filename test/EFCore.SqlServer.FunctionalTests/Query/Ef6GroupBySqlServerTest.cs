@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class Ef6GroupBySqlServerTest : Ef6GroupByTestBase<Ef6GroupBySqlServerTest.Ef6GroupBySqlServerFixture>
 {
     public Ef6GroupBySqlServerTest(Ef6GroupBySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

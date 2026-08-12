@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -71,7 +69,7 @@ WHERE [c].[City] = @city
 """,
             queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
 
-        return null;
+        return null!;
     }
 
     public override async Task Where_indexer_closure(bool async)

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates.Inheritance;
 
-#nullable disable
-
 public class TPHInheritanceBulkUpdatesSqlServerFixture : TPHInheritanceBulkUpdatesFixture
 {
     protected override ITestStoreFactory TestStoreFactory

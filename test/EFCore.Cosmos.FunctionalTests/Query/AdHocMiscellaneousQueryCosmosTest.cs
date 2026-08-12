@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
     #region 21006
@@ -66,7 +64,8 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     protected class JsonContext21006(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
@@ -86,7 +85,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public bool TestBoolean { get; set; }
             public byte TestByte { get; set; }
 
-            public byte[] TestByteArray { get; set; }
+            public byte[] TestByteArray { get; set; } = null!;
             public Guid TestGuid { get; set; }
             public ushort TestUnsignedInt16 { get; set; }
             public uint TestUnsignedInt32 { get; set; }
@@ -95,16 +94,16 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public sbyte TestSignedByte { get; set; }
             public int? TestNullableInt32 { get; set; }
             public JsonEnum TestEnum { get; set; }
-            public byte[] TestByteCollection { get; set; }
-            public IList<ushort> TestUnsignedInt16Collection { get; set; }
-            public uint[] TestUnsignedInt32Collection { get; set; }
-            public sbyte[] TestSignedByteCollection { get; set; }
-            public JsonEntity Reference { get; set; }
+            public byte[] TestByteCollection { get; set; } = null!;
+            public IList<ushort> TestUnsignedInt16Collection { get; set; } = null!;
+            public uint[] TestUnsignedInt32Collection { get; set; } = null!;
+            public sbyte[] TestSignedByteCollection { get; set; } = null!;
+            public JsonEntity Reference { get; set; } = null!;
         }
 
         public class JsonEntity
         {
-            public string Text { get; set; }
+            public string Text { get; set; } = null!;
 
             public short TestInt16 { get; set; }
             public int TestInt32 { get; set; }
@@ -119,7 +118,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public float TestSingle { get; set; }
             public bool TestBoolean { get; set; }
             public byte TestByte { get; set; }
-            public byte[] TestByteArray { get; set; }
+            public byte[] TestByteArray { get; set; } = null!;
             public Guid TestGuid { get; set; }
             public ushort TestUnsignedInt16 { get; set; }
             public uint TestUnsignedInt32 { get; set; }
@@ -130,11 +129,11 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public JsonEnum TestEnum { get; set; }
             public JsonEnum TestEnumWithIntConverter { get; set; }
 
-            public byte[] TestByteCollection { get; set; }
-            public IList<ushort> TestUnsignedInt16Collection { get; set; }
-            public uint[] TestUnsignedInt32Collection { get; set; }
+            public byte[] TestByteCollection { get; set; } = null!;
+            public IList<ushort> TestUnsignedInt16Collection { get; set; } = null!;
+            public uint[] TestUnsignedInt32Collection { get; set; } = null!;
 
-            public sbyte[] TestSignedByteCollection { get; set; }
+            public sbyte[] TestSignedByteCollection { get; set; } = null!;
         }
 
         public enum JsonEnum
@@ -169,7 +168,8 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     protected class Context34911(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Member> Members { get; set; }
+        public DbSet<Member> Members
+            => Set<Member>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Member>().HasData(new Member { Id = 1, Name = "Product 1" });
@@ -178,7 +178,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         {
             public int Id { get; set; }
             public MemberType MemberType { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public enum MemberType
@@ -280,7 +280,8 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
 
     protected class Context35094(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products
+            => Set<Product>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Product>().HasData(
@@ -299,7 +300,7 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
             public int Id { get; set; }
 
             public double? NullableVal { get; set; }
-            public string NullableRef { get; set; }
+            public string? NullableRef { get; set; }
         }
     }
 
@@ -361,20 +362,23 @@ public class AdHocMiscellaneousQueryCosmosTest(NonSharedFixture fixture) : NonSh
         {
         }
 
-        public DbSet<Dog36329> Dogs { get; set; }
-        public DbSet<Pet36329> Pets { get; set; }
+        public DbSet<Dog36329> Dogs
+            => Set<Dog36329>();
+
+        public DbSet<Pet36329> Pets
+            => Set<Pet36329>();
     }
 
     public abstract record Pet36329
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         public PetType36329 PetType { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public record Dog36329 : Pet36329
     {
-        public string DogProperty { get; set; }
+        public string DogProperty { get; set; } = null!;
     }
 
     public enum PetType36329

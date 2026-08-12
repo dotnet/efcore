@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.ExecutionStrategyFixture>
 {
     public ExecutionStrategyTest(ExecutionStrategyFixture fixture)
@@ -247,7 +245,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
                 c1 =>
                 {
                     context2.Database.UseTransaction(null);
-                    context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
+                    context2.Database.UseTransaction(context1.Database.CurrentTransaction!.GetDbTransaction());
 
                     c1.SaveChanges(false);
 
@@ -725,19 +723,19 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
 
     protected class ExecutionStrategyContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Audit> Audits { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Audit> Audits { get; set; } = null!;
     }
 
     protected class Product
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 
     public class AuditContext : DbContext
     {
-        public DbSet<Audit> Audits { get; set; }
+        public DbSet<Audit> Audits { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer();

@@ -285,7 +285,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                     "Campaign",
                     x =>
                     {
-                        x.ToTable((string)null);
+                        x.ToTable((string?)null);
                         x.UseTpcMappingStrategy();
                         x.Property<int>("Id");
                         x.Property<int>("Status");
@@ -420,7 +420,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("bah", addOperation.Schema);
                 Assert.Equal("Ram", addOperation.Table);
                 Assert.Equal("PK_Ram", addOperation.Name);
-                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]!);
             });
 
     [Fact]
@@ -440,9 +440,9 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operations.Count);
 
                 var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
-                var addKey = createTableOperation.PrimaryKey;
+                var addKey = createTableOperation.PrimaryKey!;
                 Assert.Equal("PK_Ram", addKey.Name);
-                Assert.False((bool)addKey[SqlServerAnnotationNames.Clustered]);
+                Assert.False((bool)addKey[SqlServerAnnotationNames.Clustered]!);
             });
 
     [Fact]
@@ -479,7 +479,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("bah", addOperation.Schema);
                 Assert.Equal("Ewe", addOperation.Table);
                 Assert.Equal("AK_Ewe_AlternateId", addOperation.Name);
-                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]!);
             });
 
     [Fact]
@@ -671,7 +671,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("bah", createOperation.Schema);
                 Assert.Equal("Mutton", createOperation.Table);
                 Assert.Equal("IX_Mutton_Value", createOperation.Name);
-                Assert.True((bool)createOperation[SqlServerAnnotationNames.Clustered]);
+                Assert.True((bool)createOperation[SqlServerAnnotationNames.Clustered]!);
             });
 
     public static int Function()
@@ -684,7 +684,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
 
         Execute(
             _ => { },
-            modelBuilder => modelBuilder.HasDbFunction(mi),
+            modelBuilder => modelBuilder.HasDbFunction(mi!),
             operations => Assert.Equal(0, operations.Count));
     }
 

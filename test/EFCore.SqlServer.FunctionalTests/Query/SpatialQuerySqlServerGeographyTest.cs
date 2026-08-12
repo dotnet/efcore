@@ -7,8 +7,6 @@ using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
 public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
 {
@@ -220,8 +218,8 @@ FROM [LineStringEntity] AS [l]
     {
         await AssertQuery(
             async,
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon) }),
-            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = EF.Functions.CurveToLine(e.Polygon!) }),
+            ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, CurveToLine = (Geometry)e.Polygon! }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {

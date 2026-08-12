@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqlServerFixture>
 {
     public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -7466,7 +7464,7 @@ WHERE @rank = [g].[Rank]
         await AssertQueryScalar(
             async,
             ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
-            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName!.Length * 2)));
 
         AssertSql(
             """

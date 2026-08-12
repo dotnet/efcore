@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
     : IClassFixture<CosmosConcurrencyTest.CosmosFixture>, IAsyncLifetime
 {
@@ -84,7 +82,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
             Children = { new DummyChild { Id = "0" } }
         };
 
-        string etag = null;
+        string? etag = null;
         await using (var context = CreateContext(options))
         {
             await Fixture.TestStore.CleanAsync(context);
@@ -150,7 +148,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
             Children = { new DummyChild { Id = "0" } }
         };
 
-        string etag = null;
+        string? etag = null;
         await using (var context = CreateContext(options))
         {
             await Fixture.TestStore.CleanAsync(context);
@@ -213,7 +211,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
     ///     the database at the end of the process can be validated.
     /// </summary>
     protected virtual async Task ConcurrencyTestAsync<TException>(
-        Func<ConcurrencyContext, Task> seedAction,
+        Func<ConcurrencyContext, Task>? seedAction,
         Func<ConcurrencyContext, Task> storeChange,
         Func<ConcurrencyContext, Task> clientChange)
         where TException : DbUpdateException
@@ -273,9 +271,11 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
 
     public class ConcurrencyContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers
+            => Set<Customer>();
 
-        public DbSet<PremiumCustomer> PremiumCustomers { get; set; }
+        public DbSet<PremiumCustomer> PremiumCustomers
+            => Set<PremiumCustomer>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -293,22 +293,22 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
 
     public class Customer
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public string ETag { get; set; }
+        public string ETag { get; set; } = null!;
 
         public ICollection<DummyChild> Children { get; } = new HashSet<DummyChild>();
     }
 
     public class DummyChild
     {
-        public string Id { get; init; }
+        public string Id { get; init; } = null!;
     }
 
     public class PremiumCustomer : Customer
     {
-        public string LoyaltyLevel { get; set; }
+        public string LoyaltyLevel { get; set; } = null!;
     }
 }

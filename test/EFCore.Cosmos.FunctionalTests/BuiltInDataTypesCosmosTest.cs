@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture fixture)
     : BuiltInDataTypesTestBase<BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture>(fixture)
 {

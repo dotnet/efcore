@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class PropertyValuesSqlServerTest(PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture fixture)
     : PropertyValuesRelationalTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>(fixture)
 {
