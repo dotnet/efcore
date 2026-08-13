@@ -189,18 +189,18 @@ public class NamedDatabaseTest
         }
     }
 
-    private class PusheenContext(string databaseName, IServiceProvider serviceProvider = null) : DbContext
+    private class PusheenContext(string? databaseName, IServiceProvider? serviceProvider = null) : DbContext
     {
-        private readonly string _databaseName = databaseName;
-        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly string? _databaseName = databaseName;
+        private readonly IServiceProvider? _serviceProvider = serviceProvider;
 
-        public PusheenContext(IServiceProvider serviceProvider = null)
+        public PusheenContext(IServiceProvider? serviceProvider = null)
             : this(null, serviceProvider)
         {
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pusheen> Pusheens { get; set; }
+        public DbSet<Pusheen> Pusheens { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -222,6 +222,6 @@ public class NamedDatabaseTest
     private class Pusheen
     {
         public int Id { get; set; }
-        public string Activity { get; set; }
+        public string Activity { get; set; } = null!;
     }
 }

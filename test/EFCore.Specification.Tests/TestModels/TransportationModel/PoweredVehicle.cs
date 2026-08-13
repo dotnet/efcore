@@ -7,7 +7,7 @@ public class PoweredVehicle : Vehicle
 {
     public Engine? Engine { get; set; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is PoweredVehicle other
             && base.Equals(other)
             && Equals(Engine, other.Engine);

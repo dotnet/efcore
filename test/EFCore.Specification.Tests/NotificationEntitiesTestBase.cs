@@ -8,8 +8,6 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
 {
@@ -54,7 +52,7 @@ public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class Post : NotificationEntity
@@ -75,12 +73,12 @@ public abstract class NotificationEntitiesTestBase<TFixture>(TFixture fixture) :
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     protected class NotificationEntity : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         private void NotifyChanged(string propertyName)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

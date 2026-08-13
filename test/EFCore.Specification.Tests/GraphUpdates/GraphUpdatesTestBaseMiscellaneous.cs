@@ -8,8 +8,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
@@ -841,11 +839,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 if (nullPrincipal)
                 {
-                    dependent.Parent = null;
+                    dependent.Parent = null!;
                 }
                 else
                 {
-                    parent.Dependant = null;
+                    parent.Dependant = null!;
                 }
 
                 context.ChangeTracker.DetectChanges();
@@ -974,7 +972,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 if ((changeMechanism & ChangeMechanism.Dependent) != 0)
                 {
-                    entity.Root = null;
+                    entity.Root = null!;
                 }
 
                 context.ChangeTracker.DetectChanges();
@@ -1052,7 +1050,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     if (loadNewParent)
                     {
                         Assert.Same(newParent, child.Parent);
-                        Assert.Contains(child, newParent.Children);
+                        Assert.Contains(child, newParent!.Children);
                     }
                     else
                     {
@@ -1069,12 +1067,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     var child = await context.Set<Optional2>().FindAsync(childId);
                     var newParent = loadNewParent ? await context.Set<Optional1>().FindAsync(newFk) : null;
 
-                    Assert.Equal(newFk, child.ParentId);
+                    Assert.Equal(newFk, child!.ParentId);
 
                     if (loadNewParent)
                     {
                         Assert.Same(newParent, child.Parent);
-                        Assert.Contains(child, newParent.Children);
+                        Assert.Contains(child, newParent!.Children);
                     }
                     else
                     {
@@ -1099,7 +1097,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
         Assert.False(context.ChangeTracker.HasChanges());
 
-        existing.Parent = null;
+        existing.Parent = null!;
         existing.ParentId = null;
         ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
 
@@ -1195,7 +1193,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Null(poost2.Bloog);
             }
 
-            poost1.Bloog = null;
+            poost1.Bloog = null!;
 
             Assert.Equal(2, bloog.Poosts.Count());
 
@@ -1237,15 +1235,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             await LoadOptionalOneToManyGraphAsync(context);
             await LoadRequiredNonPkAkGraphAsync(context);
 
-            var optionalSingle = root.OptionalSingle;
-            var requiredSingle = root.RequiredSingle;
-            var optionalSingleAk = root.OptionalSingleAk;
-            var optionalSingleDerived = root.OptionalSingleDerived;
-            var requiredSingleAk = root.RequiredSingleAk;
-            var optionalSingleAkDerived = root.OptionalSingleAkDerived;
-            var optionalSingleMoreDerived = root.OptionalSingleMoreDerived;
+            var optionalSingle = root.OptionalSingle!;
+            var requiredSingle = root.RequiredSingle!;
+            var optionalSingleAk = root.OptionalSingleAk!;
+            var optionalSingleDerived = root.OptionalSingleDerived!;
+            var requiredSingleAk = root.RequiredSingleAk!;
+            var optionalSingleAkDerived = root.OptionalSingleAkDerived!;
+            var optionalSingleMoreDerived = root.OptionalSingleMoreDerived!;
             var requiredNonPkSingle = root.RequiredNonPkSingle;
-            var optionalSingleAkMoreDerived = root.OptionalSingleAkMoreDerived;
+            var optionalSingleAkMoreDerived = root.OptionalSingleAkMoreDerived!;
             var requiredNonPkSingleAk = root.RequiredNonPkSingleAk;
             var requiredNonPkSingleDerived = root.RequiredNonPkSingleDerived;
             var requiredNonPkSingleAkDerived = root.RequiredNonPkSingleAkDerived;
@@ -1327,15 +1325,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             await LoadOptionalOneToManyGraphAsync(context);
             await LoadRequiredNonPkAkGraphAsync(context);
 
-            var optionalSingle = root.OptionalSingle;
-            var requiredSingle = root.RequiredSingle;
-            var optionalSingleAk = root.OptionalSingleAk;
-            var optionalSingleDerived = root.OptionalSingleDerived;
-            var requiredSingleAk = root.RequiredSingleAk;
-            var optionalSingleAkDerived = root.OptionalSingleAkDerived;
-            var optionalSingleMoreDerived = root.OptionalSingleMoreDerived;
+            var optionalSingle = root.OptionalSingle!;
+            var requiredSingle = root.RequiredSingle!;
+            var optionalSingleAk = root.OptionalSingleAk!;
+            var optionalSingleDerived = root.OptionalSingleDerived!;
+            var requiredSingleAk = root.RequiredSingleAk!;
+            var optionalSingleAkDerived = root.OptionalSingleAkDerived!;
+            var optionalSingleMoreDerived = root.OptionalSingleMoreDerived!;
             var requiredNonPkSingle = root.RequiredNonPkSingle;
-            var optionalSingleAkMoreDerived = root.OptionalSingleAkMoreDerived;
+            var optionalSingleAkMoreDerived = root.OptionalSingleAkMoreDerived!;
             var requiredNonPkSingleAk = root.RequiredNonPkSingleAk;
             var requiredNonPkSingleDerived = root.RequiredNonPkSingleDerived;
             var requiredNonPkSingleAkDerived = root.RequiredNonPkSingleAkDerived;
@@ -1473,7 +1471,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 var parent = await context.Set<ParentAsAChild>().Include(p => p.ChildAsAParent).SingleAsync();
 
-                var oldChild = parent.ChildAsAParent;
+                var oldChild = parent.ChildAsAParent!;
                 oldId = oldChild.Id;
 
                 context.Remove(oldChild);
@@ -1506,7 +1504,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 var parent = await context.Set<ParentAsAChild>().Include(p => p.ChildAsAParent).SingleAsync();
 
                 Assert.Equal(newId, parent.ChildAsAParentId);
-                Assert.Equal(newId, parent.ChildAsAParent.Id);
+                Assert.Equal(newId, parent.ChildAsAParent!.Id);
                 Assert.Null(context.Set<ChildAsAParent>().Find(oldId));
             });
     }
@@ -1653,13 +1651,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         {
             var swedes = await context.Set<Parsnip>()
                 .Include(x => x.Carrot)
-                .ThenInclude(x => x.Turnips)
+                .ThenInclude(x => x!.Turnips)
                 .Include(x => x.Swede)
-                .ThenInclude(x => x.TurnipSwedes)
+                .ThenInclude(x => x!.TurnipSwedes)
                 .SingleAsync(x => x.Id == 1);
 
-            swedes.Carrot.Turnips.Clear();
-            swedes.Swede.TurnipSwedes.Clear();
+            swedes.Carrot!.Turnips.Clear();
+            swedes.Swede!.TurnipSwedes.Clear();
 
             _ = async
                 ? await context.SaveChangesAsync()
@@ -1686,7 +1684,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 if (Fixture.ForceClientNoAction)
                 {
-                    context.Entry(root.OptionalSingle.Single).State = EntityState.Deleted;
+                    context.Entry(root.OptionalSingle!.Single!).State = EntityState.Deleted;
                     context.Entry(root.OptionalSingle).State = EntityState.Deleted;
                     context.Entry(root.RequiredSingle.Single).State = EntityState.Deleted;
                     context.Entry(root.RequiredSingle).State = EntityState.Deleted;
@@ -1701,15 +1699,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 Assert.False(context.ChangeTracker.HasChanges());
 
-                Assert.Equal("OS`", root.OptionalSingle.Name);
-                Assert.Equal("OS2`", root.OptionalSingle.Single.Name);
+                Assert.Equal("OS`", root.OptionalSingle!.Name);
+                Assert.Equal("OS2`", root.OptionalSingle.Single!.Name);
                 Assert.Equal("RS`", root.RequiredSingle.Name);
                 Assert.Equal("RS2`", root.RequiredSingle.Single.Name);
             }, async context =>
             {
                 var root = await context.Set<OwnerRoot>().SingleAsync();
-                Assert.Equal("OS`", root.OptionalSingle.Name);
-                Assert.Equal("OS2`", root.OptionalSingle.Single.Name);
+                Assert.Equal("OS`", root.OptionalSingle!.Name);
+                Assert.Equal("OS2`", root.OptionalSingle.Single!.Name);
                 Assert.Equal("RS`", root.RequiredSingle.Name);
                 Assert.Equal("RS2`", root.RequiredSingle.Single.Name);
             });
@@ -2331,7 +2329,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             set => SetWithNotify(value, ref field);
         }
 
-        public GroupMember37310 GroupOwner
+        public GroupMember37310? GroupOwner
         {
             get;
             set => SetWithNotify(value, ref field);
@@ -2356,7 +2354,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
 
         public int UserId
         {
@@ -2368,7 +2366,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         {
             get;
             set => SetWithNotify(value, ref field);
-        }
+        } = null!;
     }
 
     #endregion

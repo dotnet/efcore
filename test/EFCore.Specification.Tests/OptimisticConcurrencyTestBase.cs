@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : IClassFixture<TFixture>
     where TFixture : F1FixtureBase<TRowVersion>, new()
 {
@@ -71,7 +69,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             ClientPodiums, async (_, ex) =>
             {
                 var driverEntry = ex.Entries.Single();
-                driverEntry.OriginalValues.SetValues(await driverEntry.GetDatabaseValuesAsync());
+                driverEntry.OriginalValues.SetValues((await driverEntry.GetDatabaseValuesAsync())!);
                 ResolveConcurrencyTokens(driverEntry);
             });
 
@@ -82,8 +80,8 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             {
                 var driverEntry = ex.Entries.Single();
                 var storeValues = await driverEntry.GetDatabaseValuesAsync();
-                driverEntry.CurrentValues.SetValues(storeValues);
-                driverEntry.OriginalValues.SetValues(storeValues);
+                driverEntry.CurrentValues.SetValues(storeValues!);
+                driverEntry.OriginalValues.SetValues(storeValues!);
                 ResolveConcurrencyTokens(driverEntry);
             });
 
@@ -93,7 +91,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             10, async (_, ex) =>
             {
                 var driverEntry = ex.Entries.Single();
-                driverEntry.OriginalValues.SetValues(await driverEntry.GetDatabaseValuesAsync());
+                driverEntry.OriginalValues.SetValues((await driverEntry.GetDatabaseValuesAsync())!);
                 ResolveConcurrencyTokens(driverEntry);
                 ((Driver)driverEntry.Entity).Podiums = 10;
             });
@@ -105,8 +103,8 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             {
                 var driverEntry = ex.Entries.Single();
                 var storeValues = await driverEntry.GetDatabaseValuesAsync();
-                driverEntry.CurrentValues.SetValues(storeValues);
-                driverEntry.OriginalValues.SetValues(storeValues);
+                driverEntry.CurrentValues.SetValues(storeValues!);
+                driverEntry.OriginalValues.SetValues(storeValues!);
                 driverEntry.State = EntityState.Unchanged;
             });
 
@@ -239,7 +237,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 Assert.IsAssignableFrom<Team>(entry.Entity);
                 return Task.CompletedTask;
             },
-            null);
+            null!);
 
     [Fact]
     public virtual Task
@@ -254,7 +252,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 Assert.IsAssignableFrom<Team>(entry.Entity);
                 return Task.CompletedTask;
             },
-            null);
+            null!);
 
     [Fact]
     public virtual Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
@@ -271,7 +269,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 return Task.CompletedTask;
             },
-            null);
+            null!);
 
     [Fact]
     public virtual Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
@@ -285,7 +283,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 return Task.CompletedTask;
             },
-            null);
+            null!);
 
         static async Task Change(F1Context c)
         {
@@ -303,7 +301,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
     [Fact(Skip = "Issue#13890")]
     public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         => ConcurrencyTestAsync(
-            async c => (await c.Engines.SingleAsync(s => s.Name == "CA2010")).StorageLocation.Latitude = 47.642576,
+            async c => (await c.Engines.SingleAsync(s => s.Name == "CA2010")).StorageLocation!.Latitude = 47.642576,
             (_, ex) =>
             {
                 var entry = ex.Entries.Single();
@@ -311,7 +309,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 entry.Reload();
                 return Task.CompletedTask;
             }, async c =>
-                Assert.Equal(47.642576, (await c.Engines.SingleAsync(s => s.Name == "CA2010")).StorageLocation.Latitude));
+                Assert.Equal(47.642576, (await c.Engines.SingleAsync(s => s.Name == "CA2010")).StorageLocation!.Latitude));
 
     #endregion
 
@@ -386,8 +384,8 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
                 entry.State = EntityState.Unchanged;
                 var storeValues = await entry.GetDatabaseValuesAsync();
-                entry.OriginalValues.SetValues(storeValues);
-                entry.CurrentValues.SetValues(storeValues);
+                entry.OriginalValues.SetValues(storeValues!);
+                entry.CurrentValues.SetValues(storeValues!);
                 ResolveConcurrencyTokens(entry);
             },
             async c => Assert.Equal(1, (await c.Drivers.SingleAsync(d => d.Name == "Fernando Alonso")).Wins));
@@ -576,9 +574,9 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 await innerContext.SaveChangesAsync();
 
                 var databaseValues = async
-                    ? await ownedEntry.GetDatabaseValuesAsync()
-                    : ownedEntry.GetDatabaseValues();
-                Assert.Equal(5, databaseValues.GetValue<int>("Days"));
+                    ? await ownedEntry!.GetDatabaseValuesAsync()
+                    : ownedEntry!.GetDatabaseValues();
+                Assert.Equal(5, databaseValues!.GetValue<int>("Days"));
             });
     }
 
@@ -607,11 +605,11 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
 
                 if (async)
                 {
-                    await ownedEntry.ReloadAsync();
+                    await ownedEntry!.ReloadAsync();
                 }
                 else
                 {
-                    ownedEntry.Reload();
+                    ownedEntry!.Reload();
                 }
 
                 Assert.Equal(5, ownedEntry.Property(e => e.Days).CurrentValue);

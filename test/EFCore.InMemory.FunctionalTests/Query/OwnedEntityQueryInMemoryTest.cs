@@ -40,7 +40,6 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
         }
     }
 
-#nullable enable
     protected class Bar
     {
         public long Id { get; set; }
@@ -58,7 +57,6 @@ public class OwnedEntityQueryInMemoryTest(NonSharedFixture fixture) : OwnedEntit
         public long Id { get; set; }
         public virtual Bar? Bar { get; set; }
     }
-#nullable disable
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take(bool async)

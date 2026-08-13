@@ -135,7 +135,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
             async,
             ss => ss.Set<Order>()
                 .GroupBy(o => o.EmployeeID)
-                .Select(g => new { g.Key, Londons = g.Count(o => o.Customer.City == "London") }),
+                .Select(g => new { g.Key, Londons = g.Count(o => o.Customer!.City == "London") }),
             elementSorter: e => e.Key.GetValueOrDefault());
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -148,7 +148,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
                 {
                     g.Key,
                     Total = g.Count(),
-                    Londons = g.Count(o => o.Customer.City == "London")
+                    Londons = g.Count(o => o.Customer!.City == "London")
                 }),
             elementSorter: e => e.Key.GetValueOrDefault());
 
@@ -159,7 +159,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
             ss => ss.Set<Order>()
                 .IgnoreQueryFilters()
                 .GroupBy(o => o.EmployeeID)
-                .Select(g => new { g.Key, Londons = g.Count(o => o.Customer.City == "London") }),
+                .Select(g => new { g.Key, Londons = g.Count(o => o.Customer!.City == "London") }),
             elementSorter: e => e.Key.GetValueOrDefault());
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -173,7 +173,7 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
         => AssertFilteredQuery(
             async,
             ss => ss.Set<Order>().Include(o => o.Customer),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(x => x.Customer)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(x => x.Customer!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Project_reference_that_itself_has_query_filter_with_another_reference(bool async)

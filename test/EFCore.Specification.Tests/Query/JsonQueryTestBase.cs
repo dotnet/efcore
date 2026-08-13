@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryFixtureBase, new()
 {
@@ -77,9 +75,9 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => new
                 {
                     Root1 = x.OwnedReferenceRoot,
-                    Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf,
                     Root2 = x.OwnedReferenceRoot,
-                    Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf,
                 }).AsNoTrackingWithIdentityResolution(),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -101,7 +99,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch).AsNoTrackingWithIdentityResolution());
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!).AsNoTrackingWithIdentityResolution());
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(bool async)
@@ -114,13 +112,13 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Basic_json_projection_owned_reference_leaf(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf).AsNoTracking());
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf).AsNoTracking());
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owned_collection_leaf(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf).AsNoTracking(),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -142,7 +140,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
                 x.Id,
-                x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
+                x.OwnedReferenceRoot.OwnedReferenceBranch!.Enum,
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -172,7 +170,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQueryScalar(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Fraction < 20.5M).Select(x => x.Id));
+                .Where(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.Fraction < 20.5M).Select(x => x.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_subquery_property_pushdown_length(bool async)
@@ -180,10 +178,10 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething)
+                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf.SomethingSomething)
                 .Take(3)
                 .Distinct()
-                .Select(x => x.Length));
+                .Select(x => x!.Length));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_subquery_reference_pushdown_reference(bool async)
@@ -194,7 +192,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => x.OwnedReferenceRoot)
                 .Take(10)
                 .Distinct()
-                .Select(x => x.OwnedReferenceBranch).AsNoTracking());
+                .Select(x => x.OwnedReferenceBranch!).AsNoTracking());
 
     [Theory(Skip = "issue #24263"), MemberData(nameof(IsAsyncData))]
     public virtual Task Json_subquery_reference_pushdown_reference_anonymous_projection(bool async)
@@ -205,12 +203,12 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => new
                 {
                     Entity = x.OwnedReferenceRoot,
-                    Scalar = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething
+                    Scalar = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf.SomethingSomething
                 })
                 .Take(10)
                 .Distinct()
-                .Select(x => new { x.Entity.OwnedReferenceBranch, x.Scalar.Length }).AsNoTracking(),
-            elementSorter: e => (e.OwnedReferenceBranch.Date, e.OwnedReferenceBranch.Fraction, e.Length),
+                .Select(x => new { x.Entity.OwnedReferenceBranch, x.Scalar!.Length }).AsNoTracking(),
+            elementSorter: e => (e.OwnedReferenceBranch!.Date, e.OwnedReferenceBranch!.Fraction, e.Length),
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch);
@@ -226,17 +224,17 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => new
                 {
                     Root = x.OwnedReferenceRoot,
-                    Scalar = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething
+                    Scalar = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf.SomethingSomething
                 })
                 .Take(10)
                 .Distinct()
-                .Select(x => new { Branch = x.Root.OwnedReferenceBranch, x.Scalar.Length })
+                .Select(x => new { Branch = x.Root.OwnedReferenceBranch, x.Scalar!.Length })
                 .OrderBy(x => x.Length)
                 .Take(10)
                 .Distinct()
                 .Select(x => new
                 {
-                    x.Branch.OwnedReferenceLeaf,
+                    x.Branch!.OwnedReferenceLeaf,
                     x.Branch.OwnedCollectionLeaf,
                     x.Length
                 })
@@ -262,7 +260,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => x.OwnedReferenceBranch)
                 .Take(10)
                 .Distinct()
-                .Select(x => x.OwnedReferenceLeaf).AsNoTracking());
+                .Select(x => x!.OwnedReferenceLeaf).AsNoTracking());
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_subquery_reference_pushdown_reference_pushdown_collection(bool async)
@@ -277,7 +275,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => x.OwnedReferenceBranch)
                 .Take(10)
                 .Distinct()
-                .Select(x => x.OwnedCollectionLeaf).AsNoTracking(),
+                .Select(x => x!.OwnedCollectionLeaf).AsNoTracking(),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -286,7 +284,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf)
+                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf)
                 .Take(10)
                 .Distinct()
                 .Select(x => x.SomethingSomething));
@@ -301,7 +299,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Custom_naming_projection_owned_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityCustomNaming>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch).AsNoTracking());
+            ss => ss.Set<JsonEntityCustomNaming>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!).AsNoTracking());
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Custom_naming_projection_owned_collection(bool async)
@@ -315,7 +313,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Custom_naming_projection_owned_scalar(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<JsonEntityCustomNaming>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Fraction));
+            ss => ss.Set<JsonEntityCustomNaming>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.Fraction));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Custom_naming_projection_everything(bool async)
@@ -329,7 +327,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 collection = x.OwnedCollectionRoot,
                 nested_collection = x.OwnedReferenceRoot.OwnedCollectionBranch,
                 scalar = x.OwnedReferenceRoot.Name,
-                nested_scalar = x.OwnedReferenceRoot.OwnedReferenceBranch.Fraction,
+                nested_scalar = x.OwnedReferenceRoot.OwnedReferenceBranch!.Fraction,
             }).AsNoTracking(),
             elementSorter: e => e.root.Id,
             elementAsserter: (e, a) =>
@@ -392,8 +390,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                        Id2 = (int?)e2.Id,
                        e2.OwnedReferenceRoot,
                        e2.OwnedReferenceRoot.OwnedReferenceBranch,
-                       e2.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
-                       e2.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
+                       e2.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf,
+                       e2.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf
                    }).AsNoTracking(),
             elementSorter: e => (e.Id1, e?.Id2),
             elementAsserter: (e, a) =>
@@ -434,8 +432,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                        Id2 = (int?)e2.Id,
                        e1.OwnedReferenceRoot,
                        e1.OwnedReferenceRoot.OwnedReferenceBranch,
-                       e1.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
-                       e1.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                       e1.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf,
+                       e1.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf,
                        e2.Name
                    }).AsNoTracking(),
             elementSorter: e => (e.Id1, e?.Id2),
@@ -459,7 +457,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => ss.Set<JsonEntityBasic>()
                     .OrderBy(xx => xx.Id)
                     .Select(xx => xx.OwnedReferenceRoot)
-                    .FirstOrDefault().OwnedReferenceBranch.Date));
+                    .FirstOrDefault()!.OwnedReferenceBranch!.Date));
 
     [Theory(Skip = "issue #28733"), MemberData(nameof(IsAsyncData))]
     public virtual Task Project_json_entity_FirstOrDefault_subquery_with_entity_comparison_on_top(bool async)
@@ -470,13 +468,13 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .Select(x => ss.Set<JsonEntityBasic>()
                         .OrderBy(xx => xx.Id)
                         .Select(xx => xx.OwnedReferenceRoot)
-                        .FirstOrDefault().OwnedReferenceBranch
+                        .FirstOrDefault()!.OwnedReferenceBranch
                     == ss.Set<JsonEntityBasic>()
                         .OrderByDescending(x => x.Id)
                         .Select(x => ss.Set<JsonEntityBasic>()
                             .OrderBy(xx => xx.Id)
                             .Select(xx => xx.OwnedReferenceRoot)
-                            .FirstOrDefault().OwnedReferenceBranch)));
+                            .FirstOrDefault()!.OwnedReferenceBranch)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_entity_with_inheritance_basic_projection(bool async)
@@ -505,7 +503,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             {
                 Assert.Equal(e.Id, a.Id);
                 AssertEqual(e.ReferenceOnBase, a.ReferenceOnBase);
-                AssertCollection(e.CollectionOnBase, a.CollectionOnBase, ordered: true);
+                AssertCollection(e.CollectionOnBase!, a.CollectionOnBase!, ordered: true);
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -526,15 +524,15 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 AssertEqual(e.Id, a.Id);
                 AssertEqual(e.ReferenceOnBase, a.ReferenceOnBase);
                 AssertEqual(e.ReferenceOnDerived, a.ReferenceOnDerived);
-                AssertCollection(e.CollectionOnBase, a.CollectionOnBase, ordered: true);
-                AssertCollection(e.CollectionOnDerived, a.CollectionOnDerived, ordered: true);
+                AssertCollection(e.CollectionOnBase!, a.CollectionOnBase!, ordered: true);
+                AssertCollection(e.CollectionOnDerived!, a.CollectionOnDerived!, ordered: true);
             });
 
     [Theory(Skip = "issue #28645"), MemberData(nameof(IsAsyncData))]
     public virtual Task Json_entity_backtracking(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.Parent.Date));
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf.Parent.Date));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_index_in_projection_basic(bool async)
@@ -552,7 +550,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Json_collection_ElementAtOrDefault_in_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot.AsQueryable().ElementAtOrDefault(1)).AsNoTracking());
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot.AsQueryable().ElementAtOrDefault(1)!).AsNoTracking());
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_index_in_projection_project_collection(bool async)
@@ -575,7 +573,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Select(x => x.OwnedCollectionRoot.AsQueryable().ElementAtOrDefault(1).OwnedCollectionBranch)
+                .Select(x => x.OwnedCollectionRoot.AsQueryable().ElementAtOrDefault(1)!.OwnedCollectionBranch)
                 .AsNoTracking(),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
@@ -608,7 +606,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf[MyMethod(x.Id)])
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedReferenceBranch!.OwnedCollectionLeaf[MyMethod(x.Id)])
                 .AsNoTracking());
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -616,14 +614,14 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[25]).AsNoTracking(),
-            ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedRoot)null));
+            ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedRoot)null!));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_index_outside_bounds2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[25]).AsNoTracking(),
-            ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedLeaf)null));
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[25]).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedLeaf)null!));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_index_outside_bounds_with_property_access(bool async)
@@ -1015,7 +1013,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
+                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf
                     .Where(xx => xx.SomethingSomething != "Baz").ToList())
                 .AsNoTracking(),
             assertOrder: true,
@@ -1029,7 +1027,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .OrderBy(x => x.Id)
                 .Select(x => new
                 {
-                    First = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
+                    First = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf
                         .Where(xx => xx.SomethingSomething != "Baz").ToList(),
                     Second = x.OwnedCollectionRoot.Distinct().ToList(),
                     Third = x.OwnedCollectionRoot
@@ -1073,7 +1071,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 .OrderBy(x => x.Id)
                 .Select(x => new
                 {
-                    First = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf.Distinct().ToList(),
+                    First = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf.Distinct().ToList(),
                     Second = x.EntityCollection.ToList()
                 })
                 .AsNoTracking(),
@@ -1089,33 +1087,33 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .SelectMany(x => x.OwnedReferenceRoot.Names));
+                .SelectMany(x => x.OwnedReferenceRoot.Names!));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_of_primitives_index_used_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names[0] == "e1_r1"));
+            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names![0] == "e1_r1"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_of_primitives_index_used_in_projection(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<JsonEntityBasic>().OrderBy(x => x.Id).Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Enums[0]),
+            ss => ss.Set<JsonEntityBasic>().OrderBy(x => x.Id).Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.Enums![0]),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_of_primitives_index_used_in_orderby(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().OrderBy(x => x.OwnedReferenceRoot.Numbers[0]),
+            ss => ss.Set<JsonEntityBasic>().OrderBy(x => x.OwnedReferenceRoot.Numbers![0]),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_of_primitives_contains_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names.Contains("e1_r1")),
+            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names!.Contains("e1_r1")),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1197,7 +1195,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 x.Id,
                 Duplicate1 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
                 Original = x.OwnedCollectionRoot[0],
-                Duplicate2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf
+                Duplicate2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch!.OwnedCollectionLeaf
             }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -1220,7 +1218,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 x.Id,
                 Duplicate1 = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
                 Original = x.OwnedReferenceRoot,
-                Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[prm]
+                Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[prm]
             }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -1419,7 +1417,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Select(x => new { x, CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1] })
+                .Select(x => new { x, CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[1] })
                 .AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
@@ -1433,7 +1431,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Select(x => new { x.Id, CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1] })
+                .Select(x => new { x.Id, CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[1] })
                 .AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -1527,7 +1525,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(x => x.OwnedReferenceRoot.Name != x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething)
+                .Where(x => x.OwnedReferenceRoot.Name != x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf.SomethingSomething)
                 .Select(x => x.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1570,7 +1568,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .GroupBy(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Enum)
+                .GroupBy(x => x.OwnedReferenceRoot.OwnedReferenceBranch!.Enum)
                 .Select(g => g.OrderBy(x => x.OwnedReferenceRoot.Number).FirstOrDefault()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1578,7 +1576,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQueryScalar(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.First().OwnedReferenceRoot.OwnedReferenceBranch.Enum));
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.First().OwnedReferenceRoot.OwnedReferenceBranch!.Enum));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_with_include_on_json_entity(bool async)
@@ -1662,7 +1660,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf, x.EntityCollection }).AsNoTracking(),
+                .Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf, x.EntityCollection }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.OwnedReferenceLeaf, a.OwnedReferenceLeaf);
@@ -1689,7 +1687,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                 Reference1 = x.OwnedReferenceRoot,
                 Reference2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
                 x.EntityCollection,
-                Reference3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch.OwnedReferenceLeaf,
+                Reference3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch!.OwnedReferenceLeaf,
                 Reference4 = x.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedReferenceLeaf,
             }).AsNoTracking(),
             elementAsserter: (e, a) =>
@@ -1706,7 +1704,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf, x.EntityCollection }).AsNoTracking(),
+                .Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf, x.EntityCollection }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e.OwnedCollectionLeaf, a.OwnedCollectionLeaf, ordered: true);
@@ -1747,11 +1745,11 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
-                Collection1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                Collection1 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf,
                 x.EntityReference,
-                Reference1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                Reference1 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedReferenceLeaf,
                 x.EntityCollection,
-                Reference2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[0],
+                Reference2 = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[0],
                 Collection2 = x.OwnedReferenceRoot.OwnedCollectionBranch,
                 Collection3 = x.OwnedCollectionRoot,
                 Reference3 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
@@ -1781,9 +1779,9 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
     public virtual Task Json_all_types_projection_from_owned_entity_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference).AsNoTracking(),
-            elementSorter: e => e.TestInt32,
-            elementAsserter: (e, a) => AssertEqual(e, a));
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference!).AsNoTracking(),
+            elementSorter: e => e!.TestInt32,
+            elementAsserter: (e, a) => AssertEqual(e!, a!));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_all_types_projection_individual_properties(bool async)
@@ -1791,254 +1789,254 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             async,
             ss => ss.Set<JsonEntityAllTypes>().Select(x => new
             {
-                x.Reference.TestDefaultString,
-                x.Reference.TestMaxLengthString,
-                x.Reference.TestBoolean,
-                x.Reference.TestByte,
-                x.Reference.TestCharacter,
-                x.Reference.TestDateTime,
-                x.Reference.TestDateTimeOffset,
-                x.Reference.TestDecimal,
-                x.Reference.TestDouble,
-                x.Reference.TestGuid,
-                x.Reference.TestInt16,
-                x.Reference.TestInt32,
-                x.Reference.TestInt64,
-                x.Reference.TestSignedByte,
-                x.Reference.TestSingle,
-                x.Reference.TestTimeSpan,
-                x.Reference.TestDateOnly,
-                x.Reference.TestTimeOnly,
-                x.Reference.TestUnsignedInt16,
-                x.Reference.TestUnsignedInt32,
-                x.Reference.TestUnsignedInt64,
-                x.Reference.TestEnum,
-                x.Reference.TestEnumWithIntConverter,
-                x.Reference.TestNullableEnum,
-                x.Reference.TestNullableEnumWithIntConverter,
-                x.Reference.TestNullableEnumWithConverterThatHandlesNulls,
+                x.Reference!.TestDefaultString,
+                x.Reference!.TestMaxLengthString,
+                x.Reference!.TestBoolean,
+                x.Reference!.TestByte,
+                x.Reference!.TestCharacter,
+                x.Reference!.TestDateTime,
+                x.Reference!.TestDateTimeOffset,
+                x.Reference!.TestDecimal,
+                x.Reference!.TestDouble,
+                x.Reference!.TestGuid,
+                x.Reference!.TestInt16,
+                x.Reference!.TestInt32,
+                x.Reference!.TestInt64,
+                x.Reference!.TestSignedByte,
+                x.Reference!.TestSingle,
+                x.Reference!.TestTimeSpan,
+                x.Reference!.TestDateOnly,
+                x.Reference!.TestTimeOnly,
+                x.Reference!.TestUnsignedInt16,
+                x.Reference!.TestUnsignedInt32,
+                x.Reference!.TestUnsignedInt64,
+                x.Reference!.TestEnum,
+                x.Reference!.TestEnumWithIntConverter,
+                x.Reference!.TestNullableEnum,
+                x.Reference!.TestNullableEnumWithIntConverter,
+                x.Reference!.TestNullableEnumWithConverterThatHandlesNulls,
             }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_boolean_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestBoolean));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestBoolean));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_boolean_predicate_negated(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference.TestBoolean),
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference!.TestBoolean),
             assertEmpty: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_boolean_projection(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference.TestBoolean));
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference!.TestBoolean));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_boolean_projection_negated(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Select(x => !x.Reference.TestBoolean));
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => !x.Reference!.TestBoolean));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_default_string(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDefaultString != "MyDefaultStringInReference1"));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestDefaultString != "MyDefaultStringInReference1"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_max_length_string(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestMaxLengthString != "Foo"));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestMaxLengthString != "Foo"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_string_condition(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityAllTypes>().Where(x
-                => (!x.Reference.TestBoolean ? x.Reference.TestMaxLengthString : x.Reference.TestDefaultString)
+                => (!x.Reference!.TestBoolean ? x.Reference!.TestMaxLengthString : x.Reference!.TestDefaultString)
                 == "MyDefaultStringInReference1"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_byte(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestByte != 3));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestByte != 3));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_byte_array(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestByteArray != new byte[] { 1, 2, 3 }),
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference.TestByteArray.SequenceEqual(new byte[] { 1, 2, 3 })));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestByteArray != new byte[] { 1, 2, 3 }),
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference!.TestByteArray.SequenceEqual(new byte[] { 1, 2, 3 })));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_character(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestCharacter != 'z'));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestCharacter != 'z'));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_datetime(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateTime != new DateTime(2000, 1, 3)));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestDateTime != new DateTime(2000, 1, 3)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_datetimeoffset(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityAllTypes>().Where(x
-                => x.Reference.TestDateTimeOffset != new DateTimeOffset(new DateTime(2000, 1, 4), new TimeSpan(3, 2, 0))));
+                => x.Reference!.TestDateTimeOffset != new DateTimeOffset(new DateTime(2000, 1, 4), new TimeSpan(3, 2, 0))));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_decimal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDecimal != 1.35M));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestDecimal != 1.35M));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_double(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDouble != 33.25));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestDouble != 33.25));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_guid(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestGuid != new Guid()));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestGuid != new Guid()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int16(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt16 != 3));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestInt16 != 3));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int32(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt32 != 33));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestInt32 != 33));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int64(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt64 != 333));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestInt64 != 333));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_signedbyte(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestSignedByte != 100));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestSignedByte != 100));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_single(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestSingle != 10.4f));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestSingle != 10.4f));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_timespan(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeSpan != new TimeSpan(3, 2, 0)));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestTimeSpan != new TimeSpan(3, 2, 0)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_dateonly(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateOnly != new DateOnly(3, 2, 1)));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestDateOnly != new DateOnly(3, 2, 1)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_timeonly(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeOnly != new TimeOnly(3, 2, 0)));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestTimeOnly != new TimeOnly(3, 2, 0)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_unisgnedint16(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt16 != 100));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestUnsignedInt16 != 100));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_unsignedint32(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt32 != 1000));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestUnsignedInt32 != 1000));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_unsignedint64(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt64 != 10000));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestUnsignedInt64 != 10000));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_enum(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestEnum != JsonEnum.Two));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestEnum != JsonEnum.Two));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_enumwithintconverter(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestEnumWithIntConverter != JsonEnum.Three));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestEnumWithIntConverter != JsonEnum.Three));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenum1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnum != JsonEnum.One));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableEnum != JsonEnum.One));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenum2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnum != null));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableEnum != null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverterthathandlesnulls1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithConverterThatHandlesNulls != JsonEnum.One));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableEnumWithConverterThatHandlesNulls != JsonEnum.One));
 
     [Theory(Skip = "issue #29416"), MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverterthathandlesnulls2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithConverterThatHandlesNulls != null));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableEnumWithConverterThatHandlesNulls != null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverter1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithIntConverter != JsonEnum.Two));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableEnumWithIntConverter != JsonEnum.Two));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverter2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithIntConverter != null));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableEnumWithIntConverter != null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableint321(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableInt32 != 100));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableInt32 != 100));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableint322(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableInt32 != null));
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference!.TestNullableInt32 != null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_int_zero_one(bool async)
@@ -2350,8 +2348,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             ss => ss.Set<JsonEntityBasic>().Select(x => new
             {
                 x.Id,
-                Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1],
-                Original = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf[1],
+                Original = x.OwnedReferenceRoot.OwnedReferenceBranch!.OwnedCollectionLeaf,
                 Parent = x.OwnedReferenceRoot.OwnedReferenceBranch,
                 Owner = x
             }).AsNoTrackingWithIdentityResolution(),
@@ -2413,14 +2411,14 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var topLevel = result.Single(x => x.Id == 2);
         var nested = result.Single(x => x.Id == 3);
 
-        Assert.Equal(default, topLevel.OptionalReference.Number);
+        Assert.Equal(default, topLevel.OptionalReference!.Number);
         Assert.Equal(default, topLevel.RequiredReference.Number);
         Assert.True(topLevel.Collection.All(x => x.Number == default));
 
         Assert.Equal(default, nested.RequiredReference.NestedRequiredReference.DoB);
-        Assert.Equal(default, nested.RequiredReference.NestedOptionalReference.DoB);
-        Assert.Equal(default, nested.OptionalReference.NestedRequiredReference.DoB);
-        Assert.Equal(default, nested.OptionalReference.NestedOptionalReference.DoB);
+        Assert.Equal(default, nested.RequiredReference.NestedOptionalReference!.DoB);
+        Assert.Equal(default, nested.OptionalReference!.NestedRequiredReference.DoB);
+        Assert.Equal(default, nested.OptionalReference.NestedOptionalReference!.DoB);
         Assert.True(nested.Collection.SelectMany(x => x.NestedCollection).All(x => x.DoB == default));
     }
 
@@ -2449,14 +2447,14 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var topLevel = result.Single(x => x.Id == 2);
         var nested = result.Single(x => x.Id == 3);
 
-        Assert.Equal(default, topLevel.OptionalReference.Number);
+        Assert.Equal(default, topLevel.OptionalReference!.Number);
         Assert.Equal(default, topLevel.RequiredReference.Number);
         Assert.True(topLevel.Collection.All(x => x.Number == default));
 
         Assert.Equal(default, nested.RequiredReference.NestedRequiredReference.DoB);
-        Assert.Equal(default, nested.RequiredReference.NestedOptionalReference.DoB);
-        Assert.Equal(default, nested.OptionalReference.NestedRequiredReference.DoB);
-        Assert.Equal(default, nested.OptionalReference.NestedOptionalReference.DoB);
+        Assert.Equal(default, nested.RequiredReference.NestedOptionalReference!.DoB);
+        Assert.Equal(default, nested.OptionalReference!.NestedRequiredReference.DoB);
+        Assert.Equal(default, nested.OptionalReference.NestedOptionalReference!.DoB);
         Assert.True(nested.Collection.SelectMany(x => x.NestedCollection).All(x => x.DoB == default));
     }
 
@@ -2473,7 +2471,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var query = context.Set<Context21006.Entity>().Where(x => x.Id < 4).Select(x => new
         {
             x.Id,
-            x.OptionalReference.NestedOptionalReference,
+            NestedOptionalReference = x.OptionalReference!.NestedOptionalReference,
             x.RequiredReference.NestedRequiredReference,
             x.Collection[0].NestedCollection
         }).AsNoTracking();
@@ -2485,7 +2483,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var topLevel = result.Single(x => x.Id == 2);
         var nested = result.Single(x => x.Id == 3);
 
-        Assert.Equal(default, nested.NestedOptionalReference.DoB);
+        Assert.Equal(default, nested.NestedOptionalReference!.DoB);
         Assert.Equal(default, nested.NestedRequiredReference.DoB);
         Assert.True(nested.NestedCollection.All(x => x.DoB == default));
     }
@@ -2534,7 +2532,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var missingRequiredNav = result.Single();
 
         Assert.Equal(default, missingRequiredNav.RequiredReference.NestedRequiredReference);
-        Assert.Equal(default, missingRequiredNav.OptionalReference.NestedRequiredReference);
+        Assert.Equal(default, missingRequiredNav.OptionalReference!.NestedRequiredReference);
         Assert.True(missingRequiredNav.Collection.All(x => x.NestedRequiredReference == default));
     }
 
@@ -2579,7 +2577,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var nullRequiredNav = result.Single();
 
         Assert.Equal(default, nullRequiredNav.RequiredReference.NestedRequiredReference);
-        Assert.Equal(default, nullRequiredNav.OptionalReference.NestedRequiredReference);
+        Assert.Equal(default, nullRequiredNav.OptionalReference!.NestedRequiredReference);
         Assert.True(nullRequiredNav.Collection.All(x => x.NestedRequiredReference == default));
     }
 
@@ -2748,31 +2746,32 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     protected class Context21006(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public JsonEntity OptionalReference { get; set; }
-            public JsonEntity RequiredReference { get; set; }
-            public List<JsonEntity> Collection { get; set; }
+            public string Name { get; set; } = null!;
+            public JsonEntity? OptionalReference { get; set; }
+            public JsonEntity RequiredReference { get; set; } = null!;
+            public List<JsonEntity> Collection { get; set; } = [];
         }
 
         public class JsonEntity
         {
-            public string Text { get; set; }
+            public string Text { get; set; } = null!;
             public double Number { get; set; }
 
-            public JsonEntityNested NestedOptionalReference { get; set; }
-            public JsonEntityNested NestedRequiredReference { get; set; }
-            public List<JsonEntityNested> NestedCollection { get; set; }
+            public JsonEntityNested? NestedOptionalReference { get; set; }
+            public JsonEntityNested NestedRequiredReference { get; set; } = null!;
+            public List<JsonEntityNested> NestedCollection { get; set; } = [];
         }
 
         public class JsonEntityNested
         {
             public DateTime DoB { get; set; }
-            public string Text { get; set; }
+            public string Text { get; set; } = null!;
         }
     }
 
@@ -2854,8 +2853,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
-            public List<MyJsonEntity> Collection { get; set; }
+            public MyJsonEntity Reference { get; set; } = null!;
+            public List<MyJsonEntity> Collection { get; set; } = [];
         }
 
         public class MyJsonEntity
@@ -2912,8 +2911,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             x.Json,
             x.Json.OptionalReference,
             x.Json.RequiredReference,
-            NestedOptional = x.Json.OptionalReference.Nested,
-            NestedRequired = x.Json.RequiredReference.Nested,
+            NestedOptional = x.Json.OptionalReference!.Nested,
+            NestedRequired = x.Json.RequiredReference!.Nested,
             x.Json.Collection,
         }).AsNoTracking();
 
@@ -2955,7 +2954,6 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
                     nb.OwnsMany(x => x.Collection, nnb => nnb.OwnsOne(x => x.Nested));
                     nb.OwnsOne(x => x.OptionalReference, nnb => nnb.OwnsOne(x => x.Nested));
                     nb.OwnsOne(x => x.RequiredReference, nnb => nnb.OwnsOne(x => x.Nested));
-                    nb.Navigation(x => x.RequiredReference).IsRequired();
                 });
         });
 
@@ -2966,26 +2964,26 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonRootEntity Json { get; set; }
+            public MyJsonRootEntity Json { get; set; } = null!;
         }
 
         public class MyJsonRootEntity
         {
-            public string RootName { get; set; }
-            public MyJsonBranchEntity RequiredReference { get; set; }
-            public MyJsonBranchEntity OptionalReference { get; set; }
-            public List<MyJsonBranchEntity> Collection { get; set; }
+            public string RootName { get; set; } = null!;
+            public MyJsonBranchEntity? RequiredReference { get; set; }
+            public MyJsonBranchEntity? OptionalReference { get; set; }
+            public List<MyJsonBranchEntity>? Collection { get; set; }
         }
 
         public class MyJsonBranchEntity
         {
-            public string BranchName { get; set; }
-            public MyJsonLeafEntity Nested { get; set; }
+            public string BranchName { get; set; } = null!;
+            public MyJsonLeafEntity Nested { get; set; } = null!;
         }
 
         public class MyJsonLeafEntity
         {
-            public string LeafName { get; set; }
+            public string LeafName { get; set; } = null!;
         }
     }
 
@@ -3008,7 +3006,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
         var result = await query.FirstOrDefaultAsync();
 
-        Assert.Equal("FBI", result.Name);
+        Assert.Equal("FBI", result!.Name);
         Assert.Equal(new DateOnly(2023, 1, 1), result.Visits.DaysVisited.Single());
     }
 
@@ -3038,7 +3036,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
         public class Visits
         {
-            public string LocationTag { get; set; }
+            public string LocationTag { get; set; } = null!;
             public required List<DateOnly> DaysVisited { get; init; }
         }
     }
@@ -3079,8 +3077,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class Entity
         {
             public int Id { get; set; }
-            public JsonEmpty Empty { get; set; }
-            public JsonFieldOnly FieldOnly { get; set; }
+            public JsonEmpty Empty { get; set; } = null!;
+            public JsonFieldOnly FieldOnly { get; set; } = null!;
         }
 
         public class JsonEmpty
@@ -3186,36 +3184,39 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     protected class Context34960(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
-        public DbSet<JunkEntity> Junk { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
+
+        public DbSet<JunkEntity> Junk
+            => Set<JunkEntity>();
 
         public class Entity
         {
             public int Id { get; set; }
-            public JsonEntity Reference { get; set; }
-            public List<JsonEntity> Collection { get; set; }
+            public JsonEntity? Reference { get; set; }
+            public List<JsonEntity>? Collection { get; set; }
         }
 
         public class JsonEntity
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public double Number { get; set; }
 
-            public JsonEntityNested NestedReference { get; set; }
-            public List<JsonEntityNested> NestedCollection { get; set; }
+            public JsonEntityNested? NestedReference { get; set; }
+            public List<JsonEntityNested>? NestedCollection { get; set; }
         }
 
         public class JsonEntityNested
         {
             public DateTime DoB { get; set; }
-            public string Text { get; set; }
+            public string? Text { get; set; }
         }
 
         public class JunkEntity
         {
             public int Id { get; set; }
-            public JsonEntity Reference { get; set; }
-            public List<JsonEntity> Collection { get; set; }
+            public JsonEntity? Reference { get; set; }
+            public List<JsonEntity>? Collection { get; set; }
         }
     }
 
@@ -3517,14 +3518,14 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
-            public List<MyJsonEntity> Collection { get; set; }
+            public MyJsonEntity Reference { get; set; } = null!;
+            public List<MyJsonEntity> Collection { get; set; } = [];
         }
 
         public class MyJsonEntity
         {
-            public int[] IntArray { get; set; }
-            public List<string> ListOfString { get; set; }
+            public int[] IntArray { get; set; } = [];
+            public List<string> ListOfString { get; set; } = [];
         }
     }
 
@@ -3615,19 +3616,19 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
-            public MyJsonEntityWithCtor ReferenceWithCtor { get; set; }
-            public List<MyJsonEntity> Collection { get; set; }
-            public List<MyJsonEntityWithCtor> CollectionWithCtor { get; set; }
+            public MyJsonEntity Reference { get; set; } = null!;
+            public MyJsonEntityWithCtor ReferenceWithCtor { get; set; } = null!;
+            public List<MyJsonEntity> Collection { get; set; } = [];
+            public List<MyJsonEntityWithCtor> CollectionWithCtor { get; set; } = [];
         }
 
         public class MyJsonEntity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public double Number { get; set; }
 
-            public MyJsonEntityNested NestedReference { get; set; }
-            public List<MyJsonEntityNested> NestedCollection { get; set; }
+            public MyJsonEntityNested NestedReference { get; set; } = null!;
+            public List<MyJsonEntityNested> NestedCollection { get; set; } = [];
         }
 
         public class MyJsonEntityNested
@@ -3640,8 +3641,8 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
             public bool MyBool { get; set; } = myBool;
             public string Name { get; set; } = name;
 
-            public MyJsonEntityWithCtorNested NestedReference { get; set; }
-            public List<MyJsonEntityWithCtorNested> NestedCollection { get; set; }
+            public MyJsonEntityWithCtorNested NestedReference { get; set; } = null!;
+            public List<MyJsonEntityWithCtorNested> NestedCollection { get; set; } = [];
         }
 
         public class MyJsonEntityWithCtorNested(DateTime doB)
@@ -3692,15 +3693,15 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public MyJsonEntity Reference { get; set; }
+            public MyJsonEntity Reference { get; set; } = null!;
         }
 
         public class MyJsonEntity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int Number { get; set; }
-            public MyJsonEntityNested NestedReference { get; set; }
-            public List<MyJsonEntityNested> NestedCollection { get; set; }
+            public MyJsonEntityNested NestedReference { get; set; } = null!;
+            public List<MyJsonEntityNested> NestedCollection { get; set; } = [];
         }
 
         public class MyJsonEntityNested
@@ -3814,17 +3815,17 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public MyJsonEntity Reference { get; set; }
-            public List<MyJsonEntity> Collection { get; set; }
-            public MyJsonEntityWithCtor ReferenceWithCtor { get; set; }
-            public List<MyJsonEntityWithCtor> CollectionWithCtor { get; set; }
+            public MyJsonEntity Reference { get; set; } = null!;
+            public List<MyJsonEntity> Collection { get; set; } = [];
+            public MyJsonEntityWithCtor ReferenceWithCtor { get; set; } = null!;
+            public List<MyJsonEntityWithCtor> CollectionWithCtor { get; set; } = [];
         }
 
         public class MyJsonEntity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class MyJsonEntityWithCtor(string name)
@@ -3966,10 +3967,10 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         public class MyEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public virtual MyJsonEntityWithCtor Reference { get; set; }
-            public virtual List<MyJsonEntity> Collection { get; set; }
+            public virtual MyJsonEntityWithCtor Reference { get; set; } = null!;
+            public virtual List<MyJsonEntity> Collection { get; set; } = [];
         }
 
         public class MyJsonEntityWithCtor(string name, int number)
@@ -3980,9 +3981,9 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
         public class MyJsonEntity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public int Number { get; set; }
-            public IList<long> Ints { get; set; }
+            public IList<long> Ints { get; set; } = [];
         }
     }
 
@@ -4021,7 +4022,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         {
             public int Id { get; set; }
 
-            public MyJsonEntity Json { get; set; }
+            public MyJsonEntity Json { get; set; } = null!;
         }
 
         public class MyJsonEntity
@@ -4034,7 +4035,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
         public class MyJsonNestedEntity
         {
-            public string Foo { get; set; }
+            public string Foo { get; set; } = null!;
             public int Bar { get; set; }
         }
     }
@@ -4057,22 +4058,22 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var dupNavs = await query.SingleAsync(x => x.Scenario == "duplicated navigations");
 
         // for no tracking, last one wins
-        Assert.Equal(baseline.RequiredReference.NestedOptional.Text + " dupnav", dupNavs.RequiredReference.NestedOptional.Text);
+        Assert.Equal(baseline.RequiredReference.NestedOptional!.Text + " dupnav", dupNavs.RequiredReference.NestedOptional!.Text);
         Assert.Equal(baseline.RequiredReference.NestedRequired.Text + " dupnav", dupNavs.RequiredReference.NestedRequired.Text);
         Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text + " dupnav", dupNavs.RequiredReference.NestedCollection[0].Text);
         Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text + " dupnav", dupNavs.RequiredReference.NestedCollection[1].Text);
 
-        Assert.Equal(baseline.OptionalReference.NestedOptional.Text + " dupnav", dupNavs.OptionalReference.NestedOptional.Text);
+        Assert.Equal(baseline.OptionalReference!.NestedOptional!.Text + " dupnav", dupNavs.OptionalReference!.NestedOptional!.Text);
         Assert.Equal(baseline.OptionalReference.NestedRequired.Text + " dupnav", dupNavs.OptionalReference.NestedRequired.Text);
         Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text + " dupnav", dupNavs.OptionalReference.NestedCollection[0].Text);
         Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text + " dupnav", dupNavs.OptionalReference.NestedCollection[1].Text);
 
-        Assert.Equal(baseline.Collection[0].NestedOptional.Text + " dupnav", dupNavs.Collection[0].NestedOptional.Text);
+        Assert.Equal(baseline.Collection[0].NestedOptional!.Text + " dupnav", dupNavs.Collection[0].NestedOptional!.Text);
         Assert.Equal(baseline.Collection[0].NestedRequired.Text + " dupnav", dupNavs.Collection[0].NestedRequired.Text);
         Assert.Equal(baseline.Collection[0].NestedCollection[0].Text + " dupnav", dupNavs.Collection[0].NestedCollection[0].Text);
         Assert.Equal(baseline.Collection[0].NestedCollection[1].Text + " dupnav", dupNavs.Collection[0].NestedCollection[1].Text);
 
-        Assert.Equal(baseline.Collection[1].NestedOptional.Text + " dupnav", dupNavs.Collection[1].NestedOptional.Text);
+        Assert.Equal(baseline.Collection[1].NestedOptional!.Text + " dupnav", dupNavs.Collection[1].NestedOptional!.Text);
         Assert.Equal(baseline.Collection[1].NestedRequired.Text + " dupnav", dupNavs.Collection[1].NestedRequired.Text);
         Assert.Equal(baseline.Collection[1].NestedCollection[0].Text + " dupnav", dupNavs.Collection[1].NestedCollection[0].Text);
         Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupnav", dupNavs.Collection[1].NestedCollection[1].Text);
@@ -4092,22 +4093,22 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var baseline = await query.SingleAsync(x => x.Scenario == "baseline");
         var dupProps = await query.SingleAsync(x => x.Scenario == "duplicated scalars");
 
-        Assert.Equal(baseline.RequiredReference.NestedOptional.Text + " dupprop", dupProps.RequiredReference.NestedOptional.Text);
+        Assert.Equal(baseline.RequiredReference.NestedOptional!.Text + " dupprop", dupProps.RequiredReference.NestedOptional!.Text);
         Assert.Equal(baseline.RequiredReference.NestedRequired.Text + " dupprop", dupProps.RequiredReference.NestedRequired.Text);
         Assert.Equal(baseline.RequiredReference.NestedCollection[0].Text + " dupprop", dupProps.RequiredReference.NestedCollection[0].Text);
         Assert.Equal(baseline.RequiredReference.NestedCollection[1].Text + " dupprop", dupProps.RequiredReference.NestedCollection[1].Text);
 
-        Assert.Equal(baseline.OptionalReference.NestedOptional.Text + " dupprop", dupProps.OptionalReference.NestedOptional.Text);
+        Assert.Equal(baseline.OptionalReference!.NestedOptional!.Text + " dupprop", dupProps.OptionalReference!.NestedOptional!.Text);
         Assert.Equal(baseline.OptionalReference.NestedRequired.Text + " dupprop", dupProps.OptionalReference.NestedRequired.Text);
         Assert.Equal(baseline.OptionalReference.NestedCollection[0].Text + " dupprop", dupProps.OptionalReference.NestedCollection[0].Text);
         Assert.Equal(baseline.OptionalReference.NestedCollection[1].Text + " dupprop", dupProps.OptionalReference.NestedCollection[1].Text);
 
-        Assert.Equal(baseline.Collection[0].NestedOptional.Text + " dupprop", dupProps.Collection[0].NestedOptional.Text);
+        Assert.Equal(baseline.Collection[0].NestedOptional!.Text + " dupprop", dupProps.Collection[0].NestedOptional!.Text);
         Assert.Equal(baseline.Collection[0].NestedRequired.Text + " dupprop", dupProps.Collection[0].NestedRequired.Text);
         Assert.Equal(baseline.Collection[0].NestedCollection[0].Text + " dupprop", dupProps.Collection[0].NestedCollection[0].Text);
         Assert.Equal(baseline.Collection[0].NestedCollection[1].Text + " dupprop", dupProps.Collection[0].NestedCollection[1].Text);
 
-        Assert.Equal(baseline.Collection[1].NestedOptional.Text + " dupprop", dupProps.Collection[1].NestedOptional.Text);
+        Assert.Equal(baseline.Collection[1].NestedOptional!.Text + " dupprop", dupProps.Collection[1].NestedOptional!.Text);
         Assert.Equal(baseline.Collection[1].NestedRequired.Text + " dupprop", dupProps.Collection[1].NestedRequired.Text);
         Assert.Equal(baseline.Collection[1].NestedCollection[0].Text + " dupprop", dupProps.Collection[1].NestedCollection[0].Text);
         Assert.Equal(baseline.Collection[1].NestedCollection[1].Text + " dupprop", dupProps.Collection[1].NestedCollection[1].Text);
@@ -4129,7 +4130,7 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         Assert.Null(emptyNavs.RequiredReference.NestedRequired);
         Assert.Null(emptyNavs.RequiredReference.NestedCollection);
 
-        Assert.Null(emptyNavs.OptionalReference.NestedOptional);
+        Assert.Null(emptyNavs.OptionalReference!.NestedOptional);
         Assert.Null(emptyNavs.OptionalReference.NestedRequired);
         Assert.Null(emptyNavs.OptionalReference.NestedCollection);
 
@@ -4154,22 +4155,22 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
         var query = noTracking ? context.Entities.AsNoTracking() : context.Entities;
         var emptyNavs = await query.SingleAsync(x => x.Scenario == "empty scalar property names");
 
-        Assert.Null(emptyNavs.RequiredReference.NestedOptional.Text);
+        Assert.Null(emptyNavs.RequiredReference.NestedOptional!.Text);
         Assert.Null(emptyNavs.RequiredReference.NestedRequired.Text);
         Assert.Null(emptyNavs.RequiredReference.NestedCollection[0].Text);
         Assert.Null(emptyNavs.RequiredReference.NestedCollection[1].Text);
 
-        Assert.Null(emptyNavs.OptionalReference.NestedOptional.Text);
+        Assert.Null(emptyNavs.OptionalReference!.NestedOptional!.Text);
         Assert.Null(emptyNavs.OptionalReference.NestedRequired.Text);
         Assert.Null(emptyNavs.OptionalReference.NestedCollection[0].Text);
         Assert.Null(emptyNavs.OptionalReference.NestedCollection[1].Text);
 
-        Assert.Null(emptyNavs.Collection[0].NestedOptional.Text);
+        Assert.Null(emptyNavs.Collection[0].NestedOptional!.Text);
         Assert.Null(emptyNavs.Collection[0].NestedRequired.Text);
         Assert.Null(emptyNavs.Collection[0].NestedCollection[0].Text);
         Assert.Null(emptyNavs.Collection[0].NestedCollection[1].Text);
 
-        Assert.Null(emptyNavs.Collection[1].NestedOptional.Text);
+        Assert.Null(emptyNavs.Collection[1].NestedOptional!.Text);
         Assert.Null(emptyNavs.Collection[1].NestedRequired.Text);
         Assert.Null(emptyNavs.Collection[1].NestedCollection[0].Text);
         Assert.Null(emptyNavs.Collection[1].NestedCollection[1].Text);
@@ -4235,27 +4236,28 @@ public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestB
 
     protected class ContextBadJsonProperties(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
             public int Id { get; set; }
-            public string Scenario { get; set; }
-            public JsonRoot OptionalReference { get; set; }
-            public JsonRoot RequiredReference { get; set; }
-            public List<JsonRoot> Collection { get; set; }
+            public string Scenario { get; set; } = null!;
+            public JsonRoot? OptionalReference { get; set; }
+            public JsonRoot RequiredReference { get; set; } = null!;
+            public List<JsonRoot> Collection { get; set; } = [];
         }
 
         public class JsonRoot
         {
-            public JsonBranch NestedRequired { get; set; }
-            public JsonBranch NestedOptional { get; set; }
-            public List<JsonBranch> NestedCollection { get; set; }
+            public JsonBranch NestedRequired { get; set; } = null!;
+            public JsonBranch? NestedOptional { get; set; }
+            public List<JsonBranch> NestedCollection { get; set; } = [];
         }
 
         public class JsonBranch
         {
-            public string Text { get; set; }
+            public string Text { get; set; } = null!;
         }
     }
 

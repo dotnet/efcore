@@ -78,7 +78,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
                     context.Entry(car).Reference(e => e.Owner).Load();
                 }
 
-                Assert.Equal(car.Owner.Id, car.OwnerId);
+                Assert.Equal(car.Owner!.Id, car.OwnerId);
                 Assert.Same(car, car.Owner.Vehicles.Single());
                 return Task.CompletedTask;
             });
@@ -215,11 +215,11 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
 
                 if (nullPrincipal)
                 {
-                    dependent.Parent = null;
+                    dependent.Parent = null!;
                 }
                 else
                 {
-                    parent.Dependant = null;
+                    parent.Dependant = null!;
                 }
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
@@ -288,7 +288,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
 
         var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
 
-        existing.Parent = null;
+        existing.Parent = null!;
         existing.ParentId = null;
         ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
 

@@ -84,7 +84,7 @@ public class UnconstrainedForeignKeyFixupTest
         // The FK is non-nullable, so severing the required relationship produces a conceptual null.
         // The default (Cascade) delete behavior resolves it by deleting the dependent — identical to a
         // constrained required relationship (Decision 2: fixup behaves the same regardless of IsConstrained).
-        dependent.Principal = null;
+        dependent.Principal = null!;
         context.ChangeTracker.DetectChanges();
 
         Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
@@ -122,7 +122,7 @@ public class UnconstrainedForeignKeyFixupTest
     {
         public int Id { get; set; }
         public int? PrincipalId { get; set; }
-        public Principal Principal { get; set; }
+        public Principal? Principal { get; set; }
     }
 
     private class RequiredTestContext(DbContextOptions options) : DbContext(options)
@@ -143,6 +143,6 @@ public class UnconstrainedForeignKeyFixupTest
     {
         public int Id { get; set; }
         public int PrincipalId { get; set; }
-        public RequiredPrincipal Principal { get; set; }
+        public RequiredPrincipal Principal { get; set; } = null!;
     }
 }

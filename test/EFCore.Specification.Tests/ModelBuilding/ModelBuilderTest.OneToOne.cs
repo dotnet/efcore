@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-#nullable disable
-
 public abstract partial class ModelBuilderTest
 {
     public abstract class OneToOneTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
@@ -26,10 +24,10 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
-            var fk = dependentType.GetForeignKeys().Single();
+            var fk = dependentType!.GetForeignKeys().Single();
 
             var navToPrincipal = dependentType.FindNavigation(nameof(CustomerDetails.Customer));
-            var navToDependent = principalType.FindNavigation(nameof(Customer.Details));
+            var navToDependent = principalType!.FindNavigation(nameof(Customer.Details));
 
             var principalKey = principalType.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
@@ -75,10 +73,10 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(DependentWithField));
             var principalType = model.FindEntityType(typeof(OneToOnePrincipalWithField));
-            var fk = dependentType.GetForeignKeys().Single();
+            var fk = dependentType!.GetForeignKeys().Single();
 
             var navToPrincipal = dependentType.FindNavigation("OneToOnePrincipal");
-            var navToDependent = principalType.FindNavigation("Dependent");
+            var navToDependent = principalType!.FindNavigation("Dependent");
 
             var principalKey = principalType.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
@@ -111,7 +109,7 @@ public abstract partial class ModelBuilderTest
                 .HasPrincipalKey<Order>(e => e.OrderId)
                 .HasForeignKey<CustomerDetails>(c => c.Id);
 
-            var foreignKeys = model.FindEntityType(typeof(CustomerDetails)).GetForeignKeys()
+            var foreignKeys = model.FindEntityType(typeof(CustomerDetails))!.GetForeignKeys()
                 .Where(fk => fk.Properties.Single().Name == nameof(CustomerDetails.Id)).ToList();
 
             Assert.Equal(2, foreignKeys.Count);
@@ -119,8 +117,8 @@ public abstract partial class ModelBuilderTest
             var orderFk = foreignKeys.Single(fk => fk.PrincipalEntityType.ClrType == typeof(Order));
             var dependentType = customerFk.DeclaringEntityType;
             var principalType = customerFk.PrincipalEntityType;
-            Assert.Equal(nameof(CustomerDetails.Customer), customerFk.DependentToPrincipal.Name);
-            Assert.Equal(nameof(Customer.Details), customerFk.PrincipalToDependent.Name);
+            Assert.Equal(nameof(CustomerDetails.Customer), customerFk.DependentToPrincipal!.Name);
+            Assert.Equal(nameof(Customer.Details), customerFk.PrincipalToDependent!.Name);
             Assert.Null(orderFk.DependentToPrincipal);
             Assert.Null(orderFk.PrincipalToDependent);
             Assert.Empty(dependentType.GetIndexes());
@@ -138,8 +136,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder.Entity<Customer>().HasOne(e => e.Details).WithOne(e => e.Customer);
 
@@ -174,8 +172,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder.Entity<Customer>().HasOne(e => e.Details).WithOne(e => e.Customer);
 
@@ -201,8 +199,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -223,7 +221,7 @@ public abstract partial class ModelBuilderTest
             if (Fixture.ForeignKeysHaveIndexes)
             {
                 Assert.Single(dependentType.GetIndexes());
-                Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+                Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
             }
             else
             {
@@ -245,8 +243,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder.Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne(e => e.Details);
 
@@ -289,8 +287,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details);
 
-            var fk = dependentType.GetNavigations().Single().ForeignKey;
-            Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
+            var fk = dependentType!.GetNavigations().Single().ForeignKey;
+            Assert.Same(fk, principalType!.GetNavigations().Single().ForeignKey);
             Assert.True(fk.IsUnique);
             Assert.Empty(dependentType.GetIndexes());
             Assert.Empty(principalType.GetIndexes());
@@ -309,9 +307,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder.Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details);
@@ -355,13 +353,13 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty(nameof(OrderDetails.OrderId));
+            var fkProperty = dependentType!.FindProperty(nameof(OrderDetails.OrderId));
 
             modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
             var fkBuilder = modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
 
             var fk = dependentType.GetForeignKeys().Single();
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             Assert.Equal(nameof(OrderDetails.Order), dependentType.GetNavigations().Single().Name);
             Assert.Empty(principalType.GetNavigations());
@@ -396,9 +394,9 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<Customer>().HasOne(e => e.Details).WithOne();
 
-            var fk = dependentType.GetNavigations().Single().ForeignKey;
+            var fk = dependentType!.GetNavigations().Single().ForeignKey;
             Assert.True(fk.IsUnique);
-            Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
+            Assert.NotSame(fk, principalType!.GetNavigations().Single().ForeignKey);
 
             if (Fixture.ForeignKeysHaveIndexes)
             {
@@ -406,7 +404,7 @@ public abstract partial class ModelBuilderTest
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
                 Assert.True(
                     principalType.GetForeignKeys()
-                        .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
+                        .All(foreignKey => principalType.FindIndex(foreignKey.Properties)!.IsUnique == foreignKey.IsUnique));
             }
             else
             {
@@ -426,8 +424,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder.Entity<CustomerDetails>().HasOne<Customer>().WithOne(e => e.Details);
 
@@ -461,8 +459,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -503,9 +501,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -548,9 +546,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -588,10 +586,10 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
-            var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
+            var fk = dependentType!.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
             Assert.True(fk.IsUnique);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             Assert.Same(fk, dependentType.GetForeignKeys().Single());
@@ -628,9 +626,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var fkProperty = dependentType.FindProperty("BurgerId");
+            var fkProperty = dependentType!.FindProperty("BurgerId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -673,9 +671,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var fkProperty = dependentType.FindProperty("BurgerId");
+            var fkProperty = dependentType!.FindProperty("BurgerId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -715,9 +713,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var fkProperty = dependentType.FindProperty(nameof(Bun.BurgerId));
+            var fkProperty = dependentType!.FindProperty(nameof(Bun.BurgerId));
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -740,7 +738,7 @@ public abstract partial class ModelBuilderTest
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
                 Assert.True(
                     principalType.GetForeignKeys()
-                        .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
+                        .All(foreignKey => principalType.FindIndex(foreignKey.Properties)!.IsUnique == foreignKey.IsUnique));
             }
             else
             {
@@ -760,8 +758,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -803,11 +801,11 @@ public abstract partial class ModelBuilderTest
                 .HasForeignKey(e => e.BurgerId);
             modelBuilder.Ignore<Pickle>();
 
-            var dependentType = (IReadOnlyEntityType)model.FindEntityType(typeof(Bun));
+            var dependentType = (IReadOnlyEntityType)model.FindEntityType(typeof(Bun))!;
             var principalType = model.FindEntityType(typeof(BigMak));
-            var fkProperty = dependentType.FindProperty(nameof(Bun.BurgerId));
+            var fkProperty = dependentType!.FindProperty(nameof(Bun.BurgerId));
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -853,9 +851,9 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
-            var existingFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "Id"));
+            var existingFk = dependentType!.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "Id"));
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -888,9 +886,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -937,9 +935,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Order));
             var principalType = model.FindEntityType(typeof(OrderDetails));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -976,9 +974,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Customer));
             var principalType = model.FindEntityType(typeof(CustomerDetails));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -1008,9 +1006,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             var fk = modelBuilder
@@ -1048,9 +1046,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Customer));
             var principalType = model.FindEntityType(typeof(CustomerDetails));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -1059,7 +1057,7 @@ public abstract partial class ModelBuilderTest
 
             var fk = dependentType.GetNavigations().Single().ForeignKey;
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Equal(nameof(Customer.Details), fk.DependentToPrincipal.Name);
+            Assert.Equal(nameof(Customer.Details), fk.DependentToPrincipal!.Name);
             Assert.Null(fk.PrincipalToDependent);
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -1091,9 +1089,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -1102,7 +1100,7 @@ public abstract partial class ModelBuilderTest
 
             var fk = principalType.GetNavigations().Single().ForeignKey;
             Assert.Same(fkProperty, fk.Properties.Single());
-            Assert.Equal(nameof(Customer.Details), fk.PrincipalToDependent.Name);
+            Assert.Equal(nameof(Customer.Details), fk.PrincipalToDependent!.Name);
             Assert.Null(fk.DependentToPrincipal);
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -1132,8 +1130,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<CustomerDetails>().HasOne<Customer>().WithOne()
@@ -1174,9 +1172,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Customer));
             var principalType = model.FindEntityType(typeof(CustomerDetails));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             var principalFk = principalType.GetForeignKeys().SingleOrDefault();
@@ -1223,9 +1221,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var fkProperty = dependentType.FindProperty(Customer.IdProperty.Name);
+            var fkProperty = dependentType!.FindProperty(Customer.IdProperty.Name);
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -1257,10 +1255,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalProperty = principalType.FindProperty(Customer.IdProperty.Name);
+            var principalProperty = principalType!.FindProperty(Customer.IdProperty.Name);
 
             var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -1304,9 +1302,9 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
-            var principalProperty = principalType.FindProperty("AlternateKey");
+            var principalProperty = principalType!.FindProperty("AlternateKey");
             var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<Customer>().HasOne(e => e.Details).WithOne(e => e.Customer)
@@ -1354,8 +1352,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
-            var principalProperty = principalType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
+            var principalProperty = principalType!.FindProperty("OrderId");
 
             var principalPropertyCount = principalType.GetProperties().Count();
             var dependentPropertyCount = dependentType.GetProperties().Count();
@@ -1409,8 +1407,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
-            var principalProperty = principalType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
+            var principalProperty = principalType!.FindProperty("OrderId");
 
             var principalPropertyCount = principalType.GetProperties().Count();
             var dependentPropertyCount = dependentType.GetProperties().Count();
@@ -1463,8 +1461,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var fkProperty = dependentType.FindProperty("BurgerId");
-            var principalProperty = principalType.FindProperty("AlternateKey");
+            var fkProperty = dependentType!.FindProperty("BurgerId");
+            var principalProperty = principalType!.FindProperty("AlternateKey");
 
             var principalKey = principalType.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
@@ -1516,8 +1514,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Bun));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var fkProperty = dependentType.FindProperty("BurgerId");
-            var principalProperty = principalType.FindProperty("AlternateKey");
+            var fkProperty = dependentType!.FindProperty("BurgerId");
+            var principalProperty = principalType!.FindProperty("AlternateKey");
 
             var principalKey = principalType.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
@@ -1570,10 +1568,10 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
-            var fk = dependentType.GetForeignKeys().Single();
+            var fk = dependentType!.GetForeignKeys().Single();
 
             var navToPrincipal = dependentType.FindNavigation(nameof(CustomerDetails.Customer));
-            var navToDependent = principalType.FindNavigation(nameof(Customer.Details));
+            var navToDependent = principalType!.FindNavigation(nameof(Customer.Details));
 
             var principalKey = principalType.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
@@ -1602,9 +1600,9 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
-            var existingFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "Id"));
+            var existingFk = dependentType!.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "Id"));
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -1651,10 +1649,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var keyProperty = principalType.FindProperty("OrderId");
+            var keyProperty = principalType!.FindProperty("OrderId");
 
             var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -1701,10 +1699,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Order));
             var principalType = model.FindEntityType(typeof(OrderDetails));
 
-            var keyProperty = principalType.FindProperty("OrderId");
+            var keyProperty = principalType!.FindProperty("OrderId");
 
             var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -1742,9 +1740,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -1792,9 +1790,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(OrderDetails));
             var principalType = model.FindEntityType(typeof(Order));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -1842,9 +1840,9 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Order));
             var principalType = model.FindEntityType(typeof(OrderDetails));
 
-            var fkProperty = dependentType.FindProperty("OrderId");
+            var fkProperty = dependentType!.FindProperty("OrderId");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -1918,8 +1916,8 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(Order));
             var principalType = model.FindEntityType(typeof(OrderDetails));
-            var fk = dependentType.GetForeignKeys().Single();
-            Assert.Same(principalType.FindProperty(nameof(OrderDetails.OrderId)), fk.PrincipalKey.Properties.Single());
+            var fk = dependentType!.GetForeignKeys().Single();
+            Assert.Same(principalType!.FindProperty(nameof(OrderDetails.OrderId)), fk.PrincipalKey.Properties.Single());
             Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
             Assert.Same(fk.PrincipalToDependent, principalType.GetNavigations().Single());
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
@@ -1975,11 +1973,11 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(Order));
             var principalType = model.FindEntityType(typeof(OrderDetails));
-            var fk = dependentType.GetForeignKeys().Single();
+            var fk = dependentType!.GetForeignKeys().Single();
 
             Assert.Same(dependentType.FindProperty(nameof(Order.OrderId)), fk.Properties.Single());
             Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
-            Assert.Same(fk.PrincipalToDependent, principalType.GetNavigations().Single());
+            Assert.Same(fk.PrincipalToDependent, principalType!.GetNavigations().Single());
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
@@ -2053,15 +2051,15 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<CustomerDetails>();
 
-            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order));
-            Assert.False(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order))!;
+            Assert.False(orderEntityType!.FindNavigation(nameof(Order.Details))!.IsOnDependent);
 
             modelBuilder.Entity<Order>().HasNoKey();
 
             var model = modelBuilder.FinalizeModel();
 
             orderEntityType = model.FindEntityType(typeof(Order))!;
-            Assert.True(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+            Assert.True(orderEntityType.FindNavigation(nameof(Order.Details))!.IsOnDependent);
         }
 
         [Fact]
@@ -2076,8 +2074,8 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<CustomerDetails>();
 
-            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order));
-            Assert.False(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order))!;
+            Assert.False(orderEntityType!.FindNavigation(nameof(Order.Details))!.IsOnDependent);
 
             Assert.Equal(
                 CoreStrings.PrincipalKeylessType(
@@ -2097,8 +2095,8 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<CustomerDetails>();
 
-            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order));
-            Assert.False(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order))!;
+            Assert.False(orderEntityType!.FindNavigation(nameof(Order.Details))!.IsOnDependent);
 
             Assert.Equal(
                 CoreStrings.NavigationToKeylessType(
@@ -2119,17 +2117,17 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<Customer>().HasOne(e => e.Details).WithOne()
                 .HasPrincipalKey<Customer>(e => e.Id);
 
             var fk = principalType.GetNavigations().Single().ForeignKey;
-            Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalKey!.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
-            Assert.Equal(nameof(Customer.Details), fk.PrincipalToDependent.Name);
+            Assert.Equal(nameof(Customer.Details), fk.PrincipalToDependent!.Name);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
@@ -2158,15 +2156,15 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne()
                 .HasPrincipalKey<Customer>(e => e.Id);
 
             var fk = dependentType.GetNavigations().Single().ForeignKey;
-            Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalKey!.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -2196,15 +2194,15 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<Customer>().HasOne<CustomerDetails>().WithOne(e => e.Customer)
                 .HasPrincipalKey<Customer>(e => e.Id);
 
             var fk = dependentType.GetNavigations().Single().ForeignKey;
-            Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalKey!.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -2233,15 +2231,15 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<CustomerDetails>().HasOne<Customer>().WithOne(e => e.Details)
                 .HasPrincipalKey<Customer>(e => e.Id);
 
             var fk = principalType.GetNavigations().Single().ForeignKey;
-            Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalKey!.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Null(fk.DependentToPrincipal);
             Assert.Empty(principalType.GetForeignKeys());
@@ -2273,8 +2271,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -2289,7 +2287,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
 
             var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
-            Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalKey!.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.DoesNotContain(dependentType.GetNavigations(), nav => nav.ForeignKey == fk);
             Assert.DoesNotContain(principalType.GetNavigations(), nav => nav.ForeignKey == fk);
             Assert.Equal(expectedPrincipalProperties, principalType.GetProperties());
@@ -2324,8 +2322,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
 
-            var existingFk = dependentType.GetForeignKeys().SingleOrDefault();
-            var principalKey = principalType.FindPrimaryKey();
+            var existingFk = dependentType!.GetForeignKeys().SingleOrDefault();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
             var expectedPrincipalProperties = principalType.GetProperties().ToList();
             var expectedDependentProperties = dependentType.GetProperties().ToList();
@@ -2335,7 +2333,7 @@ public abstract partial class ModelBuilderTest
                 .HasPrincipalKey<Customer>(e => e.Id);
 
             var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
-            Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalKey!.Properties.Single(), fk.PrincipalKey.Properties.Single());
             Assert.DoesNotContain(dependentType.GetNavigations(), nav => nav.ForeignKey == fk);
             Assert.DoesNotContain(principalType.GetNavigations(), nav => nav.ForeignKey == fk);
             Assert.Equal(expectedPrincipalProperties, principalType.GetProperties());
@@ -2372,8 +2370,8 @@ public abstract partial class ModelBuilderTest
 
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
@@ -2416,10 +2414,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(ToastedBun));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty("BurgerId1");
+            var fkProperty1 = dependentType!.FindProperty("BurgerId1");
             var fkProperty2 = dependentType.FindProperty("BurgerId2");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2462,10 +2460,10 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(ToastedBun));
             var principalType = model.FindEntityType(typeof(Whoopper));
-            var principalProperty1 = principalType.FindProperty("AlternateKey1");
+            var principalProperty1 = principalType!.FindProperty("AlternateKey1");
             var principalProperty2 = principalType.FindProperty("AlternateKey2");
 
-            var fkProperty1 = dependentType.FindProperty("BurgerId1");
+            var fkProperty1 = dependentType!.FindProperty("BurgerId1");
             var fkProperty2 = dependentType.FindProperty("BurgerId2");
 
             var principalKey = principalType.FindPrimaryKey();
@@ -2520,10 +2518,10 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(ToastedBun));
             var principalType = model.FindEntityType(typeof(Whoopper));
-            var principalProperty1 = principalType.FindProperty("AlternateKey1");
+            var principalProperty1 = principalType!.FindProperty("AlternateKey1");
             var principalProperty2 = principalType.FindProperty("AlternateKey2");
 
-            var fkProperty1 = dependentType.FindProperty("BurgerId1");
+            var fkProperty1 = dependentType!.FindProperty("BurgerId1");
             var fkProperty2 = dependentType.FindProperty("BurgerId2");
 
             var principalKey = principalType.FindPrimaryKey();
@@ -2579,10 +2577,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Mustard));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty("Id1");
+            var fkProperty1 = dependentType!.FindProperty("Id1");
             var fkProperty2 = dependentType.FindProperty("Id2");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2620,10 +2618,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Mustard));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty("Id1");
+            var fkProperty1 = dependentType!.FindProperty("Id1");
             var fkProperty2 = dependentType.FindProperty("Id2");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2660,10 +2658,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Mustard));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty("Id1");
+            var fkProperty1 = dependentType!.FindProperty("Id1");
             var fkProperty2 = dependentType.FindProperty("Id2");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2700,10 +2698,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(ToastedBun));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty(nameof(ToastedBun.BurgerId1));
+            var fkProperty1 = dependentType!.FindProperty(nameof(ToastedBun.BurgerId1));
             var fkProperty2 = dependentType.FindProperty(nameof(ToastedBun.BurgerId2));
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2715,7 +2713,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fkProperty2, fk.Properties[1]);
 
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
-            Assert.Equal(nameof(Whoopper.ToastedBun), fk.PrincipalToDependent.Name);
+            Assert.Equal(nameof(Whoopper.ToastedBun), fk.PrincipalToDependent!.Name);
             Assert.Null(fk.DependentToPrincipal);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
@@ -2746,10 +2744,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(ToastedBun));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty(nameof(ToastedBun.BurgerId1));
+            var fkProperty1 = dependentType!.FindProperty(nameof(ToastedBun.BurgerId1));
             var fkProperty2 = dependentType.FindProperty(nameof(ToastedBun.BurgerId2));
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2760,7 +2758,7 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
 
-            Assert.Equal(nameof(ToastedBun.Whoopper), fk.DependentToPrincipal.Name);
+            Assert.Equal(nameof(ToastedBun.Whoopper), fk.DependentToPrincipal!.Name);
             Assert.Null(fk.PrincipalToDependent);
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -2794,10 +2792,10 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(ToastedBun));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var fkProperty1 = dependentType.FindProperty("BurgerId1");
+            var fkProperty1 = dependentType!.FindProperty("BurgerId1");
             var fkProperty2 = dependentType.FindProperty("BurgerId2");
 
-            var principalKey = principalType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
             var dependentKey = dependentType.FindPrimaryKey();
 
             modelBuilder
@@ -2821,7 +2819,7 @@ public abstract partial class ModelBuilderTest
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
                 Assert.True(
                     principalType.GetForeignKeys()
-                        .All(foreignKey => principalType.FindIndex(foreignKey.Properties).IsUnique == foreignKey.IsUnique));
+                        .All(foreignKey => principalType.FindIndex(foreignKey.Properties)!.IsUnique == foreignKey.IsUnique));
             }
             else
             {
@@ -2836,7 +2834,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2);
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
-            var fk = entityType.GetForeignKeys().Single();
+            var fk = entityType!.GetForeignKeys().Single();
 
             var navigationToPrincipal = fk.DependentToPrincipal;
             var navigationToDependent = fk.PrincipalToDependent;
@@ -2844,15 +2842,15 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2);
 
             fk = entityType.GetForeignKeys().Single();
-            Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
-            Assert.Equal(navigationToPrincipal.Name, fk.DependentToPrincipal.Name);
+            Assert.Equal(navigationToDependent!.Name, fk.PrincipalToDependent!.Name);
+            Assert.Equal(navigationToPrincipal!.Name, fk.DependentToPrincipal!.Name);
             Assert.True(fk.IsRequired);
 
             modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef2).WithOne(e => e.SelfRef1);
 
             fk = entityType.GetForeignKeys().Single();
-            Assert.Equal(navigationToPrincipal.Name, fk.PrincipalToDependent.Name);
-            Assert.Equal(navigationToDependent.Name, fk.DependentToPrincipal.Name);
+            Assert.Equal(navigationToPrincipal.Name, fk.PrincipalToDependent!.Name);
+            Assert.Equal(navigationToDependent.Name, fk.DependentToPrincipal!.Name);
             Assert.True(fk.IsRequired);
 
             if (Fixture.ForeignKeysHaveIndexes)
@@ -2882,11 +2880,11 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne();
 
-            var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
-            var conventionFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey;
+            var fk = entityType!.FindNavigation(nameof(SelfRef.SelfRef1))!.ForeignKey;
+            var conventionFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2))!.ForeignKey;
 
             Assert.NotEqual(fk, conventionFk);
-            Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey().Properties);
+            Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey()!.Properties);
             Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
             Assert.Null(fk.PrincipalToDependent);
             Assert.Equal(nameof(SelfRef.SelfRef1), fk.DependentToPrincipal?.Name);
@@ -2917,11 +2915,11 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef1);
 
-            var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
-            var conventionFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey;
+            var fk = entityType!.FindNavigation(nameof(SelfRef.SelfRef1))!.ForeignKey;
+            var conventionFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2))!.ForeignKey;
 
             Assert.NotEqual(fk, conventionFk);
-            Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey().Properties);
+            Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey()!.Properties);
             Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
             Assert.Equal(nameof(SelfRef.SelfRef1), fk.PrincipalToDependent?.Name);
             Assert.Null(fk.DependentToPrincipal);
@@ -2950,9 +2948,9 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
+            var fk = entityType!.FindNavigation(nameof(SelfRef.SelfRef1))!.ForeignKey;
 
-            Assert.Equal(fk.Properties, entityType.FindPrimaryKey().Properties);
+            Assert.Equal(fk.Properties, entityType.FindPrimaryKey()!.Properties);
             Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
             Assert.Equal(nameof(SelfRef.SelfRef1), fk.DependentToPrincipal?.Name);
             Assert.Equal(nameof(SelfRef.SelfRef2), fk.PrincipalToDependent?.Name);
@@ -2970,7 +2968,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.HasOne(e => e.SelfRef1).WithOne();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
-            var existingFk = entityType.GetForeignKeys().Single();
+            var existingFk = entityType!.GetForeignKeys().Single();
 
             var navigationToPrincipal = existingFk.DependentToPrincipal;
             var navigationToDependent = existingFk.PrincipalToDependent;
@@ -2979,7 +2977,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Same(existingFk, entityType.GetForeignKeys().Single());
             Assert.Equal(navigationToDependent?.Name, existingFk.PrincipalToDependent?.Name);
-            Assert.Equal(navigationToPrincipal.Name, existingFk.DependentToPrincipal.Name);
+            Assert.Equal(navigationToPrincipal!.Name, existingFk.DependentToPrincipal!.Name);
             Assert.True(((IReadOnlyForeignKey)existingFk).IsRequired);
 
             modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef1);
@@ -2988,7 +2986,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(existingFk.Properties, fk.Properties);
             Assert.Equal(existingFk.PrincipalKey, fk.PrincipalKey);
-            Assert.Equal(navigationToPrincipal.Name, fk.PrincipalToDependent.Name);
+            Assert.Equal(navigationToPrincipal.Name, fk.PrincipalToDependent!.Name);
             Assert.Equal(navigationToDependent?.Name, fk.DependentToPrincipal?.Name);
             Assert.True(fk.IsRequired);
             Assert.False(fk.IsRequiredDependent);
@@ -3011,26 +3009,26 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef2);
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
-            var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey;
+            var fk = entityType!.FindNavigation(nameof(SelfRef.SelfRef2))!.ForeignKey;
 
             var navigationToPrincipal = fk.DependentToPrincipal;
             var navigationToDependent = fk.PrincipalToDependent;
 
             modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef2);
 
-            Assert.Same(fk, entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey);
-            Assert.Equal(navigationToDependent.Name, fk.PrincipalToDependent.Name);
+            Assert.Same(fk, entityType.FindNavigation(nameof(SelfRef.SelfRef2))!.ForeignKey);
+            Assert.Equal(navigationToDependent!.Name, fk.PrincipalToDependent!.Name);
             Assert.Equal(navigationToPrincipal?.Name, fk.DependentToPrincipal?.Name);
             Assert.True(fk.IsUnique);
 
             modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef2).WithOne();
 
-            var newFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey;
+            var newFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2))!.ForeignKey;
 
             Assert.Equal(fk.Properties, newFk.Properties);
             Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
             Assert.Equal(navigationToPrincipal?.Name, newFk.PrincipalToDependent?.Name);
-            Assert.Equal(navigationToDependent.Name, newFk.DependentToPrincipal.Name);
+            Assert.Equal(navigationToDependent.Name, newFk.DependentToPrincipal!.Name);
             Assert.True(newFk.IsUnique);
 
             if (Fixture.ForeignKeysHaveIndexes)
@@ -3066,7 +3064,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
-            var fk = entityType.GetForeignKeys().Single();
+            var fk = entityType!.GetForeignKeys().Single();
             Assert.Equal("SelfRef1Id", fk.Properties.Single().Name);
             Assert.True(fk.IsRequired);
             Assert.False(fk.IsRequiredDependent);
@@ -3097,7 +3095,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
-            var fk = entityType.GetForeignKeys().Single();
+            var fk = entityType!.GetForeignKeys().Single();
             Assert.Equal("SelfRef2Id", fk.Properties.Single().Name);
             Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
             Assert.Equal(nameof(SelfRef.SelfRef1), fk.PrincipalToDependent?.Name);
@@ -3179,9 +3177,9 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
 
             Assert.Equal(
-                typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
+                typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob))!.GetForeignKeys().Single().Properties.Single().ClrType);
             Assert.Equal(
-                typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
+                typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob))!.GetForeignKeys().Single().Properties.Single().ClrType);
         }
 
         [Fact]
@@ -3206,9 +3204,9 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
 
             Assert.Equal(
-                typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob)).GetForeignKeys().Single().Properties.Single().ClrType);
+                typeof(int?), modelBuilder.Model.FindEntityType(typeof(Nob))!.GetForeignKeys().Single().Properties.Single().ClrType);
             Assert.Equal(
-                typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob)).GetForeignKeys().Single().Properties.Single().ClrType);
+                typeof(string), modelBuilder.Model.FindEntityType(typeof(Hob))!.GetForeignKeys().Single().Properties.Single().ClrType);
         }
 
         [Fact]
@@ -3243,7 +3241,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.FinalizeModel();
 
             var dependent = modelBuilder.Model.FindEntityType(typeof(Hob));
-            var fk = dependent.GetForeignKeys().Single();
+            var fk = dependent!.GetForeignKeys().Single();
             Assert.Equal(typeof(Guid), fk.Properties.Single().ClrType);
         }
 
@@ -3282,7 +3280,7 @@ public abstract partial class ModelBuilderTest
                 .HasForeignKey<CustomerDetails>("GuidProperty");
 
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
-            var fk = dependentType.GetForeignKeys().Single();
+            var fk = dependentType!.GetForeignKeys().Single();
             Assert.Same(guidProperty, fk.Properties.Single());
             Assert.Equal(typeof(Guid), fk.PrincipalKey.Properties.Single().ClrType);
         }
@@ -3324,8 +3322,8 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
             var principalType = model.FindEntityType(typeof(Customer));
-            var fk = dependentType.GetForeignKeys().Single();
-            Assert.Same(principalType.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
+            var fk = dependentType!.GetForeignKeys().Single();
+            Assert.Same(principalType!.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
             Assert.False(fk.IsRequired);
             Assert.Equal(typeof(int?), fk.Properties.Single().ClrType);
         }
@@ -3365,8 +3363,8 @@ public abstract partial class ModelBuilderTest
                 .HasForeignKey<CustomerDetails>(nameof(CustomerDetails.Id), "GuidProperty");
 
             var dependentType = model.FindEntityType(typeof(CustomerDetails));
-            var fk = dependentType.GetForeignKeys().Single();
-            AssertEqual([dependentType.FindProperty(nameof(CustomerDetails.Id)), guidProperty], fk.Properties);
+            var fk = dependentType!.GetForeignKeys().Single();
+            AssertEqual([dependentType.FindProperty(nameof(CustomerDetails.Id))!, guidProperty], fk.Properties);
             Assert.Equal(2, fk.PrincipalKey.Properties.Count);
         }
 
@@ -3406,7 +3404,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
                 .HasPrincipalKey<Customer>(nameof(Customer.Id)).Metadata;
 
-            Assert.Same(principalType.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
+            Assert.Same(principalType!.FindProperty(nameof(Customer.Id)), fk.PrincipalKey.Properties.Single());
             Assert.Single(fk.Properties);
         }
 
@@ -3422,8 +3420,8 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(Hob));
             var principalType = model.FindEntityType(typeof(Nob));
-            var fk = dependentType.GetNavigations().First().ForeignKey;
-            Assert.Same(fk, principalType.GetNavigations().First().ForeignKey);
+            var fk = dependentType!.GetNavigations().First().ForeignKey;
+            Assert.Same(fk, principalType!.GetNavigations().First().ForeignKey);
             Assert.True(fk.Properties.All(p => p.IsShadowProperty()));
 
             Assert.Equal(
@@ -3448,8 +3446,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Tomato));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<Whoopper>().HasOne<Tomato>().WithOne()
@@ -3458,8 +3456,8 @@ public abstract partial class ModelBuilderTest
 
             var existingFk = dependentType.GetNavigations().Single().ForeignKey;
             Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
-            Assert.Equal(nameof(Tomato.Whoopper), existingFk.DependentToPrincipal.Name);
-            Assert.Equal(nameof(Whoopper.Tomatoes), existingFk.PrincipalToDependent.Name);
+            Assert.Equal(nameof(Tomato.Whoopper), existingFk.DependentToPrincipal!.Name);
+            Assert.Equal(nameof(Whoopper.Tomatoes), existingFk.PrincipalToDependent!.Name);
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
@@ -3497,8 +3495,8 @@ public abstract partial class ModelBuilderTest
             var dependentType = model.FindEntityType(typeof(Tomato));
             var principalType = model.FindEntityType(typeof(Whoopper));
 
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder
                 .Entity<Whoopper>().HasOne<Tomato>().WithOne()
@@ -3507,8 +3505,8 @@ public abstract partial class ModelBuilderTest
 
             var existingFk = dependentType.GetNavigations().Single().ForeignKey;
             Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
-            Assert.Equal(nameof(Tomato.Whoopper), existingFk.DependentToPrincipal.Name);
-            Assert.Equal(nameof(Whoopper.Tomatoes), existingFk.PrincipalToDependent.Name);
+            Assert.Equal(nameof(Tomato.Whoopper), existingFk.DependentToPrincipal!.Name);
+            Assert.Equal(nameof(Whoopper.Tomatoes), existingFk.PrincipalToDependent!.Name);
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
@@ -3548,8 +3546,8 @@ public abstract partial class ModelBuilderTest
                 .HasForeignKey<Tomato>(e => new { e.BurgerId1 })
                 .HasPrincipalKey<Whoopper>(e => new { e.AlternateKey1 });
 
-            var existingFk = dependentType.GetNavigations().Single().ForeignKey;
-            Assert.Empty(principalType.GetForeignKeys());
+            var existingFk = dependentType!.GetNavigations().Single().ForeignKey;
+            Assert.Empty(principalType!.GetForeignKeys());
             var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
             Assert.Empty(principalType.GetIndexes());
 
@@ -3589,8 +3587,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ConflictingRelationshipNavigation(
-                    principalType.DisplayName() + "." + nameof(Hob.Nob),
-                    dependentType.DisplayName() + "." + nameof(Nob.Hob),
+                    principalType!.DisplayName() + "." + nameof(Hob.Nob),
+                    dependentType!.DisplayName() + "." + nameof(Nob.Hob),
                     dependentType.DisplayName() + "." + nameof(Nob.Hobs),
                     principalType.DisplayName() + "." + nameof(Hob.Nob)),
                 Assert.Throws<InvalidOperationException>(() =>
@@ -3608,8 +3606,8 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(Nob));
             var principalType = model.FindEntityType(typeof(Hob));
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
 
@@ -3635,8 +3633,8 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ConflictingRelationshipNavigation(
-                    principalType.DisplayName() + "." + nameof(Hob.Nob),
-                    dependentType.DisplayName() + "." + nameof(Nob.Hob),
+                    principalType!.DisplayName() + "." + nameof(Hob.Nob),
+                    dependentType!.DisplayName() + "." + nameof(Nob.Hob),
                     principalType.DisplayName() + "." + nameof(Hob.Nobs),
                     dependentType.DisplayName() + "." + nameof(Nob.Hob)),
                 Assert.Throws<InvalidOperationException>(() =>
@@ -3654,8 +3652,8 @@ public abstract partial class ModelBuilderTest
 
             var dependentType = model.FindEntityType(typeof(Nob));
             var principalType = model.FindEntityType(typeof(Hob));
-            var principalKey = principalType.FindPrimaryKey();
-            var dependentKey = dependentType.FindPrimaryKey();
+            var principalKey = principalType!.FindPrimaryKey();
+            var dependentKey = dependentType!.FindPrimaryKey();
 
             modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob);
 
@@ -3685,7 +3683,7 @@ public abstract partial class ModelBuilderTest
             var builder = modelBuilder.Entity<CustomerDetails>().HasOne(e => e.Customer).WithOne(e => e.Details);
             builder = builder.HasAnnotation("Fus", "Ro");
 
-            var fk = dependentType.FindNavigation(nameof(CustomerDetails.Customer)).ForeignKey;
+            var fk = dependentType!.FindNavigation(nameof(CustomerDetails.Customer))!.ForeignKey;
             Assert.Same(fk, builder.Metadata);
             Assert.Equal("Ro", fk["Fus"]);
         }
@@ -3699,12 +3697,12 @@ public abstract partial class ModelBuilderTest
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                 .HasForeignKey<Nob>(e => new { e.HobId1, e.HobId2 });
 
-            var entityType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+            var entityType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob))!;
 
-            Assert.False(entityType.GetForeignKeys().Single().IsRequired);
+            Assert.False(entityType!.GetForeignKeys().Single().IsRequired);
             Assert.True(
-                entityType.FindProperty(nameof(Nob.HobId1)).IsNullable
-                || entityType.FindProperty(nameof(Nob.HobId2)).IsNullable);
+                entityType.FindProperty(nameof(Nob.HobId1))!.IsNullable
+                || entityType.FindProperty(nameof(Nob.HobId2))!.IsNullable);
         }
 
         [Fact]
@@ -3716,10 +3714,10 @@ public abstract partial class ModelBuilderTest
                 .Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)
                 .HasForeignKey<Hob>(e => new { e.NobId1, e.NobId2 });
 
-            var entityType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+            var entityType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
 
-            Assert.False(entityType.FindProperty(nameof(Hob.NobId1)).IsNullable);
-            Assert.False(entityType.FindProperty(nameof(Hob.NobId2)).IsNullable);
+            Assert.False(entityType!.FindProperty(nameof(Hob.NobId1))!.IsNullable);
+            Assert.False(entityType.FindProperty(nameof(Hob.NobId2))!.IsNullable);
             Assert.True(entityType.GetForeignKeys().Single().IsRequired);
         }
 
@@ -3746,17 +3744,17 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-            var expectedPrincipalProperties = principalType.GetProperties().ToList();
-            var expectedDependentProperties = dependentType.GetProperties().ToList();
+            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
+            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob))!;
+            var expectedPrincipalProperties = principalType!.GetProperties().ToList();
+            var expectedDependentProperties = dependentType!.GetProperties().ToList();
             var fkProperty1 = dependentType.FindProperty(nameof(Nob.HobId1));
             var fkProperty2 = dependentType.FindProperty(nameof(Nob.HobId2));
             var fk = dependentType.GetForeignKeys().Single();
 
             Assert.True(fk.IsRequired);
-            Assert.True(fkProperty1.IsNullable);
-            Assert.True(fkProperty2.IsNullable);
+            Assert.True(fkProperty1!.IsNullable);
+            Assert.True(fkProperty2!.IsNullable);
             AssertEqual([fkProperty1, fkProperty2], fk.Properties);
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
         }
@@ -3779,14 +3777,14 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-            var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
+            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
+            var fkProperty1 = dependentType!.FindProperty(nameof(Hob.NobId1));
             var fkProperty2 = dependentType.FindProperty(nameof(Hob.NobId2));
             var fk = dependentType.GetForeignKeys().Single();
 
             Assert.False(fk.IsRequired);
-            Assert.False(fkProperty1.IsNullable);
-            Assert.False(fkProperty2.IsNullable);
+            Assert.False(fkProperty1!.IsNullable);
+            Assert.False(fkProperty2!.IsNullable);
             Assert.Contains(fkProperty1, fk.Properties);
             Assert.Contains(fkProperty2, fk.Properties);
         }
@@ -3813,14 +3811,14 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-            var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
+            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
+            var fkProperty1 = dependentType!.FindProperty(nameof(Hob.NobId1));
             var fkProperty2 = dependentType.FindProperty(nameof(Hob.NobId2));
             var fk = dependentType.GetForeignKeys().Single();
 
             Assert.False(fk.IsRequired);
-            Assert.False(fkProperty1.IsNullable);
-            Assert.False(fkProperty2.IsNullable);
+            Assert.False(fkProperty1!.IsNullable);
+            Assert.False(fkProperty2!.IsNullable);
             Assert.Contains(fkProperty1, fk.Properties);
             Assert.Contains(fkProperty2, fk.Properties);
         }
@@ -3829,10 +3827,10 @@ public abstract partial class ModelBuilderTest
         public virtual void Unspecified_FK_can_be_made_optional()
         {
             var modelBuilder = HobNobBuilder();
-            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-            var expectedPrincipalProperties = principalType.GetProperties().ToList();
-            var expectedDependentProperties = dependentType.GetProperties().ToList();
+            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob))!;
+            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
+            var expectedPrincipalProperties = principalType!.GetProperties().ToList();
+            var expectedDependentProperties = dependentType!.GetProperties().ToList();
 
             modelBuilder
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
@@ -3850,10 +3848,10 @@ public abstract partial class ModelBuilderTest
         public virtual void Unspecified_FK_can_be_made_optional_in_any_order()
         {
             var modelBuilder = HobNobBuilder();
-            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-            var expectedPrincipalProperties = principalType.GetProperties().ToList();
-            var expectedDependentProperties = dependentType.GetProperties().ToList();
+            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob))!;
+            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
+            var expectedPrincipalProperties = principalType!.GetProperties().ToList();
+            var expectedDependentProperties = dependentType!.GetProperties().ToList();
 
             modelBuilder
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
@@ -3871,10 +3869,10 @@ public abstract partial class ModelBuilderTest
         public virtual void Unspecified_FK_can_be_made_required()
         {
             var modelBuilder = HobNobBuilder();
-            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-            var expectedPrincipalProperties = principalType.GetProperties().ToList();
-            var expectedDependentProperties = dependentType.GetProperties().ToList();
+            var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob))!;
+            var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob))!;
+            var expectedPrincipalProperties = principalType!.GetProperties().ToList();
+            var expectedDependentProperties = dependentType!.GetProperties().ToList();
 
             modelBuilder
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
@@ -3928,12 +3926,12 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(typeof(Nob));
-            var fk = dependentEntityType.GetForeignKeys().Single();
+            var fk = dependentEntityType!.GetForeignKeys().Single();
             AssertEqual(
-                [dependentEntityType.FindProperty("HobId1"), dependentEntityType.FindProperty("HobId2")], fk.Properties);
+                [dependentEntityType.FindProperty("HobId1")!, dependentEntityType.FindProperty("HobId2")!], fk.Properties);
             Assert.False(fk.IsRequired);
             var principalEntityType = modelBuilder.Model.FindEntityType(typeof(Hob));
-            AssertEqual(fk.PrincipalKey.Properties, principalEntityType.FindPrimaryKey().Properties);
+            AssertEqual(fk.PrincipalKey.Properties, principalEntityType!.FindPrimaryKey()!.Properties);
         }
 
         [Fact]
@@ -3954,12 +3952,12 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(typeof(Hob));
-            var fk = dependentEntityType.GetForeignKeys().Single();
+            var fk = dependentEntityType!.GetForeignKeys().Single();
             AssertEqual(
-                [dependentEntityType.FindProperty("NobId1"), dependentEntityType.FindProperty("NobId2")], fk.Properties);
+                [dependentEntityType.FindProperty("NobId1")!, dependentEntityType.FindProperty("NobId2")!], fk.Properties);
             Assert.True(fk.IsRequired);
             var principalEntityType = modelBuilder.Model.FindEntityType(typeof(Nob));
-            AssertEqual(fk.PrincipalKey.Properties, principalEntityType.FindPrimaryKey().Properties);
+            AssertEqual(fk.PrincipalKey.Properties, principalEntityType!.FindPrimaryKey()!.Properties);
         }
 
         [Fact]
@@ -3972,7 +3970,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            Assert.Equal(DeleteBehavior.Cascade, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Cascade, dependentType!.GetNavigations().Single().ForeignKey.DeleteBehavior);
 
             modelBuilder
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
@@ -3997,7 +3995,7 @@ public abstract partial class ModelBuilderTest
                 .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                 .HasForeignKey<Nob>(e => e.HobId1);
 
-            Assert.Equal(DeleteBehavior.ClientSetNull, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.ClientSetNull, dependentType!.GetNavigations().Single().ForeignKey.DeleteBehavior);
 
             modelBuilder
                 .Entity<Nob>().HasKey(e => e.HobId1);
@@ -4019,7 +4017,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 "ShadowId",
-                modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                modelBuilder.Model.FindEntityType(typeof(Beta))!.FindNavigation("FirstNav")!.ForeignKey.Properties.Single().Name);
         }
 
         [Fact]
@@ -4038,7 +4036,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 "ShadowId",
-                modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                modelBuilder.Model.FindEntityType(typeof(Beta))!.FindNavigation("FirstNav")!.ForeignKey.Properties.Single().Name);
         }
 
         [Fact]
@@ -4050,10 +4048,10 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<Quarks>(b => b.HasOne<Beta>().WithOne().HasForeignKey<Quarks>("_forUp").IsRequired());
 
-            var fkProperty = modelBuilder.Model.FindEntityType(typeof(Quarks)).GetForeignKeys().Single().Properties.Single();
+            var fkProperty = modelBuilder.Model.FindEntityType(typeof(Quarks))!.GetForeignKeys().Single().Properties.Single();
             Assert.Equal("_forUp", fkProperty.Name);
             Assert.Equal(typeof(int), fkProperty.ClrType);
-            Assert.Equal("_forUp", fkProperty.FieldInfo.Name);
+            Assert.Equal("_forUp", fkProperty.FieldInfo!.Name);
         }
 
         [Fact]
@@ -4063,8 +4061,8 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Ignore<Epsilon>();
             modelBuilder.Entity<Alpha>().HasOne(b => b.NavDelta).WithOne();
 
-            var property = modelBuilder.Model.FindEntityType(typeof(Delta)).FindProperty("Id");
-            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
+            var property = modelBuilder.Model.FindEntityType(typeof(Delta))!.FindProperty("Id");
+            Assert.Equal(ValueGenerated.Never, property!.ValueGenerated);
         }
 
         [Fact]
@@ -4091,7 +4089,7 @@ public abstract partial class ModelBuilderTest
                 .Metadata;
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
-            Assert.Empty(entityType.GetNavigations());
+            Assert.Empty(entityType!.GetNavigations());
             Assert.Same(relationship, entityType.GetForeignKeys().Single());
             Assert.Null(relationship.PrincipalToDependent);
             Assert.Null(relationship.DependentToPrincipal);
@@ -4113,7 +4111,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))!.FindNavigation("NavOneToOneDependentEntity")!
                 .ForeignKey;
 
             Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
@@ -4137,7 +4135,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))!.FindNavigation("NavOneToOneDependentEntity")!
                 .ForeignKey;
 
             Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
@@ -4161,7 +4159,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))!.FindNavigation("NavOneToOneDependentEntity")!
                 .ForeignKey;
 
             Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
@@ -4185,7 +4183,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))!.FindNavigation("NavOneToOneDependentEntity")!
                 .ForeignKey;
 
             Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
@@ -4377,7 +4375,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity)).FindNavigation("NavOneToOneDependentEntity")
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))!.FindNavigation("NavOneToOneDependentEntity")!
                 .ForeignKey;
 
             Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
@@ -4398,8 +4396,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))
-                .FindNavigation(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntity)).ForeignKey;
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))!
+                .FindNavigation(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntity))!.ForeignKey;
 
             Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
             Assert.Equal(typeof(OneToOneDependentEntity), fk.PrincipalEntityType.ClrType);
@@ -4419,8 +4417,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.FinalizeModel();
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntityWithAnnotation))
-                .FindNavigation("NavOneToOneDependentEntityWithAnnotation").ForeignKey;
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntityWithAnnotation))!
+                .FindNavigation("NavOneToOneDependentEntityWithAnnotation")!.ForeignKey;
 
             Assert.Equal(typeof(OneToOnePrincipalEntityWithAnnotation), fk.DeclaringEntityType.ClrType);
             Assert.Equal(typeof(OneToOneDependentEntityWithAnnotation), fk.PrincipalEntityType.ClrType);
@@ -4439,7 +4437,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 "Id",
-                modelBuilder.Model.FindEntityType(typeof(Book)).FindNavigation(Book.BookDetailsNavigation.Name).ForeignKey.Properties
+                modelBuilder.Model.FindEntityType(typeof(Book))!.FindNavigation(Book.BookDetailsNavigation.Name)!.ForeignKey.Properties
                     .Single().Name);
         }
 
@@ -4470,8 +4468,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
-            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity))
-                .FindNavigation(OneToOneDependentEntity.NavigationProperty).ForeignKey;
+            var fk = modelBuilder.Model.FindEntityType(typeof(OneToOneDependentEntity))!
+                .FindNavigation(OneToOneDependentEntity.NavigationProperty)!.ForeignKey;
 
             Assert.Equal(typeof(OneToOneDependentEntity), fk.PrincipalEntityType.ClrType);
             Assert.Equal(typeof(OneToOnePrincipalEntity), fk.DeclaringEntityType.ClrType);
@@ -4511,11 +4509,11 @@ public abstract partial class ModelBuilderTest
                 .Navigation(e => e.Dependent)
                 .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-            var principal = (IReadOnlyEntityType)model.FindEntityType(typeof(OneToOneNavPrincipal));
-            var dependent = (IReadOnlyEntityType)model.FindEntityType(typeof(NavDependent));
+            var principal = (IReadOnlyEntityType)model.FindEntityType(typeof(OneToOneNavPrincipal))!;
+            var dependent = (IReadOnlyEntityType)model.FindEntityType(typeof(NavDependent))!;
 
-            Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependent").GetPropertyAccessMode());
-            Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOnePrincipal").GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.Field, principal!.FindNavigation("Dependent")!.GetPropertyAccessMode());
+            Assert.Equal(PropertyAccessMode.Property, dependent!.FindNavigation("OneToOnePrincipal")!.GetPropertyAccessMode());
         }
 
         [Fact]
@@ -4545,7 +4543,7 @@ public abstract partial class ModelBuilderTest
             var model = modelBuilder.FinalizeModel();
 
             var queryResult = model.FindEntityType(typeof(QueryResult));
-            Assert.NotNull(queryResult.FindNavigation(nameof(QueryResult.Value)));
+            Assert.NotNull(queryResult!.FindNavigation(nameof(QueryResult.Value)));
             Assert.Null(queryResult.FindProperty("TempId"));
         }
     }

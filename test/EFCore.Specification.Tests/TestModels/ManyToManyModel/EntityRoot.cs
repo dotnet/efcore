@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-#nullable disable
-
 public class EntityRoot
 {
     public virtual int Id { get; set; }
-    public virtual string Name { get; set; }
-    public virtual ICollection<EntityThree> ThreeSkipShared { get; set; }
-    public virtual ICollection<EntityCompositeKey> CompositeKeySkipShared { get; set; }
-    public virtual ICollection<EntityBranch> BranchSkipShared { get; set; }
+    public virtual string? Name { get; set; }
+    public virtual ICollection<EntityThree> ThreeSkipShared { get; set; } = null!;
+    public virtual ICollection<EntityCompositeKey> CompositeKeySkipShared { get; set; } = null!;
+    public virtual ICollection<EntityBranch> BranchSkipShared { get; set; } = null!;
 }

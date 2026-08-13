@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 
-#nullable disable
-
 public class FunkyDataData : ISetSource
 {
     public static readonly FunkyDataData Instance = new();

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
     [Theory, InlineData(false, false, false), InlineData(true, false, false), InlineData(false, true, false),
@@ -18,7 +16,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         var savingEventCalled = false;
         var resultFromEvent = 0;
-        Exception exceptionFromEvent = null;
+        Exception exceptionFromEvent = null!;
 
         context.SavingChanges += (sender, args) =>
         {
@@ -61,8 +59,8 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         AssertNormalOutcome(context, interceptor, async);
 
         listener.AssertEventsInOrder(
-            CoreEventId.SaveChangesStarting.Name,
-            CoreEventId.SaveChangesCompleted.Name);
+            CoreEventId.SaveChangesStarting.Name!,
+            CoreEventId.SaveChangesCompleted.Name!);
 
         Assert.Equal(1, context.Set<Singularity>().AsNoTracking().Count(e => e.Id == 35));
     }
@@ -80,7 +78,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         var savingEventCalled = false;
         var resultFromEvent = 0;
-        Exception exceptionFromEvent = null;
+        Exception exceptionFromEvent = null!;
 
         context.SavingChanges += (sender, args) =>
         {
@@ -123,8 +121,8 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         AssertNormalOutcome(context, interceptor, async);
 
         listener.AssertEventsInOrder(
-            CoreEventId.SaveChangesStarting.Name,
-            CoreEventId.SaveChangesCompleted.Name);
+            CoreEventId.SaveChangesStarting.Name!,
+            CoreEventId.SaveChangesCompleted.Name!);
 
         Assert.Equal(0, context.Set<Singularity>().AsNoTracking().Count(e => e.Id == 35));
     }
@@ -160,7 +158,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         var savingEventCalled = false;
         var resultFromEvent = 0;
-        Exception exceptionFromEvent = null;
+        Exception exceptionFromEvent = null!;
 
         context.SavingChanges += (sender, args) =>
         {
@@ -203,8 +201,8 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         AssertNormalOutcome(context, interceptor, async);
 
         listener.AssertEventsInOrder(
-            CoreEventId.SaveChangesStarting.Name,
-            CoreEventId.SaveChangesCompleted.Name);
+            CoreEventId.SaveChangesStarting.Name!,
+            CoreEventId.SaveChangesCompleted.Name!);
 
         Assert.Equal(1, context.Set<Singularity>().AsNoTracking().Count(e => e.Id == 35));
     }
@@ -258,7 +256,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         var savingEventCalled = false;
         var resultFromEvent = -1;
-        Exception exceptionFromEvent = null;
+        Exception exceptionFromEvent = null!;
 
         context.SavingChanges += (sender, args) =>
         {
@@ -283,7 +281,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
-        Exception thrown = null;
+        Exception thrown = null!;
 
         try
         {
@@ -318,14 +316,14 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
             Assert.Same(entry.Entity, interceptor.Entries[0].Entity);
 
             listener.AssertEventsInOrder(
-                CoreEventId.SaveChangesStarting.Name,
-                CoreEventId.OptimisticConcurrencyException.Name);
+                CoreEventId.SaveChangesStarting.Name!,
+                CoreEventId.OptimisticConcurrencyException.Name!);
         }
         else
         {
             listener.AssertEventsInOrder(
-                CoreEventId.SaveChangesStarting.Name,
-                CoreEventId.SaveChangesFailed.Name);
+                CoreEventId.SaveChangesStarting.Name!,
+                CoreEventId.SaveChangesFailed.Name!);
         }
     }
 
@@ -347,7 +345,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         var savingEventCalled = false;
         var resultFromEvent = -1;
-        Exception exceptionFromEvent = null;
+        Exception exceptionFromEvent = null!;
 
         context.SavingChanges += (sender, args) =>
         {
@@ -372,7 +370,7 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
 
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
 
-        Exception thrown = null;
+        Exception thrown = null!;
 
         try
         {
@@ -405,9 +403,9 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         Assert.Same(entry.Entity, interceptor.Entries[0].Entity);
 
         listener.AssertEventsInOrder(
-            CoreEventId.SaveChangesStarting.Name,
-            CoreEventId.OptimisticConcurrencyException.Name,
-            CoreEventId.SaveChangesCompleted.Name);
+            CoreEventId.SaveChangesStarting.Name!,
+            CoreEventId.OptimisticConcurrencyException.Name!,
+            CoreEventId.SaveChangesCompleted.Name!);
     }
 
     protected class ConcurrencySuppressingSaveChangesInterceptor : SaveChangesInterceptorBase
@@ -466,17 +464,17 @@ public abstract class SaveChangesInterceptionTestBase(InterceptionTestBase.Inter
         AssertNormalOutcome(context, interceptor4, async);
 
         listener.AssertEventsInOrder(
-            CoreEventId.SaveChangesStarting.Name,
-            CoreEventId.SaveChangesCompleted.Name);
+            CoreEventId.SaveChangesStarting.Name!,
+            CoreEventId.SaveChangesCompleted.Name!);
 
         Assert.Equal(1, context.Set<Singularity>().AsNoTracking().Count(e => e.Id == 35));
     }
 
     protected abstract class SaveChangesInterceptorBase : ISaveChangesInterceptor
     {
-        public DbContext Context { get; set; }
-        public Exception Exception { get; set; }
-        public IReadOnlyList<EntityEntry> Entries { get; set; }
+        public DbContext Context { get; set; } = null!;
+        public Exception Exception { get; set; } = null!;
+        public IReadOnlyList<EntityEntry> Entries { get; set; } = null!;
         public bool AsyncCalled { get; set; }
         public bool SyncCalled { get; set; }
         public bool FailedCalled { get; set; }

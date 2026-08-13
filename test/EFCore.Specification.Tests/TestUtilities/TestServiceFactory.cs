@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class TestServiceFactory
 {
     public static readonly TestServiceFactory Instance = new();
@@ -38,7 +36,7 @@ public class TestServiceFactory
         return _factories.GetOrAdd(
                 typeof(TService),
                 t => AddType([], typeof(TService), exceptions).BuildServiceProvider(validateScopes: true))
-            .GetService<TService>();
+            .GetService<TService>()!;
     }
 
     private static ServiceCollection AddType(
@@ -110,7 +108,7 @@ public class TestServiceFactory
             : (IList<(Type ServiceType, Type ImplementationType)>)implementationTypes.Select(t => (elementType, t)).ToList();
     }
 
-    private static Type TryGetEnumerableType(Type type)
+    private static Type? TryGetEnumerableType(Type type)
         => !type.IsGenericTypeDefinition
             && type.IsGenericType
             && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)

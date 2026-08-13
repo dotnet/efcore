@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : OwnedQueryTestBase<TFixture>.OwnedQueryFixtureBase, new()
 {
@@ -63,7 +61,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => from a in ss.Set<LeafA>()
                   from b in ss.Set<LeafB>()
-                  where a.LeafAAddress.Equals(b.LeafBAddress)
+                  where a.LeafAAddress!.Equals(b.LeafBAddress)
                   select a,
             assertEmpty: true);
 
@@ -128,20 +126,20 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(o => o.Id).Select(p => p.PersonAddress.Country));
+            ss => ss.Set<OwnedPerson>().OrderBy(o => o.Id).Select(p => p.PersonAddress!.Country));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA")
-                .Select(p => p.PersonAddress.Country.Name));
+            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress!.Country!.Name == "USA")
+                .Select(p => p.PersonAddress!.Country!.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_projecting_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA"));
+            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress!.Country!.Name == "USA"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_collection(bool async)
@@ -163,7 +161,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>()
-                .Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Client.PersonAddress.Country.Name).FirstOrDefault()));
+                .Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Client.PersonAddress!.Country!.Name).FirstOrDefault()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_on_owned_collection(bool async)
@@ -191,13 +189,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet));
+            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress!.Country!.Planet));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id)
+            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress!.Country!.Planet.Id != 42).OrderBy(p => p.Id)
                 .Select(p => new { p.Orders }),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders));
@@ -211,7 +209,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     p.Orders,
                     p.PersonAddress,
-                    p.PersonAddress.Country.Planet
+                    p.PersonAddress!.Country!.Planet
                 }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -227,8 +225,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => new
             {
-                Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(),
-                p.PersonAddress.Country.Planet
+                Count = p.Orders.Where(o => o.Client.PersonAddress!.Country!.Planet.Star.Id != 42).Count(),
+                p.PersonAddress!.Country!.Planet
             }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -241,7 +239,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 7).Select(p => new { p }),
+            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress!.Country!.Planet.Id != 7).Select(p => new { p }),
             elementSorter: e => e.p.Id,
             elementAsserter: (e, a) => AssertEqual(e.p, a.p));
 
@@ -249,13 +247,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Id));
+            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress!.Country!.Planet.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons),
+            ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress!.Country!.Planet.Moons),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
@@ -263,31 +261,31 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().SelectMany(p => p.PersonAddress.Country.Planet.Moons));
+            ss => ss.Set<OwnedPerson>().SelectMany(p => p.PersonAddress!.Country!.Planet.Moons));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().SelectMany(p => p.PersonAddress.Country.Planet.Star.Composition));
+            ss => ss.Set<OwnedPerson>().SelectMany(p => p.PersonAddress!.Country!.Planet.Star.Composition));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Moons.Count));
+            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress!.Country!.Planet.Moons.Count));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Star));
+            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress!.Country!.Planet.Star));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Star.Name),
+            ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress!.Country!.Planet.Star.Name),
             elementSorter: e => e);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -295,8 +293,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Star.Name == "Sol")
-                .Select(p => p.PersonAddress.Country.Planet.Star));
+            ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress!.Country!.Planet.Star.Name == "Sol")
+                .Select(p => p.PersonAddress!.Country!.Planet.Star));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
@@ -314,7 +312,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual async Task Throw_for_owned_entities_without_owner_in_tracking_query(bool async)
     {
         using var context = CreateContext();
-        var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress);
+        var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress!);
         var noTrackingQuery = query.AsNoTracking();
         var asTrackingQuery = query.AsTracking();
 
@@ -336,7 +334,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual async Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
     {
         using var context = CreateContext();
-        var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress);
+        var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress!);
 
         query = useAsTracking
             ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
@@ -398,7 +396,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<OwnedPerson>().OrderBy(e => e.Id).Select(e => Map(e)).Skip(1).Take(2));
 
     private static string Map(OwnedPerson person)
-        => person.PersonAddress.Country.Name;
+        => person.PersonAddress!.Country!.Name;
 
     // Issue#18734
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -492,7 +490,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Can_query_on_owned_indexer_properties(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(c => (int)c.PersonAddress["ZipCode"] == 38654).Select(c => (string)c["Name"]));
+            ss => ss.Set<OwnedPerson>().Where(c => (int)c.PersonAddress!["ZipCode"] == 38654).Select(c => (string)c["Name"]));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
@@ -513,7 +511,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Can_project_owned_indexer_properties(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Select(c => c.PersonAddress["AddressLine"]));
+            ss => ss.Set<OwnedPerson>().Select(c => c.PersonAddress!["AddressLine"]));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_project_indexer_properties_converted(bool async)
@@ -525,7 +523,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Can_project_owned_indexer_properties_converted(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Select(c => (string)c.PersonAddress["AddressLine"]));
+            ss => ss.Set<OwnedPerson>().Select(c => (string)c.PersonAddress!["AddressLine"]));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_OrderBy_indexer_properties(bool async)
@@ -545,14 +543,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Can_OrderBy_owned_indexer_properties(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(c => c.PersonAddress["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
+            ss => ss.Set<OwnedPerson>().OrderBy(c => c.PersonAddress!["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_OrderBy_owned_indexer_properties_converted(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(c => (int)c.PersonAddress["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
+            ss => ss.Set<OwnedPerson>().OrderBy(c => (int)c.PersonAddress!["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -571,13 +569,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Can_group_by_owned_indexer_property(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<OwnedPerson>().GroupBy(c => c.PersonAddress["ZipCode"]).Select(g => g.Count()));
+            ss => ss.Set<OwnedPerson>().GroupBy(c => c.PersonAddress!["ZipCode"]).Select(g => g.Count()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_group_by_converted_owned_indexer_property(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<OwnedPerson>().GroupBy(c => (int)c.PersonAddress["ZipCode"]).Select(g => g.Count()));
+            ss => ss.Set<OwnedPerson>().GroupBy(c => (int)c.PersonAddress!["ZipCode"]).Select(g => g.Count()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Can_join_on_indexer_property_on_query(bool async)
@@ -586,29 +584,29 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss =>
                 (from c1 in ss.Set<OwnedPerson>()
                  join c2 in ss.Set<OwnedPerson>()
-                     on c1.PersonAddress["ZipCode"] equals c2.PersonAddress["ZipCode"]
-                 select new { c1.Id, c2.PersonAddress.Country.Name }));
+                     on c1.PersonAddress!["ZipCode"] equals c2.PersonAddress!["ZipCode"]
+                 select new { c1.Id, c2.PersonAddress!.Country!.Name }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_indexer_property_ignores_include(bool async)
         => AssertQuery(
             async,
             ss => from c in ss.Set<OwnedPerson>().AsTracking()
-                  select new { Nation = c.PersonAddress["ZipCode"] });
+                  select new { Nation = c.PersonAddress!["ZipCode"] });
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_indexer_property_ignores_include_converted(bool async)
         => AssertQuery(
             async,
             ss => from c in ss.Set<OwnedPerson>().AsTracking()
-                  select new { Nation = (int)c.PersonAddress["ZipCode"] });
+                  select new { Nation = (int)c.PersonAddress!["ZipCode"] });
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Indexer_property_is_pushdown_into_subquery(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>()
-                .Where(g => (string)ss.Set<OwnedPerson>().Where(c => c.Id == g.Id).FirstOrDefault()["Name"] == "Mona Cy")
+                .Where(g => (string)ss.Set<OwnedPerson>().Where(c => c.Id == g.Id).FirstOrDefault()!["Name"] == "Mona Cy")
                 .Select(c => (string)c["Name"]));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -667,7 +665,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().GroupBy(e => 1, x => x.PersonAddress.Country.Planet.Star).Select(e => new
+            ss => ss.Set<OwnedPerson>().GroupBy(e => 1, x => x.PersonAddress!.Country!.Planet.Star).Select(e => new
             {
                 p1 = e.Average(x => x.Id),
                 p2 = e.Sum(x => x.Id),
@@ -680,13 +678,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             "Nullable object must have a value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
                 async,
-                ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })))).Message);
+                ss => ss.Set<Barton>().Select(e => new { e.Throned!.Value })))).Message);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Ordering_by_identifying_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().OrderBy(p => p.PersonAddress.PlaceType).ThenBy(e => e.Id),
+            ss => ss.Set<OwnedPerson>().OrderBy(p => p.PersonAddress!.PlaceType).ThenBy(e => e.Id),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -715,7 +713,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Fink>().OrderBy(f => f.Id).Select(f => f.Barton.Throned.Value)
+            ss => ss.Set<Fink>().OrderBy(f => f.Id).Select(f => f.Barton!.Throned!.Value)
                 .Select(t => new { t, Planets = ss.Set<Planet>().Where(p => p.Id != t).ToList() }),
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -731,7 +729,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => (int)p.PersonAddress[zipCode] == 38654));
+            ss => ss.Set<OwnedPerson>().Where(p => (int)p.PersonAddress![zipCode] == 38654));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -744,8 +742,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             using var ctx = CreateContext();
 
             var query = async
-                ? await ctx.Set<OwnedPerson>().Where(p => (int)p.PersonAddress[n] == 38654).ToListAsync()
-                : ctx.Set<OwnedPerson>().Where(p => (int)p.PersonAddress[n] == 38654).ToList();
+                ? await ctx.Set<OwnedPerson>().Where(p => (int)p.PersonAddress![n] == 38654).ToListAsync()
+                : ctx.Set<OwnedPerson>().Where(p => (int)p.PersonAddress![n] == 38654).ToList();
 
             Assert.Single(query);
         };
@@ -817,7 +815,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<OwnedPerson>()
                 .GroupBy(e => e.Id)
-                .Select(e => new { e.Key, Sum = e.Sum(i => i.PersonAddress.Country.PlanetId) }),
+                .Select(e => new { e.Key, Sum = e.Sum(i => i.PersonAddress!.Country!.PlanetId) }),
             elementSorter: e => e.Key,
             elementAsserter: (e, a) =>
             {
@@ -862,8 +860,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task ElementAtOrDefault_over_owned_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.ElementAtOrDefault(10).Id == -11),
-            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 11 && p.Orders.ElementAtOrDefault(1).Id == -11),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.ElementAtOrDefault(10)!.Id == -11),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 11 && p.Orders.ElementAtOrDefault(1)!.Id == -11),
             assertEmpty: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -883,9 +881,9 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task FirstOrDefault_over_owned_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018),
+            ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)!["OrderDate"]).Year == 2018),
             ss => ss.Set<OwnedPerson>().Where(p => p.Orders.FirstOrDefault(o => o.Id > -20) != null
-                && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
+                && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)!["OrderDate"]).Year == 2018));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Distinct_over_owned_collection(bool async)
@@ -905,7 +903,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     public abstract class OwnedQueryFixtureBase : QueryFixtureBase<PoolableDbContext>
     {
-        private OwnedQueryData _expectedData;
+        private OwnedQueryData _expectedData = null!;
 
         private static void AssertAddress(OwnedAddress expectedAddress, OwnedAddress actualAddress)
         {
@@ -915,7 +913,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             Assert.Equal(expectedAddress["LeafType"], actualAddress["LeafType"]);
             Assert.Equal(expectedAddress["LeafBType"], actualAddress["LeafBType"]);
             Assert.Equal(expectedAddress.PlaceType, actualAddress.PlaceType);
-            Assert.Equal(expectedAddress.Country.PlanetId, actualAddress.Country.PlanetId);
+            Assert.Equal(expectedAddress.Country!.PlanetId, actualAddress.Country!.PlanetId);
             Assert.Equal(expectedAddress.Country.Name, actualAddress.Country.Name);
         }
 
@@ -945,28 +943,28 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         public override ISetSource GetExpectedData()
             => _expectedData ??= new OwnedQueryData();
 
-        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
         {
-            { typeof(OwnedPerson), e => ((OwnedPerson)e)?.Id },
-            { typeof(Branch), e => ((Branch)e)?.Id },
-            { typeof(LeafA), e => ((LeafA)e)?.Id },
-            { typeof(LeafB), e => ((LeafB)e)?.Id },
-            { typeof(Planet), e => ((Planet)e)?.Id },
-            { typeof(Star), e => ((Star)e)?.Id },
-            { typeof(Moon), e => ((Moon)e)?.Id },
-            { typeof(Fink), e => ((Fink)e)?.Id },
-            { typeof(Barton), e => ((Barton)e)?.Id },
+            { typeof(OwnedPerson), e => ((OwnedPerson?)e)?.Id },
+            { typeof(Branch), e => ((Branch?)e)?.Id },
+            { typeof(LeafA), e => ((LeafA?)e)?.Id },
+            { typeof(LeafB), e => ((LeafB?)e)?.Id },
+            { typeof(Planet), e => ((Planet?)e)?.Id },
+            { typeof(Star), e => ((Star?)e)?.Id },
+            { typeof(Moon), e => ((Moon?)e)?.Id },
+            { typeof(Fink), e => ((Fink?)e)?.Id },
+            { typeof(Barton), e => ((Barton?)e)?.Id },
 
             // owned entities - still need comparers in case they are projected directly
-            { typeof(Order), e => ((Order)e)?.Id },
-            { typeof(OrderDetail), e => ((OrderDetail)e)?.Detail },
-            { typeof(OwnedAddress), e => ((OwnedAddress)e)?.Country.Name },
-            { typeof(OwnedCountry), e => ((OwnedCountry)e)?.Name },
-            { typeof(Element), e => ((Element)e)?.Id },
-            { typeof(Throned), e => ((Throned)e)?.Property }
+            { typeof(Order), e => ((Order?)e)?.Id },
+            { typeof(OrderDetail), e => ((OrderDetail?)e)?.Detail },
+            { typeof(OwnedAddress), e => ((OwnedAddress?)e)?.Country!.Name },
+            { typeof(OwnedCountry), e => ((OwnedCountry?)e)?.Name },
+            { typeof(Element), e => ((Element?)e)?.Id },
+            { typeof(Throned), e => ((Throned?)e)?.Property }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
         {
             {
                 typeof(OwnedPerson), (e, a) =>
@@ -974,28 +972,28 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (OwnedPerson)e;
+                        var ee = (OwnedPerson)e!;
                         var aa = (OwnedPerson)a;
 
                         Assert.Equal(ee.Id, aa.Id);
                         Assert.Equal(ee["Name"], aa["Name"]);
-                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                        AssertAddress(ee.PersonAddress!, aa.PersonAddress!);
                         AssertOrders(ee.Orders, aa.Orders);
                     }
 
                     if (e is Branch branch)
                     {
-                        AssertAddress(branch.BranchAddress, ((Branch)a).BranchAddress);
+                        AssertAddress(branch.BranchAddress!, ((Branch)a!).BranchAddress!);
                     }
 
                     if (e is LeafA leafA)
                     {
-                        AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
+                        AssertAddress(leafA.LeafAAddress!, ((LeafA)a!).LeafAAddress!);
                     }
 
                     if (e is LeafB leafB)
                     {
-                        AssertAddress(leafB.LeafBAddress, ((LeafB)a).LeafBAddress);
+                        AssertAddress(leafB.LeafBAddress!, ((LeafB)a!).LeafBAddress!);
                     }
                 }
             },
@@ -1005,18 +1003,18 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (Branch)e;
+                        var ee = (Branch)e!;
                         var aa = (Branch)a;
 
                         Assert.Equal(ee.Id, aa.Id);
-                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                        AssertAddress(ee.BranchAddress, aa.BranchAddress);
+                        AssertAddress(ee.PersonAddress!, aa.PersonAddress!);
+                        AssertAddress(ee.BranchAddress!, aa.BranchAddress!);
                         AssertOrders(ee.Orders, aa.Orders);
                     }
 
                     if (e is LeafA leafA)
                     {
-                        AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
+                        AssertAddress(leafA.LeafAAddress!, ((LeafA)a!).LeafAAddress!);
                     }
                 }
             },
@@ -1026,13 +1024,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (LeafA)e;
+                        var ee = (LeafA)e!;
                         var aa = (LeafA)a;
 
                         Assert.Equal(ee.Id, aa.Id);
-                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                        AssertAddress(ee.BranchAddress, aa.BranchAddress);
-                        AssertAddress(ee.LeafAAddress, aa.LeafAAddress);
+                        AssertAddress(ee.PersonAddress!, aa.PersonAddress!);
+                        AssertAddress(ee.BranchAddress!, aa.BranchAddress!);
+                        AssertAddress(ee.LeafAAddress!, aa.LeafAAddress!);
                         AssertOrders(ee.Orders, aa.Orders);
                     }
                 }
@@ -1043,12 +1041,12 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (LeafB)e;
+                        var ee = (LeafB)e!;
                         var aa = (LeafB)a;
 
                         Assert.Equal(ee.Id, aa.Id);
-                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                        AssertAddress(ee.LeafBAddress, aa.LeafBAddress);
+                        AssertAddress(ee.PersonAddress!, aa.PersonAddress!);
+                        AssertAddress(ee.LeafBAddress!, aa.LeafBAddress!);
                         AssertOrders(ee.Orders, aa.Orders);
                     }
                 }
@@ -1059,7 +1057,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (Planet)e;
+                        var ee = (Planet)e!;
                         var aa = (Planet)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -1074,7 +1072,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (Star)e;
+                        var ee = (Star)e!;
                         var aa = (Star)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -1095,7 +1093,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (Moon)e;
+                        var ee = (Moon)e!;
                         var aa = (Moon)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -1110,7 +1108,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        Assert.Equal(((Fink)e).Id, ((Fink)a).Id);
+                        Assert.Equal(((Fink)e!).Id, ((Fink)a).Id);
                     }
                 }
             },
@@ -1120,12 +1118,12 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (Barton)e;
+                        var ee = (Barton)e!;
                         var aa = (Barton)a;
 
                         Assert.Equal(ee.Id, aa.Id);
                         Assert.Equal(ee.Simple, aa.Simple);
-                        Assert.Equal(ee.Throned.Property, aa.Throned.Property);
+                        Assert.Equal(ee.Throned!.Property, aa.Throned!.Property);
                     }
                 }
             },
@@ -1137,7 +1135,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        Assert.Equal(((Order)e).Id, ((Order)a).Id);
+                        Assert.Equal(((Order)e!).Id, ((Order)a).Id);
                     }
                 }
             },
@@ -1147,18 +1145,18 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        Assert.Equal(((OrderDetail)e).Detail, ((OrderDetail)a).Detail);
+                        Assert.Equal(((OrderDetail)e!).Detail, ((OrderDetail)a).Detail);
                     }
                 }
             },
-            { typeof(OwnedAddress), (e, a) => AssertAddress((OwnedAddress)e, (OwnedAddress)a) },
+            { typeof(OwnedAddress), (e, a) => AssertAddress((OwnedAddress)e!, (OwnedAddress)a!) },
             {
                 typeof(OwnedCountry), (e, a) =>
                 {
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (OwnedCountry)e;
+                        var ee = (OwnedCountry)e!;
                         var aa = (OwnedCountry)a;
 
                         Assert.Equal(ee.Name, aa.Name);
@@ -1172,7 +1170,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        var ee = (Element)e;
+                        var ee = (Element)e!;
                         var aa = (Element)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -1187,8 +1185,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     Assert.Equal(e == null, a == null);
                     if (a != null)
                     {
-                        Assert.Equal(((Throned)e).Value, ((Throned)a).Value);
-                        Assert.Equal(((Throned)e).Property, ((Throned)a).Property);
+                        Assert.Equal(((Throned)e!).Value, ((Throned)a).Value);
+                        Assert.Equal(((Throned)e!).Property, ((Throned)a).Property);
                     }
                 }
             }
@@ -1210,6 +1208,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     {
                         ab.IndexerProperty<string>("AddressLine");
                         ab.IndexerProperty(typeof(int), "ZipCode");
+                        ab.Property(a => a.PlaceType).IsRequired(false);
                         ab.HasData(
                             new
                             {
@@ -1243,6 +1242,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         ab.OwnsOne(
                             a => a.Country, cb =>
                             {
+                                cb.Property(c => c.Name).IsRequired(false);
                                 cb.HasData(
                                     new
                                     {
@@ -1272,7 +1272,9 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                                 cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
                                     .OnDelete(DeleteBehavior.Restrict);
                             });
+                                ab.Navigation(a => a.Country).IsRequired(false);
                     });
+                eb.Navigation(p => p.PersonAddress).IsRequired(false);
 
                 eb.OwnsMany(
                     p => p.Orders, ob =>
@@ -1352,6 +1354,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     p => p.BranchAddress, ab =>
                     {
                         ab.IndexerProperty<string>("BranchName").IsRequired();
+                        ab.Property(a => a.PlaceType).IsRequired(false);
                         ab.HasData(
                             new
                             {
@@ -1367,20 +1370,26 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                             });
 
                         ab.OwnsOne(
-                            a => a.Country, cb => cb.HasData(
-                                new
-                                {
-                                    OwnedAddressBranchId = 2,
-                                    PlanetId = 1,
-                                    Name = "Canada"
-                                },
-                                new
-                                {
-                                    OwnedAddressBranchId = 3,
-                                    PlanetId = 1,
-                                    Name = "Canada"
-                                }));
+                            a => a.Country, cb =>
+                            {
+                                cb.Property(c => c.Name).IsRequired(false);
+                                cb.HasData(
+                                    new
+                                    {
+                                        OwnedAddressBranchId = 2,
+                                        PlanetId = 1,
+                                        Name = "Canada"
+                                    },
+                                    new
+                                    {
+                                        OwnedAddressBranchId = 3,
+                                        PlanetId = 1,
+                                        Name = "Canada"
+                                    });
+                            });
+                        ab.Navigation(a => a.Country).IsRequired(false);
                     });
+                eb.Navigation(p => p.BranchAddress).IsRequired(false);
             });
 
             modelBuilder.Entity<LeafA>(eb =>
@@ -1393,6 +1402,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     p => p.LeafAAddress, ab =>
                     {
                         ab.IndexerProperty<int>("LeafType");
+                        ab.Property(a => a.PlaceType).IsRequired(false);
 
                         ab.HasData(
                             new
@@ -1405,6 +1415,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         ab.OwnsOne(
                             a => a.Country, cb =>
                             {
+                                cb.Property(c => c.Name).IsRequired(false);
                                 cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
                                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -1416,6 +1427,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                                         Name = "Mexico"
                                     });
                             });
+                                ab.Navigation(a => a.Country).IsRequired(false);
                     });
             });
 
@@ -1429,6 +1441,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     p => p.LeafBAddress, ab =>
                     {
                         ab.IndexerProperty<string>("LeafBType").IsRequired();
+                        ab.Property(a => a.PlaceType).IsRequired(false);
                         ab.HasData(
                             new
                             {
@@ -1440,6 +1453,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         ab.OwnsOne(
                             a => a.Country, cb =>
                             {
+                                cb.Property(c => c.Name).IsRequired(false);
                                 cb.HasOne(c => c.Planet).WithMany().HasForeignKey(c => c.PlanetId)
                                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -1451,7 +1465,9 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                                         Name = "Panama"
                                     });
                             });
+                                ab.Navigation(a => a.Country).IsRequired(false);
                     });
+                            eb.Navigation(p => p.LeafBAddress).IsRequired(false);
             });
 
             modelBuilder.Entity<Planet>(pb => pb.HasData(
@@ -1813,20 +1829,20 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             IReadOnlyList<Fink> finks,
             IReadOnlyList<Barton> bartons)
         {
-            ownedPeople[0].PersonAddress.Country.Planet = planets[0];
+            ownedPeople[0].PersonAddress!.Country!.Planet = planets[0];
 
             var branch = (Branch)ownedPeople[1];
-            branch.PersonAddress.Country.Planet = planets[0];
-            branch.BranchAddress.Country.Planet = planets[0];
+            branch.PersonAddress!.Country!.Planet = planets[0];
+            branch.BranchAddress!.Country!.Planet = planets[0];
 
             var leafA = (LeafA)ownedPeople[2];
-            leafA.PersonAddress.Country.Planet = planets[0];
-            leafA.BranchAddress.Country.Planet = planets[0];
-            leafA.LeafAAddress.Country.Planet = planets[0];
+            leafA.PersonAddress!.Country!.Planet = planets[0];
+            leafA.BranchAddress!.Country!.Planet = planets[0];
+            leafA.LeafAAddress!.Country!.Planet = planets[0];
 
             var leafB = (LeafB)ownedPeople[3];
-            leafB.PersonAddress.Country.Planet = planets[0];
-            leafB.LeafBAddress.Country.Planet = planets[0];
+            leafB.PersonAddress!.Country!.Planet = planets[0];
+            leafB.LeafBAddress!.Country!.Planet = planets[0];
 
             planets[0].Moons = [moons[0]];
             planets[0].Star = stars[0];
@@ -1838,14 +1854,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected class OwnedAddress
     {
-        private string _addressLine;
+        private string _addressLine = null!;
         private int _zipCode;
-        private string _branchName;
+        private string _branchName = null!;
         private int _leafAType;
-        private string _leafBType;
+        private string _leafBType = null!;
 
-        public string PlaceType { get; set; }
-        public OwnedCountry Country { get; set; }
+        public string PlaceType { get; set; } = null!;
+        public OwnedCountry? Country { get; set; }
 
         public object this[string name]
         {
@@ -1894,15 +1910,15 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected class OwnedCountry
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public int PlanetId { get; set; }
-        public Planet Planet { get; set; }
+        public Planet Planet { get; set; } = null!;
     }
 
     protected class OwnedPerson
     {
-        private string _name;
+        private string _name = null!;
 
         public int Id { get; set; }
 
@@ -1917,12 +1933,12 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
         }
 
-        public OwnedAddress PersonAddress { get; set; }
+        public OwnedAddress? PersonAddress { get; set; }
 
         public int ReadOnlyProperty
             => 10;
 
-        public ICollection<Order> Orders { get; set; }
+        public ICollection<Order> Orders { get; set; } = null!;
     }
 
     protected class Order
@@ -1941,41 +1957,41 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 : throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
         }
 
-        public OwnedPerson Client { get; set; }
+        public OwnedPerson Client { get; set; } = null!;
 
-        public List<OrderDetail> Details { get; set; }
+        public List<OrderDetail> Details { get; set; } = null!;
     }
 
     protected class OrderDetail
     {
-        public string Detail { get; set; }
+        public string Detail { get; set; } = null!;
     }
 
     protected class Branch : OwnedPerson
     {
-        public OwnedAddress BranchAddress { get; set; }
+        public OwnedAddress? BranchAddress { get; set; }
     }
 
     protected class LeafA : Branch
     {
-        public OwnedAddress LeafAAddress { get; set; }
+        public OwnedAddress? LeafAAddress { get; set; }
     }
 
     protected class LeafB : OwnedPerson
     {
-        public OwnedAddress LeafBAddress { get; set; }
+        public OwnedAddress? LeafBAddress { get; set; }
     }
 
     protected class Planet
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public int StarId { get; set; }
-        public Star Star { get; set; }
+        public Star Star { get; set; } = null!;
 
-        public List<Moon> Moons { get; set; }
+        public List<Moon> Moons { get; set; } = null!;
     }
 
     protected class Moon
@@ -1989,17 +2005,17 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     protected class Star
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public List<Element> Composition { get; set; }
+        public List<Element> Composition { get; set; } = null!;
 
-        public List<Planet> Planets { get; set; }
+        public List<Planet> Planets { get; set; } = null!;
     }
 
     protected class Element
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
 
         public int StarId { get; set; }
     }
@@ -2008,14 +2024,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         public int Id { get; set; }
 
-        public Throned Throned { get; set; }
+        public Throned? Throned { get; set; }
 
-        public string Simple { get; set; }
+        public string? Simple { get; set; }
     }
 
     protected class Fink
     {
-        public Barton Barton { get; set; }
+        public Barton? Barton { get; set; }
 
         public int Id { get; set; }
     }
@@ -2023,12 +2039,12 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     protected class Throned
     {
         public int Value { get; set; }
-        public string Property { get; set; }
+        public string? Property { get; set; }
     }
 
     protected abstract class Balloon
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     protected class Helium
@@ -2043,11 +2059,11 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     protected class HeliumBalloon : Balloon
     {
-        public Helium Gas { get; set; }
+        public Helium Gas { get; set; } = null!;
     }
 
     protected class HydrogenBalloon : Balloon
     {
-        public Hydrogen Gas { get; set; }
+        public Hydrogen Gas { get; set; } = null!;
     }
 }
