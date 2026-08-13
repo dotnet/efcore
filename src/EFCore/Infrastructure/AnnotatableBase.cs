@@ -148,7 +148,7 @@ public class AnnotatableBase : IAnnotatable
     {
         EnsureMutable();
 
-        _annotations ??= new Dictionary<string, Annotation>(StringComparer.Ordinal);
+        _annotations ??= [with(StringComparer.Ordinal)];
         _annotations[name] = annotation;
 
         return OnAnnotationSet(name, annotation, oldAnnotation);
@@ -200,12 +200,7 @@ public class AnnotatableBase : IAnnotatable
         Check.NotEmpty(annotationName);
 
         var annotation = annotatable.FindAnnotation(annotationName);
-        if (annotation == null)
-        {
-            throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName, annotatable.ToString()));
-        }
-
-        return annotation;
+        return annotation ?? throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName, annotatable.ToString()));
     }
 
     /// <summary>

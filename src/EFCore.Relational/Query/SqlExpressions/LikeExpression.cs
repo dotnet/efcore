@@ -104,8 +104,8 @@ public class LikeExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is LikeExpression likeExpression
-                && Equals(likeExpression));
+                || (obj is LikeExpression likeExpression
+                    && Equals(likeExpression)));
 
     private bool Equals(LikeExpression likeExpression)
         => base.Equals(likeExpression)

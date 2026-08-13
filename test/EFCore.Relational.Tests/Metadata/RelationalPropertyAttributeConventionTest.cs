@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class RelationalPropertyAttributeConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -22,7 +22,7 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal(1, entityBuilder.Property(e => e.Name).Metadata.GetColumnOrder());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_on_property_sets_column_comment_with_conventional_builder()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -32,7 +32,7 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal("Test column comment", entityBuilder.Property(e => e.Name).Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -44,7 +44,7 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal(1, entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnOrder());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_on_field_sets_column_comment_with_conventional_builder()
     {
         var modelBuilder = CreateConventionalModelBuilder();
@@ -54,12 +54,12 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal("Test column comment", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ColumnAttribute_overrides_configuration_from_convention_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
@@ -74,12 +74,12 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal("Test column comment", propertyBuilder.Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_overrides_configuration_from_convention_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ConventionalName", ConfigurationSource.Convention);
 
@@ -88,12 +88,12 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal("Test column comment", propertyBuilder.Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ColumnAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
@@ -108,12 +108,12 @@ public class RelationalPropertyAttributeConventionTest
         Assert.Equal("ExplicitComment", propertyBuilder.Metadata.GetComment());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void CommentAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ExplicitComment", ConfigurationSource.Explicit);
 
@@ -142,7 +142,7 @@ public class RelationalPropertyAttributeConventionTest
 
         var modelBuilder = new Model(conventionSet).Builder;
 
-        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit)!;
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -159,7 +159,7 @@ public class RelationalPropertyAttributeConventionTest
         public int Id { get; set; }
 
         [Column("Post Name", Order = 1, TypeName = "DECIMAL"), Comment("Test column comment")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     public class F
@@ -167,6 +167,6 @@ public class RelationalPropertyAttributeConventionTest
         public int Id { get; set; }
 
         [Column("Post Name", Order = 1, TypeName = "DECIMAL"), Comment("Test column comment")]
-        public string Name;
+        public string Name = null!;
     }
 }

@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
 
 public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
@@ -24,7 +22,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
 
     public static readonly IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQueryRaw_over_int(bool async)
     {
         using var context = CreateContext();
@@ -37,7 +35,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
         Assert.Equal(77, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_composed_Contains(bool async)
     {
         using var context = CreateContext();
@@ -53,7 +51,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
         Assert.Equal(0, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_composed_Join(bool async)
     {
         using var context = CreateContext();
@@ -70,7 +68,7 @@ public abstract class NorthwindSqlQueryTestBase<TFixture> : IClassFixture<TFixtu
         Assert.Equal(0, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task SqlQuery_over_int_with_parameter(bool async)
     {
         using var context = CreateContext();

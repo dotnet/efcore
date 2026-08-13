@@ -17,9 +17,9 @@ public class AspNetIdentityCustomTypesIntKeyInMemoryTest(
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<CustomTypesIdentityContextInt, Task> testOperation,
-        Func<CustomTypesIdentityContextInt, Task> nestedTestOperation1 = null,
-        Func<CustomTypesIdentityContextInt, Task> nestedTestOperation2 = null,
-        Func<CustomTypesIdentityContextInt, Task> nestedTestOperation3 = null)
+        Func<CustomTypesIdentityContextInt, Task>? nestedTestOperation1 = null,
+        Func<CustomTypesIdentityContextInt, Task>? nestedTestOperation2 = null,
+        Func<CustomTypesIdentityContextInt, Task>? nestedTestOperation3 = null)
     {
         await base.ExecuteWithStrategyInTransactionAsync(
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);

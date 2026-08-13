@@ -1,13 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class AdHocQueryFiltersQuerySqlServerTest(NonSharedFixture fixture) : AdHocQueryFiltersQueryRelationalTestBase(fixture)
 {
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
     #region 8576
@@ -100,11 +98,11 @@ FROM [Entities] AS [e]
 
     #region 11803
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Query_filter_with_db_set_should_not_block_other_filters()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Factions.ToList();
 
         Assert.Empty(query);
@@ -120,11 +118,11 @@ WHERE EXISTS (
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Keyless_type_used_inside_defining_query()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context11803>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.LeadersQuery.ToList();
 
         Assert.Single(query);
@@ -143,13 +141,13 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 
     protected class Context11803(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Faction11803> Factions { get; set; }
-        public DbSet<Leader11803> Leaders { get; set; }
-        public DbSet<LeaderQuery11803> LeadersQuery { get; set; }
+        public DbSet<Faction11803> Factions { get; set; } = null!;
+        public DbSet<Leader11803> Leaders { get; set; } = null!;
+        public DbSet<LeaderQuery11803> LeadersQuery { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Leader11803>().HasQueryFilter(l => l.Name.StartsWith("Bran")); // this one is ignored
+            modelBuilder.Entity<Leader11803>().HasQueryFilter(l => l.Name!.StartsWith("Bran")); // this one is ignored
             modelBuilder.Entity<Faction11803>().HasQueryFilter(f => Leaders.Any(l => l.Name == "Crach an Craite"));
 
             modelBuilder
@@ -189,21 +187,21 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
         public class Faction11803
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<Leader11803> Leaders { get; set; }
+            public List<Leader11803> Leaders { get; set; } = null!;
         }
 
         public class Leader11803
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public Faction11803 Faction { get; set; }
+            public string? Name { get; set; }
+            public Faction11803? Faction { get; set; }
         }
 
         public class LeaderQuery11803
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -459,4 +457,70 @@ FROM [Entity38132] AS [e]
 WHERE [e].[TenantId] = @ef_filter__tenantId
 """);
     }
+
+    public override async Task Query_filter_with_context_accessor_with_constant(bool async)
+    {
+        await base.Query_filter_with_context_accessor_with_constant(async);
+
+        AssertSql(
+            """
+@ef_filter__p3='False'
+
+SELECT [f].[Id], [f].[Bar]
+FROM [FooBar35111] AS [f]
+WHERE CASE
+    WHEN @ef_filter__p3 = CAST(1 AS bit) THEN CAST(0 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_caching()
+    {
+        await base.Named_query_filters_caching();
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDraft] = CAST(0 AS bit)
+""",
+            //
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDraft] = CAST(0 AS bit)
+""",
+            //
+            """
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsDraft], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[IsDraft] = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Named_query_filters_combined()
+    {
+        await base.Named_query_filters_combined();
+
+        AssertSql();
+    }
+
+    public override async Task Query_filter_with_EF_Constant_throws()
+    {
+        await base.Query_filter_with_EF_Constant_throws();
+
+        AssertSql();
+    }
+
+    public override async Task Query_filter_with_EF_Parameter_throws()
+    {
+        await base.Query_filter_with_EF_Parameter_throws();
+
+        AssertSql();
+    }
+
+    [Fact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

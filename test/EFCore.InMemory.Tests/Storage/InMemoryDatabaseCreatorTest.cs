@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class InMemoryDatabaseCreatorTest
 {
-    [ConditionalFact]
+    [Fact]
     public void EnsureCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -24,7 +24,7 @@ public class InMemoryDatabaseCreatorTest
         Assert.False(creator.EnsureCreated());
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task EnsureCreatedAsync_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
     {
         var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -52,7 +52,7 @@ public class InMemoryDatabaseCreatorTest
             contextServices.GetRequiredService<IDbContextOptions>());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void EnsureCreated_throws_for_missing_seed()
     {
         using var context = new FraggleContext(asyncSeed: true);
@@ -62,7 +62,7 @@ public class InMemoryDatabaseCreatorTest
             Assert.Throws<InvalidOperationException>(() => context.Database.EnsureCreated()).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task EnsureCreatedAsync_throws_for_missing_seed()
     {
         using var context = new FraggleContext(seed: true);
@@ -72,11 +72,11 @@ public class InMemoryDatabaseCreatorTest
             (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
         => Delete_clears_all_in_memory_data_test(async: false);
 
-    [ConditionalFact]
+    [Fact]
     public Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
         => Delete_clears_all_in_memory_data_test(async: true);
 
@@ -126,7 +126,7 @@ public class InMemoryDatabaseCreatorTest
     private class FraggleContext(bool seed = false, bool asyncSeed = false) : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Fraggle> Fraggles { get; set; }
+        public DbSet<Fraggle> Fraggles { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -149,6 +149,6 @@ public class InMemoryDatabaseCreatorTest
     private class Fraggle
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

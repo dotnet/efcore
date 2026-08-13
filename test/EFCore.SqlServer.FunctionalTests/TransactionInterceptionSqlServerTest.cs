@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class TransactionInterceptionSqlServerTestBase(
     TransactionInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
     : TransactionInterceptionTestBase(fixture)

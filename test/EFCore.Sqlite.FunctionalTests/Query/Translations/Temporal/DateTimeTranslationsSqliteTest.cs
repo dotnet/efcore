@@ -187,7 +187,7 @@ WHERE rtrim(rtrim(strftime('%H:%M:%f', "b"."DateTime"), '0'), '.') = '00:00:00'
     }
 
     public override Task subtract_and_TotalDays()
-        => AssertTranslationFailed(() => base.subtract_and_TotalDays());
+        => AssertTranslationFailed(base.subtract_and_TotalDays);
 
     public override async Task Parse_with_constant()
     {
@@ -241,7 +241,7 @@ WHERE "b"."DateTime" = @p
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

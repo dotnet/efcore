@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-#nullable disable
-
 public class ProceduralQueryExpressionGenerator(DbContext context)
 {
     private readonly List<ExpressionMutator> _mutators =
@@ -48,7 +46,7 @@ public class ProceduralQueryExpressionGenerator(DbContext context)
 
 public class ProcedurallyGeneratedQueryExecutor
 {
-    private static readonly Dictionary<string, List<string>> _knownFailingTests = new();
+    private static readonly Dictionary<string, List<string>> _knownFailingTests = [];
 
     static ProcedurallyGeneratedQueryExecutor()
     {
@@ -300,7 +298,7 @@ public class ProcedurallyGeneratedQueryExecutor
         var depth = 2;
 
         IQueryable newQuery = query;
-        Expression newExpression = null;
+        Expression newExpression = null!;
         for (var i = 0; i < depth; i++)
         {
             var expression = newQuery.Expression;
@@ -321,7 +319,7 @@ public class ProcedurallyGeneratedQueryExecutor
         }
 
         // printed just for debugging purposes
-        var queryString = newExpression.Print();
+        var queryString = newExpression!.Print();
 
         try
         {

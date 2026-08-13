@@ -16,7 +16,6 @@ public class InMemoryStoreProvider : IInMemoryStoreProvider
     private readonly IDbContextOptions _options;
     private readonly IInMemoryDatabaseRootCache _databaseRootCache;
     private readonly IInMemoryTableFactory _tableFactory;
-    private IInMemoryStore? _store;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +40,7 @@ public class InMemoryStoreProvider : IInMemoryStoreProvider
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IInMemoryStore Store
-        => LazyInitializer.EnsureInitialized(ref _store, InitializeStore);
+        => LazyInitializer.EnsureInitialized(ref field, InitializeStore);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

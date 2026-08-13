@@ -77,8 +77,8 @@ public class TemporalAllQueryRootExpression : TemporalQueryRootExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TemporalAllQueryRootExpression queryRootExpression
-                && Equals(queryRootExpression));
+                || (obj is TemporalAllQueryRootExpression queryRootExpression
+                    && Equals(queryRootExpression)));
 
     private bool Equals(TemporalAllQueryRootExpression queryRootExpression)
         => base.Equals(queryRootExpression);

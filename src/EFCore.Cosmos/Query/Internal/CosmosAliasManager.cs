@@ -27,7 +27,7 @@ public class CosmosAliasManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    private readonly Dictionary<char, MutableInt> _aliases = new();
+    private readonly Dictionary<char, MutableInt> _aliases = [];
 
     /// <summary>
     ///     Generates an alias based on the given <paramref name="expression" />.
@@ -130,7 +130,7 @@ public class CosmosAliasManager
         // We process the collected aliases above into a bitmap that represents, for each alias char, which numbers have been seen.
         // Note that since a0 is the 2nd uniquified alias (a is the first), the bits are off-by-one, with position 0 representing
         // a, position 1 representing a0, and so on.
-        Dictionary<char, BitArray> aliasBitmaps = new();
+        Dictionary<char, BitArray> aliasBitmaps = [];
 
         foreach (var alias in usedAliases)
         {
@@ -174,7 +174,7 @@ public class CosmosAliasManager
                     var j = i - numHoles;
                     var newAlias = aliasBase + (j == 0 ? "" : (j - 1).ToString());
 
-                    aliasRewritingMap ??= new Dictionary<string, string>();
+                    aliasRewritingMap ??= [];
                     aliasRewritingMap[oldAlias] = newAlias;
                 }
             }
@@ -226,7 +226,7 @@ public class CosmosAliasManager
                 ScalarReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
                     => new ScalarReferenceExpression(newAlias, reference.Type, reference.TypeMapping),
                 ObjectReferenceExpression reference when aliasRewritingMap.TryGetValue(reference.Name, out var newAlias)
-                    => new ObjectReferenceExpression(reference.EntityType, newAlias),
+                    => new ObjectReferenceExpression(reference.StructuralType, newAlias),
 
                 _ => base.VisitExtension(node)
             };

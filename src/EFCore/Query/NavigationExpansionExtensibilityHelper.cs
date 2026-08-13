@@ -31,17 +31,6 @@ public class NavigationExpansionExtensibilityHelper : INavigationExpansionExtens
 
     /// <inheritdoc />
     public virtual bool AreQueryRootsCompatible(EntityQueryRootExpression? first, EntityQueryRootExpression? second)
-    {
-        if (first is null && second is null)
-        {
-            return true;
-        }
-
-        if (first is not null && second is not null)
-        {
-            return first.EntityType.GetRootType() == second.EntityType.GetRootType();
-        }
-
-        return false;
-    }
+        => (first is null && second is null)
+            || (first is not null && second is not null && first.EntityType.GetRootType() == second.EntityType.GetRootType());
 }

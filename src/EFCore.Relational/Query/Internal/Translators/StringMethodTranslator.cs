@@ -61,33 +61,24 @@ public class StringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Constant(string.Empty)));
         }
 
-        if (Equals(method, ConcatMethodInfoTwoArgs))
-        {
-            return _sqlExpressionFactory.Add(
+        return Equals(method, ConcatMethodInfoTwoArgs)
+            ? _sqlExpressionFactory.Add(
                 arguments[0],
-                arguments[1]);
-        }
-
-        if (Equals(method, ConcatMethodInfoThreeArgs))
-        {
-            return _sqlExpressionFactory.Add(
-                arguments[0],
-                _sqlExpressionFactory.Add(
-                    arguments[1],
-                    arguments[2]));
-        }
-
-        if (Equals(method, ConcatMethodInfoFourArgs))
-        {
-            return _sqlExpressionFactory.Add(
-                arguments[0],
-                _sqlExpressionFactory.Add(
-                    arguments[1],
+                arguments[1])
+            : Equals(method, ConcatMethodInfoThreeArgs)
+                ? _sqlExpressionFactory.Add(
+                    arguments[0],
                     _sqlExpressionFactory.Add(
-                        arguments[2],
-                        arguments[3])));
-        }
-
-        return null;
+                        arguments[1],
+                        arguments[2]))
+                : Equals(method, ConcatMethodInfoFourArgs)
+                    ? _sqlExpressionFactory.Add(
+                        arguments[0],
+                        _sqlExpressionFactory.Add(
+                            arguments[1],
+                            _sqlExpressionFactory.Add(
+                                arguments[2],
+                                arguments[3])))
+                    : null;
     }
 }

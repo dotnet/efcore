@@ -3,15 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class DefaultValuesTest : IAsyncLifetime
 {
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()
         .AddEntityFrameworkSqlServer()
         .BuildServiceProvider(validateScopes: true);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_use_SQL_Server_default_values()
     {
         using (var context = new ChipsContext(_serviceProvider, TestStore.Name))
@@ -47,10 +45,10 @@ public class DefaultValuesTest : IAsyncLifetime
         private readonly string _databaseName = databaseName;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<KettleChips> Chips { get; set; }
+        public DbSet<KettleChips> Chips { get; set; } = null!;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Chipper> Chippers { get; set; }
+        public DbSet<Chipper> Chippers { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -73,23 +71,23 @@ public class DefaultValuesTest : IAsyncLifetime
     private class KettleChips
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public DateTime BestBuyDate { get; set; }
-        public string ChipperId { get; set; }
+        public string ChipperId { get; set; } = null!;
 
-        public Chipper Manufacturer { get; set; }
+        public Chipper Manufacturer { get; set; } = null!;
     }
 
     private class Chipper
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
-    protected SqlServerTestStore TestStore { get; private set; }
+    protected SqlServerTestStore TestStore { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("DefaultValuesTest");
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await TestStore.DisposeAsync();
 }

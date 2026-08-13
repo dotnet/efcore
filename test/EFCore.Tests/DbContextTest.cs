@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public partial class DbContextTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Set_throws_for_type_not_in_model()
     {
         var optionsBuilder = new DbContextOptionsBuilder();
@@ -27,7 +27,7 @@ public partial class DbContextTest
         Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Set_throws_for_type_not_in_model_same_type_with_different_namespace()
     {
         using var context = new EarlyLearningCenter();
@@ -38,7 +38,7 @@ public partial class DbContextTest
                 typeof(DifferentNamespace.Category).DisplayName(), typeof(Category).DisplayName()), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_calls_DetectChanges()
     {
         var provider =
@@ -74,7 +74,7 @@ public partial class DbContextTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Local_does_not_call_DetectChanges_when_disabled()
     {
         var provider =
@@ -117,7 +117,7 @@ public partial class DbContextTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Set_throws_for_shared_types()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -133,7 +133,7 @@ public partial class DbContextTest
         Assert.Equal(CoreStrings.InvalidSetSharedType(typeof(Question).ShortDisplayName()), ex.Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SaveChanges_calls_DetectChanges()
     {
         var services = new ServiceCollection()
@@ -160,7 +160,7 @@ public partial class DbContextTest
         Assert.True(changeDetector.DetectChangesCalled);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task SaveChangesAsync_with_canceled_token()
     {
         var loggerFactory = new ListLoggerFactory();
@@ -188,7 +188,7 @@ public partial class DbContextTest
         Assert.DoesNotContain(CoreEventId.SaveChangesFailed, loggerFactory.Log.Select(l => l.Id));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Entry_methods_check_arguments()
     {
         var services = new ServiceCollection()
@@ -200,11 +200,11 @@ public partial class DbContextTest
         Assert.Equal(
             "entity",
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => context.Entry(null)).ParamName);
+            Assert.Throws<ArgumentNullException>(() => context.Entry(null!)).ParamName);
         Assert.Equal(
             "entity",
             // ReSharper disable once AssignNullToNotNullAttribute
-            Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null)).ParamName);
+            Assert.Throws<ArgumentNullException>(() => context.Entry<Random>(null!)).ParamName);
     }
 
     private class FakeChangeDetector : IChangeDetector
@@ -234,40 +234,40 @@ public partial class DbContextTest
         {
         }
 
-        public (EventHandler<DetectChangesEventArgs> DetectingAllChanges,
-            EventHandler<DetectedChangesEventArgs> DetectedAllChanges,
-            EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges,
-            EventHandler<DetectedEntityChangesEventArgs>
+        public (EventHandler<DetectChangesEventArgs>? DetectingAllChanges,
+            EventHandler<DetectedChangesEventArgs>? DetectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>?
             DetectedEntityChanges) CaptureEvents()
             => (null, null, null, null);
 
         public void SetEvents(
-            EventHandler<DetectChangesEventArgs> detectingAllChanges,
-            EventHandler<DetectedChangesEventArgs> detectedAllChanges,
-            EventHandler<DetectEntityChangesEventArgs> detectingEntityChanges,
-            EventHandler<DetectedEntityChangesEventArgs> detectedEntityChanges)
+            EventHandler<DetectChangesEventArgs>? detectingAllChanges,
+            EventHandler<DetectedChangesEventArgs>? detectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs>? detectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>? detectedEntityChanges)
         {
         }
 
-        public event EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges;
+        public event EventHandler<DetectEntityChangesEventArgs>? DetectingEntityChanges;
 
         public void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
-            => DetectingEntityChanges?.Invoke(null, null);
+            => DetectingEntityChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectChangesEventArgs> DetectingAllChanges;
+        public event EventHandler<DetectChangesEventArgs>? DetectingAllChanges;
 
         public void OnDetectingAllChanges(IStateManager stateManager)
-            => DetectingAllChanges?.Invoke(null, null);
+            => DetectingAllChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectedEntityChangesEventArgs> DetectedEntityChanges;
+        public event EventHandler<DetectedEntityChangesEventArgs>? DetectedEntityChanges;
 
         public void OnDetectedEntityChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
-            => DetectedEntityChanges?.Invoke(null, null);
+            => DetectedEntityChanges?.Invoke(null, null!);
 
-        public event EventHandler<DetectedChangesEventArgs> DetectedAllChanges;
+        public event EventHandler<DetectedChangesEventArgs>? DetectedAllChanges;
 
         public void OnDetectedAllChanges(IStateManager stateManager, bool changesFound)
-            => DetectedAllChanges?.Invoke(null, null);
+            => DetectedAllChanges?.Invoke(null, null!);
 
         public void ResetState()
         {
@@ -280,7 +280,7 @@ public partial class DbContextTest
             => throw new NotImplementedException();
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Can_change_navigation_while_attaching_entities(bool async)
     {
         using (var context = new ActiveAddContext())
@@ -314,8 +314,8 @@ public partial class DbContextTest
     {
         public int Id { get; set; }
         public int AuthorId { get; set; }
-        public virtual User Author { get; set; }
-        public virtual ICollection<Answer> Answers { get; set; }
+        public virtual User Author { get; set; } = null!;
+        public virtual ICollection<Answer> Answers { get; set; } = [];
     }
 
     public class Answer
@@ -323,8 +323,8 @@ public partial class DbContextTest
         public int Id { get; set; }
         public int QuestionId { get; set; }
         public int AuthorId { get; set; }
-        public virtual Question Question { get; set; }
-        public virtual User Author { get; set; }
+        public virtual Question Question { get; set; } = null!;
+        public virtual User Author { get; set; } = null!;
     }
 
     public class User
@@ -336,9 +336,9 @@ public partial class DbContextTest
 
     public class ActiveAddContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Answer> Answers { get; set; }
-        public DbSet<Question> Questions { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Answer> Answers { get; set; } = null!;
+        public DbSet<Question> Questions { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -357,7 +357,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Context_can_build_model_using_DbSet_properties()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
@@ -392,7 +392,7 @@ public partial class DbContextTest
             guType.GetProperties().Select(p => p.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Context_will_use_explicit_model_if_set_in_config()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -406,7 +406,7 @@ public partial class DbContextTest
             context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Context_initializes_all_DbSet_properties_with_setters()
     {
         using var context = new ContextWithSets();
@@ -418,17 +418,17 @@ public partial class DbContextTest
 
     private class ContextWithSets : DbContext
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Category> Categories { get; private set; }
-        private DbSet<TheGu> Gus { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
+        public DbSet<Category> Categories { get; private set; } = null!;
+        private DbSet<TheGu> Gus { get; set; } = null!;
 
-        public DbSet<Random> NoSetter { get; } = null;
+        public DbSet<Random> NoSetter { get; } = null!;
 
         public DbSet<TheGu> GetGus()
             => Gus;
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Model_cannot_be_used_in_OnModelCreating()
     {
         var serviceProvider = new ServiceCollection()
@@ -445,7 +445,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             // ReSharper disable once AssignmentIsFullyDiscarded
@@ -457,7 +457,7 @@ public partial class DbContextTest
                 .UseInternalServiceProvider(_serviceProvider);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Context_cannot_be_used_in_OnModelCreating()
     {
         var serviceProvider = new ServiceCollection()
@@ -474,7 +474,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
@@ -486,7 +486,7 @@ public partial class DbContextTest
                 .UseInternalServiceProvider(_serviceProvider);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Context_cannot_be_used_in_OnConfiguring()
     {
         var serviceProvider = new ServiceCollection()
@@ -503,7 +503,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -516,7 +516,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task SaveChanges_calls_DetectChanges_by_default(bool async)
     {
         var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -561,7 +561,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task Auto_DetectChanges_for_SaveChanges_can_be_switched_off(bool async)
     {
         var provider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -611,7 +611,7 @@ public partial class DbContextTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -619,7 +619,7 @@ public partial class DbContextTest
                 .UseInternalServiceProvider(_serviceProvider);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void DetectChanges_is_called_for_cascade_delete_unless_disabled(bool autoDetectChangesEnabled)
     {
         var detectedChangesFor = new List<object>();
@@ -688,7 +688,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Entry_calls_DetectChanges_by_default(bool useGenericOverload)
     {
         using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());
@@ -722,7 +722,7 @@ public partial class DbContextTest
         Assert.Equal(EntityState.Modified, entry.State);
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public void Auto_DetectChanges_for_Entry_can_be_switched_off(bool useGenericOverload)
     {
         using var context = new ButTheHedgehogContext(InMemoryTestHelpers.Instance.CreateServiceProvider());
@@ -758,7 +758,7 @@ public partial class DbContextTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Add_Attach_Remove_Update_do_not_call_DetectChanges()
     {
         var provider =
@@ -1220,7 +1220,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalTheory, InlineData(false), InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task It_throws_object_disposed_exception(bool async)
     {
         var context = new DbContext(new DbContextOptions<DbContext>());
@@ -1314,7 +1314,7 @@ public partial class DbContextTest
             Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void It_throws_with_derived_name()
     {
         var context = new EarlyLearningCenter();
@@ -1334,7 +1334,7 @@ public partial class DbContextTest
         public void Dispose()
             => Disposed = true;
 
-        public object GetService(Type serviceType)
+        public object? GetService(Type serviceType)
         {
             if (serviceType == typeof(IServiceProvider))
             {
@@ -1363,7 +1363,7 @@ public partial class DbContextTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Adding_entities_with_shadow_keys_should_not_throw()
     {
         using (var context = new NullShadowKeyContext())
@@ -1410,29 +1410,29 @@ public partial class DbContextTest
     private class TestAssembly
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         public ICollection<TestClass> Classes { get; } = new List<TestClass>();
     }
 
     private class TestClass
     {
-        public TestAssembly Assembly { get; set; }
-        public string Name { get; set; }
+        public TestAssembly Assembly { get; set; } = null!;
+        public string Name { get; set; } = null!;
         public ICollection<Test> Tests { get; } = new List<Test>();
     }
 
     private class Test
     {
-        public TestClass Class { get; set; }
-        public string Name { get; set; }
+        public TestClass Class { get; set; } = null!;
+        public string Name { get; set; } = null!;
     }
 
     private class NullShadowKeyContext : DbContext
     {
-        public DbSet<TestAssembly> Assemblies { get; set; }
-        public DbSet<TestClass> Classes { get; set; }
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<TestAssembly> Assemblies { get; set; } = null!;
+        public DbSet<TestClass> Classes { get; set; } = null!;
+        public DbSet<Test> Tests { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder options)
             => options

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ConcurrencyDetectorDisabledSqlServerTest : ConcurrencyDetectorDisabledRelationalTestBase<
     ConcurrencyDetectorDisabledSqlServerTest.ConcurrencyDetectorSqlServerFixture>
 {
@@ -28,6 +26,7 @@ public class ConcurrencyDetectorDisabledSqlServerTest : ConcurrencyDetectorDisab
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.EnableThreadSafetyChecks(enableChecks: false);
+            => base.AddOptions(builder)
+                .EnableThreadSafetyChecks(enableChecks: false);
     }
 }

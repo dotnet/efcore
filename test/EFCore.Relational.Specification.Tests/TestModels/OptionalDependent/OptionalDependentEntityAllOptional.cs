@@ -3,12 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
-#nullable disable
-
 public class OptionalDependentEntityAllOptional
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public OptionalDependentJsonAllOptional Json { get; set; }
+    public OptionalDependentJsonAllOptional? Json { get; set; }
 }

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class KeysWithConvertersSqliteTest(KeysWithConvertersSqliteTest.KeysWithConvertersSqliteFixture fixture)
     : KeysWithConvertersTestBase<KeysWithConvertersSqliteTest.KeysWithConvertersSqliteFixture>(fixture)
 {
@@ -14,6 +12,7 @@ public class KeysWithConvertersSqliteTest(KeysWithConvertersSqliteTest.KeysWithC
             => SqliteTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlite(b => b.MinBatchSize(1));
+            => base.AddOptions(builder)
+                .UseSqlite(b => b.MinBatchSize(1));
     }
 }

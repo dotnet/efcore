@@ -33,7 +33,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
-    private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private readonly List<Expression> _clientProjections = [];
     private readonly List<Expression> _projectionMappingExpressions = [];
 
@@ -79,7 +79,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                     .Select(e => keyValueComparer.ExtractEqualsBody(
                         propertyExpressionsMap[discriminatorProperty],
                         Constant(e.GetDiscriminatorValue(), discriminatorProperty.ClrType)))
-                    .Aggregate((l, r) => OrElse(l, r));
+                    .Aggregate(OrElse);
 
                 foreach (var property in derivedEntityType.GetDeclaredProperties())
                 {
@@ -1061,9 +1061,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 comparer = null;
             }
 
-            if (innerNullable)
-            {
-                ServerQueryExpression = Call(
+            ServerQueryExpression = innerNullable
+                ? Call(
                     LeftJoinMethodInfo.MakeGenericMethod(
                         typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
                     ServerQueryExpression,
@@ -1072,11 +1071,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                     innerKeySelector,
                     resultSelector,
                     Constant(new ValueBuffer(Enumerable.Repeat((object?)null, resultSelectorExpressions.Count - outerIndex).ToArray())),
-                    Constant(comparer, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
-            }
-            else
-            {
-                ServerQueryExpression = comparer == null
+                    Constant(comparer, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)))
+                : comparer == null
                     ? Call(
                         EnumerableMethods.Join.MakeGenericMethod(
                             typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
@@ -1094,7 +1090,6 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                         innerKeySelector,
                         resultSelector,
                         Constant(comparer, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
-            }
         }
         else
         {

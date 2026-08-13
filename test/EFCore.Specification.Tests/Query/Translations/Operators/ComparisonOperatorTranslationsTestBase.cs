@@ -8,27 +8,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Translations.Operators;
 public abstract class ComparisonOperatorTranslationsTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : BasicTypesQueryFixtureBase, new()
 {
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Equal()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int == 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task NotEqual()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int != 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GreaterThan()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int > 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task GreaterThanOrEqual()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int >= 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task LessThan()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int < 8));
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task LessThanOrEqual()
         => await AssertQuery(ss => ss.Set<BasicTypesEntity>().Where(b => b.Int <= 8));
 }

@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ManyToManyLoadSqliteTestBase<TFixture>(TFixture fixture) : ManyToManyLoadTestBase<TFixture>(fixture)
     where TFixture : ManyToManyLoadSqliteTestBase<TFixture>.ManyToManyLoadSqliteFixtureBase
 {
