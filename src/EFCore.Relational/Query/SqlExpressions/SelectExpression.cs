@@ -1077,6 +1077,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     .Except(innerSelectExpression._childIdentifiers, IdentifierComparerInstance)
                                     .Select(e => (e.Column.MakeNullable(), e.Comparer)));
 
+                            var collectionJoinPredicate = (_tables[^1] as PredicateJoinExpressionBase)?.JoinPredicate;
+                            var hasOrderingForJoinKey = false;
+                            var hasOrderingForNonJoinKey = false;
                             OrderingExpression? pendingOrdering = null;
                             foreach (var (identifierColumn, identifierComparer) in innerSelectExpression._identifier)
                             {
@@ -1096,11 +1099,53 @@ public sealed partial class SelectExpression : TableExpressionBase
                                         }
 
                                         AppendOrderingInternal(pendingOrdering);
+                                        TrackOrdering(pendingOrdering.Expression);
                                     }
 
                                     pendingOrdering = orderingExpression;
                                 }
+                                else
+                                {
+                                    TrackOrdering(updatedColumn);
+                                }
                             }
+
+                            if (pendingOrdering is not null
+                                && hasOrderingForJoinKey
+                                && !hasOrderingForNonJoinKey)
+                            {
+                                // The pending identifier is the only ordering that discriminates elements within the collection.
+                                AppendOrderingInternal(pendingOrdering);
+                            }
+
+                            void TrackOrdering(SqlExpression ordering)
+                            {
+                                if (collectionJoinPredicate is not null
+                                    && IsJoinKeyColumn(collectionJoinPredicate, ordering))
+                                {
+                                    hasOrderingForJoinKey = true;
+                                }
+                                else
+                                {
+                                    hasOrderingForNonJoinKey = true;
+                                }
+                            }
+
+                            static bool IsJoinKeyColumn(SqlExpression joinPredicate, SqlExpression column)
+                                => joinPredicate switch
+                                {
+                                    SqlBinaryExpression { OperatorType: ExpressionType.Equal } binary
+                                        => IsSameColumn(binary.Left, column) || IsSameColumn(binary.Right, column),
+                                    SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary
+                                        => IsJoinKeyColumn(binary.Left, column) || IsJoinKeyColumn(binary.Right, column),
+                                    _ => false
+                                };
+
+                            static bool IsSameColumn(SqlExpression left, SqlExpression right)
+                                => left is ColumnExpression leftColumn
+                                    && right is ColumnExpression rightColumn
+                                    && leftColumn.TableAlias == rightColumn.TableAlias
+                                    && leftColumn.Name == rightColumn.Name;
 
                             var result = new SingleCollectionInfo(
                                 parentIdentifier, outerIdentifier, selfIdentifier,

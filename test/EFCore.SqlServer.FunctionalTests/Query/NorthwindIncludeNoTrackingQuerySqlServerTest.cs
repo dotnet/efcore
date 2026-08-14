@@ -69,7 +69,7 @@ LEFT JOIN (
     WHERE [s0].[row] <= 1
 ) AS [s1] ON [s].[OrderID] = [s1].[OrderID]
 LEFT JOIN [Order Details] AS [o3] ON [s1].[OrderID] = [o3].[OrderID]
-ORDER BY [s].[OrderID], [o3].[OrderID]
+ORDER BY [s].[OrderID], [o3].[OrderID], [o3].[ProductID]
 """);
     }
 
@@ -122,7 +122,7 @@ LEFT JOIN (
     ) AS [s] ON [o].[OrderID] = [s].[OrderID]
 ) AS [s0] ON [c].[CustomerID] = [s0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [s0].[OrderID], [s0].[OrderID0]
+ORDER BY [c].[CustomerID], [s0].[OrderID], [s0].[OrderID0], [s0].[ProductID]
 """);
     }
 
@@ -137,7 +137,7 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[CustomerID] LIKE N'F%'
-ORDER BY [o].[OrderID], [o0].[OrderID]
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -198,7 +198,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].
 FROM [Orders] AS [o]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[CustomerID] LIKE N'F%'
-ORDER BY [o].[OrderID], [o0].[OrderID]
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -219,7 +219,7 @@ LEFT JOIN (
     FROM [Order Details] AS [o0]
     INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
 ) AS [s] ON [o1].[OrderID] = [s].[OrderID]
-ORDER BY [o1].[OrderID], [s].[OrderID]
+ORDER BY [o1].[OrderID], [s].[OrderID], [s].[ProductID]
 """);
     }
 
@@ -233,7 +233,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].
 FROM [Orders] AS [o]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[CustomerID] = N'ALFKI'
-ORDER BY [o].[OrderID], [o0].[OrderID]
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -254,7 +254,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
-ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
     }
 
@@ -269,7 +269,7 @@ FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [c].[City] = N'Seattle'
-ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -287,7 +287,7 @@ LEFT JOIN (
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
     }
 
@@ -533,7 +533,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
-ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
     }
 
@@ -646,7 +646,7 @@ FROM (
     END
 ) AS [s]
 LEFT JOIN [Order Details] AS [o0] ON [s].[OrderID] = [o0].[OrderID]
-ORDER BY [s].[c], [s].[c0], [s].[OrderID], [o0].[OrderID]
+ORDER BY [s].[c], [s].[c0], [s].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -787,7 +787,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
-ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
         }
         else
@@ -843,7 +843,7 @@ LEFT JOIN (
     FROM [Orders] AS [o0]
     LEFT JOIN [Order Details] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
 ) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
-ORDER BY [c0].[c] DESC, [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c0].[c] DESC, [c0].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
     }
 
@@ -925,7 +925,7 @@ LEFT JOIN (
     WHERE [o3].[row] <= 1
 ) AS [o4] ON [o2].[OrderID] = [o4].[OrderID]
 LEFT JOIN [Order Details] AS [o1] ON [o4].[OrderID] = [o1].[OrderID]
-ORDER BY [o2].[OrderID], [o1].[OrderID]
+ORDER BY [o2].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 
@@ -1011,7 +1011,7 @@ LEFT JOIN (
     WHERE [s0].[row] <= 1
 ) AS [s1] ON [s].[OrderID] = [s1].[OrderID]
 LEFT JOIN [Order Details] AS [o3] ON [s1].[OrderID] = [o3].[OrderID]
-ORDER BY [s].[OrderID], [o3].[OrderID]
+ORDER BY [s].[OrderID], [o3].[OrderID], [o3].[ProductID]
 """);
     }
 
@@ -1057,7 +1057,7 @@ LEFT JOIN (
     WHERE [s0].[row] <= 1
 ) AS [s1] ON [s].[OrderID] = [s1].[OrderID]
 LEFT JOIN [Order Details] AS [o3] ON [s1].[OrderID] = [o3].[OrderID]
-ORDER BY [s].[OrderID], [o3].[OrderID]
+ORDER BY [s].[OrderID], [o3].[OrderID], [o3].[ProductID]
 """);
     }
 
@@ -1334,7 +1334,7 @@ FROM (
     END
 ) AS [s]
 LEFT JOIN [Order Details] AS [o0] ON [s].[OrderID] = [o0].[OrderID]
-ORDER BY [s].[c], [s].[c0], [s].[OrderID], [o0].[OrderID]
+ORDER BY [s].[c], [s].[c0], [s].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -1393,7 +1393,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c0].[CustomerID] = [s].[CustomerID]
-ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c0].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
         }
         else
@@ -1534,7 +1534,7 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[CustomerID] LIKE N'F%'
-ORDER BY [o].[OrderID], [o0].[OrderID]
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -1548,7 +1548,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].
 FROM [Orders] AS [o]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 WHERE [o].[OrderID] < 10250
-ORDER BY [o].[OrderID], [o0].[OrderID]
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -1570,7 +1570,7 @@ LEFT JOIN (
 ) AS [o2] ON [c].[CustomerID] = [o2].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o2].[OrderID] = [o0].[OrderID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [o0].[OrderID]
+ORDER BY [c].[CustomerID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -1686,7 +1686,7 @@ LEFT JOIN (
     WHERE [s0].[row] <= 1
 ) AS [s1] ON [s].[OrderID] = [s1].[OrderID]
 LEFT JOIN [Order Details] AS [o3] ON [s1].[OrderID] = [o3].[OrderID]
-ORDER BY [s].[OrderID], [o3].[OrderID]
+ORDER BY [s].[OrderID], [o3].[OrderID], [o3].[ProductID]
 """);
     }
 

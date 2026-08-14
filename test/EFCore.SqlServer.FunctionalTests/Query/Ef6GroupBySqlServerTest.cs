@@ -667,7 +667,7 @@ LEFT JOIN (
     FROM [Person] AS [p0]
     INNER JOIN [Shoes] AS [s0] ON [p0].[Age] = [s0].[Age]
 ) AS [s2] ON [s1].[Id] = [s2].[Id0] AND ([s1].[Style] = [s2].[Style] OR ([s1].[Style] IS NULL AND [s2].[Style] IS NULL)) AND [s1].[Age] = [s2].[Age]
-ORDER BY [s1].[Id], [s1].[Style], [s1].[Age], [s2].[Id0]
+ORDER BY [s1].[Id], [s1].[Style], [s1].[Age], [s2].[Id0], [s2].[Id]
 """);
     }
 
