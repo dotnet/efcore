@@ -86,7 +86,8 @@ public partial class SqliteConnection : DbConnection
             {
                 // Ignore the unpackaged-app "no package identity" case; ApplicationData.Current is unavailable there.
             }
-            catch (Exception ex) when (ex is NotImplementedException or NotSupportedException)
+            catch (Exception ex) when (ex is NotImplementedException or NotSupportedException
+                                           or TargetInvocationException { InnerException: NotImplementedException or NotSupportedException })
             {
                 // Ignore when WinRT APIs aren't implemented or supported (e.g., running under Wine)
                 // ApplicationData.Current is unavailable there.
@@ -103,7 +104,7 @@ public partial class SqliteConnection : DbConnection
                         var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
                         Debug.Assert(rc == SQLITE_OK);
                     }
-            
+
                     var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
                     var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
                     if (tempFolderPath != null)
@@ -112,9 +113,8 @@ public partial class SqliteConnection : DbConnection
                         Debug.Assert(rc == SQLITE_OK);
                     }
                 }
-                catch (Exception ex) when (ex is TargetInvocationException 
-                                        or NotImplementedException 
-                                        or NotSupportedException)
+                catch (Exception ex) when (ex is NotImplementedException or NotSupportedException
+                                               or TargetInvocationException { InnerException: NotImplementedException or NotSupportedException })
                 {
                     // Ignore failures accessing LocalFolder/TemporaryFolder when WinRT isn't fully implemented.
                 }
