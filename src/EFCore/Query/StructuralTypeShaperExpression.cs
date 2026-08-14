@@ -23,9 +23,19 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     private static readonly MethodInfo CreateUnableToDiscriminateExceptionMethod
         = typeof(StructuralTypeShaperExpression).GetTypeInfo().GetDeclaredMethod(nameof(CreateUnableToDiscriminateException))!;
 
+    private static readonly MethodInfo GetDiscriminatorValueMethod
+        = typeof(IReadOnlyEntityType).GetTypeInfo().GetDeclaredMethod(nameof(IReadOnlyEntityType.GetDiscriminatorValue))!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [UsedImplicitly]
-    private static Exception CreateUnableToDiscriminateException(ITypeBase type, object discriminator)
-        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator.ToString()));
+    [EntityFrameworkInternal]
+    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object? discriminator)
+        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator?.ToString()));
 
     /// <summary>
     ///     Creates a new instance of the <see cref="StructuralTypeShaperExpression" /> class.
@@ -80,7 +90,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <param name="type">The entity type for which materialization was requested.</param>
     /// <param name="discriminatorValue">The expression containing value of discriminator.</param>
     /// <returns>
-    ///     An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.
+    ///     An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materialization condition for the entity type.
     /// </returns>
     protected static Expression CreateUnableToDiscriminateExceptionExpression(ITypeBase type, Expression discriminatorValue)
         => Block(
@@ -131,8 +141,12 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                 var switchCases = new SwitchCase[concreteEntityTypes.Length];
                 for (var i = 0; i < concreteEntityTypes.Length; i++)
                 {
-                    var discriminatorValue = Constant(concreteEntityTypes[i].GetDiscriminatorValue(), discriminatorProperty.ClrType);
-                    switchCases[i] = SwitchCase(Constant(concreteEntityTypes[i], typeof(IEntityType)), discriminatorValue);
+                    var discriminatorValueObject = concreteEntityTypes[i].GetDiscriminatorValue();
+                    var discriminatorValueExpression = LiftableConstantExpressionHelpers.IsLiteral(discriminatorValueObject)
+                        ? (Expression)Constant(discriminatorValueObject, discriminatorProperty.ClrType)
+                        : Convert(Call(Constant(concreteEntityTypes[i]), GetDiscriminatorValueMethod), discriminatorProperty.ClrType);
+
+                    switchCases[i] = SwitchCase(Constant(concreteEntityTypes[i], typeof(IEntityType)), discriminatorValueExpression);
                 }
 
                 expressions.Add(Switch(discriminatorValueVariable, exception, switchCases));
@@ -142,12 +156,19 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                 var conditions = exception;
                 for (var i = concreteEntityTypes.Length - 1; i >= 0; i--)
                 {
+                    var discriminatorValueObject = concreteEntityTypes[i].GetDiscriminatorValue();
                     conditions = Condition(
                         discriminatorComparer.ExtractEqualsBody(
                             discriminatorValueVariable,
-                            Constant(
-                                concreteEntityTypes[i].GetDiscriminatorValue(),
-                                discriminatorProperty.ClrType)),
+                            LiftableConstantExpressionHelpers.IsLiteral(discriminatorValueObject)
+                                ? Constant(
+                                    discriminatorValueObject,
+                                    discriminatorProperty.ClrType)
+                                : Convert(
+                                    Call(
+                                        Constant(concreteEntityTypes[i], typeof(IEntityType)),
+                                        GetDiscriminatorValueMethod),
+                                    discriminatorProperty.ClrType)),
                         Constant(concreteEntityTypes[i], typeof(IEntityType)),
                         conditions);
                 }
@@ -216,7 +237,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if the type was not changed, or a new expression with the updated type.</returns>
     public virtual StructuralTypeShaperExpression WithType(ITypeBase type)
         => type != StructuralType
-            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable)
+            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable, materializationCondition: null)
             : this;
 
     /// <summary>
@@ -227,7 +248,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     public virtual StructuralTypeShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of materialization condition
-            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable)
+            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable, materializationCondition: null)
             : this;
 
     /// <summary>
@@ -252,19 +273,21 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.AppendLine(nameof(StructuralTypeShaperExpression) + ": ");
+        expressionPrinter.AppendLine(nameof(StructuralTypeShaperExpression) + "(");
         using (expressionPrinter.Indent())
         {
-            expressionPrinter.AppendLine(StructuralType.Name);
-            expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
-            using (expressionPrinter.Indent())
-            {
-                expressionPrinter.Visit(ValueBufferExpression);
-                expressionPrinter.AppendLine();
-            }
+            expressionPrinter
+                .Append(nameof(StructuralType) + ": ")
+                .AppendLine(StructuralType.Name);
 
-            expressionPrinter.Append(nameof(IsNullable) + ": ");
-            expressionPrinter.AppendLine(IsNullable.ToString());
+            expressionPrinter.Append(nameof(ValueBufferExpression) + ": ");
+            expressionPrinter.Visit(ValueBufferExpression);
+            expressionPrinter.AppendLine();
+
+            expressionPrinter
+                .Append(nameof(IsNullable) + ": ")
+                .Append(IsNullable.ToString())
+                .Append(")");
         }
     }
 

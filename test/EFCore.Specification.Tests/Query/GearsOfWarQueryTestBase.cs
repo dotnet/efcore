@@ -22,14 +22,11 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {
-    protected GearsOfWarQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings())
             .Visit(expectedQueryExpression);
@@ -88,6 +85,41 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<LocustHorde>().Select(lh => lh.Eradicated.ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_boolean_computed_nullable(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>().Select(lh => (lh.Eradicated | lh.CommanderName == "Unknown").ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_enum_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Select(g => g.Rank.ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_nullable_enum_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType.ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_enum_contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(g => g.Difficulty.ToString().Contains("Med")).Select(g => g.CodeName));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_nullable_enum_contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString().Contains("Cart")).Select(g => g.Name));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -677,6 +709,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Where(w => w.IsAutomatic)
                 .Select(
                     w => new { w.Id, Manual = !w.IsAutomatic }),
+            elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_inverted_nullable_boolean(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>().Select(w => new { w.Id, Alive = !w.Eradicated }),
             elementSorter: e => e.Id);
 
     [ConditionalTheory]
@@ -1762,21 +1802,21 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Coalesce_operator_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Where(w => (bool?)w.IsAutomatic ?? false));
+            ss => ss.Set<CogTag>().Where(x => (bool?)x.Gear.HasSoulPatch ?? false));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_operator_in_predicate_with_other_conditions(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType == AmmunitionType.Cartridge && ((bool?)w.IsAutomatic ?? false)));
+            ss => ss.Set<CogTag>().Where(x => x.Note != "K.I.A." && ((bool?)x.Gear.HasSoulPatch ?? false)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_operator_in_projection_with_other_conditions(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType == AmmunitionType.Cartridge && ((bool?)w.IsAutomatic ?? false)));
+            ss => ss.Set<CogTag>().Select(x => x.Note != "K.I.A." && ((bool?)x.Gear.HasSoulPatch ?? false)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2673,7 +2713,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                   where f is LocustHorde
                   let horde = (LocustHorde)f
                   orderby f.Name
-                  select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated") },
+                  select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool?>((LocustHorde)f, "Eradicated") },
             assertOrder: true);
 
     [ConditionalTheory]
@@ -3117,16 +3157,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                     cg =>
                         new { Prop = cg.Gear != null ? cg.Gear.HasSoulPatch : false }),
             e => e.Prop);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Enum_ToString_is_client_eval(bool async)
-        => AssertQuery(
-            async,
-            ss =>
-                ss.Set<Gear>().OrderBy(g => g.SquadId)
-                    .ThenBy(g => g.Nickname)
-                    .Select(g => g.Rank.ToString()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -4546,9 +4576,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 AssertCollection(e.Weapons, a.Weapons);
             });
 
-    public class MyDTO
-    {
-    }
+    public class MyDTO;
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -5567,40 +5595,34 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_based_on_complex_expression4(bool async)
         // Nav expansion. Issue #17782.
-        => Assert.Equal(
-            "True",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => AssertQuery(
-                    async,
-                    ss => from lc1 in ss.Set<Faction>().Select(f => (f is LocustHorde) ? ((LocustHorde)f).Commander : null)
-                          from lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>()
-                          select (lc1 ?? lc2).DefeatedBy))).Actual);
+        => await Assert.ThrowsAsync<EqualException>(
+            () => AssertQuery(
+                async,
+                ss => from lc1 in ss.Set<Faction>().Select(f => (f is LocustHorde) ? ((LocustHorde)f).Commander : null)
+                      from lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>()
+                      select (lc1 ?? lc2).DefeatedBy));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_based_on_complex_expression5(bool async)
         // Nav expansion. Issue #17782.
-        => Assert.Equal(
-            "True",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => AssertQuery(
-                    async,
-                    ss => from lc1 in ss.Set<Faction>().OfType<LocustHorde>().Select(lh => lh.Commander)
-                          join lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>() on true equals true
-                          select (lc1 ?? lc2).DefeatedBy))).Actual);
+        => await Assert.ThrowsAsync<EqualException>(
+            () => AssertQuery(
+                async,
+                ss => from lc1 in ss.Set<Faction>().OfType<LocustHorde>().Select(lh => lh.Commander)
+                      join lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>() on true equals true
+                      select (lc1 ?? lc2).DefeatedBy));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Navigation_based_on_complex_expression6(bool async)
         // Nav expansion. Issue #17782.
-        => Assert.Equal(
-            "True",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => AssertQuery(
-                    async,
-                    ss => from lc1 in ss.Set<Faction>().OfType<LocustHorde>().Select(lh => lh.Commander)
-                          join lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>() on true equals true
-                          select (lc1.Name == "Queen Myrrah" ? lc1 : lc2).DefeatedBy))).Actual);
+        => await Assert.ThrowsAsync<EqualException>(
+            () => AssertQuery(
+                async,
+                ss => from lc1 in ss.Set<Faction>().OfType<LocustHorde>().Select(lh => lh.Commander)
+                      join lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>() on true equals true
+                      select (lc1.Name == "Queen Myrrah" ? lc1 : lc2).DefeatedBy));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -6229,7 +6251,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Byte_array_filter_by_length_parameter(bool async)
     {
-        var someByteArr = new[] { (byte)42, (byte)24};
+        var someByteArr = new[] { (byte)42, (byte)24 };
         return AssertQuery(
             async,
             ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length),
@@ -6581,6 +6603,23 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Where(w => w.SynergyWith != null && types.Contains(w.SynergyWith.AmmunitionType)));
     }
 
+    [ConditionalTheory] // #35656
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_with_non_root_evaluatable_Convert(bool async)
+    {
+        MilitaryRank? rank = MilitaryRank.Private;
+
+        // The coalesce is simplified away in the funcletizer (since rank is non-null), but a Convert node is added
+        // to convert from MilitaryRank? (the type of rank) to the type of the coalesce expression (non-nullable
+        // MilitaryRank).
+        // This resulting Convert node isn't evaluatable as root (enum convert), and so the NotEvaluatableAsRootHandler
+        // is invoked.
+        return AssertQuery(
+            async,
+            // ReSharper disable once ConstantNullCoalescingCondition
+            ss => ss.Set<Gear>().Where(g => (rank ?? g.Rank) == g.Rank));
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Client_eval_followed_by_aggregate_operation(bool async)
@@ -6805,11 +6844,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Squad>().Where(s => s.Name == "Delta")
-                .Where(s => s.Members
-                    .Where(m => m.HasSoulPatch)
-                    .OrderBy(m => m.FullName)
-                    .Select(m => m.SquadId)
-                    .FirstOrDefault() != 0)
+                .Where(
+                    s => s.Members
+                            .Where(m => m.HasSoulPatch)
+                            .OrderBy(m => m.FullName)
+                            .Select(m => m.SquadId)
+                            .FirstOrDefault()
+                        != 0)
                 .Select(s => s.Name),
             elementSorter: e => e);
 
@@ -7918,6 +7959,83 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromDateTime_compared_to_property(bool async)
+        => AssertQuery(
+            async,
+            ss => from t in ss.Set<CogTag>()
+                  from m in ss.Set<Mission>()
+                  where TimeOnly.FromDateTime(t.IssueDate) == m.Time
+                  select new { TagId = t.Id, MissionId = m.Id },
+            elementSorter: e => (e.TagId, e.MissionId));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromDateTime_compared_to_parameter(bool async)
+    {
+        var time = new TimeOnly(2, 0, 0);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Where(x => x.Gear != null && TimeOnly.FromDateTime(x.IssueDate.AddHours(x.Gear.SquadId)) == time));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromDateTime_compared_to_constant(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Where(x => TimeOnly.FromDateTime(x.IssueDate.AddHours(x.Note.Length)) > new TimeOnly(9, 0, 0)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromTimeSpan_compared_to_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(x => TimeOnly.FromTimeSpan(x.Duration) < x.Time));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromTimeSpan_compared_to_parameter(bool async)
+    {
+        var time = new TimeOnly(1, 2, 3);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(x => TimeOnly.FromTimeSpan(x.Duration) == time));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Order_by_TimeOnly_FromTimeSpan(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().OrderBy(x => TimeOnly.FromTimeSpan(x.Duration)),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_DateOnly_FromDateTime_compared_to_property(bool async)
+        => AssertQuery(
+            async,
+            ss => from t in ss.Set<CogTag>()
+                  from m in ss.Set<Mission>()
+                  where DateOnly.FromDateTime(t.IssueDate) > m.Date
+                  select new { TagId = t.Id, MissionId = m.Id },
+            elementSorter: e => (e.TagId, e.MissionId));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(bool async)
+    {
+        var prm = new DateOnly(2, 10, 11);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Where(x => new[] { prm, new DateOnly(15, 3, 7) }.Contains(DateOnly.FromDateTime(x.IssueDate))));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_query_gears(bool async)
         => AssertQuery(
             async,
@@ -7945,6 +8063,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Faction>().Where(f => f.ServerAddress == IPAddress.Loopback));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_equality_with_value_converted_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(m => m.Difficulty == MissionDifficulty.Unknown));
 
     private static readonly IEnumerable<AmmunitionType?> _weaponTypes = new AmmunitionType?[] { AmmunitionType.Cartridge };
 
@@ -8158,10 +8283,12 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Where_subquery_equality_to_null_with_composite_key_should_match_nulls(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Squad>().Where(s => s.Members
-                .Where(m => m.FullName == "Anthony Carmine")
-                .OrderBy(e => e.Nickname)
-                .FirstOrDefault() == null));
+            ss => ss.Set<Squad>().Where(
+                s => s.Members
+                        .Where(m => m.FullName == "Anthony Carmine")
+                        .OrderBy(e => e.Nickname)
+                        .FirstOrDefault()
+                    == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -8176,7 +8303,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Where_subquery_equality_to_null_without_composite_key_should_match_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(s => s.Weapons.Where(w => w.Name == "Hammer of Dawn").OrderBy(e => e.Name).FirstOrDefault() == null));
+            ss => ss.Set<Gear>().Where(
+                s => s.Weapons.Where(w => w.Name == "Hammer of Dawn").OrderBy(e => e.Name).FirstOrDefault() == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -8325,22 +8453,18 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory(Skip = "issue #32303")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_expansion_inside_Skip_correlated_to_source(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<City>().OrderBy(x => x.Name).Select(
                 x => x.BornGears.OrderBy(g => g.FullName).Skip(x.StationedGears.Any() ? 1 : 0)));
-    }
 
     [ConditionalTheory(Skip = "issue #32303")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_expansion_inside_Take_correlated_to_source(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(
                 x => x.Weapons.OrderBy(g => g.Id).Take(x.AssignedCity.Name.Length)));
-    }
 
     [ConditionalTheory(Skip = "issue #32303")]
     [MemberData(nameof(IsAsyncData))]
@@ -8360,11 +8484,196 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory(Skip = "issue #32303")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_expansion_inside_ElementAt_correlated_to_source(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(
                 x => x.Weapons.OrderBy(g => g.Id).ElementAt(x.AssignedCity != null ? 1 : 0)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_one_to_many_on_composite_key_then_orderby_key_properties(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Include(x => x.Weapons).OrderBy(x => x.SquadId).ThenBy(x => x.Nickname),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Gear>(x => x.Weapons)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Find_underlying_property_after_GroupJoin_DefaultIfEmpty(bool async)
+        => AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>()
+                  join lc in ss.Set<LocustLeader>().OfType<LocustCommander>()
+                      on g.Nickname equals lc.DefeatedByNickname into grouping
+                  from lc in grouping.DefaultIfEmpty()
+                  select new GearLocustLeaderDto { FullName = g.FullName, ThreatLevel = lc.ThreatLevel },
+            ss => from g in ss.Set<Gear>()
+                  join lc in ss.Set<LocustLeader>().OfType<LocustCommander>()
+                      on g.Nickname equals lc.DefeatedByNickname into grouping
+                  from lc in grouping.DefaultIfEmpty()
+                  select new GearLocustLeaderDto { FullName = g.FullName, ThreatLevel = lc != null ? lc.ThreatLevel : null },
+            elementSorter: e => (e.FullName, e.ThreatLevel),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.FullName, a.FullName);
+                Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+            });
+
+    private class GearLocustLeaderDto
+    {
+        public string FullName { get; set; }
+        public int? ThreatLevel { get; set; }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Join_include_coalesce_simple(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>().Include(x => x.Weapons)
+                  join o in ss.Set<Gear>() on g.LeaderNickname equals o.Nickname into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select new { Result = o ?? g, IsMarcus = g.Nickname == "Marcus" },
+            elementSorter: e => e.Result.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.IsMarcus, a.IsMarcus);
+                if (a.IsMarcus)
+                {
+                    AssertInclude(e.Result, a.Result, new ExpectedInclude<Gear>(x => x.Weapons));
+                }
+                else
+                {
+                    AssertEqual(e.Result, a.Result);
+                }
+            });
+
+        await AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>()
+                  join o in ss.Set<Gear>().Include(x => x.Weapons) on g.LeaderNickname equals o.Nickname into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select o ?? g,
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Gear>(x => x.Weapons)));
+
+        await AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>().Include(x => x.Weapons)
+                  join o in ss.Set<Gear>().Include(x => x.Weapons) on g.LeaderNickname equals o.Nickname into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select o ?? g,
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Gear>(x => x.Weapons)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Join_include_coalesce_nested(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>().Include(x => x.Weapons)
+                  join o in ss.Set<Gear>() on g.LeaderNickname equals o.Nickname into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select new
+                  {
+                      One = 1,
+                      Result = o ?? (g ?? o),
+                      IsMarcus = g.Nickname == "Marcus"
+                  },
+            elementSorter: e => e.Result.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.IsMarcus, a.IsMarcus);
+                if (a.IsMarcus)
+                {
+                    AssertInclude(e.Result, a.Result, new ExpectedInclude<Gear>(x => x.Weapons));
+                }
+                else
+                {
+                    AssertEqual(e.Result, a.Result);
+                }
+            });
+
+        await AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>()
+                  join o in ss.Set<Gear>().Include(x => x.Weapons) on g.LeaderNickname equals o.Nickname into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select new
+                  {
+                      One = 1,
+                      Two = o,
+                      Result = o ?? (g ?? o)
+                  },
+            elementSorter: e => e.Result.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                AssertInclude(e.Result, a.Result, new ExpectedInclude<Gear>(x => x.Weapons));
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_include_conditional(bool async)
+        => AssertQuery(
+            async,
+            ss => from g in ss.Set<Gear>().Include(x => x.Weapons)
+                  join o in ss.Set<Gear>() on g.LeaderNickname equals o.Nickname into grouping
+                  from o in grouping.DefaultIfEmpty()
+                  select new { Result = o != null ? o : g, IsMarcus = g.Nickname == "Marcus" },
+            elementSorter: e => e.Result.Nickname,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.IsMarcus, a.IsMarcus);
+                if (a.IsMarcus)
+                {
+                    AssertInclude(e.Result, a.Result, new ExpectedInclude<Gear>(x => x.Weapons));
+                }
+                else
+                {
+                    AssertEqual(e.Result, a.Result);
+                }
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Derived_reference_is_skipped_when_base_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustLeader>().Include(x => ((LocustCommander)x).HighCommand),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(x => x.HighCommand)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Nested_contains_with_enum(bool async)
+    {
+        var key = Guid.Parse("5f221fb9-66f4-442a-92c9-d97ed5989cc7");
+        var keys = new List<Guid> { Guid.Parse("0a47bcb7-a1cb-4345-8944-c58f82d6aac7"), key };
+        var ranks = new List<MilitaryRank> { MilitaryRank.Private };
+        var ammoTypes = new List<AmmunitionType?> { AmmunitionType.Cartridge };
+
+        // Note that in this query, the outer Contains really has no type mapping, neither for its source (collection parameter), nor
+        // for its item (the conditional expression returns key, which is also a parameter). The default type mapping must be applied.
+        await AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Where(x => keys.Contains(ranks.Contains(x.Rank) ? key : key)));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Where(x => keys.Contains(ammoTypes.Contains(x.AmmunitionType) ? key : key)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))] // Issue #33330
+    public virtual Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        var interval = TimeSpan.FromTicks(10);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(e => e.Duration + interval));
     }
 
     protected GearsOfWarContext CreateContext()

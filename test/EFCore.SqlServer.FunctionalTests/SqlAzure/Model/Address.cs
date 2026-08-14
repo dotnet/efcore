@@ -6,13 +6,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
+#nullable disable
+
 [Table("Address", Schema = "SalesLT")]
 public class Address
 {
     public Address()
-    {
-        CustomerAddress = new HashSet<CustomerAddress>();
-    }
+        => CustomerAddress = new HashSet<CustomerAddress>();
 
     public int AddressID { get; set; }
 

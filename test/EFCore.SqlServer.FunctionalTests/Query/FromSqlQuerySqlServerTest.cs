@@ -12,9 +12,7 @@ public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<FromSqlQuerySqlSer
 {
     public FromSqlQuerySqlServerTest(FromSqlQuerySqlServerTestFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task FromSqlRaw_queryable_simple(bool async)
     {
@@ -69,7 +67,11 @@ WHERE [m].[ContactName] LIKE N'%z%'
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
 
-        
+
+"""
+            + "        "
+            + """
+
 
 
     SELECT
@@ -437,7 +439,7 @@ SELECT * FROM "Employees" WHERE "ReportsTo" = @p0 OR ("ReportsTo" IS NULL AND @p
 """);
     }
 
-    public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+    public override async Task<string?> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
         await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
@@ -1000,9 +1002,10 @@ FROM (
             };
 
         var orders = context.Set<OrderQuery>()
-                .FromSqlRaw(@"SET @returnValue = 3
-SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", new[] { output } )
-                .ToList();
+            .FromSqlRaw(
+                @"SET @returnValue = 3
+SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", output)
+            .ToList();
 
         Assert.Equal(1, orders.Count);
         Assert.Equal(3, output.Value);

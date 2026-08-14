@@ -3,10 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class QueryNoClientEvalSqlServerTest : QueryNoClientEvalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
-{
-    public QueryNoClientEvalSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
-        : base(fixture)
-    {
-    }
-}
+#nullable disable
+
+public class QueryNoClientEvalSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
+    : QueryNoClientEvalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>(fixture);

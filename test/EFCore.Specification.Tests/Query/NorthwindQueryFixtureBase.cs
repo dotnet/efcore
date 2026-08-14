@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IFilteredQueryFixtureBase
-    where TModelCustomizer : IModelCustomizer, new()
+    where TModelCustomizer : ITestModelCustomizer, new()
 {
     public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
+        => CreateContext;
 
     private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new();
 
@@ -268,11 +270,11 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
     protected override bool UsePooling
         => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        => new TModelCustomizer().ConfigureConventions(configurationBuilder);
+
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         => new TModelCustomizer().Customize(modelBuilder, context);
-
-    protected override void Seed(NorthwindContext context)
-        => NorthwindData.Seed(context);
 
     protected override Task SeedAsync(NorthwindContext context)
         => NorthwindData.SeedAsync(context);

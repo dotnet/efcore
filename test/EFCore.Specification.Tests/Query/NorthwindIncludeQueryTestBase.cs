@@ -10,14 +10,11 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindIncludeQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindIncludeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_and_collection_order_by(bool async)

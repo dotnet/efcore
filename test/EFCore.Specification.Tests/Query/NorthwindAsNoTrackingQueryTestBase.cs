@@ -7,14 +7,9 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindAsNoTrackingQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(false, false)]
     [InlineData(false, true)]

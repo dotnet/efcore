@@ -5,13 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
+#nullable disable
+
 [Table("ProductCategory", Schema = "SalesLT")]
 public class ProductCategory
 {
     public ProductCategory()
-    {
-        Product = new HashSet<Product>();
-    }
+        => Product = new HashSet<Product>();
 
     public int ProductCategoryID { get; set; }
     public string Name { get; set; }

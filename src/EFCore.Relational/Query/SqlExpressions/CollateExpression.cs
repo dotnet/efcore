@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class CollateExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="CollateExpression" /> class.
     /// </summary>
@@ -50,6 +52,13 @@ public class CollateExpression : SqlExpression
         => operand != Operand
             ? new CollateExpression(operand, Collation)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(CollateExpression).GetConstructor([typeof(SqlExpression), typeof(string)])!,
+            Operand.Quote(),
+            Constant(Collation));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

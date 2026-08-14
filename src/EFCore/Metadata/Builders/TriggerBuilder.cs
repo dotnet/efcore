@@ -16,9 +16,7 @@ public class TriggerBuilder : IInfrastructure<IConventionTriggerBuilder>
     /// </summary>
     /// <param name="trigger">The <see cref="IMutableTrigger" /> to configure.</param>
     public TriggerBuilder(IMutableTrigger trigger)
-    {
-        InternalBuilder = ((Trigger)trigger).Builder;
-    }
+        => InternalBuilder = ((Trigger)trigger).Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

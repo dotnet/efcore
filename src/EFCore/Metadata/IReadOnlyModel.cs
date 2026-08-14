@@ -46,6 +46,13 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
     PropertyAccessMode GetPropertyAccessMode();
 
     /// <summary>
+    ///     Gets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <returns>The name.</returns>
+    [DebuggerStepThrough]
+    string GetEmbeddedDiscriminatorName();
+
+    /// <summary>
     ///     Gets the EF Core assembly version used to build this model.
     /// </summary>
     /// <remarks>

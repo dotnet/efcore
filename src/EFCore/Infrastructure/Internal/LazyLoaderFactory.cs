@@ -13,7 +13,7 @@ public class LazyLoaderFactory : ILazyLoaderFactory
 {
     private readonly ICurrentDbContext _currentContext;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Infrastructure> _logger;
-    private readonly List<ILazyLoader> _loaders = new();
+    private readonly List<ILazyLoader> _loaders = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,6 +54,7 @@ public class LazyLoaderFactory : ILazyLoaderFactory
         {
             loader.Dispose();
         }
+
         _loaders.Clear();
     }
 

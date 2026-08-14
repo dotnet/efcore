@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ManyToManyQuerySqliteTest : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
-{
-    public ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
+    : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>(fixture)
+{
     public override async Task Skip_navigation_order_by_single_or_default(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

@@ -56,7 +56,7 @@ public sealed record RelationalAggregateMethodCallTranslatorProviderDependencies
     }
 
     /// <summary>
-    ///     The expression factory..
+    ///     The expression factory.
     /// </summary>
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 

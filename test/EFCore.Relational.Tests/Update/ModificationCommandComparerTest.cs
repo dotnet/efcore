@@ -167,6 +167,7 @@ public class ModificationCommandComparerTest
 
         var keyProperty = entityType.AddProperty("Id", typeof(T));
         keyProperty.IsNullable = false;
+        keyProperty.ValueGenerated = ValueGenerated.Never;
         entityType.SetPrimaryKey(keyProperty);
 
         var model = modelBuilder.FinalizeModel();

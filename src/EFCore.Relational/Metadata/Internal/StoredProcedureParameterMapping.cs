@@ -23,9 +23,7 @@ public class StoredProcedureParameterMapping : ColumnMappingBase, IStoredProcedu
         StoreStoredProcedureParameter storeParameter,
         StoredProcedureMapping storedProcedureMapping)
         : base(property, storeParameter, storedProcedureMapping)
-    {
-        Parameter = parameter;
-    }
+        => Parameter = parameter;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

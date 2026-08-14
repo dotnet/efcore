@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OverzealousInitializationInMemoryTest
-    : OverzealousInitializationTestBase<OverzealousInitializationInMemoryTest.OverzealousInitializationInMemoryFixture>
+public class OverzealousInitializationInMemoryTest(OverzealousInitializationInMemoryTest.OverzealousInitializationInMemoryFixture fixture)
+    : OverzealousInitializationTestBase<OverzealousInitializationInMemoryTest.OverzealousInitializationInMemoryFixture>(fixture)
 {
-    public OverzealousInitializationInMemoryTest(OverzealousInitializationInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class OverzealousInitializationInMemoryFixture : OverzealousInitializationFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

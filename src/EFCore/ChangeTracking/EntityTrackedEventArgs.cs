@@ -24,9 +24,7 @@ public class EntityTrackedEventArgs : EntityEntryEventArgs
         InternalEntityEntry internalEntityEntry,
         bool fromQuery)
         : base(internalEntityEntry)
-    {
-        FromQuery = fromQuery;
-    }
+        => FromQuery = fromQuery;
 
     /// <summary>
     ///     <see langword="true" /> if the entity is being tracked as part of a database query; <see langword="false" /> otherwise.

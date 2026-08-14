@@ -1,23 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 
-internal class AnsiTextWriter
+internal class AnsiTextWriter(TextWriter writer)
 {
-    private readonly TextWriter _writer;
-
-    public AnsiTextWriter(TextWriter writer)
-    {
-        _writer = writer;
-    }
-
     public void WriteLine(string? text)
     {
         if (text != null)
@@ -25,12 +15,12 @@ internal class AnsiTextWriter
             Interpret(text);
         }
 
-        _writer.Write(Environment.NewLine);
+        writer.Write(Environment.NewLine);
     }
 
     private void Interpret(string value)
     {
-        var matches = Regex.Matches(value, "\x1b\\[([0-9]+)?m");
+        var matches = Regex.Matches(value, "\x1b\\[([0-9]+)?m", RegexOptions.None, TimeSpan.FromSeconds(10));
 
         var start = 0;
         foreach (var match in matches.Cast<Match>())
@@ -38,7 +28,7 @@ internal class AnsiTextWriter
             var length = match.Index - start;
             if (length != 0)
             {
-                _writer.Write(value.Substring(start, length));
+                writer.Write(value.Substring(start, length));
             }
 
             Apply(match.Groups[1].Value);
@@ -48,7 +38,7 @@ internal class AnsiTextWriter
 
         if (start != value.Length)
         {
-            _writer.Write(value.Substring(start));
+            writer.Write(value.Substring(start));
         }
     }
 

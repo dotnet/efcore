@@ -945,7 +945,7 @@ public class EntityEntryTest
             .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
 
         Assert.Equal(
-            new List<string> { "GarciaId", "Nonkey" }, modified);
+            ["GarciaId", "Nonkey"], modified);
     }
 
     [ConditionalFact]
@@ -953,8 +953,7 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Id",
                 "GarciaId",
                 "Monkey",
@@ -962,29 +961,27 @@ public class EntityEntryTest
                 "Culture",
                 "Milk",
                 "Garcia"
-            },
+            ],
             context.Attach(CreateChunky()).Members.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Id",
                 "Garcia",
                 "Culture",
                 "Milk",
                 "Baked",
                 "Monkeys"
-            },
+            ],
             context.Attach(CreateCherry()).Members.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Id",
                 "Baked",
                 "GarciaId",
                 "Garcia"
-            },
+            ],
             context.Attach(new Half()).Members.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -993,26 +990,24 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Id",
                 "GarciaId",
                 "Monkey",
                 "Nonkey"
-            },
+            ],
             context.Attach(CreateChunky()).Properties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Id", "Garcia" },
+            ["Id", "Garcia"],
             context.Attach(CreateCherry()).Properties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Id",
                 "Baked",
                 "GarciaId"
-            },
+            ],
             context.Attach(new Half()).Properties.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -1021,15 +1016,15 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            new List<string> { "Garcia" },
+            ["Garcia"],
             context.Attach(CreateChunky()).Navigations.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Baked", "Monkeys" },
+            ["Baked", "Monkeys"],
             context.Attach(CreateCherry()).Navigations.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Garcia" },
+            ["Garcia"],
             context.Attach(new Half()).Navigations.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -1038,15 +1033,15 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            new List<string> { "Garcia" },
+            ["Garcia"],
             context.Attach(CreateChunky()).References.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Baked" },
+            ["Baked"],
             context.Attach(CreateCherry()).References.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Garcia" },
+            ["Garcia"],
             context.Attach(new Half()).References.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -1057,7 +1052,7 @@ public class EntityEntryTest
         Assert.Empty(context.Attach(CreateChunky()).Collections.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Monkeys" },
+            ["Monkeys"],
             context.Attach(CreateCherry()).Collections.Select(e => e.Metadata.Name).ToList());
 
         Assert.Empty(context.Attach(new Half()).Collections.Select(e => e.Metadata.Name).ToList());
@@ -1314,11 +1309,11 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            new List<string> { "Culture", "Milk" },
+            ["Culture", "Milk"],
             context.Attach(CreateChunky()).ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Culture", "Milk" },
+            ["Culture", "Milk"],
             context.Attach(CreateCherry()).ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Empty(context.Attach(new Half()).ComplexProperties);
@@ -1532,11 +1527,11 @@ public class EntityEntryTest
     {
         using var context = new FreezerContext();
         Assert.Equal(
-            new List<string> { "Culture", "Milk" },
+            ["Culture", "Milk"],
             context.Attach(CreateCherry(76)).ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
-            new List<string> { "Culture", "Milk" },
+            ["Culture", "Milk"],
             context.Attach(CreateCherry(77)).ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Empty(context.Attach(new Half()).ComplexProperties);

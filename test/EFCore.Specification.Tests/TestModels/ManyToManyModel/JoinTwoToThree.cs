@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public class JoinTwoToThree
 {
     public virtual int TwoId { get; set; }

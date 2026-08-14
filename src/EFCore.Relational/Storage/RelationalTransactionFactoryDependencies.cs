@@ -46,9 +46,7 @@ public sealed record RelationalTransactionFactoryDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public RelationalTransactionFactoryDependencies(ISqlGenerationHelper sqlGenerationHelper)
-    {
-        SqlGenerationHelper = sqlGenerationHelper;
-    }
+        => SqlGenerationHelper = sqlGenerationHelper;
 
     /// <summary>
     ///     Helpers for SQL generation.

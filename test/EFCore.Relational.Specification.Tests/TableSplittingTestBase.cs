@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class TableSplittingTestBase : NonSharedModelTestBase
 {
     protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
@@ -762,26 +764,24 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
     {
         await InitializeAsync(OnModelCreating);
 
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                CreateContext,
-                UseTransaction,
-                async context => Assert.Contains(
-                    RelationalStrings.NonQueryTranslationFailedWithDetails(
-                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Vehicle>().ExecuteDeleteAsync())).Message));
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                CreateContext,
-                UseTransaction,
-                context => Assert.Contains(
-                    RelationalStrings.NonQueryTranslationFailedWithDetails(
-                        "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
-                    Assert.Throws<InvalidOperationException>(() => context.Set<Vehicle>().ExecuteDelete()).Message));
-        }
+        await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context => Assert.Contains(
+                CoreStrings.NonQueryTranslationFailedWithDetails(
+                    "", RelationalStrings.ExecuteDeleteOnTableSplitting("Vehicles"))[21..],
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () =>
+                    {
+                        if (async)
+                        {
+                            await context.Set<Vehicle>().ExecuteDeleteAsync();
+                        }
+                        else
+                        {
+                            context.Set<Vehicle>().ExecuteDelete();
+                        }
+                    })).Message));
     }
 
     [ConditionalTheory]
@@ -790,27 +790,26 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
     {
         await InitializeAsync(OnModelCreating);
 
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                CreateContext,
-                UseTransaction,
-                async context => await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, 1)),
-                context =>
+        await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                if (async)
                 {
-                    Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1));
-
-                    return Task.CompletedTask;
-                });
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                CreateContext,
-                UseTransaction,
-                context => context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, 1)),
-                context => Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1)));
-        }
+                    await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, 1));
+                }
+                else
+                {
+                    context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, 1));
+                }
+            }, async context =>
+            {
+                Assert.True(
+                    async
+                        ? await context.Set<Vehicle>().AllAsync(e => e.SeatingCapacity == 1)
+                        : context.Set<Vehicle>().All(e => e.SeatingCapacity == 1));
+            });
     }
 
     [ConditionalTheory]
@@ -830,13 +829,8 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context29196 : DbContext
+    protected class Context29196(DbContextOptions options) : DbContext(options)
     {
-        public Context29196(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Order> Orders
             => Set<Order>();
 
@@ -865,7 +859,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                 });
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(
                 new Order
@@ -879,7 +873,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                     }
                 });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
     }
 
@@ -997,7 +991,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
     protected async Task InitializeAsync(Action<ModelBuilder> onModelCreating, bool seed = true)
         => ContextFactory = await InitializeAsync<TransportationContext>(
-            onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.Seed() : null);
+            onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.SeedAsync() : null);
 
     protected async Task InitializeSharedAsync(Action<ModelBuilder> onModelCreating, bool sensitiveLogEnabled = true)
         => SharedContextFactory = await InitializeAsync<SharedTableContext>(
@@ -1017,21 +1011,16 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
     protected virtual SharedTableContext CreateSharedContext()
         => SharedContextFactory.CreateContext();
 
-    public override void Dispose()
+    public override async Task DisposeAsync()
     {
-        base.Dispose();
+        await base.DisposeAsync();
 
         ContextFactory = null;
         SharedContextFactory = null;
     }
 
-    protected class SharedTableContext : PoolableDbContext
+    protected class SharedTableContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public SharedTableContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<MeterReading> MeterReadings { get; set; }
         public DbSet<MeterReadingDetail> MeterReadingDetails { get; set; }
     }

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 public class FakeDbParameterCollection : DbParameterCollection
 {
-    private readonly List<object> _parameters = new();
+    private readonly List<object> _parameters = [];
 
     public override int Count
         => _parameters.Count;

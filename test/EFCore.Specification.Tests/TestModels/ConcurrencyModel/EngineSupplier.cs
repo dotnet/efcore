@@ -3,17 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class EngineSupplier
 {
-    public class EngineSupplierProxy : EngineSupplier, IF1Proxy
+    public class EngineSupplierProxy(
+        ILazyLoader loader,
+        string name) : EngineSupplier(loader, name), IF1Proxy
     {
-        public EngineSupplierProxy(
-            ILazyLoader loader,
-            string name)
-            : base(loader, name)
-        {
-        }
-
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }
         public bool InitializedCalled { get; set; }

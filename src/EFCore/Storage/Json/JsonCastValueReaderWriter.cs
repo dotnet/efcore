@@ -20,9 +20,7 @@ public class JsonCastValueReaderWriter<TConverted> :
     /// </summary>
     /// <param name="providerReaderWriter">The underlying provider type reader/writer.</param>
     public JsonCastValueReaderWriter(JsonValueReaderWriter providerReaderWriter)
-    {
-        _providerReaderWriter = providerReaderWriter;
-    }
+        => _providerReaderWriter = providerReaderWriter;
 
     /// <inheritdoc />
     public override TConverted FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
@@ -34,4 +32,11 @@ public class JsonCastValueReaderWriter<TConverted> :
 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _providerReaderWriter;
+
+    private readonly ConstructorInfo _constructorInfo =
+        typeof(JsonCastValueReaderWriter<TConverted>).GetConstructor([typeof(JsonValueReaderWriter)])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }

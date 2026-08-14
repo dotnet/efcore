@@ -5,24 +5,18 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
-public class Person
+public class Person(string name, Person? parent)
 {
     protected Person()
+        : this(null!, null)
     {
-        Name = null!;
-    }
-
-    public Person(string name, Person? parent)
-    {
-        Name = name;
-        Parent = parent;
     }
 
     public int PersonId { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
     public int? ParentId { get; set; }
     public string? Country { get; set; }
     public string? ZipCode { get; set; }
-    public Person? Parent { get; set; }
+    public Person? Parent { get; set; } = parent;
     public Address? Address { get; set; }
 }

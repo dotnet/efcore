@@ -14,7 +14,7 @@ public class ClrPropertyGetterFactoryTest
     {
         var property = new FakeProperty();
 
-        Assert.Same(property, new ClrPropertyGetterFactory().Create(property));
+        Assert.Same(property, ClrPropertyGetterFactory.Instance.Create(property));
     }
 
     private class FakeProperty : Annotatable, IProperty, IClrPropertyGetter
@@ -147,14 +147,14 @@ public class ClrPropertyGetterFactoryTest
         var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
         Assert.Equal(
-            7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValueUsingContainingEntity(
+            7, ClrPropertyGetterFactory.Instance.Create(idProperty).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
     }
 
     [ConditionalFact]
     public void Delegate_getter_is_returned_for_property_info()
         => Assert.Equal(
-            7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
+            7, ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Id")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7 }));
 
     [ConditionalFact]
@@ -167,7 +167,7 @@ public class ClrPropertyGetterFactoryTest
 
         Assert.Equal(
             new Fuel(1.0),
-            new ClrPropertyGetterFactory().Create((IPropertyBase)fuelProperty).GetClrValueUsingContainingEntity(
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)fuelProperty).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
     }
 
@@ -175,7 +175,7 @@ public class ClrPropertyGetterFactoryTest
     public void Delegate_getter_is_returned_for_struct_property_info()
         => Assert.Equal(
             new Fuel(1.0),
-            new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
+            ClrPropertyGetterFactory.Instance.Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(1.0) }));
 
     [ConditionalFact]
@@ -189,10 +189,12 @@ public class ClrPropertyGetterFactoryTest
 
         Assert.Equal(
             "ValueA",
-            new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyA)
+                .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
         Assert.Equal(
             123,
-            new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+            ClrPropertyGetterFactory.Instance.Create((IPropertyBase)propertyB)
+                .GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
     }
 
     [ConditionalFact]
@@ -213,11 +215,11 @@ public class ClrPropertyGetterFactoryTest
             .ComplexType.FindProperty(nameof(Fuel.Volume))!;
 
         Assert.Equal(
-            10.0, new ClrPropertyGetterFactory().Create(volumeProperty).GetClrValueUsingContainingEntity(
+            10.0, ClrPropertyGetterFactory.Instance.Create(volumeProperty).GetClrValueUsingContainingEntity(
                 new Customer { Id = 7, Fuel = new Fuel(10.0) }));
 
         Assert.Equal(
-            10.0, new ClrPropertyGetterFactory().Create(volumeProperty).GetClrValue(new Fuel(10.0)));
+            10.0, ClrPropertyGetterFactory.Instance.Create(volumeProperty).GetClrValue(new Fuel(10.0)));
     }
 
     private static TestHelpers.TestModelBuilder CreateModelBuilder()
@@ -229,14 +231,9 @@ public class ClrPropertyGetterFactoryTest
         internal Fuel Fuel { get; set; }
     }
 
-    private struct Fuel
+    private struct Fuel(double volume)
     {
-        public Fuel(double volume)
-        {
-            Volume = volume;
-        }
-
-        public double Volume { get; }
+        public double Volume { get; } = volume;
     }
 
     private class IndexedClass

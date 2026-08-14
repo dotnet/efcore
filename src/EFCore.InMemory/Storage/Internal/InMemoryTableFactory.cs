@@ -48,7 +48,7 @@ public class InMemoryTableFactory : IInMemoryTableFactory
         => (Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
             .GetDeclaredMethod(nameof(CreateFactory))!
             .MakeGenericMethod(keyType)
-            .Invoke(null, Array.Empty<object>())!;
+            .Invoke(null, [])!;
 
     [UsedImplicitly]
     private static Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable> CreateFactory<TKey>()

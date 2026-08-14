@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TPHInheritanceQuerySqlServerTest : TPHInheritanceQueryTestBase<TPHInheritanceQuerySqlServerFixture>
-{
-    public TPHInheritanceQuerySqlServerTest(TPHInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
+#nullable disable
 
+public class TPHInheritanceQuerySqlServerTest(TPHInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    : TPHInheritanceQueryTestBase<TPHInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
+{
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -231,6 +229,9 @@ WHERE [p].[Genus] = 0
 """);
     }
 
+    public override Task Can_insert_update_delete()
+        => base.Can_insert_update_delete();
+
     public override async Task Can_query_all_animals(bool async)
     {
         await base.Can_query_all_animals(async);
@@ -331,14 +332,14 @@ WHERE [p].[Genus] = 0
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
+SELECT [a1].[Id], [a1].[CountryId], [a1].[Discriminator], [a1].[Name], [a1].[Species], [a1].[EagleId], [a1].[IsFlightless], [a1].[Group], [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
 FROM (
     SELECT TOP(2) [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group]
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] = N'Eagle'
-) AS [t]
-LEFT JOIN [Animals] AS [a0] ON [t].[Id] = [a0].[EagleId]
-ORDER BY [t].[Id]
+) AS [a1]
+LEFT JOIN [Animals] AS [a0] ON [a1].[Id] = [a0].[EagleId]
+ORDER BY [a1].[Id]
 """);
     }
 
@@ -414,9 +415,6 @@ WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
-    public override void Can_insert_update_delete()
-        => base.Can_insert_update_delete();
-
     public override async Task Byte_enum_value_constant_used_in_projection(bool async)
     {
         await base.Byte_enum_value_constant_used_in_projection(async);
@@ -487,13 +485,13 @@ WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL
             """
 @__p_0='5'
 
-SELECT DISTINCT [t].[Id], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+SELECT DISTINCT [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[FoundOn]
 FROM (
     SELECT TOP(@__p_0) [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
     FROM [Animals] AS [a]
     ORDER BY [a].[Species]
-) AS [t]
-WHERE [t].[Discriminator] = N'Kiwi'
+) AS [a0]
+WHERE [a0].[Discriminator] = N'Kiwi'
 """);
     }
 
@@ -517,9 +515,9 @@ WHERE 0 = 1
 """);
     }
 
-    public override void Member_access_on_intermediate_type_works()
+    public override async Task Member_access_on_intermediate_type_works()
     {
-        base.Member_access_on_intermediate_type_works();
+        await base.Member_access_on_intermediate_type_works();
 
         AssertSql(
             """
@@ -619,9 +617,9 @@ WHERE N'Kiwi' = [a].[Discriminator]
 """);
     }
 
-    public override void Setting_foreign_key_to_a_different_type_throws()
+    public override async Task Setting_foreign_key_to_a_different_type_throws()
     {
-        base.Setting_foreign_key_to_a_different_type_throws();
+        await base.Setting_foreign_key_to_a_different_type_throws();
 
         AssertSql(
             """

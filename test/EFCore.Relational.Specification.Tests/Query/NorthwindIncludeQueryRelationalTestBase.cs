@@ -3,24 +3,18 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindIncludeQueryRelationalTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindIncludeQueryRelationalTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindIncludeQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Include_collection_with_last_no_orderby(bool async)
         => Assert.Equal(
             RelationalStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Include_collection_with_last_no_orderby(async))).Message);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

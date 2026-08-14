@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class OptimisticConcurrencyULongSqlServerTest : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>
-{
-    public OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
+    : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>(fixture)
+{
     [ConditionalFact]
     public async Task ULong_row_version_can_handle_empty_array_from_the_database()
     {
@@ -70,13 +68,9 @@ public class OptimisticConcurrencyULongSqlServerTest : OptimisticConcurrencySqlS
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, ulong>(updateDependentFirst, Mapping.Tpc, "ULongVersion");
 }
 
-public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>
+public class OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
+    : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>(fixture)
 {
-    public OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]
@@ -114,15 +108,10 @@ public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencySqlServer
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, List<byte>>(updateDependentFirst, Mapping.Tpc, "BinaryVersion");
 }
 
-public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersion>
-    : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>
+public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersion>(TFixture fixture)
+    : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>(fixture)
     where TFixture : F1RelationalFixture<TRowVersion>, new()
 {
-    protected OptimisticConcurrencySqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected enum Mapping
     {
         Tph,

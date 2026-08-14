@@ -18,9 +18,7 @@ public class QuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public QuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

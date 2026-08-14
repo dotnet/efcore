@@ -4,7 +4,6 @@
 namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable ClassNeverInstantiated.Local
-
 public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
 {
     #region 33449
@@ -18,14 +17,14 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
                 context.AddRange(
                     new Context33449.EntityType
                     {
-                        ComplexContainer = new()
+                        ComplexContainer = new Context33449.ComplexContainer
                         {
                             Id = 1,
-                            Containee1 = new() { Id = 2 },
-                            Containee2 = new() { Id = 3 }
+                            Containee1 = new Context33449.ComplexContainee1 { Id = 2 },
+                            Containee2 = new Context33449.ComplexContainee2 { Id = 3 }
                         }
                     });
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -33,8 +32,8 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
         var container = new Context33449.ComplexContainer
         {
             Id = 1,
-            Containee1 = new() { Id = 2 },
-            Containee2 = new() { Id = 3 }
+            Containee1 = new Context33449.ComplexContainee1 { Id = 2 },
+            Containee2 = new Context33449.ComplexContainee2 { Id = 3 }
         };
 
         _ = await context.Set<Context33449.EntityType>().Where(b => b.ComplexContainer == container).SingleAsync();
@@ -43,12 +42,12 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
     private class Context33449(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.ComplexContainer, x =>
-            {
-                x.IsRequired();
-                x.ComplexProperty(c => c.Containee1).IsRequired();
-                x.ComplexProperty(c => c.Containee2).IsRequired();
-            });
+            => modelBuilder.Entity<EntityType>().ComplexProperty(
+                b => b.ComplexContainer, x =>
+                {
+                    x.ComplexProperty(c => c.Containee1);
+                    x.ComplexProperty(c => c.Containee2);
+                });
 
         public class EntityType
         {

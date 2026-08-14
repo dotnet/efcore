@@ -86,7 +86,7 @@ EXEC (@SQL);";
         => AddSqlServerSpecificAnnotations(base.Drop(foreignKey), foreignKey.Table);
 
     protected override MigrationOperation Drop(DatabaseIndex index)
-        => AddSqlServerSpecificAnnotations(base.Drop(index), index.Table);
+        => AddSqlServerSpecificAnnotations(base.Drop(index), index.Table!);
 
     private static TOperation AddSqlServerSpecificAnnotations<TOperation>(TOperation operation, DatabaseTable table)
         where TOperation : MigrationOperation

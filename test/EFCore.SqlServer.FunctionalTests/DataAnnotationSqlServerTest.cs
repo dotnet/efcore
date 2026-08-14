@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<DataAnnotationSqlServerTest.DataAnnotationSqlServerFixture>
 {
     public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -201,9 +203,9 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         return model;
     }
 
-    public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+    public override async Task ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
     {
-        base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
+        await base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
         AssertSql(
             """
@@ -245,9 +247,9 @@ WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
 """);
     }
 
-    public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
+    public override async Task DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
     {
-        base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
+        await base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
         AssertSql(
             """
@@ -267,9 +269,9 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """);
     }
 
-    public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public override async Task MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
-        base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
+        await base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
         AssertSql(
             """
@@ -305,9 +307,9 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """);
     }
 
-    public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public override async Task StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
-        base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
+        await base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
         AssertSql(
             """
@@ -330,13 +332,6 @@ OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
 VALUES (@p0);
 """);
     }
-
-    public override void TimestampAttribute_throws_if_value_in_database_changed()
-        => base.TimestampAttribute_throws_if_value_in_database_changed();
-
-    // Not validating SQL because not significantly different from other tests and
-    // row version value is not stable.
-    private static readonly string _eol = Environment.NewLine;
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

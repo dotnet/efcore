@@ -9,9 +9,7 @@ public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteF
 {
     public FromSqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task FromSqlRaw_queryable_composed(bool async)
     {
@@ -23,23 +21,25 @@ SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."Cont
 FROM (
     SELECT * FROM "Customers"
 ) AS "m"
-WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
-    public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+    public override async Task<string?> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
         var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
         Assert.Equal(
-            @".param set p0 'London'
+            """
+.param set p0 'London'
 .param set @__contactTitle_1 'Sales Representative'
 
-SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
-    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+    SELECT * FROM "Customers" WHERE "City" = @p0
+) AS "m"
+WHERE "m"."ContactTitle" = @__contactTitle_1
+""", queryString, ignoreLineEndingDifferences: true);
 
         return queryString;
     }
@@ -73,7 +73,7 @@ FROM (
     )
     SELECT * FROM "Customers2"
 ) AS "m"
-WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
