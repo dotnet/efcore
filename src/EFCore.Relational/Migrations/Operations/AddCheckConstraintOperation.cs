@@ -42,7 +42,7 @@ public class AddCheckConstraintOperation : MigrationOperation, ITableMigrationOp
     /// <returns>The operation.</returns>
     public static AddCheckConstraintOperation CreateFrom(ICheckConstraint checkConstraint)
     {
-        Check.NotNull(checkConstraint, nameof(checkConstraint));
+        Check.NotNull(checkConstraint);
 
         var operation = new AddCheckConstraintOperation
         {

@@ -8,12 +8,11 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtureBase, IBulkUpdatesFixtureBase
 {
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(
-            w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
-                .Ignore(
-                    CoreEventId.MappedEntityTypeIgnoredWarning,
-                    CoreEventId.MappedPropertyIgnoredWarning,
-                    CoreEventId.MappedNavigationIgnoredWarning));
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+            .Ignore(
+                CoreEventId.MappedEntityTypeIgnoredWarning,
+                CoreEventId.MappedPropertyIgnoredWarning,
+                CoreEventId.MappedNavigationIgnoredWarning));
 
     public abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 }

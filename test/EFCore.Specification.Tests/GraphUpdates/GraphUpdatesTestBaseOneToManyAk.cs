@@ -12,65 +12,64 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges)]
-    [InlineData(
-        (int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges)]
-    [InlineData(
-        (int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Principal, false, null)]
-    [InlineData((int)ChangeMechanism.Principal, true, null)]
-    [InlineData((int)ChangeMechanism.Dependent, false, null)]
-    [InlineData((int)ChangeMechanism.Dependent, true, null)]
-    [InlineData((int)ChangeMechanism.Fk, false, null)]
-    [InlineData((int)ChangeMechanism.Fk, true, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, null)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, null)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, null)]
+    [ConditionalTheory, InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges),
+     InlineData(
+         (int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges),
+     InlineData(
+         (int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Principal, false, null),
+     InlineData((int)ChangeMechanism.Principal, true, null),
+     InlineData((int)ChangeMechanism.Dependent, false, null),
+     InlineData((int)ChangeMechanism.Dependent, true, null),
+     InlineData((int)ChangeMechanism.Fk, false, null),
+     InlineData((int)ChangeMechanism.Fk, true, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, null),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, null),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, null)]
     public virtual Task Save_optional_many_to_one_dependents_with_alternate_key(
         ChangeMechanism changeMechanism,
         bool useExistingEntities,
@@ -210,65 +209,63 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges)]
-    [InlineData(
-        (int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges)]
-    [InlineData(
-        (int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Principal, false, null)]
-    [InlineData((int)ChangeMechanism.Principal, true, null)]
-    [InlineData((int)ChangeMechanism.Dependent, false, null)]
-    [InlineData((int)ChangeMechanism.Dependent, true, null)]
-    [InlineData((int)ChangeMechanism.Fk, false, null)]
-    [InlineData((int)ChangeMechanism.Fk, true, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, null)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, null)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, null)]
+    [ConditionalTheory,
+     InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Dependent, true, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Fk, false, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Fk, true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Principal, false, null),
+     InlineData((int)ChangeMechanism.Principal, true, null),
+     InlineData((int)ChangeMechanism.Dependent, false, null),
+     InlineData((int)ChangeMechanism.Dependent, true, null),
+     InlineData((int)ChangeMechanism.Fk, false, null),
+     InlineData((int)ChangeMechanism.Fk, true, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), false, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), true, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), false, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), true, null),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), false, null),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), true, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), false, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true, null)]
     public virtual Task Save_required_many_to_one_dependents_with_alternate_key(
         ChangeMechanism changeMechanism,
         bool useExistingEntities,
@@ -420,35 +417,35 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Fk, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Principal, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Fk, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Principal, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Fk, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Principal, null)]
-    [InlineData((int)ChangeMechanism.Dependent, null)]
-    [InlineData((int)ChangeMechanism.Fk, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), null)]
-    [InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), null)]
+    [ConditionalTheory,
+     InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Fk, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Principal, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Fk, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Principal, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Fk, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Principal, null),
+     InlineData((int)ChangeMechanism.Dependent, null),
+     InlineData((int)ChangeMechanism.Fk, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Fk), null),
+     InlineData((int)(ChangeMechanism.Fk | ChangeMechanism.Dependent), null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), null)]
     public virtual Task Save_removed_optional_many_to_one_dependents_with_alternate_key(
         ChangeMechanism changeMechanism,
         CascadeTiming? deleteOrphansTiming)
@@ -521,19 +518,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges)]
-    [InlineData((int)ChangeMechanism.Principal, CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Immediate)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Immediate)]
-    [InlineData((int)ChangeMechanism.Principal, CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Never)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Never)]
-    [InlineData((int)ChangeMechanism.Principal, null)]
-    [InlineData((int)ChangeMechanism.Dependent, null)]
-    [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), null)]
+    [ConditionalTheory,
+     InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Dependent, CascadeTiming.OnSaveChanges),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.OnSaveChanges),
+     InlineData((int)ChangeMechanism.Principal, CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Immediate),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Immediate),
+     InlineData((int)ChangeMechanism.Principal, CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Dependent, CascadeTiming.Never),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), CascadeTiming.Never),
+     InlineData((int)ChangeMechanism.Principal, null),
+     InlineData((int)ChangeMechanism.Dependent, null),
+     InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent), null)]
     public virtual Task Save_removed_required_many_to_one_dependents_with_alternate_key(
         ChangeMechanism changeMechanism,
         CascadeTiming? deleteOrphansTiming)
@@ -646,17 +643,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
@@ -691,9 +688,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     context.ChangeTracker.CascadeChanges();
 
                     Assert.True(
-                        orphaned.All(
-                            e => context.Entry(e).State
-                                == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
+                        orphaned.All(e => context.Entry(e).State
+                            == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
                 }
 
                 Assert.True(context.ChangeTracker.HasChanges());
@@ -735,17 +731,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
@@ -842,17 +838,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
@@ -931,17 +927,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
@@ -1035,17 +1031,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_starting_detached(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
@@ -1132,17 +1128,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
@@ -1233,17 +1229,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
-    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
-    [InlineData(null, null)]
+    [ConditionalTheory,
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Immediate, CascadeTiming.Never),
+     InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges),
+     InlineData(CascadeTiming.Never, CascadeTiming.Immediate),
+     InlineData(CascadeTiming.Never, CascadeTiming.Never),
+     InlineData(null, null)]
     public virtual Task Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)

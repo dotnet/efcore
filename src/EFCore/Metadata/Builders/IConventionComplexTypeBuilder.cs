@@ -134,4 +134,61 @@ public interface IConventionComplexTypeBuilder : IConventionTypeBaseBuilder
     new IConventionComplexTypeBuilder? UsePropertyAccessMode(
         PropertyAccessMode? propertyAccessMode,
         bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify which complex type each row in a table represents
+    ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+    /// </summary>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    IConventionComplexTypeDiscriminatorBuilder? HasDiscriminator(bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify which complex type each row in a table represents
+    ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+    /// </summary>
+    /// <param name="type">The type of values stored in the discriminator property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    IConventionComplexTypeDiscriminatorBuilder? HasDiscriminator(Type type, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify which complex type each row in a table represents
+    ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+    /// </summary>
+    /// <param name="name">The name of the discriminator property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    IConventionComplexTypeDiscriminatorBuilder? HasDiscriminator(string name, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify which complex type each row in a table represents
+    ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+    /// </summary>
+    /// <param name="name">The name of the discriminator property.</param>
+    /// <param name="type">The type of values stored in the discriminator property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    IConventionComplexTypeDiscriminatorBuilder? HasDiscriminator(string name, Type type, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures the discriminator property used to identify which complex type each row in a table represents
+    ///     when an inheritance hierarchy is mapped to a single table in a relational database.
+    /// </summary>
+    /// <param name="memberInfo">The property mapped to the discriminator property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>A builder that allows the discriminator property to be configured.</returns>
+    IConventionComplexTypeDiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Removes the discriminator property from this complex type.
+    ///     This method is usually called when the complex type is no longer mapped to the same table as any other type in
+    ///     the hierarchy or when this complex type is no longer the root type.
+    /// </summary>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the discriminator was configured,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionComplexTypeBuilder? HasNoDiscriminator(bool fromDataAnnotation = false);
 }

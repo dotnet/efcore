@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class SqlServerPrecompiledQueryTestHelpers : PrecompiledQueryTestHelpers
 {
-    public static SqlServerPrecompiledQueryTestHelpers Instance = new();
+    public static readonly SqlServerPrecompiledQueryTestHelpers Instance = new();
 
     protected override IEnumerable<MetadataReference> BuildProviderMetadataReferences()
     {

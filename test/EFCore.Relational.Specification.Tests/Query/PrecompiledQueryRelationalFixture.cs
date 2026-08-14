@@ -102,6 +102,7 @@ public abstract class PrecompiledQueryRelationalFixture
         RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
         : IShapedQueryCompilingExpressionVisitorFactory
     {
+        [DebuggerStepThrough]
         public ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
             => new NonSqlGeneratingShapedQueryCompilingExpressionVisitor(
                 dependencies,

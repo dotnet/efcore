@@ -38,8 +38,7 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
             yield break;
         }
 
-        if (model.Tables.SelectMany(t => t.Columns).Any(
-                c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
+        if (model.Tables.SelectMany(t => t.Columns).Any(c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
         {
             yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
         }
@@ -66,13 +65,8 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
 
         // Model validation ensures that these facets are the same on all mapped properties
         var property = column.PropertyMappings.First().Property;
-        // Only return auto increment for integer single column primary key
-        var primaryKey = property.DeclaringType.ContainingEntityType.FindPrimaryKey();
-        if (primaryKey is { Properties.Count: 1 }
-            && primaryKey.Properties[0] == property
-            && property.ValueGenerated == ValueGenerated.OnAdd
-            && property.ClrType.UnwrapNullableType().IsInteger()
-            && !HasConverter(property))
+        
+        if (property.GetValueGenerationStrategy() == SqliteValueGenerationStrategy.Autoincrement)
         {
             yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
         }
@@ -83,7 +77,4 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
             yield return new Annotation(SqliteAnnotationNames.Srid, srid);
         }
     }
-
-    private static bool HasConverter(IProperty property)
-        => property.FindTypeMapping()?.Converter != null;
 }

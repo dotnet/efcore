@@ -21,6 +21,13 @@ public class SqlServerModelBuilderGenericTest : SqlServerModelBuilderTestBase
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
+    public class SqlServerGenericComplexCollection(SqlServerModelBuilderFixture fixture) : SqlServerComplexCollection(fixture)
+    {
+        protected override TestModelBuilder CreateModelBuilder(
+            Action<ModelConfigurationBuilder>? configure)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
     public class SqlServerGenericInheritance(SqlServerModelBuilderFixture fixture) : SqlServerInheritance(fixture)
     {
         protected override TestModelBuilder CreateModelBuilder(

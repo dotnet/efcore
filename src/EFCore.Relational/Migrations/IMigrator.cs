@@ -32,8 +32,8 @@ public interface IMigrator
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
-    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
-    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
+    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming"),
+     RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     void Migrate(string? targetMigration = null);
 
     /// <summary>
@@ -49,8 +49,8 @@ public interface IMigrator
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
-    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
+    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming"),
+     RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     Task MigrateAsync(
         string? targetMigration = null,
         CancellationToken cancellationToken = default);
@@ -72,8 +72,8 @@ public interface IMigrator
     ///     The options to use when generating SQL for migrations.
     /// </param>
     /// <returns>The generated script.</returns>
-    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
-    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
+    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming"),
+     RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     string GenerateScript(
         string? fromMigration = null,
         string? toMigration = null,

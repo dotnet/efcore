@@ -17,8 +17,7 @@ public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppresso
         justification: AnalyzerStrings.UninitializedDbSetWarningSuppressionJustification);
 
     /// <inheritdoc />
-    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; }
-        = ImmutableArray.Create(SuppressUninitializedDbSetRule);
+    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; } = [SuppressUninitializedDbSetRule];
 
     /// <inheritdoc />
     public override void ReportSuppressions(SuppressionAnalysisContext context)
@@ -28,7 +27,7 @@ public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppresso
 
         foreach (var diagnostic in context.ReportedDiagnostics)
         {
-            // We have an warning about an uninitialized non-nullable property.
+            // We have a warning about an uninitialized non-nullable property.
 
             // CS8618 contains the location of the uninitialized property in AdditionalLocations; note that if the class has a constructor,
             // the diagnostic main Location points to the constructor rather than to the uninitialized property.

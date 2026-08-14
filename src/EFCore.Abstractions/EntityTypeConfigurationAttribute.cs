@@ -19,9 +19,12 @@ public class EntityTypeConfigurationAttribute : Attribute
     ///     Initializes a new instance of the <see cref="EntityTypeConfigurationAttribute" /> class.
     /// </summary>
     /// <param name="entityConfigurationType">The IEntityTypeConfiguration&lt;&gt; type to use.</param>
-    public EntityTypeConfigurationAttribute(Type entityConfigurationType)
+    public EntityTypeConfigurationAttribute(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | DynamicallyAccessedMemberTypes.Interfaces)]
+        Type entityConfigurationType)
     {
-        Check.NotNull(entityConfigurationType, nameof(entityConfigurationType));
+        Check.NotNull(entityConfigurationType);
 
         EntityTypeConfigurationType = entityConfigurationType;
     }

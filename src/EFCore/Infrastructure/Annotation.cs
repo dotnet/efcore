@@ -25,7 +25,7 @@ public class Annotation : IAnnotation
     /// <param name="value">The value assigned to this annotation.</param>
     public Annotation(string name, object? value)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         Name = name;
         Value = value;

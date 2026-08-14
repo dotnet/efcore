@@ -53,7 +53,7 @@ public class EnumMethodTranslator : IMethodCallTranslator
         }
 
         if (Equals(method, ToStringMethodInfo)
-            && instance is { Type.IsEnum: true, TypeMapping.Converter: ValueConverter converter }
+            && instance is { Type.IsEnum: true, TypeMapping.Converter: { } converter }
             && converter.GetType() is { IsGenericType: true } converterType)
         {
             switch (converterType)
@@ -61,10 +61,9 @@ public class EnumMethodTranslator : IMethodCallTranslator
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>):
                     var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
-                        .Select(
-                            value => new CaseWhenClause(
-                                _sqlExpressionFactory.Constant(value),
-                                _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
+                        .Select(value => new CaseWhenClause(
+                            _sqlExpressionFactory.Constant(value),
+                            _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
                         .ToArray();
 
                     var elseResult = _sqlExpressionFactory.Coalesce(

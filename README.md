@@ -11,7 +11,7 @@ This repository is home to the following [.NET Foundation](https://dotnetfoundat
 
 [![latest version](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore) [![preview version](https://img.shields.io/nuget/vpre/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
 
-EF Core is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations. EF Core works with SQL Server, Azure SQL Database, SQLite, Azure Cosmos DB, MySQL, PostgreSQL, and other databases through a provider plugin API.
+EF Core is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations. EF Core works with SQL Server, Azure SQL Database, SQLite, Azure Cosmos DB, MariaDB, MySQL, PostgreSQL, and other databases through a provider plugin API.
 
 ### Installation
 
@@ -62,7 +62,7 @@ db.SaveChanges();
 
 ### Build from source
 
-Most people use EF Core by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
+Most people use EF Core by installing pre-built NuGet packages, as shown above. Alternatively, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
 
 ### Contributing
 
@@ -90,7 +90,7 @@ Use the `--version` option to specify a [preview version](https://www.nuget.org/
 
 ### Daily builds
 
-We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
+We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain the latest features and bug fixes; previews and official releases lag significantly behind.
 
 ### Basic usage
 
@@ -112,7 +112,7 @@ while (reader.Read())
 
 ### Build from source
 
-Most people use Microsoft.Data.Sqlite by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
+Most people use Microsoft.Data.Sqlite by installing pre-built NuGet packages, as shown above. Alternatively, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
 
 ### Contributing
 
