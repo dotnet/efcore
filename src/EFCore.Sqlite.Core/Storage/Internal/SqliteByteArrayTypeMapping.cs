@@ -56,8 +56,6 @@ public class SqliteByteArrayTypeMapping : ByteArrayTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-
-
     /// <summary>
     ///     Creates a copy of this mapping.
     /// </summary>
@@ -66,8 +64,8 @@ public class SqliteByteArrayTypeMapping : ByteArrayTypeMapping
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
         => new SqliteByteArrayTypeMapping(parameters, _isJsonColumn);
 
-    internal SqliteByteArrayTypeMapping WithJsonColumn()
-        => new(Parameters, true);
+    internal SqliteByteArrayTypeMapping WithJsonColumn(bool jsonColumn = true)
+        => new(Parameters, jsonColumn);
 
     /// <summary>
     ///     Configures the parameter, setting the <see cref="Microsoft.Data.Sqlite.SqliteParameter.SqliteType" /> to
