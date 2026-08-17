@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -317,18 +318,30 @@ public class CosmosTestStore : TestStore
     {
         var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
 
-        // Containers are deleted and recreated below only when the database already existed. A freshly-created
-        // database has brand-new containers whose metadata cannot be stale.
-        var containersRecreated = !created;
+        var cleanDocuments = !created && createTables && Shared;
+        var containersRecreated = !created && !cleanDocuments;
         try
         {
             if (!created)
             {
-                await DeleteContainersAsync(context).ConfigureAwait(false);
+                if (cleanDocuments)
+                {
+                    await DeleteDocumentsAsync(context).ConfigureAwait(false);
+                }
+                else
+                {
+                    await DeleteContainersAsync(context).ConfigureAwait(false);
+                }
             }
 
             if (!createTables)
             {
+                return;
+            }
+
+            if (cleanDocuments)
+            {
+                await SeedAsync(context).ConfigureAwait(false);
                 return;
             }
 
@@ -369,6 +382,69 @@ public class CosmosTestStore : TestStore
 
             throw;
         }
+    }
+
+    private async Task DeleteDocumentsAsync(DbContext context)
+    {
+        var database = context.Database.GetCosmosClient().GetDatabase(Name);
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        foreach (var containerProperties in GetContainersToCreate(model))
+        {
+            var container = database.GetContainer(containerProperties.Id);
+            var documents = new List<(string Id, PartitionKey PartitionKey)>();
+            using var iterator = container.GetItemQueryIterator<JsonElement>("SELECT VALUE c FROM c");
+
+            while (iterator.HasMoreResults)
+            {
+                foreach (var document in await iterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    documents.Add(
+                        (document.GetProperty("id").GetString()!,
+                            CreatePartitionKey(document, containerProperties.PartitionKeyStoreNames)));
+                }
+            }
+
+            foreach (var document in documents)
+            {
+                using var response = await container.DeleteItemStreamAsync(document.Id, document.PartitionKey).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+            }
+        }
+    }
+
+    private static PartitionKey CreatePartitionKey(JsonElement document, IReadOnlyList<string> partitionKeyStoreNames)
+    {
+        var builder = new PartitionKeyBuilder();
+        foreach (var partitionKeyStoreName in partitionKeyStoreNames)
+        {
+            if (!document.TryGetProperty(partitionKeyStoreName, out var value))
+            {
+                builder.AddNoneType();
+                continue;
+            }
+
+            switch (value.ValueKind)
+            {
+                case JsonValueKind.String:
+                    builder.Add(value.GetString()!);
+                    break;
+                case JsonValueKind.Number:
+                    builder.Add(value.GetDouble());
+                    break;
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    builder.Add(value.GetBoolean());
+                    break;
+                case JsonValueKind.Null:
+                    builder.AddNullValue();
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unsupported partition key value: {value}.");
+            }
+        }
+
+        return builder.Build();
     }
 
     // Deleting and recreating a container gives it a new resource id (_rid), but the shared CosmosClient caches each

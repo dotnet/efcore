@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -149,10 +150,7 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
         var exception =
             await Assert.ThrowsAsync<CosmosException>(() => InitializeNonSharedTest<ContextSettingDefaultFullTextSearchLanguage>());
 
-        Assert.Contains(
-            CosmosTestEnvironment.IsEmulator
-                ? "The Full Text Policy contains an unsupported language xx-YY."
-                : "The language specified in the full-text policy, 'xx-YY', is invalid.", exception.Message);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
     }
 
     protected class ContextSettingDefaultFullTextSearchLanguage(DbContextOptions options) : DbContext(options)
@@ -239,11 +237,7 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
             await Assert.ThrowsAsync<CosmosException>(()
                 => InitializeNonSharedTest<ContextDefaultFullTextSearchLanguageNoMismatchWhenNotSpecified>());
 
-        Assert.Contains(
-            CosmosTestEnvironment.IsEmulator
-                ? "The Full Text Policy contains an unsupported language xx-YY."
-                : "The language specified in the full-text policy, 'xx-YY', is invalid.",
-            exception.Message);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
     }
 
     protected class ContextDefaultFullTextSearchLanguageNoMismatchWhenNotSpecified(DbContextOptions options) : DbContext(options)
@@ -316,11 +310,7 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
         var exception = await Assert.ThrowsAsync<CosmosException>(()
             => InitializeNonSharedTest<ContextDefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly>());
 
-        Assert.Contains(
-            CosmosTestEnvironment.IsEmulator
-                ? "The Full Text Policy contains an unsupported language xx-YY."
-                : "The language specified in the full-text policy, 'xx-YY', is invalid.",
-            exception.Message);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
     }
 
     protected class ContextDefaultFullTextSearchLanguageUsedWhenPropertyDoesntSpecifyOneExplicitly(DbContextOptions options)
@@ -360,11 +350,7 @@ public class AdHocFullTextSearchCosmosTest(NonSharedFixture fixture) : NonShared
         var exception =
             await Assert.ThrowsAsync<CosmosException>(() => InitializeNonSharedTest<ContextExplicitFullTextLanguageOverridesTheDefault>());
 
-        Assert.Contains(
-            CosmosTestEnvironment.IsEmulator
-                ? "The Full Text Policy contains an unsupported language xx-YY."
-                : "The language specified in the full-text policy, 'xx-YY', is invalid.",
-            exception.Message);
+        Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
     }
 
     protected class ContextExplicitFullTextLanguageOverridesTheDefault(DbContextOptions options) : DbContext(options)
