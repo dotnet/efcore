@@ -17,6 +17,9 @@ public partial class InternalEntryBase
 {
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
+        private static readonly bool UseOldBehavior38632 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38632", out var enabled) && enabled;
+
         private List<InternalComplexEntry?>? _entries;
         private List<InternalComplexEntry?>? _originalEntries;
         private bool _isModified;
@@ -259,7 +262,8 @@ public partial class InternalEntryBase
 
             // Must check tracked entries first to allow reindexing during cleanup when the parent is null.
             var existingEntries = original ? _originalEntries : _entries;
-            if (existingEntries != null
+            if (!UseOldBehavior38632
+                && existingEntries != null
                 && (uint)ordinal < (uint)existingEntries.Count
                 && existingEntries[ordinal] is { } existingEntry)
             {
