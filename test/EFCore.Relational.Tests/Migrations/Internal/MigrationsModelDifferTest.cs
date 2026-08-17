@@ -3639,6 +3639,59 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             skipSourceConventions: true);
 
     [Fact]
+    public void Alter_primary_key_column_count_with_seed_data()
+    => Execute(
+        common => common.Entity(
+            "Raven",
+            x =>
+            {
+                x.ToTable("Raven", "dbo");
+                x.Property<int>("Id");
+                x.Property<int>("RavenId");
+                ;
+                x.HasData(
+                    new { Id = 42, RavenId = 42 });
+            }),
+        source => source.Entity(
+            "Raven",
+            x => x.HasKey("Id")),
+        target => target.Entity(
+            "Raven",
+            x => x.HasKey("Id", "RavenId")),
+        operations =>
+        {
+            Assert.Equal(4, operations.Count);
+
+            var dropOperation = Assert.IsType<DropPrimaryKeyOperation>(operations[0]);
+            Assert.Equal("dbo", dropOperation.Schema);
+            Assert.Equal("Raven", dropOperation.Table);
+            Assert.Equal("PK_Raven", dropOperation.Name);
+
+            var deleteDataOperation = Assert.IsType<DeleteDataOperation>(operations[1]);
+            Assert.Null(deleteDataOperation.KeyColumnTypes);
+            Assert.Equal(new[] { "Id" }, deleteDataOperation.KeyColumns);
+            AssertMultidimensionalArray(
+                deleteDataOperation.KeyValues,
+                v => Assert.Equal(42, v));
+
+            var addOperation = Assert.IsType<AddPrimaryKeyOperation>(operations[2]);
+            Assert.Equal("dbo", addOperation.Schema);
+            Assert.Equal("Raven", addOperation.Table);
+            Assert.Equal("PK_Raven", addOperation.Name);
+            Assert.Equal(new[] { "Id", "RavenId" }, addOperation.Columns);
+
+            var insertDataOperation = Assert.IsType<InsertDataOperation>(operations[3]);
+            Assert.Equal("dbo", insertDataOperation.Schema);
+            Assert.Equal("Raven", insertDataOperation.Table);
+            Assert.Equal(new[] { "Id", "RavenId" }, insertDataOperation.Columns);
+            AssertMultidimensionalArray(
+                insertDataOperation.Values,
+                v => Assert.Equal(42, v),
+                v => Assert.Equal(42, v));
+        },
+        skipSourceConventions: true);
+
+    [Fact]
     public void Add_foreign_key()
         => Execute(
             common => common.Entity(
