@@ -25,6 +25,16 @@
         "release/10.0":{
             "MergeToBranch": "main",
             "ExtraSwitches": "-QuietComments"
+        },
+        // Automate merging efcore release/11.0-rc1 branch into release/11.0
+        "release/11.0-rc1":{
+            "MergeToBranch": "release/11.0",
+            "ExtraSwitches": "-QuietComments"
+        },
+        // Automate merging efcore release/11.0-rc2 branch into release/11.0
+        "release/11.0-rc2":{
+            "MergeToBranch": "release/11.0",
+            "ExtraSwitches": "-QuietComments"
         }
     }
 }
