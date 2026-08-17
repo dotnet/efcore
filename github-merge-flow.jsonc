@@ -11,9 +11,9 @@
             "MergeToBranch": "release/10.0",
             "ExtraSwitches": "-QuietComments"
         },
-        // Automate opening PRs to merge release/10.0 to main
+        // Automate opening PRs to merge release/10.0 to release/11.0
         "release/10.0":{
-            "MergeToBranch": "main",
+            "MergeToBranch": "release/11.0",
             "ExtraSwitches": "-QuietComments"
         },
         // Automate opening PRs to merge release/11.0 to main
