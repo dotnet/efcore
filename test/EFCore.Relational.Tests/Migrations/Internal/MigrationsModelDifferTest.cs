@@ -3648,7 +3648,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 x.ToTable("Raven", "dbo");
                 x.Property<int>("Id");
                 x.Property<int>("RavenId");
-                ;
                 x.HasData(
                     new { Id = 42, RavenId = 42 });
             }),
