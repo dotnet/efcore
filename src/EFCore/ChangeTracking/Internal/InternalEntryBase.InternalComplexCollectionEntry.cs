@@ -312,6 +312,12 @@ public partial class InternalEntryBase
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count));
             }
 
+            if (UseOldBehavior38632
+                && entries[ordinal] is { } existingEntryAfterValidation)
+            {
+                return existingEntryAfterValidation;
+            }
+
             // The currentEntry is created in Detached state, so it's not added to the entries list yet.
             // HandleStateChange will add it when the state changes.
             return new InternalComplexEntry((IRuntimeComplexType)_complexCollection.ComplexType, _containingEntry, ordinal);
