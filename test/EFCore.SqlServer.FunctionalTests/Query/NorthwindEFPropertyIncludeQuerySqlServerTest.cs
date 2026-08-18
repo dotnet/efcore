@@ -802,7 +802,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c1].[CustomerID] = [s].[CustomerID]
-ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
         }
     }
@@ -1007,7 +1007,7 @@ LEFT JOIN (
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c1].[CustomerID] = [s].[CustomerID]
-ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c1].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
         }
     }
