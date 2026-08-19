@@ -59,16 +59,15 @@ jobs:
         run: restore.cmd
 
       - name: Test
+        env:
+          CollectCoverage: true
         run: |
           mkdir -p artifacts/coverage
           pattern=$(echo "$SQLSERVER_TEST_PROJECTS $ADDITIONAL_EXCLUDED_PROJECTS" | xargs -n1 | tr '\n' '|' | sed 's/|$//')
           failed=0
           for proj in $(find test -maxdepth 2 \( -name '*.csproj' -o -name '*.fsproj' -o -name '*.vbproj' \) \
             | grep -v -E "$pattern"); do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            dotnet test "$proj" || failed=1
           done
           exit $failed
 
@@ -120,11 +119,9 @@ jobs:
       - name: Test on Cosmos
         run: |
           mkdir -p artifacts/coverage
-          dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj \
-            -- --coverage --coverage-output-format cobertura \
-            --coverage-output "$PWD/artifacts/coverage/EFCore.Cosmos.FunctionalTests.cobertura.xml" \
-            --coverage-settings eng/efcore.coverage.xml
+          dotnet test test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
         env:
+          CollectCoverage: true
           Test__Cosmos__DefaultConnection: ${{ runner.os == 'Windows' && 'https://localhost:8081' || '' }}
           Test__Cosmos__SkipConnectionCheck: ${{ runner.os == 'Windows' && 'true' || '' }}
 
@@ -178,15 +175,13 @@ jobs:
 
       - name: Test on SQL Server
         env:
+          CollectCoverage: true
           Test__SqlServer__DefaultConnection: 'Server=localhost;Database=master;User=SA;Password=${{ env.MSSQL_SA_PASSWORD }};Connect Timeout=60;ConnectRetryCount=0;Trust Server Certificate=true'
         run: |
           mkdir -p artifacts/coverage
           failed=0
           for proj in $SQLSERVER_TEST_PROJECTS; do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            dotnet test "$proj" || failed=1
           done
           exit $failed
 
@@ -229,14 +224,13 @@ jobs:
         run: restore.cmd
 
       - name: Test EF Core Sqlite
+        env:
+          CollectCoverage: true
         run: |
           mkdir -p artifacts/coverage
           failed=0
           for proj in test/EFCore.Sqlite.FunctionalTests test/EFCore.Sqlite.Tests test/EFCore.AspNet.Sqlite.FunctionalTests; do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            dotnet test "$proj" || failed=1
           done
           exit $failed
 
@@ -280,15 +274,24 @@ jobs:
         run: restore.cmd
 
       - name: Test Microsoft.Data.Sqlite
+        env:
+          CollectCoverage: true
         run: |
           mkdir -p artifacts/coverage
           failed=0
           for proj in $(find test/Microsoft.Data.Sqlite.Tests -name '*.csproj' \
             | if [ "$RUNNER_OS" != "Windows" ]; then grep -v winsqlite3; else cat; fi); do
-            dotnet test "$proj" \
-              -- --coverage --coverage-output-format cobertura \
-              --coverage-output "$PWD/artifacts/coverage/$(basename "$proj").cobertura.xml" \
-              --coverage-settings eng/efcore.coverage.xml || failed=1
+            if dotnet test "$proj"; then
+              continue
+            else
+              test_exit_code=$?
+            fi
+
+            # The SDK aggregate runner reports zero-test exit code 8 after application-level
+            # ignored exit codes are applied.
+            if [ "$test_exit_code" -ne 8 ]; then
+              failed=1
+            fi
           done
           exit $failed
 
