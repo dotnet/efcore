@@ -287,6 +287,8 @@ jobs:
               test_exit_code=$?
             fi
 
+            # The SDK aggregate runner reports zero-test exit code 8 after application-level
+            # ignored exit codes are applied.
             if [ "$test_exit_code" -ne 8 ]; then
               failed=1
             fi
