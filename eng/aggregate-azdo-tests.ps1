@@ -41,7 +41,7 @@ function Get-JobRecord($timeline, [string]$jobName)
 
     $displayName = $jobDisplayNames[$jobName]
     @($timeline.records
-        | Where-Object { $_.type -eq 'Job' -and $_.name -eq $displayName }
+        | Where-Object { $_.type -eq 'Job' -and ($_.name -eq $jobName -or $_.name -eq $displayName) }
         | Sort-Object attempt -Descending)[0]
 }
 
