@@ -143,12 +143,6 @@ foreach ($groupName in $groupJobs.Keys)
     if ($ran.Count -eq 0)
     {
         Write-Host '  -> all jobs skipped, treating group as successful'
-        continue
-    }
-
-    if ($ran -contains 'Succeeded')
-    {
-        continue
     }
 }
 
