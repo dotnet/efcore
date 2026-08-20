@@ -1,7 +1,7 @@
 parameters:
   - name: jobs
-    type: object
-    default: []
+    type: string
+    default: '[]'
 
 variables:
   - name: _BuildConfig
@@ -108,12 +108,12 @@ extends:
           enablePublishBuildAssets: false
           enablePublishTestResults: true
           publishAssetsImmediately: true
-          isAssetlessBuild: ${{ eq(length(parameters.jobs), 0) }}
+          isAssetlessBuild: ${{ eq(parameters.jobs, '[]') }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
           - job: Windows
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Windows')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Windows"')) }}
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
@@ -166,7 +166,7 @@ extends:
 
           - job: Windows_SqlServer
             displayName: 'Windows SQL Server'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Windows_SqlServer')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Windows_SqlServer"')) }}
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-windows-2022
@@ -202,7 +202,7 @@ extends:
                 continueOnError: true
 
           - job: macOS
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'macOS')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"macOS"')) }}
             pool:
               name: Azure Pipelines
               image: macOS-15
@@ -238,7 +238,7 @@ extends:
                 condition: always()
                 continueOnError: true
           - job: Linux
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Linux')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Linux"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -278,7 +278,7 @@ extends:
 
           - job: Helix_Windows
             displayName: 'Helix Windows'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -321,7 +321,7 @@ extends:
 
           - job: Helix_Windows_SqlServer
             displayName: 'Helix Windows SQL Server'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows_SqlServer')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_SqlServer"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -364,7 +364,7 @@ extends:
 
           - job: Helix_Windows_Arm64
             displayName: 'Helix Windows ARM64'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows_Arm64')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_Arm64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -407,7 +407,7 @@ extends:
 
           - job: Helix_Windows_Cosmos
             displayName: 'Helix Windows Cosmos'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Windows_Cosmos')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_Cosmos"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -450,7 +450,7 @@ extends:
 
           - job: Helix_macOS_x64
             displayName: 'Helix macOS x64'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_macOS_x64')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_macOS_x64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -493,7 +493,7 @@ extends:
 
           - job: Helix_macOS_ARM64
             displayName: 'Helix macOS ARM64'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_macOS_ARM64')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_macOS_ARM64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -536,7 +536,7 @@ extends:
 
           - job: Helix_Ubuntu_SqlServer
             displayName: 'Helix Ubuntu SQL Server'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Ubuntu_SqlServer')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu_SqlServer"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -580,7 +580,7 @@ extends:
 
           - job: Helix_Ubuntu_Cosmos
             displayName: 'Helix Ubuntu Cosmos'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Ubuntu_Cosmos')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu_Cosmos"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
@@ -623,7 +623,7 @@ extends:
 
           - job: Helix_Ubuntu
             displayName: 'Helix Ubuntu'
-            condition: ${{ or(eq(length(parameters.jobs), 0), containsValue(parameters.jobs, 'Helix_Ubuntu')) }}
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)

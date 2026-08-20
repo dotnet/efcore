@@ -34,12 +34,12 @@ $groupJobs = @{
 
 function Get-JobRecord($timeline, [string]$jobName)
 {
-    $displayName = $jobDisplayNames[$jobName]
-    if ([string]::IsNullOrEmpty($displayName))
+    if (-not $jobDisplayNames.ContainsKey($jobName))
     {
         throw "Unknown jobName '$jobName'."
     }
 
+    $displayName = $jobDisplayNames[$jobName]
     @($timeline.records
         | Where-Object { $_.type -eq 'Job' -and $_.name -eq $displayName }
         | Sort-Object attempt -Descending)[0]
@@ -86,6 +86,7 @@ if (($jobAttempt -gt 1 -or $stageAttempt -gt 1) -and $failedGroups.Count -gt 0)
     }
 
     $jobsToRetry = @($failedGroups | ForEach-Object { $groupJobs[$_] } | Select-Object -Unique)
+    $jobsParameter = ConvertTo-Json -InputObject $jobsToRetry -Compress
     $project = [Uri]::EscapeDataString($env:SYSTEM_TEAMPROJECT)
     $buildsUri = "$($env:SYSTEM_COLLECTIONURI.TrimEnd('/'))/$project/_apis/build/builds"
     $headers = @{ Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN" }
@@ -93,7 +94,7 @@ if (($jobAttempt -gt 1 -or $stageAttempt -gt 1) -and $failedGroups.Count -gt 0)
         definition = @{ id = [int]$env:BUILD_DEFINITIONID }
         sourceBranch = $env:BUILD_SOURCEBRANCH
         sourceVersion = $env:BUILD_SOURCEVERSION
-        templateParameters = @{ jobs = $jobsToRetry }
+        templateParameters = @{ jobs = $jobsParameter }
     } | ConvertTo-Json -Depth 4
 
     Write-Host "Retrying jobs: $($jobsToRetry -join ', ')"
