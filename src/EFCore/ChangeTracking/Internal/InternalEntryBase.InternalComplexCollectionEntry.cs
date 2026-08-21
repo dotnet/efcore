@@ -26,6 +26,9 @@ public partial class InternalEntryBase
         private static readonly bool UseOldBehavior37585 =
             AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37585", out var enabled) && enabled;
 
+        private static readonly bool UseOldBehavior38632 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38632", out var enabled) && enabled;
+
         private List<InternalComplexEntry?>? _entries;
         private List<InternalComplexEntry?>? _originalEntries;
         private bool _isModified;
@@ -257,12 +260,6 @@ public partial class InternalEntryBase
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
 
-                if (_containingEntry.GetOriginalValue(_complexCollection) == null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionEntryOriginalNull(
-                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
-                }
             }
             else
             {
@@ -273,6 +270,29 @@ public partial class InternalEntryBase
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
 
+            }
+
+            // Must check tracked entries first to allow reindexing during cleanup when the parent is null.
+            var existingEntries = original ? _originalEntries : _entries;
+            if (!UseOldBehavior38632
+                && existingEntries != null
+                && (uint)ordinal < (uint)existingEntries.Count
+                && existingEntries[ordinal] is { } existingEntry)
+            {
+                return existingEntry;
+            }
+
+            if (original)
+            {
+                if (_containingEntry.GetOriginalValue(_complexCollection) == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexCollectionEntryOriginalNull(
+                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                }
+            }
+            else
+            {
                 if (_containingEntry[_complexCollection] == null)
                 {
                     throw new InvalidOperationException(
@@ -292,10 +312,10 @@ public partial class InternalEntryBase
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count));
             }
 
-            var complexEntry = entries[ordinal];
-            if (complexEntry != null)
+            if (UseOldBehavior38632
+                && entries[ordinal] is { } existingEntryAfterValidation)
             {
-                return complexEntry;
+                return existingEntryAfterValidation;
             }
 
             // The currentEntry is created in Detached state, so it's not added to the entries list yet.
