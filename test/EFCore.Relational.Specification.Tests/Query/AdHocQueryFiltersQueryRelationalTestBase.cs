@@ -72,8 +72,8 @@ public abstract class AdHocQueryFiltersQueryRelationalTestBase(NonSharedFixture 
     {
         public int Id { get; set; }
         public int ParentId { get; set; }
-        public Parent38700 Parent { get; set; }
-        public string Label { get; set; }
+        public Parent38700 Parent { get; set; } = null!;
+        public string Label { get; set; } = null!;
     }
 
     #endregion
