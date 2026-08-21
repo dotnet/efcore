@@ -20,7 +20,7 @@ public class SqlServerQueryTranslationPostprocessor(
         relationalDependencies.SqlExpressionFactory,
         queryCompilationContext.SqlAliasManager);
 
-    private readonly SqlServerAggregateOverSubqueryPostprocessor _aggregatePostprocessor = new(queryCompilationContext.SqlAliasManager);
+    private readonly SqlServerAggregateArgumentPostprocessor _aggregatePostprocessor = new(queryCompilationContext.SqlAliasManager);
     private readonly SqlServerSqlTreePruner _pruner = new();
 
     /// <summary>
