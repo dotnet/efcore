@@ -48,4 +48,35 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
         => Assert.Equal(
             "Nullable object must have a value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Average_no_data_subquery(async))).Message);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_expression_with_outer_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Select(o => new { o.OrderID, Total = o.OrderDetails.Sum(od => od.ProductID * o.OrderID) }),
+            elementSorter: e => e.OrderID);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_members_of_single_result_subquery_with_outer_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => from c in ss.Set<Customer>()
+                  let projected = from o in c.Orders
+                                  let d = o.OrderDetails
+                                      .OrderBy(od => od.ProductID)
+                                      .Select(od => new { od.ProductID, od.OrderID })
+                                      .FirstOrDefault()
+                                  select new
+                                  {
+                                      Products = d!.ProductID * c.CustomerID.Length,
+                                      Orders = d.OrderID * c.CustomerID.Length
+                                  }
+                  select new
+                  {
+                      c.CustomerID,
+                      TotalProducts = projected.Sum(x => x.Products),
+                      TotalOrders = projected.Sum(x => x.Orders)
+                  },
+            elementSorter: e => e.CustomerID);
 }
