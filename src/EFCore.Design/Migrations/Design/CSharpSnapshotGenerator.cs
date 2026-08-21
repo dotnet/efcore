@@ -1305,6 +1305,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
+                    if (fragment.IsOptional)
+                    {
+                        stringBuilder.AppendLine().Append("t.IsOptional();");
+                    }
+
                     GenerateTriggers("t", entityType, table.Name, table.Schema, stringBuilder);
                     GeneratePropertyOverrides("t", entityType, table, stringBuilder);
                     GenerateEntityTypeMappingFragmentAnnotations("t", fragment, stringBuilder);

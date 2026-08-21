@@ -21,4 +21,11 @@ public interface IMutableEntityTypeMappingFragment : IReadOnlyEntityTypeMappingF
     /// </summary>
     /// <returns>A value indicating whether the associated table is ignored by Migrations.</returns>
     new bool? IsTableExcludedFromMigrations { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether a row might not exist for this fragment's store object even when the
+    ///     principal row exists in the main table for the entity type.
+    /// </summary>
+    /// <returns><see langword="true" /> if a row for this fragment is optional; <see langword="false" /> otherwise.</returns>
+    new bool IsOptional { get; set; }
 }
