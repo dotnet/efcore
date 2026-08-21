@@ -620,4 +620,145 @@ public abstract class AdHocQuerySplittingQueryTestBase(NonSharedFixture fixture)
     }
 
     #endregion
+
+    #region 38660
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual async Task To_one_join_with_keyless_inner_preserves_outer_collection_identifiers(bool async, bool splitQuery)
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38660>(seed: c => c.SeedAsync());
+
+        using var context = contextFactory.CreateDbContext();
+        var pivot = context.TaxesA
+            .Select(t => new Context38660.TaxRow
+            {
+                OrderId = t.OrderId,
+                LineNo = t.LineNo,
+                Kind = t.Kind,
+            })
+            .Concat(
+                context.TaxesB.Select(t => new Context38660.TaxRow
+                {
+                    OrderId = t.OrderId,
+                    LineNo = t.LineNo,
+                    Kind = t.Kind,
+                }));
+
+        var query = context.Orders.Select(o => new Context38660.OrderDto
+        {
+            Lines = o.Lines.Select(l => new Context38660.LineDto
+            {
+                LineNo = l.LineNo,
+                Tax = pivot
+                    .Where(r => r.OrderId == l.OrderId && r.LineNo == l.LineNo)
+                    .Select(r => new Context38660.TaxDto { Kind = r.Kind })
+                    .FirstOrDefault(),
+            }).ToList(),
+        });
+
+        query = splitQuery ? query.AsSplitQuery() : query.AsSingleQuery();
+        var result = async ? await query.SingleAsync() : query.Single();
+
+        Assert.Collection(
+            result.Lines.OrderBy(l => l.LineNo),
+            line =>
+            {
+                Assert.Equal(1, line.LineNo);
+                Assert.Equal(10, line.Tax.Kind);
+            },
+            line =>
+            {
+                Assert.Equal(2, line.LineNo);
+                Assert.Equal(20, line.Tax.Kind);
+            });
+    }
+
+    protected class Context38660(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<TaxA> TaxesA { get; set; }
+        public DbSet<TaxB> TaxesB { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Order>().Property(o => o.Id).ValueGeneratedNever();
+            modelBuilder.Entity<OrderLine>().HasKey(l => new { l.OrderId, l.LineNo });
+            modelBuilder.Entity<Order>().HasMany(o => o.Lines).WithOne().HasForeignKey(l => l.OrderId);
+        }
+
+        public Task SeedAsync()
+        {
+            Add(
+                new Order
+                {
+                    Id = 1,
+                    Lines =
+                    [
+                        new OrderLine { OrderId = 1, LineNo = 1 },
+                        new OrderLine { OrderId = 1, LineNo = 2 },
+                    ],
+                });
+            Add(new TaxA { OrderId = 1, LineNo = 1, Kind = 10 });
+            Add(new TaxB { OrderId = 1, LineNo = 2, Kind = 20 });
+
+            return SaveChangesAsync();
+        }
+
+        public class Order
+        {
+            public int Id { get; set; }
+            public List<OrderLine> Lines { get; set; } = [];
+        }
+
+        public class OrderLine
+        {
+            public int OrderId { get; set; }
+            public int LineNo { get; set; }
+        }
+
+        public class TaxA
+        {
+            public int Id { get; set; }
+            public int OrderId { get; set; }
+            public int LineNo { get; set; }
+            public int Kind { get; set; }
+        }
+
+        public class TaxB
+        {
+            public int Id { get; set; }
+            public int OrderId { get; set; }
+            public int LineNo { get; set; }
+            public int Kind { get; set; }
+        }
+
+        public class TaxRow
+        {
+            public int OrderId { get; init; }
+            public int LineNo { get; init; }
+            public int Kind { get; init; }
+        }
+
+        public class OrderDto
+        {
+            public List<LineDto> Lines { get; set; } = [];
+        }
+
+        public class LineDto
+        {
+            public int LineNo { get; set; }
+            public TaxDto Tax { get; set; }
+        }
+
+        public class TaxDto
+        {
+            public int Kind { get; set; }
+        }
+    }
+
+    #endregion
 }
