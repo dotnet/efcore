@@ -4190,7 +4190,7 @@ CREATE TABLE MyTable (
 
                 var column = columns.Single(c => c.Name == "A");
                 Assert.Equal("((-1.1111))", column.DefaultValueSql);
-                Assert.Equal((decimal)-1.1111, column.DefaultValue);
+                Assert.Equal(-1.1111m, column.DefaultValue);
 
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("((0.0))", column.DefaultValueSql);
@@ -4202,7 +4202,7 @@ CREATE TABLE MyTable (
 
                 column = columns.Single(c => c.Name == "D");
                 Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
-                Assert.Equal((decimal)1.1234, column.DefaultValue);
+                Assert.Equal(1.1234m, column.DefaultValue);
 
                 column = columns.Single(c => c.Name == "E");
                 Assert.Equal("((10.0))", column.DefaultValueSql);
@@ -4239,7 +4239,7 @@ CREATE TABLE MyTable (
 
                     var column = columns.Single(c => c.Name == "A");
                     Assert.Equal("((-1.1111))", column.DefaultValueSql);
-                    Assert.Equal((decimal)-1.1111, column.DefaultValue);
+                    Assert.Equal(-1.1111m, column.DefaultValue);
 
                     column = columns.Single(c => c.Name == "B");
                     Assert.Equal("((0.0))", column.DefaultValueSql);
@@ -4251,7 +4251,7 @@ CREATE TABLE MyTable (
 
                     column = columns.Single(c => c.Name == "D");
                     Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
-                    Assert.Equal((decimal)1.1234, column.DefaultValue);
+                    Assert.Equal(1.1234m, column.DefaultValue);
 
                     column = columns.Single(c => c.Name == "E");
                     Assert.Equal("((10.0))", column.DefaultValueSql);
