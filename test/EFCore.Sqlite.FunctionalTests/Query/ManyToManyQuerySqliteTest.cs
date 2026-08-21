@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class ManyToManyQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
     : ManyToManyQueryRelationalTestBase<ManyToManyQuerySqliteFixture>(fixture)
 {

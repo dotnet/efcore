@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindSetOperationsQuerySqlServerTest : NorthwindSetOperationsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -19,7 +17,7 @@ public class NorthwindSetOperationsQuerySqlServerTest : NorthwindSetOperationsQu
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -1581,7 +1579,7 @@ WHERE [c1].[CustomerID] LIKE N'A%'
         AssertSql();
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Union_with_different_store_types_is_fine_if_database_can_translate_it(bool async)
     {
         await AssertQuery(
@@ -1600,7 +1598,7 @@ FROM [Customers] AS [c0]
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))] // Issue #29020
+    [Theory, MemberData(nameof(IsAsyncData))] // Issue #29020
     public virtual async Task Union_with_type_mappings_to_same_store_type(bool async)
     {
         await AssertQuery(

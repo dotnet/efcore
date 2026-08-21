@@ -60,10 +60,7 @@ public class AssociationsData : ISetSource
                         associate.RequiredNestedAssociate.Ints = [4, 5, 6, 6];
                         associate.OptionalNestedAssociate?.Int = 9;
                         associate.OptionalNestedAssociate?.String = "bar";
-                        if (associate.OptionalNestedAssociate is not null)
-                        {
-                            associate.OptionalNestedAssociate.Ints = [4, 5, 6, 6];
-                        }
+                        associate.OptionalNestedAssociate?.Ints = [4, 5, 6, 6];
 
                         foreach (var nested in associate.NestedCollection)
                         {
@@ -104,10 +101,7 @@ public class AssociationsData : ISetSource
                         associate.OptionalNestedAssociate?.Int = intValue++;
                         associate.OptionalNestedAssociate?.String = $"foo{stringValue++}";
 
-                        if (associate.OptionalNestedAssociate is not null)
-                        {
-                            associate.OptionalNestedAssociate.Ints = [8, 9, intValue++];
-                        }
+                        associate.OptionalNestedAssociate?.Ints = [8, 9, intValue++];
 
                         foreach (var nested in associate.NestedCollection)
                         {
@@ -207,15 +201,15 @@ public class AssociationsData : ISetSource
                     Int = intValue,
                     String = stringValue,
                     Ints = intsValue,
-
-                    RequiredNestedAssociate = new NestedAssociateType
-                    {
-                        Id = nestedId++,
-                        Name = $"{shortName}_RequiredAssociate_RequiredNestedAssociate",
-                        Int = intValue,
-                        String = stringValue,
-                        Ints = intsValue
-                    },
+                    RequiredNestedAssociate =
+                        new NestedAssociateType
+                        {
+                            Id = nestedId++,
+                            Name = $"{shortName}_RequiredAssociate_RequiredNestedAssociate",
+                            Int = intValue,
+                            String = stringValue,
+                            Ints = intsValue
+                        },
                     OptionalNestedAssociate = new NestedAssociateType
                     {
                         Id = nestedId++,
@@ -251,15 +245,15 @@ public class AssociationsData : ISetSource
                     Int = intValue,
                     String = stringValue,
                     Ints = [1, 2, 3],
-
-                    RequiredNestedAssociate = new NestedAssociateType
-                    {
-                        Id = nestedId++,
-                        Name = $"{shortName}_OptionalAssociate_RequiredNestedAssociate",
-                        Int = intValue,
-                        String = stringValue,
-                        Ints = intsValue
-                    },
+                    RequiredNestedAssociate =
+                        new NestedAssociateType
+                        {
+                            Id = nestedId++,
+                            Name = $"{shortName}_OptionalAssociate_RequiredNestedAssociate",
+                            Int = intValue,
+                            String = stringValue,
+                            Ints = intsValue
+                        },
                     OptionalNestedAssociate = new NestedAssociateType
                     {
                         Id = nestedId++,
@@ -297,15 +291,15 @@ public class AssociationsData : ISetSource
                         Int = intValue,
                         String = stringValue,
                         Ints = [1, 2, 3],
-
-                        RequiredNestedAssociate = new NestedAssociateType
-                        {
-                            Id = nestedId++,
-                            Name = $"{shortName}_AssociateCollection_1_RequiredNestedAssociate",
-                            Int = intValue,
-                            String = stringValue,
-                            Ints = [1, 2, 3]
-                        },
+                        RequiredNestedAssociate =
+                            new NestedAssociateType
+                            {
+                                Id = nestedId++,
+                                Name = $"{shortName}_AssociateCollection_1_RequiredNestedAssociate",
+                                Int = intValue,
+                                String = stringValue,
+                                Ints = [1, 2, 3]
+                            },
                         OptionalNestedAssociate = new NestedAssociateType
                         {
                             Id = nestedId++,
@@ -341,15 +335,15 @@ public class AssociationsData : ISetSource
                         Int = intValue,
                         String = stringValue,
                         Ints = [1, 2, 3],
-
-                        RequiredNestedAssociate = new NestedAssociateType
-                        {
-                            Id = nestedId++,
-                            Name = $"{shortName}_AssociateCollection_2_RequiredNestedAssociate",
-                            Int = intValue,
-                            String = stringValue,
-                            Ints = [1, 2, 3]
-                        },
+                        RequiredNestedAssociate =
+                            new NestedAssociateType
+                            {
+                                Id = nestedId++,
+                                Name = $"{shortName}_AssociateCollection_2_RequiredNestedAssociate",
+                                Int = intValue,
+                                String = stringValue,
+                                Ints = [1, 2, 3]
+                            },
                         OptionalNestedAssociate = new NestedAssociateType
                         {
                             Id = nestedId++,

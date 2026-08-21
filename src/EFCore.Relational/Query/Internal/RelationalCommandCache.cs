@@ -113,13 +113,14 @@ public class RelationalCommandCache : IPrintableExpression
         internal CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues)
         {
             _queryExpression = queryExpression;
-            _parameterInfos = new Dictionary<string, ParameterInfo>();
+            _parameterInfos = [];
 
             foreach (var (key, value) in parameterValues)
             {
                 _parameterInfos[key] = new ParameterInfo
                 {
-                    IsNull = value is null, ObjectArrayLength = value is object[] arr ? arr.Length : null
+                    IsNull = value is null,
+                    ObjectArrayLength = value is object[] arr ? arr.Length : null
                 };
             }
         }

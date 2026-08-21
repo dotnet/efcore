@@ -55,7 +55,8 @@ public sealed record RelationalDatabaseCreatorDependencies
         ICurrentDbContext currentContext,
         IDbContextOptions contextOptions,
         IRelationalCommandDiagnosticsLogger commandLogger,
-        IExceptionDetector exceptionDetector)
+        IExceptionDetector exceptionDetector,
+        IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
     {
         Connection = connection;
         ModelDiffer = modelDiffer;
@@ -67,6 +68,7 @@ public sealed record RelationalDatabaseCreatorDependencies
         ContextOptions = contextOptions;
         CommandLogger = commandLogger;
         ExceptionDetector = exceptionDetector;
+        Logger = logger;
     }
 
     /// <summary>
@@ -118,4 +120,9 @@ public sealed record RelationalDatabaseCreatorDependencies
     ///     Gets the exception detector.
     /// </summary>
     public IExceptionDetector ExceptionDetector { get; init; }
+
+    /// <summary>
+    ///     Gets the logger.
+    /// </summary>
+    public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; init; }
 }

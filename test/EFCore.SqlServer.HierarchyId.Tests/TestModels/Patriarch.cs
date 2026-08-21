@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.TestModels;
 
 internal class Patriarch
 {
-    public HierarchyId Id { get; set; }
-    public string Name { get; set; }
+    public HierarchyId Id { get; set; } = null!;
+    public string? Name { get; set; }
 }

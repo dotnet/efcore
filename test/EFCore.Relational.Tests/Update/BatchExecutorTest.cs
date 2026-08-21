@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class BatchExecutorTest
 {
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ExecuteAsync_calls_Commit_if_no_transaction(bool async)
     {
         using var context = new TestContext();
@@ -28,7 +28,7 @@ public class BatchExecutorTest
         Assert.Equal(1, connection.DbTransactions.Single().CommitCount);
     }
 
-    [ConditionalTheory, InlineData(true), InlineData(false)]
+    [Theory, InlineData(true), InlineData(false)]
     public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction(bool async)
     {
         using var context = new TestContext();
@@ -55,7 +55,7 @@ public class BatchExecutorTest
     private static FakeDbConnection SetupConnection(TestContext context)
     {
         var dataReader = new FakeDbDataReader(
-            ["RowsAffected"], new List<object[]> { new object[] { 1 } });
+            ["RowsAffected"], [new object[] { 1 }]);
 
         var connection = new FakeDbConnection(
             "A=B", new FakeCommandExecutor(
@@ -73,17 +73,17 @@ public class BatchExecutorTest
                     new ServiceCollection())
                 .BuildServiceProvider(validateScopes: true);
 
-        public DbSet<Foo> Foos { get; set; }
-        public DbSet<Bar> Bars { get; set; }
+        public DbSet<Foo> Foos { get; set; } = null!;
+        public DbSet<Bar> Bars { get; set; } = null!;
     }
 
     private class Foo
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     private class Bar
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 }

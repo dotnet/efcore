@@ -84,8 +84,8 @@ public class TemporalContainedInQueryRootExpression : TemporalRangeQueryRootExpr
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TemporalContainedInQueryRootExpression queryRootExpression
-                && Equals(queryRootExpression));
+                || (obj is TemporalContainedInQueryRootExpression queryRootExpression
+                    && Equals(queryRootExpression)));
 
     private bool Equals(TemporalContainedInQueryRootExpression queryRootExpression)
         => base.Equals(queryRootExpression);

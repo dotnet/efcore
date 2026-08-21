@@ -130,57 +130,18 @@ public class SqliteGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMappin
 
     private static GaiaGeoWriter CreateWriter(string storeType)
     {
-        Ordinates handleOrdinates;
-        switch (storeType.ToUpperInvariant())
+        var handleOrdinates = storeType.ToUpperInvariant() switch
         {
-            case "POINT":
-            case "LINESTRING":
-            case "POLYGON":
-            case "MULTIPOINT":
-            case "MULTILINESTRING":
-            case "MULTIPOLYGON":
-            case "GEOMETRYCOLLECTION":
-            case "GEOMETRY":
-                handleOrdinates = Ordinates.XY;
-                break;
-
-            case "POINTZ":
-            case "LINESTRINGZ":
-            case "POLYGONZ":
-            case "MULTIPOINTZ":
-            case "MULTILINESTRINGZ":
-            case "MULTIPOLYGONZ":
-            case "GEOMETRYCOLLECTIONZ":
-            case "GEOMETRYZ":
-                handleOrdinates = Ordinates.XYZ;
-                break;
-
-            case "POINTM":
-            case "LINESTRINGM":
-            case "POLYGONM":
-            case "MULTIPOINTM":
-            case "MULTILINESTRINGM":
-            case "MULTIPOLYGONM":
-            case "GEOMETRYCOLLECTIONM":
-            case "GEOMETRYM":
-                handleOrdinates = Ordinates.XYM;
-                break;
-
-            case "POINTZM":
-            case "LINESTRINGZM":
-            case "POLYGONZM":
-            case "MULTIPOINTZM":
-            case "MULTILINESTRINGZM":
-            case "MULTIPOLYGONZM":
-            case "GEOMETRYCOLLECTIONZM":
-            case "GEOMETRYZM":
-                handleOrdinates = Ordinates.XYZM;
-                break;
-
-            default:
-                throw new ArgumentException(SqliteNTSStrings.InvalidGeometryType(storeType), nameof(storeType));
-        }
-
+            "POINT" or "LINESTRING" or "POLYGON" or "MULTIPOINT" or "MULTILINESTRING" or "MULTIPOLYGON" or "GEOMETRYCOLLECTION"
+                or "GEOMETRY" => Ordinates.XY,
+            "POINTZ" or "LINESTRINGZ" or "POLYGONZ" or "MULTIPOINTZ" or "MULTILINESTRINGZ" or "MULTIPOLYGONZ" or "GEOMETRYCOLLECTIONZ"
+                or "GEOMETRYZ" => Ordinates.XYZ,
+            "POINTM" or "LINESTRINGM" or "POLYGONM" or "MULTIPOINTM" or "MULTILINESTRINGM" or "MULTIPOLYGONM" or "GEOMETRYCOLLECTIONM"
+                or "GEOMETRYM" => Ordinates.XYM,
+            "POINTZM" or "LINESTRINGZM" or "POLYGONZM" or "MULTIPOINTZM" or "MULTILINESTRINGZM" or "MULTIPOLYGONZM"
+                or "GEOMETRYCOLLECTIONZM" or "GEOMETRYZM" => Ordinates.XYZM,
+            _ => throw new ArgumentException(SqliteNTSStrings.InvalidGeometryType(storeType), nameof(storeType)),
+        };
         return new GaiaGeoWriter { HandleOrdinates = handleOrdinates };
     }
 }

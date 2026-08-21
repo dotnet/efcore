@@ -9,7 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 internal class ProjectOptions
 {
     public CommandOption? Project { get; private set; }
+    public CommandOption? File { get; private set; }
     public CommandOption? StartupProject { get; private set; }
+    public CommandOption? StartupFile { get; private set; }
     public CommandOption? Framework { get; private set; }
     public CommandOption? Configuration { get; private set; }
     public CommandOption? Runtime { get; private set; }
@@ -20,7 +22,9 @@ internal class ProjectOptions
     public void Configure(CommandLineApplication command)
     {
         Project = command.Option("-p|--project <PROJECT>", Resources.ProjectDescription);
+        File = command.Option("--file <FILE>", Resources.FileDescription);
         StartupProject = command.Option("-s|--startup-project <PROJECT>", Resources.StartupProjectDescription);
+        StartupFile = command.Option("--startup-file <FILE>", Resources.StartupFileDescription);
         Framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
         Configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
         Runtime = command.Option("--runtime <RUNTIME_IDENTIFIER>", Resources.RuntimeDescription);

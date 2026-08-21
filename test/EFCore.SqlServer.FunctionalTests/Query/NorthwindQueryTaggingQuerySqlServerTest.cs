@@ -17,7 +17,7 @@ public class NorthwindQueryTaggingQuerySqlServerTest : NorthwindQueryTaggingQuer
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
@@ -103,7 +103,7 @@ ORDER BY [c0].[CustomerID]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Tag_on_split_include_query()
     {
         using var context = CreateContext();

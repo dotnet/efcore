@@ -14,7 +14,7 @@ public class NorthwindWhereQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopM
 
         Assert.Equal(InMemoryStrings.NoQueryStrings, queryString);
 
-        return null;
+        return null!;
     }
 
     public override Task ElementAt_over_custom_projection_compared_to_not_null(bool async)

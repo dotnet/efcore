@@ -15,17 +15,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public partial class InternalEntryBase
 {
-    internal static readonly bool UseOldBehavior37724 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37724", out var enabled) && enabled;
-
-    internal static readonly bool UseOldBehavior38299 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38299", out var enabled) && enabled;
-
     private struct InternalComplexCollectionEntry(InternalEntryBase entry, IComplexProperty complexCollection)
     {
-        private static readonly bool UseOldBehavior37585 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue37585", out var enabled) && enabled;
-
         private List<InternalComplexEntry?>? _entries;
         private List<InternalComplexEntry?>? _originalEntries;
         private bool _isModified;
@@ -114,7 +105,7 @@ public partial class InternalEntryBase
         {
             if (original)
             {
-                _originalEntries ??= new List<InternalComplexEntry?>(capacity);
+                _originalEntries ??= [with(capacity)];
                 for (var i = _originalEntries.Count; i < capacity; i++)
                 {
                     _originalEntries.Add(null);
@@ -131,7 +122,7 @@ public partial class InternalEntryBase
                 return _originalEntries;
             }
 
-            _entries ??= new List<InternalComplexEntry?>(capacity);
+            _entries ??= [with(capacity)];
             for (var i = _entries.Count; i < capacity; i++)
             {
                 _entries.Add(null);
@@ -150,8 +141,7 @@ public partial class InternalEntryBase
 
         private IList? GetCollection(bool original)
         {
-            if (!UseOldBehavior37585
-                && _containingEntry is InternalComplexEntry complexEntry)
+            if (_containingEntry is InternalComplexEntry complexEntry)
             {
                 var ordinal = original ? complexEntry.OriginalOrdinal : complexEntry.Ordinal;
                 if (ordinal < 0)
@@ -189,7 +179,7 @@ public partial class InternalEntryBase
 
             if (_entries != null)
             {
-                _originalEntries ??= new List<InternalComplexEntry?>(_entries.Count);
+                _originalEntries ??= [with(_entries.Count)];
                 _originalEntries.Clear();
                 for (var i = 0; i < _entries.Count; i++)
                 {
@@ -227,7 +217,7 @@ public partial class InternalEntryBase
 
             if (_originalEntries != null)
             {
-                _entries ??= new List<InternalComplexEntry?>(_originalEntries.Count);
+                _entries ??= [with(_originalEntries.Count)];
                 _entries.Clear();
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < _originalEntries.Count; i++)
@@ -256,13 +246,6 @@ public partial class InternalEntryBase
                         CoreStrings.ComplexCollectionOriginalEntryAddedEntity(
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
-
-                if (_containingEntry.GetOriginalValue(_complexCollection) == null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ComplexCollectionEntryOriginalNull(
-                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
-                }
             }
             else
             {
@@ -272,7 +255,28 @@ public partial class InternalEntryBase
                         CoreStrings.ComplexCollectionEntryDeletedEntity(
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
                 }
+            }
 
+            // Must check tracked entries first to allow reindexing during cleanup when the parent is null.
+            var existingEntries = original ? _originalEntries : _entries;
+            if (existingEntries != null
+                && (uint)ordinal < (uint)existingEntries.Count
+                && existingEntries[ordinal] is { } existingEntry)
+            {
+                return existingEntry;
+            }
+
+            if (original)
+            {
+                if (_containingEntry.GetOriginalValue(_complexCollection) == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexCollectionEntryOriginalNull(
+                            _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name));
+                }
+            }
+            else
+            {
                 if (_containingEntry[_complexCollection] == null)
                 {
                     throw new InvalidOperationException(
@@ -292,13 +296,7 @@ public partial class InternalEntryBase
                             ordinal, _complexCollection.DeclaringType.ShortNameChain(), _complexCollection.Name, entries.Count));
             }
 
-            var complexEntry = entries[ordinal];
-            if (complexEntry != null)
-            {
-                return complexEntry;
-            }
-
-            // The currentEntry is created in Detached state, so it's not added to the entries list yet.
+            // The entry is created in Detached state, so it's not added to the entries list yet.
             // HandleStateChange will add it when the state changes.
             return new InternalComplexEntry((IRuntimeComplexType)_complexCollection.ComplexType, _containingEntry, ordinal);
         }
@@ -385,6 +383,8 @@ public partial class InternalEntryBase
                 setOriginalState = true;
             }
 
+            _containingEntry.EnsureOriginalValues();
+
             EnsureCapacity(GetCollection(original: true)?.Count ?? 0, original: true, trim: false);
             EnsureCapacity(GetCollection(original: false)?.Count ?? 0, original: false, trim: false);
 
@@ -466,12 +466,6 @@ public partial class InternalEntryBase
                 if (newState is not EntityState.Detached)
                 {
                     InsertEntry(entry, original: false);
-                }
-
-                // When going from Deleted to Unchanged, restore the currentEntry to the original collection
-                if (UseOldBehavior37724 && newState == EntityState.Unchanged)
-                {
-                    InsertEntry(entry, original: true);
                 }
             }
             else if (oldState == EntityState.Added

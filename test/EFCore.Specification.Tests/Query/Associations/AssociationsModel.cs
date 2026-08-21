@@ -45,7 +45,8 @@ public class AssociateType : IEquatable<AssociateType>
     public required string String { get; set; }
     public required List<int> Ints { get; set; }
 
-    public int Unmapped => Int + 1;
+    public int Unmapped
+        => Int + 1;
 
     public required NestedAssociateType RequiredNestedAssociate { get; set; }
     public NestedAssociateType? OptionalNestedAssociate { get; set; }
@@ -73,15 +74,17 @@ public class AssociateType : IEquatable<AssociateType>
 
     public bool Equals(AssociateType? other)
         => other is not null
-           && Id == other.Id
-           && Name == other.Name
-           && Int == other.Int
-           && String == other.String
-           && (Ints is null ? other.Ints is null : other.Ints is not null && Ints.SequenceEqual(other.Ints))
-           && RequiredNestedAssociate.Equals(other.RequiredNestedAssociate)
-           && (OptionalNestedAssociate is null ? other.OptionalNestedAssociate is null : OptionalNestedAssociate.Equals(other.OptionalNestedAssociate))
-           // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we check it
-           && (NestedCollection is null ? other.NestedCollection is null : NestedCollection.SequenceEqual(other.NestedCollection));
+            && Id == other.Id
+            && Name == other.Name
+            && Int == other.Int
+            && String == other.String
+            && (Ints is null ? other.Ints is null : other.Ints is not null && Ints.SequenceEqual(other.Ints))
+            && RequiredNestedAssociate.Equals(other.RequiredNestedAssociate)
+            && (OptionalNestedAssociate is null
+                ? other.OptionalNestedAssociate is null
+                : OptionalNestedAssociate.Equals(other.OptionalNestedAssociate))
+            // NestedCollection is annotated non-nullable, but ComplexTableSplitting doesn't support collections so we check it
+            && (NestedCollection is null ? other.NestedCollection is null : NestedCollection.SequenceEqual(other.NestedCollection));
 
     public AssociateType DeepClone()
         => new()
@@ -160,5 +163,5 @@ public class RootReferencingEntity
 {
     public int Id { get; set; }
 
-    public RootEntity? Root { get; set; } = null!;
+    public RootEntity? Root { get; set; }
 }

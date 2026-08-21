@@ -5,8 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
-#nullable disable
-
 public class OrderDetail
 {
     public int OrderDetailId { get; set; }
@@ -17,6 +15,6 @@ public class OrderDetail
     [Column(TypeName = "decimal(18,2)")]
     public decimal UnitPrice { get; set; }
 
-    public virtual Album Album { get; set; }
-    public virtual Order Order { get; set; }
+    public virtual Album Album { get; set; } = null!;
+    public virtual Order Order { get; set; } = null!;
 }

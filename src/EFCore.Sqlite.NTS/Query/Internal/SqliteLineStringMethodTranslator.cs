@@ -39,10 +39,8 @@ public class SqliteLineStringMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (Equals(method, GetPointN))
-        {
-            return _sqlExpressionFactory.Function(
+        => Equals(method, GetPointN)
+            ? _sqlExpressionFactory.Function(
                 "PointN",
                 [
                     instance!,
@@ -52,9 +50,6 @@ public class SqliteLineStringMethodTranslator : IMethodCallTranslator
                 ],
                 nullable: true,
                 argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType);
-        }
-
-        return null;
-    }
+                method.ReturnType)
+            : null;
 }

@@ -220,7 +220,7 @@ ORDER BY [r].[Id], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId]
 
     #region GroupBy
 
-    [ConditionalFact]
+    [Fact]
     public override async Task GroupBy()
     {
         await base.GroupBy();
@@ -245,7 +245,7 @@ LEFT JOIN (
 LEFT JOIN [OptionalRelated_NestedCollection] AS [o2] ON [o].[RootEntityId] = [o2].[AssociateTypeRootEntityId]
 LEFT JOIN [RequiredRelated_NestedCollection] AS [r8] ON [r1].[RootEntityId] = [r8].[AssociateTypeRootEntityId]
 WHERE 16 IN (
-    SELECT COALESCE(SUM([r0].[Int]), 0)
+    SELECT ISNULL(SUM([r0].[Int]), 0)
     FROM [RelatedCollection] AS [r0]
     WHERE [r].[Id] = [r0].[RootEntityId]
     GROUP BY [r0].[String]
@@ -263,7 +263,7 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[A
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM [RelatedCollection] AS [r0]
     OUTER APPLY (
         SELECT MAX([r1].[Int]) AS [value]
@@ -275,7 +275,7 @@ FROM [RootEntity] AS [r]
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

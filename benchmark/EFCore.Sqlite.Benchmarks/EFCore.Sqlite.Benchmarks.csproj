@@ -4,7 +4,6 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
     <OutputType>Exe</OutputType>
-    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -14,6 +13,15 @@
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Benchmarks\EFCore.Benchmarks.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Sqlite.Core\EFCore.Sqlite.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Register the SQLitePCLRaw provider via the bundle's [ModuleInitializer].
+      Without this, every benchmark throws "You need to call SQLitePCL.raw.SetProvider()"
+      from [GlobalSetup] and BenchmarkDotNet reports NA for every method.
+    -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
   </ItemGroup>
 
   <ItemGroup>

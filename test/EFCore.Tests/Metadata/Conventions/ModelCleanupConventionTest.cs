@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ModelCleanupConventionTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Unreachable_entity_types_are_removed()
     {
         var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
         var modelBuilder = principalEntityBuilder.ModelBuilder;
-        var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
-        var baseEntityBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Convention);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention)!;
+        var baseEntityBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Convention)!;
         principalEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
         dependentEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
         dependentEntityBuilder.HasRelationship(
@@ -26,12 +26,12 @@ public class ModelCleanupConventionTest
         Assert.Equal(nameof(OneToOnePrincipal), modelBuilder.Metadata.GetEntityTypes().Single().DisplayName());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Reachable_entity_types_are_not_removed()
     {
         var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
         var modelBuilder = principalEntityBuilder.ModelBuilder;
-        var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.Convention)!;
         dependentEntityBuilder.HasRelationship(
             principalEntityBuilder.Metadata, null, nameof(OneToOnePrincipal.OneToOneDependent), ConfigurationSource.Convention);
 
@@ -40,13 +40,13 @@ public class ModelCleanupConventionTest
         Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Navigationless_foreign_keys_are_removed()
     {
         var principalEntityBuilder = CreateInternalEntityBuilder<OneToOnePrincipal>();
         var modelBuilder = principalEntityBuilder.ModelBuilder;
-        var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.DataAnnotation);
-        var baseEntityBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.DataAnnotation);
+        var dependentEntityBuilder = modelBuilder.Entity(typeof(OneToOneDependent), ConfigurationSource.DataAnnotation)!;
+        var baseEntityBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.DataAnnotation)!;
         principalEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
         dependentEntityBuilder.HasBaseType(baseEntityBuilder.Metadata, ConfigurationSource.Convention);
 
@@ -74,7 +74,7 @@ public class ModelCleanupConventionTest
         => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
     private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
-        => new InternalModelBuilder(new Model()).Entity(typeof(T), ConfigurationSource.Explicit);
+        => new InternalModelBuilder(new Model()).Entity(typeof(T), ConfigurationSource.Explicit)!;
 
     private class Base
     {
@@ -83,11 +83,11 @@ public class ModelCleanupConventionTest
 
     private class OneToOnePrincipal : Base
     {
-        public OneToOneDependent OneToOneDependent { get; set; }
+        public OneToOneDependent OneToOneDependent { get; set; } = null!;
     }
 
     private class OneToOneDependent : Base
     {
-        public OneToOnePrincipal OneToOnePrincipal { get; set; }
+        public OneToOnePrincipal OneToOnePrincipal { get; set; } = null!;
     }
 }

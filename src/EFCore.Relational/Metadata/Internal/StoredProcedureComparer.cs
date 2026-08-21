@@ -81,15 +81,12 @@ public sealed class StoredProcedureComparer : IEqualityComparer<IStoredProcedure
             return result;
         }
 
-        result = x.Parameters.Zip(y.Parameters, (xc, yc) => StringComparer.Ordinal.Compare(xc, yc))
+        result = x.Parameters.Zip(y.Parameters, StringComparer.Ordinal.Compare)
             .FirstOrDefault(r => r != 0);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        return x.ResultColumns.Zip(y.ResultColumns, (xc, yc) => StringComparer.Ordinal.Compare(xc, yc))
-            .FirstOrDefault(r => r != 0);
+        return result != 0
+            ? result
+            : x.ResultColumns.Zip(y.ResultColumns, StringComparer.Ordinal.Compare)
+                .FirstOrDefault(r => r != 0);
     }
 
     /// <summary>

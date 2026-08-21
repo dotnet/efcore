@@ -13,27 +13,30 @@ public class ByteArrayTranslationsCosmosTest : ByteArrayTranslationsTestBase<Bas
     }
 
     public override Task Length()
-        => AssertTranslationFailed(() => base.Length());
+        => AssertTranslationFailed(base.Length);
 
     public override Task Index()
-        => AssertTranslationFailed(() => base.Index());
+        => AssertTranslationFailed(base.Index);
 
     public override Task First()
-        => AssertTranslationFailed(() => base.First());
+        => AssertTranslationFailed(base.First);
 
     public override Task Contains_with_constant()
-        => AssertTranslationFailed(() => base.Contains_with_constant());
+        => AssertTranslationFailed(base.Contains_with_constant);
 
     public override Task Contains_with_parameter()
-        => AssertTranslationFailed(() => base.Contains_with_parameter());
+        => AssertTranslationFailed(base.Contains_with_parameter);
 
     public override Task Contains_with_column()
-        => AssertTranslationFailed(() => base.Contains_with_column());
+        => AssertTranslationFailed(base.Contains_with_column);
+
+    public override Task Any()
+        => AssertTranslationFailed(base.Any);
 
     public override Task SequenceEqual()
-        => AssertTranslationFailed(() => base.SequenceEqual());
+        => AssertTranslationFailed(base.SequenceEqual);
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

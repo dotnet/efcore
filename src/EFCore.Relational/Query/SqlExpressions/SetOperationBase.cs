@@ -85,8 +85,8 @@ public abstract class SetOperationBase : TableExpressionBase
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is SetOperationBase setOperationBase
-                && Equals(setOperationBase));
+                || (obj is SetOperationBase setOperationBase
+                    && Equals(setOperationBase)));
 
     private bool Equals(SetOperationBase setOperationBase)
         => IsDistinct == setOperationBase.IsDistinct

@@ -36,23 +36,18 @@ public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {
-        if (method.IsGenericMethod
+        => method.IsGenericMethod
             && method.GetGenericMethodDefinition() == EnumerableMethods.ElementAt
             && method.ReturnType == typeof(Geometry)
-            && arguments is [var collection, var index])
-        {
-            return _sqlExpressionFactory.Function(
-                "GeometryN",
-                [
-                    collection,
-                    _sqlExpressionFactory.Add(index, _sqlExpressionFactory.Constant(1))
-                ],
-                nullable: true,
-                argumentsPropagateNullability: Statics.TrueArrays[2],
-                method.ReturnType);
-        }
-
-        return null;
-    }
+            && arguments is [var collection, var index]
+                ? _sqlExpressionFactory.Function(
+                    "GeometryN",
+                    [
+                        collection,
+                        _sqlExpressionFactory.Add(index, _sqlExpressionFactory.Constant(1))
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: Statics.TrueArrays[2],
+                    method.ReturnType)
+                : null;
 }
