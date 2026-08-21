@@ -14,6 +14,9 @@
     <NoWarn>$(NoWarn);NETSDK1023</NoWarn>
     <!-- Avoid referencing EFCore.Relational -->
     <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    <!-- This is a test project, but we ship the package to customers. Avoid skipping in VMR builds
+         that do not build tests -->
+    <ExcludeFromDotNetBuild>false</ExcludeFromDotNetBuild>
   </PropertyGroup>
 
   <ItemGroup>

@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-public sealed partial class InternalEntityEntry
+public partial class InternalEntityEntry
 {
     private readonly struct RelationshipsSnapshot(InternalEntityEntry entry)
     {
         private readonly ISnapshot _values = entry.EntityType.RelationshipSnapshotFactory(entry);
 
-        public object? GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
+        public object? GetValue(InternalEntryBase entry, IPropertyBase propertyBase)
             => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];
 
-        public T GetValue<T>(InternalEntityEntry entry, IPropertyBase propertyBase, int index)
+        public T GetValue<T>(InternalEntryBase entry, IPropertyBase propertyBase, int index)
             => IsEmpty
                 ? entry.GetCurrentValue<T>(propertyBase)
                 : _values.GetValue<T>(index);
@@ -42,7 +42,6 @@ public sealed partial class InternalEntityEntry
             if (propertyBase is IProperty property)
             {
                 var comparer = property.GetKeyValueComparer();
-
                 if (comparer != null)
                 {
                     return comparer.Snapshot(value);
@@ -67,7 +66,6 @@ public sealed partial class InternalEntityEntry
             if (index != -1)
             {
                 var snapshot = GetOrCreateCollection(index);
-
                 snapshot.Add(addedEntity);
             }
         }
@@ -78,7 +76,6 @@ public sealed partial class InternalEntityEntry
             if (index != -1)
             {
                 var snapshot = GetOrCreateCollection(index);
-
                 foreach (var addedEntity in addedEntities)
                 {
                     snapshot.Add(addedEntity);

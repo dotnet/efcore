@@ -3,7 +3,10 @@
 
 /azure-pipelines.yml                    @AndriySvyryd @wtgodbe
 /azure-pipelines-public.yml             @AndriySvyryd @wtgodbe
+/github-merge-flow.jsonc                @AndriySvyryd @wtgodbe
+/global.json                            @AndriySvyryd @wtgodbe
+/NuGet.config                           @AndriySvyryd @wtgodbe
+/.config/                               @AndriySvyryd @wtgodbe
+/.github/                               @dotnet/efteam @wtgodbe
 /eng/                                   @AndriySvyryd @wtgodbe
-/eng/common/                            @dotnet-maestro-bot @AndriySvyryd @wtgodbe
-/eng/Versions.props                     @dotnet-maestro-bot @AndriySvyryd @wtgodbe
-/eng/Version.Details.xml                @dotnet-maestro-bot @AndriySvyryd @wtgodbe
+/src/                                   @dotnet/efteam

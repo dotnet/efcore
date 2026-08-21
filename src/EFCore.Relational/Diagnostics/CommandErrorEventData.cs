@@ -18,6 +18,7 @@ public class CommandErrorEventData : CommandEndEventData, IErrorEventData
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
     /// <param name="connection">The <see cref="DbConnection" /> being used.</param>
     /// <param name="command">The <see cref="DbCommand" /> that was executing when it failed.</param>
+    /// <param name="logCommandText">The command text that can be logged.</param>
     /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
     /// <param name="executeMethod">The <see cref="DbCommand" /> method that was used to execute the command.</param>
     /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used.</param>
@@ -33,6 +34,7 @@ public class CommandErrorEventData : CommandEndEventData, IErrorEventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         DbConnection connection,
         DbCommand command,
+        string logCommandText,
         DbContext? context,
         DbCommandMethod executeMethod,
         Guid commandId,
@@ -48,6 +50,7 @@ public class CommandErrorEventData : CommandEndEventData, IErrorEventData
             messageGenerator,
             connection,
             command,
+            logCommandText,
             context,
             executeMethod,
             commandId,

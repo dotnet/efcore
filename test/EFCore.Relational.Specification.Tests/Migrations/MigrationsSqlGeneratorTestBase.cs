@@ -269,93 +269,87 @@ public abstract class MigrationsSqlGeneratorTestBase(
     public void InsertDataOperation_throws_for_missing_column_types()
         => Assert.Equal(
             RelationalStrings.InsertDataOperationNoModel("dbo.People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new InsertDataOperation
-                        {
-                            Table = "People",
-                            Schema = "dbo",
-                            Columns = ["First Name"],
-                            Values = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new InsertDataOperation
+                    {
+                        Table = "People",
+                        Schema = "dbo",
+                        Columns = ["First Name"],
+                        Values = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public virtual void InsertDataOperation_throws_for_unsupported_column_types()
         => Assert.Equal(
             RelationalStrings.UnsupportedDataOperationStoreType("char[]", "dbo.People.First Name"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new InsertDataOperation
-                        {
-                            Table = "People",
-                            Schema = "dbo",
-                            Columns = ["First Name"],
-                            ColumnTypes = ["char[]"],
-                            Values = new object[,] { { null } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new InsertDataOperation
+                    {
+                        Table = "People",
+                        Schema = "dbo",
+                        Columns = ["First Name"],
+                        ColumnTypes = ["char[]"],
+                        Values = new object[,] { { null } }
+                    })).Message);
 
     [ConditionalFact]
     public void InsertDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.InsertDataOperationValuesCountMismatch(1, 2, "dbo.People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new InsertDataOperation
-                        {
-                            Table = "People",
-                            Columns = ["First Name", "Last Name"],
-                            Values = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new InsertDataOperation
+                    {
+                        Table = "People",
+                        Columns = ["First Name", "Last Name"],
+                        Values = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public void InsertDataOperation_throws_for_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.InsertDataOperationTypesCountMismatch(2, 1, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new InsertDataOperation
-                        {
-                            Table = "People",
-                            Columns = ["First Name"],
-                            ColumnTypes = ["string", "string"],
-                            Values = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new InsertDataOperation
+                    {
+                        Table = "People",
+                        Columns = ["First Name"],
+                        ColumnTypes = ["string", "string"],
+                        Values = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public void InsertDataOperation_throws_for_missing_entity_type()
         => Assert.Equal(
             RelationalStrings.DataOperationNoTable("dbo1.People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new InsertDataOperation
-                        {
-                            Table = "People",
-                            Schema = "dbo1",
-                            Columns = ["First Name"],
-                            Values = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new InsertDataOperation
+                    {
+                        Table = "People",
+                        Schema = "dbo1",
+                        Columns = ["First Name"],
+                        Values = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public void InsertDataOperation_throws_for_missing_property()
         => Assert.Equal(
             RelationalStrings.DataOperationNoProperty("People", "Name"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new InsertDataOperation
-                        {
-                            Table = "People",
-                            Columns = ["Name"],
-                            Values = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new InsertDataOperation
+                    {
+                        Table = "People",
+                        Columns = ["Name"],
+                        Values = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public virtual void DeleteDataOperation_all_args()
@@ -408,45 +402,42 @@ public abstract class MigrationsSqlGeneratorTestBase(
     public void DeleteDataOperation_throws_for_missing_column_types()
         => Assert.Equal(
             RelationalStrings.DeleteDataOperationNoModel("People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new DeleteDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyValues = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new DeleteDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyValues = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public void DeleteDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.DeleteDataOperationValuesCountMismatch(1, 2, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new DeleteDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name", "Last Name"],
-                            KeyValues = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new DeleteDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name", "Last Name"],
+                        KeyValues = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public void DeleteDataOperation_throws_for_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.DeleteDataOperationTypesCountMismatch(2, 1, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new DeleteDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyColumnTypes = ["string", "string"],
-                            KeyValues = new object[,] { { "John" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new DeleteDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyColumnTypes = ["string", "string"],
+                        KeyValues = new object[,] { { "John" } }
+                    })).Message);
 
     [ConditionalFact]
     public virtual void UpdateDataOperation_all_args()
@@ -569,107 +560,99 @@ public abstract class MigrationsSqlGeneratorTestBase(
     public void UpdateDataOperation_throws_for_missing_column_types()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationNoModel("People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new UpdateDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyValues = new object[,] { { "Daenerys" } },
-                            Columns = ["House Allegiance"],
-                            Values = new object[,] { { "Targaryen" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new UpdateDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyValues = new object[,] { { "Daenerys" } },
+                        Columns = ["House Allegiance"],
+                        Values = new object[,] { { "Targaryen" } }
+                    })).Message);
 
     [ConditionalFact]
     public void UpdateDataOperation_throws_for_row_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationRowCountMismatch(1, 2, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new UpdateDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyColumnTypes = ["string"],
-                            KeyValues = new object[,] { { "Daenerys" }, { "John" } },
-                            Columns = ["House Allegiance"],
-                            Values = new object[,] { { "Targaryen" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new UpdateDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyColumnTypes = ["string"],
+                        KeyValues = new object[,] { { "Daenerys" }, { "John" } },
+                        Columns = ["House Allegiance"],
+                        Values = new object[,] { { "Targaryen" } }
+                    })).Message);
 
     [ConditionalFact]
     public void UpdateDataOperation_throws_for_key_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationKeyValuesCountMismatch(1, 2, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new UpdateDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name", "Last Name"],
-                            KeyValues = new object[,] { { "Daenerys" } },
-                            Columns = ["House Allegiance"],
-                            Values = new object[,] { { "Targaryen" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new UpdateDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name", "Last Name"],
+                        KeyValues = new object[,] { { "Daenerys" } },
+                        Columns = ["House Allegiance"],
+                        Values = new object[,] { { "Targaryen" } }
+                    })).Message);
 
     [ConditionalFact]
     public void UpdateDataOperation_throws_for_key_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationKeyTypesCountMismatch(2, 1, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new UpdateDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyColumnTypes = ["string", "string"],
-                            KeyValues = new object[,] { { "Daenerys" } },
-                            Columns = ["House Allegiance"],
-                            Values = new object[,] { { "Targaryen" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new UpdateDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyColumnTypes = ["string", "string"],
+                        KeyValues = new object[,] { { "Daenerys" } },
+                        Columns = ["House Allegiance"],
+                        Values = new object[,] { { "Targaryen" } }
+                    })).Message);
 
     [ConditionalFact]
     public void UpdateDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationValuesCountMismatch(1, 2, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        CreateGotModel,
-                        new UpdateDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyValues = new object[,] { { "Daenerys" } },
-                            Columns = ["House Allegiance", "Culture"],
-                            Values = new object[,] { { "Targaryen" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    CreateGotModel,
+                    new UpdateDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyValues = new object[,] { { "Daenerys" } },
+                        Columns = ["House Allegiance", "Culture"],
+                        Values = new object[,] { { "Targaryen" } }
+                    })).Message);
 
     [ConditionalFact]
     public void UpdateDataOperation_throws_for_types_count_mismatch()
         => Assert.Equal(
             RelationalStrings.UpdateDataOperationTypesCountMismatch(2, 1, "People"),
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    Generate(
-                        new UpdateDataOperation
-                        {
-                            Table = "People",
-                            KeyColumns = ["First Name"],
-                            KeyValues = new object[,] { { "Daenerys" } },
-                            Columns = ["House Allegiance"],
-                            ColumnTypes = ["string", "string"],
-                            Values = new object[,] { { "Targaryen" } }
-                        })).Message);
+            Assert.Throws<InvalidOperationException>(() =>
+                Generate(
+                    new UpdateDataOperation
+                    {
+                        Table = "People",
+                        KeyColumns = ["First Name"],
+                        KeyValues = new object[,] { { "Daenerys" } },
+                        Columns = ["House Allegiance"],
+                        ColumnTypes = ["string", "string"],
+                        Values = new object[,] { { "Targaryen" } }
+                    })).Message);
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void DefaultValue_with_line_breaks(bool isUnicode)
         => Generate(
             new CreateTableOperation
@@ -690,9 +673,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
                 }
             });
 
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [ConditionalTheory, InlineData(false), InlineData(true)]
     public virtual void DefaultValue_with_line_breaks_2(bool isUnicode)
     {
         var defaultValue = Enumerable.Range(0, 300).Select(e => e.ToString())
@@ -719,9 +700,7 @@ public abstract class MigrationsSqlGeneratorTestBase(
             });
     }
 
-    [ConditionalTheory]
-    [InlineData(3L)]
-    [InlineData(null)]
+    [ConditionalTheory, InlineData(3L), InlineData(null)]
     public virtual void Sequence_restart_operation(long? startsAt)
         => Generate(
             new RestartSequenceOperation

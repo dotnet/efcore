@@ -27,8 +27,7 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
         bool async,
         bool multipleActiveResultSetsEnabled)
         : this(
-            dependencies, relationalDependencies, async, multipleActiveResultSetsEnabled, precompiling: false,
-            nonNullableReferenceTypeParameters: null)
+            dependencies, relationalDependencies, async, multipleActiveResultSetsEnabled, precompiling: false)
         => _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
 
     /// <summary>
@@ -43,9 +42,8 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async,
         bool multipleActiveResultSetsEnabled,
-        bool precompiling,
-        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
-        : base(dependencies, relationalDependencies, async, precompiling, nonNullableReferenceTypeParameters)
+        bool precompiling)
+        : base(dependencies, relationalDependencies, async, precompiling)
         => _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
 
     /// <summary>

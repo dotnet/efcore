@@ -110,7 +110,7 @@ public static class SqlServerIndexBuilderExtensions
     /// <returns>A builder to further configure the index.</returns>
     public static IndexBuilder IncludeProperties(this IndexBuilder indexBuilder, params string[] propertyNames)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         indexBuilder.Metadata.SetIncludeProperties(propertyNames);
 
@@ -132,7 +132,7 @@ public static class SqlServerIndexBuilderExtensions
         this IndexBuilder<TEntity> indexBuilder,
         params string[] propertyNames)
     {
-        Check.NotNull(propertyNames, nameof(propertyNames));
+        Check.NotNull(propertyNames);
 
         indexBuilder.Metadata.SetIncludeProperties(propertyNames);
 
@@ -163,7 +163,7 @@ public static class SqlServerIndexBuilderExtensions
         this IndexBuilder<TEntity> indexBuilder,
         Expression<Func<TEntity, object?>> includeExpression)
     {
-        Check.NotNull(includeExpression, nameof(includeExpression));
+        Check.NotNull(includeExpression);
 
         IncludeProperties(
             indexBuilder,

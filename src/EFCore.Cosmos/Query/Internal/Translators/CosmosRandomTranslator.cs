@@ -30,7 +30,7 @@ public class CosmosRandomTranslator(ISqlExpressionFactory sqlExpressionFactory) 
         => MethodInfo.Equals(method)
             ? sqlExpressionFactory.Function(
                 "RAND",
-                Enumerable.Empty<SqlExpression>(),
+                [],
                 method.ReturnType)
             : null;
 }

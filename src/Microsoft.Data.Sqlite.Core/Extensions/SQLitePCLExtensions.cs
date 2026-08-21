@@ -5,30 +5,29 @@ using System.Collections.Generic;
 
 // ReSharper disable once CheckNamespace
 // ReSharper disable InconsistentNaming
-namespace SQLitePCL
+namespace SQLitePCL;
+
+internal static class SQLitePCLExtensions
 {
-    internal static class SQLitePCLExtensions
+    private static readonly Dictionary<string, bool> _knownLibraries = new()
     {
-        private static readonly Dictionary<string, bool> _knownLibraries = new()
-        {
-            { "e_sqlcipher", true },
-            { "e_sqlite3", false },
-            { "e_sqlite3mc", true },
-            { "sqlcipher", true },
-            { "sqlite3mc", true },
-            { "winsqlite3", false }
-        };
+        { "e_sqlcipher", true },
+        { "e_sqlite3", false },
+        { "e_sqlite3mc", true },
+        { "sqlcipher", true },
+        { "sqlite3mc", true },
+        { "winsqlite3", false }
+    };
 
-        public static bool? EncryptionSupported()
-            => EncryptionSupported(out _);
+    public static bool? EncryptionSupported()
+        => EncryptionSupported(out _);
 
-        public static bool? EncryptionSupported(out string libraryName)
-        {
-            libraryName = raw.GetNativeLibraryName();
+    public static bool? EncryptionSupported(out string libraryName)
+    {
+        libraryName = raw.GetNativeLibraryName();
 
-            return _knownLibraries.TryGetValue(libraryName, out var supported)
-                ? supported
-                : default(bool?);
-        }
+        return _knownLibraries.TryGetValue(libraryName, out var supported)
+            ? supported
+            : default(bool?);
     }
 }

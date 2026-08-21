@@ -24,6 +24,16 @@ public sealed class CosmosConditionAttribute(CosmosCondition conditions) : Attri
             isMet &= !TestEnvironment.UseTokenCredential;
         }
 
+        if (Conditions.HasFlag(CosmosCondition.IsEmulator))
+        {
+            isMet &= TestEnvironment.IsEmulator;
+        }
+
+        if (Conditions.HasFlag(CosmosCondition.IsNotEmulator))
+        {
+            isMet &= !TestEnvironment.IsEmulator;
+        }
+
         return ValueTask.FromResult(isMet);
     }
 
