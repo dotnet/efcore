@@ -2138,6 +2138,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     continue;
                 }
 
+                if (targetKey.Columns.Count != sourceKey.Columns.Count)
+                {
+                    tableMapping.Add(targetTable, null);
+                    continue;
+                }
+
                 var mappingFound = true;
                 for (var i = 0; i < targetKey.Columns.Count; i++)
                 {
@@ -2152,8 +2158,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
                 }
 
-                if (!mappingFound
-                    || targetKey.Columns.Count != sourceKey.Columns.Count)
+                if (!mappingFound)
                 {
                     tableMapping.Add(targetTable, null);
                     continue;
