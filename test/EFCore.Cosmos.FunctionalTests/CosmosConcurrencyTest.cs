@@ -121,9 +121,6 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture)
     [Theory, InlineData(null), InlineData(true), InlineData(false)]
     public async Task Etag_is_updated_in_derived_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        await using var serviceProvider = new ServiceCollection()
-            .AddEntityFrameworkCosmos()
-            .BuildServiceProvider();
         var options = Fixture.TestStore.AddProviderOptions(
                 Fixture.AddOptions(
                     new DbContextOptionsBuilder()
