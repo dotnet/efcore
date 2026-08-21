@@ -39,6 +39,9 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly SqlAliasManager _sqlAliasManager;
 
     internal bool IsMutable { get; private set; } = true;
+    internal bool HasClientProjections
+        => _clientProjections.Count > 0;
+
     private Dictionary<ProjectionMember, Expression> _projectionMapping = [];
     private List<Expression> _clientProjections = [];
     private readonly List<string?> _aliasForClientProjections = [];

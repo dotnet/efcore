@@ -97,6 +97,31 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
+    internal Expression TranslateForSetOperation(SelectExpression selectExpression, Expression expression)
+    {
+        expression = new NonEntityNullComparisonTransformingExpressionVisitor().Visit(expression);
+        _selectExpression = selectExpression;
+        _indexBasedBinding = false;
+        _rootIsTransparentIdentifier = IsTransparentIdentifierProjection(expression);
+        _projectionMembers.Push(new ProjectionMember());
+
+        var result = Visit(expression);
+        if (result == QueryCompilationContext.NotTranslatedExpression)
+        {
+            result = expression;
+        }
+        else
+        {
+            _selectExpression.ReplaceProjection(_projectionMapping);
+        }
+
+        _projectionMapping.Clear();
+        _selectExpression = null!;
+        _projectionMembers.Clear();
+
+        return MatchTypes(result, expression.Type);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -857,6 +882,40 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         }
 
         return loweredShaper;
+    }
+
+    private sealed class NonEntityNullComparisonTransformingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            var visited = (BinaryExpression)base.VisitBinary(binaryExpression);
+            if (visited.NodeType is not (ExpressionType.Equal or ExpressionType.NotEqual)
+                || visited.Method is not null)
+            {
+                return visited;
+            }
+
+            var leftIsNull = visited.Left.IsNullConstantExpression();
+            var rightIsNull = visited.Right.IsNullConstantExpression();
+            if (leftIsNull == rightIsNull)
+            {
+                return visited;
+            }
+
+            var nonNullExpression = leftIsNull ? visited.Right : visited.Left;
+            if (nonNullExpression is not ConditionalExpression
+                {
+                    IfTrue: DefaultExpression { Type.IsValueType: false },
+                    IfFalse: NewExpression or MemberInitExpression
+                } conditionalExpression)
+            {
+                return visited;
+            }
+
+            return visited.NodeType == ExpressionType.Equal
+                ? conditionalExpression.Test
+                : Expression.Not(conditionalExpression.Test);
+        }
     }
 
     /// <summary>

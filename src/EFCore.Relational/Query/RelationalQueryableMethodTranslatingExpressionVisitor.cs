@@ -585,6 +585,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateForSetOperation(source1);
+        source2 = TranslateForSetOperation(source2);
         ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
 
         return source1.UpdateShaperExpression(
@@ -719,6 +721,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateForSetOperation(source1);
+        source2 = TranslateForSetOperation(source2);
         ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
 
         // Since except has result from source1, we don't need to change shaper
@@ -884,6 +888,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateForSetOperation(source1);
+        source2 = TranslateForSetOperation(source2);
         ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
 
         // For intersect since result comes from both sides, if one of them is non-nullable then both are non-nullable
@@ -1592,6 +1598,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
+        source1 = TranslateForSetOperation(source1);
+        source2 = TranslateForSetOperation(source2);
         ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
 
         return source1.UpdateShaperExpression(
@@ -2244,6 +2252,16 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         Expression targetExpression,
         string fieldName)
         => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
+
+    private ShapedQueryExpression TranslateForSetOperation(ShapedQueryExpression source)
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
+        return selectExpression.HasClientProjections
+            ? source.UpdateShaperExpression(
+                _projectionBindingExpressionVisitor.TranslateForSetOperation(selectExpression, source.ShaperExpression))
+            : source;
+    }
 
     private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
     {

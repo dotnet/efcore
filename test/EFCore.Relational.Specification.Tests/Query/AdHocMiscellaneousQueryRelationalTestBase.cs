@@ -419,16 +419,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         //   distinguish a no-match row from a matched row whose members happen to be null). A second join
         //   after the DefaultIfEmpty, and GroupBy applied after the left join then reduced via a to-one
         //   subquery / FirstOrDefault, also correctly materialize the whole non-entity object as null on a
-        //   no-match (the marker survives the shaper rebuild across the subsequent join / grouping).
+        //   no-match (the marker survives the shaper rebuild across the subsequent join / grouping). Set
+        //   operations over scalar projections containing whole-object null checks are also supported.
         // DEFERRED (still failing, tracked as #30915 follow-ups; these tests assert the throw /
         //   translation failure): constructor-bound (read-only) reference-type DTO and positional record
         //   struct (fail to translate: ReplacingExpressionVisitor's constructor-parameter fold is
         //   deliberately restricted to ValueTuple/Tuple -- see ValueTuple_whole_object_from_nullable_side --
         //   since only those BCL types have a closed, guaranteed constructor-to-property contract; an
         //   arbitrary named type's "matching name" convention can't be verified and could silently fold to
-        //   the wrong value for a transforming constructor); plain inner with no aggregate / no
-        //   pushdown; Union and other set operations over the projection; and server-side OrderBy/Where
-        //   null-checks against the whole non-entity projection.
+        //   the wrong value for a transforming constructor); plain inner with no aggregate / no pushdown;
+        //   and server-side OrderBy/Where null-checks against the whole non-entity projection.
 
         #region Category A: whole non-entity object projected from the nullable side
 
@@ -1016,13 +1016,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                          from countInfo in g.DefaultIfEmpty()
                          select new { s.PickupStatusId, Count = countInfo == null ? 0 : countInfo.Count };
 
-            var query = first.Union(second);
+            var result = await first.Union(second).OrderBy(e => e.PickupStatusId).ToListAsync();
 
-            // The client-side null-check projection forces a client projection on each operand,
-            // which then can't participate in the set operation.
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Unable to translate set operation", ex.Message);
-            // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
+            Assert.Equal(3, result.Count);
+            Assert.Equal((1, 2), (result[0].PickupStatusId, result[0].Count));
+            Assert.Equal((2, 0), (result[1].PickupStatusId, result[1].Count));
+            Assert.Equal((3, 1), (result[2].PickupStatusId, result[2].Count));
         }
 
         [Fact]
