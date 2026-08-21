@@ -1523,6 +1523,52 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [Fact]
+    public void Remove_entity_splitting_from_excluded_table()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                        x.SplitToTable(
+                            "Address", t => t.Property<string>("City"));
+                        x.ToTable("Company", tb => tb.ExcludeFromMigrations());
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                }));
+
+    [Fact]
     public void Add_owned_types()
         => Execute(
             _ => { },
