@@ -50,6 +50,62 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = null!;
     }
 
+    private sealed class MarkerNullCheckSimplifyingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            if (node is { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Method: null }
+                && ((IsNull(node.Left) && TryGetNullCheck(node.Right, out var nullCheck))
+                    || (IsNull(node.Right) && TryGetNullCheck(node.Left, out nullCheck))))
+            {
+                nullCheck = Visit(nullCheck);
+                return node.NodeType == ExpressionType.Equal
+                    ? nullCheck
+                    : Expression.Not(nullCheck);
+            }
+
+            return base.VisitBinary(node);
+        }
+
+        private static bool IsNull(Expression expression)
+            => expression is ConstantExpression { Value: null }
+                or DefaultExpression { Type.IsValueType: false };
+
+        private static bool TryGetNullCheck(Expression expression, [NotNullWhen(true)] out Expression? nullCheck)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            if (expression is ConditionalExpression
+                {
+                    Test: var test,
+                    IfTrue: var ifTrue,
+                    IfFalse: NewExpression or MemberInitExpression
+                }
+                && IsNull(ifTrue)
+                && IsMarkerNullCheck(test))
+            {
+                nullCheck = test;
+                return true;
+            }
+
+            nullCheck = null;
+            return false;
+        }
+
+        private static bool IsMarkerNullCheck(Expression expression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            return expression is BinaryExpression
+                {
+                    NodeType: ExpressionType.Equal,
+                    Method: null,
+                    Left: var left,
+                    Right: var right
+                }
+                && ((IsNull(left) && right.UnwrapTypeConversion(out _) is ProjectionBindingExpression)
+                    || (IsNull(right) && left.UnwrapTypeConversion(out _) is ProjectionBindingExpression));
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -83,29 +139,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             result = Visit(expression);
 
             _selectExpression.ReplaceProjection(_clientProjections);
-            if (!UseOldBehavior38838)
-            {
-                var clientProjections = _clientProjections.ToList();
-
-                // Lowering single-result subqueries can turn an otherwise untranslatable projection into a fully server-side one.
-                // Retry the member-based projection after the lowering so operators such as set operations can still compose over it.
-                _indexBasedBinding = false;
-                _projectionMembers.Clear();
-                _projectionMembers.Push(new ProjectionMember());
-
-                var indexBasedResult = result;
-                result = Visit(indexBasedResult);
-                if (result == QueryCompilationContext.NotTranslatedExpression)
-                {
-                    result = indexBasedResult;
-                    _selectExpression.ReplaceProjection(clientProjections);
-                }
-                else
-                {
-                    _selectExpression.ReplaceProjection(_projectionMapping);
-                }
-            }
-
             _clientProjections.Clear();
             _projectionMapping.Clear();
         }
@@ -119,6 +152,35 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _projectionMembers.Clear();
 
         result = MatchTypes(result, expression.Type);
+
+        return result;
+    }
+
+    internal virtual Expression? TryTranslateToServerProjection(SelectExpression selectExpression, Expression expression)
+    {
+        if (UseOldBehavior38838)
+        {
+            return null;
+        }
+
+        _selectExpression = selectExpression;
+        _indexBasedBinding = false;
+        _projectionMembers.Push(new ProjectionMember());
+
+        expression = new MarkerNullCheckSimplifyingExpressionVisitor().Visit(expression);
+        var result = Visit(expression);
+        if (result == QueryCompilationContext.NotTranslatedExpression)
+        {
+            result = null;
+        }
+        else
+        {
+            _selectExpression.ReplaceProjection(_projectionMapping);
+            result = MatchTypes(result, expression.Type);
+        }
+        _selectExpression = null!;
+        _projectionMapping.Clear();
+        _projectionMembers.Clear();
 
         return result;
     }
@@ -318,41 +380,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
         var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
 
-        if (!UseOldBehavior38838
-            && _indexBasedBinding
-            && binaryExpression is { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Method: null }
-            && ((IsNull(left) && TryGetNullCheck(right, out var nullCheck))
-                || (IsNull(right) && TryGetNullCheck(left, out nullCheck))))
-        {
-            return binaryExpression.NodeType == ExpressionType.Equal
-                ? nullCheck
-                : Expression.Not(nullCheck);
-        }
-
         return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
-
-        static bool IsNull(Expression expression)
-            => expression is ConstantExpression { Value: null }
-                or DefaultExpression { Type.IsValueType: false };
-
-        static bool TryGetNullCheck(Expression expression, [NotNullWhen(true)] out Expression? nullCheck)
-        {
-            expression = expression.UnwrapTypeConversion(out _);
-            if (expression is ConditionalExpression
-                {
-                    Test: var test,
-                    IfTrue: var ifTrue,
-                    IfFalse: NewExpression or MemberInitExpression
-                }
-                && IsNull(ifTrue))
-            {
-                nullCheck = test;
-                return true;
-            }
-
-            nullCheck = null;
-            return false;
-        }
     }
 
     /// <summary>
