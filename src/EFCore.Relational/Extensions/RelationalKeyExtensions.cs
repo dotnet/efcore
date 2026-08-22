@@ -102,6 +102,106 @@ public static class RelationalKeyExtensions
         => key.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
 
     /// <summary>
+    ///     Sets the key constraint name for this key for a particular table.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="name">The value to set. Use <see langword="null" /> to suppress a globally configured name for this table.</param>
+    /// <param name="storeObject">The identifier of the containing store object.</param>
+    public static void SetName(this IMutableKey key, string? name, in StoreObjectIdentifier storeObject)
+        => RelationalKeyOverrides
+            .GetOrCreate(key, storeObject, ConfigurationSource.Explicit)
+            .SetName(Check.NullButNotEmpty(name), ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     Sets the key constraint name for this key for a particular table.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="name">The value to set. Use <see langword="null" /> to suppress a globally configured name for this table.</param>
+    /// <param name="storeObject">The identifier of the containing store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured name.</returns>
+    public static string? SetName(
+        this IConventionKey key,
+        string? name,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+    {
+        var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
+
+        return RelationalKeyOverrides
+            .GetOrCreate((IMutableKey)key, storeObject, configurationSource)
+            .SetName(Check.NullButNotEmpty(name), configurationSource);
+    }
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the key constraint name for a particular table.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="storeObject">The identifier of the containing store object.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the constraint name.</returns>
+    public static ConfigurationSource? GetNameConfigurationSource(
+        this IConventionKey key,
+        in StoreObjectIdentifier storeObject)
+        => (RelationalKeyOverrides.Find(key, storeObject) as IConventionRelationalKeyOverrides)
+            ?.GetNameConfigurationSource();
+
+    /// <summary>
+    ///     Returns all per-store-object constraint name overrides configured for this key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The overrides.</returns>
+    public static IEnumerable<IReadOnlyRelationalKeyOverrides> GetOverrides(this IReadOnlyKey key)
+        => RelationalKeyOverrides.Get(key) ?? [];
+
+    /// <summary>
+    ///     Returns all per-store-object constraint name overrides configured for this key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The overrides.</returns>
+    public static IEnumerable<IMutableRelationalKeyOverrides> GetOverrides(this IMutableKey key)
+        => RelationalKeyOverrides.Get(key)?.Cast<IMutableRelationalKeyOverrides>() ?? [];
+
+    /// <summary>
+    ///     Returns all per-store-object constraint name overrides configured for this key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The overrides.</returns>
+    public static IEnumerable<IConventionRelationalKeyOverrides> GetOverrides(this IConventionKey key)
+        => RelationalKeyOverrides.Get(key)?.Cast<IConventionRelationalKeyOverrides>() ?? [];
+
+    /// <summary>
+    ///     Returns all per-store-object constraint name overrides configured for this key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The overrides.</returns>
+    public static IEnumerable<IRelationalKeyOverrides> GetOverrides(this IKey key)
+        => RelationalKeyOverrides.Get(key)?.Cast<IRelationalKeyOverrides>() ?? [];
+
+    /// <summary>
+    ///     Removes the per-store-object constraint name override for the given store object.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="storeObject">The identifier of the containing store object.</param>
+    /// <returns>The removed override, or <see langword="null" /> if none was configured.</returns>
+    public static IMutableRelationalKeyOverrides? RemoveOverrides(
+        this IMutableKey key,
+        in StoreObjectIdentifier storeObject)
+        => RelationalKeyOverrides.Remove(key, storeObject);
+
+    /// <summary>
+    ///     Removes the per-store-object constraint name override for the given store object.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="storeObject">The identifier of the containing store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The removed override, or <see langword="null" /> if none was configured.</returns>
+    public static IConventionRelationalKeyOverrides? RemoveOverrides(
+        this IConventionKey key,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => RelationalKeyOverrides.Remove((IMutableKey)key, storeObject);
+
+    /// <summary>
     ///     Gets the unique constraints to which the key is mapped.
     /// </summary>
     /// <param name="key">The key.</param>

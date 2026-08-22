@@ -71,7 +71,7 @@ public class ForeignKeyOverridesConvention : IForeignKeyAnnotationChangedConvent
         var foreignKey = relationshipBuilder.Metadata;
 
         List<IConventionRelationalForeignKeyOverrides>? overridesToReattach = null;
-        foreach (var overrides in RelationalForeignKeyOverrides.Get(foreignKey) ?? [])
+        foreach (var overrides in foreignKey.GetOverrides())
         {
             var conventionOverrides = (IConventionRelationalForeignKeyOverrides)overrides;
             if (conventionOverrides.ForeignKey == foreignKey)
@@ -90,10 +90,11 @@ public class ForeignKeyOverridesConvention : IForeignKeyAnnotationChangedConvent
 
         foreach (var overrides in overridesToReattach)
         {
-            var removedOverrides = RelationalForeignKeyOverrides.Remove((IMutableForeignKey)foreignKey, overrides.StoreObjects);
+            var removedOverrides = ((IMutableForeignKey)foreignKey).RemoveOverrides(
+                overrides.StoreObjects.DependentStoreObject, overrides.StoreObjects.PrincipalStoreObject);
             if (removedOverrides != null)
             {
-                RelationalForeignKeyOverrides.Attach(foreignKey, removedOverrides);
+                RelationalForeignKeyOverrides.Attach(foreignKey, (IConventionRelationalForeignKeyOverrides)removedOverrides);
             }
         }
     }

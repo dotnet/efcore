@@ -319,6 +319,27 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => param.Direction = ParameterDirection.Input)
                     .Message);
         }
+
+        [Fact]
+        public virtual void Can_configure_per_table_key_and_foreign_key_constraint_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.ToTable("Customers");
+                b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+                b.HasKey(c => c.Id)
+                    .HasName("pk_customers", StoreObjectIdentifier.Table("Customers"))
+                    .HasName("pk_customer_details", StoreObjectIdentifier.Table("CustomerDetails"));
+            });
+
+            var model = modelBuilder.FinalizeModel();
+            var key = model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+
+            Assert.Equal("pk_customers", key.GetName(StoreObjectIdentifier.Table("Customers")));
+            Assert.Equal("pk_customer_details", key.GetName(StoreObjectIdentifier.Table("CustomerDetails")));
+        }
     }
 
     public abstract class RelationalComplexTypeTestBase(RelationalModelBuilderFixture fixture) : ComplexTypeTestBase(fixture)

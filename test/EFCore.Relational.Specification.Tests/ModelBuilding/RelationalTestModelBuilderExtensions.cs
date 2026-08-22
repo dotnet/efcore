@@ -1687,6 +1687,24 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestKeyBuilder<TEntity> HasName<TEntity>(
+        this ModelBuilderTest.TestKeyBuilder<TEntity> builder,
+        string? name,
+        in StoreObjectIdentifier storeObject)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<KeyBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.HasName(name, storeObject);
+                break;
+            case IInfrastructure<KeyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasName(name, storeObject);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestComplexTypePropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ModelBuilderTest.TestComplexTypePropertyBuilder<TProperty> builder,
         string? name)

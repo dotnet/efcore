@@ -68,7 +68,7 @@ public class KeyOverridesConvention : IKeyAnnotationChangedConvention
         var key = keyBuilder.Metadata;
 
         List<IConventionRelationalKeyOverrides>? overridesToReattach = null;
-        foreach (var overrides in RelationalKeyOverrides.Get(key) ?? [])
+        foreach (var overrides in key.GetOverrides())
         {
             var conventionOverrides = (IConventionRelationalKeyOverrides)overrides;
             if (conventionOverrides.Key == key)
@@ -87,10 +87,10 @@ public class KeyOverridesConvention : IKeyAnnotationChangedConvention
 
         foreach (var overrides in overridesToReattach)
         {
-            var removedOverrides = RelationalKeyOverrides.Remove((IMutableKey)key, overrides.StoreObject);
+            var removedOverrides = ((IMutableKey)key).RemoveOverrides(overrides.StoreObject);
             if (removedOverrides != null)
             {
-                RelationalKeyOverrides.Attach(key, removedOverrides);
+                RelationalKeyOverrides.Attach(key, (IConventionRelationalKeyOverrides)removedOverrides);
             }
         }
     }
