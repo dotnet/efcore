@@ -49,6 +49,11 @@ jobs:
               pull_number: prNumber
             });
 
+            if (!pullRequest.merged) {
+              core.setFailed(`PR #${prNumber} is not merged.`);
+              return;
+            }
+
             let baseSha = pullRequest.base.sha;
             const targetSha = pullRequest.merge_commit_sha ?? pullRequest.head.sha;
 
@@ -92,10 +97,6 @@ jobs:
             core.setOutput('target_sha', targetSha);
             core.setOutput('has_baselines', String(baselineFiles.length > 0));
             core.setOutput('files_json', JSON.stringify(baselineFiles));
-
-            if (!pullRequest.merged) {
-              console.log(`PR #${prNumber} is not merged; using head SHA ${pullRequest.head.sha}.`);
-            }
 
             if (baselineFiles.length === 0) {
               console.log(`No changed baseline files detected on PR #${prNumber}.`);
