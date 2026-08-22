@@ -99,7 +99,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
     internal Expression TranslateForSetOperation(SelectExpression selectExpression, Expression expression)
     {
-        expression = new NonEntityNullComparisonTransformingExpressionVisitor().Visit(expression);
+        expression = new NonEntityNullComparisonTransformingExpressionVisitor(selectExpression).Visit(expression);
         _selectExpression = selectExpression;
         _indexBasedBinding = false;
         _rootIsTransparentIdentifier = IsTransparentIdentifierProjection(expression);
@@ -884,7 +884,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return loweredShaper;
     }
 
-    private sealed class NonEntityNullComparisonTransformingExpressionVisitor : ExpressionVisitor
+    private sealed class NonEntityNullComparisonTransformingExpressionVisitor(SelectExpression selectExpression) : ExpressionVisitor
     {
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
@@ -907,7 +907,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     IfTrue: DefaultExpression { Type.IsValueType: false },
                     IfFalse: NewExpression or MemberInitExpression
-                } conditionalExpression)
+                } conditionalExpression
+                || !IsNullabilityMarkerGate(conditionalExpression))
             {
                 return visited;
             }
@@ -915,6 +916,49 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             return visited.NodeType == ExpressionType.Equal
                 ? conditionalExpression.Test
                 : Expression.Not(conditionalExpression.Test);
+        }
+
+        private bool IsNullabilityMarkerGate(ConditionalExpression conditionalExpression)
+            => TryGetMarkerBindingFromNullCheck(conditionalExpression.Test, out var markerBinding)
+                && IsNullabilityMarkerBinding(markerBinding);
+
+        private static bool TryGetMarkerBindingFromNullCheck(
+            Expression expression,
+            [NotNullWhen(true)] out ProjectionBindingExpression? markerBinding)
+        {
+            markerBinding = null;
+
+            if (expression is not BinaryExpression { NodeType: ExpressionType.Equal, Method: null } binaryExpression)
+            {
+                return false;
+            }
+
+            var leftIsNull = binaryExpression.Left.IsNullConstantExpression();
+            var rightIsNull = binaryExpression.Right.IsNullConstantExpression();
+            if (leftIsNull == rightIsNull)
+            {
+                return false;
+            }
+
+            markerBinding = leftIsNull
+                ? binaryExpression.Right as ProjectionBindingExpression
+                : binaryExpression.Left as ProjectionBindingExpression;
+            return markerBinding != null;
+        }
+
+        private bool IsNullabilityMarkerBinding(ProjectionBindingExpression markerBinding)
+        {
+            if (Equals(markerBinding.ProjectionMember?.Last, SelectExpression.NullabilityMarkerMemberInfo))
+            {
+                return true;
+            }
+
+            if (!ReferenceEquals(markerBinding.QueryExpression, selectExpression))
+            {
+                return false;
+            }
+
+            return selectExpression.GetProjection(markerBinding) is ColumnExpression { Name: "marker" };
         }
     }
 
