@@ -712,7 +712,7 @@ LEFT JOIN (
         INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [j0].[EntityOneId] = [e2].[Id]
     ) AS [s] ON [e1].[Id] = [s].[EntityBranchId]
 ) AS [s0] ON [e].[Key1] = [s0].[CompositeId1] AND [e].[Key2] = [s0].[CompositeId2] AND [e].[Key3] = [s0].[CompositeId3]
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[LeafId], [s0].[CompositeId1], [s0].[CompositeId2], [s0].[CompositeId3], [s0].[EntityBranchId]
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[LeafId], [s0].[CompositeId1], [s0].[CompositeId2], [s0].[CompositeId3], [s0].[EntityBranchId], [s0].[EntityOneId]
 """);
     }
 
@@ -735,7 +735,7 @@ LEFT JOIN (
         INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [j0].[RightId] = [e2].[Id]
     ) AS [s] ON [e0].[Id] = [s].[LeftId]
 ) AS [s0] ON [e].[Id] = [s0].[ThreeId]
-ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId]
+ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[LeftId], [s0].[RightId]
 """);
     }
 
@@ -775,7 +775,7 @@ LEFT JOIN (
         INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j0].[ThreeId] = [e1].[Id]
     ) AS [s] ON [e0].[Id] = [s].[OneId]
 ) AS [s0] ON [e].[Id] = [s0].[ThreeId]
-ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[OneId0]
+ORDER BY [e].[Id], [s0].[OneId], [s0].[ThreeId], [s0].[OneId0], [s0].[ThreeId0]
 """);
     }
 
@@ -810,7 +810,7 @@ LEFT JOIN (
     FROM [JoinTwoToThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[TwoId] = [e0].[Id]
 ) AS [s] ON [e].[Id] = [s].[ThreeId]
-ORDER BY [e].[Id], [s].[Id], [s].[ThreeId]
+ORDER BY [e].[Id], [s].[Id], [s].[ThreeId], [s].[TwoId]
 """);
     }
 
@@ -831,7 +831,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE 2 < [s].[row]
 ) AS [s0] ON [e].[Id] = [s0].[SelfSkipSharedLeftId]
-ORDER BY [e].[Id], [s0].[SelfSkipSharedLeftId], [s0].[Id]
+ORDER BY [e].[Id], [s0].[SelfSkipSharedLeftId], [s0].[Id], [s0].[SelfSkipSharedRightId]
 """);
     }
 
@@ -852,7 +852,7 @@ LEFT JOIN (
     ) AS [s]
     WHERE [s].[row] <= 2
 ) AS [s0] ON [e].[Key1] = [s0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [s0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [s0].[CompositeKeySkipSharedKey3]
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[CompositeKeySkipSharedKey1], [s0].[CompositeKeySkipSharedKey2], [s0].[CompositeKeySkipSharedKey3], [s0].[Id]
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [s0].[CompositeKeySkipSharedKey1], [s0].[CompositeKeySkipSharedKey2], [s0].[CompositeKeySkipSharedKey3], [s0].[Id], [s0].[TwoSkipSharedId]
 """);
     }
 
@@ -1002,7 +1002,7 @@ LEFT JOIN (
     ) AS [s0] ON [e0].[Id] = [s0].[TwoId]
     WHERE [e0].[Id] < 10
 ) AS [s1] ON [e].[Id] = [s1].[OneId]
-ORDER BY [e].[Id], [s1].[OneId], [s1].[TwoId], [s1].[TwoId0], [s1].[Id0]
+ORDER BY [e].[Id], [s1].[OneId], [s1].[TwoId], [s1].[TwoId0], [s1].[Id0], [s1].[ThreeId]
 """);
     }
 

@@ -88,7 +88,7 @@ LEFT JOIN (
     WHERE [e3].[Id] = @p
 ) AS [s1] ON [s].[Id] = [s1].[TwoSkipSharedId]
 WHERE [e].[Id] = @p
-ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0]
+ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s1].[OneSkipSharedId], [s1].[TwoSkipSharedId], [s1].[OneSkipSharedId0], [s1].[TwoSkipSharedId0]
 """);
     }
 

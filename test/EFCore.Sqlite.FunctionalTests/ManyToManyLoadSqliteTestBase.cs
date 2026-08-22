@@ -16,6 +16,19 @@ public abstract class ManyToManyLoadSqliteTestBase<TFixture>(TFixture fixture) :
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 
+        protected override async Task SeedAsync(ManyToManyContext context)
+        {
+            await base.SeedAsync(context);
+
+            await context.Database.ExecuteSqlRawAsync("DELETE FROM JoinOneToTwo WHERE OneId = 3");
+            foreach (var twoId in new[] { 10, 1, 19, 4, 16, 7, 13 })
+            {
+                await context.Database.ExecuteSqlRawAsync(
+                    "INSERT INTO JoinOneToTwo (OneId, TwoId, JoinOneToTwoExtraId) VALUES (3, {0}, NULL)",
+                    twoId);
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);

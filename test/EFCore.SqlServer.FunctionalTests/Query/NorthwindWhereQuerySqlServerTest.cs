@@ -2009,7 +2009,7 @@ WHERE [o].[OrderID] < 10300 AND (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 4
-ORDER BY [o].[OrderID], [o1].[OrderID]
+ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 
@@ -2045,7 +2045,7 @@ WHERE [o].[OrderID] < 10300 AND (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 4
-ORDER BY [o].[OrderID], [o1].[OrderID]
+ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 
@@ -2081,7 +2081,7 @@ WHERE [o].[OrderID] < 10300 AND (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 5
-ORDER BY [o].[OrderID], [o1].[OrderID]
+ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 
@@ -2117,7 +2117,7 @@ WHERE [o].[OrderID] < 10300 AND (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 3
-ORDER BY [o].[OrderID], [o1].[OrderID]
+ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 
@@ -2134,7 +2134,7 @@ WHERE [o].[OrderID] < 10300 AND (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 3
-ORDER BY [o].[OrderID], [o1].[OrderID]
+ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]
 """);
     }
 
