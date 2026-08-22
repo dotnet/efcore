@@ -72,9 +72,87 @@ public class RelationalKeyOverridesTest
         Assert.Null(RelationalKeyOverrides.Find(key, customers));
     }
 
+    [Fact]
+    public void Key_name_override_beats_the_global_rewritten_name_per_table()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToTable("Customers");
+            b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+        });
+
+        var key = (IMutableKey)modelBuilder.Model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+        var customers = StoreObjectIdentifier.Table("Customers");
+        var details = StoreObjectIdentifier.Table("CustomerDetails");
+
+        // The NamingConventions #396 collision shape: one global rewritten name for two tables.
+        key.SetName("pk_global_rewrite");
+        Assert.Equal("pk_global_rewrite", key.GetName(customers));
+        Assert.Equal("pk_global_rewrite", key.GetName(details));
+
+        RelationalKeyOverrides.GetOrCreate(key, customers, ConfigurationSource.Explicit)
+            .SetName("pk_customers", ConfigurationSource.Explicit);
+        RelationalKeyOverrides.GetOrCreate(key, details, ConfigurationSource.Explicit)
+            .SetName("pk_customer_details", ConfigurationSource.Explicit);
+
+        Assert.Equal("pk_customers", key.GetName(customers));
+        Assert.Equal("pk_customer_details", key.GetName(details));
+    }
+
+    [Fact]
+    public void Explicit_null_key_name_override_falls_back_to_the_default_name()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToTable("Customers");
+            b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+        });
+
+        var key = (IMutableKey)modelBuilder.Model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+        var details = StoreObjectIdentifier.Table("CustomerDetails");
+
+        key.SetName("pk_global_rewrite");
+        RelationalKeyOverrides.GetOrCreate(key, details, ConfigurationSource.Explicit)
+            .SetName(null, ConfigurationSource.Explicit);
+
+        Assert.Equal("PK_CustomerDetails", key.GetName(details));
+    }
+
+    [Fact]
+    public void Per_table_key_names_flow_into_the_relational_model()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToTable("Customers");
+            b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+        });
+
+        var key = (IMutableKey)modelBuilder.Model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+        RelationalKeyOverrides.GetOrCreate(key, StoreObjectIdentifier.Table("Customers"), ConfigurationSource.Explicit)
+            .SetName("pk_customers", ConfigurationSource.Explicit);
+        RelationalKeyOverrides.GetOrCreate(key, StoreObjectIdentifier.Table("CustomerDetails"), ConfigurationSource.Explicit)
+            .SetName("pk_customer_details", ConfigurationSource.Explicit);
+
+        var relationalModel = modelBuilder.FinalizeModel().GetRelationalModel();
+
+        Assert.Equal(
+            "pk_customers",
+            relationalModel.Tables.Single(t => t.Name == "Customers").UniqueConstraints.Single().Name);
+        Assert.Equal(
+            "pk_customer_details",
+            relationalModel.Tables.Single(t => t.Name == "CustomerDetails").UniqueConstraints.Single().Name);
+    }
+
     private class Customer
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+
+        // Split-table tests move Name to a secondary table; this stays on the main table so the
+        // main store object keeps at least one non-key property, as required by validation.
+        public string Address { get; set; } = null!;
     }
 }

@@ -77,7 +77,7 @@ public static class RelationalKeyExtensions
         if (fragment != null)
         {
             return defaultName != null
-                ? (string?)key[RelationalAnnotationNames.Name] ?? defaultName
+                ? ResolveName(key, storeObject, defaultName)
                 : null;
         }
 
@@ -86,12 +86,26 @@ public static class RelationalKeyExtensions
             if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
             {
                 return defaultName != null
-                    ? (string?)key[RelationalAnnotationNames.Name] ?? defaultName
+                    ? ResolveName(key, storeObject, defaultName)
                     : null;
             }
         }
 
         return null;
+
+        static string? ResolveName(IReadOnlyKey key, in StoreObjectIdentifier storeObject, string defaultName)
+        {
+            // Per-store-object override wins over the global name, which wins over the default. An
+            // override set explicitly to null suppresses the global name down to the default, which is
+            // what lets a naming convention opt one table out of a global rewrite.
+            var overrides = RelationalKeyOverrides.Find(key, storeObject);
+            if (overrides is { IsNameOverridden: true })
+            {
+                return overrides.Name ?? defaultName;
+            }
+
+            return (string?)key[RelationalAnnotationNames.Name] ?? defaultName;
+        }
     }
 
     /// <summary>
