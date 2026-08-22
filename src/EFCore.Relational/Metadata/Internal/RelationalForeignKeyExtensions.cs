@@ -177,6 +177,16 @@ public static class RelationalForeignKeyExtensions
         }
 
         var defaultName = foreignKey.GetDefaultName(storeObject, principalStoreObject, logger);
+
+        // Gated on defaultName: an override only applies where the constraint actually materializes,
+        // which keeps override storage from inventing constraints on unmapped store objects.
+        if (defaultName != null
+            && RelationalForeignKeyOverrides.Find(foreignKey, new StoreObjectPair(storeObject, principalStoreObject))
+                is { IsNameOverridden: true } overrides)
+        {
+            return overrides.Name ?? defaultName;
+        }
+
         var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
         return annotation != null && defaultName != null
             ? (string?)annotation.Value

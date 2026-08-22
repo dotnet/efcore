@@ -77,6 +77,123 @@ public class RelationalForeignKeyOverridesTest
         Assert.NotEqual(new StoreObjectPair(a, b).GetHashCode(), new StoreObjectPair(b, a).GetHashCode());
     }
 
+    [Fact]
+    public void Foreign_key_name_overrides_resolve_per_pair()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<User>(b =>
+        {
+            b.ToTable("Users");
+            b.SplitToTable("UserLockout", s => s.Property(u => u.PasswordHash));
+            b.SplitToTable("UserProfile", s => s.Property(u => u.DisplayName));
+        });
+
+        // See the comment in Foreign_key_overrides_are_keyed_by_the_dependent_principal_pair: the
+        // linking foreign key only exists after finalization, so it must be built manually here to
+        // stay mutable while we attach overrides to it.
+        //
+        // This test deliberately stops short of calling FinalizeModel(): ModelCleanupConvention
+        // (src/EFCore/Metadata/Conventions/ModelCleanupConvention.cs, a *Core* finalizing convention
+        // that dispatches before any Relational one, including EntitySplittingConvention) removes any
+        // foreign key with no navigations before EntitySplittingConvention gets a chance to reuse this
+        // one — this manually-built stand-in has none, matching the convention's own construction. The
+        // convention then creates a *fresh* linking foreign key from scratch, carrying none of the
+        // overrides attached here. Verified empirically: the resulting relational model still used the
+        // default-generated name. That is a foreign-key-identity-survival problem (matching Task B5's
+        // "Attach, merge, and survival through model rebuilding" scope), not a resolution-logic problem
+        // — see Foreign_key_name_override_reaches_the_relational_model below for proof that the
+        // resolution seam this task adds does correctly drive RelationalModel construction once the
+        // foreign key identity is stable across finalization.
+        var entityType = (IConventionEntityType)modelBuilder.Model.FindEntityType(typeof(User))!;
+        var pk = entityType.FindPrimaryKey()!;
+        var foreignKey = (IMutableForeignKey)entityType.Builder
+            .HasRelationship(entityType, pk.Properties, pk)!
+            .IsUnique(true)!
+            .Metadata;
+
+        var users = StoreObjectIdentifier.Table("Users");
+        var lockout = StoreObjectIdentifier.Table("UserLockout");
+        var profile = StoreObjectIdentifier.Table("UserProfile");
+
+        RelationalForeignKeyOverrides.GetOrCreate(
+            foreignKey, new StoreObjectPair(lockout, users), ConfigurationSource.Explicit)
+            .SetName("fk_user_lockout", ConfigurationSource.Explicit);
+        RelationalForeignKeyOverrides.GetOrCreate(
+            foreignKey, new StoreObjectPair(profile, users), ConfigurationSource.Explicit)
+            .SetName("fk_user_profile", ConfigurationSource.Explicit);
+
+        Assert.Equal("fk_user_lockout", foreignKey.GetConstraintName(lockout, users));
+        Assert.Equal("fk_user_profile", foreignKey.GetConstraintName(profile, users));
+    }
+
+    [Fact]
+    public void Foreign_key_name_override_reaches_the_relational_model()
+    {
+        // Proves Spike 2 finding 2 (RelationalModel builds ForeignKeyConstraint names through
+        // GetConstraintName) for a foreign key whose identity is stable across finalization — i.e.
+        // one that is not, like the entity-splitting linking FK, itself created as a side effect of
+        // model finalizing. See the comment on Foreign_key_name_overrides_resolve_per_pair for why
+        // that scenario needs separate, later machinery.
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Blog>();
+        modelBuilder.Entity<Post>(b => b.HasOne<Blog>().WithMany().HasForeignKey(p => p.BlogId));
+
+        var postType = modelBuilder.Model.FindEntityType(typeof(Post))!;
+        var foreignKey = (IMutableForeignKey)postType.GetForeignKeys().Single();
+        var blogTable = StoreObjectIdentifier.Table("Blog");
+        var postTable = StoreObjectIdentifier.Table("Post");
+
+        RelationalForeignKeyOverrides.GetOrCreate(
+            foreignKey, new StoreObjectPair(postTable, blogTable), ConfigurationSource.Explicit)
+            .SetName("fk_post_blog", ConfigurationSource.Explicit);
+
+        var relationalModel = modelBuilder.FinalizeModel().GetRelationalModel();
+        Assert.Equal(
+            "fk_post_blog",
+            relationalModel.Tables.Single(t => t.Name == "Post").ForeignKeyConstraints.Single().Name);
+    }
+
+    [Fact]
+    public void Foreign_key_override_does_not_apply_where_the_constraint_does_not_materialize()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<User>(b =>
+        {
+            b.ToTable("Users");
+            b.SplitToTable("UserLockout", s => s.Property(u => u.PasswordHash));
+        });
+
+        // See the comment in Foreign_key_name_overrides_resolve_per_pair: the linking foreign key
+        // only exists after finalization, so it must be built manually here to stay mutable.
+        var entityType = (IConventionEntityType)modelBuilder.Model.FindEntityType(typeof(User))!;
+        var pk = entityType.FindPrimaryKey()!;
+        var foreignKey = (IMutableForeignKey)entityType.Builder
+            .HasRelationship(entityType, pk.Properties, pk)!
+            .IsUnique(true)!
+            .Metadata;
+
+        var users = StoreObjectIdentifier.Table("Users");
+        var absent = StoreObjectIdentifier.Table("NotAMappedTable");
+
+        RelationalForeignKeyOverrides.GetOrCreate(
+            foreignKey, new StoreObjectPair(absent, users), ConfigurationSource.Explicit)
+            .SetName("fk_nowhere", ConfigurationSource.Explicit);
+
+        // The override is gated on the constraint actually materializing (defaultName != null).
+        Assert.Null(foreignKey.GetConstraintName(absent, users));
+    }
+
+    private class Blog
+    {
+        public int Id { get; set; }
+    }
+
+    private class Post
+    {
+        public int Id { get; set; }
+        public int BlogId { get; set; }
+    }
+
     private class User
     {
         public int Id { get; set; }
