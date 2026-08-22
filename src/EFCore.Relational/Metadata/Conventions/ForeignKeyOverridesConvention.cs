@@ -11,22 +11,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     <para>
 ///         Foreign keys are routinely detached and re-created while the model is being built (for example when a
-///         base type is assigned or a relationship is reconfigured). The internal <c>Attach</c> machinery creates
-///         the new foreign key and copies annotations from the detached one via <c>MergeAnnotationsFrom</c>, but
-///         that copy is a raw annotation-value copy: it does not know that a
+///         base type is assigned or a relationship is reconfigured). The internal <c>Attach</c> machinery
+///         (<c>InternalForeignKeyBuilder.Attach</c>, via <c>ReplaceForeignKey</c>) copies annotations from the
+///         detached foreign key onto the target via <c>MergeAnnotationsFrom</c> whenever the target differs from
+///         the source object — whether that target is a newly added foreign key or an existing, compatible
+///         relationship that got reused instead. That copy is a raw annotation-value copy: it does not know that a
 ///         <see cref="RelationalForeignKeyOverrides" /> value embeds a back-pointer to the foreign key it was
-///         created for. When the target foreign key already exists (a matching relationship is found and reused
-///         rather than a new one being added) no <see cref="IForeignKeyAddedConvention" /> is raised at all, so
-///         this convention also reacts to <see cref="IForeignKeyAnnotationChangedConvention" /> for the overrides
-///         annotation specifically, which fires whenever <c>MergeAnnotationsFrom</c> copies it onto either a new
-///         or a reused foreign key.
+///         created for, so the copied value's <see cref="IConventionRelationalForeignKeyOverrides.ForeignKey" />
+///         can end up pointing at the dead, detached foreign key. This convention reacts to
+///         <see cref="IForeignKeyAnnotationChangedConvention" /> for the overrides annotation specifically: that
+///         annotation write is what <c>MergeAnnotationsFrom</c> performs whenever a foreign key carrying
+///         configured overrides is attached, and it fires for both the newly-added and the reused-relationship
+///         case alike, which is what makes it a reliable single signal that a stale override may need to be
+///         re-pointed at the current foreign key.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
 ///         <see href="https://aka.ms/efcore-docs-relationships">Relationships</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public class ForeignKeyOverridesConvention : IForeignKeyAddedConvention, IForeignKeyAnnotationChangedConvention
+public class ForeignKeyOverridesConvention : IForeignKeyAnnotationChangedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="ForeignKeyOverridesConvention" />.
@@ -52,12 +56,6 @@ public class ForeignKeyOverridesConvention : IForeignKeyAddedConvention, IForeig
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
     /// <inheritdoc />
-    public virtual void ProcessForeignKeyAdded(
-        IConventionForeignKeyBuilder foreignKeyBuilder,
-        IConventionContext<IConventionForeignKeyBuilder> context)
-        => ReattachStaleOverrides(foreignKeyBuilder.Metadata);
-
-    /// <inheritdoc />
     public virtual void ProcessForeignKeyAnnotationChanged(
         IConventionForeignKeyBuilder relationshipBuilder,
         string name,
@@ -65,14 +63,13 @@ public class ForeignKeyOverridesConvention : IForeignKeyAddedConvention, IForeig
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == RelationalAnnotationNames.ForeignKeyOverrides)
+        if (name != RelationalAnnotationNames.ForeignKeyOverrides)
         {
-            ReattachStaleOverrides(relationshipBuilder.Metadata);
+            return;
         }
-    }
 
-    private static void ReattachStaleOverrides(IConventionForeignKey foreignKey)
-    {
+        var foreignKey = relationshipBuilder.Metadata;
+
         List<IConventionRelationalForeignKeyOverrides>? overridesToReattach = null;
         foreach (var overrides in RelationalForeignKeyOverrides.Get(foreignKey) ?? [])
         {

@@ -11,21 +11,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     <para>
 ///         Keys are routinely detached and re-created while the model is being built (for example when a base
-///         type is assigned). <see cref="InternalKeyBuilder.Attach" /> creates the new key and copies annotations
-///         from the detached key via <c>MergeAnnotationsFrom</c>, but that copy is a raw annotation-value copy: it
+///         type is assigned). <see cref="InternalKeyBuilder.Attach" /> unconditionally copies annotations from the
+///         detached key onto the target key via <c>MergeAnnotationsFrom</c> — whether that target is a newly added
+///         key or an existing declared key that got reused instead. That copy is a raw annotation-value copy: it
 ///         does not know that a <see cref="RelationalKeyOverrides" /> value embeds a back-pointer to the key it was
-///         created for. When the target key already exists (<c>InternalKeyBuilder.Attach</c> finds a matching
-///         declared key and reuses it rather than adding a new one) no <see cref="IKeyAddedConvention" /> is raised
-///         at all, so this convention also reacts to <see cref="IKeyAnnotationChangedConvention" /> for the
-///         overrides annotation specifically, which fires whenever <c>MergeAnnotationsFrom</c> copies it onto
-///         either a new or a reused key.
+///         created for, so the copied value's <see cref="IConventionRelationalKeyOverrides.Key" /> can end up
+///         pointing at the dead, detached key. This convention reacts to <see cref="IKeyAnnotationChangedConvention" />
+///         for the overrides annotation specifically: that annotation write is what <c>MergeAnnotationsFrom</c>
+///         performs whenever a key carrying configured overrides is attached, and it fires for both the
+///         newly-added-key and the reused-key case alike, which is what makes it a reliable single signal that a
+///         stale override may need to be re-pointed at the current key.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
 ///         <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public class KeyOverridesConvention : IKeyAddedConvention, IKeyAnnotationChangedConvention
+public class KeyOverridesConvention : IKeyAnnotationChangedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="KeyOverridesConvention" />.
@@ -51,12 +53,6 @@ public class KeyOverridesConvention : IKeyAddedConvention, IKeyAnnotationChanged
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
     /// <inheritdoc />
-    public virtual void ProcessKeyAdded(
-        IConventionKeyBuilder keyBuilder,
-        IConventionContext<IConventionKeyBuilder> context)
-        => ReattachStaleOverrides(keyBuilder.Metadata);
-
-    /// <inheritdoc />
     public virtual void ProcessKeyAnnotationChanged(
         IConventionKeyBuilder keyBuilder,
         string name,
@@ -64,14 +60,13 @@ public class KeyOverridesConvention : IKeyAddedConvention, IKeyAnnotationChanged
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == RelationalAnnotationNames.KeyOverrides)
+        if (name != RelationalAnnotationNames.KeyOverrides)
         {
-            ReattachStaleOverrides(keyBuilder.Metadata);
+            return;
         }
-    }
 
-    private static void ReattachStaleOverrides(IConventionKey key)
-    {
+        var key = keyBuilder.Metadata;
+
         List<IConventionRelationalKeyOverrides>? overridesToReattach = null;
         foreach (var overrides in RelationalKeyOverrides.Get(key) ?? [])
         {
