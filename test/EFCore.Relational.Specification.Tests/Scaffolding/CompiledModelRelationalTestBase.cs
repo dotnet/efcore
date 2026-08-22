@@ -1152,6 +1152,49 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             });
 
     [Fact]
+    public virtual Task Per_store_object_constraint_names_survive_the_compiled_model()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Customer>(b =>
+            {
+                b.ToTable("Customers");
+                b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+                b.HasKey(c => c.Id)
+                    .HasName("pk_customers", StoreObjectIdentifier.Table("Customers"))
+                    .HasName("pk_customer_details", StoreObjectIdentifier.Table("CustomerDetails"));
+            }),
+            model =>
+            {
+                var key = model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+                Assert.Equal("pk_customers", key.GetName(StoreObjectIdentifier.Table("Customers")));
+                Assert.Equal("pk_customer_details", key.GetName(StoreObjectIdentifier.Table("CustomerDetails")));
+            });
+
+    [Fact]
+    public virtual Task Per_store_object_foreign_key_constraint_names_survive_the_compiled_model()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Customer>(b => b.ToTable("Customers"));
+                modelBuilder.Entity<Order>(b =>
+                {
+                    b.ToTable("Orders");
+                    b.HasOne<Customer>().WithMany().HasForeignKey(o => o.CustomerId)
+                        .HasConstraintName(
+                            "fk_orders_customers",
+                            StoreObjectIdentifier.Table("Orders"),
+                            StoreObjectIdentifier.Table("Customers"));
+                });
+            },
+            model =>
+            {
+                var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys().Single();
+                Assert.Equal(
+                    "fk_orders_customers",
+                    foreignKey.GetConstraintName(
+                        StoreObjectIdentifier.Table("Orders"), StoreObjectIdentifier.Table("Customers")));
+            });
+
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
@@ -1558,6 +1601,24 @@ public partial class DbContextModel
     public class Author
     {
         public string Name { get; set; } = "";
+    }
+
+    public class Customer
+    {
+        public int Id { get; set; }
+
+        // Split-table tests move Name to a secondary table; this stays on the main table so the
+        // main store object keeps at least one non-key property, as required by validation.
+        public string Email { get; set; } = "";
+
+        public string Name { get; set; } = "";
+    }
+
+    public class Order
+    {
+        public int Id { get; set; }
+
+        public int CustomerId { get; set; }
     }
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")

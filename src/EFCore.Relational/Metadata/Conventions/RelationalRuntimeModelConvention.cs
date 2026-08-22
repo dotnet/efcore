@@ -505,6 +505,45 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         {
             annotations.Remove(RelationalAnnotationNames.UniqueConstraintMappings);
         }
+        else
+        {
+            if (annotations.TryGetValue(RelationalAnnotationNames.KeyOverrides, out var keyOverrides)
+                && keyOverrides != null)
+            {
+                var overridesByStoreObject = (IReadOnlyStoreObjectDictionary<IRelationalKeyOverrides>)keyOverrides;
+                var runtimeOverridesByStoreObject = new StoreObjectDictionary<RuntimeRelationalKeyOverrides>();
+                foreach (var overrides in overridesByStoreObject.GetValues())
+                {
+                    var runtimeOverrides = Create(overrides, runtimeKey);
+                    runtimeOverridesByStoreObject.Add(overrides.StoreObject, runtimeOverrides);
+
+                    CreateAnnotations(
+                        overrides, runtimeOverrides,
+                        static (convention, annotations, source, target, runtime)
+                            => convention.ProcessKeyOverridesAnnotations(annotations, source, target, runtime));
+                }
+
+                annotations[RelationalAnnotationNames.KeyOverrides] = runtimeOverridesByStoreObject;
+            }
+        }
+    }
+
+    private static RuntimeRelationalKeyOverrides Create(IRelationalKeyOverrides overrides, RuntimeKey runtimeKey)
+        => new(runtimeKey, overrides.StoreObject, overrides.IsNameOverridden, overrides.Name);
+
+    /// <summary>
+    ///     Updates the relational key overrides annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="keyOverrides">The source relational key overrides.</param>
+    /// <param name="runtimeKeyOverrides">The target relational key overrides that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessKeyOverridesAnnotations(
+        Dictionary<string, object?> annotations,
+        IRelationalKeyOverrides keyOverrides,
+        RuntimeRelationalKeyOverrides runtimeKeyOverrides,
+        bool runtime)
+    {
     }
 
     /// <summary>
@@ -550,7 +589,46 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         else
         {
             annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.ForeignKeyOverrides, out var foreignKeyOverrides)
+                && foreignKeyOverrides != null)
+            {
+                var overridesByStoreObjects = (IReadOnlyStoreObjectPairDictionary<IRelationalForeignKeyOverrides>)foreignKeyOverrides;
+                var runtimeOverridesByStoreObjects = new StoreObjectPairDictionary<RuntimeRelationalForeignKeyOverrides>();
+                foreach (var overrides in overridesByStoreObjects.GetValues())
+                {
+                    var runtimeOverrides = Create(overrides, runtimeForeignKey);
+                    runtimeOverridesByStoreObjects.Add(overrides.StoreObjects, runtimeOverrides);
+
+                    CreateAnnotations(
+                        overrides, runtimeOverrides,
+                        static (convention, annotations, source, target, runtime)
+                            => convention.ProcessForeignKeyOverridesAnnotations(annotations, source, target, runtime));
+                }
+
+                annotations[RelationalAnnotationNames.ForeignKeyOverrides] = runtimeOverridesByStoreObjects;
+            }
         }
+    }
+
+    private static RuntimeRelationalForeignKeyOverrides Create(
+        IRelationalForeignKeyOverrides overrides,
+        RuntimeForeignKey runtimeForeignKey)
+        => new(runtimeForeignKey, overrides.StoreObjects, overrides.IsNameOverridden, overrides.Name);
+
+    /// <summary>
+    ///     Updates the relational foreign key overrides annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="foreignKeyOverrides">The source relational foreign key overrides.</param>
+    /// <param name="runtimeForeignKeyOverrides">The target relational foreign key overrides that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessForeignKeyOverridesAnnotations(
+        Dictionary<string, object?> annotations,
+        IRelationalForeignKeyOverrides foreignKeyOverrides,
+        RuntimeRelationalForeignKeyOverrides runtimeForeignKeyOverrides,
+        bool runtime)
+    {
     }
 
     private RuntimeStoredProcedure Create(IStoredProcedure storedProcedure, RuntimeEntityType runtimeEntityType)

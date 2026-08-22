@@ -2444,9 +2444,73 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             parameters.Annotations.Remove(RelationalAnnotationNames.UniqueConstraintMappings);
         }
+        else
+        {
+            var annotations = parameters.Annotations;
+            if (annotations.TryGetAndRemove(
+                    RelationalAnnotationNames.KeyOverrides,
+                    out IReadOnlyStoreObjectDictionary<IRelationalKeyOverrides>? keyOverrides))
+            {
+                AddNamespace(typeof(StoreObjectDictionary<RuntimeRelationalKeyOverrides>), parameters.Namespaces);
+                AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
+                var overridesVariable = Dependencies.CSharpHelper.Identifier(
+                    "overrides", keyOverrides, parameters.ScopeObjects, capitalize: false);
+                parameters.MainBuilder.AppendLine()
+                    .Append("var ").Append(overridesVariable)
+                    .AppendLine(" = new StoreObjectDictionary<RuntimeRelationalKeyOverrides>();");
+
+                foreach (var overrides in keyOverrides.GetValues())
+                {
+                    Create(overrides, overridesVariable, parameters);
+                }
+
+                GenerateSimpleAnnotation(RelationalAnnotationNames.KeyOverrides, overridesVariable, parameters);
+                parameters.MainBuilder.AppendLine();
+            }
+        }
 
         base.Generate(key, parameters);
     }
+
+    private void Create(
+        IRelationalKeyOverrides overrides,
+        string overridesVariable,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var storeObject = overrides.StoreObject;
+        var code = Dependencies.CSharpHelper;
+        var overrideVariable =
+            code.Identifier(parameters.TargetName + Capitalize(storeObject.Name), overrides, parameters.ScopeObjects, capitalize: false);
+        var mainBuilder = parameters.MainBuilder;
+        mainBuilder
+            .Append("var ").Append(overrideVariable).AppendLine(" = new RuntimeRelationalKeyOverrides(").IncrementIndent()
+            .Append(parameters.TargetName).AppendLine(",");
+        AppendLiteral(storeObject, mainBuilder, code);
+
+        mainBuilder.AppendLine(",")
+            .Append(code.Literal(overrides.IsNameOverridden)).AppendLine(",")
+            .Append(code.Literal(overrides.Name)).AppendLine(");").DecrementIndent();
+
+        CreateAnnotations(
+            overrides,
+            Generate,
+            parameters with { TargetName = overrideVariable });
+
+        mainBuilder.Append(overridesVariable).Append(".Add(");
+        AppendLiteral(storeObject, mainBuilder, code);
+
+        mainBuilder
+            .Append(", ")
+            .Append(overrideVariable).AppendLine(");");
+    }
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
+    /// <param name="overrides">The key overrides to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    public virtual void Generate(IRelationalKeyOverrides overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => GenerateSimpleAnnotations(parameters);
 
     /// <inheritdoc />
     public override void Generate(IForeignKey foreignKey, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
@@ -2457,11 +2521,78 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
         else
         {
-            parameters.Annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+            var annotations = parameters.Annotations;
+            annotations.Remove(RelationalAnnotationNames.IsForeignKeyExcludedFromMigrations);
+
+            if (annotations.TryGetAndRemove(
+                    RelationalAnnotationNames.ForeignKeyOverrides,
+                    out IReadOnlyStoreObjectPairDictionary<IRelationalForeignKeyOverrides>? foreignKeyOverrides))
+            {
+                AddNamespace(typeof(StoreObjectPairDictionary<RuntimeRelationalForeignKeyOverrides>), parameters.Namespaces);
+                AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
+                AddNamespace(typeof(StoreObjectPair), parameters.Namespaces);
+                var overridesVariable = Dependencies.CSharpHelper.Identifier(
+                    "overrides", foreignKeyOverrides, parameters.ScopeObjects, capitalize: false);
+                parameters.MainBuilder.AppendLine()
+                    .Append("var ").Append(overridesVariable)
+                    .AppendLine(" = new StoreObjectPairDictionary<RuntimeRelationalForeignKeyOverrides>();");
+
+                foreach (var overrides in foreignKeyOverrides.GetValues())
+                {
+                    Create(overrides, overridesVariable, parameters);
+                }
+
+                GenerateSimpleAnnotation(RelationalAnnotationNames.ForeignKeyOverrides, overridesVariable, parameters);
+                parameters.MainBuilder.AppendLine();
+            }
         }
 
         base.Generate(foreignKey, parameters);
     }
+
+    private void Create(
+        IRelationalForeignKeyOverrides overrides,
+        string overridesVariable,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var storeObjects = overrides.StoreObjects;
+        var code = Dependencies.CSharpHelper;
+        var overrideVariable =
+            code.Identifier(
+                parameters.TargetName + Capitalize(storeObjects.DependentStoreObject.Name),
+                overrides,
+                parameters.ScopeObjects,
+                capitalize: false);
+        var mainBuilder = parameters.MainBuilder;
+        mainBuilder
+            .Append("var ").Append(overrideVariable).AppendLine(" = new RuntimeRelationalForeignKeyOverrides(").IncrementIndent()
+            .Append(parameters.TargetName).AppendLine(",");
+        AppendStoreObjectPairLiteral(storeObjects, mainBuilder, code);
+
+        mainBuilder.AppendLine(",")
+            .Append(code.Literal(overrides.IsNameOverridden)).AppendLine(",")
+            .Append(code.Literal(overrides.Name)).AppendLine(");").DecrementIndent();
+
+        CreateAnnotations(
+            overrides,
+            Generate,
+            parameters with { TargetName = overrideVariable });
+
+        mainBuilder.Append(overridesVariable).Append(".Add(");
+        AppendStoreObjectPairLiteral(storeObjects, mainBuilder, code);
+
+        mainBuilder
+            .Append(", ")
+            .Append(overrideVariable).AppendLine(");");
+    }
+
+    /// <summary>
+    ///     Generates code to create the given annotations.
+    /// </summary>
+    /// <param name="overrides">The foreign key overrides to which the annotations are applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    public virtual void Generate(IRelationalForeignKeyOverrides overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => GenerateSimpleAnnotations(parameters);
 
     /// <inheritdoc />
     public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
@@ -2692,6 +2823,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
 
         return string.Join(".", segments);
+    }
+
+    private static void AppendStoreObjectPairLiteral(StoreObjectPair storeObjects, IndentedStringBuilder builder, ICSharpHelper code)
+    {
+        builder.Append("new StoreObjectPair(");
+        AppendLiteral(storeObjects.DependentStoreObject, builder, code);
+        builder.Append(", ");
+        AppendLiteral(storeObjects.PrincipalStoreObject, builder, code);
+        builder.Append(")");
     }
 
     private static void AppendLiteral(StoreObjectIdentifier storeObject, IndentedStringBuilder builder, ICSharpHelper code)
