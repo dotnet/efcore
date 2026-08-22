@@ -323,9 +323,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         [Fact]
         public virtual void Can_configure_per_table_key_and_foreign_key_constraint_names()
         {
-            var modelBuilder = CreateModelBuilder();
+            var testModelBuilder = CreateModelBuilder();
+            var modelBuilder = testModelBuilder.GetInfrastructure();
 
-            modelBuilder.Entity<Customer>(b =>
+            testModelBuilder.Entity<Customer>(b =>
             {
                 b.ToTable("Customers");
                 b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
@@ -334,11 +335,80 @@ public class RelationalModelBuilderTest : ModelBuilderTest
                     .HasName("pk_customer_details", StoreObjectIdentifier.Table("CustomerDetails"));
             });
 
-            var model = modelBuilder.FinalizeModel();
+            var orderTable = StoreObjectIdentifier.Table("Order");
+            var customersTable = StoreObjectIdentifier.Table("Customers");
+
+            // The FK side is configured through the real ModelBuilder rather than the TestModelBuilder
+            // wrapper: TestReferenceCollectionBuilder's Generic/NonGeneric implementations do not
+            // implement IInfrastructure<ReferenceCollectionBuilder<,>> or IInfrastructure<ReferenceCollectionBuilder>,
+            // so a wrapper-level HasConstraintName extension would be unreachable dead code (the
+            // pre-existing single-string HasConstraintName wrapper extension has the same gap). Bridging
+            // out to the real ModelBuilder via GetInfrastructure() - the same pattern this file's
+            // HasDefaultSchema/UseCollation extensions already use - exercises the actual public
+            // ReferenceCollectionBuilder.HasConstraintName builder method directly.
+            modelBuilder.Entity<Order>(b =>
+                b.HasOne(o => o.Customer).WithMany(c => c.Orders)
+                    .HasForeignKey(o => o.CustomerId)
+                    .HasConstraintName("fk_orders_customers", orderTable, customersTable));
+
+            testModelBuilder.Ignore<Product>();
+            testModelBuilder.Ignore<OrderDetails>();
+            testModelBuilder.Ignore<OrderCombination>();
+            testModelBuilder.Ignore<CustomerDetails>();
+            testModelBuilder.Ignore<BackOrder>();
+
+            var model = testModelBuilder.FinalizeModel();
             var key = model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
 
-            Assert.Equal("pk_customers", key.GetName(StoreObjectIdentifier.Table("Customers")));
+            Assert.Equal("pk_customers", key.GetName(customersTable));
             Assert.Equal("pk_customer_details", key.GetName(StoreObjectIdentifier.Table("CustomerDetails")));
+
+            var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys().Single();
+            Assert.Equal("fk_orders_customers", foreignKey.GetConstraintName(orderTable, customersTable));
+        }
+
+        [Fact]
+        public virtual void Convention_cannot_override_explicit_per_table_key_and_foreign_key_constraint_names()
+        {
+            var testModelBuilder = CreateModelBuilder();
+            var modelBuilder = testModelBuilder.GetInfrastructure();
+
+            testModelBuilder.Entity<Customer>(b =>
+            {
+                b.ToTable("Customers");
+                b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+            });
+
+            var customersTable = StoreObjectIdentifier.Table("Customers");
+            var keyBuilder = testModelBuilder.Entity<Customer>().HasKey(c => c.Id)
+                .HasName("pk_customers", customersTable);
+
+            var conventionKeyBuilder = ((IConventionKey)keyBuilder.Metadata).Builder;
+
+            Assert.False(conventionKeyBuilder.CanSetName("pk_convention", customersTable));
+            Assert.Null(conventionKeyBuilder.HasName("pk_convention", customersTable));
+            Assert.Equal("pk_customers", keyBuilder.Metadata.GetName(customersTable));
+
+            // See the comment in Can_configure_per_table_key_and_foreign_key_constraint_names for why the
+            // FK side is configured through the real ModelBuilder rather than the TestModelBuilder wrapper.
+            var orderTable = StoreObjectIdentifier.Table("Order");
+            var referenceCollectionBuilder = modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer).WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId)
+                .HasConstraintName("fk_orders_customers", orderTable, customersTable);
+
+            testModelBuilder.Ignore<Product>();
+            testModelBuilder.Ignore<OrderDetails>();
+            testModelBuilder.Ignore<OrderCombination>();
+            testModelBuilder.Ignore<CustomerDetails>();
+            testModelBuilder.Ignore<BackOrder>();
+
+            var foreignKey = referenceCollectionBuilder.Metadata;
+            var conventionForeignKeyBuilder = ((IConventionForeignKey)foreignKey).Builder;
+
+            Assert.False(conventionForeignKeyBuilder.CanSetConstraintName("fk_convention", orderTable, customersTable));
+            Assert.Null(conventionForeignKeyBuilder.HasConstraintName("fk_convention", orderTable, customersTable));
+            Assert.Equal("fk_orders_customers", foreignKey.GetConstraintName(orderTable, customersTable));
         }
     }
 

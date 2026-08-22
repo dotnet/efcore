@@ -241,13 +241,11 @@ public static class RelationalForeignKeyExtensions
     /// <param name="foreignKey">The foreign key.</param>
     /// <param name="storeObject">The identifier of the dependent store object.</param>
     /// <param name="principalStoreObject">The identifier of the principal store object.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The removed override, or <see langword="null" /> if none was configured.</returns>
     public static IConventionRelationalForeignKeyOverrides? RemoveOverrides(
         this IConventionForeignKey foreignKey,
         in StoreObjectIdentifier storeObject,
-        in StoreObjectIdentifier principalStoreObject,
-        bool fromDataAnnotation = false)
+        in StoreObjectIdentifier principalStoreObject)
         => RelationalForeignKeyOverrides.Remove((IMutableForeignKey)foreignKey, new StoreObjectPair(storeObject, principalStoreObject));
 
     /// <summary>

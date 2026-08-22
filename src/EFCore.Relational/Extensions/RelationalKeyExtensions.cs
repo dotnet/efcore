@@ -193,12 +193,10 @@ public static class RelationalKeyExtensions
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="storeObject">The identifier of the containing store object.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The removed override, or <see langword="null" /> if none was configured.</returns>
     public static IConventionRelationalKeyOverrides? RemoveOverrides(
         this IConventionKey key,
-        in StoreObjectIdentifier storeObject,
-        bool fromDataAnnotation = false)
+        in StoreObjectIdentifier storeObject)
         => RelationalKeyOverrides.Remove((IMutableKey)key, storeObject);
 
     /// <summary>
