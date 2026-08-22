@@ -847,8 +847,39 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
+        GenerateKeyOverrides(keyBuilderName, key, stringBuilder);
+
         GenerateAnnotations(
             keyBuilderName, stringBuilder, chainedCall, typeQualifiedCalls, inChainedCall: true);
+    }
+
+    /// <summary>
+    ///     Generates code for per-store-object key constraint name overrides.
+    /// </summary>
+    /// <param name="keyBuilderName">The name of the builder variable.</param>
+    /// <param name="key">The key.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateKeyOverrides(
+        string keyBuilderName,
+        IKey key,
+        IndentedStringBuilder stringBuilder)
+    {
+        foreach (var overrides in key.GetOverrides())
+        {
+            if (!overrides.IsNameOverridden)
+            {
+                continue;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append(keyBuilderName)
+                .Append(".HasName(")
+                .Append(Code.Literal(overrides.Name))
+                .Append(", ");
+            AppendStoreObjectIdentifierLiteral(overrides.StoreObject, stringBuilder);
+            stringBuilder.Append(")");
+        }
     }
 
     /// <summary>
@@ -1814,9 +1845,39 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(".IsConstrained(false)");
             }
+
+            GenerateForeignKeyOverrides(foreignKey, stringBuilder);
         }
 
         GenerateForeignKeyAnnotations(foreignKeyBuilderName, foreignKey, stringBuilder);
+    }
+
+    /// <summary>
+    ///     Generates code for per-store-object foreign key constraint name overrides.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateForeignKeyOverrides(
+        IForeignKey foreignKey,
+        IndentedStringBuilder stringBuilder)
+    {
+        foreach (var overrides in foreignKey.GetOverrides())
+        {
+            if (!overrides.IsNameOverridden)
+            {
+                continue;
+            }
+
+            stringBuilder
+                .AppendLine()
+                .Append(".HasConstraintName(")
+                .Append(Code.Literal(overrides.Name))
+                .Append(", ");
+            AppendStoreObjectIdentifierLiteral(overrides.StoreObjects.DependentStoreObject, stringBuilder);
+            stringBuilder.Append(", ");
+            AppendStoreObjectIdentifierLiteral(overrides.StoreObjects.PrincipalStoreObject, stringBuilder);
+            stringBuilder.Append(")");
+        }
     }
 
     /// <summary>
@@ -2236,5 +2297,52 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             + ownerNavigation
             + "#"
             + entityTypeName;
+    }
+
+    /// <summary>
+    ///     Appends a literal expression that constructs the given <see cref="StoreObjectIdentifier" />. The type is
+    ///     always fully qualified since the generated snapshot's usings are not tracked by this generator.
+    /// </summary>
+    private void AppendStoreObjectIdentifierLiteral(StoreObjectIdentifier storeObject, IndentedStringBuilder stringBuilder)
+    {
+        stringBuilder.Append("Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.");
+        switch (storeObject.StoreObjectType)
+        {
+            case StoreObjectType.Table:
+                stringBuilder
+                    .Append("Table(").Append(Code.Literal(storeObject.Name))
+                    .Append(", ").Append(Code.Literal(storeObject.Schema)).Append(")");
+                break;
+            case StoreObjectType.View:
+                stringBuilder
+                    .Append("View(").Append(Code.Literal(storeObject.Name))
+                    .Append(", ").Append(Code.Literal(storeObject.Schema)).Append(")");
+                break;
+            case StoreObjectType.SqlQuery:
+                stringBuilder
+                    .Append("SqlQuery(").Append(Code.Literal(storeObject.Name)).Append(")");
+                break;
+            case StoreObjectType.Function:
+                stringBuilder
+                    .Append("DbFunction(").Append(Code.Literal(storeObject.Name)).Append(")");
+                break;
+            case StoreObjectType.InsertStoredProcedure:
+                stringBuilder
+                    .Append("InsertStoredProcedure(").Append(Code.Literal(storeObject.Name))
+                    .Append(", ").Append(Code.Literal(storeObject.Schema)).Append(")");
+                break;
+            case StoreObjectType.DeleteStoredProcedure:
+                stringBuilder
+                    .Append("DeleteStoredProcedure(").Append(Code.Literal(storeObject.Name))
+                    .Append(", ").Append(Code.Literal(storeObject.Schema)).Append(")");
+                break;
+            case StoreObjectType.UpdateStoredProcedure:
+                stringBuilder
+                    .Append("UpdateStoredProcedure(").Append(Code.Literal(storeObject.Name))
+                    .Append(", ").Append(Code.Literal(storeObject.Schema)).Append(")");
+                break;
+            default:
+                throw new NotSupportedException(storeObject.StoreObjectType.ToString());
+        }
     }
 }
