@@ -81,7 +81,28 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             result = Visit(expression);
 
             _selectExpression.ReplaceProjection(_clientProjections);
+            var clientProjections = _clientProjections.ToList();
             _clientProjections.Clear();
+
+            // Lowering single-result subqueries can turn an otherwise untranslatable projection into a fully server-side one.
+            // Retry the member-based projection after the lowering so operators such as set operations can still compose over it.
+            _indexBasedBinding = false;
+            _projectionMembers.Clear();
+            _projectionMembers.Push(new ProjectionMember());
+
+            var indexBasedResult = result;
+            result = Visit(indexBasedResult);
+            if (result == QueryCompilationContext.NotTranslatedExpression)
+            {
+                result = indexBasedResult;
+                _selectExpression.ReplaceProjection(clientProjections);
+            }
+            else
+            {
+                _selectExpression.ReplaceProjection(_projectionMapping);
+            }
+
+            _projectionMapping.Clear();
         }
         else
         {
@@ -292,7 +313,40 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
         var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
 
+        if (_indexBasedBinding
+            && binaryExpression is { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Method: null }
+            && ((IsNull(left) && TryGetNullCheck(right, out var nullCheck))
+                || (IsNull(right) && TryGetNullCheck(left, out nullCheck))))
+        {
+            return binaryExpression.NodeType == ExpressionType.Equal
+                ? nullCheck
+                : Expression.Not(nullCheck);
+        }
+
         return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
+
+        static bool IsNull(Expression expression)
+            => expression is ConstantExpression { Value: null }
+                or DefaultExpression { Type.IsValueType: false };
+
+        static bool TryGetNullCheck(Expression expression, [NotNullWhen(true)] out Expression? nullCheck)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+            if (expression is ConditionalExpression
+                {
+                    Test: var test,
+                    IfTrue: var ifTrue,
+                    IfFalse: NewExpression or MemberInitExpression
+                }
+                && IsNull(ifTrue))
+            {
+                nullCheck = test;
+                return true;
+            }
+
+            nullCheck = null;
+            return false;
+        }
     }
 
     /// <summary>
