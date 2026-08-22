@@ -16,6 +16,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 {
     private static readonly MethodInfo GetParameterValueMethodInfo
         = typeof(RelationalProjectionBindingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
+    private static readonly bool UseOldBehavior38838
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue38838", out var enabled) && enabled;
 
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -81,27 +83,30 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             result = Visit(expression);
 
             _selectExpression.ReplaceProjection(_clientProjections);
-            var clientProjections = _clientProjections.ToList();
+            if (!UseOldBehavior38838)
+            {
+                var clientProjections = _clientProjections.ToList();
+
+                // Lowering single-result subqueries can turn an otherwise untranslatable projection into a fully server-side one.
+                // Retry the member-based projection after the lowering so operators such as set operations can still compose over it.
+                _indexBasedBinding = false;
+                _projectionMembers.Clear();
+                _projectionMembers.Push(new ProjectionMember());
+
+                var indexBasedResult = result;
+                result = Visit(indexBasedResult);
+                if (result == QueryCompilationContext.NotTranslatedExpression)
+                {
+                    result = indexBasedResult;
+                    _selectExpression.ReplaceProjection(clientProjections);
+                }
+                else
+                {
+                    _selectExpression.ReplaceProjection(_projectionMapping);
+                }
+            }
+
             _clientProjections.Clear();
-
-            // Lowering single-result subqueries can turn an otherwise untranslatable projection into a fully server-side one.
-            // Retry the member-based projection after the lowering so operators such as set operations can still compose over it.
-            _indexBasedBinding = false;
-            _projectionMembers.Clear();
-            _projectionMembers.Push(new ProjectionMember());
-
-            var indexBasedResult = result;
-            result = Visit(indexBasedResult);
-            if (result == QueryCompilationContext.NotTranslatedExpression)
-            {
-                result = indexBasedResult;
-                _selectExpression.ReplaceProjection(clientProjections);
-            }
-            else
-            {
-                _selectExpression.ReplaceProjection(_projectionMapping);
-            }
-
             _projectionMapping.Clear();
         }
         else
@@ -313,7 +318,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
         var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
 
-        if (_indexBasedBinding
+        if (!UseOldBehavior38838
+            && _indexBasedBinding
             && binaryExpression is { NodeType: ExpressionType.Equal or ExpressionType.NotEqual, Method: null }
             && ((IsNull(left) && TryGetNullCheck(right, out var nullCheck))
                 || (IsNull(right) && TryGetNullCheck(left, out nullCheck))))
