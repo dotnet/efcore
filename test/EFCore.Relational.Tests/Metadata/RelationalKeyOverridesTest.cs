@@ -146,6 +146,53 @@ public class RelationalKeyOverridesTest
             relationalModel.Tables.Single(t => t.Name == "CustomerDetails").UniqueConstraints.Single().Name);
     }
 
+    [Fact]
+    public void Key_overrides_survive_key_re_creation_on_base_type_assignment()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        // Add and fully process the base type first, so its properties (in particular "Id") are
+        // discovered before anything tries to re-point a foreign/primary key at it. Adding
+        // SpecialCustomer would otherwise auto-link it to Customer via BaseTypeDiscoveryConvention
+        // as soon as both types co-exist, racing property discovery on whichever type is added
+        // second and silently dropping the reattachment this test means to exercise.
+        modelBuilder.Entity<Customer>();
+
+        // Add SpecialCustomer (auto-linked to Customer immediately by BaseTypeDiscoveryConvention,
+        // before it has any properties of its own), then explicitly detach it so it becomes a
+        // standalone root again and gets its own freshly-discovered primary key to configure an
+        // override on.
+        modelBuilder.Entity<SpecialCustomer>();
+        modelBuilder.Entity<SpecialCustomer>().HasBaseType((Type?)null);
+        modelBuilder.Entity<SpecialCustomer>(b =>
+        {
+            b.ToTable("Customers");
+            b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+        });
+
+        var derived = modelBuilder.Model.FindEntityType(typeof(SpecialCustomer))!;
+        var key = (IMutableKey)derived.FindPrimaryKey()!;
+        var customers = StoreObjectIdentifier.Table("Customers");
+
+        RelationalKeyOverrides.GetOrCreate(key, customers, ConfigurationSource.Explicit)
+            .SetName("pk_customers", ConfigurationSource.Explicit);
+
+        // Assigning a base type detaches the derived key and re-creates it on the root type.
+        modelBuilder.Entity<SpecialCustomer>().HasBaseType<Customer>();
+
+        var newKey = modelBuilder.Model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+
+        // The guard that makes this test meaningful: without it the assertions below could pass
+        // simply because nothing was ever detached.
+        Assert.NotSame(key, newKey);
+        Assert.False(((IConventionKey)key).IsInModel);
+
+        Assert.Equal("pk_customers", newKey.GetName(customers));
+        Assert.Same(
+            newKey,
+            ((IConventionRelationalKeyOverrides)RelationalKeyOverrides.Find(newKey, customers)!).Key);
+    }
+
     private class Customer
     {
         public int Id { get; set; }
@@ -154,5 +201,10 @@ public class RelationalKeyOverridesTest
         // Split-table tests move Name to a secondary table; this stays on the main table so the
         // main store object keeps at least one non-key property, as required by validation.
         public string Address { get; set; } = null!;
+    }
+
+    private class SpecialCustomer : Customer
+    {
+        public string Tier { get; set; } = null!;
     }
 }

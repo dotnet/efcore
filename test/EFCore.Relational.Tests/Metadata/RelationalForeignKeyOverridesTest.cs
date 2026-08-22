@@ -183,6 +183,42 @@ public class RelationalForeignKeyOverridesTest
         Assert.Null(foreignKey.GetConstraintName(absent, users));
     }
 
+    [Fact]
+    public void Foreign_key_overrides_survive_relationship_re_creation()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<SpecialAuthor>(b => b.ToTable("Author"));
+        modelBuilder.Entity<Article>(b => b.HasOne<SpecialAuthor>().WithMany().HasForeignKey(p => p.AuthorId));
+
+        var articleType = modelBuilder.Model.FindEntityType(typeof(Article))!;
+        var foreignKey = (IMutableForeignKey)articleType.GetForeignKeys().Single();
+        var authorTable = StoreObjectIdentifier.Table("Author");
+        var articleTable = StoreObjectIdentifier.Table("Article");
+        var pair = new StoreObjectPair(articleTable, authorTable);
+
+        RelationalForeignKeyOverrides.GetOrCreate(foreignKey, pair, ConfigurationSource.Explicit)
+            .SetName("fk_article_author", ConfigurationSource.Explicit);
+
+        // Assigning a base type unconditionally detaches every foreign key that references a key
+        // declared on the re-parented type and re-creates it against the merged root type:
+        // InternalEntityTypeBuilder.HasBaseType (InternalEntityTypeBuilder.cs:1722,
+        // RelationshipSnapshot.Attach -> InternalForeignKeyBuilder.Attach).
+        modelBuilder.Entity<Author>();
+        modelBuilder.Entity<SpecialAuthor>().HasBaseType<Author>();
+
+        var newForeignKey = modelBuilder.Model.FindEntityType(typeof(Article))!.GetForeignKeys().Single();
+
+        // The guard that makes this test meaningful: without it the assertions below could pass
+        // simply because nothing was ever detached.
+        Assert.NotSame(foreignKey, newForeignKey);
+        Assert.False(((IConventionForeignKey)foreignKey).IsInModel);
+
+        Assert.Equal("fk_article_author", newForeignKey.GetConstraintName(articleTable, authorTable));
+        Assert.Same(
+            newForeignKey,
+            ((IConventionRelationalForeignKeyOverrides)RelationalForeignKeyOverrides.Find(newForeignKey, pair)!).ForeignKey);
+    }
+
     private class Blog
     {
         public int Id { get; set; }
@@ -192,6 +228,22 @@ public class RelationalForeignKeyOverridesTest
     {
         public int Id { get; set; }
         public int BlogId { get; set; }
+    }
+
+    private class Author
+    {
+        public int Id { get; set; }
+    }
+
+    private class SpecialAuthor : Author
+    {
+        public string Tier { get; set; } = null!;
+    }
+
+    private class Article
+    {
+        public int Id { get; set; }
+        public int AuthorId { get; set; }
     }
 
     private class User
