@@ -94,6 +94,12 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
                         typeof(IConventionRelationalKeyOverrides),
                         null!,
                         typeof(IRelationalKeyOverrides))
+                },
+                {
+                    typeof(IReadOnlyRelationalForeignKeyOverrides), (typeof(IMutableRelationalForeignKeyOverrides),
+                        typeof(IConventionRelationalForeignKeyOverrides),
+                        null!,
+                        typeof(IRelationalForeignKeyOverrides))
                 }
             };
 
@@ -126,7 +132,8 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             typeof(IUniqueConstraint),
             typeof(ITrigger),
             typeof(IRelationalPropertyOverrides),
-            typeof(IRelationalKeyOverrides)
+            typeof(IRelationalKeyOverrides),
+            typeof(IRelationalForeignKeyOverrides)
         ];
 
         public override HashSet<Type> FluentApiTypes { get; } =
