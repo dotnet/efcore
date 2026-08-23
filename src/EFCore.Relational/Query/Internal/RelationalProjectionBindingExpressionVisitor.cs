@@ -165,9 +165,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
         _selectExpression = selectExpression;
         _indexBasedBinding = false;
+        _rootIsTransparentIdentifier = IsTransparentIdentifierProjection(expression);
         _projectionMembers.Push(new ProjectionMember());
-
-        expression = new MarkerNullCheckSimplifyingExpressionVisitor().Visit(expression);
         var result = Visit(expression);
         if (result == QueryCompilationContext.NotTranslatedExpression)
         {
