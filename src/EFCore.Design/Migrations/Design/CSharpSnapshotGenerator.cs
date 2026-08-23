@@ -835,7 +835,14 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = GetAnnotations(key);
         GetAnnotationCalls(key, annotations, out var chainedCall, out var typeQualifiedCalls);
 
-        var keyBuilderName = AppendChainedBuilderHeader("key", parameters, typeQualifiedCalls);
+        // Per-store-object name overrides are always emitted as their own statement(s) against a
+        // stable "key" receiver (see GenerateKeyOverrides), independent of whether a type-qualified
+        // annotation (e.g. SqlServerKeyBuilderExtensions.HasFillFactor/IsClustered) already forced
+        // one: chaining .HasName(...) directly onto ".HasKey(...)" is only safe when nothing else
+        // introduces a "var key = " assignment, since that leaves the initiating statement
+        // unterminated until GenerateAnnotations below closes it.
+        var hasKeyOverrides = key.GetOverrides().Any(o => o.IsNameOverridden);
+        var keyBuilderName = AppendChainedBuilderHeader("key", parameters, typeQualifiedCalls, forceLocal: hasKeyOverrides);
         var stringBuilder = parameters.StringBuilder;
 
         stringBuilder
@@ -847,16 +854,24 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        GenerateKeyOverrides(keyBuilderName, key, stringBuilder);
-
         GenerateAnnotations(
             keyBuilderName, stringBuilder, chainedCall, typeQualifiedCalls, inChainedCall: true);
+
+        if (hasKeyOverrides)
+        {
+            GenerateKeyOverrides(keyBuilderName, key, stringBuilder);
+        }
     }
 
     /// <summary>
     ///     Generates code for per-store-object key constraint name overrides.
     /// </summary>
-    /// <param name="keyBuilderName">The name of the builder variable.</param>
+    /// <param name="keyBuilderName">
+    ///     The name of the builder variable. Always a real, already-initialized local variable
+    ///     reference at this point (see <see cref="GenerateKey" />, which only calls this method
+    ///     when overrides exist, forcing that variable to be introduced), so each override is
+    ///     emitted as its own complete, terminated statement against it.
+    /// </param>
     /// <param name="key">The key.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
     protected virtual void GenerateKeyOverrides(
@@ -878,7 +893,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(Code.Literal(overrides.Name))
                 .Append(", ");
             AppendStoreObjectIdentifierLiteral(overrides.StoreObject, stringBuilder);
-            stringBuilder.Append(")");
+            stringBuilder.AppendLine(");");
         }
     }
 
@@ -2160,12 +2175,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     private string AppendChainedBuilderHeader(
         string suggestedLocalName,
         CSharpSnapshotGeneratorParameters parameters,
-        IReadOnlyList<MethodCallCodeFragment> typeQualifiedCalls)
+        IReadOnlyList<MethodCallCodeFragment> typeQualifiedCalls,
+        bool forceLocal = false)
     {
         var stringBuilder = parameters.StringBuilder;
         stringBuilder.AppendLine();
 
-        if (typeQualifiedCalls.Count == 0)
+        if (typeQualifiedCalls.Count == 0 && !forceLocal)
         {
             return "";
         }

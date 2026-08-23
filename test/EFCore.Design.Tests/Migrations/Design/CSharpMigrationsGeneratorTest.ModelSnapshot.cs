@@ -7033,12 +7033,33 @@ partial class Snapshot : ModelSnapshot
                     .HasName("pk_customers", StoreObjectIdentifier.Table("Customers", "DefaultSchema"))
                     .HasName("pk_customer_details", StoreObjectIdentifier.Table("CustomerDetails", "DefaultSchema"));
             }),
-            """.HasName("pk_customers", Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("Customers", "DefaultSchema"))""",
+            """key.HasName("pk_customers", Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("Customers", "DefaultSchema"));""",
             model =>
             {
                 var key = model.FindEntityType(typeof(OverridesCustomer))!.FindPrimaryKey()!;
                 Assert.Equal("pk_customers", key.GetName(StoreObjectIdentifier.Table("Customers", "DefaultSchema")));
                 Assert.Equal("pk_customer_details", key.GetName(StoreObjectIdentifier.Table("CustomerDetails", "DefaultSchema")));
+            },
+            fullSnapshot: false);
+
+    [Fact]
+    public void Snapshot_round_trips_per_store_object_key_constraint_name_with_type_qualified_key_annotation()
+        => Test(
+            modelBuilder => modelBuilder.Entity<OverridesCustomer>(b =>
+            {
+                b.ToTable("Customers");
+                b.HasKey(c => c.Id)
+                    .HasName("pk_customers", StoreObjectIdentifier.Table("Customers", "DefaultSchema"))
+                    .HasFillFactor(90);
+            }),
+            """
+            var key = b.HasKey("Id");
+            """,
+            model =>
+            {
+                var key = model.FindEntityType(typeof(OverridesCustomer))!.FindPrimaryKey()!;
+                Assert.Equal("pk_customers", key.GetName(StoreObjectIdentifier.Table("Customers", "DefaultSchema")));
+                Assert.Equal(90, key.GetFillFactor());
             },
             fullSnapshot: false);
 
@@ -7053,7 +7074,7 @@ partial class Snapshot : ModelSnapshot
                     .HasName("pk_global")
                     .HasName(null, StoreObjectIdentifier.Table("CustomerDetails", "DefaultSchema"));
             }),
-            """.HasName(null, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("CustomerDetails", "DefaultSchema"))""",
+            """key.HasName(null, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("CustomerDetails", "DefaultSchema"));""",
             model =>
             {
                 var key = model.FindEntityType(typeof(OverridesCustomer))!.FindPrimaryKey()!;
