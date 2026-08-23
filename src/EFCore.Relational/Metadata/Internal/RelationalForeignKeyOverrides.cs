@@ -139,6 +139,9 @@ public class RelationalForeignKeyOverrides :
         var nameConfigurationSource = detachedOverrides.GetNameConfigurationSource();
         if (nameConfigurationSource != null)
         {
+            // The null-forgiving operator is safe here: MergeInto is only ever reached through
+            // Attach, which calls HasName on the override it just created via GetOrCreate, so
+            // CanSetName has nothing to refuse and HasName cannot return null.
             existingOverrides = ((InternalRelationalForeignKeyOverridesBuilder)existingOverrides.Builder)
                 .HasName(detachedOverrides.Name, nameConfigurationSource.Value)
                 !.Metadata;

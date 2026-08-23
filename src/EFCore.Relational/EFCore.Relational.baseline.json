@@ -13220,6 +13220,12 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, string? name);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder ownershipBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity, TDependentEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, bool fromDataAnnotation = false);"
         },
         {

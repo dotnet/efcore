@@ -236,6 +236,59 @@ public static class RelationalForeignKeyBuilderExtensions
         => (OwnershipBuilder<TEntity, TDependentEntity>)((OwnershipBuilder)ownershipBuilder).HasConstraintName(name);
 
     /// <summary>
+    ///     Configures the foreign key constraint name for this relationship for a particular pair of dependent and principal
+    ///     store objects.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="name">
+    ///     The name of the foreign key constraint. Use <see langword="null" /> to suppress a globally configured name for this pair.
+    /// </param>
+    /// <param name="storeObject">The identifier of the dependent store object.</param>
+    /// <param name="principalStoreObject">The identifier of the principal store object.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnershipBuilder HasConstraintName(
+        this OwnershipBuilder ownershipBuilder,
+        string? name,
+        in StoreObjectIdentifier storeObject,
+        in StoreObjectIdentifier principalStoreObject)
+    {
+        Check.NullButNotEmpty(name);
+
+        ownershipBuilder.Metadata.SetConstraintName(name, storeObject, principalStoreObject);
+
+        return ownershipBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the foreign key constraint name for this relationship for a particular pair of dependent and principal
+    ///     store objects.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="ownershipBuilder">The builder being used to configure the relationship.</param>
+    /// <param name="name">
+    ///     The name of the foreign key constraint. Use <see langword="null" /> to suppress a globally configured name for this pair.
+    /// </param>
+    /// <param name="storeObject">The identifier of the dependent store object.</param>
+    /// <param name="principalStoreObject">The identifier of the principal store object.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    /// <typeparam name="TEntity">The entity type on one end of the relationship.</typeparam>
+    /// <typeparam name="TDependentEntity">The entity type on the other end of the relationship.</typeparam>
+    public static OwnershipBuilder<TEntity, TDependentEntity> HasConstraintName<TEntity, TDependentEntity>(
+        this OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder,
+        string? name,
+        in StoreObjectIdentifier storeObject,
+        in StoreObjectIdentifier principalStoreObject)
+        where TEntity : class
+        where TDependentEntity : class
+        => (OwnershipBuilder<TEntity, TDependentEntity>)((OwnershipBuilder)ownershipBuilder).HasConstraintName(
+            name, storeObject, principalStoreObject);
+
+    /// <summary>
     ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
     /// </summary>
     /// <remarks>

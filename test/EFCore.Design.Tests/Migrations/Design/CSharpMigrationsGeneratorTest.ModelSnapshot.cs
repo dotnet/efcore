@@ -8899,6 +8899,80 @@ partial class Snapshot : ModelSnapshot
             },
             fullSnapshot: false);
 
+    [Fact] // Review Fix 1: per-store-object FK overrides were dropped from the snapshot for ownership FKs
+    public void Snapshot_round_trips_per_store_object_foreign_key_constraint_name_for_owned_type_in_own_table()
+        => Test(
+            modelBuilder => modelBuilder.Entity<OverridesCustomerWithAddress>(b =>
+            {
+                b.ToTable("Customers");
+                b.OwnsOne(
+                    c => c.Address,
+                    a =>
+                    {
+                        a.ToTable("CustomerAddress");
+                        a.WithOwner()
+                            .HasConstraintName(
+                                "fk_customeraddress_customers",
+                                StoreObjectIdentifier.Table("CustomerAddress", "DefaultSchema"),
+                                StoreObjectIdentifier.Table("Customers", "DefaultSchema"));
+                    });
+            }),
+            """
+            .HasConstraintName("fk_customeraddress_customers", Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("CustomerAddress", "DefaultSchema"), Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("Customers", "DefaultSchema"))
+            """,
+            model =>
+            {
+                var ownedEntityType = model.FindEntityType(typeof(OverridesCustomerWithAddress))!
+                    .FindNavigation(nameof(OverridesCustomerWithAddress.Address))!.TargetEntityType;
+                var foreignKey = ownedEntityType.GetForeignKeys().Single();
+
+                Assert.True(foreignKey.IsOwnership);
+                Assert.Equal(
+                    "fk_customeraddress_customers",
+                    foreignKey.GetConstraintName(
+                        StoreObjectIdentifier.Table("CustomerAddress", "DefaultSchema"),
+                        StoreObjectIdentifier.Table("Customers", "DefaultSchema")));
+            },
+            fullSnapshot: false);
+
+    [Fact] // Review Fix 4: the explicit-null override was covered on the runtime and compiled models, but not the snapshot
+    public void Snapshot_round_trips_explicit_null_foreign_key_constraint_name_override()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<OverridesCustomer>(b => b.ToTable("Customers"));
+                modelBuilder.Entity<OverridesOrder>(b =>
+                {
+                    b.ToTable("Orders");
+                    b.HasOne<OverridesCustomer>().WithMany().HasForeignKey(o => o.CustomerId)
+                        .HasConstraintName("fk_global")
+                        .HasConstraintName(
+                            null,
+                            StoreObjectIdentifier.Table("Orders", "DefaultSchema"),
+                            StoreObjectIdentifier.Table("Customers", "DefaultSchema"));
+                });
+            },
+            """
+            .HasConstraintName(null, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("Orders", "DefaultSchema"), Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier.Table("Customers", "DefaultSchema"))
+            """,
+            model =>
+            {
+                var foreignKey = model.FindEntityType(typeof(OverridesOrder))!.GetForeignKeys().Single();
+
+                // The explicit-null override must resolve to the *default* name, not fall through
+                // to the global "fk_global" annotation. That only happens if
+                // IsNameOverridden: true, Name: null actually survived the round trip rather than
+                // collapsing into "no override at all".
+                Assert.Equal(
+                    foreignKey.GetDefaultName(
+                        StoreObjectIdentifier.Table("Orders", "DefaultSchema"),
+                        StoreObjectIdentifier.Table("Customers", "DefaultSchema")),
+                    foreignKey.GetConstraintName(
+                        StoreObjectIdentifier.Table("Orders", "DefaultSchema"),
+                        StoreObjectIdentifier.Table("Customers", "DefaultSchema")));
+            },
+            fullSnapshot: false);
+
     [Fact]
     public void Snapshot_does_not_emit_raw_key_or_foreign_key_override_annotations()
     {
@@ -8946,6 +9020,20 @@ partial class Snapshot : ModelSnapshot
         public int Id { get; set; }
 
         public int CustomerId { get; set; }
+    }
+
+    private class OverridesCustomerWithAddress
+    {
+        public int Id { get; set; }
+
+        public string Email { get; set; } = "";
+
+        public OverridesAddress Address { get; set; } = new();
+    }
+
+    private class OverridesAddress
+    {
+        public string Street { get; set; } = "";
     }
 
     #endregion

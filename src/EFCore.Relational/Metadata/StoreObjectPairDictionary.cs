@@ -19,8 +19,8 @@ public class StoreObjectPairDictionary<T> : IReadOnlyStoreObjectPairDictionary<T
     /// <inheritdoc />
     public virtual IEnumerable<T> GetValues()
         => _dictionary
-            .OrderBy(pair => pair.Key.DependentStoreObject.Name, StringComparer.Ordinal)
-            .ThenBy(pair => pair.Key.PrincipalStoreObject.Name, StringComparer.Ordinal)
+            .OrderBy(pair => pair.Key.DependentStoreObject)
+            .ThenBy(pair => pair.Key.PrincipalStoreObject)
             .Select(pair => pair.Value);
 
     /// <summary>

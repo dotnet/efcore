@@ -1860,9 +1860,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(".IsConstrained(false)");
             }
-
-            GenerateForeignKeyOverrides(foreignKey, stringBuilder);
         }
+
+        GenerateForeignKeyOverrides(foreignKey, stringBuilder);
 
         GenerateForeignKeyAnnotations(foreignKeyBuilderName, foreignKey, stringBuilder);
     }
