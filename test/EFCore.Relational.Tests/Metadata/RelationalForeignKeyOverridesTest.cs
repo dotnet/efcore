@@ -273,6 +273,50 @@ public class RelationalForeignKeyOverridesTest
         Assert.Contains("fk_b", message);
     }
 
+    [Fact] // Review Fix 2: ValidateSharedForeignKeyNameOverrides must not fire when neither FK carries an override
+    public void Differing_global_constraint_names_on_a_deduplicated_constraint_are_not_rejected()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<SharedCustomer>().ToTable("Customers");
+        modelBuilder.Entity<SharedOrder>(b =>
+        {
+            b.ToTable("Orders");
+            b.Property(o => o.CustomerId).HasColumnName("CustomerId");
+            b.HasOne<SharedCustomer>().WithMany().HasForeignKey(o => o.CustomerId)
+                .HasConstraintName("fk_a");
+        });
+        modelBuilder.Entity<SharedOrderDetails>(b =>
+        {
+            b.ToTable("Orders");
+            // The identifying relationship that makes this table splitting rather than a collision.
+            b.HasOne<SharedOrder>().WithOne().HasForeignKey<SharedOrderDetails>(d => d.Id);
+            // Without an explicit shared column name, SharedTableConvention disambiguates
+            // SharedOrderDetails.CustomerId onto its own column, which would make the two foreign
+            // keys structurally distinct (different columns) rather than the same database
+            // constraint -- defeating the premise of this test.
+            b.Property(d => d.CustomerId).HasColumnName("CustomerId");
+            b.HasOne<SharedCustomer>().WithMany().HasForeignKey(d => d.CustomerId)
+                .HasConstraintName("fk_b");
+        });
+
+        // Two entity types sharing a table, each with its own explicit *global* constraint name and
+        // no per-store-object override anywhere: this must keep validating cleanly. Only a genuine
+        // per-store-object override conflict -- covered by
+        // Conflicting_overrides_on_a_deduplicated_constraint_are_rejected above -- may throw here.
+        var model = modelBuilder.FinalizeModel();
+
+        var orders = StoreObjectIdentifier.Table("Orders");
+        var customers = StoreObjectIdentifier.Table("Customers");
+        var orderFk = model.FindEntityType(typeof(SharedOrder))!
+            .GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(SharedCustomer));
+        var detailsFk = model.FindEntityType(typeof(SharedOrderDetails))!
+            .GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(SharedCustomer));
+
+        Assert.Equal("fk_a", orderFk.GetConstraintName(orders, customers));
+        Assert.Equal("fk_b", detailsFk.GetConstraintName(orders, customers));
+    }
+
     [Fact]
     public void Foreign_key_overrides_survive_relationship_re_creation()
     {

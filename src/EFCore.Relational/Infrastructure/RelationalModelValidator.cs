@@ -1930,15 +1930,27 @@ public class RelationalModelValidator(
             if (existing.Name != name
                 && foreignKey.AreCompatible(existing.ForeignKey, dependentTable, shouldThrow: false))
             {
-                // Structurally identical *and* behaviorally compatible (same delete behavior,
-                // uniqueness, etc.): this is the single database constraint the two entity types
-                // share, so the two names must agree. When they are not compatible, giving them
-                // different names is legitimate and required -- SharedTableConvention's own
-                // uniquification already relies on that escape valve for defaulted names (see
-                // Passes_for_incompatible_foreignKeys_within_hierarchy).
-                throw new InvalidOperationException(
-                    RelationalStrings.DuplicateConstraintNameOverride(
-                        table.DisplayName(), existing.Name, name));
+                var storeObjectPair = new StoreObjectPair(dependentTable, principalTableValue);
+
+                // This check is scoped to the new per-store-object override feature: two entity
+                // types sharing a table are free to configure differing *global* constraint names
+                // for what is structurally the same constraint (that scenario is unrelated to this
+                // feature and must keep validating cleanly, as it does on main today). Only throw
+                // when at least one of the conflicting names was actually produced by a
+                // per-store-object override.
+                if (RelationalForeignKeyOverrides.Find(foreignKey, storeObjectPair) is { IsNameOverridden: true }
+                    || RelationalForeignKeyOverrides.Find(existing.ForeignKey, storeObjectPair) is { IsNameOverridden: true })
+                {
+                    // Structurally identical *and* behaviorally compatible (same delete behavior,
+                    // uniqueness, etc.): this is the single database constraint the two entity types
+                    // share, so the two names must agree. When they are not compatible, giving them
+                    // different names is legitimate and required -- SharedTableConvention's own
+                    // uniquification already relies on that escape valve for defaulted names (see
+                    // Passes_for_incompatible_foreignKeys_within_hierarchy).
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateConstraintNameOverride(
+                            table.DisplayName(), existing.Name, name));
+                }
             }
         }
     }
