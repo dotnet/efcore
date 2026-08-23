@@ -121,6 +121,56 @@ public class RelationalKeyOverridesTest
     }
 
     [Fact]
+    public void Explicit_null_key_name_override_survives_the_in_memory_runtime_model()
+    {
+        // Spike/B7: RelationalRuntimeModelConvention converts the design-time KeyOverrides
+        // annotation into RuntimeRelationalKeyOverrides when the model is initialized for runtime
+        // use (IModelRuntimeInitializer.Initialize(..., designTime: false)) -- the path every
+        // regular (non-compiled-model) DbContext goes through the first time DbContext.Model is
+        // accessed. This is a *different* code path from the NativeAOT compiled-model source
+        // generator (RelationalCSharpRuntimeAnnotationCodeGenerator, covered separately by
+        // CompiledModelRelationalTestBase), and from the design-time resolution proven by
+        // Explicit_null_key_name_override_falls_back_to_the_default_name above -- both must
+        // independently preserve IsNameOverridden: true, Name: null rather than collapsing it into
+        // "no override at all", or the override silently reverts to the global/default name once
+        // the app actually runs.
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Customer>(b =>
+        {
+            b.ToTable("Customers");
+            b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+            b.HasKey(c => c.Id)
+                .HasName("pk_global")
+                .HasName(null, StoreObjectIdentifier.Table("CustomerDetails"));
+        });
+
+        var modelRuntimeInitializer = FakeRelationalTestHelpers.Instance.CreateContextServices()
+            .GetRequiredService<IModelRuntimeInitializer>();
+        var runtimeModel = modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: false);
+
+        var key = runtimeModel.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+        var customers = StoreObjectIdentifier.Table("Customers");
+        var details = StoreObjectIdentifier.Table("CustomerDetails");
+
+        // Proves the annotation was actually *converted* by RelationalRuntimeModelConvention,
+        // rather than the design-time RelationalKeyOverrides object merely being carried through
+        // untouched (which the covariant IReadOnlyStoreObjectDictionary<out T> cast would allow --
+        // reads through GetName/GetOverrides below would keep working either way, so this type
+        // check is the only assertion that actually distinguishes "converted" from "never
+        // touched").
+        var detailsOverrides = key.GetOverrides().Single(o => o.StoreObject == details);
+        Assert.IsType<RuntimeRelationalKeyOverrides>(detailsOverrides);
+
+        // The main table has no override, so it resolves through to the global name.
+        Assert.Equal("pk_global", key.GetName(customers));
+
+        // The explicit-null override on the fragment must resolve to the *default* name, not the
+        // global "pk_global" annotation -- proving IsNameOverridden: true, Name: null survived
+        // the conversion rather than collapsing into "no override at all".
+        Assert.Equal(key.GetDefaultName(details), key.GetName(details));
+    }
+
+    [Fact]
     public void Per_table_key_names_flow_into_the_relational_model()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();

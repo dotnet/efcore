@@ -1195,6 +1195,65 @@ public abstract class CompiledModelRelationalTestBase(NonSharedFixture fixture) 
             });
 
     [Fact]
+    public virtual Task Explicit_null_key_constraint_name_override_survives_the_compiled_model()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Customer>(b =>
+            {
+                b.ToTable("Customers");
+                b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+                b.HasKey(c => c.Id)
+                    .HasName("pk_global")
+                    .HasName(null, StoreObjectIdentifier.Table("CustomerDetails"));
+            }),
+            model =>
+            {
+                var key = model.FindEntityType(typeof(Customer))!.FindPrimaryKey()!;
+
+                // The main table has no override, so it resolves through to the global name.
+                Assert.Equal("pk_global", key.GetName(StoreObjectIdentifier.Table("Customers")));
+
+                // The explicit-null override on the fragment must resolve to the *default* name,
+                // not fall through to the global "pk_global" annotation. That only happens if
+                // IsNameOverridden: true, Name: null actually survived the compiled-model code
+                // generation round trip rather than collapsing into "no override at all".
+                Assert.Equal(
+                    key.GetDefaultName(StoreObjectIdentifier.Table("CustomerDetails")),
+                    key.GetName(StoreObjectIdentifier.Table("CustomerDetails")));
+            });
+
+    [Fact]
+    public virtual Task Explicit_null_foreign_key_constraint_name_override_survives_the_compiled_model()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Customer>(b => b.ToTable("Customers"));
+                modelBuilder.Entity<Order>(b =>
+                {
+                    b.ToTable("Orders");
+                    b.HasOne<Customer>().WithMany().HasForeignKey(o => o.CustomerId)
+                        .HasConstraintName("fk_global")
+                        .HasConstraintName(
+                            null,
+                            StoreObjectIdentifier.Table("Orders"),
+                            StoreObjectIdentifier.Table("Customers"));
+                });
+            },
+            model =>
+            {
+                var foreignKey = model.FindEntityType(typeof(Order))!.GetForeignKeys().Single();
+
+                // The explicit-null override on the only dependent/principal pair must resolve to
+                // the *default* name, not the global "fk_global" annotation -- the only assertion
+                // that proves IsNameOverridden: true, Name: null survived the compiled-model code
+                // generation round trip rather than collapsing into "no override at all".
+                Assert.Equal(
+                    foreignKey.GetDefaultName(
+                        StoreObjectIdentifier.Table("Orders"), StoreObjectIdentifier.Table("Customers")),
+                    foreignKey.GetConstraintName(
+                        StoreObjectIdentifier.Table("Orders"), StoreObjectIdentifier.Table("Customers")));
+            });
+
+    [Fact]
     public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>

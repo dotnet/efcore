@@ -154,6 +154,49 @@ public class RelationalForeignKeyOverridesTest
     }
 
     [Fact]
+    public void Explicit_null_foreign_key_constraint_name_override_survives_the_in_memory_runtime_model()
+    {
+        // Same concern as RelationalKeyOverridesTest's
+        // Explicit_null_key_name_override_survives_the_in_memory_runtime_model, for the foreign-key
+        // side of B7: RelationalRuntimeModelConvention's conversion of ForeignKeyOverrides into
+        // RuntimeRelationalForeignKeyOverrides is a separate code path from both the NativeAOT
+        // compiled-model source generator and the design-time resolution logic, and must
+        // independently preserve IsNameOverridden: true, Name: null.
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<Blog>();
+        modelBuilder.Entity<Post>(b => b.HasOne<Blog>().WithMany().HasForeignKey(p => p.BlogId));
+
+        var postType = modelBuilder.Model.FindEntityType(typeof(Post))!;
+        var foreignKey = (IMutableForeignKey)postType.GetForeignKeys().Single();
+        var blogTable = StoreObjectIdentifier.Table("Blog");
+        var postTable = StoreObjectIdentifier.Table("Post");
+
+        foreignKey.SetConstraintName("fk_global");
+        foreignKey.SetConstraintName(null, postTable, blogTable);
+
+        var modelRuntimeInitializer = FakeRelationalTestHelpers.Instance.CreateContextServices()
+            .GetRequiredService<IModelRuntimeInitializer>();
+        var runtimeModel = modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: false);
+
+        var runtimeForeignKey = runtimeModel.FindEntityType(typeof(Post))!.GetForeignKeys().Single();
+
+        // Proves the annotation was actually *converted* by RelationalRuntimeModelConvention,
+        // rather than the design-time RelationalForeignKeyOverrides object merely being carried
+        // through untouched (which the covariant IReadOnlyStoreObjectPairDictionary<out T> cast
+        // would allow -- reads below would keep working either way, so this type check is the
+        // only assertion that actually distinguishes "converted" from "never touched").
+        var overrides = runtimeForeignKey.GetOverrides().Single();
+        Assert.IsType<RuntimeRelationalForeignKeyOverrides>(overrides);
+
+        // The explicit-null override on the only dependent/principal pair must resolve to the
+        // *default* name, not the global "fk_global" annotation -- proving IsNameOverridden: true,
+        // Name: null survived the conversion rather than collapsing into "no override at all".
+        Assert.Equal(
+            runtimeForeignKey.GetDefaultName(postTable, blogTable),
+            runtimeForeignKey.GetConstraintName(postTable, blogTable));
+    }
+
+    [Fact]
     public void Foreign_key_override_does_not_apply_where_the_constraint_does_not_materialize()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
