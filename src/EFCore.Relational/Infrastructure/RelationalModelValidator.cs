@@ -1027,6 +1027,7 @@ public class RelationalModelValidator(
             ValidateSharedColumnsCompatibility(nonJsonMappedTypes, table, logger);
             ValidateSharedKeysCompatibility(nonJsonMappedTypes, table, logger);
             ValidateSharedForeignKeysCompatibility(nonJsonMappedTypes, table, logger);
+            ValidateSharedForeignKeyNameOverrides(nonJsonMappedTypes, table, logger);
             ValidateSharedIndexesCompatibility(nonJsonMappedTypes, table, logger);
             ValidateSharedCheckConstraintCompatibility(nonJsonMappedTypes, table, logger);
             ValidateSharedTriggerCompatibility(nonJsonMappedTypes, table, logger);
@@ -1867,6 +1868,126 @@ public class RelationalModelValidator(
         in StoreObjectIdentifier table,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         => foreignKey.AreCompatible(duplicateForeignKey, table, shouldThrow: true);
+
+    /// <summary>
+    ///     Validates that entity types sharing a table do not configure conflicting per-store-object
+    ///     names for what is structurally the same foreign key constraint.
+    /// </summary>
+    /// <param name="mappedTypes">The mapped entity types.</param>
+    /// <param name="table">The table identifier.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateSharedForeignKeyNameOverrides(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier table,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        if (table.StoreObjectType != StoreObjectType.Table)
+        {
+            return;
+        }
+
+        var namesByStructure = new Dictionary<ConstraintStructure, (IForeignKey ForeignKey, string Name)>();
+
+        // Local copy: an `in` parameter cannot be captured by the lambdas below.
+        var dependentTable = table;
+
+        foreach (var foreignKey in mappedTypes.SelectMany(et => et.GetDeclaredForeignKeys()))
+        {
+            var principalTable = foreignKey.PrincipalKey.IsPrimaryKey()
+                ? StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, StoreObjectType.Table)
+                : StoreObjectIdentifier.Create(foreignKey.PrincipalKey.DeclaringEntityType, StoreObjectType.Table);
+            if (principalTable == null)
+            {
+                continue;
+            }
+
+            // No logger here: ValidateSharedForeignKeysCompatibility already resolves and logs for
+            // every declared foreign key on this table, and passing the logger again would double
+            // any diagnostic it emits (e.g. ForeignKeyPropertiesMappedToUnrelatedTables).
+            var name = foreignKey.GetConstraintName(dependentTable, principalTable.Value);
+            if (name == null)
+            {
+                continue;
+            }
+
+            // Structural identity: the dependent columns in *this* table, the principal table, and
+            // the principal key columns. Deliberately name-independent -- bucketing by the resolved
+            // name is exactly what makes ValidateSharedForeignKeysCompatibility blind to this case.
+            var principalTableValue = principalTable.Value;
+            var structure = new ConstraintStructure(
+                foreignKey.Properties
+                    .Select(pr => pr.GetColumnName(dependentTable) ?? pr.Name).ToList(),
+                principalTableValue,
+                foreignKey.PrincipalKey.Properties
+                    .Select(pr => pr.GetColumnName(principalTableValue) ?? pr.Name).ToList());
+
+            if (!namesByStructure.TryGetValue(structure, out var existing))
+            {
+                namesByStructure[structure] = (foreignKey, name);
+                continue;
+            }
+
+            if (existing.Name != name
+                && foreignKey.AreCompatible(existing.ForeignKey, dependentTable, shouldThrow: false))
+            {
+                // Structurally identical *and* behaviorally compatible (same delete behavior,
+                // uniqueness, etc.): this is the single database constraint the two entity types
+                // share, so the two names must agree. When they are not compatible, giving them
+                // different names is legitimate and required -- SharedTableConvention's own
+                // uniquification already relies on that escape valve for defaulted names (see
+                // Passes_for_incompatible_foreignKeys_within_hierarchy).
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateConstraintNameOverride(
+                        table.DisplayName(), existing.Name, name));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Name-independent identity of a foreign key constraint on one table: its dependent columns,
+    ///     the principal table, and the principal key columns.
+    /// </summary>
+    private sealed class ConstraintStructure(
+        IReadOnlyList<string> dependentColumns,
+        StoreObjectIdentifier principalTable,
+        IReadOnlyList<string> principalColumns)
+        : IEquatable<ConstraintStructure>
+    {
+        public IReadOnlyList<string> DependentColumns { get; } = dependentColumns;
+
+        public StoreObjectIdentifier PrincipalTable { get; } = principalTable;
+
+        public IReadOnlyList<string> PrincipalColumns { get; } = principalColumns;
+
+        public bool Equals(ConstraintStructure? other)
+            => other != null
+                && PrincipalTable == other.PrincipalTable
+                && DependentColumns.SequenceEqual(other.DependentColumns)
+                && PrincipalColumns.SequenceEqual(other.PrincipalColumns);
+
+        public override bool Equals(object? obj)
+            => Equals(obj as ConstraintStructure);
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(PrincipalTable);
+
+            hashCode.Add(DependentColumns.Count);
+            foreach (var column in DependentColumns)
+            {
+                hashCode.Add(column);
+            }
+
+            hashCode.Add(PrincipalColumns.Count);
+            foreach (var column in PrincipalColumns)
+            {
+                hashCode.Add(column);
+            }
+
+            return hashCode.ToHashCode();
+        }
+    }
 
     /// <summary>
     ///     Validates the compatibility of indexes in a given shared table.

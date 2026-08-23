@@ -325,6 +325,9 @@
   <data name="DuplicateColumnNameUnicodenessMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but have different unicode configurations.</value>
   </data>
+  <data name="DuplicateConstraintNameOverride" xml:space="preserve">
+    <value>Entity types sharing table '{table}' configure conflicting constraint names '{constraintName}' and '{otherConstraintName}' for the same database constraint. Constraints shared across entity types must be configured with the same name.</value>
+  </data>
   <data name="DuplicateForeignKeyColumnMismatch" xml:space="preserve">
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but use different columns ({columnNames1} and {columnNames2}).</value>
   </data>

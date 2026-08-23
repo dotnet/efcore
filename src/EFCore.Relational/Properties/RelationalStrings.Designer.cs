@@ -564,6 +564,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
+        ///     Entity types sharing table '{table}' configure conflicting constraint names '{constraintName}' and '{otherConstraintName}' for the same database constraint. Constraints shared across entity types must be configured with the same name.
+        /// </summary>
+        public static string DuplicateConstraintNameOverride(object? table, object? constraintName, object? otherConstraintName)
+            => string.Format(
+                GetString("DuplicateConstraintNameOverride", nameof(table), nameof(constraintName), nameof(otherConstraintName)),
+                table, constraintName, otherConstraintName);
+
+        /// <summary>
         ///     The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but use different columns ({columnNames1} and {columnNames2}).
         /// </summary>
         public static string DuplicateForeignKeyColumnMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName, object? columnNames1, object? columnNames2)

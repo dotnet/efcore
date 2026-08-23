@@ -227,6 +227,53 @@ public class RelationalForeignKeyOverridesTest
     }
 
     [Fact]
+    public void Conflicting_overrides_on_a_deduplicated_constraint_are_rejected()
+    {
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        modelBuilder.Entity<SharedCustomer>().ToTable("Customers");
+        modelBuilder.Entity<SharedOrder>(b =>
+        {
+            b.ToTable("Orders");
+            b.Property(o => o.CustomerId).HasColumnName("CustomerId");
+            b.HasOne<SharedCustomer>().WithMany().HasForeignKey(o => o.CustomerId);
+        });
+        modelBuilder.Entity<SharedOrderDetails>(b =>
+        {
+            b.ToTable("Orders");
+            // The identifying relationship that makes this table splitting rather than a collision.
+            b.HasOne<SharedOrder>().WithOne().HasForeignKey<SharedOrderDetails>(d => d.Id);
+            // Without an explicit shared column name, SharedTableConvention disambiguates
+            // SharedOrderDetails.CustomerId onto its own column, which would make the two foreign
+            // keys structurally distinct (different columns) rather than the same database
+            // constraint -- defeating the premise of this test.
+            b.Property(d => d.CustomerId).HasColumnName("CustomerId");
+            b.HasOne<SharedCustomer>().WithMany().HasForeignKey(d => d.CustomerId);
+        });
+
+        var orders = StoreObjectIdentifier.Table("Orders");
+        var customers = StoreObjectIdentifier.Table("Customers");
+
+        // Sanity check the premise: without overrides these two resolve to one constraint name,
+        // which is what makes them "the same database constraint".
+        var orderFk = (IMutableForeignKey)modelBuilder.Model.FindEntityType(typeof(SharedOrder))!
+            .GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(SharedCustomer));
+        var detailsFk = (IMutableForeignKey)modelBuilder.Model.FindEntityType(typeof(SharedOrderDetails))!
+            .GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(SharedCustomer));
+
+        Assert.Equal(
+            orderFk.GetConstraintName(orders, customers),
+            detailsFk.GetConstraintName(orders, customers));
+
+        orderFk.SetConstraintName("fk_a", orders, customers);
+        detailsFk.SetConstraintName("fk_b", orders, customers);
+
+        var message = Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message;
+        Assert.Contains("fk_a", message);
+        Assert.Contains("fk_b", message);
+    }
+
+    [Fact]
     public void Foreign_key_overrides_survive_relationship_re_creation()
     {
         var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
@@ -260,6 +307,86 @@ public class RelationalForeignKeyOverridesTest
         Assert.Same(
             newForeignKey,
             ((IConventionRelationalForeignKeyOverrides)RelationalForeignKeyOverrides.Find(newForeignKey, pair)!).ForeignKey);
+    }
+
+    [Fact]
+    public void Rewriting_constraint_names_per_store_object_produces_no_collisions()
+    {
+        // This is the acceptance test for the whole workstream -- the shape that
+        // EFCore.NamingConventions issue #396 had to work around by *deleting* names.
+        //
+        // The brief's original version of this test reached for the entity-splitting linking
+        // foreign key on a model built with the plain convention builder:
+        //
+        //     entityType.GetForeignKeys().Single(fk => fk.PrincipalEntityType == entityType)
+        //
+        // That foreign key does not exist at that point. EntitySplittingConvention.ProcessModelFinalizing
+        // is what creates it, as a *model-finalizing* convention. And a hand-built stand-in does not
+        // survive finalization: ModelCleanupConvention.RemoveNavigationlessForeignKeys deletes any
+        // declared FK with no navigations -- exactly the linking FK's shape -- and it runs first,
+        // because ProviderConventionSetBuilder.CreateConventionSet() registers it before
+        // RelationalConventionSetBuilder adds EntitySplittingConvention.
+        //
+        // The path that does work -- and that this test proves -- is a model-finalizing convention
+        // registered *after* EntitySplittingConvention: it observes the linking FK the instant that
+        // convention creates it, while the model is still mutable. That is exactly how
+        // EFCore.NamingConventions itself operates (a plugin convention that runs at model
+        // finalization), and is the mechanism RuntimeConventionSetBuilder uses to apply
+        // IConventionSetPlugin.ModifyConventions after the provider builder has run.
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder(
+            configureConventions: b => b.ConventionSet.ModelFinalizingConventions.Add(
+                new RewriteConstraintNamesPerStoreObjectConvention()));
+
+        modelBuilder.Entity<User>(b =>
+        {
+            b.ToTable("users");
+            b.SplitToTable("user_lockout", s => s.Property(u => u.PasswordHash));
+            b.SplitToTable("user_profile", s => s.Property(u => u.DisplayName));
+        });
+
+        var relationalModel = modelBuilder.FinalizeModel().GetRelationalModel();
+
+        var constraintNames = relationalModel.Tables
+            .SelectMany(t => t.UniqueConstraints.Select(c => c.Name)
+                .Concat(t.ForeignKeyConstraints.Select(c => c.Name)))
+            .ToList();
+
+        // The #396 symptom was two identically named constraints; there must be none now.
+        Assert.Equal(constraintNames.Count, constraintNames.Distinct().Count());
+        Assert.Contains("pk_user_lockout", constraintNames);
+        Assert.Contains("fk_user_profile_users_id", constraintNames);
+    }
+
+    /// <summary>
+    ///     Stands in for a naming-convention plugin such as EFCore.NamingConventions: it rewrites
+    ///     every key and the entity-splitting linking foreign key with per-store-object names, run
+    ///     as a model-finalizing convention registered after <see cref="EntitySplittingConvention" />
+    ///     so the linking foreign key already exists and the model is still mutable.
+    /// </summary>
+    private sealed class RewriteConstraintNamesPerStoreObjectConvention : IModelFinalizingConvention
+    {
+        public void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
+        {
+            var entityType = modelBuilder.Metadata.FindEntityType(typeof(User))!;
+            var key = (IMutableKey)entityType.FindPrimaryKey()!;
+            var linkingForeignKey = (IMutableForeignKey)entityType.GetForeignKeys()
+                .Single(fk => fk.PrincipalEntityType == entityType);
+
+            var users = StoreObjectIdentifier.Table("users");
+            var lockout = StoreObjectIdentifier.Table("user_lockout");
+            var profile = StoreObjectIdentifier.Table("user_profile");
+
+            // What a naming convention does: rewrite per store object instead of writing one global name.
+            foreach (var table in new[] { users, lockout, profile })
+            {
+                key.SetName("pk_" + table.Name, table);
+            }
+
+            linkingForeignKey.SetConstraintName("fk_user_lockout_users_id", lockout, users);
+            linkingForeignKey.SetConstraintName("fk_user_profile_users_id", profile, users);
+        }
     }
 
     private class Blog
@@ -300,5 +427,22 @@ public class RelationalForeignKeyOverridesTest
 
         public string PasswordHash { get; set; } = null!;
         public string DisplayName { get; set; } = null!;
+    }
+
+    private class SharedCustomer
+    {
+        public int Id { get; set; }
+    }
+
+    private class SharedOrder
+    {
+        public int Id { get; set; }
+        public int CustomerId { get; set; }
+    }
+
+    private class SharedOrderDetails
+    {
+        public int Id { get; set; }
+        public int CustomerId { get; set; }
     }
 }

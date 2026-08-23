@@ -12,6 +12,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 {
     [Fact]
+    public void Per_table_constraint_names_reach_migration_operations()
+        => Execute(
+            _ => { },
+            target => target.Entity<SplitCustomer>(b =>
+            {
+                b.ToTable("Customers");
+                b.SplitToTable("CustomerDetails", s => s.Property(c => c.Name));
+                b.HasKey(c => c.Id)
+                    .HasName("pk_customers", StoreObjectIdentifier.Table("Customers"))
+                    .HasName("pk_customer_details", StoreObjectIdentifier.Table("CustomerDetails"));
+            }),
+            operations =>
+            {
+                var createTables = operations.OfType<CreateTableOperation>().ToList();
+
+                Assert.Equal(
+                    "pk_customers",
+                    createTables.Single(o => o.Name == "Customers").PrimaryKey!.Name);
+                Assert.Equal(
+                    "pk_customer_details",
+                    createTables.Single(o => o.Name == "CustomerDetails").PrimaryKey!.Name);
+            });
+
+    private class SplitCustomer
+    {
+        public int Id { get; set; }
+
+        // SplitToTable moves this to the secondary table; Email stays on the main table so it
+        // keeps a non-key column, as EntitySplittingUnmappedMainFragment validation requires.
+        public string Email { get; set; } = null!;
+
+        public string Name { get; set; } = null!;
+    }
+
+    [Fact]
     public void Model_differ_does_not_detect_views()
         => Execute(
             _ => { },
