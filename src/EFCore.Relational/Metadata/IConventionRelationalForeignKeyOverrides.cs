@@ -17,9 +17,9 @@ public interface IConventionRelationalForeignKeyOverrides : IReadOnlyRelationalF
     new IConventionForeignKey ForeignKey { get; }
 
     /// <summary>
-    ///     Gets the builder that can be used to configure this function.
+    ///     Gets the builder that can be used to configure this foreign key.
     /// </summary>
-    /// <exception cref="InvalidOperationException">If the function has been removed from the model.</exception>
+    /// <exception cref="InvalidOperationException">If the foreign key has been removed from the model.</exception>
     new IConventionRelationalForeignKeyOverridesBuilder Builder { get; }
 
     /// <summary>

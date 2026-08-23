@@ -17,9 +17,9 @@ public interface IConventionRelationalKeyOverrides : IReadOnlyRelationalKeyOverr
     new IConventionKey Key { get; }
 
     /// <summary>
-    ///     Gets the builder that can be used to configure this function.
+    ///     Gets the builder that can be used to configure this key.
     /// </summary>
-    /// <exception cref="InvalidOperationException">If the function has been removed from the model.</exception>
+    /// <exception cref="InvalidOperationException">If the key has been removed from the model.</exception>
     new IConventionRelationalKeyOverridesBuilder Builder { get; }
 
     /// <summary>

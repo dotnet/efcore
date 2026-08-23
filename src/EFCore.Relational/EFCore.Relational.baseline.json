@@ -3006,6 +3006,25 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.ForeignKeyOverridesConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IForeignKeyAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "ForeignKeyOverridesConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+        },
+        {
+          "Member": "virtual void ProcessForeignKeyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationshipBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies RelationalDependencies { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.FromSqlExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.TableExpressionBase, Microsoft.EntityFrameworkCore.Query.SqlExpressions.ITableBasedExpression",
       "Methods": [
         {
@@ -3934,6 +3953,72 @@
       "Properties": [
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionEntityTypeMappingFragment Metadata { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalForeignKeyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalForeignKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotatable",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetNameConfigurationSource();"
+        },
+        {
+          "Member": "bool RemoveNameOverride(bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "string? SetName(string? name, bool fromDataAnnotation = false);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionRelationalForeignKeyOverridesBuilder Builder { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey ForeignKey { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionRelationalForeignKeyOverridesBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionAnnotatableBuilder",
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalForeignKeyOverrides Metadata { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalKeyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotatable",
+      "Methods": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource GetConfigurationSource();"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetNameConfigurationSource();"
+        },
+        {
+          "Member": "bool RemoveNameOverride(bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "string? SetName(string? name, bool fromDataAnnotation = false);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionRelationalKeyOverridesBuilder Builder { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionKey Key { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionRelationalKeyOverridesBuilder : Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionAnnotatableBuilder",
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalKeyOverrides Metadata { get; }"
         }
       ]
     },
@@ -5034,6 +5119,38 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalForeignKeyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalForeignKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "Methods": [
+        {
+          "Member": "void RemoveNameOverride();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey ForeignKey { get; }"
+        },
+        {
+          "Member": "string? Name { get; set; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalKeyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+      "Methods": [
+        {
+          "Member": "void RemoveNameOverride();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IMutableKey Key { get; }"
+        },
+        {
+          "Member": "string? Name { get; set; }"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalPropertyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalPropertyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
       "Methods": [
         {
@@ -5652,6 +5769,50 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalForeignKeyOverrides : Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Methods": [
+        {
+          "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey ForeignKey { get; }"
+        },
+        {
+          "Member": "bool IsNameOverridden { get; }"
+        },
+        {
+          "Member": "string? Name { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair StoreObjects { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalKeyOverrides : Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
+      "Methods": [
+        {
+          "Member": "string ToDebugString(Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions options = Microsoft.EntityFrameworkCore.Infrastructure.MetadataDebugStringOptions.ShortDefault, int indent = 0);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "bool IsNameOverridden { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey Key { get; }"
+        },
+        {
+          "Member": "string? Name { get; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier StoreObject { get; }"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalPropertyOverrides : Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable",
       "Methods": [
         {
@@ -5817,6 +5978,17 @@
       "Methods": [
         {
           "Member": "T? Find(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "System.Collections.Generic.IEnumerable<T> GetValues();"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IReadOnlyStoreObjectPairDictionary<out T> where T : class",
+      "Methods": [
+        {
+          "Member": "T? Find(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair storeObjects);"
         },
         {
           "Member": "System.Collections.Generic.IEnumerable<T> GetValues();"
@@ -6236,6 +6408,14 @@
       ]
     },
     {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalForeignKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IForeignKey ForeignKey { get; }"
+        }
+      ]
+    },
+    {
       "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonArray : Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement",
       "Properties": [
         {
@@ -6279,6 +6459,14 @@
       "Properties": [
         {
           "Member": "System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IRelationalJsonElement> Properties { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "interface Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyOverrides : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.IKey Key { get; }"
         }
       ]
     },
@@ -7492,6 +7680,25 @@
     },
     {
       "Type": "sealed class Microsoft.EntityFrameworkCore.Storage.JsonTypePlaceholder"
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.Conventions.KeyOverridesConvention : Microsoft.EntityFrameworkCore.Metadata.Conventions.IKeyAnnotationChangedConvention, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConvention",
+      "Methods": [
+        {
+          "Member": "KeyOverridesConvention(Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies dependencies, Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies relationalDependencies);"
+        },
+        {
+          "Member": "virtual void ProcessKeyAnnotationChanged(Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, string name, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? annotation, Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation? oldAnnotation, Microsoft.EntityFrameworkCore.Metadata.Conventions.IConventionContext<Microsoft.EntityFrameworkCore.Metadata.IConventionAnnotation> context);"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.ProviderConventionSetBuilderDependencies Dependencies { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure.RelationalConventionSetBuilderDependencies RelationalDependencies { get; }"
+        }
+      ]
     },
     {
       "Type": "class Microsoft.EntityFrameworkCore.Query.SqlExpressions.LeftJoinExpression : Microsoft.EntityFrameworkCore.Query.SqlExpressions.PredicateJoinExpressionBase",
@@ -10019,6 +10226,10 @@
           "Value": "Relational:ForeignKeyMappings"
         },
         {
+          "Member": "const string ForeignKeyOverrides",
+          "Value": "Relational:ForeignKeyOverrides"
+        },
+        {
           "Member": "const string FunctionColumnMappings",
           "Value": "Relational:FunctionColumnMappings"
         },
@@ -10077,6 +10288,10 @@
         {
           "Member": "const string JsonPropertyName",
           "Value": "Relational:JsonPropertyName"
+        },
+        {
+          "Member": "const string KeyOverrides",
+          "Value": "Relational:KeyOverrides"
         },
         {
           "Member": "const string MappingFragments",
@@ -12948,6 +13163,9 @@
           "Member": "static bool CanSetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "static bool CanSetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static bool CanSetExcludeForeignKeyFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, bool? excluded, bool fromDataAnnotation = false);"
         },
         {
@@ -12978,10 +13196,22 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, string? name);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder referenceCollectionBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder referenceReferenceBuilder, string? name);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, string? name);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder referenceReferenceBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.OwnershipBuilder ownershipBuilder, string? name);"
@@ -12991,6 +13221,9 @@
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder? HasConstraintName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionForeignKeyBuilder relationship, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -13019,6 +13252,9 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetConstraintNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetConstraintNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
           "Member": "static string? GetDefaultName(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
         },
         {
@@ -13031,16 +13267,40 @@
           "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IForeignKeyConstraint> GetMappedConstraints(this Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey);"
         },
         {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalForeignKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalForeignKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalForeignKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey);"
+        },
+        {
           "Member": "static bool IsExcludedFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey);"
         },
         {
           "Member": "static bool IsRowInternal(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalForeignKeyOverrides? RemoveOverrides(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalForeignKeyOverrides? RemoveOverrides(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
           "Member": "static void SetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey, string? value);"
         },
         {
           "Member": "static string? SetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, string? value, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject);"
+        },
+        {
+          "Member": "static string? SetConstraintName(this Microsoft.EntityFrameworkCore.Metadata.IConventionForeignKey foreignKey, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier principalStoreObject, bool fromDataAnnotation = false);"
         },
         {
           "Member": "static void SetIsExcludedFromMigrations(this Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey foreignKey, bool? excluded);"
@@ -13258,13 +13518,25 @@
           "Member": "static bool CanSetName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, string? name, bool fromDataAnnotation = false);"
         },
         {
+          "Member": "static bool CanSetName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder HasName(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder keyBuilder, string? name);"
         },
         {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder<TEntity> HasName<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder<TEntity> keyBuilder, string? name);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder HasName(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder keyBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder<TEntity> HasName<TEntity>(this Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder<TEntity> keyBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder? HasName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder? HasName(this Microsoft.EntityFrameworkCore.Metadata.Builders.IConventionKeyBuilder keyBuilder, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -13327,10 +13599,37 @@
           "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key);"
         },
         {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.ConfigurationSource? GetNameConfigurationSource(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IReadOnlyKey key);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IMutableKey key);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key);"
+        },
+        {
+          "Member": "static System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyOverrides> GetOverrides(this Microsoft.EntityFrameworkCore.Metadata.IKey key);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IMutableRelationalKeyOverrides? RemoveOverrides(this Microsoft.EntityFrameworkCore.Metadata.IMutableKey key, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "static Microsoft.EntityFrameworkCore.Metadata.IConventionRelationalKeyOverrides? RemoveOverrides(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
           "Member": "static void SetName(this Microsoft.EntityFrameworkCore.Metadata.IMutableKey key, string? name);"
         },
         {
           "Member": "static string? SetName(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, string? name, bool fromDataAnnotation = false);"
+        },
+        {
+          "Member": "static void SetName(this Microsoft.EntityFrameworkCore.Metadata.IMutableKey key, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject);"
+        },
+        {
+          "Member": "static string? SetName(this Microsoft.EntityFrameworkCore.Metadata.IConventionKey key, string? name, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool fromDataAnnotation = false);"
         }
       ]
     },
@@ -14328,6 +14627,9 @@
         },
         {
           "Member": "virtual void ValidateSharedColumnsCompatibility(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
+        },
+        {
+          "Member": "virtual void ValidateSharedForeignKeyNameOverrides(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
         },
         {
           "Member": "virtual void ValidateSharedForeignKeysCompatibility(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Metadata.IEntityType> mappedTypes, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier table, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory.Model.Validation> logger);"
@@ -15879,6 +16181,9 @@
           "Member": "override void ProcessForeignKeyAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey runtimeForeignKey, bool runtime);"
         },
         {
+          "Member": "virtual void ProcessForeignKeyOverridesAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyOverrides foreignKeyOverrides, Microsoft.EntityFrameworkCore.Metadata.RuntimeRelationalForeignKeyOverrides runtimeForeignKeyOverrides, bool runtime);"
+        },
+        {
           "Member": "virtual void ProcessFunctionAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IDbFunction function, Microsoft.EntityFrameworkCore.Metadata.RuntimeDbFunction runtimeFunction, bool runtime);"
         },
         {
@@ -15889,6 +16194,9 @@
         },
         {
           "Member": "override void ProcessKeyAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Metadata.RuntimeKey runtimeKey, bool runtime);"
+        },
+        {
+          "Member": "virtual void ProcessKeyOverridesAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyOverrides keyOverrides, Microsoft.EntityFrameworkCore.Metadata.RuntimeRelationalKeyOverrides runtimeKeyOverrides, bool runtime);"
         },
         {
           "Member": "override void ProcessModelAnnotations(System.Collections.Generic.Dictionary<string, object?> annotations, Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Metadata.RuntimeModel runtimeModel, bool runtime);"
@@ -16449,6 +16757,9 @@
         },
         {
           "Member": "static string DuplicateColumnNameUnicodenessMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table);"
+        },
+        {
+          "Member": "static string DuplicateConstraintNameOverride(object? table, object? constraintName, object? otherConstraintName);"
         },
         {
           "Member": "static string DuplicateForeignKeyColumnMismatch(object? foreignKeyProperties1, object? entityType1, object? foreignKeyProperties2, object? entityType2, object? table, object? foreignKeyName, object? columnNames1, object? columnNames2);"
@@ -18387,6 +18698,44 @@
       ]
     },
     {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeRelationalForeignKeyOverrides : Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IRelationalForeignKeyOverrides, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalForeignKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "Methods": [
+        {
+          "Member": "RuntimeRelationalForeignKeyOverrides(Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey foreignKey, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair storeObjects, bool isNameOverridden, string? name);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeForeignKey ForeignKey { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair StoreObjects { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeRelationalKeyOverrides : Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IRelationalKeyOverrides, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalKeyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
+      "Methods": [
+        {
+          "Member": "RuntimeRelationalKeyOverrides(Microsoft.EntityFrameworkCore.Metadata.RuntimeKey key, in Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier storeObject, bool isNameOverridden, string? name);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.RuntimeKey Key { get; }"
+        },
+        {
+          "Member": "virtual Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier StoreObject { get; }"
+        }
+      ]
+    },
+    {
       "Type": "class Microsoft.EntityFrameworkCore.Metadata.RuntimeRelationalPropertyOverrides : Microsoft.EntityFrameworkCore.Infrastructure.AnnotatableBase, Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyOverrides, Microsoft.EntityFrameworkCore.Metadata.IReadOnlyRelationalPropertyOverrides, Microsoft.EntityFrameworkCore.Infrastructure.IReadOnlyAnnotatable, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable",
       "Methods": [
         {
@@ -19962,6 +20311,66 @@
         },
         {
           "Member": "Microsoft.EntityFrameworkCore.Metadata.StoreObjectType StoreObjectType { get; }"
+        }
+      ]
+    },
+    {
+      "Type": "readonly class Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair(StoreObjectIdentifier DependentStoreObject, StoreObjectIdentifier PrincipalStoreObject)",
+      "Methods": [
+        {
+          "Member": "StoreObjectPair(Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier DependentStoreObject, Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier PrincipalStoreObject);"
+        },
+        {
+          "Member": "StoreObjectPair();"
+        },
+        {
+          "Member": "void Deconstruct(out Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier DependentStoreObject, out Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier PrincipalStoreObject);"
+        },
+        {
+          "Member": "override bool Equals(object obj);"
+        },
+        {
+          "Member": "bool Equals(Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair other);"
+        },
+        {
+          "Member": "override int GetHashCode();"
+        },
+        {
+          "Member": "static bool operator ==(Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair left, Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair right);"
+        },
+        {
+          "Member": "static bool operator !=(Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair left, Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair right);"
+        },
+        {
+          "Member": "override string ToString();"
+        }
+      ],
+      "Properties": [
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier DependentStoreObject { get; init; }"
+        },
+        {
+          "Member": "Microsoft.EntityFrameworkCore.Metadata.StoreObjectIdentifier PrincipalStoreObject { get; init; }"
+        }
+      ]
+    },
+    {
+      "Type": "class Microsoft.EntityFrameworkCore.Metadata.StoreObjectPairDictionary<T> : Microsoft.EntityFrameworkCore.Metadata.IReadOnlyStoreObjectPairDictionary<T> where T : class",
+      "Methods": [
+        {
+          "Member": "StoreObjectPairDictionary();"
+        },
+        {
+          "Member": "virtual void Add(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair storeObjects, T value);"
+        },
+        {
+          "Member": "virtual T? Find(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair storeObjects);"
+        },
+        {
+          "Member": "virtual System.Collections.Generic.IEnumerable<T> GetValues();"
+        },
+        {
+          "Member": "virtual T? Remove(in Microsoft.EntityFrameworkCore.Metadata.StoreObjectPair storeObjects);"
         }
       ]
     },
