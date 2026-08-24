@@ -4642,22 +4642,22 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [t].[CustomerID], [t0].[Key], [t0].[C], [t0].[c0]
+SELECT [o1].[CustomerID], [e0].[Key], [e0].[C], [e0].[c0]
 FROM (
     SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
-) AS [t]
+) AS [o1]
 OUTER APPLY (
     SELECT TOP(1) [e].[City] AS [Key], COUNT(*) + (
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
-        WHERE [t].[CustomerID] = [o0].[CustomerID] OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [C], 1 AS [c0]
+        WHERE [o1].[CustomerID] = [o0].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [C], 1 AS [c0]
     FROM [Employees] AS [e]
     WHERE [e].[City] = N'Seattle'
     GROUP BY [e].[City]
     ORDER BY (SELECT 1)
-) AS [t0]
+) AS [e0]
 """);
     }
 
@@ -4668,7 +4668,10 @@ OUTER APPLY (
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], ISNULL((
-    SELECT TOP(1) COUNT(*) + MIN([o].[OrderID])
+    SELECT TOP(1) COUNT(*) + (
+        SELECT MIN([o0].[OrderID])
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
     FROM [Employees] AS [e]
     WHERE [e].[City] = N'Seattle'
     GROUP BY [e].[City]
@@ -4684,7 +4687,7 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], COALESCE((
+SELECT [o].[CustomerID] AS [Key], ISNULL((
     SELECT TOP(1) COUNT(*) + (
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
@@ -4696,6 +4699,26 @@ SELECT [o].[CustomerID] AS [Key], COALESCE((
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
         WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_same_predicate(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_same_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], (
+    SELECT TOP(1) [e].[City]
+    FROM [Employees] AS [e]
+    GROUP BY [e].[City]
+    HAVING COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) > 5
+    ORDER BY [e].[City]) AS [A]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
