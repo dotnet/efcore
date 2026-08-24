@@ -276,7 +276,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
                 }
 
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         sqlExpression = AddExplicitConvertIfNeeded(sqlExpression);
@@ -340,7 +340,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
             default:
             {
-                switch (_sqlTranslator.TranslateProjection(expression))
+                switch (_sqlTranslator.TranslateProjection(expression, _selectExpression))
                 {
                     case SqlExpression sqlExpression:
                         sqlExpression = AddExplicitConvertIfNeeded(sqlExpression);

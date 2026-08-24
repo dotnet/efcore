@@ -583,7 +583,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                     relationalGroupByShaperExpression.KeySelector,
                     innerShaperExpression,
                     relationalGroupByShaperExpression.GroupingEnumerable,
-                    relationalGroupByShaperExpression.ResultSelector);
+                    relationalGroupByShaperExpression.ResultSelector)
+                {
+                    OwningSelectExpression = relationalGroupByShaperExpression.OwningSelectExpression
+                };
             }
 
             // Convert GroupBy to OrderBy
@@ -1925,7 +1928,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         return new RelationalGroupByShaperExpression(
             keySelector,
             shaperExpression,
-            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression)) { OwningSelectExpression = this };
     }
 
     // A collection's rows are told apart on the client by their identifier values. The database told them apart by their provider
