@@ -530,7 +530,7 @@ stages:
 - stage: validate
   displayName: Validate
   dependsOn: build
-  condition: always()
+  condition: and(always(), eq('${{ parameters.jobs }}', '[]'))
   jobs:
   - job: Validate_Job_Results
     displayName: Job Results

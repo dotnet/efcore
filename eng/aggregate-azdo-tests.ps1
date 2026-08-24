@@ -87,13 +87,20 @@ if (($jobAttempt -gt 1 -or $stageAttempt -gt 1) -and $failedGroups.Count -gt 0)
 
     $jobsToRetry = @($failedGroups | ForEach-Object { $groupJobs[$_] } | Select-Object -Unique)
     $jobsParameter = ConvertTo-Json -InputObject $jobsToRetry -Compress
+    $definitionId = 0
+    if (-not [int]::TryParse($env:SYSTEM_DEFINITIONID, [ref]$definitionId) -or $definitionId -le 0)
+    {
+        throw "SYSTEM_DEFINITIONID must contain a valid pipeline definition ID; received '$env:SYSTEM_DEFINITIONID'."
+    }
+
     $project = [Uri]::EscapeDataString($env:SYSTEM_TEAMPROJECT)
     $buildsUri = "$($env:SYSTEM_COLLECTIONURI.TrimEnd('/'))/$project/_apis/build/builds"
     $headers = @{ Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN" }
     $queueBody = @{
-        definition = @{ id = [int]$env:BUILD_DEFINITIONID }
+        definition = @{ id = $definitionId }
         sourceBranch = $env:BUILD_SOURCEBRANCH
         sourceVersion = $env:BUILD_SOURCEVERSION
+        # The REST model requires string values; jobs is a JSON array consumed by the pipeline's string parameter.
         templateParameters = @{ jobs = $jobsParameter }
     } | ConvertTo-Json -Depth 4
 
@@ -103,6 +110,14 @@ if (($jobAttempt -gt 1 -or $stageAttempt -gt 1) -and $failedGroups.Count -gt 0)
     {
         throw 'The retry build response did not contain a build ID.'
     }
+
+    $retryBuildUrl = $retryBuild._links.web.href
+    if ([string]::IsNullOrEmpty($retryBuildUrl))
+    {
+        $retryBuildUrl = "$($env:SYSTEM_COLLECTIONURI.TrimEnd('/'))/$project/_build/results?buildId=$($retryBuild.id)"
+    }
+
+    Write-Host "Retry build: $retryBuildUrl"
 
     $deadline = [DateTime]::UtcNow.AddMinutes(190)
     # Wait for the child build so its final job results can replace the original failed results.
