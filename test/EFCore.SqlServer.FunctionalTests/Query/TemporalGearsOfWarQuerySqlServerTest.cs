@@ -4634,7 +4634,7 @@ INNER JOIN [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w] 
 SELECT [t].[Id], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname]
-ORDER BY [t].[Note], [t].[Id], [g].[Nickname]
+ORDER BY [t].[Note], [t].[Id], [g].[Nickname], [g].[SquadId]
 """);
     }
 
@@ -6902,7 +6902,7 @@ LEFT JOIN (
     INNER JOIN [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [g0].[SquadId] = [s].[Id]
     LEFT JOIN [SquadMissions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s0] ON [s].[Id] = [s0].[SquadId]
 ) AS [s1] ON [g].[Nickname] = [s1].[LeaderNickname] AND [g].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0]
+ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0], [s1].[MissionId]
 """);
     }
 
@@ -7568,7 +7568,7 @@ LEFT JOIN (
     WHERE [s0].[MissionId] <> 17
 ) AS [s1] ON [s].[Id] = [s1].[SquadId]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId]
+ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId], [s1].[MissionId]
 """);
     }
 
@@ -7784,7 +7784,7 @@ LEFT JOIN (
 SELECT [t].[Id], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] IS NOT NULL AND [t].[GearSquadId] = [g].[SquadId] AND [t].[GearNickName] IS NOT NULL AND [t].[Note] IS NOT NULL
-ORDER BY [t].[Id], [g].[Nickname]
+ORDER BY [t].[Id], [g].[Nickname], [g].[SquadId]
 """);
     }
 
