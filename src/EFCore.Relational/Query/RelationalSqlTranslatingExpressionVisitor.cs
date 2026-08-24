@@ -54,6 +54,11 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
     private bool _throwForNotTranslatedEfProperty;
 
+    // The SelectExpression currently being composed, scoped by the callers that build one (projection binding and
+    // TranslateLambdaExpression). Lets an aggregate tell its own grouping apart from one belonging to an enclosing
+    // query. Null when translating outside any such context.
+    internal SelectExpression? CurrentSelectExpression { get; set; }
+
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -154,6 +159,28 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
             _ => null
         };
+    }
+
+    /// <summary>
+    ///     Translates a projection, scoping the translation to <paramref name="selectExpression" /> - the SelectExpression the
+    ///     projection is being built into.
+    /// </summary>
+    internal Expression? TranslateProjection(
+        Expression expression,
+        SelectExpression selectExpression,
+        bool applyDefaultTypeMapping = true)
+    {
+        var previous = CurrentSelectExpression;
+        CurrentSelectExpression = selectExpression;
+
+        try
+        {
+            return TranslateProjection(expression, applyDefaultTypeMapping);
+        }
+        finally
+        {
+            CurrentSelectExpression = previous;
+        }
     }
 
     private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
@@ -1643,6 +1670,16 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         if (expression is RelationalGroupByShaperExpression relationalGroupByShaperExpression)
         {
+            // A grouping from an enclosing query stays in scope inside a subquery, but once that subquery has a GROUP BY of
+            // its own an aggregate over the outer grouping cannot be folded into it - it would silently bind to the inner
+            // grouping instead (#27130). Refuse, so the caller falls back to a correlated subquery over the grouping element.
+            if (CurrentSelectExpression is { GroupBy.Count: > 0 }
+                && relationalGroupByShaperExpression.OwningSelectExpression != CurrentSelectExpression)
+            {
+                enumerableExpression = null;
+                return false;
+            }
+
             enumerableExpression = new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector);
             return true;
         }

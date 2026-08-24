@@ -582,7 +582,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                     relationalGroupByShaperExpression.KeySelector,
                     innerShaperExpression,
                     relationalGroupByShaperExpression.GroupingEnumerable,
-                    relationalGroupByShaperExpression.ResultSelector);
+                    relationalGroupByShaperExpression.ResultSelector)
+                {
+                    OwningSelectExpression = relationalGroupByShaperExpression.OwningSelectExpression
+                };
             }
 
             // Convert GroupBy to OrderBy
@@ -1919,7 +1922,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         return new RelationalGroupByShaperExpression(
             keySelector,
             shaperExpression,
-            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression));
+            new ShapedQueryExpression(clonedSelectExpression, rebuiltShaperExpression)) { OwningSelectExpression = this };
     }
 
     // Keeps the first row of each group in place of the grouping. Rows are numbered with

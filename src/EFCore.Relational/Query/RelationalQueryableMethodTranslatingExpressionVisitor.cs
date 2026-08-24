@@ -940,7 +940,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         return source.UpdateShaperExpression(
             new RelationalGroupByShaperExpression(
-                groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector));
+                groupByShaper.KeySelector, elementShaper, groupByShaper.GroupingEnumerable, resultSelector)
+            {
+                OwningSelectExpression = groupByShaper.OwningSelectExpression
+            });
     }
 
     /// <summary>
@@ -2515,7 +2518,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected virtual SqlExpression? TranslateLambdaExpression(
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
-        => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+    {
+        // Scope the SQL translator to the SelectExpression being composed, so an aggregate over a grouping from an enclosing
+        // query is not folded into this query's GROUP BY (#27130).
+        var previous = _sqlTranslator.CurrentSelectExpression;
+        if (shapedQueryExpression.QueryExpression is SelectExpression selectExpression)
+        {
+            _sqlTranslator.CurrentSelectExpression = selectExpression;
+        }
+
+        try
+        {
+            return TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
+        }
+        finally
+        {
+            _sqlTranslator.CurrentSelectExpression = previous;
+        }
+    }
 
     // Expanding a collection navigation produces a subquery filtered only by the correlation to the outer query, i.e. an equality
     // between the foreign key columns and the principal key columns, optionally with a null check on the principal key. That doesn't

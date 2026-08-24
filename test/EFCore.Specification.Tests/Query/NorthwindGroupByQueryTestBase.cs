@@ -3849,7 +3849,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 AssertCollection(e.Orders, a.Orders);
             });
 
-    [Theory(Skip = "Issue#27130"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
         => AssertQuery(
             async,
@@ -3879,7 +3879,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
-    [Theory(Skip = "Issue#27130"), MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
         => AssertQuery(
             async,
@@ -3889,6 +3889,22 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                     g.Key,
                     A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
                         .Select(g2 => g2.Count() + g.Count())
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_same_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().GroupBy(e => e.City)
+                        .Where(g2 => g2.Count() + g.Count() > 5)
+                        .Select(g2 => g2.Key)
                         .OrderBy(e => e)
                         .FirstOrDefault()
                 }),
