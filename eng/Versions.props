@@ -5,7 +5,7 @@
   <PropertyGroup Label="Version settings">
     <VersionPrefix>11.0.0</VersionPrefix>
     <PreReleaseVersionLabel>rc</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
+    <PreReleaseVersionIteration>2</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
     <DotNetFinalVersionKind></DotNetFinalVersionKind>
 
@@ -53,7 +53,7 @@
     <SQLitePCLRawVersion>3.0.5</SQLitePCLRawVersion>
     <SQLite3MCPCLRawBundleVersion>2.4.0</SQLite3MCPCLRawBundleVersion>
     <XUnitV3Version>4.0.0-pre.108</XUnitV3Version>
-    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26403.1</MicrosoftDotNetXUnitV3ExtensionsVersion>
+    <MicrosoftDotNetXUnitV3ExtensionsVersion>11.0.0-beta.26425.101</MicrosoftDotNetXUnitV3ExtensionsVersion>
     <MicrosoftTestingPlatformVersion>2.3.3</MicrosoftTestingPlatformVersion>
     <MicrosoftTestingExtensionsCodeCoverageVersion>18.10.0</MicrosoftTestingExtensionsCodeCoverageVersion>
   </PropertyGroup>
@@ -65,7 +65,7 @@
 
   <PropertyGroup Label="Tooling dependencies">
     <ICSharpCodeDecompilerVersion>10.1.1.8388</ICSharpCodeDecompilerVersion>
-    <SystemCommandLineVersion>2.0.10</SystemCommandLineVersion>
+    <SystemCommandLineVersion>2.0.11</SystemCommandLineVersion>
   </PropertyGroup>
 
 </Project>
