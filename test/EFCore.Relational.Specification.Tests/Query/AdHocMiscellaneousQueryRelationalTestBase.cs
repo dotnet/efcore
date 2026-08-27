@@ -967,7 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .OrderBy(e => e.PickupStatusId);
 
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
             // #30915 TODO: currently throws on base; flip to assert results if/when fixed.
         }
 
@@ -1428,7 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // marker is injected for the INNER nullable side of LEFT JOIN / DefaultIfEmpty only, so this
             // RIGHT JOIN whole-object shape is not covered and still fails during materialization.
             var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            Assert.Contains("Nullable object must have a value", ex.Message);
+            Assert.Contains("Cannot read the Value property of a Nullable object that has no value", ex.Message);
             // #30915 TODO: RightJoin (outer-nullable) whole-object not yet covered; flip to assert results if/when fixed.
         }
 

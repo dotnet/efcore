@@ -435,7 +435,9 @@ ORDER BY c["Id"]
     {
         var ex =
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_nullable_value_type_with_Value(queryTrackingBehavior));
-        Assert.Equal("Nullable object must have a value.", ex.Message);
+        Assert.Equal(
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
+            ex.Message);
 
         AssertSql(
             """

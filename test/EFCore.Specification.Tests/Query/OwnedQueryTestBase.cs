@@ -675,7 +675,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Non_nullable_property_through_optional_navigation(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
                 async,
                 ss => ss.Set<Barton>().Select(e => new { e.Throned!.Value })))).Message);
