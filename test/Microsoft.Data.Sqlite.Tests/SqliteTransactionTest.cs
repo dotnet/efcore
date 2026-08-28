@@ -432,4 +432,19 @@ public class SqliteTransactionTest
 
     private static void CreateTestTable(SqliteConnection connection)
         => connection.ExecuteNonQuery("CREATE TABLE TestTable (TestColumn INTEGER)");
+
+    [Fact]
+    public void Handle_can_be_disposed_with_an_open_transaction()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        // SQLite rolls the open transaction back inside sqlite3_close_v2 and fires the rollback
+        // hook while the handle is being released. Clearing the hook through that same handle threw
+        // out of the native callback, which is fatal wherever the close happens to run.
+        connection.Handle!.Dispose();
+
+        Assert.True(transaction.ExternalRollback);
+    }
 }
