@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable InconsistentNaming
@@ -557,6 +558,63 @@ public abstract class BatchQueryTestBase<TFixture> : QueryTestBase<TFixture>
         // The context remains usable for further queries
         Assert.Equal(4, context.Set<Employee>().Count(e => e.City == "London"));
     }
+
+    [Fact]
+    public virtual async Task Batch_throws_when_enumerating_invalidated_result_set()
+    {
+        using var context = CreateContext();
+
+        await using var batch = await context.BatchAsync(
+            ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+            ctx => ctx.Set<Employee>().Where(e => e.City == "London"));
+
+        // The async enumerable positions the reader lazily, so requesting the next result set first invalidates it
+        var customers = batch.NextAsAsyncEnumerable<Customer>();
+        var employees = await batch.NextAsListAsync<Employee>();
+        Assert.Equal(4, employees.Count);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+            {
+                await foreach (var _ in customers)
+                {
+                }
+            });
+
+        Assert.Equal(RelationalStrings.BatchQueryResultSetInvalidated, exception.Message);
+    }
+
+    [Fact]
+    public virtual void Batch_throws_for_query_from_different_context()
+    {
+        using var context = CreateContext();
+        using var otherContext = CreateContext();
+
+        Assert.Equal(
+            RelationalStrings.BatchQueryDifferentContext,
+            Assert.Throws<InvalidOperationException>(
+                () => context.Batch(
+                    ctx => ctx.Set<Customer>().Where(c => c.City == "London"),
+                    ctx => otherContext.Set<Employee>().Where(e => e.City == "London"))).Message);
+    }
+
+    [Fact]
+    public virtual void Batch_throws_for_user_provided_DbParameter()
+    {
+        using var context = CreateContext();
+
+        var message = Assert.Throws<InvalidOperationException>(
+            () => context.Batch(
+                ctx => ctx.Set<Customer>()
+                    .FromSqlRaw(
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"),
+                        CreateDbParameter("city", "London"))
+                    .OrderBy(c => c.CustomerID))).Message;
+
+        Assert.Equal(RelationalStrings.BatchQueryUnsupportedParameter("RawRelationalParameter"), message);
+    }
+
+    protected abstract DbParameter CreateDbParameter(string name, object value);
 
     protected string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
