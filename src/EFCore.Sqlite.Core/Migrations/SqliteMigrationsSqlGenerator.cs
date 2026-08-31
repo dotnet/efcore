@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -375,15 +374,15 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                 }
 
                 // Skip autoincrement primary key columns that are being added in this migration
-                var isAutoincrement = column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool? == true;
+                var isAutoincrement = (column.FindAnnotation(SqliteAnnotationNames.Autoincrement)?.Value as bool?) == true;
                 var isPrimaryKey = column.Table.PrimaryKey?.Columns.Contains(column) == true;
-                
+
                 if (isAutoincrement && isPrimaryKey)
                 {
                     // Check if this column is being added in the current migration
                     var isNewColumn = migrationOperations.OfType<AddColumnOperation>()
                         .Any(op => op.Table == key.Table && op.Schema == key.Schema && op.Name == column.Name);
-                    
+
                     if (isNewColumn)
                     {
                         continue; // Skip newly added autoincrement columns
@@ -498,8 +497,8 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(AlterDatabaseOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        if (operation[SqliteAnnotationNames.InitSpatialMetaData] as bool? != true
-            || operation.OldDatabase[SqliteAnnotationNames.InitSpatialMetaData] as bool? == true)
+        if ((operation[SqliteAnnotationNames.InitSpatialMetaData] as bool?) != true
+            || (operation.OldDatabase[SqliteAnnotationNames.InitSpatialMetaData] as bool?) == true)
         {
             return;
         }
@@ -982,7 +981,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             builder
                 .Append(" COLLATE ")
-                .Append(operation.Collation);
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Collation));
         }
     }
 
@@ -1063,7 +1062,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 
     private sealed class RebuildContext
     {
-        public ICollection<MigrationOperation> OperationsToReplace { get; } = new List<MigrationOperation>();
+        public ICollection<MigrationOperation> OperationsToReplace { get; } = [];
         public IDictionary<string, AddColumnOperation> AddColumnsDeferred { get; } = new Dictionary<string, AddColumnOperation>();
         public ICollection<string> DropColumnsDeferred { get; } = new HashSet<string>();
         public readonly IDictionary<string, AlterColumnOperation> AlterColumnsDeferred = new Dictionary<string, AlterColumnOperation>();
@@ -1072,6 +1071,6 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             new Dictionary<string, RenameColumnOperation>();
 
         public ICollection<string> CreateIndexesDeferred { get; } = new HashSet<string>();
-        public ICollection<MigrationOperation> OperationsToWarnFor { get; } = new List<MigrationOperation>();
+        public ICollection<MigrationOperation> OperationsToWarnFor { get; } = [];
     }
 }

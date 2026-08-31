@@ -26,31 +26,28 @@ public class SqlServerDateOnlyMemberTranslator(ISqlExpressionFactory sqlExpressi
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType != typeof(DateOnly) || instance is null)
-        {
-            return null;
-        }
+        return member.DeclaringType != typeof(DateOnly) || instance is null
+            ? null
+            : member.Name switch
+            {
+                nameof(DateOnly.Year) => DatePart("year"),
+                nameof(DateOnly.Month) => DatePart("month"),
+                nameof(DateOnly.DayOfYear) => DatePart("dayofyear"),
+                nameof(DateOnly.Day) => DatePart("day"),
 
-        return member.Name switch
-        {
-            nameof(DateOnly.Year) => DatePart("year"),
-            nameof(DateOnly.Month) => DatePart("month"),
-            nameof(DateOnly.DayOfYear) => DatePart("dayofyear"),
-            nameof(DateOnly.Day) => DatePart("day"),
+                nameof(DateOnly.DayNumber) => sqlExpressionFactory.Function(
+                    "DATEDIFF",
+                    [
+                        sqlExpressionFactory.Fragment("day"),
+                        sqlExpressionFactory.Constant(new DateOnly(1, 1, 1)),
+                        instance
+                    ],
+                    nullable: true,
+                    argumentsPropagateNullability: [false, true, true],
+                    returnType),
 
-            nameof(DateOnly.DayNumber) => sqlExpressionFactory.Function(
-                "DATEDIFF",
-                [
-                    sqlExpressionFactory.Fragment("day"),
-                    sqlExpressionFactory.Constant(new DateOnly(1, 1, 1)),
-                    instance
-                ],
-                nullable: true,
-                argumentsPropagateNullability: [false, true, true],
-                returnType),
-
-            _ => null
-        };
+                _ => null
+            };
 
         SqlExpression DatePart(string datePart)
             => sqlExpressionFactory.Function(

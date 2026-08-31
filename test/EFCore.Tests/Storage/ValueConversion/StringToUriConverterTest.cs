@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class StringToUriConverterTest
 {
     private static readonly StringToUriConverter _stringToUri = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_uris()
     {
         var converter = _stringToUri.ConvertToProviderExpression.Compile();
@@ -20,7 +20,7 @@ public class StringToUriConverterTest
         Assert.Throws<UriFormatException>(() => converter("http:///"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_uris_object()
     {
         var converter = _stringToUri.ConvertToProvider;
@@ -34,7 +34,7 @@ public class StringToUriConverterTest
         Assert.Throws<UriFormatException>(() => converter("http:///"));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_uris_to_strings()
     {
         var converter = _stringToUri.ConvertFromProviderExpression.Compile();
@@ -45,7 +45,7 @@ public class StringToUriConverterTest
         Assert.Equal(".", converter(new Uri(".", UriKind.Relative)));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_uris_to_strings_object()
     {
         var converter = _stringToUri.ConvertFromProvider;

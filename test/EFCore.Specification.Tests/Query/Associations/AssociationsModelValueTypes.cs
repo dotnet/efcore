@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Query.Associations;
 
 /// <summary>
-/// Variant of <see cref="RootEntity" /> containing value type complex types.
+///     Variant of <see cref="RootEntity" /> containing value type complex types.
 /// </summary>
 public class ValueRootEntity
 {
@@ -20,14 +20,14 @@ public class ValueRootEntity
     // For now map a reference type collection instead.
     public List<AssociateType> AssociateCollection { get; set; } = null!;
 
-    public override string ToString() => Name;
+    public override string ToString()
+        => Name;
 
     public static ValueRootEntity FromRootEntity(RootEntity rootEntity)
         => new()
         {
             Id = rootEntity.Id,
             Name = rootEntity.Name,
-
             RequiredAssociate = ValueAssociateType.FromAssociateType(rootEntity.RequiredAssociate).Value,
             OptionalAssociate = ValueAssociateType.FromAssociateType(rootEntity.OptionalAssociate),
 
@@ -37,7 +37,7 @@ public class ValueRootEntity
 }
 
 /// <summary>
-/// Variant of <see cref="AssociateType" /> as a value type.
+///     Variant of <see cref="AssociateType" /> as a value type.
 /// </summary>
 public struct ValueAssociateType : IEquatable<ValueAssociateType>
 {
@@ -61,12 +61,12 @@ public struct ValueAssociateType : IEquatable<ValueAssociateType>
 
     public readonly bool Equals(ValueAssociateType other)
         => Id == other.Id
-           && Name == other.Name
-           && Int == other.Int
-           && String == other.String
-           && RequiredNested.Equals(other.RequiredNested)
-           && (OptionalNested is null && other.OptionalNested is null || OptionalNested?.Equals(other.RequiredNested) == true)
-           && NestedCollection.SequenceEqual(other.NestedCollection);
+            && Name == other.Name
+            && Int == other.Int
+            && String == other.String
+            && RequiredNested.Equals(other.RequiredNested)
+            && ((OptionalNested is null && other.OptionalNested is null) || OptionalNested?.Equals(other.RequiredNested) == true)
+            && NestedCollection.SequenceEqual(other.NestedCollection);
 
     [return: NotNullIfNotNull(nameof(associate))]
     public static ValueAssociateType? FromAssociateType(AssociateType? associate)
@@ -82,11 +82,12 @@ public struct ValueAssociateType : IEquatable<ValueAssociateType>
             NestedCollection = associate.NestedCollection.Select((n) => n.DeepClone()).ToList()
         };
 
-    public override string ToString() => Name;
+    public override string ToString()
+        => Name;
 }
 
 /// <summary>
-/// Variant of <see cref="ValueNestedType" /> as a value type.
+///     Variant of <see cref="ValueNestedType" /> as a value type.
 /// </summary>
 public struct ValueNestedType : IEquatable<ValueNestedType>
 {
@@ -102,9 +103,9 @@ public struct ValueNestedType : IEquatable<ValueNestedType>
 
     public readonly bool Equals(ValueNestedType other)
         => Id == other.Id
-           && Name == other.Name
-           && Int == other.Int
-           && String == other.String;
+            && Name == other.Name
+            && Int == other.Int
+            && String == other.String;
 
     [return: NotNullIfNotNull(nameof(nestedType))]
     public static ValueNestedType? FromNestedType(NestedAssociateType? nestedType)
@@ -116,5 +117,6 @@ public struct ValueNestedType : IEquatable<ValueNestedType>
             String = nestedType.String
         };
 
-    public override string ToString() => Name;
+    public override string ToString()
+        => Name;
 }

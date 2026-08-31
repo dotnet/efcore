@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -7,7 +7,7 @@ public class BytesToStringConverterTest
 {
     private static readonly BytesToStringConverter _bytesToStringConverter = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_bytes()
     {
         var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
@@ -17,7 +17,7 @@ public class BytesToStringConverterTest
         Assert.Equal("", converter([]));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_bytes_to_strings()
     {
         var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();
@@ -26,7 +26,7 @@ public class BytesToStringConverterTest
         Assert.Equal(new byte[0], converter(""));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_strings_to_long_non_char_bytes()
     {
         var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
@@ -34,7 +34,7 @@ public class BytesToStringConverterTest
         Assert.Equal(CreateLongBytesString(), converter(CreateLongBytes()));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_convert_long_non_char_bytes_to_strings()
     {
         var converter = _bytesToStringConverter.ConvertFromProviderExpression.Compile();

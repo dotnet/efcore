@@ -30,5 +30,5 @@ public class CosmosQueryTranslationPostprocessorFactory(
         => new CosmosQueryTranslationPostprocessor(
             Dependencies,
             sqlExpressionFactory,
-            ((CosmosQueryCompilationContext)queryCompilationContext));
+            (CosmosQueryCompilationContext)queryCompilationContext);
 }

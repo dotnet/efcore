@@ -19,7 +19,7 @@ public class ConvertingValueComparer
 <[DynamicallyAccessedMembers(
         DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
-    TTo, TFrom> : ValueComparer<TTo>, IInfrastructure<ValueComparer>
+TTo, TFrom> : ValueComparer<TTo>, IInfrastructure<ValueComparer>
 {
     private readonly ValueComparer<TFrom> _valueComparer;
 

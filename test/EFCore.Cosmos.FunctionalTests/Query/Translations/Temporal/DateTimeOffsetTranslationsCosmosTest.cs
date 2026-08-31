@@ -17,7 +17,7 @@ public class DateTimeOffsetTranslationsCosmosTest : DateTimeOffsetTranslationsTe
     public override async Task Now()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Now());
+        await AssertTranslationFailed(base.Now);
 
         AssertSql();
     }
@@ -37,13 +37,15 @@ WHERE (c["DateTimeOffset"] != GetCurrentDateTime())
     public override async Task Date()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Date());
+        await AssertTranslationFailed(base.Date);
 
         AssertSql();
     }
 
     public override async Task Year()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         await base.Year();
 
         AssertSql(
@@ -56,8 +58,10 @@ WHERE (DateTimePart("yyyy", c["DateTimeOffset"]) = 1998)
 
     public override async Task Month()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Month());
+        await Assert.ThrowsAsync<EqualException>(base.Month);
 
         AssertSql(
             """
@@ -70,13 +74,15 @@ WHERE (DateTimePart("mm", c["DateTimeOffset"]) = 5)
     public override async Task DayOfYear()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.DayOfYear());
+        await AssertTranslationFailed(base.DayOfYear);
 
         AssertSql();
     }
 
     public override async Task Day()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         await base.Day();
 
         AssertSql(
@@ -89,8 +95,10 @@ WHERE (DateTimePart("dd", c["DateTimeOffset"]) = 4)
 
     public override async Task Hour()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Hour());
+        await Assert.ThrowsAsync<EqualException>(base.Hour);
 
         AssertSql(
             """
@@ -102,8 +110,10 @@ WHERE (DateTimePart("hh", c["DateTimeOffset"]) = 15)
 
     public override async Task Minute()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Minute());
+        await Assert.ThrowsAsync<EqualException>(base.Minute);
 
         AssertSql(
             """
@@ -115,6 +125,8 @@ WHERE (DateTimePart("mi", c["DateTimeOffset"]) = 30)
 
     public override async Task Second()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         await base.Second();
 
         AssertSql(
@@ -127,6 +139,8 @@ WHERE (DateTimePart("ss", c["DateTimeOffset"]) = 10)
 
     public override async Task Millisecond()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         await base.Millisecond();
 
         AssertSql(
@@ -139,6 +153,8 @@ WHERE (DateTimePart("ms", c["DateTimeOffset"]) = 123)
 
     public override async Task Microsecond()
     {
+        CosmosTestEnvironment.SkipIfNotEmulator();
+
         await base.Microsecond();
 
         AssertSql(
@@ -152,7 +168,7 @@ WHERE ((DateTimePart("mcs", c["DateTimeOffset"]) % 1000) = 456)
     public override async Task Nanosecond()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.Nanosecond());
+        await Assert.ThrowsAsync<EqualException>(base.Nanosecond);
 
         AssertSql(
             """
@@ -173,10 +189,34 @@ FROM root c
 """);
     }
 
+    public override async Task DateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.DateTime);
+
+        AssertSql();
+    }
+
+    public override async Task UtcDateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.UtcDateTime);
+
+        AssertSql();
+    }
+
+    public override async Task LocalDateTime()
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(base.LocalDateTime);
+
+        AssertSql();
+    }
+
     public override async Task AddYears()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddYears());
+        await Assert.ThrowsAsync<EqualException>(base.AddYears);
 
         AssertSql(
             """
@@ -188,7 +228,7 @@ FROM root c
     public override async Task AddMonths()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddMonths());
+        await Assert.ThrowsAsync<EqualException>(base.AddMonths);
 
         AssertSql(
             """
@@ -200,11 +240,11 @@ FROM root c
     public override async Task AddDays()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddSeconds());
+        await Assert.ThrowsAsync<EqualException>(base.AddSeconds);
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("ss", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("ss", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -212,11 +252,11 @@ FROM root c
     public override async Task AddHours()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddHours());
+        await Assert.ThrowsAsync<EqualException>(base.AddHours);
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("hh", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("hh", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -224,11 +264,11 @@ FROM root c
     public override async Task AddMinutes()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddMinutes());
+        await Assert.ThrowsAsync<EqualException>(base.AddMinutes);
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("mi", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("mi", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -236,11 +276,11 @@ FROM root c
     public override async Task AddSeconds()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddSeconds());
+        await Assert.ThrowsAsync<EqualException>(base.AddSeconds);
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("ss", 1.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("ss", 1, c["DateTimeOffset"])
 FROM root c
 """);
     }
@@ -248,20 +288,29 @@ FROM root c
     public override async Task AddMilliseconds()
     {
         // Our persisted representation of DateTimeOffset (xxx+00:00) isn't supported by Cosmos (should be xxxZ). #35310
-        await Assert.ThrowsAsync<EqualException>(() => base.AddMilliseconds());
+        await Assert.ThrowsAsync<EqualException>(base.AddMilliseconds);
 
         AssertSql(
             """
-SELECT VALUE DateTimeAdd("ms", 300.0, c["DateTimeOffset"])
+SELECT VALUE DateTimeAdd("ms", 300, c["DateTimeOffset"])
 FROM root c
 """);
     }
 
     public override Task ToUnixTimeMilliseconds()
-        => AssertTranslationFailed(() => base.ToUnixTimeMilliseconds());
+        => AssertTranslationFailed(base.ToUnixTimeMilliseconds);
 
     public override Task ToUnixTimeSecond()
-        => AssertTranslationFailed(() => base.ToUnixTimeSecond());
+        => AssertTranslationFailed(base.ToUnixTimeSecond);
+
+    public override Task ToOffset()
+        => AssertTranslationFailed(base.ToOffset);
+
+    public override Task Ctor_DateTime()
+        => AssertTranslationFailed(base.Ctor_DateTime);
+
+    public override Task Ctor_DateTime_TimeSpan()
+        => AssertTranslationFailed(base.Ctor_DateTime_TimeSpan);
 
     public override async Task Milliseconds_parameter_and_constant()
     {
@@ -275,7 +324,7 @@ WHERE (c["DateTimeOffset"] = "1902-01-02T10:00:00.1234567+01:30")
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

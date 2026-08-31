@@ -56,6 +56,11 @@ public interface IForeignKeyConstraint : IAnnotatable
     ReferentialAction OnDeleteAction { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether the foreign key constraint is excluded from migrations.
+    /// </summary>
+    bool IsExcludedFromMigrations { get; }
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>

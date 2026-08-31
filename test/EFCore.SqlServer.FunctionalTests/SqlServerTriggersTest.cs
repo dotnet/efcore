@@ -6,14 +6,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixture fixture)
     : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_run_on_insert_update_and_delete()
     {
         using var context = CreateContext();
@@ -39,7 +37,7 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
         Assert.Empty(context.ProductBackups);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Triggers_work_with_batch_operations()
     {
         using var context = CreateContext();
@@ -93,8 +91,8 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
 
     protected class TriggersContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public virtual DbSet<Product> Products { get; set; }
-        public virtual DbSet<ProductBackup> ProductBackups { get; set; }
+        public virtual DbSet<Product> Products { get; set; } = null!;
+        public virtual DbSet<ProductBackup> ProductBackups { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -120,16 +118,16 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
     protected class Product
     {
         public virtual int Id { get; set; }
-        public virtual byte[] Version { get; set; }
-        public virtual string Name { get; set; }
+        public virtual byte[] Version { get; set; } = null!;
+        public virtual string Name { get; set; } = null!;
         public virtual int StoreUpdated { get; set; }
     }
 
     protected class ProductBackup
     {
         public virtual int Id { get; set; }
-        public virtual byte[] Version { get; set; }
-        public virtual string Name { get; set; }
+        public virtual byte[] Version { get; set; } = null!;
+        public virtual string Name { get; set; } = null!;
     }
 
     public class SqlServerTriggersFixture : SharedStoreFixtureBase<PoolableDbContext>

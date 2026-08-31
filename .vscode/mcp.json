@@ -1,0 +1,48 @@
+{
+  "servers": {
+    "microsoft-docs": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "nuget": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "NuGet.Mcp.Server",
+        "--prerelease",
+        "--yes"
+      ]
+    },
+    "Community-Mcp-DotNet": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "Community.Mcp.DotNet",
+        "--prerelease",
+        "--yes"
+      ],
+      "env": {
+        "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": "1",
+        "DOTNET_NOLOGO": "1"
+      }
+    },
+    "helix-azdo": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "lewing.helix.mcp",
+        "--prerelease",
+        "--yes"
+      ]
+    },
+    "msbuild-binlog": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "baronfel.binlog.mcp",
+        "--prerelease",
+        "--yes"
+      ]
+    }
+  }
+}

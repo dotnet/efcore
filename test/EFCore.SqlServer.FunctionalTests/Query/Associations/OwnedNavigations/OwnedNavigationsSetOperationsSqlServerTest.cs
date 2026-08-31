@@ -42,7 +42,7 @@ WHERE (
         FROM [RelatedCollection] AS [r1]
         WHERE [r].[Id] = [r1].[RootEntityId] AND [r1].[String] = N'foo'
     ) AS [u]) = 4
-ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r2].[RootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r9].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r2].[RootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r9].[AssociateTypeRootEntityId], [r9].[Id]
 """);
     }
 
@@ -56,7 +56,7 @@ ORDER BY [r].[Id], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[A
         AssertSql(
             """
 SELECT (
-    SELECT COALESCE(SUM([s].[value]), 0)
+    SELECT ISNULL(SUM([s].[value]), 0)
     FROM (
         SELECT [r0].[RootEntityId], [r0].[Id]
         FROM [RelatedCollection] AS [r0]
@@ -67,7 +67,7 @@ SELECT (
         WHERE [r].[Id] = [r1].[RootEntityId] AND [r1].[String] = N'foo'
     ) AS [u]
     OUTER APPLY (
-        SELECT COALESCE(SUM([r2].[Int]), 0) AS [value]
+        SELECT ISNULL(SUM([r2].[Int]), 0) AS [value]
         FROM [RelatedCollection_NestedCollection] AS [r2]
         WHERE [u].[RootEntityId] = [r2].[AssociateTypeRootEntityId] AND [u].[Id] = [r2].[AssociateTypeId]
     ) AS [s])
@@ -109,7 +109,7 @@ WHERE (
         FROM [RequiredRelated_NestedCollection] AS [r2]
         WHERE [r0].[RootEntityId] = [r2].[AssociateTypeRootEntityId] AND [r2].[String] = N'foo'
     ) AS [u]) = 4
-ORDER BY [r].[Id], [r0].[RootEntityId], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r9].[AssociateTypeRootEntityId]
+ORDER BY [r].[Id], [r0].[RootEntityId], [o].[RootEntityId], [o0].[AssociateTypeRootEntityId], [o1].[AssociateTypeRootEntityId], [r3].[AssociateTypeRootEntityId], [r4].[AssociateTypeRootEntityId], [s].[RootEntityId], [s].[Id], [s].[AssociateTypeRootEntityId], [s].[AssociateTypeId], [s].[AssociateTypeRootEntityId0], [s].[AssociateTypeId0], [s].[AssociateTypeRootEntityId1], [s].[AssociateTypeId1], [s].[Id0], [o2].[AssociateTypeRootEntityId], [o2].[Id], [r9].[AssociateTypeRootEntityId], [r9].[Id]
 """);
     }
 
@@ -120,7 +120,7 @@ ORDER BY [r].[Id], [r0].[RootEntityId], [o].[RootEntityId], [o0].[AssociateTypeR
         AssertSql();
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 }

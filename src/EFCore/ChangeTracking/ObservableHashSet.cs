@@ -42,7 +42,7 @@ public class ObservableHashSet<T>
     ///     implementation for the set type.
     /// </param>
     public ObservableHashSet(IEqualityComparer<T> comparer)
-        => _set = new HashSet<T>(comparer);
+        => _set = [with(comparer)];
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ObservableHashSet{T}" /> class

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     Allows SQL Server specific configuration to be performed on <see cref="DbContextOptions" />.
 /// </summary>
 /// <remarks>
-///     Instances of this class are returned from a call to <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
+///     Instances of this class are returned from a call to <see cref="O:ProxiesExtensions.UseLazyLoadingProxies" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
 public class LazyLoadingProxiesOptionsBuilder

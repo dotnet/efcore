@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class StoredProcedureUpdateSqlServerTest(NonSharedFixture fixture) : StoredProcedureUpdateTestBase(fixture)
 {
     public override async Task Insert_with_output_parameter(bool async)
@@ -402,7 +400,7 @@ END
 
 SET NOCOUNT ON;
 EXEC [Entity_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
-            TestSqlLoggerFactory.Sql.Substring(TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)),
+            TestSqlLoggerFactory.Sql[TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)..],
             ignoreLineEndingDifferences: true);
     }
 
@@ -426,7 +424,7 @@ END
 
 SET NOCOUNT ON;
 EXEC [Entity_Update] @p0, @p1, @p2, @p3 OUTPUT, @p4 OUTPUT;",
-            TestSqlLoggerFactory.Sql.Substring(TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)),
+            TestSqlLoggerFactory.Sql[TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)..],
             ignoreLineEndingDifferences: true);
     }
 
@@ -700,6 +698,6 @@ EXEC [EntityWithAdditionalProperty_Insert] @p4, @p5 OUTPUT, @p6;
     protected override void ConfigureStoreGeneratedConcurrencyToken(EntityTypeBuilder entityTypeBuilder, string propertyName)
         => entityTypeBuilder.Property<byte[]>(propertyName).IsRowVersion();
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }

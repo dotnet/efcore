@@ -75,8 +75,8 @@ public class ExistsExpression : SqlExpression
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ExistsExpression existsExpression
-                && Equals(existsExpression));
+                || (obj is ExistsExpression existsExpression
+                    && Equals(existsExpression)));
 
     private bool Equals(ExistsExpression existsExpression)
         => base.Equals(existsExpression)

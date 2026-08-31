@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryRelationalTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public NorthwindSelectQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -28,12 +26,12 @@ FROM "Orders" AS "o"
 """);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_datetime_year_component_composed(bool async)
     {
         await AssertQueryScalar(
             async,
-            ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Year));
+            ss => ss.Set<Order>().Select(o => o.OrderDate!.Value.AddYears(1).Year));
 
         AssertSql(
             """
@@ -125,7 +123,7 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-SELECT CAST(CAST(strftime('%w', "o"."OrderDate") AS INTEGER) AS INTEGER)
+SELECT CAST(strftime('%w', "o"."OrderDate") AS INTEGER)
 FROM "Orders" AS "o"
 """);
     }
@@ -167,6 +165,12 @@ FROM "Orders" AS "o"
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.SelectMany_correlated_with_outer_1(async))).Message);
+
+    public override async Task SelectMany_over_inline_array_projecting_range_variable_and_outer(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(()
+                => base.SelectMany_over_inline_array_projecting_range_variable_and_outer(async))).Message);
 
     public override async Task SelectMany_correlated_with_outer_2(bool async)
         => Assert.Equal(

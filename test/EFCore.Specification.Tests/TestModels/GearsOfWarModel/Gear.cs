@@ -5,35 +5,33 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
-#nullable disable
-
 public class Gear
 {
     public Gear()
-        => Weapons = new List<Weapon>();
+        => Weapons = [];
 
     // composite key
-    public string Nickname { get; set; }
+    public string Nickname { get; set; } = null!;
 
     public int SquadId { get; set; }
 
-    public string FullName { get; set; }
+    public string FullName { get; set; } = null!;
 
-    public string CityOfBirthName { get; set; }
-    public virtual City CityOfBirth { get; set; }
+    public string CityOfBirthName { get; set; } = null!;
+    public virtual City CityOfBirth { get; set; } = null!;
 
-    public virtual City AssignedCity { get; set; }
+    public virtual City? AssignedCity { get; set; }
 
     public MilitaryRank Rank { get; set; }
 
     public virtual CogTag Tag { get; set; } = new(); // Initialized to test #23851
 
-    public virtual Squad Squad { get; set; }
+    public virtual Squad Squad { get; set; } = null!;
 
     // TODO: make this many to many - not supported at the moment
     public virtual ICollection<Weapon> Weapons { get; set; }
 
-    public string LeaderNickname { get; set; }
+    public string? LeaderNickname { get; set; }
     public int LeaderSquadId { get; set; }
 
     public bool HasSoulPatch { get; set; }

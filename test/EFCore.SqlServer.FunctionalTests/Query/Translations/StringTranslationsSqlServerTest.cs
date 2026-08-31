@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.BasicTypesModel;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query.Translations;
 
@@ -19,9 +20,9 @@ public class StringTranslationsSqlServerTest : StringTranslationsRelationalTestB
 
     #region Equals
 
-    public override async Task Equals()
+    public override async Task Instance_Equals()
     {
-        await base.Equals();
+        await base.Instance_Equals();
 
         AssertSql(
             """
@@ -273,6 +274,23 @@ END = 1
 """);
     }
 
+    public override async Task IndexOf_with_non_string_column_using_double_cast()
+    {
+        await base.IndexOf_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+@pattern='5' (Size = 4000)
+
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE CAST(CHARINDEX(@pattern, CAST([b].[Int] AS nvarchar(max))) AS int) - CASE
+    WHEN @pattern = N'' THEN 0
+    ELSE 1
+END <> -1
+""");
+    }
+
     #endregion IndexOf
 
     #region Replace
@@ -322,6 +340,18 @@ WHERE [b].[String] <> N'' AND REPLACE([b].[String], [b].[String], N'') = N''
 SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
 FROM [BasicTypesEntities] AS [b]
 WHERE [b].[String] <> N'' AND REPLACE([b].[String], [b].[String], CONVERT(varchar(11), [b].[Int])) = CONVERT(varchar(11), [b].[Int])
+""");
+    }
+
+    public override async Task Replace_with_non_string_column_using_double_cast()
+    {
+        await base.Replace_with_non_string_column_using_double_cast();
+
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE REPLACE(CAST([b].[Int] AS nvarchar(max)), N'8', N'3') = N'3'
 """);
     }
 
@@ -798,11 +828,43 @@ WHERE LTRIM([b].[String]) = N'Boston  '
 """);
     }
 
-    public override Task TrimStart_with_char_argument()
-        => AssertTranslationFailed(() => base.TrimStart_with_char_argument());
+    public override async Task TrimStart_with_char_argument()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.TrimStart_with_char_argument();
 
-    public override Task TrimStart_with_char_array_argument()
-        => AssertTranslationFailed(() => base.TrimStart_with_char_array_argument());
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE LTRIM([b].[String], N'S') = N'eattle'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.TrimStart_with_char_argument);
+        }
+    }
+
+    public override async Task TrimStart_with_char_array_argument()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.TrimStart_with_char_array_argument();
+
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE LTRIM([b].[String], N'Se') = N'attle'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.TrimStart_with_char_array_argument);
+        }
+    }
 
     #endregion TrimStart
 
@@ -820,11 +882,43 @@ WHERE RTRIM([b].[String]) = N'  Boston'
 """);
     }
 
-    public override Task TrimEnd_with_char_argument()
-        => AssertTranslationFailed(() => base.TrimEnd_with_char_argument());
+    public override async Task TrimEnd_with_char_argument()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.TrimEnd_with_char_argument();
 
-    public override Task TrimEnd_with_char_array_argument()
-        => AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument());
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE RTRIM([b].[String], N'e') = N'Seattl'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.TrimEnd_with_char_argument);
+        }
+    }
+
+    public override async Task TrimEnd_with_char_array_argument()
+    {
+        if (SqlServerTestEnvironment.IsFunctions2022Supported)
+        {
+            await base.TrimEnd_with_char_array_argument();
+
+            AssertSql(
+                """
+SELECT [b].[Id], [b].[Bool], [b].[Byte], [b].[ByteArray], [b].[DateOnly], [b].[DateTime], [b].[DateTimeOffset], [b].[Decimal], [b].[Double], [b].[Enum], [b].[FlagsEnum], [b].[Float], [b].[Guid], [b].[Int], [b].[Long], [b].[Short], [b].[String], [b].[TimeOnly], [b].[TimeSpan]
+FROM [BasicTypesEntities] AS [b]
+WHERE RTRIM([b].[String], N'le') = N'Seatt'
+""");
+        }
+        else
+        {
+            await AssertTranslationFailed(base.TrimEnd_with_char_array_argument);
+        }
+    }
 
     #endregion TrimEnd
 
@@ -845,7 +939,7 @@ WHERE LTRIM(RTRIM([b].[String])) = N'Boston'
     public override async Task Trim_with_char_argument_in_predicate()
     {
         // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_argument_in_predicate);
 
         AssertSql();
     }
@@ -853,7 +947,7 @@ WHERE LTRIM(RTRIM([b].[String])) = N'Boston'
     public override async Task Trim_with_char_array_argument_in_predicate()
     {
         // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate());
+        await AssertTranslationFailed(base.Trim_with_char_array_argument_in_predicate);
 
         AssertSql();
     }
@@ -1322,43 +1416,58 @@ WHERE [b].[String] >= N'Seattle' AND [b].[String] < N'Toronto'
 
     #region Join
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task Join_over_non_nullable_column()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
         await base.Join_over_non_nullable_column();
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG([b].[String], N'|'), N'') AS [Strings]
+SELECT [b].[Int] AS [Key], ISNULL(STRING_AGG([b].[String], N'|'), N'') AS [Strings]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task Join_over_nullable_column()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
         await base.Join_over_nullable_column();
 
         AssertSql(
             """
-SELECT [n0].[Key], COALESCE(STRING_AGG(COALESCE([n0].[String], N''), N'|'), N'') AS [Regions]
+SELECT [n0].[Key], ISNULL(STRING_AGG(ISNULL([n0].[String], N''), N'|'), N'') AS [Regions]
 FROM (
-    SELECT [n].[String], COALESCE([n].[Int], 0) AS [Key]
+    SELECT [n].[String], ISNULL([n].[Int], 0) AS [Key]
     FROM [NullableBasicTypesEntities] AS [n]
 ) AS [n0]
 GROUP BY [n0].[Key]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task Join_with_predicate()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
         await base.Join_with_predicate();
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG(CASE
+SELECT [b].[Int] AS [Key], ISNULL(STRING_AGG(CASE
     WHEN CAST(LEN([b].[String]) AS int) > 6 THEN [b].[String]
 END, N'|'), N'') AS [Strings]
 FROM [BasicTypesEntities] AS [b]
@@ -1366,22 +1475,32 @@ GROUP BY [b].[Int]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task Join_with_ordering()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
         await base.Join_with_ordering();
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG([b].[String], N'|') WITHIN GROUP (ORDER BY [b].[Id] DESC), N'') AS [Strings]
+SELECT [b].[Int] AS [Key], ISNULL(STRING_AGG([b].[String], N'|') WITHIN GROUP (ORDER BY [b].[Id] DESC), N'') AS [Strings]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task Join_non_aggregate()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
         await base.Join_non_aggregate();
 
         AssertSql(
@@ -1410,14 +1529,19 @@ WHERE [b].[String] + N'Boston' = N'SeattleBoston'
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task Concat_aggregate()
     {
+        if (!SqlServerTestEnvironment.IsFunctions2017Supported)
+
+        {
+            throw SkipException.ForSkip("Requires IsFunctions2017Supported");
+        }
+
         await base.Concat_aggregate();
 
         AssertSql(
             """
-SELECT [b].[Int] AS [Key], COALESCE(STRING_AGG([b].[String], N''), N'') AS [BasicTypesEntitys]
+SELECT [b].[Int] AS [Key], ISNULL(STRING_AGG([b].[String], N''), N'') AS [BasicTypesEntitys]
 FROM [BasicTypesEntities] AS [b]
 GROUP BY [b].[Int]
 """);
@@ -1620,14 +1744,14 @@ WHERE CAST([b].[Int] AS nvarchar(max)) LIKE N'%5%'
     #region Regex
 
     public override Task Regex_IsMatch()
-        => AssertTranslationFailed(() => base.Regex_IsMatch());
+        => AssertTranslationFailed(base.Regex_IsMatch);
 
     public override Task Regex_IsMatch_constant_input()
-        => AssertTranslationFailed(() => base.Regex_IsMatch_constant_input());
+        => AssertTranslationFailed(base.Regex_IsMatch_constant_input);
 
     #endregion Regex
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

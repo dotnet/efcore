@@ -39,6 +39,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.MaxDatabaseSize);
             annotations.Remove(SqlServerAnnotationNames.PerformanceLevelSql);
             annotations.Remove(SqlServerAnnotationNames.ServiceTierSql);
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs);
         }
 
         base.Generate(model, parameters);
@@ -50,6 +51,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalogs);
             annotations.Remove(SqlServerAnnotationNames.MemoryOptimized);
             annotations.Remove(SqlServerAnnotationNames.EditionOptions);
         }
@@ -66,6 +68,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.IdentityIncrement);
             annotations.Remove(SqlServerAnnotationNames.IdentitySeed);
             annotations.Remove(SqlServerAnnotationNames.Sparse);
+            annotations.Remove(SqlServerAnnotationNames.IsHidden);
 
             if (!annotations.ContainsKey(SqlServerAnnotationNames.ValueGenerationStrategy))
             {
@@ -86,6 +89,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.Sparse);
             annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
             annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
+            annotations.Remove(SqlServerAnnotationNames.IsHidden);
         }
 
         base.Generate(column, parameters);
@@ -103,6 +107,10 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
             annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
+            annotations.Remove(SqlServerAnnotationNames.FullTextIndex);
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalog);
+            annotations.Remove(SqlServerAnnotationNames.FullTextChangeTracking);
+            annotations.Remove(SqlServerAnnotationNames.FullTextLanguages);
         }
 
         base.Generate(index, parameters);
@@ -120,6 +128,10 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
             annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
+            annotations.Remove(SqlServerAnnotationNames.FullTextIndex);
+            annotations.Remove(SqlServerAnnotationNames.FullTextCatalog);
+            annotations.Remove(SqlServerAnnotationNames.FullTextChangeTracking);
+            annotations.Remove(SqlServerAnnotationNames.FullTextLanguages);
         }
 
         base.Generate(index, parameters);
@@ -177,6 +189,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartHidden);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndHidden);
         }
 
         base.Generate(table, parameters);

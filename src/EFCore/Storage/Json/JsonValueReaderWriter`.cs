@@ -15,8 +15,15 @@ public abstract class JsonValueReaderWriter<TValue> : JsonValueReaderWriter
         => FromJsonTyped(ref manager, existingObject)!;
 
     /// <inheritdoc />
-    public sealed override void ToJson(Utf8JsonWriter writer, object value)
-        => ToJsonTyped(writer, (TValue)value!);
+    public sealed override void ToJson(Utf8JsonWriter writer, object? value)
+    {
+        if (value == null && !HandlesNullWrites)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
+
+        ToJsonTyped(writer, (TValue)value!);
+    }
 
     /// <inheritdoc />
     public sealed override Type ValueType

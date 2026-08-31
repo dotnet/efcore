@@ -11,7 +11,7 @@ public class ObservableHashSetTest
 {
     private static readonly Random _random = new();
 
-    [ConditionalFact]
+    [Fact]
     public void Can_construct()
     {
         Assert.Same(
@@ -37,7 +37,7 @@ public class ObservableHashSetTest
         Assert.Same(rh2.Comparer, ohs2.Comparer);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_add()
     {
         var hashSet = new ObservableHashSet<string>();
@@ -54,7 +54,7 @@ public class ObservableHashSetTest
         {
             Assert.Equal(NotifyCollectionChangedAction.Add, a.Action);
             Assert.Null(a.OldItems);
-            Assert.Equal(adding, a.NewItems.OfType<string>());
+            Assert.Equal(adding, a.NewItems!.OfType<string>());
             collectionChanged++;
         };
 
@@ -82,7 +82,7 @@ public class ObservableHashSetTest
         Assert.Equal(["Carmack", "Palmer"], hashSet.OrderBy(i => i));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_clear()
     {
         var testData = new HashSet<int>(CreateTestData());
@@ -99,8 +99,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(testData.OrderBy(i => i), a.OldItems.OfType<int>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(testData.OrderBy(i => i), a.OldItems!.OfType<int>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -119,7 +119,7 @@ public class ObservableHashSetTest
         Assert.Empty(hashSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Contains_works()
     {
         var testData = CreateTestData();
@@ -136,7 +136,7 @@ public class ObservableHashSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_copy_to_array()
     {
         var testData = CreateTestData();
@@ -166,7 +166,7 @@ public class ObservableHashSetTest
         }
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_remove()
     {
         var hashSet = new ObservableHashSet<string> { "Palmer", "Carmack" };
@@ -182,7 +182,7 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Remove, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>());
+            Assert.Equal(removing, a.OldItems!.OfType<string>());
             Assert.Null(a.NewItems);
             collectionChanged++;
         };
@@ -211,11 +211,11 @@ public class ObservableHashSetTest
         Assert.Empty(hashSet);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Not_read_only()
         => Assert.False(new ObservableHashSet<Random>().IsReadOnly);
 
-    [ConditionalFact]
+    [Fact]
     public void Can_union_with()
     {
         var hashSet = new ObservableHashSet<string> { "Palmer", "Carmack" };
@@ -231,8 +231,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Empty(a.OldItems);
-            Assert.Equal(adding, a.NewItems.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.OldItems!);
+            Assert.Equal(adding, a.NewItems!.OfType<string>().OrderBy(i => i));
             collectionChanged++;
         };
 
@@ -251,7 +251,7 @@ public class ObservableHashSetTest
         Assert.Equal(["Brendan", "Carmack", "Nate", "Palmer"], hashSet.OrderBy(i => i));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_intersect_with()
     {
         var hashSet = new ObservableHashSet<string>
@@ -273,8 +273,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -293,7 +293,7 @@ public class ObservableHashSetTest
         Assert.Equal(["Carmack", "Palmer"], hashSet.OrderBy(i => i));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_except_with()
     {
         var hashSet = new ObservableHashSet<string>
@@ -315,8 +315,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -335,7 +335,7 @@ public class ObservableHashSetTest
         Assert.Equal(["Brendan", "Nate"], hashSet.OrderBy(i => i));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_symmetrical_except_with()
     {
         var hashSet = new ObservableHashSet<string>
@@ -358,8 +358,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Equal(adding, a.NewItems.OfType<string>().OrderBy(i => i));
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Equal(adding, a.NewItems!.OfType<string>().OrderBy(i => i));
             collectionChanged++;
         };
 
@@ -378,7 +378,7 @@ public class ObservableHashSetTest
         Assert.Equal(["Abrash", "Brendan", "Nate"], hashSet.OrderBy(i => i));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSubsetOf_works_like_normal_hashset()
     {
         var bigData = CreateTestData();
@@ -389,7 +389,7 @@ public class ObservableHashSetTest
             new ObservableHashSet<int>(smallData).IsSubsetOf(bigData));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsProperSubsetOf_works_like_normal_hashset()
     {
         var bigData = CreateTestData();
@@ -400,7 +400,7 @@ public class ObservableHashSetTest
             new ObservableHashSet<int>(smallData).IsProperSubsetOf(bigData));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsSupersetOf_works_like_normal_hashset()
     {
         var bigData = CreateTestData();
@@ -411,7 +411,7 @@ public class ObservableHashSetTest
             new ObservableHashSet<int>(bigData).IsSupersetOf(smallData));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void IsProperSupersetOf_works_like_normal_hashset()
     {
         var bigData = CreateTestData();
@@ -422,7 +422,7 @@ public class ObservableHashSetTest
             new ObservableHashSet<int>(bigData).IsProperSupersetOf(smallData));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Overlaps_works_like_normal_hashset()
     {
         var bigData = CreateTestData();
@@ -433,7 +433,7 @@ public class ObservableHashSetTest
             new ObservableHashSet<int>(bigData).Overlaps(smallData));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void SetEquals_works_like_normal_hashset()
     {
         var data1 = CreateTestData(5);
@@ -444,7 +444,7 @@ public class ObservableHashSetTest
             new ObservableHashSet<int>(data1).SetEquals(data2));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void TrimExcess_doesnt_throw()
     {
         var bigData = CreateTestData();
@@ -459,7 +459,7 @@ public class ObservableHashSetTest
         hashSet.TrimExcess();
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_remove_with_predicate()
     {
         var hashSet = new ObservableHashSet<string>
@@ -481,8 +481,8 @@ public class ObservableHashSetTest
         hashSet.CollectionChanged += (s, a) =>
         {
             Assert.Equal(NotifyCollectionChangedAction.Replace, a.Action);
-            Assert.Equal(removing, a.OldItems.OfType<string>().OrderBy(i => i));
-            Assert.Empty(a.NewItems);
+            Assert.Equal(removing, a.OldItems!.OfType<string>().OrderBy(i => i));
+            Assert.Empty(a.NewItems!);
             collectionChanged++;
         };
 
@@ -501,7 +501,7 @@ public class ObservableHashSetTest
         Assert.Equal(["Brendan", "Nate"], hashSet.OrderBy(i => i));
     }
 
-    [ConditionalFact]
+    [Fact]
     public void ToBindingList_returns_a_new_binding_list_each_time_when_called_on_non_DbLocalView_ObservableCollections()
     {
         var oc = new ObservableCollection<string>();
@@ -516,7 +516,7 @@ public class ObservableHashSetTest
 
     private static void AssertCountChanging<T>(
         ObservableHashSet<T> hashSet,
-        object sender,
+        object? sender,
         PropertyChangingEventArgs eventArgs,
         int expectedCount,
         ref int changingCount)
@@ -529,7 +529,7 @@ public class ObservableHashSetTest
 
     private static void AssertCountChanged<T>(
         ObservableHashSet<T> hashSet,
-        object sender,
+        object? sender,
         PropertyChangedEventArgs eventArgs,
         ref int expectedCount,
         int countDelta,

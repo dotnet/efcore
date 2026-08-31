@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
@@ -7,13 +7,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
 public class DatabaseOperationsTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_pass_null_args()
         // Even though newer versions of the tools will pass an empty array
         // older versions of the tools can pass null args.
         => CreateOperations(null);
 
-    [ConditionalFact]
+    [Fact]
     public void ScaffoldContext_throws_exceptions_for_invalid_context_name()
     {
         ValidateContextNameInReverseEngineerGenerator("Invalid!CSharp*Class&Name");
@@ -33,8 +33,8 @@ public class DatabaseOperationsTest
                     "",
                     "",
                     dbContextClassName: contextName,
-                    null,
-                    null,
+                    null!,
+                    null!,
                     "FakeNamespace",
                     contextNamespace: null,
                     useDataAnnotations: false,
@@ -45,18 +45,18 @@ public class DatabaseOperationsTest
                 .Message);
     }
 
-    [ConditionalFact, SqlServerConfiguredCondition]
+    [ConditionalFact(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.SqlServerAvailable))]
     public void ScaffoldContext_sets_environment()
     {
         var operations = CreateOperations([]);
         operations.ScaffoldContext(
             "Microsoft.EntityFrameworkCore.SqlServer",
-            TestEnvironment.DefaultConnection,
+            SqlServerTestEnvironment.DefaultConnection,
             "",
             "",
             dbContextClassName: nameof(TestContext),
             schemas: ["Empty"],
-            null,
+            null!,
             null,
             contextNamespace: null,
             useDataAnnotations: false,
@@ -69,7 +69,7 @@ public class DatabaseOperationsTest
         Assert.Equal("Development", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
     }
 
-    private static DatabaseOperations CreateOperations(string[] args)
+    private static DatabaseOperations CreateOperations(string[]? args)
     {
         var assembly = MockAssembly.Create(typeof(TestContext));
         var operations = new DatabaseOperations(

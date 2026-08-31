@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ModelSourceTest
 {
-    [ConditionalFact] // Issue #2992
+    [Fact] // Issue #2992
     public void Can_customize_ModelBuilder()
     {
         var serviceProvider = new ServiceCollection()
@@ -35,7 +35,7 @@ public class ModelSourceTest
     {
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public DbSet<Peak> Peaks { get; set; }
+        public DbSet<Peak> Peaks { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");

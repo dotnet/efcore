@@ -18,8 +18,10 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
 
     public override Task Two_nested_associates()
         => AssertQuery(
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
-            ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(e.OptionalAssociate!.RequiredNestedAssociate)));
+            ss => ss.Set<RootEntity>()
+                .Where(e => e.RequiredAssociate.RequiredNestedAssociate == e.OptionalAssociate!.RequiredNestedAssociate),
+            ss => ss.Set<RootEntity>().Where(e
+                => e.RequiredAssociate.RequiredNestedAssociate.Equals(e.OptionalAssociate!.RequiredNestedAssociate)));
 
     public override Task Not_equals()
         => AssertQuery(
@@ -36,7 +38,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                         Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
-                        Ints = new() { 1, 2, 3 }
+                        Ints = new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        }
                     }),
             ss => ss.Set<RootEntity>()
                 .Where(e => e.RequiredAssociate.RequiredNestedAssociate.Equals(
@@ -46,7 +53,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                         Name = "Root1_RequiredAssociate_RequiredNestedAssociate",
                         Int = 8,
                         String = "foo",
-                        Ints = new() { 1, 2, 3 }
+                        Ints = new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        }
                     })));
 
     public override async Task Nested_associate_with_parameter()
@@ -62,7 +74,8 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
         => AssertQuery(
             ss => ss.Set<RootEntity>().Where(e => e.RequiredAssociate.NestedCollection == e.OptionalAssociate!.NestedCollection),
             ss => ss.Set<RootEntity>().Where(e
-                => e.OptionalAssociate != null && e.RequiredAssociate.NestedCollection.SequenceEqual(e.OptionalAssociate!.NestedCollection)));
+                => e.OptionalAssociate != null
+                && e.RequiredAssociate.NestedCollection.SequenceEqual(e.OptionalAssociate!.NestedCollection)));
 
     public override Task Nested_collection_with_inline()
         => AssertQuery(
@@ -76,7 +89,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                             Name = "Root1_RequiredAssociate_NestedCollection_1",
                             Int = 8,
                             String = "foo",
-                            Ints = new List<int> { 1, 2, 3 }
+                            Ints = new List<int>
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         },
                         new()
                         {
@@ -84,7 +102,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                             Name = "Root1_RequiredAssociate_NestedCollection_2",
                             Int = 8,
                             String = "foo",
-                            Ints = new List<int> { 1, 2, 3 }
+                            Ints = new List<int>
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         }
                     }),
             ss => ss.Set<RootEntity>()
@@ -97,7 +120,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                             Name = "Root1_RequiredAssociate_NestedCollection_1",
                             Int = 8,
                             String = "foo",
-                            Ints = new List<int> { 1, 2, 3 }
+                            Ints = new List<int>
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         },
                         new()
                         {
@@ -105,7 +133,12 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
                             Name = "Root1_RequiredAssociate_NestedCollection_2",
                             Int = 8,
                             String = "foo",
-                            Ints = new List<int> { 1, 2, 3 }
+                            Ints = new List<int>
+                            {
+                                1,
+                                2,
+                                3
+                            }
                         }
                     })));
 
@@ -120,7 +153,7 @@ public abstract class ComplexPropertiesStructuralEqualityTestBase<TFixture>(TFix
 
     #region Value types
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Nullable_value_type_with_null()
         => AssertQuery(ss => ss.Set<ValueRootEntity>().Where(e => e.OptionalAssociate == null));
 

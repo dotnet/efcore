@@ -5,5 +5,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public interface ITestSqlLoggerFactory
 {
-    TestSqlLoggerFactory TestSqlLoggerFactory { get; }
+    public TestSqlLoggerFactory TestSqlLoggerFactory { get; }
 }

@@ -13,14 +13,14 @@ public class Store
 
     public int BusinessEntityID { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
     public int? SalesPersonID { get; set; }
-    public string Demographics { get; set; }
+    public string? Demographics { get; set; }
 
     public virtual ICollection<Customer> Customer { get; set; }
-    public virtual BusinessEntity BusinessEntity { get; set; }
-    public virtual SalesPerson SalesPerson { get; set; }
+    public virtual BusinessEntity BusinessEntity { get; set; } = null!;
+    public virtual SalesPerson? SalesPerson { get; set; }
 }

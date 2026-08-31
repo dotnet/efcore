@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
@@ -7,21 +7,19 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixture)
     : NonSharedModelTestBase(fixture), IClassFixture<NonSharedFixture>
 {
-    protected override string StoreName
+    protected override string NonSharedStoreName
         => "AdHocAdvancedMappingsQueryTests";
 
     #region 9582
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Setting_IsUnicode_generates_unicode_literal_in_SQL()
     {
-        var contextFactory = await InitializeAsync<Context9582>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context9582>();
+        using var context = contextFactory.CreateDbContext();
         var query = context.Set<Context9582.TipoServicio>().Where(xx => xx.Nombre.Contains("lla")).ToList();
     }
 
@@ -48,7 +46,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public class TipoServicio
         {
             public int Id { get; set; }
-            public string Nombre { get; set; }
+            public string Nombre { get; set; } = null!;
         }
     }
 
@@ -56,11 +54,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 11835
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projecting_correlated_collection_along_with_non_mapped_property()
     {
-        var contextFactory = await InitializeAsync<Context11835>(seed: c => c.SeedAsync());
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context11835>(seed: c => c.SeedAsync());
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = context.Blogs.Select(e => new
             {
@@ -70,13 +68,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             }).ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var result = context.Blogs.Select(e => new
             {
                 e.Id,
                 e.Title,
-                FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
+                FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault()!.Name
             }).ToList();
         }
     }
@@ -84,8 +82,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context11835(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+        public DbSet<Blog> Blogs
+            => Set<Blog>();
+
+        public DbSet<Post> Posts
+            => Set<Post>();
 
         public Task SeedAsync()
         {
@@ -107,17 +108,17 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [NotMapped]
-            public string Title { get; set; }
+            public string Title { get; set; } = null!;
 
-            public List<Post> Posts { get; set; }
+            public List<Post> Posts { get; set; } = [];
         }
 
         public class Post
         {
             public int Id { get; set; }
             public int BlogId { get; set; }
-            public Blog Blog { get; set; }
-            public string Name { get; set; }
+            public Blog Blog { get; set; } = null!;
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -125,11 +126,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 15684
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Projection_failing_with_EnumToStringConverter()
     {
-        var contextFactory = await InitializeAsync<Context15684>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context15684>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = from p in context.Products
                     join c in context.Categories on p.CategoryId equals c.Id into grouping
                     from c in grouping.DefaultIfEmpty()
@@ -147,8 +148,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context15684(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories
+            => Set<Category>();
+
+        public DbSet<Product> Products
+            => Set<Product>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -172,11 +176,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [Required]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public int? CategoryId { get; set; }
 
-            public Category Category { get; set; }
+            public Category? Category { get; set; }
         }
 
         public class Category
@@ -185,17 +189,17 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [Required]
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public CategoryStatus Status { get; set; }
         }
 
         public class ProductDto
         {
-            public string CategoryName { get; set; }
+            public string CategoryName { get; set; } = null!;
             public CategoryStatus CategoryStatus { get; set; }
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public enum CategoryStatus
@@ -209,30 +213,30 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 17276
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Expression_tree_constructed_via_interface_works()
     {
-        var contextFactory = await InitializeAsync<Context17276>();
-        using (var context = contextFactory.CreateContext())
+        var contextFactory = await InitializeNonSharedTest<Context17276>();
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = Context17276.List(context.RemovableEntities);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.Parents
                 .Where(p => EF.Property<bool>(EF.Property<Context17276.IRemovable>(p, "RemovableEntity"), "IsRemoved"))
                 .ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var query = context.RemovableEntities
                 .Where(p => EF.Property<string>(EF.Property<Context17276.IOwned>(p, "OwnedEntity"), "OwnedValue") == "Abc")
                 .ToList();
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var specification = new Context17276.Specification<Context17276.Parent>(1);
             var entities = context.Set<Context17276.Parent>().Where(specification.Criteria).ToList();
@@ -243,10 +247,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     protected class Context17276(DbContextOptions options) : DbContext(options)
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<RemovableEntity> RemovableEntities { get; set; }
+        public DbSet<RemovableEntity> RemovableEntities
+            => Set<RemovableEntity>();
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Parent> Parents
+            => Set<Parent>();
 
         public static List<T> List<T>(IQueryable<T> query)
             where T : IRemovable
@@ -256,7 +262,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         {
             bool IsRemoved { get; set; }
 
-            string RemovedByUser { get; set; }
+            string? RemovedByUser { get; set; }
 
             DateTime? Removed { get; set; }
         }
@@ -265,21 +271,21 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         {
             public int Id { get; set; }
             public bool IsRemoved { get; set; }
-            public string RemovedByUser { get; set; }
+            public string? RemovedByUser { get; set; }
             public DateTime? Removed { get; set; }
-            public OwnedEntity OwnedEntity { get; set; }
+            public OwnedEntity? OwnedEntity { get; set; }
         }
 
         public class Parent : IHasId<int>
         {
             public int Id { get; set; }
-            public RemovableEntity RemovableEntity { get; set; }
+            public RemovableEntity? RemovableEntity { get; set; }
         }
 
         [Owned]
         public class OwnedEntity : IOwned
         {
-            public string OwnedValue { get; set; }
+            public string? OwnedValue { get; set; }
             public int Exists { get; set; }
         }
 
@@ -290,7 +296,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         public interface IOwned
         {
-            string OwnedValue { get; }
+            string? OwnedValue { get; }
             int Exists { get; }
         }
 
@@ -305,11 +311,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 17794
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Double_convert_interface_created_expression_tree()
     {
-        var contextFactory = await InitializeAsync<Context17794>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context17794>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var expression = Context17794.HasAction17794<Context17794.Offer>(Context17794.Actions.Accepted);
         var query = context.Offers.Where(expression).Count();
 
@@ -319,8 +325,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context17794(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Offer> Offers { get; set; }
-        public DbSet<OfferAction> OfferActions { get; set; }
+        public DbSet<Offer> Offers
+            => Set<Offer>();
+
+        public DbSet<OfferAction> OfferActions
+            => Set<OfferAction>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -328,7 +337,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         public Task SeedAsync()
         {
-            Add(new Offer { OfferActions = new List<OfferAction> { new() { Action = Actions.Accepted } } });
+            Add(new Offer { OfferActions = [new() { Action = Actions.Accepted }] });
             return SaveChangesAsync();
         }
 
@@ -349,7 +358,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         {
             public int Id { get; set; }
 
-            public ICollection<OfferAction> OfferActions { get; set; }
+            public ICollection<OfferAction> OfferActions { get; set; } = [];
         }
 
         public enum Actions
@@ -363,7 +372,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             public int Id { get; set; }
 
             [Required]
-            public Offer Offer { get; set; }
+            public Offer Offer { get; set; } = null!;
 
             public int OfferId { get; set; }
 
@@ -376,21 +385,21 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 18087
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Casts_are_removed_from_expression_tree_when_redundant()
     {
-        var contextFactory = await InitializeAsync<Context18087>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context18087>(seed: c => c.SeedAsync());
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var queryBase = (IQueryable)context.MockEntities;
             var id = 1;
             var query = queryBase.Cast<Context18087.IDomainEntity>().FirstOrDefault(x => x.Id == id);
 
-            Assert.Equal(1, query.Id);
+            Assert.Equal(1, query!.Id);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var queryBase = (IQueryable)context.MockEntities;
             var query = queryBase.Cast<object>().Count();
@@ -398,7 +407,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             Assert.Equal(3, query);
         }
 
-        using (var context = contextFactory.CreateContext())
+        using (var context = contextFactory.CreateDbContext())
         {
             var queryBase = (IQueryable)context.MockEntities;
             var id = 1;
@@ -417,7 +426,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context18087(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MockEntity> MockEntities { get; set; }
+        public DbSet<MockEntity> MockEntities
+            => Set<MockEntity>();
 
         public Task SeedAsync()
         {
@@ -442,9 +452,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public class MockEntity : IDomainEntity
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
-            public MockEntity NavigationEntity { get; set; }
+            public MockEntity? NavigationEntity { get; set; }
         }
     }
 
@@ -452,11 +462,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 18346
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task Can_query_hierarchy_with_non_nullable_property_on_derived()
     {
-        var contextFactory = await InitializeAsync<Context18346>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context18346>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Businesses.ToList();
         Assert.Equal(3, query.Count);
     }
@@ -464,7 +474,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context18346(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Business> Businesses { get; set; }
+        public DbSet<Business> Businesses
+            => Set<Business>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Business>()
@@ -484,7 +495,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public abstract class Business
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public BusinessType Type { get; set; }
         }
 
@@ -506,12 +517,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 26742
 
-    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
      InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
     public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<Context26742>(
+        var contextFactory = await InitializeNonSharedTest<Context26742>(
             onModelCreating: modelBuilder =>
             {
                 if (fractionalSeconds.HasValue)
@@ -521,16 +532,16 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             });
 
         var parameter = new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
     }
 
-    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
      InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
     public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<Context26742>(
+        var contextFactory = await InitializeNonSharedTest<Context26742>(
             onModelCreating: modelBuilder =>
             {
                 if (fractionalSeconds.HasValue)
@@ -540,16 +551,16 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             });
 
         var parameter = new DateTimeOffset(new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567), TimeSpan.FromHours(10));
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
     }
 
-    [ConditionalTheory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
+    [Theory, InlineData(null, ""), InlineData(1, " (Scale = 1)"), InlineData(2, " (Scale = 2)"), InlineData(3, " (Scale = 3)"),
      InlineData(4, " (Scale = 4)"), InlineData(5, " (Scale = 5)"), InlineData(6, " (Scale = 6)"), InlineData(7, " (Scale = 7)")]
     //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
     public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<Context26742>(
+        var contextFactory = await InitializeNonSharedTest<Context26742>(
             onModelCreating: modelBuilder =>
             {
                 if (fractionalSeconds.HasValue)
@@ -559,14 +570,15 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
             });
 
         var parameter = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture);
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context26742(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities
+            => Set<Entity>();
 
         public class Entity
         {
@@ -581,14 +593,14 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 28196
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Hierarchy_query_with_abstract_type_sibling(bool async)
         => Hierarchy_query_with_abstract_type_sibling_helper(async, null);
 
-    public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder> onModelCreating)
+    public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder>? onModelCreating)
     {
-        var contextFactory = await InitializeAsync<Context28196>(onModelCreating: onModelCreating, seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context28196>(onModelCreating: onModelCreating, seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         var query = context.Animals.OfType<Context28196.Pet>().Where(a => a.Species.StartsWith("F"));
         var result = async
             ? await query.ToListAsync()
@@ -597,7 +609,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     protected class Context28196(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Animal> Animals { get; set; }
+        public DbSet<Animal> Animals
+            => Set<Animal>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -645,7 +658,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public abstract class Animal
         {
             public int Id { get; set; }
-            public string Species { get; set; }
+            public string Species { get; set; } = null!;
         }
 
         public class FarmAnimal : Animal
@@ -655,17 +668,17 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
         public abstract class Pet : Animal
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
 
         public class Cat : Pet
         {
-            public string EdcuationLevel { get; set; }
+            public string EdcuationLevel { get; set; } = null!;
         }
 
         public class Dog : Pet
         {
-            public string FavoriteToy { get; set; }
+            public string FavoriteToy { get; set; } = null!;
         }
     }
 
@@ -673,11 +686,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     #region 34760
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_property_with_converter_with_closure(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Books.Select(x => x.PublishDate);
 
@@ -685,11 +698,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         Assert.Equal(2, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_expression_with_converter_with_closure(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Books
             .GroupBy(t => t.Id)
@@ -699,11 +712,11 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         Assert.Equal(2, result.Count);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_property_with_converter_without_closure(bool async)
     {
-        var contextFactory = await InitializeAsync<Context34760>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context34760>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Books
             .GroupBy(t => t.Id)
@@ -715,7 +728,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
 
     protected class Context34760(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Book> Books { get; set; }
+        public DbSet<Book> Books
+            => Set<Book>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -749,7 +763,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase(NonSharedFixture fixtur
         public class Book
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
 
             public virtual DateTime PublishDate { get; set; }
             public virtual DateTime AudiobookDate { get; set; }

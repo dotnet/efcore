@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class MappingQuerySqliteTest(MappingQuerySqliteTest.MappingQuerySqliteFixture fixture)
     : MappingQueryTestBase<MappingQuerySqliteTest.MappingQuerySqliteFixture>(fixture)
 {
@@ -54,7 +52,7 @@ public class MappingQuerySqliteTest(MappingQuerySqliteTest.MappingQuerySqliteFix
         protected override ITestStoreFactory TestStoreFactory
             => SqliteNorthwindTestStoreFactory.Instance;
 
-        protected override string DatabaseSchema { get; } = null;
+        protected override string DatabaseSchema { get; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
