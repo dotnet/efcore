@@ -6,23 +6,23 @@ This file should be imported by eng/Versions.props
 <Project>
   <PropertyGroup>
     <!-- dotnet-dotnet dependencies -->
-    <MicrosoftDotNetArcadeSdkPackageVersion>11.0.0-beta.26427.127</MicrosoftDotNetArcadeSdkPackageVersion>
-    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>11.0.0-beta.26427.127</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
-    <MicrosoftDotNetHelixSdkPackageVersion>11.0.0-beta.26427.127</MicrosoftDotNetHelixSdkPackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>11.0.0-rc.2.26427.127</MicrosoftExtensionsLoggingPackageVersion>
-    <MicrosoftNETCoreAppRefPackageVersion>11.0.0-rc.2.26427.127</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCorePlatformsPackageVersion>11.0.0-rc.2.26427.127</MicrosoftNETCorePlatformsPackageVersion>
-    <SystemFormatsAsn1PackageVersion>11.0.0-rc.2.26427.127</SystemFormatsAsn1PackageVersion>
-    <SystemRuntimeCachingPackageVersion>11.0.0-rc.2.26427.127</SystemRuntimeCachingPackageVersion>
-    <SystemTextEncodingsWebPackageVersion>11.0.0-rc.2.26427.127</SystemTextEncodingsWebPackageVersion>
-    <SystemTextJsonPackageVersion>11.0.0-rc.2.26427.127</SystemTextJsonPackageVersion>
+    <MicrosoftDotNetArcadeSdkPackageVersion>11.0.0-beta.26430.103</MicrosoftDotNetArcadeSdkPackageVersion>
+    <MicrosoftDotNetBuildTasksTemplatingPackageVersion>11.0.0-beta.26430.103</MicrosoftDotNetBuildTasksTemplatingPackageVersion>
+    <MicrosoftDotNetHelixSdkPackageVersion>11.0.0-beta.26430.103</MicrosoftDotNetHelixSdkPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>11.0.0-rc.1.26430.103</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftNETCoreAppRefPackageVersion>11.0.0-rc.1.26430.103</MicrosoftNETCoreAppRefPackageVersion>
+    <MicrosoftNETCorePlatformsPackageVersion>11.0.0-rc.1.26430.103</MicrosoftNETCorePlatformsPackageVersion>
+    <SystemFormatsAsn1PackageVersion>11.0.0-rc.1.26430.103</SystemFormatsAsn1PackageVersion>
+    <SystemRuntimeCachingPackageVersion>11.0.0-rc.1.26430.103</SystemRuntimeCachingPackageVersion>
+    <SystemTextEncodingsWebPackageVersion>11.0.0-rc.1.26430.103</SystemTextEncodingsWebPackageVersion>
+    <SystemTextJsonPackageVersion>11.0.0-rc.1.26430.103</SystemTextJsonPackageVersion>
   </PropertyGroup>
   <!--Property group for alternate package version names-->
   <PropertyGroup>
