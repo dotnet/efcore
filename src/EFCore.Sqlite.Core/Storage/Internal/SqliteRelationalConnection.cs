@@ -183,9 +183,14 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateCollation(
                 "EF_DECIMAL",
-                (x, y) => decimal.Compare(
-                    decimal.Parse(x, NumberStyles.Number, CultureInfo.InvariantCulture),
-                    decimal.Parse(y, NumberStyles.Number, CultureInfo.InvariantCulture)));
+                (x, y) => (decimal.TryParse(x, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out var xValue),
+                        decimal.TryParse(y, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out var yValue)) switch
+                    {
+                        (true, true) => decimal.Compare(xValue, yValue),
+                        (true, _) => -1,
+                        (_, true) => 1,
+                        _ => string.CompareOrdinal(x, y)
+                    });
         }
         else
         {
