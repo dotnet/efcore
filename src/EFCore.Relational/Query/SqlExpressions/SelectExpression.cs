@@ -2613,18 +2613,24 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public StructuralTypeShaperExpression GenerateOwnedReferenceEntityProjectionExpression(
+    public StructuralTypeShaperExpression? GenerateOwnedReferenceEntityProjectionExpression(
         StructuralTypeProjectionExpression principalEntityProjection,
         INavigation navigation,
         ISqlExpressionFactory sqlExpressionFactory,
-        SqlAliasManager sqlAliasManager)
+        SqlAliasManager sqlAliasManager,
+        bool allowOwnerJoin = true)
     {
         // We first find the select expression where principal tableExpressionBase is located
         // That is where we find shared tableExpressionBase to pull columns from or add joins
         var identifyingColumn = principalEntityProjection.BindProperty(
             navigation.DeclaringEntityType.FindPrimaryKey()!.Properties.First());
 
-        var expressions = GetPropertyExpressions(sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn);
+        var expressions = GetPropertyExpressions(
+            sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn, allowOwnerJoin);
+        if (expressions is null)
+        {
+            return null;
+        }
 
         // TODO: support for complex types on owned entity types, #33170
         var complexPropertyMap = new Dictionary<IComplexProperty, Expression>();
@@ -2640,12 +2646,13 @@ public sealed partial class SelectExpression : TableExpressionBase
         // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
         // So there is no handling for dependent having hierarchy
         // TODO: The following code should also handle Function and SqlQuery mappings when supported on owned type
-        static IReadOnlyDictionary<IProperty, ColumnExpression> GetPropertyExpressions(
+        static IReadOnlyDictionary<IProperty, ColumnExpression>? GetPropertyExpressions(
             ISqlExpressionFactory sqlExpressionFactory,
             SqlAliasManager sqlAliasManager,
             INavigation navigation,
             SelectExpression selectExpression,
-            ColumnExpression identifyingColumn)
+            ColumnExpression identifyingColumn,
+            bool allowOwnerJoin)
         {
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
             var tableExpressionBase = selectExpression.GetTable(identifyingColumn).UnwrapJoin();
@@ -2659,7 +2666,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                     .Expression;
 
                 var subqueryPropertyExpressions = GetPropertyExpressions(
-                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn);
+                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn, allowOwnerJoin);
+                if (subqueryPropertyExpressions is null)
+                {
+                    return null;
+                }
+
                 var changeNullability = identifyingColumn.IsNullable && !subqueryIdentifyingColumn.IsNullable;
                 foreach (var (property, columnExpression) in subqueryPropertyExpressions)
                 {
@@ -2756,6 +2768,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     .Zip(innerColumns, sqlExpressionFactory.Equal)
                                     .Aggregate(sqlExpressionFactory.AndAlso);
 
+                                // Safe to append even after grouping: the fragment is joined on the dependent's own key,
+                                // so it matches at most one row and adds no identifier.
                                 selectExpression._tables.Add(new LeftJoinExpression(tableExpression, joinPredicate, prunable: true));
                             }
                         }
@@ -2782,7 +2796,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             // Either we encountered a custom table source or dependent is not sharing table
-            // In either case we need to generate join to owner
+            // In either case we need to generate join to owner. The join and the identifier below are appended directly rather
+            // than going through AddJoin, so the caller has to know that the select can still take them.
+            if (!allowOwnerJoin)
+            {
+                return null;
+            }
+
             var ownerJoinColumns = new List<ColumnExpression>();
             foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
             {

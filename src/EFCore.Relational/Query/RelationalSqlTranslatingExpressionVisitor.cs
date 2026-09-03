@@ -50,6 +50,7 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     private readonly IModel _model;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+    private readonly RelationalQueryableMethodTranslatingExpressionVisitor? _relationalQueryableTranslator;
 
     private bool _throwForNotTranslatedEfProperty;
 
@@ -69,6 +70,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
         _queryCompilationContext = queryCompilationContext;
         _model = queryCompilationContext.Model;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
+        _relationalQueryableTranslator =
+            queryableMethodTranslatingExpressionVisitor as RelationalQueryableMethodTranslatingExpressionVisitor;
         _throwForNotTranslatedEfProperty = true;
     }
 
@@ -1621,10 +1624,66 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
     }
 
-    private static Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
-        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], enumerableExpression.Selector, lambdaExpression.Body);
+    private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
+    {
+        var body = ReplacingExpressionVisitor.Replace(
+            lambdaExpression.Parameters[0], enumerableExpression.Selector, lambdaExpression.Body);
 
-    private static EnumerableExpression ProcessSelector(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
+        // Lambdas remapped onto a query source get their owned navigations expanded by the queryable translator, but lambdas over a
+        // grouping element are remapped here instead, so expand them now. Without this the navigation fails to bind and the aggregate
+        // falls back to a correlated subquery, or throws. Grouping has already been applied to the source, so a dependent that would
+        // need a join added to it is left unexpanded.
+        return _relationalQueryableTranslator is not null
+            && FindSourceSelectExpression(enumerableExpression.Selector) is { } selectExpression
+                ? _relationalQueryableTranslator.ExpandSharedTypeEntities(selectExpression, body, allowOwnerJoin: false)
+                : body;
+    }
+
+    // The grouping element is an entity shaper, or a transparent identifier over several of them when navigation expansion added
+    // joins to the grouped source. Anything else yields null and the lambda is left unexpanded.
+    private static SelectExpression? FindSourceSelectExpression(Expression selector)
+    {
+        SelectExpression? result = null;
+        var conflicting = false;
+        Find(selector);
+        return conflicting ? null : result;
+
+        void Find(Expression expression)
+        {
+            switch (expression)
+            {
+                case StructuralTypeShaperExpression
+                {
+                    ValueBufferExpression: ProjectionBindingExpression { QueryExpression: SelectExpression selectExpression }
+                }:
+                    conflicting |= result is not null && !ReferenceEquals(result, selectExpression);
+                    result ??= selectExpression;
+                    break;
+
+                case NewExpression newExpression:
+                    foreach (var argument in newExpression.Arguments)
+                    {
+                        Find(argument);
+                    }
+
+                    break;
+
+                case MemberInitExpression memberInitExpression:
+                    Find(memberInitExpression.NewExpression);
+                    foreach (var binding in memberInitExpression.Bindings)
+                    {
+                        if (binding is MemberAssignment memberAssignment)
+                        {
+                            Find(memberAssignment.Expression);
+                        }
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    private EnumerableExpression ProcessSelector(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
         => enumerableExpression.ApplySelector(RemapLambda(enumerableExpression, lambdaExpression));
 
     private EnumerableExpression? ProcessOrderByThenBy(

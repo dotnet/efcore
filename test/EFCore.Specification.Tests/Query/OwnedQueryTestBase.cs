@@ -824,6 +824,79 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             });
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => new
+                {
+                    g.Key,
+                    Sum = g.Sum(e => (int)e.PersonAddress!["ZipCode"]),
+                    Min = g.Min(e => (int)e.PersonAddress!["ZipCode"]),
+                    Max = g.Max(e => (int)e.PersonAddress!["ZipCode"]),
+                    Average = g.Average(e => (int)e.PersonAddress!["ZipCode"]),
+                    Nested = g.Sum(e => e.PersonAddress!.Country!.PlanetId)
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => new
+                {
+                    g.Key,
+                    Total = g.Count(),
+                    Filtered = g.Count(e => (int)e.PersonAddress!["ZipCode"] > 19000)
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => new
+                {
+                    g.Key,
+                    Sum = g.Where(e => (int)e.PersonAddress!["ZipCode"] > 19000).Sum(e => (int)e.PersonAddress!["ZipCode"])
+                }),
+            elementSorter: e => e.Key);
+
+    // First over a grouping is translated as a subquery either way; what this pins is that ordering the grouping by an owned
+    // property translates at all.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => g.OrderByDescending(e => (int)e.PersonAddress!["ZipCode"]).Select(e => e.Id).First()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Where(g => g.Sum(e => (int)e.PersonAddress!["ZipCode"]) > 50000)
+                .Select(g => new { g.Key, Count = g.Count() }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => new { g.Key, Sum = g.Sum(e => e.Orders.Count) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Count_over_owned_collection(bool async)
         => AssertQuery(
             async,
