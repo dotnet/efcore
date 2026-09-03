@@ -100,8 +100,8 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
             }
 
             sqliteConnection.CreateFunction<string, string, bool?>(
-                "regexp",
-                (pattern, input)
+                name: "regexp",
+                static (pattern, input)
                     => input == null
                     || pattern == null
                         ? null
@@ -109,52 +109,52 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
-                "ef_mod",
-                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend % divisor,
+                name: "ef_mod",
+                static (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend % divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
                 name: "ef_add",
-                (decimal? left, decimal? right) => left + right,
+                static (decimal? left, decimal? right) => left + right,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
                 name: "ef_divide",
-                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend / divisor,
+                static (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend / divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
                 name: "ef_compare",
-                (decimal? left, decimal? right) => left.HasValue && right.HasValue
+                static (decimal? left, decimal? right) => left.HasValue && right.HasValue
                     ? decimal.Compare(left.Value, right.Value)
                     : default(int?),
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
                 name: "ef_multiply",
-                (decimal? left, decimal? right) => left * right,
+                static (decimal? left, decimal? right) => left * right,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
                 name: "ef_negate",
-                (decimal? m) => -m,
+                static (decimal? m) => -m,
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(
-                "ef_avg",
+                name: "ef_avg",
                 seed: (0m, 0ul),
-                ((decimal sum, ulong count) acc, decimal? value) => value is null
+                static ((decimal sum, ulong count) acc, decimal? value) => value is null
                     ? acc
                     : (acc.sum + value.Value, acc.count + 1),
-                ((decimal sum, ulong count) acc) => acc.count == 0
+                static ((decimal sum, ulong count) acc) => acc.count == 0
                     ? default(decimal?)
                     : acc.sum / acc.count,
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(
-                "ef_max",
+                name: "ef_max",
                 seed: null,
-                (decimal? max, decimal? value) => max is null
+                static (decimal? max, decimal? value) => max is null
                     ? value
                     : value is null
                         ? max
@@ -162,9 +162,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(
-                "ef_min",
+                name: "ef_min",
                 seed: null,
-                (decimal? min, decimal? value) => min is null
+                static (decimal? min, decimal? value) => min is null
                     ? value
                     : value is null
                         ? min
@@ -172,9 +172,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 isDeterministic: true);
 
             sqliteConnection.CreateAggregate(
-                "ef_sum",
+                name: "ef_sum",
                 seed: null,
-                (decimal? sum, decimal? value) => value is null
+                static (decimal? sum, decimal? value) => value is null
                     ? sum
                     : sum is null
                         ? value
@@ -182,8 +182,8 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 isDeterministic: true);
 
             sqliteConnection.CreateCollation(
-                "EF_DECIMAL",
-                (x, y) => (decimal.TryParse(x, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out var xValue),
+                name: "EF_DECIMAL",
+                static (x, y) => (decimal.TryParse(x, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out var xValue),
                         decimal.TryParse(y, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out var yValue)) switch
                     {
                         (true, true) => decimal.Compare(xValue, yValue),
