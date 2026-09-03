@@ -940,6 +940,30 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["Cl
     public override Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
         => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async));
 
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_multiple_aggregates_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_count_with_predicate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_ordered_aggregate_on_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_having(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_collection_navigation(async));
+
     public override Task Filter_on_indexer_using_closure(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>

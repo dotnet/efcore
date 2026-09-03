@@ -1464,12 +1464,176 @@ ORDER BY [p].[Id], [s].[Id], [s0].[ClientId], [s0].[Id], [s0].[OrderClientId], [
 
         AssertSql(
             """
-SELECT [o].[Id] AS [Key], (
-    SELECT ISNULL(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
-    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
-    WHERE [o].[Id] = [o0].[Id]) AS [Sum]
+SELECT [o].[Id] AS [Key], ISNULL(SUM([o].[PersonAddress_Country_PlanetId]), 0) AS [Sum]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 GROUP BY [o].[Id]
+""");
+    }
+
+    public override async Task GroupBy_multiple_aggregates_on_owned_navigation(bool async)
+    {
+        await base.GroupBy_multiple_aggregates_on_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], ISNULL(SUM([o0].[PersonAddress_ZipCode]), 0) AS [Sum], MIN([o0].[PersonAddress_ZipCode]) AS [Min], MAX([o0].[PersonAddress_ZipCode]) AS [Max], AVG(CAST([o0].[PersonAddress_ZipCode] AS float)) AS [Average], ISNULL(SUM([o0].[PersonAddress_Country_PlanetId]), 0) AS [Nested]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key], [o].[PersonAddress_Country_PlanetId]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_count_with_predicate_on_owned_navigation(bool async)
+    {
+        await base.GroupBy_count_with_predicate_on_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], COUNT(*) AS [Total], COUNT(CASE
+    WHEN [o0].[PersonAddress_ZipCode] > 19000 THEN 1
+END) AS [Filtered]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_over_filtered_grouping(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], ISNULL(SUM(CASE
+    WHEN [o0].[PersonAddress_ZipCode] > 19000 THEN [o0].[PersonAddress_ZipCode]
+END), 0) AS [Sum]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_ordered_aggregate_on_owned_navigation(bool async)
+    {
+        await base.GroupBy_ordered_aggregate_on_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT (
+    SELECT TOP(1) [o1].[Id]
+    FROM (
+        SELECT [o2].[Id], [o2].[PersonAddress_ZipCode], CASE
+            WHEN [o2].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [Key]
+        FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o2]
+    ) AS [o1]
+    WHERE [o0].[Key] = [o1].[Key] OR ([o0].[Key] IS NULL AND [o1].[Key] IS NULL)
+    ORDER BY [o1].[PersonAddress_ZipCode] DESC)
+FROM (
+    SELECT CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_navigation_reached_through_owned_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_on_navigation_reached_through_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [s].[Key], ISNULL(SUM([s].[PersonAddress_ZipCode]), 0) AS [Sum], MAX([s].[Name0]) AS [Planet]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], [p].[Name] AS [Name0], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+    LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
+) AS [s]
+GROUP BY [s].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_in_having(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], COUNT(*) AS [Count]
+FROM (
+    SELECT [o].[PersonAddress_ZipCode], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+) AS [o0]
+GROUP BY [o0].[Key]
+HAVING ISNULL(SUM([o0].[PersonAddress_ZipCode]), 0) > 50000
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_owned_collection_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_collection_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o0].[Key], ISNULL(SUM([s].[value]), 0) AS [Sum]
+FROM (
+    SELECT [o].[Id], CASE
+        WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key]
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+) AS [o0]
+OUTER APPLY (
+    SELECT COUNT(*) AS [value]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1]
+    WHERE [o0].[Id] = [o1].[ClientId]
+) AS [s]
+GROUP BY [o0].[Key]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_on_optional_owned_navigation(bool async)
+    {
+        await base.GroupBy_aggregate_on_optional_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [b0].[Key], ISNULL(SUM([b0].[Throned_Value]), 0) AS [Sum], COUNT(CASE
+    WHEN [b0].[Throned_Value] > 40 THEN 1
+END) AS [Above]
+FROM (
+    SELECT CASE
+        WHEN [b].[Simple] IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [Key], [b].[Throned_Value]
+    FROM [Barton] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [b]
+) AS [b0]
+GROUP BY [b0].[Key]
 """);
     }
 
