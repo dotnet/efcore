@@ -7,7 +7,7 @@ public class TestProviderCodeGenerator(ProviderCodeGeneratorDependencies depende
 {
     public override MethodCallCodeFragment GenerateUseProvider(
         string connectionString,
-        MethodCallCodeFragment providerOptions)
+        MethodCallCodeFragment? providerOptions)
         => new(
             _useTestProviderMethodInfo,
             providerOptions == null
@@ -21,6 +21,6 @@ public class TestProviderCodeGenerator(ProviderCodeGeneratorDependencies depende
     public static void UseTestProvider(
         DbContextOptionsBuilder optionsBuilder,
         string connectionString,
-        Action<object> optionsAction = null)
+        Action<object>? optionsAction = null)
         => throw new NotSupportedException();
 }

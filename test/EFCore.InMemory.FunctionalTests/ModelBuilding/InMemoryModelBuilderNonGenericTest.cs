@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -34,7 +32,7 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 
     public class InMemoryNonGenericOneToMany(InMemoryModelBuilderFixture fixture) : InMemoryOneToMany(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -46,7 +44,7 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
                     .HasOne("Snoop")).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasMany_with_just_string_navigation_for_non_CLR_property_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -58,7 +56,7 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
                     .HasMany("Snoop")).Message);
         }
 
-        [ConditionalFact]
+        [Fact]
         public virtual void HasMany_with_a_non_collection_just_string_navigation_CLR_property_throws()
         {
             var modelBuilder = CreateModelBuilder();
@@ -70,7 +68,7 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
                     .HasMany("Dre")).Message);
         }
 
-        [ConditionalFact] //Issue#13108
+        [Fact] //Issue#13108
         public virtual void HasForeignKey_infers_type_for_shadow_property_when_not_specified()
         {
             var modelBuilder = CreateModelBuilder();
@@ -131,7 +129,7 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 
     public class InMemoryNonGenericOwnedTypes(InMemoryModelBuilderFixture fixture) : InMemoryOwnedTypes(fixture)
     {
-        [ConditionalFact]
+        [Fact]
         public virtual void OwnsOne_HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {
             var modelBuilder = CreateModelBuilder();

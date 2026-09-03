@@ -11,7 +11,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
     protected ComplexCollectionJsonContext CreateContext()
         => (ComplexCollectionJsonContext)Fixture.CreateContext();
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -46,7 +46,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Remove_element_from_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -70,7 +70,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Delete_complex_collection_owner_entity_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -94,7 +94,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Modify_element_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -117,7 +117,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Move_elements_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -143,7 +143,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Change_complex_collection_mapped_to_json_to_null_and_to_empty()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -177,7 +177,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Complex_collection_with_nested_complex_type_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -236,7 +236,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Modify_multiple_complex_properties_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -265,7 +265,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Clear_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -288,7 +288,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_entire_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -317,7 +317,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Add_element_to_nested_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -343,7 +343,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Modify_nested_complex_property_in_complex_collection_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -371,7 +371,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_complex_collection_to_null_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -399,7 +399,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_null_complex_collection_to_non_empty_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -440,7 +440,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_complex_collection_element_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -479,7 +479,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Complex_collection_with_empty_nested_collections_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -518,7 +518,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_complex_property_mapped_to_json_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -540,7 +540,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_null_complex_property_to_non_null_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -567,7 +567,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Replace_complex_property_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -592,7 +592,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Grow_nested_sub_collection_in_complex_property_mapped_to_json()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -641,7 +641,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                 }
             });
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task Set_nullable_complex_property_with_nested_collection_to_null()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -650,6 +650,8 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
             {
                 var entity = await context.Set<EntityWithNullableMeta>().OrderBy(e => e.Id).FirstAsync();
 
+                // Setting Meta to null on an item whose Meta.Entries has 2+ elements used to throw
+                // InvalidOperationException from DetectChanges when reindexing the orphaned entries.
                 entity.Items[0].Meta = null;
 
                 ClearLog();
@@ -806,10 +808,7 @@ public abstract class ComplexCollectionJsonUpdateTestBase<TFixture>(TFixture fix
                     });
 
                 b.ComplexProperty(
-                    x => x.Department, cb =>
-                    {
-                        cb.ToJson();
-                    });
+                    x => x.Department, cb => cb.ToJson());
             });
 
             modelBuilder.Entity<WidgetWithDeepJson>(b =>

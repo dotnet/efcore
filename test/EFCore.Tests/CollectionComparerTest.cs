@@ -1,7 +1,5 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 using System.Collections.ObjectModel;
 
@@ -9,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class CollectionComparerTest
 {
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_arrays()
     {
         using var context = new SomeLists();
@@ -108,7 +106,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_List()
     {
         using var context = new SomeLists();
@@ -238,9 +236,9 @@ public class CollectionComparerTest
             ],
             ListStruct =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyStruct("0"),
+                new MyStruct("1"),
+                new MyStruct("2")
             ],
             ListNullableStruct =
             [
@@ -250,15 +248,15 @@ public class CollectionComparerTest
             ],
             ListClass =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyClass("0"),
+                new MyClass("1"),
+                new MyClass("2")
             ],
             ListNullableClass =
             [
-                new("0"),
+                new MyClass("0"),
                 null,
-                new("2")
+                new MyClass("2")
             ],
             ICollectionInt = new List<int>
             {
@@ -393,7 +391,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_Collection()
     {
         using var context = new SomeLists();
@@ -571,9 +569,9 @@ public class CollectionComparerTest
             ],
             CollectionStruct =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyStruct("0"),
+                new MyStruct("1"),
+                new MyStruct("2")
             ],
             CollectionNullableStruct =
             [
@@ -583,15 +581,15 @@ public class CollectionComparerTest
             ],
             CollectionClass =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyClass("0"),
+                new MyClass("1"),
+                new MyClass("2")
             ],
             CollectionNullableClass =
             [
-                new("0"),
+                new MyClass("0"),
                 null,
-                new("2")
+                new MyClass("2")
             ],
         };
 
@@ -678,7 +676,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_detect_changes_to_primitive_collections_using_ObservableCollection()
     {
         using var context = new SomeLists();
@@ -856,9 +854,9 @@ public class CollectionComparerTest
             ],
             ObservableCollectionStruct =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyStruct("0"),
+                new MyStruct("1"),
+                new MyStruct("2")
             ],
             ObservableCollectionNullableStruct =
             [
@@ -868,15 +866,15 @@ public class CollectionComparerTest
             ],
             ObservableCollectionClass =
             [
-                new("0"),
-                new("1"),
-                new("2")
+                new MyClass("0"),
+                new MyClass("1"),
+                new MyClass("2")
             ],
             ObservableCollectionNullableClass =
             [
-                new("0"),
+                new MyClass("0"),
                 null,
-                new("2")
+                new MyClass("2")
             ],
         };
 
@@ -963,7 +961,7 @@ public class CollectionComparerTest
         Assert.Equal(EntityState.Unchanged, entry.State);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void List_comparer_throws_when_used_with_non_list()
     {
         var comparer = new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(favorStructuralComparisons: false));
@@ -981,7 +979,7 @@ public class CollectionComparerTest
             Assert.Throws<InvalidOperationException>(() => comparer.Snapshot(new HashSet<string>())).Message);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Nullable_list_comparer_throws_when_used_with_non_list()
     {
         var comparer = new ListOfNullableValueTypesComparer<List<int?>, int>(new ValueComparer<int?>(favorStructuralComparisons: false));

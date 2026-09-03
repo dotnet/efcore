@@ -3,55 +3,46 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
 
-#nullable disable
-
 public class CompositeTwo
 {
-    public string Id1 { get; set; }
+    public string Id1 { get; set; } = null!;
     public int Id2 { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public DateTime Date { get; set; }
 
-    public string Level1_Required_Id1 { get; set; }
+    public string Level1_Required_Id1 { get; set; } = null!;
     public int Level1_Required_Id2 { get; set; }
 
-    public string Level1_Optional_Id1 { get; set; }
+    public string? Level1_Optional_Id1 { get; set; }
     public int? Level1_Optional_Id2 { get; set; }
 
-    public CompositeThree OneToOne_Required_PK2 { get; set; }
-    public CompositeThree OneToOne_Optional_PK2 { get; set; }
+    public CompositeThree OneToOne_Required_PK2 { get; set; } = null!;
+    public CompositeThree? OneToOne_Optional_PK2 { get; set; }
 
-    public CompositeThree OneToOne_Required_FK2 { get; set; }
-    public CompositeThree OneToOne_Optional_FK2 { get; set; }
+    public CompositeThree OneToOne_Required_FK2 { get; set; } = null!;
+    public CompositeThree? OneToOne_Optional_FK2 { get; set; }
 
-    public ICollection<CompositeThree> OneToMany_Required2 { get; set; }
-    public ICollection<CompositeThree> OneToMany_Optional2 { get; set; }
+    public ICollection<CompositeThree> OneToMany_Required2 { get; set; } = null!;
+    public ICollection<CompositeThree> OneToMany_Optional2 { get; set; } = null!;
 
-    public CompositeOne OneToOne_Required_PK_Inverse2 { get; set; }
-    public CompositeOne OneToOne_Optional_PK_Inverse2 { get; set; }
-    public CompositeOne OneToOne_Required_FK_Inverse2 { get; set; }
-    public CompositeOne OneToOne_Optional_FK_Inverse2 { get; set; }
+    public CompositeOne OneToOne_Required_PK_Inverse2 { get; set; } = null!;
+    public CompositeOne? OneToOne_Optional_PK_Inverse2 { get; set; }
+    public CompositeOne OneToOne_Required_FK_Inverse2 { get; set; } = null!;
+    public CompositeOne? OneToOne_Optional_FK_Inverse2 { get; set; }
 
-    public CompositeOne OneToMany_Required_Inverse2 { get; set; }
-    public CompositeOne OneToMany_Optional_Inverse2 { get; set; }
+    public CompositeOne OneToMany_Required_Inverse2 { get; set; } = null!;
+    public CompositeOne? OneToMany_Optional_Inverse2 { get; set; }
 
-    public CompositeTwo OneToOne_Optional_Self2 { get; set; }
+    public CompositeTwo? OneToOne_Optional_Self2 { get; set; }
 
-    public ICollection<CompositeTwo> OneToMany_Required_Self2 { get; set; }
-    public ICollection<CompositeTwo> OneToMany_Optional_Self2 { get; set; }
-    public CompositeTwo OneToMany_Required_Self_Inverse2 { get; set; }
-    public CompositeTwo OneToMany_Optional_Self_Inverse2 { get; set; }
+    public ICollection<CompositeTwo> OneToMany_Required_Self2 { get; set; } = null!;
+    public ICollection<CompositeTwo> OneToMany_Optional_Self2 { get; set; } = null!;
+    public CompositeTwo OneToMany_Required_Self_Inverse2 { get; set; } = null!;
+    public CompositeTwo? OneToMany_Optional_Self_Inverse2 { get; set; }
 
-    public override bool Equals(object obj)
-    {
-        if (obj is null)
-        {
-            return false;
-        }
-
-        return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((CompositeTwo)obj);
-    }
+    public override bool Equals(object? obj)
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((CompositeTwo)obj)));
 
     private bool Equals(CompositeTwo other)
         => Id1 == other.Id1

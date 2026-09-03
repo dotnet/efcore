@@ -19,6 +19,6 @@ public class PurchaseOrderDetail
     public decimal StockedQty { get; set; }
     public decimal UnitPrice { get; set; }
 
-    public virtual Product Product { get; set; }
-    public virtual PurchaseOrderHeader PurchaseOrder { get; set; }
+    public virtual Product Product { get; set; } = null!;
+    public virtual PurchaseOrderHeader PurchaseOrder { get; set; } = null!;
 }

@@ -54,12 +54,7 @@ public sealed class TableIndexComparer : IEqualityComparer<ITableIndex>, ICompar
         }
 
         result = ColumnListComparer.Instance.Compare(x.Columns, y.Columns);
-        if (result != 0)
-        {
-            return result;
-        }
-
-        return StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
+        return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
     }
 
     /// <summary>

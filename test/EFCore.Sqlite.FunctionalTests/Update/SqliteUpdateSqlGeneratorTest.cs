@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
 {
     protected override IUpdateSqlGenerator CreateSqlGenerator()
@@ -25,21 +23,20 @@ public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
         => "changes()";
 
     protected override string Schema
-        => null;
+        => null!;
 
     protected override string GetIdentityWhereCondition(string columnName)
         => OpenDelimiter + "rowid" + CloseDelimiter + " = last_insert_rowid()";
 
     public override void GenerateNextSequenceValueOperation_correctly_handles_schemas()
     {
-        var ex = Assert.Throws<NotSupportedException>(() => base.GenerateNextSequenceValueOperation_correctly_handles_schemas());
+        var ex = Assert.Throws<NotSupportedException>(base.GenerateNextSequenceValueOperation_correctly_handles_schemas);
         Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
     }
 
     public override void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()
     {
-        var ex = Assert.Throws<NotSupportedException>(()
-            => base.GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence());
+        var ex = Assert.Throws<NotSupportedException>(base.GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence);
         Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
     }
 

@@ -13,7 +13,7 @@ public abstract class OwnedNavigationsMiscellaneousRelationalTestBase<TFixture> 
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual Task FromSql_on_root()
         => RelationalAssociationsTests.FromSql_on_root(this, Fixture);
 

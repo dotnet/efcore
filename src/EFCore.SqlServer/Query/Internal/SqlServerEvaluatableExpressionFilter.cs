@@ -31,13 +31,7 @@ public class SqlServerEvaluatableExpressionFilter : RelationalEvaluatableExpress
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override bool IsEvaluatableExpression(Expression expression, IModel model)
-    {
-        if (expression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.DeclaringType == typeof(SqlServerDbFunctionsExtensions))
-        {
-            return false;
-        }
-
-        return base.IsEvaluatableExpression(expression, model);
-    }
+        => (expression is not MethodCallExpression methodCallExpression
+                || methodCallExpression.Method.DeclaringType != typeof(SqlServerDbFunctionsExtensions))
+            && base.IsEvaluatableExpression(expression, model);
 }

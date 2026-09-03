@@ -9,8 +9,6 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public class TestSqlLoggerFactory : ListLoggerFactory
 {
     private const string FileNewLine = @"
@@ -18,7 +16,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
     private static readonly string _eol = Environment.NewLine;
 
-    private static readonly object _queryBaselineFileLock = new();
     private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
@@ -70,21 +67,11 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                 StringSplitOptions.RemoveEmptyEntries)[3][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
-            var testName = methodCallLine.Substring(0, indexMethodEnding);
+            var testName = methodCallLine[..indexMethodEnding];
             var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var fileName = parts[1][..^5];
             var lineNumber = int.Parse(parts[2]);
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf(
-                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                        StringComparison.Ordinal)
-                    + 1)
-                + "QueryBaseline.txt";
-
-            var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
             if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
@@ -108,10 +95,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
             Logger.TestOutputHelper?.WriteLine(newBaseLine);
-
-            var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
-
-            File.AppendAllText(logFile, contents);
 
             throw;
         }
@@ -167,7 +150,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         inputStream.ReadExactly(buffer, 0, 3);
                         inputStream.Position = 0;
 
-                        var hasUtf8ByteOrderMark = (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF);
+                        var hasUtf8ByteOrderMark = buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF;
 
                         using var reader = new StreamReader(inputStream);
                         using var writer = new StreamWriter(outputStream, new UTF8Encoding(hasUtf8ByteOrderMark));
@@ -300,15 +283,15 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         protected override void UnsafeLog<TState>(
             LogLevel logLevel,
             EventId eventId,
-            string message,
+            string? message,
             TState state,
-            Exception exception)
+            Exception? exception)
         {
             if (eventId.Id == CosmosEventId.ExecutingSqlQuery)
             {
                 if (message != null)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();
@@ -327,7 +310,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             {
                 if (message != null)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var partitionKey = structure.Where(i => i.Key == "partitionKey").Select(i => (string)i.Value).First();
                     var resourceId = structure.Where(i => i.Key == "resourceId").Select(i => (string)i.Value).First();
@@ -340,7 +323,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         }
     }
 
-    private struct QueryBaselineRewritingFileInfo
+    private readonly struct QueryBaselineRewritingFileInfo
     {
         public QueryBaselineRewritingFileInfo() { }
 
@@ -357,6 +340,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         ///     numbers for later errors. The keys are (pre-rewriting) line numbers, and the values are offsets that have been applied to
         ///     them.
         /// </summary>
-        public readonly SortedDictionary<int, int> LineDisplacements = new();
+        public readonly SortedDictionary<int, int> LineDisplacements = [];
     }
 }

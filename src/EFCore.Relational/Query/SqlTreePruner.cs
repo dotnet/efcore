@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlTreePruner : ExpressionVisitor
 {
-    private readonly Dictionary<string, HashSet<string>> _referencedColumnMap = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<string, HashSet<string>> _referencedColumnMap = [with(ReferenceEqualityComparer.Instance)];
 
     /// <summary>
     ///     Maps table aliases to the list of column aliases found referenced on them.
@@ -192,7 +192,7 @@ public class SqlTreePruner : ExpressionVisitor
 
             if (visitedProjection != projection && projections is null)
             {
-                projections = new List<ProjectionExpression>(select.Projection.Count);
+                projections = [with(select.Projection.Count)];
                 for (var j = 0; j < i; j++)
                 {
                     projections.Add(select.Projection[j]);
@@ -248,7 +248,7 @@ public class SqlTreePruner : ExpressionVisitor
 
             if (visitedTable != table && tables is null)
             {
-                tables = new List<TableExpressionBase>(select.Tables.Count);
+                tables = [with(select.Tables.Count)];
                 for (var j = i + 1; j < select.Tables.Count; j++)
                 {
                     tables.Add(select.Tables[j]);
@@ -295,7 +295,7 @@ public class SqlTreePruner : ExpressionVisitor
 
                 if (newColumnNames is null && !isColumnReferenced)
                 {
-                    newColumnNames = new List<string>(values.ColumnNames.Count);
+                    newColumnNames = [with(values.ColumnNames.Count)];
                     referencedColumns = new BitArray(values.ColumnNames.Count);
 
                     for (var j = 0; j < i; j++)
@@ -323,7 +323,7 @@ public class SqlTreePruner : ExpressionVisitor
             // We can prune all columns but need to leave one, so that the ValuesExpression is still valid.
             // Pick the first column, unless it happens to be the _ord column, in which case we pick the second one.
             referencedColumns = new BitArray(values.ColumnNames.Count);
-            newColumnNames = new List<string>(1);
+            newColumnNames = [with(1)];
 
             if (values.ColumnNames[0] is RelationalQueryableMethodTranslatingExpressionVisitor.ValuesOrderingColumnName)
             {

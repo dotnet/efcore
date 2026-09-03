@@ -46,7 +46,6 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     {
         Type? providerClrType = null;
         ValueConverter? customConverter = null;
-        CoreTypeMapping? elementMapping = null;
         if (principals != null)
         {
             for (var i = 0; i < principals.Count; i++)
@@ -67,16 +66,6 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                     if (converter != null)
                     {
                         customConverter = converter;
-                    }
-                }
-
-                if (elementMapping == null)
-                {
-                    var element = principal.GetElementType();
-                    if (element != null)
-                    {
-                        elementMapping = FindMapping(element);
-                        mappingInfo = mappingInfo with { ElementTypeMapping = elementMapping };
                     }
                 }
             }

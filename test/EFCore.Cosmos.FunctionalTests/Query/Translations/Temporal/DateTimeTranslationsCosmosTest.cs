@@ -15,7 +15,7 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
     public override async Task Now()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Now());
+        await AssertTranslationFailed(base.Now);
 
         AssertSql();
     }
@@ -26,7 +26,7 @@ public class DateTimeTranslationsCosmosTest : DateTimeTranslationsTestBase<Basic
 
         AssertSql(
             """
-@myDatetime=?
+@myDatetime='2015-04-10T00:00:00'
 
 SELECT VALUE c
 FROM root c
@@ -37,7 +37,7 @@ WHERE (GetCurrentDateTime() != @myDatetime)
     public override async Task Today()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Today());
+        await AssertTranslationFailed(base.Today);
 
         AssertSql();
     }
@@ -45,7 +45,7 @@ WHERE (GetCurrentDateTime() != @myDatetime)
     public override async Task Date()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Date());
+        await AssertTranslationFailed(base.Date);
 
         AssertSql();
     }
@@ -89,7 +89,7 @@ WHERE (DateTimePart("mm", c["DateTime"]) = 5)
     public override async Task DayOfYear()
     {
         // DateTime.DayOfYear not supported by Cosmos
-        await AssertTranslationFailed(() => base.DayOfYear());
+        await AssertTranslationFailed(base.DayOfYear);
 
         AssertSql();
     }
@@ -157,7 +157,7 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
     public override async Task TimeOfDay()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.TimeOfDay());
+        await AssertTranslationFailed(base.TimeOfDay);
 
         AssertSql();
     }
@@ -165,7 +165,7 @@ WHERE (DateTimePart("ms", c["DateTime"]) = 123)
     public override async Task subtract_and_TotalDays()
     {
         // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.subtract_and_TotalDays());
+        await AssertTranslationFailed(base.subtract_and_TotalDays);
 
         AssertSql();
     }
@@ -188,7 +188,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@Parse=?
+@Parse='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
@@ -214,7 +214,7 @@ WHERE (c["DateTime"] = "1998-05-04T15:30:10")
 
         AssertSql(
             """
-@p=?
+@p='1998-05-04T15:30:10'
 
 SELECT VALUE c
 FROM root c
@@ -222,7 +222,7 @@ WHERE (c["DateTime"] = @p)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 

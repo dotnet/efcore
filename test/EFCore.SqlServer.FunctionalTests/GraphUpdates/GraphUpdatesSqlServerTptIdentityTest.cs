@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class GraphUpdatesSqlServerTptIdentityTest(GraphUpdatesSqlServerTptIdentityTest.SqlServerFixture fixture)
     : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerTptIdentityTest.SqlServerFixture>(fixture)
 {

@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 {
     public BatchingTest(BatchingTestFixture fixture)
@@ -22,7 +20,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
     protected BatchingTestFixture Fixture { get; }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(true, true, true),
      InlineData(false, true, true),
      InlineData(true, false, true),
@@ -69,7 +67,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             context => AssertDatabaseState(context, clientOrder, expectedBlogs));
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Inserts_and_updates_are_batched_correctly()
     {
         var expectedBlogs = new List<Blog>();
@@ -122,7 +120,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             context => AssertDatabaseState(context, true, expectedBlogs));
     }
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(1),
      InlineData(3),
      InlineData(4),
@@ -132,7 +130,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         var blogId = new Guid();
 
         return TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => (BloggingContext)Fixture.CreateContext(maxBatchSize: maxBatchSize),
+            () => Fixture.CreateContext(maxBatchSize: maxBatchSize),
             UseTransaction, async context =>
             {
                 var owner = new Owner();
@@ -158,7 +156,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
             });
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Deadlock_on_inserts_and_deletes_with_dependents_is_handled_correctly()
     {
         var blogs = new List<Blog>();
@@ -217,7 +215,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
         async Task RemoveAndAddPosts(Blog blog)
         {
-            using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
+            using var context = Fixture.CreateContext(useConnectionString: true);
 
             context.Attach(blog);
             blog.Posts.Clear();
@@ -232,7 +230,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         await Fixture.ReseedAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public async Task Deadlock_on_deletes_with_dependents_is_handled_correctly()
     {
         var owners = new[] { new Owner { Name = "0" }, new Owner { Name = "1" } };
@@ -286,7 +284,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         await Fixture.ReseedAsync();
     }
 
-    [ConditionalFact]
+    [Fact]
     public Task Inserts_when_database_type_is_different()
         => ExecuteWithStrategyInTransactionAsync(
             context =>
@@ -299,7 +297,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
                 return context.SaveChangesAsync();
             }, async context => Assert.Equal(2, await context.Owners.CountAsync()));
 
-    [ConditionalTheory,
+    [Theory,
      InlineData(3),
      InlineData(4)]
     public Task Inserts_are_batched_only_when_necessary(int minBatchSize)
@@ -390,25 +388,25 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         }
 
         // ReSharper disable once UnusedMember.Local
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
+        public DbSet<Owner> Owners { get; set; } = null!;
     }
 
     private class Blog
     {
         public Guid Id { get; set; }
         public int Order { get; set; }
-        public string OwnerId { get; set; }
-        public Owner Owner { get; set; }
-        public byte[] Version { get; set; }
+        public string? OwnerId { get; set; }
+        public Owner? Owner { get; set; }
+        public byte[] Version { get; set; } = null!;
         public ICollection<Post> Posts { get; } = new HashSet<Post>();
     }
 
     private class Owner
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public byte[] Version { get; set; }
+        public string Id { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public byte[] Version { get; set; } = null!;
     }
 
     private class Post
@@ -416,7 +414,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
         public int PostId { get; set; }
         public int? Order { get; set; }
         public Guid BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public Blog Blog { get; set; } = null!;
         public ICollection<Comment> Comments { get; } = new HashSet<Comment>();
     }
 
@@ -424,7 +422,7 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     {
         public int CommentId { get; set; }
         public int PostId { get; set; }
-        public Post Post { get; set; }
+        public Post Post { get; set; } = null!;
     }
 
     public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>

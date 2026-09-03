@@ -15,18 +15,18 @@ public class StateProvince
     }
 
     public int StateProvinceID { get; set; }
-    public string CountryRegionCode { get; set; }
+    public string CountryRegionCode { get; set; } = null!;
     public bool IsOnlyStateProvinceFlag { get; set; }
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 #pragma warning disable IDE1006 // Naming Styles
     public Guid rowguid { get; set; }
 #pragma warning restore IDE1006 // Naming Styles
-    public string StateProvinceCode { get; set; }
+    public string StateProvinceCode { get; set; } = null!;
     public int TerritoryID { get; set; }
 
     public virtual ICollection<Address> Address { get; set; }
     public virtual ICollection<SalesTaxRate> SalesTaxRate { get; set; }
-    public virtual CountryRegion CountryRegionCodeNavigation { get; set; }
-    public virtual SalesTerritory Territory { get; set; }
+    public virtual CountryRegion CountryRegionCodeNavigation { get; set; } = null!;
+    public virtual SalesTerritory Territory { get; set; } = null!;
 }

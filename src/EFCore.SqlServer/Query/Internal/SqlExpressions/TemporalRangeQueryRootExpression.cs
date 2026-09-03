@@ -71,8 +71,8 @@ public abstract class TemporalRangeQueryRootExpression : TemporalQueryRootExpres
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is TemporalRangeQueryRootExpression queryRootExpression
-                && Equals(queryRootExpression));
+                || (obj is TemporalRangeQueryRootExpression queryRootExpression
+                    && Equals(queryRootExpression)));
 
     private bool Equals(TemporalRangeQueryRootExpression queryRootExpression)
         => base.Equals(queryRootExpression)

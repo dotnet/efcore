@@ -33,6 +33,11 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
     {
+        foreach (var annotation in base.For(model, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -52,6 +57,11 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+        foreach (var annotation in base.For(column, designTime))
+        {
+            yield return annotation;
+        }
+
         if (!designTime)
         {
             yield break;
@@ -65,7 +75,7 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
 
         // Model validation ensures that these facets are the same on all mapped properties
         var property = column.PropertyMappings.First().Property;
-        
+
         if (property.GetValueGenerationStrategy() == SqliteValueGenerationStrategy.Autoincrement)
         {
             yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);

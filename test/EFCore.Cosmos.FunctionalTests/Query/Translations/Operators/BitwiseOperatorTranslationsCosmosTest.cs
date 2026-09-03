@@ -14,13 +14,27 @@ public class BitwiseOperatorTranslationsCosmosTest : BitwiseOperatorTranslations
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Or()
-        => AssertTranslationFailed(() => base.Or());
+    public override async Task Or()
+    {
+        await base.Or();
+
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Int"] | c["Long"]) = 7)
+""",
+            //
+            """
+SELECT VALUE (c["Int"] | c["Long"])
+FROM root c
+""");
+    }
 
     public override async Task Or_over_boolean()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.Or_over_boolean());
+        await Assert.ThrowsAsync<EqualException>(base.Or_over_boolean);
 
         AssertSql(
             """
@@ -32,10 +46,14 @@ WHERE ((c["Int"] = 12) | (c["String"] = "Seattle"))
 
     public override async Task Or_multiple()
     {
-        // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Or_multiple());
+        await base.Or_multiple();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (((c["Int"] | c["Short"]) | c["Long"]) = 7)
+""");
     }
 
     public override async Task And()
@@ -58,7 +76,7 @@ FROM root c
     public override async Task And_over_boolean()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.And_over_boolean());
+        await Assert.ThrowsAsync<EqualException>(base.And_over_boolean);
 
         AssertSql(
             """
@@ -112,7 +130,7 @@ WHERE (~(c["Int"]) = -9)
     public override async Task And_or_over_boolean()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.And_or_over_boolean());
+        await Assert.ThrowsAsync<EqualException>(base.And_or_over_boolean);
 
         AssertSql(
             """
@@ -125,7 +143,7 @@ WHERE (((c["Int"] = 12) & (c["Short"] = 12)) | (c["String"] = "Seattle"))
     public override async Task Or_with_logical_or()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.Or_with_logical_or());
+        await Assert.ThrowsAsync<EqualException>(base.Or_with_logical_or);
 
         AssertSql(
             """
@@ -138,7 +156,7 @@ WHERE (((c["Int"] = 12) | (c["Short"] = 12)) OR (c["String"] = "Seattle"))
     public override async Task And_with_logical_and()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.And_with_logical_and());
+        await Assert.ThrowsAsync<EqualException>(base.And_with_logical_and);
 
         AssertSql(
             """
@@ -151,7 +169,7 @@ WHERE (((c["Int"] = 8) & (c["Short"] = 8)) AND (c["String"] = "Seattle"))
     public override async Task Or_with_logical_and()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.Or_with_logical_and());
+        await Assert.ThrowsAsync<EqualException>(base.Or_with_logical_and);
 
         AssertSql(
             """
@@ -164,7 +182,7 @@ WHERE (((c["Int"] = 8) | (c["Short"] = 9)) AND (c["String"] = "Seattle"))
     public override async Task And_with_logical_or()
     {
         // Bitwise operators on booleans. Issue #13168.
-        await Assert.ThrowsAsync<EqualException>(() => base.And_with_logical_or());
+        await Assert.ThrowsAsync<EqualException>(base.And_with_logical_or);
 
         AssertSql(
             """
@@ -198,7 +216,7 @@ WHERE ((c["Int"] >> 1) = 4)
 """);
     }
 
-    [ConditionalFact]
+    [Fact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
