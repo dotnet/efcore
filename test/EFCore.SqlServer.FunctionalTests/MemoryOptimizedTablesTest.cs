@@ -19,7 +19,7 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
     [ConditionalFact]
     public async Task Can_create_memoryOptimized_table()
     {
-        using (await CreateTestStoreAsync())
+        await using (await CreateTestStoreAsync())
         {
             var bigUn = new BigUn();
             var fastUns = new[] { new FastUn { Name = "First 'un", BigUn = bigUn }, new FastUn { Name = "Second 'un", BigUn = bigUn } };
@@ -64,13 +64,12 @@ public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimized
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Entity<FastUn>(
-                    eb =>
-                    {
-                        eb.ToTable(tb => tb.IsMemoryOptimized());
-                        eb.HasIndex(e => e.Name).IsUnique();
-                        eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
-                    });
+                .Entity<FastUn>(eb =>
+                {
+                    eb.ToTable(tb => tb.IsMemoryOptimized());
+                    eb.HasIndex(e => e.Name).IsUnique();
+                    eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
+                });
 
             modelBuilder.Entity<BigUn>().ToTable(tb => tb.IsMemoryOptimized());
         }

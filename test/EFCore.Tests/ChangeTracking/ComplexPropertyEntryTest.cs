@@ -433,43 +433,42 @@ public class ComplexPropertyEntryTest
                 .UseInMemoryDatabase(GetType().FullName!);
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Yogurt>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
+            => modelBuilder.Entity<Yogurt>(b =>
+            {
+                b.ComplexProperty(
+                    e => e.Culture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
 
-                    b.ComplexProperty(
-                        e => e.FieldCulture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
+                b.ComplexProperty(
+                    e => e.FieldCulture, b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.License, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                        b.ComplexProperty(
+                            e => e.Manufacturer, b =>
+                            {
+                                b.ComplexProperty(e => e.Tag);
+                                b.ComplexProperty(e => e.Tog);
+                            });
+                    });
+            });
     }
 
     private struct Culture

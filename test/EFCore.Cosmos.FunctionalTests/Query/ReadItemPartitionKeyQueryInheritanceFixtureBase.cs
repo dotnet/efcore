@@ -10,59 +10,54 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         var asserters = (Dictionary<Type, object>)EntityAsserters;
 
         asserters[typeof(DerivedHierarchicalPartitionKeyEntity)] =
-            new Action<object, object>(
-                (e, a) =>
-                {
-                    ((Action<object, object>)EntityAsserters[typeof(HierarchicalPartitionKeyEntity)])(e, a);
+            new Action<object, object>((e, a) =>
+            {
+                ((Action<object, object>)EntityAsserters[typeof(HierarchicalPartitionKeyEntity)])(e, a);
 
-                    Assert.Equal(
-                        ((DerivedHierarchicalPartitionKeyEntity?)e)?.DerivedPayload,
-                        ((DerivedHierarchicalPartitionKeyEntity?)a)?.DerivedPayload);
-                });
+                Assert.Equal(
+                    ((DerivedHierarchicalPartitionKeyEntity?)e)?.DerivedPayload,
+                    ((DerivedHierarchicalPartitionKeyEntity?)a)?.DerivedPayload);
+            });
 
         asserters[typeof(DerivedSinglePartitionKeyEntity)] =
-            new Action<object, object>(
-                (e, a) =>
-                {
-                    ((Action<object, object>)EntityAsserters[typeof(SinglePartitionKeyEntity)])(e, a);
+            new Action<object, object>((e, a) =>
+            {
+                ((Action<object, object>)EntityAsserters[typeof(SinglePartitionKeyEntity)])(e, a);
 
-                    Assert.Equal(
-                        ((DerivedSinglePartitionKeyEntity?)e)?.DerivedPayload,
-                        ((DerivedSinglePartitionKeyEntity?)a)?.DerivedPayload);
-                });
+                Assert.Equal(
+                    ((DerivedSinglePartitionKeyEntity?)e)?.DerivedPayload,
+                    ((DerivedSinglePartitionKeyEntity?)a)?.DerivedPayload);
+            });
 
         asserters[typeof(DerivedOnlyHierarchicalPartitionKeyEntity)] =
-            new Action<object, object>(
-                (e, a) =>
-                {
-                    ((Action<object, object>)EntityAsserters[typeof(OnlyHierarchicalPartitionKeyEntity)])(e, a);
+            new Action<object, object>((e, a) =>
+            {
+                ((Action<object, object>)EntityAsserters[typeof(OnlyHierarchicalPartitionKeyEntity)])(e, a);
 
-                    Assert.Equal(
-                        ((DerivedOnlyHierarchicalPartitionKeyEntity?)e)?.DerivedPayload,
-                        ((DerivedOnlyHierarchicalPartitionKeyEntity?)a)?.DerivedPayload);
-                });
+                Assert.Equal(
+                    ((DerivedOnlyHierarchicalPartitionKeyEntity?)e)?.DerivedPayload,
+                    ((DerivedOnlyHierarchicalPartitionKeyEntity?)a)?.DerivedPayload);
+            });
 
         asserters[typeof(DerivedOnlySinglePartitionKeyEntity)] =
-            new Action<object, object>(
-                (e, a) =>
-                {
-                    ((Action<object, object>)EntityAsserters[typeof(OnlySinglePartitionKeyEntity)])(e, a);
+            new Action<object, object>((e, a) =>
+            {
+                ((Action<object, object>)EntityAsserters[typeof(OnlySinglePartitionKeyEntity)])(e, a);
 
-                    Assert.Equal(
-                        ((DerivedOnlySinglePartitionKeyEntity?)e)?.DerivedPayload,
-                        ((DerivedOnlySinglePartitionKeyEntity?)a)?.DerivedPayload);
-                });
+                Assert.Equal(
+                    ((DerivedOnlySinglePartitionKeyEntity?)e)?.DerivedPayload,
+                    ((DerivedOnlySinglePartitionKeyEntity?)a)?.DerivedPayload);
+            });
 
         asserters[typeof(DerivedNoPartitionKeyEntity)] =
-            new Action<object, object>(
-                (e, a) =>
-                {
-                    ((Action<object, object>)EntityAsserters[typeof(NoPartitionKeyEntity)])(e, a);
+            new Action<object, object>((e, a) =>
+            {
+                ((Action<object, object>)EntityAsserters[typeof(NoPartitionKeyEntity)])(e, a);
 
-                    Assert.Equal(
-                        ((DerivedNoPartitionKeyEntity?)e)?.DerivedPayload,
-                        ((DerivedNoPartitionKeyEntity?)a)?.DerivedPayload);
-                });
+                Assert.Equal(
+                    ((DerivedNoPartitionKeyEntity?)e)?.DerivedPayload,
+                    ((DerivedNoPartitionKeyEntity?)a)?.DerivedPayload);
+            });
 
         var sorters = (Dictionary<Type, object>)EntitySorters;
 
@@ -129,8 +124,8 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
         }
 
         private static List<DerivedHierarchicalPartitionKeyEntity> CreateDerivedHierarchicalPartitionKeyEntities()
-            => new()
-            {
+            =>
+            [
                 new DerivedHierarchicalPartitionKeyEntity
                 {
                     Id = Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF"),
@@ -140,6 +135,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
+
                 new DerivedHierarchicalPartitionKeyEntity
                 {
                     Id = Guid.Parse("316C846C-787F-44B9-AADF-272F1658C5FF"), // Same Id as previous; different partition.
@@ -149,6 +145,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
+
                 new DerivedHierarchicalPartitionKeyEntity
                 {
                     Id = Guid.Parse("C6E8E6D2-F33E-4695-9FA5-D0E9517EF04E"), // New Id.
@@ -158,6 +155,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
+
                 new DerivedHierarchicalPartitionKeyEntity
                 {
                     Id = Guid.Parse("C6E8E6D2-F33E-4695-9FA5-D0E9517EF04E"), // Same Id as previous; different partition.
@@ -167,11 +165,11 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload4",
                     DerivedPayload = "DerivedPayload4"
                 }
-            };
+            ];
 
         private static List<DerivedSinglePartitionKeyEntity> CreateDerivedSinglePartitionKeyEntities()
-            => new()
-            {
+            =>
+            [
                 new DerivedSinglePartitionKeyEntity
                 {
                     Id = Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C"),
@@ -179,6 +177,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
+
                 new DerivedSinglePartitionKeyEntity
                 {
                     Id = Guid.Parse("188D3253-81BE-4A87-B58F-A2BD07E6B98C"),
@@ -186,6 +185,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
+
                 new DerivedSinglePartitionKeyEntity
                 {
                     Id = Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1"),
@@ -193,6 +193,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
+
                 new DerivedSinglePartitionKeyEntity
                 {
                     Id = Guid.Parse("11F8D1FD-7472-46F5-9E20-16AF42B3B8D1"),
@@ -200,11 +201,11 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload4",
                     DerivedPayload = "DerivedPayload4"
                 }
-            };
+            ];
 
         private static List<DerivedOnlyHierarchicalPartitionKeyEntity> CreateDerivedOnlyHierarchicalPartitionKeyEntities()
-            => new()
-            {
+            =>
+            [
                 new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK1c",
@@ -213,6 +214,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
+
                 new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK2c",
@@ -221,6 +223,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
+
                 new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK1d",
@@ -229,6 +232,7 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
+
                 new DerivedOnlyHierarchicalPartitionKeyEntity
                 {
                     PartitionKey1 = "PK2d",
@@ -237,53 +241,57 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                     Payload = "Payload4",
                     DerivedPayload = "DerivedPayload4"
                 }
-            };
+            ];
 
         private static List<DerivedOnlySinglePartitionKeyEntity> CreateDerivedOnlySinglePartitionKeyEntities()
-            => new()
-            {
+            =>
+            [
                 new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK1c",
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
+
                 new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK2c",
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 },
+
                 new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK1d",
                     Payload = "Payload3",
                     DerivedPayload = "DerivedPayload3"
                 },
+
                 new DerivedOnlySinglePartitionKeyEntity
                 {
                     PartitionKey = "PK2d",
                     Payload = "Payload4",
                     DerivedPayload = "DerivedPayload4"
                 }
-            };
+            ];
 
         private static List<DerivedNoPartitionKeyEntity> CreateDerivedNoPartitionKeyEntities()
-            => new()
-            {
+            =>
+            [
                 new DerivedNoPartitionKeyEntity
                 {
                     Id = 11,
                     Payload = "Payload1",
                     DerivedPayload = "DerivedPayload1"
                 },
+
                 new DerivedNoPartitionKeyEntity
                 {
                     Id = 22,
                     Payload = "Payload2",
                     DerivedPayload = "DerivedPayload2"
                 }
-            };
+            ];
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

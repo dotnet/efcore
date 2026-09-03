@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
@@ -13,8 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSql" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
-public class AzureSqlDbContextOptionsBuilder
-    : RelationalDbContextOptionsBuilder<AzureSqlDbContextOptionsBuilder, SqlServerOptionsExtension>
+public class AzureSqlDbContextOptionsBuilder : SqlEngineDbContextOptionsBuilderBase<AzureSqlDbContextOptionsBuilder>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="AzureSqlDbContextOptionsBuilder" /> class.
@@ -107,7 +104,7 @@ public class AzureSqlDbContextOptionsBuilder
 
     /// <summary>
     ///     Sets the Azure SQL compatibility level that EF Core will use when interacting with the database. This allows configuring EF
-    ///     Core to work with older (or newer) versions of Azure SQL. Defaults to <c>160</c>.
+    ///     Core to work with older (or newer) versions of Azure SQL. Defaults to <c>170</c>.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and

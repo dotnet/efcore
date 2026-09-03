@@ -26,8 +26,7 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(
-            builder.ConfigureWarnings(
-                w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning, CosmosEventId.NoPartitionKeyDefined)));
+            builder.ConfigureWarnings(w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning, CosmosEventId.NoPartitionKeyDefined)));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

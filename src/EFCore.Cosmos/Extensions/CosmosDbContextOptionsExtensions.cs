@@ -49,8 +49,8 @@ public static class CosmosDbContextOptionsExtensions
         this DbContextOptionsBuilder optionsBuilder,
         Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
     {
-        Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-        Check.NotNull(cosmosOptionsAction, nameof(cosmosOptionsAction));
+        Check.NotNull(optionsBuilder);
+        Check.NotNull(cosmosOptionsAction);
 
         ConfigureWarnings(optionsBuilder);
 
@@ -107,10 +107,10 @@ public static class CosmosDbContextOptionsExtensions
         string databaseName,
         Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
     {
-        Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-        Check.NotNull(accountEndpoint, nameof(accountEndpoint));
-        Check.NotEmpty(accountKey, nameof(accountKey));
-        Check.NotEmpty(databaseName, nameof(databaseName));
+        Check.NotNull(optionsBuilder);
+        Check.NotNull(accountEndpoint);
+        Check.NotEmpty(accountKey);
+        Check.NotEmpty(databaseName);
 
         var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
             ?? new CosmosOptionsExtension();
@@ -177,10 +177,10 @@ public static class CosmosDbContextOptionsExtensions
         string databaseName,
         Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
     {
-        Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-        Check.NotNull(accountEndpoint, nameof(accountEndpoint));
-        Check.NotNull(tokenCredential, nameof(tokenCredential));
-        Check.NotEmpty(databaseName, nameof(databaseName));
+        Check.NotNull(optionsBuilder);
+        Check.NotNull(accountEndpoint);
+        Check.NotNull(tokenCredential);
+        Check.NotEmpty(databaseName);
 
         var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
             ?? new CosmosOptionsExtension();
@@ -242,9 +242,9 @@ public static class CosmosDbContextOptionsExtensions
         string databaseName,
         Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
     {
-        Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-        Check.NotNull(connectionString, nameof(connectionString));
-        Check.NotNull(databaseName, nameof(databaseName));
+        Check.NotNull(optionsBuilder);
+        Check.NotNull(connectionString);
+        Check.NotNull(databaseName);
 
         var extension = optionsBuilder.Options.FindExtension<CosmosOptionsExtension>()
             ?? new CosmosOptionsExtension();

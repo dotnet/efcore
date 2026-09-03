@@ -59,7 +59,7 @@ public class StoredProcedureParameterBuilder : IInfrastructure<PropertyBuilder?>
     /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
     public virtual StoredProcedureParameterBuilder HasName(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         Builder.HasName(name, ConfigurationSource.Explicit);
 
@@ -106,7 +106,7 @@ public class StoredProcedureParameterBuilder : IInfrastructure<PropertyBuilder?>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual StoredProcedureParameterBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

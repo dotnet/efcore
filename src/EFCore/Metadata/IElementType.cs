@@ -19,4 +19,10 @@ public interface IElementType : IReadOnlyElementType, IAnnotatable
         [DebuggerStepThrough]
         get => (IProperty)((IReadOnlyElementType)this).CollectionProperty;
     }
+
+    /// <summary>
+    ///     Gets the <see cref="ValueComparer" /> for this property.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    new ValueComparer GetValueComparer();
 }

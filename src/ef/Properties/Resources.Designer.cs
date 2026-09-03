@@ -218,6 +218,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 type);
 
         /// <summary>
+        ///     The location of the referenced Microsoft.EntityFrameworkCore.Design assembly.
+        /// </summary>
+        public static string DesignAssemblyDescription
+            => GetString("DesignAssemblyDescription");
+
+        /// <summary>
         ///     Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.
         /// </summary>
         public static string DesignNotFound(object? startupProject)

@@ -16,19 +16,19 @@ public abstract class ExpressionMutator(DbContext context)
 
     static ExpressionMutator()
     {
-        IncludeMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
-                m => m.Name == nameof(EntityFrameworkQueryableExtensions.Include)
-                    && m.GetParameters()[1].ParameterType != typeof(string))
+        IncludeMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(m
+                => m.Name == nameof(EntityFrameworkQueryableExtensions.Include)
+                && m.GetParameters()[1].ParameterType != typeof(string))
             .Single();
-        ThenIncludeCollectionMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
-                m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                    && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].IsGenericType
-                    && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IEnumerable<>))
+        ThenIncludeCollectionMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(m
+                => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
+                && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].IsGenericType
+                && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IEnumerable<>))
             .Single();
 
-        ThenIncludeReferenceMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
-            m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                && m != ThenIncludeCollectionMethodInfo).Single();
+        ThenIncludeReferenceMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(m
+            => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
+            && m != ThenIncludeCollectionMethodInfo).Single();
     }
 
     protected static bool IsQueryableType(Type type)
@@ -85,8 +85,8 @@ public abstract class ExpressionMutator(DbContext context)
         var entityType = Context.Model.FindEntityType(type);
         if (entityType != null)
         {
-            properties = properties.Where(
-                p => entityType.GetProperties().Where(pp => pp.PropertyInfo != null).Select(pp => pp.Name).Contains(p.Name)).ToList();
+            properties = properties.Where(p
+                => entityType.GetProperties().Where(pp => pp.PropertyInfo != null).Select(pp => pp.Name).Contains(p.Name)).ToList();
         }
 
         return properties;

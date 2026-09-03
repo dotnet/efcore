@@ -54,7 +54,7 @@ public class DiscriminatorLengthConvention : IModelFinalizingConvention
                 && !discriminatorProperty.IsForeignKey())
             {
                 var maxDiscriminatorValueLength =
-                    entityType.GetDerivedTypesInclusive().Select(e => ((string)e.GetDiscriminatorValue()!).Length).Max();
+                    entityType.GetDerivedTypesInclusive().Select(e => (e.GetDiscriminatorValue() as string)?.Length ?? 0).Max();
 
                 var previous = 1;
                 var current = 1;

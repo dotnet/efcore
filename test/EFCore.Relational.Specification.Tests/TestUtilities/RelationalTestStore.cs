@@ -44,10 +44,10 @@ public abstract class RelationalTestStore(string name, bool shared, DbConnection
         return this;
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        Connection?.Dispose();
-        base.Dispose();
+        await Connection.DisposeAsync();
+        await base.DisposeAsync();
     }
 
     public virtual string NormalizeDelimitersInRawString(string sql)

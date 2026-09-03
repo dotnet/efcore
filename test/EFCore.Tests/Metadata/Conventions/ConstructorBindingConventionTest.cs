@@ -366,21 +366,18 @@ public class ConstructorBindingConventionTest
             CoreStrings.ConstructorConflict(
                 "BlogConflict(string, int)",
                 "BlogConflict(string, Guid?)"),
-            Assert.Throws<InvalidOperationException>(
-                () => GetBinding<BlogConflict>()).Message);
+            Assert.Throws<InvalidOperationException>(() => GetBinding<BlogConflict>()).Message);
 
     [ConditionalFact]
     public void Does_not_throw_if_explicit_binding_has_been_set()
     {
-        var constructorBinding = GetBinding<BlogConflict>(
-            e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
-                typeof(BlogConflict).GetConstructor(
-                    [typeof(string), typeof(int)]),
-                new[]
-                {
-                    new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
-                    new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
-                }));
+        var constructorBinding = GetBinding<BlogConflict>(e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
+            typeof(BlogConflict).GetConstructor(
+                [typeof(string), typeof(int)]),
+            [
+                new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
+                new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
+            ]));
 
         Assert.NotNull(constructorBinding);
 

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
+public class OperatorsQuerySqlServerTest(NonSharedFixture fixture) : OperatorsQueryTestBase(fixture)
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -153,9 +153,7 @@ WHERE N'Foo' + JSON_VALUE([o].[Owned], '$.SomeProperty') = N'FooBar'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -183,9 +181,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_parameter(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -210,18 +206,16 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
 
         AssertSql(
             """
-@__timeZone_1='UTC' (Size = 8000) (DbType = AnsiString)
-@__dateTime_2='2000-01-01T18:00:00.0000000+00:00'
+@timeZone='UTC' (Size = 8000) (DbType = AnsiString)
+@dateTime='2000-01-01T18:00:00.0000000+00:00'
 
 SELECT [o].[Id]
 FROM [OperatorEntityDateTimeOffset] AS [o]
-WHERE [o].[Value] AT TIME ZONE @__timeZone_1 = @__dateTime_2
+WHERE [o].[Value] AT TIME ZONE @timeZone = @dateTime
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_column(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -253,9 +247,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    [ConditionalTheory, MemberData(nameof(IsAsyncData)), SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_is_null(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);

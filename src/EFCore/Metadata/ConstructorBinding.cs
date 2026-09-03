@@ -21,7 +21,7 @@ public class ConstructorBinding : InstantiationBinding
         IReadOnlyList<ParameterBinding> parameterBindings)
         : base(parameterBindings)
     {
-        Check.NotNull(constructor, nameof(constructor));
+        Check.NotNull(constructor);
 
         Constructor = constructor;
     }

@@ -9,11 +9,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class BadDataJsonDeserializationTestBase
 {
-    [ConditionalTheory]
-    [InlineData("""{"Prop"}""")]
-    [InlineData("""{"Prop"}:127}""")]
-    [InlineData("""{"Prop":"X"}""")]
-    [InlineData("""{"Prop":}""")]
+    [ConditionalTheory, InlineData("""{"Prop"}"""), InlineData("""{"Prop"}:127}"""), InlineData("""{"Prop":"X"}"""),
+     InlineData("""{"Prop":}""")]
     public virtual void Throws_for_bad_sbyte_JSON_values(string json)
         => Throws_for_bad_JSON_value<Int8Type, sbyte>(nameof(Int8Type.Int8), json);
 
@@ -22,11 +19,8 @@ public abstract class BadDataJsonDeserializationTestBase
         public sbyte Int8 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop"}""")]
-    [InlineData("""{"Prop"}:127}""")]
-    [InlineData("""{"Prop":"X"}""")]
-    [InlineData("""{"Prop":}""")]
+    [ConditionalTheory, InlineData("""{"Prop"}"""), InlineData("""{"Prop"}:127}"""), InlineData("""{"Prop":"X"}"""),
+     InlineData("""{"Prop":}""")]
     public virtual void Throws_for_bad_nullable_long_JSON_values(string json)
         => Throws_for_bad_JSON_value<NullableInt64Type, long?>(nameof(NullableInt64Type.Int64), json);
 
@@ -35,15 +29,11 @@ public abstract class BadDataJsonDeserializationTestBase
         public long? Int64 { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":{"type""Point","coordinates":[2.0,4.0]}}""")]
-    [InlineData("""{"Prop":{"type":["Point","coordinates":[2.0,4.0]}}""")]
-    [InlineData("""{"Prop":{"type":"Point","coordinates":[2.0,,4.0]}}""")]
-    [InlineData("""{"Prop":[{"type":"Point","coordinates":[2.0,4.0]}]}""")]
-    [InlineData("""{"Prop":1}""")]
-    [InlineData("""{"Prop":true}""")]
-    [InlineData("""{"Prop":false}""")]
-    [InlineData("""{"Prop":"X"}""")]
+    [ConditionalTheory, InlineData("""{"Prop":{"type""Point","coordinates":[2.0,4.0]}}"""),
+     InlineData("""{"Prop":{"type":["Point","coordinates":[2.0,4.0]}}"""),
+     InlineData("""{"Prop":{"type":"Point","coordinates":[2.0,,4.0]}}"""),
+     InlineData("""{"Prop":[{"type":"Point","coordinates":[2.0,4.0]}]}"""), InlineData("""{"Prop":1}"""), InlineData("""{"Prop":true}"""),
+     InlineData("""{"Prop":false}"""), InlineData("""{"Prop":"X"}""")]
     public virtual void Throws_for_bad_point_as_GeoJson(string json)
         => Throws_for_bad_JSON_property_value<PointType, Point>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonTypesTestBase.JsonGeoJsonReaderWriter)),
@@ -55,12 +45,8 @@ public abstract class BadDataJsonDeserializationTestBase
         public Point? Point { get; set; }
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[-128,[0,127]]}""")]
-    [InlineData("""{"Prop":[-128,{"P":127}]}""")]
-    [InlineData("""{"Prop":[-128,],23]}""")]
-    [InlineData("""{"Prop":[-128,},23]}""")]
-    [InlineData("""{"Prop":[-128,,23]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[-128,[0,127]]}"""), InlineData("""{"Prop":[-128,{"P":127}]}"""),
+     InlineData("""{"Prop":[-128,],23]}"""), InlineData("""{"Prop":[-128,},23]}"""), InlineData("""{"Prop":[-128,,23]}""")]
     public virtual void Throws_for_bad_collection_of_sbyte_JSON_values(string json)
         => Throws_for_bad_JSON_value<Int8CollectionType, List<sbyte>>(
             nameof(Int8CollectionType.Int8),
@@ -72,12 +58,8 @@ public abstract class BadDataJsonDeserializationTestBase
         public sbyte[] Int8 { get; set; } = null!;
     }
 
-    [ConditionalTheory]
-    [InlineData("""{"Prop":[-128,[0,127]]}""")]
-    [InlineData("""{"Prop":[-128,{"P":127}]}""")]
-    [InlineData("""{"Prop":[-128,],23]}""")]
-    [InlineData("""{"Prop":[-128,},23]}""")]
-    [InlineData("""{"Prop":[-128,,23]}""")]
+    [ConditionalTheory, InlineData("""{"Prop":[-128,[0,127]]}"""), InlineData("""{"Prop":[-128,{"P":127}]}"""),
+     InlineData("""{"Prop":[-128,],23]}"""), InlineData("""{"Prop":[-128,},23]}"""), InlineData("""{"Prop":[-128,,23]}""")]
     public virtual void Throws_for_bad_collection_of_nullable_long_JSON_values(string json)
         => Throws_for_bad_JSON_value<NullableInt64CollectionType, List<long?>>(
             nameof(NullableInt64CollectionType.Int64),
@@ -189,9 +171,8 @@ public abstract class BadDataJsonDeserializationTestBase
     }
 
     protected virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.ConfigureWarnings(
-            w => w.Ignore(
-                CoreEventId.MappedEntityTypeIgnoredWarning,
-                CoreEventId.MappedPropertyIgnoredWarning,
-                CoreEventId.MappedNavigationIgnoredWarning));
+        => optionsBuilder.ConfigureWarnings(w => w.Ignore(
+            CoreEventId.MappedEntityTypeIgnoredWarning,
+            CoreEventId.MappedPropertyIgnoredWarning,
+            CoreEventId.MappedNavigationIgnoredWarning));
 }

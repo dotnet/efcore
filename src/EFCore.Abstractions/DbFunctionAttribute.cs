@@ -38,7 +38,7 @@ public class DbFunctionAttribute : Attribute
     /// <param name="schema">The schema of the function in the database.</param>
     public DbFunctionAttribute(string name, string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         _name = name;
         _schema = schema;
@@ -53,7 +53,7 @@ public class DbFunctionAttribute : Attribute
         get => _name;
         set
         {
-            Check.NotEmpty(value, nameof(value));
+            Check.NotEmpty(value);
 
             _name = value;
         }

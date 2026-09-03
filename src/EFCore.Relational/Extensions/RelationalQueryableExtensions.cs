@@ -91,8 +91,8 @@ public static class RelationalQueryableExtensions
         params object?[] parameters)
         where TEntity : class
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotEmpty(sql);
+        Check.NotNull(parameters);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(
@@ -131,8 +131,8 @@ public static class RelationalQueryableExtensions
         [NotParameterized] FormattableString sql)
         where TEntity : class
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotEmpty(sql.Format, nameof(source));
+        Check.NotNull(sql);
+        Check.NotEmpty(sql.Format);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(
@@ -171,8 +171,8 @@ public static class RelationalQueryableExtensions
         [NotParameterized] FormattableString sql)
         where TEntity : class
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotEmpty(sql.Format, nameof(source));
+        Check.NotNull(sql);
+        Check.NotEmpty(sql.Format);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(

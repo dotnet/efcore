@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -145,7 +144,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool owned,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var entityType = new EntityType(name, this, owned, configurationSource);
 
@@ -163,7 +162,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool owned,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         var entityType = new EntityType(type, this, owned, configurationSource);
 
@@ -182,8 +181,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool owned,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(type, nameof(type));
+        Check.NotEmpty(name);
+        Check.NotNull(type);
 
         if (GetDisplayName(type) == name)
         {
@@ -321,6 +320,13 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         EnsureMutable();
         AssertCanRemove(entityType);
 
+        foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+        {
+            Check.DebugAssert(complexProperty.IsInModel, $"IsInModel is false for {complexProperty}");
+
+            complexProperty.SetRemovedFromModel();
+        }
+
         if (_sharedTypes.TryGetValue(entityType.ClrType, out var existingTypes))
         {
             existingTypes.Types.Remove(entityType);
@@ -346,7 +352,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         EntityType definingEntityType,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         name = definingEntityType.GetOwnedName(name, definingNavigationName);
         var entityType = new EntityType(name, DefaultPropertyBagType, this, owned: true, configurationSource);
@@ -366,7 +372,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         EntityType definingEntityType,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         var name = definingEntityType.GetOwnedName(type.ShortDisplayName(), definingNavigationName);
         var entityType = new EntityType(name, type, this, owned: true, configurationSource);
@@ -420,7 +426,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             ? entityType
             : FindEntityType(entityType.Name)
             ?? (entityType.HasSharedClrType
-                ? entityType.FindOwnership() is ForeignKey ownership
+                ? entityType.FindOwnership() is { } ownership
                     ? FindActualEntityType(ownership.PrincipalEntityType)
                         ?.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType
                     : null
@@ -471,8 +477,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         var entityType = FindEntityType(name);
         return entityType == null
-            ? Enumerable.Empty<EntityType>()
-            : new[] { entityType };
+            ? []
+            : [entityType];
     }
 
     /// <summary>
@@ -508,7 +514,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual string? AddIgnored(
         Type type,
         ConfigurationSource configurationSource)
-        => AddIgnored(GetDisplayName(Check.NotNull(type, nameof(type))), type, configurationSource);
+        => AddIgnored(GetDisplayName(Check.NotNull(type)), type, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -519,7 +525,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual string? AddIgnored(
         string name,
         ConfigurationSource configurationSource)
-        => AddIgnored(Check.NotNull(name, nameof(name)), null, configurationSource);
+        => AddIgnored(Check.NotNull(name), null, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -560,7 +566,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual ConfigurationSource? FindIgnoredConfigurationSource(Type type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         return FindIgnoredConfigurationSource(GetDisplayName(type));
     }
@@ -572,7 +578,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
-        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name), out var ignoredConfigurationSource)
             ? ignoredConfigurationSource
             : null;
 
@@ -611,7 +617,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual string? RemoveIgnored(Type type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
         return RemoveIgnored(GetDisplayName(type));
     }
 
@@ -623,7 +629,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual string? RemoveIgnored(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
         EnsureMutable();
 
         return _ignoredTypeNames.Remove(name) ? name : null;
@@ -636,7 +642,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<ITypeMappingConfiguration> GetTypeMappingConfigurations()
-        => Configuration?.GetTypeMappingConfigurations() ?? Enumerable.Empty<ITypeMappingConfiguration>();
+        => Configuration?.GetTypeMappingConfigurations() ?? [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -831,20 +837,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlySet<Property>? FindProperties(Type type)
-    {
-        if (_propertiesByType == null)
-        {
-            return null;
-        }
-
-        var unwrappedType = type.UnwrapNullableType();
-        if (unwrappedType.IsScalarType())
-        {
-            return null;
-        }
-
-        return _propertiesByType.GetValueOrDefault(unwrappedType);
-    }
+        => _propertiesByType?.GetValueOrDefault(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -855,13 +848,14 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual void AddProperty(Property property)
     {
         var type = property.ClrType.UnwrapNullableType();
-        if (type.IsScalarType())
+        if (type.IsScalarType()
+            || type.IsEnum)
         {
             return;
         }
 
         EnsureMutable();
-        _propertiesByType ??= new Dictionary<Type, HashSet<Property>>();
+        _propertiesByType ??= [];
 
         if (_propertiesByType.TryGetValue(type, out var properties))
         {
@@ -1179,7 +1173,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual PropertyInfo? FindIndexerPropertyInfo(Type type)
-        => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
+        => _indexerPropertyInfoMap.GetOrAdd(type, static t => t.FindIndexerProperty());
 
     /// <summary>
     ///     Gets a value indicating whether the given MethodInfo represents an indexer access.
@@ -1188,7 +1182,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual bool IsIndexerMethod(MethodInfo methodInfo)
         => !methodInfo.IsStatic
             && methodInfo is { IsSpecialName: true, DeclaringType: not null }
-            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
+            && FindIndexerPropertyInfo(methodInfo.DeclaringType) is { } indexerProperty
             && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 
     /// <summary>
@@ -1606,8 +1600,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete] // The interface didn't mark method obsolete
-    [DebuggerStepThrough]
+    [Obsolete, DebuggerStepThrough] // The interface didn't mark method obsolete
     IConventionEntityType? IConventionModel.AddEntityType(
         string name,
         string definingNavigationName,
@@ -1636,8 +1629,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete] // The interface didn't mark method obsolete
-    [DebuggerStepThrough]
+    [Obsolete, DebuggerStepThrough] // The interface didn't mark method obsolete
     IConventionEntityType? IConventionModel.AddEntityType(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         string definingNavigationName,
