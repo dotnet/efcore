@@ -18,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 /// </remarks>
 public sealed class SqliteJsonByteArrayReaderWriter : JsonValueReaderWriter<byte[]>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(SqliteJsonByteArrayReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -47,4 +49,8 @@ public sealed class SqliteJsonByteArrayReaderWriter : JsonValueReaderWriter<byte
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, byte[] value)
         => writer.WriteStringValue(Convert.ToHexString(value));
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

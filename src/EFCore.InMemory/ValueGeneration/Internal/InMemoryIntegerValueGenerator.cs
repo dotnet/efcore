@@ -23,9 +23,7 @@ public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IIn
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public InMemoryIntegerValueGenerator(int propertyIndex)
-    {
-        _propertyIndex = propertyIndex;
-    }
+        => _propertyIndex = propertyIndex;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

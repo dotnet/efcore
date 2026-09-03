@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class PropertyValuesSqlServerTest : PropertyValuesTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>
-{
-    public PropertyValuesSqlServerTest(PropertyValuesSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class PropertyValuesSqlServerTest(PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture fixture)
+    : PropertyValuesTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>(fixture)
+{
     public class PropertyValuesSqlServerFixture : PropertyValuesFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

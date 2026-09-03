@@ -1,7 +1,5 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -16,13 +14,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class Context0 : Context101
@@ -67,7 +65,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
@@ -114,13 +112,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class Context0 : Context101
@@ -161,13 +159,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class Context0 : Context101
@@ -210,13 +208,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class PostTag
@@ -273,15 +271,15 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Tag> Tags { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Post> Posts { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class PostTag
@@ -338,15 +336,15 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Tag> Tags { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Post> Posts { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class PostTag
@@ -405,15 +403,15 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Tag> Tags { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Post> Posts { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class PostTag
@@ -466,14 +464,14 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class Context0 : Context101
@@ -518,16 +516,16 @@ public abstract partial class ModelBuilding101TestBase
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
-            public List<Tag> Tags { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Tag> Tags { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
-            public List<Post> Posts { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Post> Posts { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class PostTag
@@ -579,13 +577,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class PostTag
@@ -632,13 +630,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class Context0 : Context101
@@ -688,15 +686,15 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Tag> Tags { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
-            public List<PostTag> PostTags { get; } = new();
+            public List<Post> Posts { get; } = [];
+            public List<PostTag> PostTags { get; } = [];
         }
 
         public class PostTag
@@ -801,13 +799,13 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
+            public List<Tag> Tags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
+            public List<Post> Posts { get; } = [];
         }
 
         public class Context0 : Context101
@@ -852,8 +850,8 @@ public abstract partial class ModelBuilding101TestBase
         public class Person
         {
             public int Id { get; set; }
-            public List<Person> Parents { get; } = new();
-            public List<Person> Children { get; } = new();
+            public List<Person> Parents { get; } = [];
+            public List<Person> Children { get; } = [];
         }
 
         public class Context0 : Context101
@@ -893,7 +891,7 @@ public abstract partial class ModelBuilding101TestBase
         public class Person
         {
             public int Id { get; set; }
-            public List<Person> Friends { get; } = new();
+            public List<Person> Friends { get; } = [];
         }
 
         public class Context0 : Context101
@@ -930,29 +928,29 @@ public abstract partial class ModelBuilding101TestBase
         public class Post
         {
             public int Id { get; set; }
-            public List<Tag> Tags { get; } = new();
-            public List<JoinType> PostTags { get; } = new();
+            public List<Tag> Tags { get; } = [];
+            public List<JoinType> PostTags { get; } = [];
         }
 
         public class Tag
         {
             public int Id { get; set; }
-            public List<Post> Posts { get; } = new();
-            public List<JoinType> PostTags { get; } = new();
+            public List<Post> Posts { get; } = [];
+            public List<JoinType> PostTags { get; } = [];
         }
 
         public class Blog
         {
             public int Id { get; set; }
-            public List<Author> Authors { get; } = new();
-            public List<JoinType> BlogAuthors { get; } = new();
+            public List<Author> Authors { get; } = [];
+            public List<JoinType> BlogAuthors { get; } = [];
         }
 
         public class Author
         {
             public int Id { get; set; }
-            public List<Blog> Blogs { get; } = new();
-            public List<JoinType> BlogAuthors { get; } = new();
+            public List<Blog> Blogs { get; } = [];
+            public List<JoinType> BlogAuthors { get; } = [];
         }
 
         public class JoinType

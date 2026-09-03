@@ -122,9 +122,7 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
             context,
             maxRetryCount,
             maxRetryDelay)
-    {
-        _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
-    }
+        => _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
 
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -139,9 +137,7 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
         TimeSpan maxRetryDelay,
         IEnumerable<int>? errorNumbersToAdd)
         : base(dependencies, maxRetryCount, maxRetryDelay)
-    {
-        _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
-    }
+        => _additionalErrorNumbers = errorNumbersToAdd?.ToHashSet();
 
     /// <summary>
     ///     Additional SQL error numbers that should be considered transient.

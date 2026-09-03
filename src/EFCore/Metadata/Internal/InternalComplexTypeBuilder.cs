@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -292,7 +293,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
 
                 if (complexPropertiesToDetach != null)
                 {
-                    detachedComplexProperties = new List<ComplexPropertySnapshot>();
+                    detachedComplexProperties = [];
                     foreach (var complexPropertyToDetach in complexPropertiesToDetach)
                     {
                         detachedComplexProperties.Add(InternalComplexPropertyBuilder.Detach(complexPropertyToDetach)!);
@@ -360,7 +361,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
                                 member.Name));
                     }
 
-                    membersToBeRemoved ??= new List<T>();
+                    membersToBeRemoved ??= [];
 
                     membersToBeRemoved.Add(member);
                     continue;
@@ -368,7 +369,7 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
 
                 if (baseConfigurationSource != null)
                 {
-                    membersToBeDetached ??= new List<T>();
+                    membersToBeDetached ??= [];
 
                     membersToBeDetached.Add(member);
                 }

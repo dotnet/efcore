@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     IPropertyAddedConvention,
     IPropertyFieldChangedConvention,
+    IPropertyElementTypeChangedConvention,
     IComplexPropertyAddedConvention,
     IComplexPropertyFieldChangedConvention
 {
@@ -77,13 +78,26 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     }
 
     /// <inheritdoc />
-    public void ProcessComplexPropertyAdded(
+    public virtual void ProcessPropertyElementTypeChanged(
+        IConventionPropertyBuilder propertyBuilder,
+        IElementType? newElementType,
+        IElementType? oldElementType,
+        IConventionContext<IElementType> context)
+    {
+        if (newElementType != null)
+        {
+            Process(propertyBuilder);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessComplexPropertyAdded(
         IConventionComplexPropertyBuilder propertyBuilder,
         IConventionContext<IConventionComplexPropertyBuilder> context)
         => Process(propertyBuilder);
 
     /// <inheritdoc />
-    public void ProcessComplexPropertyFieldChanged(
+    public virtual void ProcessComplexPropertyFieldChanged(
         IConventionComplexPropertyBuilder propertyBuilder,
         FieldInfo? newFieldInfo,
         FieldInfo? oldFieldInfo,

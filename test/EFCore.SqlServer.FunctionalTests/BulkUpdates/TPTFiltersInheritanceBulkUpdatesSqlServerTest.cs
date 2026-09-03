@@ -3,16 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class TPTFiltersInheritanceBulkUpdatesSqlServerTest : TPTFiltersInheritanceBulkUpdatesTestBase<
-    TPTFiltersInheritanceBulkUpdatesSqlServerFixture>
-{
-    public TPTFiltersInheritanceBulkUpdatesSqlServerTest(
-        TPTFiltersInheritanceBulkUpdatesSqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
+#nullable disable
 
+public class TPTFiltersInheritanceBulkUpdatesSqlServerTest(
+    TPTFiltersInheritanceBulkUpdatesSqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPTFiltersInheritanceBulkUpdatesTestBase<TPTFiltersInheritanceBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)
+{
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -42,9 +39,6 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Animals] AS [a]
-    LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
-    LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
     WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
 """);
     }
@@ -60,8 +54,6 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Animals] AS [a]
-    LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
     WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [k].[Id] IS NOT NULL AND [a].[CountryId] > 0) > 0
 """);
@@ -185,9 +177,6 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Animals] AS [a]
-    LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
-    LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
     WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
 """);
     }
@@ -204,8 +193,6 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Animals] AS [a]
-    LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
     WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [k].[Id] IS NOT NULL AND [a].[CountryId] > 0) > 0
 """);

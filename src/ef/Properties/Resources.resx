@@ -139,7 +139,7 @@
     <value>The connection string to the database.</value>
   </data>
   <data name="ContextDescription" xml:space="preserve">
-    <value>The DbContext to use.</value>
+    <value>The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
     <value>The directory to put the DbContext file in. Paths are relative to the project directory.</value>
@@ -219,6 +219,9 @@
   <data name="FileExists" xml:space="preserve">
     <value>The file already exists: {path}. Use --force flag to overwrite it.</value>
   </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File '{filename}' not found.</value>
+  </data>
   <data name="FrameworkDescription" xml:space="preserve">
     <value>The target framework.</value>
   </data>
@@ -285,11 +288,20 @@
   <data name="MissingArgument" xml:space="preserve">
     <value>Missing required argument '{arg}'.</value>
   </data>
+  <data name="MissingConditionalOption" xml:space="preserve">
+    <value>Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.</value>
+  </data>
   <data name="MissingOption" xml:space="preserve">
     <value>Missing required option '--{option}'.</value>
   </data>
   <data name="NamespaceDescription" xml:space="preserve">
     <value>The namespace to use. Matches the directory by default.</value>
+  </data>
+  <data name="NativeAotDescription" xml:space="preserve">
+    <value>Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental).</value>
+  </data>
+  <data name="NativeAotWarning" xml:space="preserve">
+    <value>NativeAOT support is experimental and can change in the future.</value>
   </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
@@ -305,6 +317,9 @@
   </data>
   <data name="NoPluralizeDescription" xml:space="preserve">
     <value>Don't use the pluralizer.</value>
+  </data>
+  <data name="NoScaffoldDescription" xml:space="preserve">
+    <value>Don't generate a compiled model.</value>
   </data>
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
@@ -326,6 +341,12 @@
   </data>
   <data name="PendingUnknown" xml:space="preserve">
     <value>Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurs while accessing the database.</value>
+  </data>
+  <data name="PrecompileQueriesDescription" xml:space="preserve">
+    <value>Generate precompiled queries.</value>
+  </data>
+  <data name="PrecompileQueriesWarning" xml:space="preserve">
+    <value>Query precompilation is an experimental feature and should be used with caution.</value>
   </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
@@ -359,6 +380,9 @@
   </data>
   <data name="StartupProjectDescription" xml:space="preserve">
     <value>The path to the project file.</value>
+  </data>
+  <data name="SuffixDescription" xml:space="preserve">
+    <value>The suffix to attach to the name of all the generated files</value>
   </data>
   <data name="SuppressOnConfiguringDescription" xml:space="preserve">
     <value>Don't generate DbContext.OnConfiguring.</value>

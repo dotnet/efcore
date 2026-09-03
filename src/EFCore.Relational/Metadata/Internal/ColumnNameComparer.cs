@@ -20,9 +20,7 @@ public sealed class ColumnNameComparer : IComparer<string>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ColumnNameComparer(Table table)
-    {
-        _table = table;
-    }
+        => _table = table;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

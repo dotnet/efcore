@@ -43,4 +43,8 @@ public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocess
     /// <inheritdoc />
     protected override Expression ProcessQueryRoots(Expression expression)
         => new RelationalQueryRootProcessor(Dependencies, RelationalDependencies, QueryCompilationContext).Visit(expression);
+
+    /// <inheritdoc />
+    protected override bool IsEfConstantSupported
+        => true;
 }

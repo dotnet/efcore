@@ -22,9 +22,7 @@ public class ConventionContext<TMetadata> : IConventionContext<TMetadata>, IRead
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ConventionContext(ConventionDispatcher dispatcher)
-    {
-        _dispatcher = dispatcher;
-    }
+        => _dispatcher = dispatcher;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

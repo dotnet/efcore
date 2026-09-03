@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -136,6 +136,9 @@
   <data name="CannotProjectNullableComplexType" xml:space="preserve">
     <value>You are attempting to project out complex type '{complexType}' via an optional navigation; that is currently not supported. Either project out the complex type in a non-optional context, or project the containing entity type along with the complex type.</value>
   </data>
+  <data name="CannotSetAliasOnJoin" xml:space="preserve">
+    <value>Join expressions have no aliases; set the alias on the enclosed table expression.</value>
+  </data>
   <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
     <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
   </data>
@@ -183,6 +186,12 @@
   </data>
   <data name="ConflictingTypeMappingsInferredForColumn" xml:space="preserve">
     <value>Conflicting type mappings were inferred for column '{column}'.</value>
+  </data>
+  <data name="ContainerTypeOnNestedOwnedEntityType" xml:space="preserve">
+    <value>The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.</value>
+  </data>
+  <data name="ContainerTypeOnNonContainer" xml:space="preserve">
+    <value>The entity type '{entityType}' has a container column type configured, but is not mapped to a container column, such as for JSON. The container column type can only be specified on a top-level owned type mapped to a container.</value>
   </data>
   <data name="CreateIndexOperationWithInvalidSortOrder" xml:space="preserve">
     <value>{numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.</value>
@@ -448,6 +457,9 @@
   <data name="IncompatibleViewNoRelationship" xml:space="preserve">
     <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
   </data>
+  <data name="InconsistentNumberOfArguments" xml:space="preserve">
+    <value>'{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments. When in doubt use 'false' for nullability argument.</value>
+  </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
   </data>
@@ -508,6 +520,9 @@
   <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
     <value>Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.</value>
   </data>
+  <data name="JsonEmptyString" xml:space="preserve">
+    <value>The database returned the empty string when a JSON object was expected.</value>
+  </data>
   <data name="JsonEntityMappedToDifferentTableOrViewThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.</value>
   </data>
@@ -532,8 +547,8 @@
   <data name="JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey" xml:space="preserve">
     <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have its JSON property name configured explicitly.</value>
   </data>
-  <data name="JsonEntityWithExplicitlyConfiguredOrdinalKey" xml:space="preserve">
-    <value>Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
+  <data name="JsonEntityWithExplicitlyConfiguredKey" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is configured as part of the primary key. Explicitly configured primary keys are not supported on entities stored in JSON collections, and any key configuration should be removed.</value>
   </data>
   <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
     <value>Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
@@ -556,6 +571,15 @@
   <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
     <value>This node should be handled by provider-specific sql generator.</value>
   </data>
+  <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
+    <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>
+  </data>
+  <data name="JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution" xml:space="preserve">
+    <value>When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.</value>
+  </data>
+  <data name="JsonProjectingQueryableOperationNoTrackingWithIdentityResolution" xml:space="preserve">
+    <value>Projecting queryable operations on JSON collection is not supported for '{asNoTrackingWithIdentityResolution}'.</value>
+  </data>
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
   </data>
@@ -565,11 +589,18 @@
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
     <value>Entity {entity} is required but the JSON element containing it is null.</value>
   </data>
+  <data name="JsonValueReadWriterMissingOnTypeMapping" xml:space="preserve">
+    <value>Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.</value>
+  </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
+  </data>
+  <data name="LogAcquiringMigrationLock" xml:space="preserve">
+    <value>Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.</value>
+    <comment>Information RelationalEventId.AcquiringMigrationLock</comment>
   </data>
   <data name="LogAmbientTransaction" xml:space="preserve">
     <value>An ambient transaction has been detected, but the current provider does not support ambient transactions. See https://go.microsoft.com/fwlink/?LinkId=800142</value>
@@ -755,6 +786,10 @@
     <value>A [Migration] attribute isn't specified on the '{class}' class.</value>
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
+  <data name="LogMigrationsUserTransaction" xml:space="preserve">
+    <value>A transaction was started before applying migrations. This prevents a database lock to be acquired and hence the database will not be protected from concurrent migration applications. The transactions and execution strategy are already managed by EF as needed. Remove the external transaction.</value>
+    <comment>Warning RelationalEventId.MigrationsUserTransactionWarning</comment>
+  </data>
   <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
     <value>Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.</value>
     <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
@@ -776,8 +811,20 @@
     <comment>Information RelationalEventId.MigrationsNotApplied</comment>
   </data>
   <data name="LogNoMigrationsFound" xml:space="preserve">
-    <value>No migrations were found in assembly '{migrationsAssembly}'.</value>
-    <comment>Debug RelationalEventId.MigrationsNotFound string</comment>
+    <value>No migrations were found in assembly '{migrationsAssembly}'. A migration needs to be added before the database can be updated.</value>
+    <comment>Information RelationalEventId.MigrationsNotFound string</comment>
+  </data>
+  <data name="LogNoModelSnapshotFound" xml:space="preserve">
+    <value>Model snapshot was not found in assembly '{migrationsAssembly}'. Skipping pending model changes check.</value>
+    <comment>Information RelationalEventId.ModelSnapshotNotFound string</comment>
+  </data>
+  <data name="LogNonDeterministicModel" xml:space="preserve">
+    <value>The model for context '{contextType}' changes each time it is built. This is usually caused by dynamic values used in a 'HasData' call (e.g. `new DateTime()`, `Guid.NewGuid()`). Add a new migration and examine its contents to locate the cause, and replace the dynamic call with a static, hardcoded value. See https://aka.ms/efcore-docs-pending-changes.</value>
+    <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
+  </data>
+  <data name="LogNonTransactionalMigrationOperationWarning" xml:space="preserve">
+    <value>The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.</value>
+    <comment>Warning RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
   </data>
   <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
@@ -798,6 +845,10 @@
   <data name="LogOptionalDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
+  </data>
+  <data name="LogPendingModelChanges" xml:space="preserve">
+    <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database. See https://aka.ms/efcore-docs-pending-changes.</value>
+    <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
@@ -924,8 +975,14 @@
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>A root ambient transaction was completed before the nested transaction. The nested transactions should be completed first.</value>
   </data>
+  <data name="NestedCollectionsNotSupported" xml:space="preserve">
+    <value>The property '{propertyType} {type}.{property}' is a primitive collection of a primitive collection. Nested primitive collections are not yet supported with relational database providers.</value>
+  </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
+  </data>
+  <data name="NoAliasOnTable" xml:space="preserve">
+    <value>No alias is defined on table: '{table}'.</value>
   </data>
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a DbCommand for a non-relational query.</value>
@@ -935,9 +992,6 @@
   </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
-  </data>
-  <data name="NonQueryTranslationFailedWithDetails" xml:space="preserve">
-    <value>The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
   </data>
   <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
     <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
@@ -975,6 +1029,9 @@
   <data name="OneOfThreeValuesMustBeSet" xml:space="preserve">
     <value>Exactly one of '{param1}', '{param2}' or '{param3}' must be set.</value>
   </data>
+  <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
+    <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
+  </data>
   <data name="OnlyConstantsSupportedInInlineCollectionQueryRoots" xml:space="preserve">
     <value>Only constants are supported inside inline collection query roots.</value>
   </data>
@@ -1008,6 +1065,9 @@
   <data name="SelectExpressionNonTphWithCustomTable" xml:space="preserve">
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>
   </data>
+  <data name="SelectExpressionUpdateNotSupportedWhileMutable" xml:space="preserve">
+    <value>SelectExpression.Update() is not supported while the expression is in mutable state.</value>
+  </data>
   <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
     <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
   </data>
@@ -1016,9 +1076,6 @@
   </data>
   <data name="SetOperationsRequireAtLeastOneSideWithValidTypeMapping" xml:space="preserve">
     <value>A set operation '{setOperationType}' requires valid type mapping for at least one of its sides.</value>
-  </data>
-  <data name="SetPropertyMethodInvoked" xml:space="preserve">
-    <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>
   </data>
   <data name="SplitQueryString" xml:space="preserve">
     <value>This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.</value>
@@ -1134,9 +1191,6 @@
   <data name="SubqueryOverComplexTypesNotSupported" xml:space="preserve">
     <value>The query requires a subquery over complex type '{complexType}'. Subqueries over complex types are currently unsupported.</value>
   </data>
-  <data name="TableExpressionBaseWithoutCloningLogic" xml:space="preserve">
-    <value>Expression type '{expressionType}' does not implement proper cloning logic. Every expression derived from '{tableExpressionBase}' must implement '{clonableTableExpressionBase}' interface or have it's cloning logic added to the '{cloningExpressionVisitor}' inside '{selectExpression}'.</value>
-  </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>
@@ -1180,7 +1234,7 @@
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
   <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
-    <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
+    <value>User transaction is not supported with a TransactionSuppressed migrations or a retrying execution strategy.</value>
   </data>
   <data name="TriggerWithMismatchedTable" xml:space="preserve">
     <value>Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>

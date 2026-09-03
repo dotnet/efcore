@@ -7,11 +7,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestModelSource : ModelSource
 {
-    private readonly Action<ModelConfigurationBuilder> _configureConventions;
+    private readonly Action<ModelConfigurationBuilder>? _configureConventions;
     private readonly Action<ModelBuilder, DbContext> _onModelCreating;
 
     private TestModelSource(
-        Action<ModelConfigurationBuilder> configureConventions,
+        Action<ModelConfigurationBuilder>? configureConventions,
         Action<ModelBuilder, DbContext> onModelCreating,
         ModelSourceDependencies dependencies)
         : base(dependencies)
@@ -41,7 +41,7 @@ public class TestModelSource : ModelSource
 
     public static Func<IServiceProvider, IModelSource> GetFactory(
         Action<ModelBuilder> onModelCreating,
-        Action<ModelConfigurationBuilder> configureConventions = null)
+        Action<ModelConfigurationBuilder>? configureConventions = null)
         => p => new TestModelSource(
             configureConventions,
             (mb, c) => onModelCreating(mb),
@@ -49,7 +49,7 @@ public class TestModelSource : ModelSource
 
     public static Func<IServiceProvider, IModelSource> GetFactory(
         Action<ModelBuilder, DbContext> onModelCreating,
-        Action<ModelConfigurationBuilder> configureConventions = null)
+        Action<ModelConfigurationBuilder>? configureConventions = null)
         => p => new TestModelSource(
             configureConventions,
             onModelCreating,

@@ -96,7 +96,7 @@ public class RelationalParameterBuilderTest
                 new TypeMappedRelationalParameter(
                     "FirstInvariant",
                     "FirstName",
-                    new IntTypeMapping("int", DbType.Int32),
+                    new IntTypeMapping("int"),
                     nullable: false),
                 new TypeMappedRelationalParameter(
                     "SecondInvariant",

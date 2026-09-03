@@ -10,23 +10,12 @@ using IsolationLevel = System.Data.IsolationLevel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : TransactionTestBase<TFixture>.TransactionFixtureBase, new()
 {
-    protected TransactionTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-        Fixture.Reseed();
-
-        if (TestStore.ConnectionState == ConnectionState.Closed)
-        {
-            TestStore.OpenConnection();
-        }
-
-        Fixture.ListLoggerFactory.Log.Clear();
-    }
-
-    protected TFixture Fixture { get; set; }
+    protected TFixture Fixture { get; set; } = fixture;
 
     [ConditionalTheory]
     [InlineData(true)]
@@ -60,12 +49,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
         using (var context = CreateContext())
         {
             Assert.Equal(
-                new List<int>
-                {
-                    -77,
-                    1,
-                    2,
-                },
+                [-77, 1, 2],
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
     }
@@ -103,12 +87,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
         using (var context = CreateContext())
         {
             Assert.Equal(
-                new List<int>
-                {
-                    -77,
-                    1,
-                    2,
-                },
+                [-77, 1, 2],
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
     }
@@ -145,10 +124,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
         using (var context = CreateContext())
         {
             Assert.Equal(
-                new List<int>
-                {
-                    1, 2,
-                },
+                [1, 2],
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
     }
@@ -522,20 +498,10 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             }
 
             Assert.Equal(
-                new List<int>
-                {
-                    1,
-                    2,
-                    77
-                },
+                [1, 2, 77],
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             Assert.Equal(
-                new List<int>
-                {
-                    100,
-                    200,
-                    300
-                },
+                [100, 200, 300],
                 context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
     }
@@ -570,15 +536,10 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             }
 
             Assert.Equal(
-                new List<int> { 1, 2 },
+                [1, 2],
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             Assert.Equal(
-                new List<int>
-                {
-                    100,
-                    200,
-                    300
-                },
+                [100, 200, 300],
                 context.Set<TransactionOrder>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
     }
@@ -647,12 +608,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
         using (var context = CreateContext())
         {
             Assert.Equal(
-                new List<int>
-                {
-                    1,
-                    2,
-                    77
-                },
+                [1, 2, 77],
                 context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
         }
     }
@@ -1610,12 +1566,12 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
                 });
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.AddRange(Customers);
             context.AddRange(Orders);
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 
@@ -1644,11 +1600,22 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             => HashCode.Combine(Id, Name);
     }
 
-    protected class TransactionCustomer : TransactionEntity
+    protected class TransactionCustomer : TransactionEntity;
+
+    protected class TransactionOrder : TransactionEntity;
+
+    public async Task InitializeAsync()
     {
+        await Fixture.ReseedAsync();
+
+        if (TestStore.ConnectionState == ConnectionState.Closed)
+        {
+            TestStore.OpenConnection();
+        }
+
+        Fixture.ListLoggerFactory.Log.Clear();
     }
 
-    protected class TransactionOrder : TransactionEntity
-    {
-    }
+    public Task DisposeAsync()
+        => Task.CompletedTask;
 }

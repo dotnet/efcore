@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public static class DataGenerator
 {
     private static readonly ConcurrentDictionary<Type, object[]> Values = new();
@@ -15,8 +17,8 @@ public static class DataGenerator
 
     static DataGenerator()
     {
-        Values[typeof(bool)] = new object[] { false, true };
-        Values[typeof(bool?)] = new object[] { null, false, true };
+        Values[typeof(bool)] = [false, true];
+        Values[typeof(bool?)] = [null, false, true];
     }
 
     public static object[][] GetCombinations(object[] set, int length)

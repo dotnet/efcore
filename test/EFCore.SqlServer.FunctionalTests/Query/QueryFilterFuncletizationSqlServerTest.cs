@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class QueryFilterFuncletizationSqlServerTest
     : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationSqlServerTest.QueryFilterFuncletizationSqlServerFixture>
 {
@@ -225,29 +227,29 @@ WHERE [c].[IsEnabled] = @__ef_filter__Property_0 AND @__ef_filter__p_1 = CAST(1 
 
         AssertSql(
             """
-@__ef_filter__p_0='False'
-@__ef_filter__IsModerated_1='True' (Nullable = true)
+@__ef_filter__p_1='False'
+@__ef_filter__IsModerated_0='True' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@__ef_filter__p_0 = CAST(1 AS bit) OR @__ef_filter__IsModerated_1 = [s].[IsModerated])
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@__ef_filter__p_1 = CAST(1 AS bit) OR @__ef_filter__IsModerated_0 = [s].[IsModerated])
 """,
             //
             """
-@__ef_filter__p_0='False'
-@__ef_filter__IsModerated_1='False' (Nullable = true)
+@__ef_filter__p_1='False'
+@__ef_filter__IsModerated_0='False' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@__ef_filter__p_0 = CAST(1 AS bit) OR @__ef_filter__IsModerated_1 = [s].[IsModerated])
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@__ef_filter__p_1 = CAST(1 AS bit) OR @__ef_filter__IsModerated_0 = [s].[IsModerated])
 """,
             //
             """
-@__ef_filter__p_0='True'
+@__ef_filter__p_1='True'
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE [s].[IsDeleted] = CAST(0 AS bit) AND @__ef_filter__p_0 = CAST(1 AS bit)
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND @__ef_filter__p_1 = CAST(1 AS bit)
 """);
     }
 
@@ -549,20 +551,20 @@ WHERE [m].[IsEnabled] = @__ef_filter__Property_0 AND [m].[BossId] = 1
 @__ef_filter__Tenant_0='1'
 @__ef_filter__Tenant_0_1='1' (DbType = Int16)
 
-SELECT [d].[Id], [d].[Tenant], [t].[Id], [t].[DeDupeFilter1Id], [t].[TenantX], [t0].[Id], [t0].[DeDupeFilter1Id], [t0].[Tenant]
+SELECT [d].[Id], [d].[Tenant], [d2].[Id], [d2].[DeDupeFilter1Id], [d2].[TenantX], [d3].[Id], [d3].[DeDupeFilter1Id], [d3].[Tenant]
 FROM [DeDupeFilter1] AS [d]
 LEFT JOIN (
     SELECT [d0].[Id], [d0].[DeDupeFilter1Id], [d0].[TenantX]
     FROM [DeDupeFilter2] AS [d0]
     WHERE [d0].[TenantX] = @__ef_filter__Tenant_0
-) AS [t] ON [d].[Id] = [t].[DeDupeFilter1Id]
+) AS [d2] ON [d].[Id] = [d2].[DeDupeFilter1Id]
 LEFT JOIN (
     SELECT [d1].[Id], [d1].[DeDupeFilter1Id], [d1].[Tenant]
     FROM [DeDupeFilter3] AS [d1]
     WHERE [d1].[Tenant] = @__ef_filter__Tenant_0_1
-) AS [t0] ON [d].[Id] = [t0].[DeDupeFilter1Id]
+) AS [d3] ON [d].[Id] = [d3].[DeDupeFilter1Id]
 WHERE [d].[Tenant] = @__ef_filter__Tenant_0
-ORDER BY [d].[Id], [t].[Id]
+ORDER BY [d].[Id], [d2].[Id]
 """);
     }
 

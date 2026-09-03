@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design;
@@ -53,6 +54,8 @@ public static class DesignTimeServiceCollectionExtensions
                     .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
                     .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
                     .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
+                    .TryAddSingleton<IPrecompiledQueryCodeGenerator, PrecompiledQueryCodeGenerator>()
+                    .TryAddSingleton<IPrecompiledQueryCodeGeneratorSelector, PrecompiledQueryCodeGeneratorSelector>()
                     .TryAddSingleton<IDesignTimeConnectionStringResolver>(
                         new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                     .TryAddSingleton<IPluralizer, HumanizerPluralizer>()

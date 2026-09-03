@@ -22,6 +22,8 @@ public sealed class SqliteJsonDateTimeOffsetReaderWriter : JsonValueReaderWriter
 {
     private const string DateTimeOffsetFormatConst = @"{0:yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz}";
 
+    private static readonly PropertyInfo InstanceProperty = typeof(SqliteJsonDateTimeOffsetReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -56,4 +58,8 @@ public sealed class SqliteJsonDateTimeOffsetReaderWriter : JsonValueReaderWriter
             JsonEncodedText.Encode(
                 string.Format(CultureInfo.InvariantCulture, DateTimeOffsetFormatConst, value),
                 JavaScriptEncoder.UnsafeRelaxedJsonEscaping));
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

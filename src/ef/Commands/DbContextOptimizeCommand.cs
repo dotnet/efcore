@@ -9,6 +9,27 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands;
 // ReSharper disable once ArrangeTypeModifiers
 internal partial class DbContextOptimizeCommand
 {
+    protected override void Validate()
+    {
+        base.Validate();
+
+        if (_noScaffold!.HasValue()
+            && !_precompileQueries!.HasValue())
+        {
+            throw new CommandException(Resources.MissingConditionalOption(_precompileQueries.LongName, _noScaffold.LongName));
+        }
+
+        if (_precompileQueries!.HasValue())
+        {
+            Reporter.WriteWarning(Resources.PrecompileQueriesWarning);
+        }
+
+        if (_nativeAot!.HasValue())
+        {
+            Reporter.WriteWarning(Resources.NativeAotWarning);
+        }
+    }
+
     protected override int Execute(string[] args)
     {
         if (new SemanticVersionComparer().Compare(EFCoreVersion, "6.0.0") < 0)
@@ -17,11 +38,25 @@ internal partial class DbContextOptimizeCommand
         }
 
         using var executor = CreateExecutor(args);
-        executor.OptimizeContext(
+        var result = executor.OptimizeContext(
             _outputDir!.Value(),
             _namespace!.Value(),
-            Context!.Value());
+            Context!.Value(),
+            _suffix!.Value() ?? "",
+            !_noScaffold!.HasValue(),
+            _precompileQueries!.HasValue(),
+            _nativeAot!.HasValue());
+
+        ReportResults(result);
 
         return base.Execute(args);
+    }
+
+    private static void ReportResults(IEnumerable<string> generatedFiles)
+    {
+        foreach (var file in generatedFiles)
+        {
+            Reporter.WriteData(file);
+        }
     }
 }

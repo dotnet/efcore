@@ -1,22 +1,17 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class MaterializationInterceptionTestBase<TContext> : SingletonInterceptorsTestBase<TContext>
-    where TContext : DbContext
+    where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
-    protected MaterializationInterceptionTestBase(SingletonInterceptorsFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+    protected override string StoreName
+        => "MaterializationInterception";
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Binding_interceptors_are_used_by_queries(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Binding_interceptors_are_used_by_queries(bool inject, bool usePooling)
     {
         var interceptors = new[]
         {
@@ -26,24 +21,23 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             new TestBindingInterceptor("4")
         };
 
-        using var context = CreateContext(interceptors, inject);
+        using var context = await CreateContext(interceptors, inject, usePooling);
 
         context.AddRange(
             new Book { Title = "Amiga ROM Kernel Reference Manual" },
             new Book { Title = "Amiga Hardware Reference Manual" });
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
-        var results = context.Set<Book>().ToList();
+        var results = await context.Set<Book>().ToListAsync();
         Assert.All(results, e => Assert.Equal("4", e.MaterializedBy));
         Assert.All(interceptors, i => Assert.Equal(1, i.CalledCount));
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Binding_interceptors_are_used_when_creating_instances(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Binding_interceptors_are_used_when_creating_instances(bool inject, bool usePooling)
     {
         var interceptors = new[]
         {
@@ -53,7 +47,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             new TestBindingInterceptor("4")
         };
 
-        using var context = CreateContext(interceptors, inject);
+        using var context = await CreateContext(interceptors, inject, usePooling);
 
         var materializer = context.GetService<IEntityMaterializerSource>();
         var book = (Book)materializer.GetEmptyMaterializer(context.Model.FindEntityType(typeof(Book))!)(
@@ -64,9 +58,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Intercept_query_materialization_for_empty_constructor(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Intercept_query_materialization_for_empty_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
         var createdInstanceCount = 0;
@@ -135,7 +128,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject))
+        using (context = await CreateContext(interceptors, inject, usePooling))
         {
             var books = new[]
             {
@@ -147,10 +140,10 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             context.Entry(books[0]).Property("Author").CurrentValue = "Commodore Business Machines Inc.";
             context.Entry(books[1]).Property("Author").CurrentValue = "Agnes";
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             context.ChangeTracker.Clear();
 
-            var results = context.Set<Book>().Where(e => books.Select(e => e.Id).Contains(e.Id)).ToList();
+            var results = await context.Set<Book>().Where(e => books.Select(e => e.Id).Contains(e.Id)).ToListAsync();
             Assert.Equal(2, results.Count);
 
             Assert.Equal(2, creatingInstanceCount);
@@ -170,12 +163,11 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    private static int _id;
+    private static int _id = 1;
 
     [ConditionalTheory] // Issue #30244
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual async Task Intercept_query_materialization_with_owned_types(bool async)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Intercept_query_materialization_with_owned_types(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
         var createdInstanceCounts = new Dictionary<Type, int>();
@@ -219,13 +211,13 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject: true))
+        using (context = await CreateContext(interceptors, inject: true, usePooling))
         {
             context.Add(
                 new TestEntity30244
                 {
                     Id = _id++,
-                    Name = "TestIssue",
+                    Title = "TestIssue",
                     Settings = { new KeyValueSetting30244("Value1", "1"), new KeyValueSetting30244("Value2", "9") }
                 });
 
@@ -262,9 +254,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory] // Issue #31365
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
         var createdInstanceCounts = new Dictionary<Type, int>();
@@ -308,13 +299,13 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject: true))
+        using (context = await CreateContext(interceptors, inject: true, usePooling))
         {
             context.Add(
                 new TestEntity30244
                 {
                     Id = _id++,
-                    Name = "TestIssue",
+                    Title = "TestIssue",
                     Settings = { new KeyValueSetting30244("Value1", "1"), new KeyValueSetting30244("Value2", "9") }
                 });
 
@@ -353,9 +344,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Intercept_query_materialization_for_full_constructor(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Intercept_query_materialization_for_full_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
         var createdInstanceCount = 0;
@@ -424,7 +414,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject))
+        using (context = await CreateContext(interceptors, inject, usePooling))
         {
             var pamphlets = new[] { new Pamphlet(Guid.Empty, "Rights of Man"), new Pamphlet(Guid.Empty, "Pamphlet des pamphlets") };
 
@@ -433,10 +423,10 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             context.Entry(pamphlets[0]).Property("Author").CurrentValue = "Thomas Paine";
             context.Entry(pamphlets[1]).Property("Author").CurrentValue = "Paul-Louis Courier";
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             context.ChangeTracker.Clear();
 
-            var results = context.Set<Pamphlet>().Where(e => pamphlets.Select(e => e.Id).Contains(e.Id)).ToList();
+            var results = await context.Set<Pamphlet>().Where(e => pamphlets.Select(e => e.Id).Contains(e.Id)).ToListAsync();
             Assert.Equal(2, results.Count);
 
             Assert.Equal(2, creatingInstanceCount);
@@ -457,9 +447,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Multiple_materialization_interceptors_can_be_used(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Multiple_materialization_interceptors_can_be_used(bool inject, bool usePooling)
     {
         var interceptors = new ISingletonInterceptor[]
         {
@@ -472,16 +461,16 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             new CountingMaterializationInterceptor("C")
         };
 
-        using var context = CreateContext(interceptors, inject);
+        using var context = await CreateContext(interceptors, inject, usePooling);
 
         context.AddRange(
             new Book { Title = "Amiga ROM Kernel Reference Manual" },
             new Book { Title = "Amiga Hardware Reference Manual" });
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
-        var results = context.Set<Book>().ToList();
+        var results = await context.Set<Book>().ToListAsync();
         Assert.All(results, e => Assert.Equal("4", e.MaterializedBy));
         Assert.All(interceptors.OfType<TestBindingInterceptor>(), i => Assert.Equal(1, i.CalledCount));
 
@@ -490,14 +479,9 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         Assert.All(results, e => Assert.Equal("ABC", e.InitializedBy));
     }
 
-    protected class TestBindingInterceptor : IInstantiationBindingInterceptor
+    protected class TestBindingInterceptor(string id) : IInstantiationBindingInterceptor
     {
-        private readonly string _id;
-
-        public TestBindingInterceptor(string id)
-        {
-            _id = id;
-        }
+        private readonly string _id = id;
 
         public int CalledCount { get; private set; }
 
@@ -516,15 +500,10 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    protected class ValidatingMaterializationInterceptor : IMaterializationInterceptor
+    protected class ValidatingMaterializationInterceptor(
+        Action<MaterializationInterceptionData, object?, string> validate) : IMaterializationInterceptor
     {
-        private readonly Action<MaterializationInterceptionData, object?, string> _validate;
-
-        public ValidatingMaterializationInterceptor(
-            Action<MaterializationInterceptionData, object?, string> validate)
-        {
-            _validate = validate;
-        }
+        private readonly Action<MaterializationInterceptionData, object?, string> _validate = validate;
 
         public InterceptionResult<object> CreatingInstance(
             MaterializationInterceptionData materializationData,
@@ -564,14 +543,9 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    protected class CountingMaterializationInterceptor : IMaterializationInterceptor
+    protected class CountingMaterializationInterceptor(string id) : IMaterializationInterceptor
     {
-        private readonly string _id;
-
-        public CountingMaterializationInterceptor(string id)
-        {
-            _id = id;
-        }
+        private readonly string _id = id;
 
         public InterceptionResult<object> CreatingInstance(
             MaterializationInterceptionData materializationData,

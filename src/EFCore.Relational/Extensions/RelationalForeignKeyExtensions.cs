@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -134,9 +135,12 @@ public static class RelationalForeignKeyExtensions
     /// <param name="foreignKey">The foreign key.</param>
     /// <returns>The foreign key constraints to which the foreign key is mapped.</returns>
     public static IEnumerable<IForeignKeyConstraint> GetMappedConstraints(this IForeignKey foreignKey)
-        => (IEnumerable<IForeignKeyConstraint>?)foreignKey.FindRuntimeAnnotationValue(
+    {
+        foreignKey.DeclaringEntityType.Model.EnsureRelationalModel();
+        return (IEnumerable<IForeignKeyConstraint>?)foreignKey.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ForeignKeyMappings)
             ?? Enumerable.Empty<IForeignKeyConstraint>();
+    }
 
     /// <summary>
     ///     <para>
@@ -270,7 +274,7 @@ public static class RelationalForeignKeyExtensions
 
     /// <summary>
     ///     <para>
-    ///         Finds the first <see cref="IConventionForeignKey" /> that is mapped to the same constraint in a shared table-like object.
+    ///         Finds the first <see cref="IForeignKey" /> that is mapped to the same constraint in a shared table-like object.
     ///     </para>
     ///     <para>
     ///         This method is typically used by database providers (and other extensions). It is generally

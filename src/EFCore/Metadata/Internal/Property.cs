@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -23,6 +24,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private object? _sentinel;
     private ValueGenerated? _valueGenerated;
     private CoreTypeMapping? _typeMapping;
+    private ValueComparer? _valueComparer;
+    private ValueComparer? _keyValueComparer;
 
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
@@ -30,18 +33,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
     private ConfigurationSource? _valueGeneratedConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior32422 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32422", out var enabled32422) && enabled32422;
-
-    private static readonly bool UseOldBehavior33176 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33176", out var enabled33176) && enabled33176;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +65,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual InternalPropertyBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>
@@ -585,6 +576,32 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         EnsureMutable();
 
         _sentinel = sentinel;
+        if (sentinel == null)
+        {
+            if (!ClrType.IsNullableType())
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IncompatibleSentinelValue(
+                        "null", DeclaringType.DisplayName(), Name, ClrType.ShortDisplayName()));
+            }
+        }
+        else
+        {
+            var valueType = sentinel.GetType();
+            if (!ClrType.UnwrapNullableType().IsAssignableFrom(valueType))
+            {
+                try
+                {
+                    _sentinel = Convert.ChangeType(sentinel, ClrType, CultureInfo.InvariantCulture);
+                }
+                catch
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IncompatibleSentinelValue(
+                            sentinel, DeclaringType.DisplayName(), Name, ClrType.ShortDisplayName()));
+                }
+            }
+        }
 
         _sentinelConfigurationSource = configurationSource.Max(_sentinelConfigurationSource);
 
@@ -751,59 +768,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual ValueConverter? GetValueConverter()
     {
         var annotation = FindAnnotation(CoreAnnotationNames.ValueConverter);
-        if (annotation != null)
-        {
-            return (ValueConverter?)annotation.Value;
-        }
-
-        if (!UseOldBehavior32422)
-        {
-            return GetConversion(throwOnProviderClrTypeConflict: FindAnnotation(CoreAnnotationNames.ProviderClrType) == null)
+        return annotation != null
+            ? (ValueConverter?)annotation.Value
+            : GetConversion(throwOnProviderClrTypeConflict: FindAnnotation(CoreAnnotationNames.ProviderClrType) == null)
                 .ValueConverter;
-        }
-
-        var property = this;
-        var i = 0;
-        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
-        {
-            Property? nextProperty = null;
-            foreach (var foreignKey in property.GetContainingForeignKeys())
-            {
-                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                {
-                    if (property == foreignKey.Properties[propertyIndex])
-                    {
-                        var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                        if (principalProperty == this
-                            || principalProperty == property)
-                        {
-                            break;
-                        }
-
-                        annotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
-                        if (annotation != null)
-                        {
-                            return (ValueConverter?)annotation.Value;
-                        }
-
-                        nextProperty = principalProperty;
-                    }
-                }
-            }
-
-            if (nextProperty == null)
-            {
-                break;
-            }
-
-            property = nextProperty;
-        }
-
-        return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(
-                CoreStrings.RelationshipCycle(
-                    DeclaringType.DisplayName(), Name, "ValueConverter"))
-            : null;
     }
 
     /// <summary>
@@ -849,59 +817,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual Type? GetProviderClrType()
     {
         var annotation = FindAnnotation(CoreAnnotationNames.ProviderClrType);
-        if (annotation != null)
-        {
-            return (Type?)annotation.Value;
-        }
-
-        if (!UseOldBehavior32422)
-        {
-            return GetConversion(throwOnValueConverterConflict: FindAnnotation(CoreAnnotationNames.ValueConverter) == null)
+        return annotation != null
+            ? (Type?)annotation.Value
+            : GetConversion(throwOnValueConverterConflict: FindAnnotation(CoreAnnotationNames.ValueConverter) == null)
                 .ProviderClrType;
-        }
-
-        var property = this;
-        var i = 0;
-        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
-        {
-            Property? nextProperty = null;
-            foreach (var foreignKey in property.GetContainingForeignKeys())
-            {
-                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                {
-                    if (property == foreignKey.Properties[propertyIndex])
-                    {
-                        var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                        if (principalProperty == this
-                            || principalProperty == property)
-                        {
-                            break;
-                        }
-
-                        annotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
-                        if (annotation != null)
-                        {
-                            return (Type?)annotation.Value;
-                        }
-
-                        nextProperty = principalProperty;
-                    }
-                }
-            }
-
-            if (nextProperty == null)
-            {
-                break;
-            }
-
-            property = nextProperty;
-        }
-
-        return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(
-                CoreStrings.RelationshipCycle(
-                    DeclaringType.DisplayName(), Name, "ProviderClrType"))
-            : null;
     }
 
     /// <summary>
@@ -927,8 +846,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
             var (property, cycleBreakingProperty, cyclePosition, maxCycleLength) = currentNode ?? queue!.Dequeue();
             currentNode = null;
             if (cyclePosition >= ForeignKey.LongestFkChainAllowedLength
-                || (!UseOldBehavior33176
-                    && queue is not null
+                || (queue is not null
                     && queue.Count >= ForeignKey.LongestFkChainAllowedLength))
             {
                 throw new InvalidOperationException(
@@ -961,15 +879,18 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                         ref providerClrType);
                     if (!annotationFound)
                     {
+                        var useQueue = queue != null;
                         if (currentNode != null)
                         {
-                            queue = new();
+                            useQueue = true;
+                            queue =
+                                new Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength
+                                    )>();
                             queue.Enqueue(currentNode.Value);
-                            visitedProperties = new() { property };
+                            visitedProperties = new HashSet<Property> { property };
                         }
 
-                        if (!UseOldBehavior33176
-                            && visitedProperties?.Contains(principalProperty) == true)
+                        if (visitedProperties?.Contains(principalProperty) == true)
                         {
                             break;
                         }
@@ -985,12 +906,13 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                             currentNode = (principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength);
                         }
 
-                        if (queue != null)
+                        if (useQueue)
                         {
-                            queue.Enqueue(currentNode.Value);
+                            queue!.Enqueue(currentNode.Value);
                             currentNode = null;
                         }
                     }
+
                     break;
                 }
             }
@@ -1042,6 +964,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
                     valueConverter = annotationValue;
                 }
+
                 annotationFound = true;
             }
 
@@ -1080,6 +1003,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
                     valueConverterType = annotationValue;
                 }
+
                 annotationFound = true;
             }
 
@@ -1118,6 +1042,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
                     providerClrType = annotationValue;
                 }
+
                 annotationFound = true;
             }
 
@@ -1243,7 +1168,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType);
+        => IsReadOnly
+            ? _valueComparer = (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType)
+            : (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType);
 
     private ValueComparer? GetValueComparer(HashSet<Property>? checkedProperties)
     {
@@ -1261,7 +1188,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<Property>();
+            checkedProperties = [];
         }
         else if (checkedProperties.Contains(this))
         {
@@ -1288,7 +1215,11 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetKeyValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping?.KeyComparer).ToNullableComparer(ClrType);
+        => IsReadOnly
+            ? _keyValueComparer ??= GetValueComparer(null) == null && TypeMapping?.KeyComparer != TypeMapping?.Comparer
+                ? TypeMapping?.KeyComparer.ToNullableComparer(ClrType)
+                : GetValueComparer()
+            : (GetValueComparer(null) ?? TypeMapping?.KeyComparer).ToNullableComparer(ClrType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1368,7 +1299,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<Property>();
+            checkedProperties = [];
         }
         else if (checkedProperties.Contains(this))
         {
@@ -1553,7 +1484,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<Key> GetContainingKeys()
-        => Keys ?? Enumerable.Empty<Key>();
+        => Keys?.OrderBy(k => k.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<Key>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1579,7 +1510,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
-        => ForeignKeys ?? Enumerable.Empty<ForeignKey>();
+        => ForeignKeys?.OrderBy(fk => fk, ForeignKeyComparer.Instance) ?? Enumerable.Empty<ForeignKey>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1605,7 +1536,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<Index> GetContainingIndexes()
-        => Indexes ?? Enumerable.Empty<Index>();
+        => Indexes?.OrderBy(i => i.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<Index>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

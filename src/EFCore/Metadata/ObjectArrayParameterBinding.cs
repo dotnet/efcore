@@ -24,9 +24,7 @@ public class ObjectArrayParameterBinding : ParameterBinding
         : base(
             typeof(object[]),
             Check.NotNull(bindings, nameof(bindings)).SelectMany(b => b.ConsumedProperties).ToArray())
-    {
-        _bindings = bindings;
-    }
+        => _bindings = bindings;
 
     /// <summary>
     ///     Creates an expression tree representing the binding of the value of a property from a

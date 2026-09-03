@@ -5,13 +5,13 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SqlQuerySqliteTest : SqlQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public SqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task SqlQueryRaw_queryable_composed(bool async)
     {
@@ -74,6 +74,34 @@ FROM (
     SELECT * FROM "Customers2"
 ) AS "m"
 WHERE instr("m"."ContactName", 'z') > 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_Length(async);
+
+        AssertSql(
+            """
+SELECT "s"."Value"
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS "s"
+WHERE length("s"."Value") = 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_ToUpper_String_Length(async);
+
+        AssertSql(
+            """
+SELECT "s"."Value"
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS "s"
+WHERE length(upper("s"."Value")) = 0
 """);
     }
 

@@ -37,9 +37,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
         RelationalConventionSetBuilderDependencies relationalDependencies,
         ISqlGenerationHelper sqlGenerationHelper)
         : base(dependencies, relationalDependencies)
-    {
-        _sqlGenerationHelper = sqlGenerationHelper;
-    }
+        => _sqlGenerationHelper = sqlGenerationHelper;
 
     /// <summary>
     ///     Builds and returns the convention set for the current database provider.

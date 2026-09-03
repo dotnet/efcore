@@ -8,24 +8,15 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public abstract class RelationalTypeMappingTest
 {
-    protected class FakeValueConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
+    protected class FakeValueConverter<TModel, TProvider>()
+        : ValueConverter<TModel, TProvider>(_ => (TProvider)(object)_, _ => (TModel)(object)_)
     {
-        public FakeValueConverter()
-            : base(_ => (TProvider)(object)_, _ => (TModel)(object)_)
-        {
-        }
-
         public override Type ModelClrType { get; } = typeof(TModel);
         public override Type ProviderClrType { get; } = typeof(TProvider);
     }
 
-    protected class FakeValueComparer<T> : ValueComparer<T>
+    protected class FakeValueComparer<T>() : ValueComparer<T>(false)
     {
-        public FakeValueComparer()
-            : base(false)
-        {
-        }
-
         public override Type Type { get; } = typeof(T);
     }
 
@@ -65,7 +56,7 @@ public abstract class RelationalTypeMappingTest
             mappingType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
             null,
-            new[] { FakeTypeMapping.CreateParameters(type) },
+            [FakeTypeMapping.CreateParameters(type)],
             null,
             null);
 
@@ -305,7 +296,7 @@ public abstract class RelationalTypeMappingTest
     public void Can_create_simple_parameter_with_DbType()
     {
         using var command = CreateTestCommand();
-        var parameter = new IntTypeMapping("int", DbType.Int32)
+        var parameter = new IntTypeMapping("int")
             .CreateParameter(command, "Name", 17, nullable: false);
 
         Assert.Equal(ParameterDirection.Input, parameter.Direction);
@@ -319,7 +310,7 @@ public abstract class RelationalTypeMappingTest
     public void Can_create_simple_nullable_parameter_with_DbType()
     {
         using var command = CreateTestCommand();
-        var parameter = new IntTypeMapping("int", DbType.Int32)
+        var parameter = new IntTypeMapping("int")
             .CreateParameter(command, "Name", 17, nullable: true);
 
         Assert.Equal(ParameterDirection.Input, parameter.Direction);
@@ -383,7 +374,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Byte_literal_generated_correctly()
     {
-        var typeMapping = new ByteTypeMapping("byte", DbType.Byte);
+        var typeMapping = new ByteTypeMapping("byte");
 
         Test_GenerateSqlLiteral_helper(typeMapping, byte.MinValue, "0");
         Test_GenerateSqlLiteral_helper(typeMapping, byte.MaxValue, "255");
@@ -430,7 +421,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Decimal_literal_generated_correctly()
     {
-        var typeMapping = new DecimalTypeMapping("decimal", DbType.Decimal);
+        var typeMapping = new DecimalTypeMapping("decimal");
 
         Test_GenerateSqlLiteral_helper(typeMapping, decimal.MinValue, "-79228162514264337593543950335.0");
         Test_GenerateSqlLiteral_helper(typeMapping, decimal.MaxValue, "79228162514264337593543950335.0");
@@ -439,7 +430,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Double_literal_generated_correctly()
     {
-        var typeMapping = new DoubleTypeMapping("double", DbType.Double);
+        var typeMapping = new DoubleTypeMapping("double");
 
         Test_GenerateSqlLiteral_helper(typeMapping, double.NaN, "NaN");
         Test_GenerateSqlLiteral_helper(typeMapping, double.PositiveInfinity, "Infinity");
@@ -451,7 +442,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Float_literal_generated_correctly()
     {
-        var typeMapping = new FloatTypeMapping("float", DbType.Single);
+        var typeMapping = new FloatTypeMapping("float");
 
         Test_GenerateSqlLiteral_helper(typeMapping, float.NaN, "NaN");
         Test_GenerateSqlLiteral_helper(typeMapping, float.PositiveInfinity, "Infinity");
@@ -470,7 +461,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void NullableInt_literal_generated_correctly()
     {
-        var typeMapping = new IntTypeMapping("int?", DbType.Int32);
+        var typeMapping = new IntTypeMapping("int?");
 
         Test_GenerateSqlLiteral_helper(typeMapping, default(int?), "NULL");
         Test_GenerateSqlLiteral_helper(typeMapping, (int?)123, "123");
@@ -479,7 +470,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Int_literal_generated_correctly()
     {
-        var typeMapping = new IntTypeMapping("int", DbType.Int32);
+        var typeMapping = new IntTypeMapping("int");
 
         Test_GenerateSqlLiteral_helper(typeMapping, int.MinValue, "-2147483648");
         Test_GenerateSqlLiteral_helper(typeMapping, int.MaxValue, "2147483647");
@@ -488,7 +479,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Long_literal_generated_correctly()
     {
-        var typeMapping = new LongTypeMapping("long", DbType.Int64);
+        var typeMapping = new LongTypeMapping("long");
 
         Test_GenerateSqlLiteral_helper(typeMapping, long.MinValue, "-9223372036854775808");
         Test_GenerateSqlLiteral_helper(typeMapping, long.MaxValue, "9223372036854775807");
@@ -497,7 +488,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void SByte_literal_generated_correctly()
     {
-        var typeMapping = new SByteTypeMapping("sbyte", DbType.SByte);
+        var typeMapping = new SByteTypeMapping("sbyte");
 
         Test_GenerateSqlLiteral_helper(typeMapping, sbyte.MinValue, "-128");
         Test_GenerateSqlLiteral_helper(typeMapping, sbyte.MaxValue, "127");
@@ -506,7 +497,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Short_literal_generated_correctly()
     {
-        var typeMapping = new ShortTypeMapping("short", DbType.Int16);
+        var typeMapping = new ShortTypeMapping("short");
 
         Test_GenerateSqlLiteral_helper(typeMapping, short.MinValue, "-32768");
         Test_GenerateSqlLiteral_helper(typeMapping, short.MaxValue, "32767");
@@ -523,7 +514,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void UInt_literal_generated_correctly()
     {
-        var typeMapping = new UIntTypeMapping("uint", DbType.UInt32);
+        var typeMapping = new UIntTypeMapping("uint");
 
         Test_GenerateSqlLiteral_helper(typeMapping, uint.MinValue, "0");
         Test_GenerateSqlLiteral_helper(typeMapping, uint.MaxValue, "4294967295");
@@ -532,7 +523,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void ULong_literal_generated_correctly()
     {
-        var typeMapping = new ULongTypeMapping("ulong", DbType.UInt64);
+        var typeMapping = new ULongTypeMapping("ulong");
 
         Test_GenerateSqlLiteral_helper(typeMapping, ulong.MinValue, "0");
         Test_GenerateSqlLiteral_helper(typeMapping, ulong.MaxValue, "18446744073709551615");
@@ -541,7 +532,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void UShort_literal_generated_correctly()
     {
-        var typeMapping = new UShortTypeMapping("ushort", DbType.UInt16);
+        var typeMapping = new UShortTypeMapping("ushort");
 
         Test_GenerateSqlLiteral_helper(typeMapping, ushort.MinValue, "0");
         Test_GenerateSqlLiteral_helper(typeMapping, ushort.MaxValue, "65535");
@@ -550,7 +541,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Double_value_comparer_handles_NaN()
     {
-        var typeMapping = new DoubleTypeMapping("double precision", DbType.Double);
+        var typeMapping = new DoubleTypeMapping("double precision");
 
         Assert.True(typeMapping.Comparer.Equals(3.0, 3.0));
         Assert.True(typeMapping.Comparer.Equals(double.NaN, double.NaN));
@@ -560,7 +551,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void Float_value_comparer_handles_NaN()
     {
-        var typeMapping = new FloatTypeMapping("float", DbType.Single);
+        var typeMapping = new FloatTypeMapping("float");
 
         Assert.True(typeMapping.Comparer.Equals(3.0f, 3.0f));
         Assert.True(typeMapping.Comparer.Equals(float.NaN, float.NaN));
@@ -570,7 +561,7 @@ public abstract class RelationalTypeMappingTest
     [ConditionalFact]
     public virtual void DateTimeOffset_value_comparer_behaves_correctly()
     {
-        var typeMapping = new DateTimeOffsetTypeMapping("datetimeoffset", DbType.DateTimeOffset);
+        var typeMapping = new DateTimeOffsetTypeMapping("datetimeoffset");
 
         var same1 = new DateTimeOffset(2000, 1, 1, 12, 0, 0, TimeSpan.FromHours(0));
         var same2 = new DateTimeOffset(2000, 1, 1, 12, 0, 0, TimeSpan.FromHours(0));
@@ -597,13 +588,8 @@ public abstract class RelationalTypeMappingTest
             context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
     }
 
-    private class FruityContext : DbContext
+    private class FruityContext(DbContextOptions options) : DbContext(options)
     {
-        public FruityContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Banana> Bananas { get; set; }
         public DbSet<Kiwi> Kiwi { get; set; }
     }
@@ -618,13 +604,8 @@ public abstract class RelationalTypeMappingTest
         Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
     }
 
-    private class MismatchedFruityContext : FruityContext
+    private class MismatchedFruityContext(DbContextOptions options) : FruityContext(options)
     {
-        public MismatchedFruityContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

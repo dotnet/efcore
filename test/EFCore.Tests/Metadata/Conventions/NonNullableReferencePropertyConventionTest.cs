@@ -165,8 +165,8 @@ public class NonNullableReferencePropertyConventionTest
         [Required]
         public string? RequiredAndNullable { get; set; }
 
-        public List<string> PrimitiveCollectionWithNonNullableElement { get; set; } = new();
-        public List<string?> PrimitiveCollectionWithNullableElement { get; set; } = new();
+        public List<string> PrimitiveCollectionWithNonNullableElement { get; set; } = [];
+        public List<string?> PrimitiveCollectionWithNullableElement { get; set; } = [];
 
 #nullable disable
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' context.

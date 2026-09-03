@@ -3,7 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesTestBase
+#nullable disable
+
+public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
@@ -23,6 +25,25 @@ FROM [Owner] AS [o]
 """);
     }
 
+    public override async Task Delete_with_owned_collection_and_non_natively_translatable_query(bool async)
+    {
+        await base.Delete_with_owned_collection_and_non_natively_translatable_query(async);
+
+        AssertSql(
+            """
+@__p_0='1'
+
+DELETE FROM [o]
+FROM [Owner] AS [o]
+WHERE [o].[Id] IN (
+    SELECT [o0].[Id]
+    FROM [Owner] AS [o0]
+    ORDER BY [o0].[Title]
+    OFFSET @__p_0 ROWS
+)
+""");
+    }
+
     public override async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
     {
         await base.Delete_aggregate_root_when_table_sharing_with_owned(async);
@@ -39,6 +60,19 @@ FROM [Owner] AS [o]
         await base.Delete_aggregate_root_when_table_sharing_with_non_owned_throws(async);
 
         AssertSql();
+    }
+
+    public override async Task Replace_ColumnExpression_in_column_setter(bool async)
+    {
+        await base.Replace_ColumnExpression_in_column_setter(async);
+
+        AssertSql(
+            """
+UPDATE [o0]
+SET [o0].[Value] = N'SomeValue'
+FROM [Owner] AS [o]
+INNER JOIN [OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnerId]
+""");
     }
 
     public override async Task Update_non_owned_property_on_entity_with_owned(bool async)
@@ -65,6 +99,19 @@ FROM [Owner] AS [o]
 """);
     }
 
+    public override async Task Update_non_owned_property_on_entity_with_owned_in_join(bool async)
+    {
+        await base.Update_non_owned_property_on_entity_with_owned_in_join(async);
+
+        AssertSql(
+            """
+UPDATE [o]
+SET [o].[Title] = N'NewValue'
+FROM [Owner] AS [o]
+INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
+""");
+    }
+
     public override async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
     {
         await base.Update_owned_and_non_owned_properties_with_table_sharing(async);
@@ -73,7 +120,7 @@ FROM [Owner] AS [o]
             """
 UPDATE [o]
 SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
-    [o].[Title] = CONVERT(varchar(11), [o].[OwnedReference_Number])
+    [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), '')
 FROM [Owner] AS [o]
 """);
     }
@@ -90,10 +137,19 @@ FROM [Blogs] AS [b]
 """);
     }
 
-    // #31407
-    public override Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
-        => Assert.ThrowsAnyAsync<Exception>(
-            () => base.Update_non_main_table_in_entity_with_entity_splitting(async));
+    public override async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        await base.Update_non_main_table_in_entity_with_entity_splitting(async);
+
+        AssertSql(
+            """
+UPDATE [b0]
+SET [b0].[Rating] = CAST(LEN([b0].[Title]) AS int),
+    [b0].[Title] = CONVERT(varchar(11), [b0].[Rating])
+FROM [Blogs] AS [b]
+INNER JOIN [BlogsPart1] AS [b0] ON [b].[Id] = [b0].[Id]
+""");
+    }
 
     public override async Task Delete_entity_with_auto_include(bool async)
     {

@@ -12,20 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 public class ElementTypeChangedConvention :
     IPropertyElementTypeChangedConvention, IForeignKeyAddedConvention, IForeignKeyPropertiesChangedConvention
 {
-    internal static readonly bool UseOldBehavior32411 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32411", out var enabled32411) && enabled32411;
-
-    internal static readonly bool UseOldBehavior33704 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33704", out var enabled33704) && enabled33704;
-
     /// <summary>
     ///     Creates a new instance of <see cref="ElementTypeChangedConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public ElementTypeChangedConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -53,7 +45,8 @@ public class ElementTypeChangedConvention :
 
     /// <inheritdoc />
     public void ProcessForeignKeyAdded(
-        IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+        IConventionForeignKeyBuilder foreignKeyBuilder,
+        IConventionContext<IConventionForeignKeyBuilder> context)
         => ProcessForeignKey(foreignKeyBuilder);
 
     /// <inheritdoc />
@@ -63,8 +56,7 @@ public class ElementTypeChangedConvention :
         IConventionKey oldPrincipalKey,
         IConventionContext<IReadOnlyList<IConventionProperty>> context)
     {
-        if (relationshipBuilder.Metadata.IsInModel
-            && !UseOldBehavior33704)
+        if (relationshipBuilder.Metadata.IsInModel)
         {
             ProcessForeignKey(relationshipBuilder);
         }

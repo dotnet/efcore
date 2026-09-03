@@ -142,7 +142,7 @@ public abstract class QueryContext : IParameterValues
     public virtual InternalEntityEntry StartTracking(
             IEntityType entityType,
             object entity,
-            ValueBuffer valueBuffer)
+            in ISnapshot snapshot)
         // InitializeStateManager will populate the field before calling here
-        => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);
+        => _stateManager!.StartTrackingFromQuery(entityType, entity, snapshot);
 }

@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class UdfDbFunctionSqlServerTests : UdfDbFunctionTestBase<UdfDbFunctionSqlServerTests.SqlServer>
 {
     public UdfDbFunctionSqlServerTests(SqlServer fixture, ITestOutputHelper testOutputHelper)
@@ -206,12 +208,12 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__starCount_0='3'
-@__customerId_1='1'
+@__starCount_1='3'
+@__customerId_0='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_0, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1
+WHERE [c].[Id] = @__customerId_0
 """);
     }
 
@@ -546,12 +548,12 @@ WHERE [c].[Id] = @__customerId_1
 
         AssertSql(
             """
-@__starCount_1='3'
-@__customerId_2='1'
+@__starCount_2='3'
+@__customerId_1='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_2)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_2
+WHERE [c].[Id] = @__customerId_1
 """);
     }
 
@@ -677,13 +679,13 @@ ORDER BY [c].[Id]
 
         AssertSql(
             """
-SELECT [c].[Id], [t].[OrderId], [t].[CustomerId], [t].[OrderDate]
+SELECT [c].[Id], [g0].[OrderId], [g0].[CustomerId], [g0].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     WHERE DATEPART(day, [g].[OrderDate]) = 21
-) AS [t]
+) AS [g0]
 ORDER BY [c].[Id]
 """);
     }
@@ -697,10 +699,10 @@ ORDER BY [c].[Id]
 SELECT [o].[CustomerId], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
-    SELECT [c].[Id], [c].[FirstName], [c].[LastName], [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
+    SELECT [g].[OrderId]
     FROM [Customers] AS [c]
     CROSS APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
-) AS [t] ON [o].[Id] = [t].[OrderId]
+) AS [s] ON [o].[Id] = [s].[OrderId]
 """);
     }
 
@@ -876,14 +878,14 @@ WHERE [c].[Id] = @__custId_1
 
         AssertSql(
             """
-SELECT [c].[Id], [t].[CustomerName], [t].[OrderId], [t].[Id]
+SELECT [c].[Id], [s].[CustomerName], [s].[OrderId], [s].[Id]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId], [c0].[Id]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     INNER JOIN [Customers] AS [c0] ON [g].[CustomerId] = [c0].[Id]
-) AS [t]
-ORDER BY [c].[Id], [t].[OrderId]
+) AS [s]
+ORDER BY [c].[Id], [s].[OrderId]
 """);
     }
 
@@ -931,16 +933,16 @@ GROUP BY [c].[LastName]
         AssertSql(
             """
 SELECT [c0].[LastName], (
-    SELECT COALESCE(SUM(CAST(LEN([c2].[FirstName]) AS int)), 0)
+    SELECT COALESCE(SUM(CAST(LEN([c3].[FirstName]) AS int)), 0)
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
-    INNER JOIN [Customers] AS [c2] ON [o0].[CustomerId] = [c2].[Id]
+    INNER JOIN [Customers] AS [c3] ON [o0].[CustomerId] = [c3].[Id]
     WHERE 25 NOT IN (
         SELECT [g0].[CustomerId]
         FROM [dbo].[GetOrdersWithMultipleProducts]((
-            SELECT TOP(1) [c3].[Id]
-            FROM [Customers] AS [c3]
-            ORDER BY [c3].[Id])) AS [g0]
+            SELECT TOP(1) [c2].[Id]
+            FROM [Customers] AS [c2]
+            ORDER BY [c2].[Id])) AS [g0]
     ) AND ([c0].[LastName] = [c1].[LastName] OR ([c0].[LastName] IS NULL AND [c1].[LastName] IS NULL))) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c0] ON [o].[CustomerId] = [c0].[Id]
@@ -1012,11 +1014,11 @@ ORDER BY [a].[Id], [g].[Year]
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        protected override void Seed(DbContext context)
+        protected override async Task SeedAsync(DbContext context)
         {
-            base.Seed(context);
+            await base.SeedAsync(context);
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[CustomerOrderCount] (@customerId int)
                                                     returns int
                                                     as
@@ -1024,7 +1026,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return (select count(id) from orders where customerId = @customerId);
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function[dbo].[StarValue] (@starCount int, @value nvarchar(max))
                                                     returns nvarchar(max)
                                                         as
@@ -1032,7 +1034,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                     return replicate('*', @starCount) + @value
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function[dbo].[DollarValue] (@starCount int, @value nvarchar(max))
                                                     returns nvarchar(max)
                                                         as
@@ -1040,7 +1042,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                     return replicate('$', @starCount) + @value
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[GetReportingPeriodStartDate] (@period int)
                                                     returns DateTime
                                                     as
@@ -1048,7 +1050,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return '1998-01-01'
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[GetCustomerWithMostOrdersAfterDate] (@searchDate Date)
                                                     returns int
                                                     as
@@ -1060,7 +1062,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                                 order by count(id) desc)
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[IsTopCustomer] (@customerId int)
                                                     returns bit
                                                     as
@@ -1071,7 +1073,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return 0
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[IdentityString] (@s nvarchar(max))
                                                     returns nvarchar(max)
                                                     as
@@ -1079,7 +1081,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return @s;
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[IdentityStringPropagatesNull] (@s nvarchar(max))
                                                     returns nvarchar(max)
                                                     as
@@ -1087,7 +1089,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return @s;
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[IdentityStringNonNullable] (@s nvarchar(max))
                                                     returns nvarchar(max)
                                                     as
@@ -1095,7 +1097,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return COALESCE(@s, 'NULL');
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[IdentityStringNonNullableFluent] (@s nvarchar(max))
                                                     returns nvarchar(max)
                                                     as
@@ -1103,7 +1105,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return COALESCE(@s, 'NULL');
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[StringLength] (@s nvarchar(max))
                                                     returns int
                                                     as
@@ -1111,7 +1113,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return LEN(@s);
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].GetCustomerOrderCountByYear(@customerId int)
                                                     returns @reports table
                                                     (
@@ -1131,7 +1133,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].GetCustomerOrderCountByYearOnlyFrom2000(@customerId int, @onlyFrom2000 bit)
                                                     returns @reports table
                                                     (
@@ -1151,7 +1153,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].GetTopTwoSellingProducts()
                                                     returns @products table
                                                     (
@@ -1169,7 +1171,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].GetTopSellingProductsForCustomer(@customerId int)
                                                     returns @products table
                                                     (
@@ -1188,7 +1190,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].GetOrdersWithMultipleProducts(@customerId int)
                                                     returns @orders table
                                                     (
@@ -1209,7 +1211,7 @@ ORDER BY [a].[Id], [g].[Year]
                                                         return
                                                     end");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"create function [dbo].[AddValues] (@a int, @b int)
                                                     returns int
                                                     as

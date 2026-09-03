@@ -66,7 +66,7 @@ public readonly struct ParameterBindingInfo
     /// <summary>
     ///     Expressions holding initialized instances for service properties.
     /// </summary>
-    public List<ParameterExpression> ServiceInstances { get; } = new();
+    public List<ParameterExpression> ServiceInstances { get; } = [];
 
     /// <summary>
     ///     Gets the index into the <see cref="ValueBuffer" /> where the property value can be found.

@@ -1,11 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 namespace Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqliteTest.BuiltInDataTypesSqliteFixture>
 {
@@ -70,7 +73,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -108,7 +111,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -169,7 +172,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         {
             Id = id,
             Nvarchar = "Into",
-            Binary = new byte[] { 10, 11, 12, 13 }
+            Binary = [10, 11, 12, 13]
         };
 
     [ConditionalFact]
@@ -289,7 +292,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -328,7 +331,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -390,7 +393,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         {
             AltId = id,
             Nvarchar = "Into",
-            Binary = new byte[] { 10, 11, 12, 13 }
+            Binary = [10, 11, 12, 13]
         };
 
     [ConditionalFact]
@@ -934,7 +937,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
     }
 
     [ConditionalFact]
-    public virtual void Cant_query_Average_of_converted_types()
+    public virtual void Can_query_Average_of_converted_types()
     {
         using var context = CreateContext();
         context.Add(
@@ -956,15 +959,14 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Average), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => context.Set<BuiltInNullableDataTypes>()
-                    .Where(e => e.PartitionId == 202)
-                    .Average(e => e.TestNullableDecimal)).Message);
+            1.000000000000002m,
+            context.Set<BuiltInNullableDataTypes>()
+                .Where(e => e.PartitionId == 202)
+                .Average(e => e.TestNullableDecimal));
     }
 
     [ConditionalFact]
-    public virtual void Cant_query_Sum_of_converted_types()
+    public virtual void Can_query_Sum_of_converted_types()
     {
         using var context = CreateContext();
         context.Add(
@@ -986,11 +988,10 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => context.Set<BuiltInDataTypes>()
-                    .Where(e => e.PartitionId == 203)
-                    .Sum(e => e.TestDecimal)).Message);
+            2.000000000000002m,
+            context.Set<BuiltInDataTypes>()
+                .Where(e => e.PartitionId == 203)
+                .Sum(e => e.TestDecimal));
     }
 
     [ConditionalFact]
@@ -1587,6 +1588,30 @@ FROM "ObjectBackedDataTypes" AS "o"
     }
 
     [ConditionalFact]
+    public virtual void Can_filter_using_unhex_function()
+    {
+        using var context = CreateContext();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => e.String)
+            .Where(e => EF.Functions.Unhex(e) == null).ToList();
+
+        AssertSql(
+            """
+SELECT "o"."String"
+FROM "ObjectBackedDataTypes" AS "o"
+WHERE unhex("o"."String") IS NULL
+""");
+
+        var regex = new Regex("^[0-9a-fA-F]*$");
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => e.String)
+            .Where(e => !regex.IsMatch(e)).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
     public virtual void Can_query_using_substr_function()
     {
         using var context = CreateContext();
@@ -1626,9 +1651,9 @@ FROM "ObjectBackedDataTypes" AS "o"
         Assert.Equal(expectedResults, results);
     }
 
-    public override void Object_to_string_conversion()
+    public override async Task Object_to_string_conversion()
     {
-        base.Object_to_string_conversion();
+        await base.Object_to_string_conversion();
 
         AssertSql(
             """
@@ -1789,6 +1814,7 @@ WHERE "b"."Id" = 291
                             subtract = dt1.TestDecimal - dt2.TestDecimal,
                             multiply = dt1.TestDecimal * dt2.TestDecimal,
                             divide = dt1.TestDecimal / dt2.TestDecimal,
+                            modulus = dt1.TestDecimal % dt2.TestDecimal,
                             negate = -dt1.TestDecimal
                         }).ToList();
 
@@ -1804,6 +1830,7 @@ WHERE "b"."Id" = 291
                           subtract = dt1.TestDecimal - dt2.TestDecimal,
                           multiply = dt1.TestDecimal * dt2.TestDecimal,
                           divide = dt1.TestDecimal / dt2.TestDecimal,
+                          modulus = dt1.TestDecimal % dt2.TestDecimal,
                           negate = -dt1.TestDecimal
                       }).ToList();
 
@@ -1814,15 +1841,68 @@ WHERE "b"."Id" = 291
             Assert.Equal(expected[i].subtract, actual[i].subtract);
             Assert.Equal(expected[i].multiply, actual[i].multiply);
             Assert.Equal(expected[i].divide, actual[i].divide);
+            Assert.Equal(expected[i].modulus, actual[i].modulus);
             Assert.Equal(expected[i].negate, actual[i].negate);
         }
 
         AssertSql(
             """
-SELECT ef_add("b"."TestDecimal", "b0"."TestDecimal") AS "add", ef_add("b"."TestDecimal", ef_negate("b0"."TestDecimal")) AS "subtract", ef_multiply("b"."TestDecimal", "b0"."TestDecimal") AS "multiply", ef_divide("b"."TestDecimal", "b0"."TestDecimal") AS "divide", ef_negate("b"."TestDecimal") AS "negate"
+SELECT ef_add("b"."TestDecimal", "b0"."TestDecimal") AS "add", ef_add("b"."TestDecimal", ef_negate("b0"."TestDecimal")) AS "subtract", ef_multiply("b"."TestDecimal", "b0"."TestDecimal") AS "multiply", ef_divide("b"."TestDecimal", "b0"."TestDecimal") AS "divide", ef_mod("b"."TestDecimal", "b0"."TestDecimal") AS "modulus", ef_negate("b"."TestDecimal") AS "negate"
 FROM "BuiltInDataTypes" AS "b"
 CROSS JOIN "BuiltInDataTypes" AS "b0"
 WHERE "b0"."TestDecimal" <> '0.0'
+ORDER BY "b"."Id", "b0"."Id"
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void Projecting_arithmetic_operations_on_nullable_decimals()
+    {
+        using var context = CreateContext();
+        var expected = (from dt1 in context.Set<BuiltInNullableDataTypes>().ToList()
+                        from dt2 in context.Set<BuiltInNullableDataTypes>().ToList()
+                        orderby dt1.Id, dt2.Id
+                        select new
+                        {
+                            add = dt1.TestNullableDecimal + dt2.TestNullableDecimal,
+                            subtract = dt1.TestNullableDecimal - dt2.TestNullableDecimal,
+                            multiply = dt1.TestNullableDecimal * dt2.TestNullableDecimal,
+                            divide = dt2.TestNullableDecimal == 0 ? null : dt1.TestNullableDecimal / dt2.TestNullableDecimal,
+                            modulus = dt2.TestNullableDecimal == 0 ? null : dt1.TestNullableDecimal % dt2.TestNullableDecimal,
+                            negate = -dt1.TestNullableDecimal
+                        }).ToList();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var actual = (from dt1 in context.Set<BuiltInNullableDataTypes>()
+                      from dt2 in context.Set<BuiltInNullableDataTypes>()
+                      orderby dt1.Id, dt2.Id
+                      select new
+                      {
+                          add = dt1.TestNullableDecimal + dt2.TestNullableDecimal,
+                          subtract = dt1.TestNullableDecimal - dt2.TestNullableDecimal,
+                          multiply = dt1.TestNullableDecimal * dt2.TestNullableDecimal,
+                          divide = dt1.TestNullableDecimal / dt2.TestNullableDecimal,
+                          modulus = dt1.TestNullableDecimal % dt2.TestNullableDecimal,
+                          negate = -dt1.TestNullableDecimal
+                      }).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i].add, actual[i].add);
+            Assert.Equal(expected[i].subtract, actual[i].subtract);
+            Assert.Equal(expected[i].multiply, actual[i].multiply);
+            Assert.Equal(expected[i].divide, actual[i].divide);
+            Assert.Equal(expected[i].modulus, actual[i].modulus);
+            Assert.Equal(expected[i].negate, actual[i].negate);
+        }
+
+        AssertSql(
+            """
+SELECT ef_add("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "add", ef_add("b"."TestNullableDecimal", ef_negate("b0"."TestNullableDecimal")) AS "subtract", ef_multiply("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "multiply", ef_divide("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "divide", ef_mod("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "modulus", ef_negate("b"."TestNullableDecimal") AS "negate"
+FROM "BuiltInNullableDataTypes" AS "b"
+CROSS JOIN "BuiltInNullableDataTypes" AS "b0"
 ORDER BY "b"."Id", "b0"."Id"
 """);
     }
@@ -1835,7 +1915,7 @@ ORDER BY "b"."Id", "b0"."Id"
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
+    public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase, ITestSqlLoggerFactory
     {
         public override bool StrictEquality
             => false;

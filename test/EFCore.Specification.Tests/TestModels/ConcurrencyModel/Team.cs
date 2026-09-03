@@ -5,30 +5,28 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class Team
 {
-    public class TeamProxy : Team, IF1Proxy
+    public class TeamProxy(
+        ILazyLoader loader,
+        int id,
+        string name,
+        string constructor,
+        string tire,
+        string principal,
+        int constructorsChampionships,
+        int driversChampionships,
+        int races,
+        int victories,
+        int poles,
+        int fastestLaps,
+        int? gearboxId) : Team(
+            loader, id, name, constructor, tire, principal, constructorsChampionships, driversChampionships, races, victories, poles,
+            fastestLaps, gearboxId),
+        IF1Proxy
     {
-        public TeamProxy(
-            ILazyLoader loader,
-            int id,
-            string name,
-            string constructor,
-            string tire,
-            string principal,
-            int constructorsChampionships,
-            int driversChampionships,
-            int races,
-            int victories,
-            int poles,
-            int fastestLaps,
-            int? gearboxId)
-            : base(
-                loader, id, name, constructor, tire, principal, constructorsChampionships, driversChampionships, races, victories, poles,
-                fastestLaps, gearboxId)
-        {
-        }
-
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }
         public bool InitializedCalled { get; set; }
@@ -36,7 +34,7 @@ public class Team
 
     private readonly ILazyLoader _loader;
     private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
-    private readonly ObservableCollection<Sponsor> _sponsors = new();
+    private readonly ObservableCollection<Sponsor> _sponsors = [];
     private Engine _engine;
     private Chassis _chassis;
     private Gearbox _gearbox;

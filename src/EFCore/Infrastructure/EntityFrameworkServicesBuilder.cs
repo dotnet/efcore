@@ -83,6 +83,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IMemoryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(INavigationExpansionExtensibilityHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(ILiftableConstantFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IExceptionDetector), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IJsonValueReaderWriterSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -125,6 +126,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IShapedQueryCompilingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IAdHocMapper), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+            { typeof(ILiftableConstantProcessor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(ILazyLoader), new ServiceCharacteristics(ServiceLifetime.Transient) },
             { typeof(ILazyLoaderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
@@ -152,9 +154,7 @@ public class EntityFrameworkServicesBuilder
     /// </remarks>
     /// <param name="serviceCollection">The collection to which services will be registered.</param>
     public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
-    {
-        ServiceCollectionMap = new ServiceCollectionMap(serviceCollection);
-    }
+        => ServiceCollectionMap = new ServiceCollectionMap(serviceCollection);
 
     /// <summary>
     ///     Access to the underlying <see cref="ServiceCollectionMap" />.
@@ -309,6 +309,8 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IExceptionDetector, ExceptionDetector>();
         TryAdd<IAdHocMapper, AdHocMapper>();
         TryAdd<IJsonValueReaderWriterSource, JsonValueReaderWriterSource>();
+        TryAdd<ILiftableConstantFactory, LiftableConstantFactory>();
+        TryAdd<ILiftableConstantProcessor, LiftableConstantProcessor>();
 
         TryAdd(
             p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger
@@ -329,12 +331,12 @@ public class EntityFrameworkServicesBuilder
             .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
             .AddDependencySingleton<ValueConverterSelectorDependencies>()
             .AddDependencySingleton<EntityMaterializerSourceDependencies>()
-            .AddDependencySingleton<ShapedQueryCompilingExpressionVisitorDependencies>()
             .AddDependencySingleton<EvaluatableExpressionFilterDependencies>()
             .AddDependencySingleton<RuntimeModelDependencies>()
             .AddDependencySingleton<ModelRuntimeInitializerDependencies>()
             .AddDependencySingleton<NavigationExpansionExtensibilityHelperDependencies>()
             .AddDependencySingleton<JsonValueReaderWriterSourceDependencies>()
+            .AddDependencySingleton<LiftableConstantExpressionDependencies>()
             .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
             .AddDependencyScoped<QueryCompilationContextDependencies>()
             .AddDependencyScoped<StateManagerDependencies>()
@@ -344,10 +346,12 @@ public class EntityFrameworkServicesBuilder
             .AddDependencyScoped<QueryableMethodTranslatingExpressionVisitorDependencies>()
             .AddDependencyScoped<QueryTranslationPreprocessorDependencies>()
             .AddDependencyScoped<QueryTranslationPostprocessorDependencies>()
+            .AddDependencyScoped<ShapedQueryCompilingExpressionVisitorDependencies>()
             .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
             .AddDependencyScoped<DatabaseDependencies>()
             .AddDependencyScoped<ModelDependencies>()
-            .AddDependencyScoped<ModelCreationDependencies>();
+            .AddDependencyScoped<ModelCreationDependencies>()
+            .AddDependencyScoped<AdHocMapperDependencies>();
 
         ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
             new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));

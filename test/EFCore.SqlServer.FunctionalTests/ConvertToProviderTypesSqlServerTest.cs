@@ -3,15 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
-    ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
-{
-    public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+public class ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture fixture)
+    : ConvertToProviderTypesTestBase<
+        ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>(fixture)
+{
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
     {
@@ -175,10 +173,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
     }
 
-    public override void Object_to_string_conversion()
-    {
+    public override Task Object_to_string_conversion()
         // Return values are not string
-    }
+        => Task.CompletedTask;
 
     public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
     {

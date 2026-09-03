@@ -8,6 +8,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -42,15 +44,10 @@ public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
                     null)));
     }
 
-    private class ReplacementTypeMappingSource : SqliteTypeMappingSource
+    private class ReplacementTypeMappingSource(
+        TypeMappingSourceDependencies dependencies,
+        RelationalTypeMappingSourceDependencies relationalDependencies) : SqliteTypeMappingSource(dependencies, relationalDependencies)
     {
-        public ReplacementTypeMappingSource(
-            TypeMappingSourceDependencies dependencies,
-            RelationalTypeMappingSourceDependencies relationalDependencies)
-            : base(dependencies, relationalDependencies)
-        {
-        }
-
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => mappingInfo.ClrType == typeof(GeoPoint)
                 ? ((RelationalTypeMapping)base.FindMapping(typeof(Point))

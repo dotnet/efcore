@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
 {
     protected override IUpdateSqlGenerator CreateSqlGenerator()

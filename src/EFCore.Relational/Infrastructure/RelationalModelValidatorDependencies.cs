@@ -47,9 +47,7 @@ public sealed record RelationalModelValidatorDependencies
     [EntityFrameworkInternal]
     public RelationalModelValidatorDependencies(
         IRelationalTypeMappingSource typeMappingSource)
-    {
-        TypeMappingSource = typeMappingSource;
-    }
+        => TypeMappingSource = typeMappingSource;
 
     /// <summary>
     ///     The type mapper.

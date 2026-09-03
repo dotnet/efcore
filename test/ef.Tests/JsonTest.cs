@@ -11,7 +11,7 @@ public class JsonTest
 
     [Fact]
     public void Literal_handles_null()
-        => Assert.Equal("null", Json.Literal((string)null));
+        => Assert.Equal("null", Json.Literal((string?)null));
 
     [Fact]
     public void Literal_handles_bool()
