@@ -323,12 +323,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
         }
 
         var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties);
-        if (newRelationshipBuilder != null)
-        {
-            return newRelationshipBuilder;
-        }
-
-        return relationshipBuilder.Metadata.IsInModel ? relationshipBuilder : null;
+        return newRelationshipBuilder ?? (relationshipBuilder.Metadata.IsInModel ? relationshipBuilder : null);
     }
 
     private IReadOnlyList<IConventionProperty>? FindCandidateForeignKeyProperties(
@@ -684,7 +679,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
         {
             var requiredSet = property.Builder.IsRequired(isRequired) != null;
             if (requiredSet
-                && isRequired != true)
+                && !isRequired)
             {
                 break;
             }

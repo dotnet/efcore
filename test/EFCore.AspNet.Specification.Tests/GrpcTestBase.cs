@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if !EXCLUDE_ON_MAC
@@ -91,10 +91,9 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "SkipNavigation: Tag.PostsInTagData (postsInTagData_, RepeatedField<Post>) CollectionPost Inverse: TagsInPostData",
                 },
             }
-
         ];
 
-    [ConditionalFact]
+    [Fact]
     public void Can_build_Grpc_model()
     {
         using var context = Fixture.CreateContext();
@@ -103,7 +102,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         EntityTypeMapping.AssertEqual(ExpectedMappings, entityTypeMappings);
     }
 
-    [ConditionalFact]
+    [Fact]
     public void Can_query_Grpc_model()
     {
         using var context = Fixture.CreateContext();
@@ -150,7 +149,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Title = "Arthur's post",
                 PostAuthor = new Author
                 {
-                    DateCreated = Timestamp.FromDateTime(new DateTime(1973, 9, 3, 12, 10, 0, DateTimeKind.Utc)), Name = "Arthur"
+                    DateCreated = Timestamp.FromDateTime(new DateTime(1973, 9, 3, 12, 10, 0, DateTimeKind.Utc)),
+                    Name = "Arthur"
                 },
                 PostStat = PostStatus.Published,
                 TagsInPostData = { new Tag { Name = "Kittens" }, new Tag { Name = "Puppies" } }

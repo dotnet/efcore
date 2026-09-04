@@ -59,7 +59,20 @@ public partial class InternalEntryBase
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IsStoreGenerated = 5
+        IsStoreGenerated = 5,
+
+        /// <summary>
+        ///     Tracks whether a property value has NOT been loaded (for properties with <see cref="IReadOnlyProperty.IsAutoLoaded" /> equal
+        ///     to <see langword="false" />). The default (false) means loaded; set to true for not-auto-loaded properties.
+        ///     Distinct from <see cref="IsLoaded" /> which tracks navigation loaded state.
+        /// </summary>
+        /// <remarks>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </remarks>
+        IsPropertyNotLoaded = 6
     }
 
     /// <summary>
@@ -68,6 +81,20 @@ public partial class InternalEntryBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Stores per-slot flags in a bit array. Each slot gets 8 bits.
+    ///         The total number of slots is <c>max(propertyCount, navigationCount)</c>.
+    ///     </para>
+    ///     <para>
+    ///         Property flags use bits: Modified (0), Null (1), Unknown (2), IsTemporary (4),
+    ///         IsStoreGenerated (5), IsPropertyNotLoaded (6). Bit 7 is unused/reserved.
+    ///     </para>
+    ///     <para>
+    ///         Navigation flags use bit: IsLoaded (3). Since property flags and navigation flags occupy
+    ///         distinct bits within the same 8-bit slot, they share the same slot array without conflict.
+    ///     </para>
+    /// </remarks>
     protected internal readonly struct StateData
     {
         private const int BitsPerInt = 32;
@@ -90,8 +117,8 @@ public partial class InternalEntryBase
         /// </summary>
         public StateData(int propertyCount, int navigationCount)
         {
-            // Properties and navigations use different flags
-            var bitsNumber = Math.Max(propertyCount, navigationCount) * BitsForPropertyFlags + BitsForAdditionalState - 1;
+            // Properties and navigations share the same bit array, but use different bits within each slot
+            var bitsNumber = (Math.Max(propertyCount, navigationCount) * BitsForPropertyFlags) + BitsForAdditionalState - 1;
             _bits = new int[(bitsNumber / BitsPerInt) + 1];
         }
 
@@ -136,7 +163,7 @@ public partial class InternalEntryBase
         /// </summary>
         public bool IsPropertyFlagged(int propertyIndex, PropertyFlag propertyFlag)
         {
-            propertyIndex = propertyIndex * BitsForPropertyFlags + (int)propertyFlag + BitsForAdditionalState;
+            propertyIndex = (propertyIndex * BitsForPropertyFlags) + (int)propertyFlag + BitsForAdditionalState;
 
             return (_bits[propertyIndex / BitsPerInt] & (1 << (propertyIndex % BitsPerInt))) != 0;
         }
@@ -149,7 +176,7 @@ public partial class InternalEntryBase
         /// </summary>
         public void FlagProperty(int propertyIndex, PropertyFlag propertyFlag, bool isFlagged)
         {
-            propertyIndex = propertyIndex * BitsForPropertyFlags + (int)propertyFlag + BitsForAdditionalState;
+            propertyIndex = (propertyIndex * BitsForPropertyFlags) + (int)propertyFlag + BitsForAdditionalState;
 
             if (isFlagged)
             {
@@ -200,7 +227,7 @@ public partial class InternalEntryBase
             if (i == _bits.Length - 1)
             {
                 var overlay = PropertyFlagMask << (int)propertyFlag;
-                var shift = (propertyCount * BitsForPropertyFlags + BitsForAdditionalState) % BitsPerInt;
+                var shift = ((propertyCount * BitsForPropertyFlags) + BitsForAdditionalState) % BitsPerInt;
                 overlay = shift != 0 ? overlay << shift : 0;
                 mask &= ~overlay;
             }

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public class KeyPropagatorTest
 {
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -19,7 +19,7 @@ public class KeyPropagatorTest
         var contextServices = CreateContextServices(model);
         model = contextServices.GetRequiredService<IModel>();
         var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-        var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
+        var property = model.FindEntityType(typeof(Product))!.FindProperty("CategoryId")!;
         var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
 
         if (async)
@@ -35,7 +35,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Foreign_key_value_is_obtained_from_tracked_principal_with_populated_collection(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -60,7 +60,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Non_identifying_foreign_key_value_is_not_generated_if_principal_key_not_set(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -82,7 +82,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task One_to_one_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -104,7 +104,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task One_to_one_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -128,7 +128,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Identifying_foreign_key_value_is_generated_if_principal_key_not_set(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -150,7 +150,7 @@ public class KeyPropagatorTest
         Assert.True(dependentEntry.HasTemporaryValue(property));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Identifying_foreign_key_value_is_propagated_if_principal_key_is_generated(bool generateTemporary, bool async)
     {
         var principal = new Product();
@@ -177,7 +177,7 @@ public class KeyPropagatorTest
         Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Composite_foreign_key_value_is_obtained_from_reference_to_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -206,7 +206,7 @@ public class KeyPropagatorTest
         Assert.False(dependentEntry.HasTemporaryValue(property1));
     }
 
-    [ConditionalTheory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task Composite_foreign_key_value_is_obtained_from_tracked_principal(bool generateTemporary, bool async)
     {
         var model = BuildModel(generateTemporary);
@@ -259,9 +259,9 @@ public class KeyPropagatorTest
     {
         public int CategoryId { get; set; }
 
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
-        public ProductDetail Detail { get; set; }
+        public ProductDetail Detail { get; set; } = null!;
 
         public ICollection<OrderLine> OrderLines { get; } = new List<OrderLine>();
     }
@@ -269,7 +269,7 @@ public class KeyPropagatorTest
     private class ProductDetail
     {
         public int Id { get; set; }
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
     }
 
     private class Order : BaseType
@@ -282,10 +282,10 @@ public class KeyPropagatorTest
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public virtual Order Order { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual Order Order { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
 
-        public virtual OrderLineDetail Detail { get; set; }
+        public virtual OrderLineDetail Detail { get; set; } = null!;
     }
 
     private class OrderLineDetail
@@ -293,7 +293,7 @@ public class KeyPropagatorTest
         public int OrderId { get; set; }
         public int ProductId { get; set; }
 
-        public virtual OrderLine OrderLine { get; set; }
+        public virtual OrderLine OrderLine { get; set; } = null!;
     }
 
     private static IModel BuildModel(bool generateTemporary = false)

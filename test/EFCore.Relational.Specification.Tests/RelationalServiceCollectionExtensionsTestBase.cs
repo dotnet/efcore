@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class RelationalServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
     : EntityFrameworkServiceCollectionExtensionsTestBase(testHelpers)
 {

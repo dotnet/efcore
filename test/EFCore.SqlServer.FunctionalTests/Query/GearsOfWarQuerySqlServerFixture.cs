@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class GearsOfWarQuerySqlServerFixture : GearsOfWarQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory

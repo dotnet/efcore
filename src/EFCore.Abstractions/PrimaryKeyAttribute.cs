@@ -34,8 +34,7 @@ public sealed class PrimaryKeyAttribute : Attribute
         Check.NotEmpty(propertyName);
         Check.HasNoEmptyElements(additionalPropertyNames);
 
-        PropertyNames = new List<string> { propertyName };
-        ((List<string>)PropertyNames).AddRange(additionalPropertyNames);
+        PropertyNames = [propertyName, .. additionalPropertyNames];
     }
 
     /// <summary>

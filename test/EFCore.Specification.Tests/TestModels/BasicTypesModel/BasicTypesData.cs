@@ -10,19 +10,11 @@ public class BasicTypesData : ISetSource
 
     public IQueryable<TEntity> Set<TEntity>()
         where TEntity : class
-    {
-        if (typeof(TEntity) == typeof(BasicTypesEntity))
-        {
-            return (IQueryable<TEntity>)BasicTypesEntities.AsQueryable();
-        }
-
-        if (typeof(TEntity) == typeof(NullableBasicTypesEntity))
-        {
-            return (IQueryable<TEntity>)NullableBasicTypesEntities.AsQueryable();
-        }
-
-        throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
-    }
+        => typeof(TEntity) == typeof(BasicTypesEntity)
+            ? (IQueryable<TEntity>)BasicTypesEntities.AsQueryable()
+            : typeof(TEntity) == typeof(NullableBasicTypesEntity)
+                ? (IQueryable<TEntity>)NullableBasicTypesEntities.AsQueryable()
+                : throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
 
     public static IReadOnlyList<BasicTypesEntity> CreateBasicTypesEntities()
         =>
@@ -231,7 +223,7 @@ public class BasicTypesData : ISetSource
                 })
             .ToArray();
 
-        NullableBasicTypesEntity ConvertToNullable(BasicTypesEntity b)
+        static NullableBasicTypesEntity ConvertToNullable(BasicTypesEntity b)
             => new()
             {
                 Id = b.Id,

@@ -5,19 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyToManyContext>, IQueryFixtureBase
+public abstract class ManyToManyQueryFixtureBase : QueryFixtureBase<ManyToManyContext>
 {
     protected override string StoreName
         => "ManyToManyQueryTest";
 
-    public Func<DbContext> GetContextCreator()
-        => () => CreateContext();
+    private ManyToManyData _data = null!;
 
-    private ManyToManyData _data;
-
-    public ISetSource GetExpectedData()
+    public override ISetSource GetExpectedData()
     {
         if (_data == null)
         {
@@ -30,33 +25,33 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
         return _data;
     }
 
-    public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
     {
-        { typeof(EntityOne), e => ((EntityOne)e)?.Id },
-        { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
-        { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3) },
-        { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
-        { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
-        { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
-        { typeof(EntityBranch2), e => ((EntityBranch2)e)?.Id },
-        { typeof(EntityLeaf2), e => ((EntityLeaf2)e)?.Id },
-        { typeof(EntityTableSharing1), e => ((EntityTableSharing1)e)?.Id },
-        { typeof(EntityTableSharing2), e => ((EntityTableSharing2)e)?.Id },
-        { typeof(UnidirectionalEntityOne), e => ((UnidirectionalEntityOne)e)?.Id },
-        { typeof(UnidirectionalEntityTwo), e => ((UnidirectionalEntityTwo)e)?.Id },
-        { typeof(UnidirectionalEntityThree), e => ((UnidirectionalEntityThree)e)?.Id },
+        { typeof(EntityOne), e => ((EntityOne?)e)?.Id },
+        { typeof(EntityTwo), e => ((EntityTwo?)e)?.Id },
+        { typeof(EntityThree), e => ((EntityThree?)e)?.Id },
+        { typeof(EntityCompositeKey), e => e is EntityCompositeKey entity ? (entity.Key1, entity.Key2, entity.Key3) : null },
+        { typeof(EntityRoot), e => ((EntityRoot?)e)?.Id },
+        { typeof(EntityBranch), e => ((EntityBranch?)e)?.Id },
+        { typeof(EntityLeaf), e => ((EntityLeaf?)e)?.Id },
+        { typeof(EntityBranch2), e => ((EntityBranch2?)e)?.Id },
+        { typeof(EntityLeaf2), e => ((EntityLeaf2?)e)?.Id },
+        { typeof(EntityTableSharing1), e => ((EntityTableSharing1?)e)?.Id },
+        { typeof(EntityTableSharing2), e => ((EntityTableSharing2?)e)?.Id },
+        { typeof(UnidirectionalEntityOne), e => ((UnidirectionalEntityOne?)e)?.Id },
+        { typeof(UnidirectionalEntityTwo), e => ((UnidirectionalEntityTwo?)e)?.Id },
+        { typeof(UnidirectionalEntityThree), e => ((UnidirectionalEntityThree?)e)?.Id },
         {
-            typeof(UnidirectionalEntityCompositeKey), e => (((UnidirectionalEntityCompositeKey)e)?.Key1,
-                ((UnidirectionalEntityCompositeKey)e)?.Key2,
-                ((UnidirectionalEntityCompositeKey)e)?.Key3)
+            typeof(UnidirectionalEntityCompositeKey), e => e is UnidirectionalEntityCompositeKey entity
+                ? (entity.Key1, entity.Key2, entity.Key3)
+                : null
         },
-        { typeof(UnidirectionalEntityRoot), e => ((UnidirectionalEntityRoot)e)?.Id },
-        { typeof(UnidirectionalEntityBranch), e => ((UnidirectionalEntityBranch)e)?.Id },
-        { typeof(UnidirectionalEntityLeaf), e => ((UnidirectionalEntityLeaf)e)?.Id },
+        { typeof(UnidirectionalEntityRoot), e => ((UnidirectionalEntityRoot?)e)?.Id },
+        { typeof(UnidirectionalEntityBranch), e => ((UnidirectionalEntityBranch?)e)?.Id },
+        { typeof(UnidirectionalEntityLeaf), e => ((UnidirectionalEntityLeaf?)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityOne), (e, a) =>
@@ -65,7 +60,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityOne)e;
+                    var ee = (EntityOne)e!;
                     var aa = (EntityOne)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -80,7 +75,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityTwo)e;
+                    var ee = (EntityTwo)e!;
                     var aa = (EntityTwo)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -95,7 +90,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityThree)e;
+                    var ee = (EntityThree)e!;
                     var aa = (EntityThree)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -110,7 +105,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityCompositeKey)e;
+                    var ee = (EntityCompositeKey)e!;
                     var aa = (EntityCompositeKey)a;
 
                     Assert.Equal(ee.Key1, aa.Key1);
@@ -127,7 +122,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityRoot)e;
+                    var ee = (EntityRoot)e!;
                     var aa = (EntityRoot)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -142,7 +137,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityBranch)e;
+                    var ee = (EntityBranch)e!;
                     var aa = (EntityBranch)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -158,7 +153,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityLeaf)e;
+                    var ee = (EntityLeaf)e!;
                     var aa = (EntityLeaf)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -175,7 +170,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityBranch2)e;
+                    var ee = (EntityBranch2)e!;
                     var aa = (EntityBranch2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -191,7 +186,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityLeaf2)e;
+                    var ee = (EntityLeaf2)e!;
                     var aa = (EntityLeaf2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -208,7 +203,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityTableSharing1)e;
+                    var ee = (EntityTableSharing1)e!;
                     var aa = (EntityTableSharing1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -223,7 +218,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityTableSharing2)e;
+                    var ee = (EntityTableSharing2)e!;
                     var aa = (EntityTableSharing2)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -238,7 +233,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityOne)e;
+                    var ee = (UnidirectionalEntityOne)e!;
                     var aa = (UnidirectionalEntityOne)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -253,7 +248,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityTwo)e;
+                    var ee = (UnidirectionalEntityTwo)e!;
                     var aa = (UnidirectionalEntityTwo)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -268,7 +263,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityThree)e;
+                    var ee = (UnidirectionalEntityThree)e!;
                     var aa = (UnidirectionalEntityThree)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -283,7 +278,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityCompositeKey)e;
+                    var ee = (UnidirectionalEntityCompositeKey)e!;
                     var aa = (UnidirectionalEntityCompositeKey)a;
 
                     Assert.Equal(ee.Key1, aa.Key1);
@@ -300,7 +295,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityRoot)e;
+                    var ee = (UnidirectionalEntityRoot)e!;
                     var aa = (UnidirectionalEntityRoot)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -315,7 +310,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityBranch)e;
+                    var ee = (UnidirectionalEntityBranch)e!;
                     var aa = (UnidirectionalEntityBranch)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -331,7 +326,7 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (UnidirectionalEntityLeaf)e;
+                    var ee = (UnidirectionalEntityLeaf)e!;
                     var aa = (UnidirectionalEntityLeaf)a;
 
                     Assert.Equal(ee.Id, aa.Id);

@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
-#nullable disable
-
 public class JsonEntityBasicForCollection
 {
     public int Id { get; init; }
-    public string Name { get; init; }
+    public string Name { get; init; } = null!;
 
     public int? ParentId { get; set; }
-    public JsonEntityBasic Parent { get; set; }
+    public JsonEntityBasic Parent { get; set; } = null!;
 }

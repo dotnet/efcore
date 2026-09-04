@@ -5,13 +5,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class StoreGeneratedFixupSqliteTest(StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture fixture)
     : StoreGeneratedFixupRelationalTestBase<
         StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture>(fixture)
 {
-    [ConditionalFact]
+    [Fact]
     public void Temp_values_can_be_made_permanent()
     {
         using var context = CreateContext();

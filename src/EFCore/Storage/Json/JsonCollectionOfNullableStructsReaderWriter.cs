@@ -38,7 +38,7 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
         IList<TElement?> collection;
         if (IsReadOnly)
         {
-            collection = new List<TElement?>();
+            collection = [];
         }
         else if (existingObject == null)
         {

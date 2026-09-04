@@ -92,7 +92,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
-        => UseSqlite(optionsBuilder, connection, false, sqliteOptionsAction);
+        => optionsBuilder.UseSqlite(connection, false, sqliteOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a SQLite database.
@@ -154,8 +154,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlite(
-            (DbContextOptionsBuilder)optionsBuilder, sqliteOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlite(sqliteOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a SQLite database.
@@ -174,8 +173,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
         string? connectionString,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlite(
-            (DbContextOptionsBuilder)optionsBuilder, connectionString, sqliteOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlite(connectionString, sqliteOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a SQLite database.
@@ -199,8 +197,7 @@ public static class SqliteDbContextOptionsBuilderExtensions
         DbConnection connection,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlite(
-            (DbContextOptionsBuilder)optionsBuilder, connection, sqliteOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlite(connection, sqliteOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a SQLite database.
@@ -229,8 +226,8 @@ public static class SqliteDbContextOptionsBuilderExtensions
         bool contextOwnsConnection,
         Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseSqlite(
-            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, sqliteOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)((DbContextOptionsBuilder)optionsBuilder).UseSqlite(
+            connection, contextOwnsConnection, sqliteOptionsAction);
 
     private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
         => options.Options.FindExtension<SqliteOptionsExtension>()

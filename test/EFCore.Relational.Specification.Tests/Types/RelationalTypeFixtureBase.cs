@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Types;
 
 public abstract class RelationalTypeFixtureBase<T> : TypeFixtureBase<T>, ITestSqlLoggerFactory
 {
-    public virtual string? StoreType => null;
+    public virtual string? StoreType
+        => null;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
@@ -16,6 +17,7 @@ public abstract class RelationalTypeFixtureBase<T> : TypeFixtureBase<T>, ITestSq
             b.ToTable(nameof(TypeEntity<>));
             b.Property(e => e.Value).HasColumnType(StoreType);
             b.Property(e => e.OtherValue).HasColumnType(StoreType);
+            b.PrimitiveCollection(e => e.ArrayValue).ElementType(e => e.HasStoreType(StoreType));
         });
 
         modelBuilder.Entity<JsonTypeEntity<T>>(b =>
@@ -29,13 +31,14 @@ public abstract class RelationalTypeFixtureBase<T> : TypeFixtureBase<T>, ITestSq
                 b.Property(e => e.Value).HasColumnType(StoreType);
                 b.Property(e => e.OtherValue).HasColumnType(StoreType);
 
-                b.ComplexProperty(e => e.JsonContainer, jc =>
-                {
-                    jc.ToJson();
+                b.ComplexProperty(
+                    e => e.JsonContainer, jc =>
+                    {
+                        jc.ToJson();
 
-                    jc.Property(e => e.Value).HasColumnType(StoreType);
-                    jc.Property(e => e.OtherValue).HasColumnType(StoreType);
-                });
+                        jc.Property(e => e.Value).HasColumnType(StoreType);
+                        jc.Property(e => e.OtherValue).HasColumnType(StoreType);
+                    });
             });
         });
     }
@@ -45,27 +48,19 @@ public abstract class RelationalTypeFixtureBase<T> : TypeFixtureBase<T>, ITestSq
         await base.SeedAsync(context);
 
         context.Set<JsonTypeEntity<T>>().AddRange(
-            new()
+            new JsonTypeEntity<T>
             {
                 Id = 1,
                 Value = Value,
                 OtherValue = OtherValue,
-                JsonContainer = new()
-                {
-                    Value = Value,
-                    OtherValue = OtherValue
-                }
+                JsonContainer = new JsonContainer<T> { Value = Value, OtherValue = OtherValue }
             },
-            new()
+            new JsonTypeEntity<T>
             {
                 Id = 2,
                 Value = OtherValue,
                 OtherValue = Value,
-                JsonContainer = new()
-                {
-                    Value = OtherValue,
-                    OtherValue = Value
-                }
+                JsonContainer = new JsonContainer<T> { Value = OtherValue, OtherValue = Value }
             });
 
         await context.SaveChangesAsync();

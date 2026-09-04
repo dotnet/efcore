@@ -42,9 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.SqlServer\EFCore.SqlServer.csproj" PrivateAssets="contentfiles;build" />
-    <ProjectReference Include="..\EFCore.SqlServer.Abstractions\EFCore.SqlServer.Abstractions.csproj" />
-    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\EFCore.SqlServer\EFCore.SqlServer.csproj" PrivateAssets="contentfiles;build" PackageVersion="[$(Version), $(NextMajorVersion))" />
+    <ProjectReference Include="..\EFCore.SqlServer.Abstractions\EFCore.SqlServer.Abstractions.csproj" PackageVersion="[$(Version), $(NextMajorVersion))" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" PackageVersion="[$(Version), $(NextMajorVersion))" />
   </ItemGroup>
 
   <ItemGroup>

@@ -42,6 +42,13 @@ public class BoolToStringConverter : BoolToTwoValuesConverter<string>
     {
     }
 
+    private static readonly ConverterMappingHints DefaultMappingHints = new(size: 1);
+
+    /// <summary>
+    ///     A cached, default instance of this converter.
+    /// </summary>
+    public static BoolToStringConverter Instance { get; } = new("0", "1", DefaultMappingHints);
+
     /// <summary>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
@@ -49,8 +56,8 @@ public class BoolToStringConverter : BoolToTwoValuesConverter<string>
         = new(
             typeof(bool),
             typeof(string),
-            i => new BoolToStringConverter("0", "1", i.MappingHints),
-            new ConverterMappingHints(size: 1));
+            i => ReferenceEquals(i.MappingHints, DefaultMappingHints) ? Instance : new BoolToStringConverter("0", "1", i.MappingHints),
+            DefaultMappingHints);
 
     private static Expression<Func<string, bool>> FromProvider(string trueValue)
     {

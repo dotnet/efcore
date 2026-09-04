@@ -15,9 +15,9 @@ public class CountryRegion
         StateProvince = new HashSet<StateProvince>();
     }
 
-    public string CountryRegionCode { get; set; }
+    public string CountryRegionCode { get; set; } = null!;
     public DateTime ModifiedDate { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     public virtual ICollection<CountryRegionCurrency> CountryRegionCurrency { get; set; }
     public virtual ICollection<SalesTerritory> SalesTerritory { get; set; }

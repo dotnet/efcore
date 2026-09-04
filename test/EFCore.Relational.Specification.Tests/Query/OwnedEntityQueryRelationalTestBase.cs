@@ -1,9 +1,7 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Query;
-
-#nullable disable
 
 public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixture) : OwnedEntityQueryTestBase(fixture)
 {
@@ -18,10 +16,10 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 23198
 
-    [ConditionalFact]
+    [Fact]
     public virtual async Task An_optional_dependent_without_any_columns_and_nested_dependent_throws()
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<Context23198>())).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeNonSharedTest<Context23198>())).Message;
 
         Assert.Equal(
             RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(nameof(Context23198.AnOwnedTypeWithOwnedProperties)),
@@ -42,24 +40,24 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         public class AnAggregateRoot
         {
-            public string Id { get; set; }
-            public AnOwnedTypeWithOwnedProperties AnOwnedTypeWithOwnedProperties { get; set; }
+            public string Id { get; set; } = null!;
+            public AnOwnedTypeWithOwnedProperties? AnOwnedTypeWithOwnedProperties { get; set; }
         }
 
         public class AnOwnedTypeWithOwnedProperties
         {
-            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; set; }
-            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties1? AnOwnedTypeWithPrimitiveProperties1 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties2? AnOwnedTypeWithPrimitiveProperties2 { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties1
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         public class AnOwnedTypeWithPrimitiveProperties2
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 
@@ -67,11 +65,11 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 24777
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24777>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context24777>();
+        using var context = contextFactory.CreateDbContext();
 
         var query = context.Roots.Where(e => e.Id == 3).AsSplitQuery();
         var root3 = async
@@ -84,7 +82,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context24777(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Root> Roots { get; set; }
+        public DbSet<Root> Roots { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Root>(b =>
@@ -147,15 +145,15 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Root
         {
             public int Id { get; init; }
-            public ModdleA ModdleA { get; init; }
-            public MiddleB MiddleB { get; init; }
+            public ModdleA ModdleA { get; init; } = null!;
+            public MiddleB? MiddleB { get; init; }
         }
 
         public class ModdleA
         {
             public int Id { get; init; }
             public int RootId { get; init; }
-            public List<Leaf> Leaves { get; }
+            public List<Leaf> Leaves { get; } = null!;
         }
 
         public class MiddleB
@@ -176,11 +174,11 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 25680
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_collection_basic_split_query(bool async)
     {
-        var contextFactory = await InitializeAsync<Context25680>();
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context25680>();
+        using var context = contextFactory.CreateDbContext();
 
         var id = new Guid("6c1ae3e5-30b9-4c77-8d98-f02075974a0a");
         var query = context.Set<Location25680>().Where(e => e.Id == id).AsSplitQuery();
@@ -210,38 +208,38 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     protected class Location25680
     {
         public Guid Id { get; set; }
-        public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; }
+        public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; } = null!;
     }
 
     protected class PublishTokenType25680
     {
-        public Location25680 Location { get; set; }
+        public Location25680 Location { get; set; } = null!;
         public Guid LocationId { get; set; }
 
-        public string ExternalId { get; set; }
-        public string VisualNumber { get; set; }
-        public string TokenGroupId { get; set; }
-        public string IssuerName { get; set; }
+        public string ExternalId { get; set; } = null!;
+        public string VisualNumber { get; set; } = null!;
+        public string TokenGroupId { get; set; } = null!;
+        public string IssuerName { get; set; } = null!;
     }
 
     #endregion
 
     #region 26592
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<MyContext26592>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
     }
@@ -256,16 +254,13 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
                 b.OwnsOne(e => e.SupplierData).ToTable("SupplierData");
             });
 
-            modelBuilder.Entity<Owner>(b =>
-            {
-                b.OwnsOne(
-                    e => e.OwnedEntity, o =>
-                    {
-                        o.ToTable("IntermediateOwnedEntity");
-                        o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
-                        o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
-                    });
-            });
+            modelBuilder.Entity<Owner>(b => b.OwnsOne(
+                e => e.OwnedEntity, o =>
+                {
+                    o.ToTable("IntermediateOwnedEntity");
+                    o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
+                    o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
+                }));
         }
     }
 
@@ -273,12 +268,12 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 28347
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases.OrderBy(e => e.Buyer);
 
         var result = async
@@ -304,12 +299,12 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot).Where(e => e != null);
 
         var result = async
@@ -320,17 +315,17 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal(1, t.ServiceType);
+                Assert.Equal(1, t!.ServiceType);
                 Assert.Equal("1", t.ApartmentNo);
             });
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases
             .AsNoTracking()
             .OrderBy(e => e.Id)
@@ -346,21 +341,18 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal("1", t.MyApartmentNo);
+                Assert.Equal("1", t!.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            Assert.Null);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateDbContext();
         var query = context.RotRutCases
             .AsNoTracking()
             .OrderBy(e => e.Id)
@@ -376,22 +368,19 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             result,
             t =>
             {
-                Assert.Equal("1", t.MyApartmentNo);
+                Assert.Equal("1", t!.MyApartmentNo);
                 Assert.Equal(1, t.MyServiceType);
             },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            Assert.Null);
     }
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<Context28247>(seed: c => c.SeedAsync());
+        var contextFactory = await InitializeNonSharedTest<Context28247>(seed: c => c.SeedAsync());
 
-        using var context = contextFactory.CreateContext();
-        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot.ApartmentNo);
+        using var context = contextFactory.CreateDbContext();
+        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot!.ApartmentNo);
 
         var result = async
             ? await query.ToListAsync()
@@ -399,20 +388,14 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         Assert.Collection(
             result,
-            t =>
-            {
-                Assert.Equal("1", t);
-            },
-            t =>
-            {
-                Assert.Null(t);
-            });
+            t => Assert.Equal("1", t),
+            Assert.Null);
     }
 
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context28247(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<RotRutCase> RotRutCases { get; set; }
+        public DbSet<RotRutCase> RotRutCases { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RotRutCase>(b =>
@@ -447,21 +430,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class RotRutCase
         {
             public int Id { get; set; }
-            public string Buyer { get; set; }
-            public Rot Rot { get; set; }
-            public Rut Rut { get; set; }
+            public string Buyer { get; set; } = null!;
+            public Rot? Rot { get; set; }
+            public Rut? Rut { get; set; }
         }
 
         public class Rot
         {
             public int? ServiceType { get; set; }
-            public string ApartmentNo { get; set; }
+            public string? ApartmentNo { get; set; }
         }
 
         public class RotDto
         {
             public int? MyServiceType { get; set; }
-            public string MyApartmentNo { get; set; }
+            public string? MyApartmentNo { get; set; }
         }
 
         public class Rut
@@ -474,11 +457,11 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 30358
 
-    [ConditionalTheory, MemberData(nameof(IsAsyncData))]
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(bool async)
     {
-        var contextFactory = await InitializeAsync<Context30358>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context30358>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
 
         var query = from monarch in context.Monarchs
                     join magus in context.Magi.Where(x => x.Name.Contains("Bayaz")) on monarch.RulerOf equals magus.Affiliation
@@ -494,8 +477,8 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
     // Protected so that it can be used by inheriting tests, and so that things like unused setters are not removed.
     protected class Context30358(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Monarch> Monarchs { get; set; }
-        public DbSet<Magus> Magi { get; set; }
+        public DbSet<Monarch> Monarchs { get; set; } = null!;
+        public DbSet<Magus> Magi { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Magus>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
@@ -505,13 +488,15 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
             Add(
                 new Monarch
                 {
-                    Name = "His August Majesty Guslav the Fifth", RulerOf = "The Union",
+                    Name = "His August Majesty Guslav the Fifth",
+                    RulerOf = "The Union",
                 });
 
             Add(
                 new Monarch
                 {
-                    Name = "Emperor Uthman-ul-Dosht", RulerOf = "The Gurkish Empire",
+                    Name = "Emperor Uthman-ul-Dosht",
+                    RulerOf = "The Gurkish Empire",
                 });
 
             Add(
@@ -536,21 +521,21 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
         public class Monarch
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string RulerOf { get; set; }
+            public string Name { get; set; } = null!;
+            public string RulerOf { get; set; } = null!;
         }
 
         public class Magus
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Affiliation { get; set; }
-            public MagicTool ToolUsed { get; set; }
+            public string Name { get; set; } = null!;
+            public string Affiliation { get; set; } = null!;
+            public MagicTool ToolUsed { get; set; } = null!;
         }
 
         public class MagicTool
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
         }
     }
 
@@ -558,11 +543,11 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #region 31107
 
-    [ConditionalFact]
+    [Fact]
     public async Task Can_have_required_owned_type_on_derived_type()
     {
-        var contextFactory = await InitializeAsync<Context31107>(seed: c => c.SeedAsync());
-        using var context = contextFactory.CreateContext();
+        var contextFactory = await InitializeNonSharedTest<Context31107>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateDbContext();
         context.Set<Context31107.BaseEntity>().ToList();
     }
 
@@ -605,7 +590,7 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
         public sealed class Child1Entity : BaseEntity
         {
-            public ChildData Data { get; set; }
+            public ChildData Data { get; set; } = null!;
         }
 
         public sealed class Child2Entity : BaseEntity;
@@ -613,8 +598,80 @@ public abstract class OwnedEntityQueryRelationalTestBase(NonSharedFixture fixtur
 
     #endregion
 
-    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(c => c
+    #region 38223
+
+    [Fact]
+    public virtual async Task Inconsistent_owned_entity_data_logs_warning_and_does_not_cause_identity_conflict()
+    {
+        var contextFactory = await InitializeNonSharedTest<Context38223>(
+            shouldLogCategory: c => c == DbLoggerCategory.Query.Name,
+            onConfiguring: b => b.ConfigureWarnings(c => c.Log(CoreEventId.InconsistentOwnedDataWarning)),
+            seed: async c =>
+            {
+                // Insert a valid entity via EF Core, then corrupt Outer's required property to NULL to
+                // create inconsistent data: Inner appears present but Outer's required property is null.
+                var rootEntity = new Context38223.RootEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Outer = new Context38223.Outer { RequiredProperty = 1, Inner = new Context38223.Inner { InnerProperty = 42 } }
+                };
+                c.Add(rootEntity);
+                await c.SaveChangesAsync();
+
+                await c.Database.ExecuteSqlRawAsync(
+                    "UPDATE RootEntity SET Outer_RequiredProperty = NULL WHERE Id = {0}", rootEntity.Id);
+            });
+
+        using var context = contextFactory.CreateDbContext();
+
+        ListLoggerFactory.Clear();
+
+        var root = await context.Set<Context38223.RootEntity>().SingleAsync();
+
+        Assert.NotNull(root);
+        Assert.Null(root.Outer);
+
+        Assert.Contains(
+            ListLoggerFactory.Log,
+            l => l.Id == CoreEventId.InconsistentOwnedDataWarning && l.Level == LogLevel.Warning);
+
+        // Replacing the owned entity should not throw an identity conflict exception
+        root.Outer = new Context38223.Outer { RequiredProperty = 1, Inner = new Context38223.Inner { InnerProperty = 2 } };
+
+        await context.SaveChangesAsync();
+    }
+
+    protected class Context38223(DbContextOptions options) : DbContext(options)
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<RootEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.OwnsOne(e => e.Outer, outer => outer.OwnsOne(o => o.Inner));
+            });
+
+        public class RootEntity
+        {
+            public Guid Id { get; set; }
+            public Outer? Outer { get; set; }
+        }
+
+        public class Outer
+        {
+            public required int RequiredProperty { get; set; }
+            public required Inner Inner { get; set; }
+        }
+
+        public class Inner
+        {
+            public required int InnerProperty { get; set; }
+        }
+    }
+
+    #endregion
+
+    protected override DbContextOptionsBuilder AddNonSharedOptions(DbContextOptionsBuilder builder)
+        => base.AddNonSharedOptions(builder).ConfigureWarnings(c => c
             .Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
             .Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning));
 }

@@ -33,6 +33,15 @@ public static class TransparentIdentifierFactory
     public static Type Create(Type outerType, Type innerType)
         => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
 
+    /// <summary>
+    ///     Determines whether the given type is a transparent identifier type created by <see cref="Create" />.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns><see langword="true" /> if the type is a transparent identifier type; otherwise, <see langword="false" />.</returns>
+    public static bool IsTransparentIdentifierType(Type type)
+        => type is { IsValueType: true, IsGenericType: true }
+            && type.GetGenericTypeDefinition() == typeof(TransparentIdentifier<,>);
+
     private readonly struct TransparentIdentifier<TOuter, TInner>(TOuter outer, TInner inner)
     {
         /// <summary>

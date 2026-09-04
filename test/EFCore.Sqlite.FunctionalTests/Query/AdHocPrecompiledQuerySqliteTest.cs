@@ -9,7 +9,7 @@ public class AdHocPrecompiledQuerySqliteTest(NonSharedFixture fixture, ITestOutp
     protected override bool AlwaysPrintGeneratedSources
         => false;
 
-    protected override ITestStoreFactory TestStoreFactory
+    protected override ITestStoreFactory NonSharedTestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
     protected override PrecompiledQueryTestHelpers PrecompiledQueryTestHelpers

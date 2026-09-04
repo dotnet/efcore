@@ -35,6 +35,7 @@ public sealed record DbContextDependencies : IDbContextDependencies
         IChangeDetector changeDetector,
         IDbSetSource setSource,
         IEntityFinderSource entityFinderSource,
+        IManyToManyLoaderFactory manyToManyLoaderFactory,
         IEntityGraphAttacher entityGraphAttacher,
         IAsyncQueryProvider queryProvider,
         IStateManager stateManager,
@@ -51,6 +52,7 @@ public sealed record DbContextDependencies : IDbContextDependencies
         UpdateLogger = updateLogger;
         InfrastructureLogger = infrastructureLogger;
         EntityFinderFactory = new EntityFinderFactory(entityFinderSource, stateManager, setSource, currentContext.Context);
+        ManyToManyLoaderFactory = manyToManyLoaderFactory;
     }
 
     /// <summary>
@@ -68,6 +70,14 @@ public sealed record DbContextDependencies : IDbContextDependencies
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public IEntityFinderFactory EntityFinderFactory { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public IManyToManyLoaderFactory ManyToManyLoaderFactory { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

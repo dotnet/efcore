@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions;
@@ -14,6 +11,18 @@ internal static class ExpressionExtensions
 {
     public static bool IsNullConstantExpression(this Expression expression)
         => RemoveConvert(expression) is ConstantExpression { Value: null };
+
+    public static bool TryGetLambdaExpression(this Expression expression, [NotNullWhen(true)] out LambdaExpression? lambdaExpression)
+    {
+        lambdaExpression = expression switch
+        {
+            UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression lambda } => lambda,
+            LambdaExpression lambda => lambda,
+            _ => null
+        };
+
+        return lambdaExpression is not null;
+    }
 
     public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
         => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
@@ -25,9 +34,9 @@ internal static class ExpressionExtensions
     {
         convertedType = null;
         while (expression is UnaryExpression
-               {
-                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-               } unaryExpression)
+            {
+                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+            } unaryExpression)
         {
             expression = unaryExpression.Operand;
             if (unaryExpression.Type != typeof(object) // Ignore object conversion

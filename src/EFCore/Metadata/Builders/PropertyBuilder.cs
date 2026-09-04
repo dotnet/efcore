@@ -41,7 +41,20 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance
         => Builder;
 
-    private InternalPropertyBuilder Builder { get; }
+    private InternalPropertyBuilder Builder
+    {
+        get
+        {
+            if (!field.Metadata.IsInModel
+                && field.Metadata.DeclaringType.FindProperty(field.Metadata.Name) is { } property)
+            {
+                // The property may have been recreated, so re-resolve the current builder to keep chained calls working.
+                field = property.Builder;
+            }
+
+            return field;
+        }
+    }
 
     /// <summary>
     ///     The property being configured.
@@ -465,7 +478,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>()
+    TConversion>()
         => HasConversion(typeof(TConversion));
 
     /// <summary>
@@ -508,7 +521,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion>(
+    TConversion>(
         ValueComparer? valueComparer)
         => HasConversion(typeof(TConversion), valueComparer);
 
@@ -607,9 +620,9 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer>()
+    TComparer>()
         where TComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer));
 
@@ -623,11 +636,11 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasConversion<
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TConversion,
+    TConversion,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TComparer,
+    TComparer,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        TProviderComparer>()
+    TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => HasConversion(typeof(TConversion), typeof(TComparer), typeof(TProviderComparer));

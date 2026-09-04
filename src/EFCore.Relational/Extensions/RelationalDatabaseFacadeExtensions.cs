@@ -75,7 +75,7 @@ public static class RelationalDatabaseFacadeExtensions
         "Migrations operations are not supported with NativeAOT"
         + " Use a migration bundle or an alternate way of executing migration operations.")]
     public static IEnumerable<string> GetPendingMigrations(this DatabaseFacade databaseFacade)
-        => GetMigrations(databaseFacade).Except(GetAppliedMigrations(databaseFacade));
+        => databaseFacade.GetMigrations().Except(databaseFacade.GetAppliedMigrations());
 
     /// <summary>
     ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
@@ -93,8 +93,8 @@ public static class RelationalDatabaseFacadeExtensions
     public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
         this DatabaseFacade databaseFacade,
         CancellationToken cancellationToken = default)
-        => GetMigrations(databaseFacade).Except(
-            await GetAppliedMigrationsAsync(databaseFacade, cancellationToken).ConfigureAwait(false));
+        => databaseFacade.GetMigrations().Except(
+            await databaseFacade.GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false));
 
     /// <summary>
     ///     Applies any pending migrations for the context to the database. Will create the database
@@ -234,7 +234,7 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         string sql,
         params object?[] parameters)
-        => ExecuteSqlRaw(databaseFacade, sql, (IEnumerable<object?>)parameters);
+        => databaseFacade.ExecuteSqlRaw(sql, (IEnumerable<object?>)parameters);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -263,10 +263,11 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
     /// <returns>The number of rows affected.</returns>
+    [Obsolete("Use ExecuteSql() instead. This method is obsolete and will be removed in a future release.")]
     public static int ExecuteSqlInterpolated(
         this DatabaseFacade databaseFacade,
         FormattableString sql)
-        => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments());
+        => databaseFacade.ExecuteSqlRaw(sql.Format, sql.GetArguments());
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -298,7 +299,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static int ExecuteSql(
         this DatabaseFacade databaseFacade,
         FormattableString sql)
-        => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments());
+        => databaseFacade.ExecuteSqlRaw(sql.Format, sql.GetArguments());
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -403,7 +404,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static IQueryable<TResult> SqlQueryRaw<TResult>(
         this DatabaseFacade databaseFacade,
         [NotParameterized] string sql,
-        params object[] parameters)
+        params object?[] parameters)
     {
         Check.NotNull(sql);
         Check.NotNull(parameters);
@@ -452,7 +453,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static IQueryable<TResult> SqlQuery<TResult>(
         this DatabaseFacade databaseFacade,
         [NotParameterized] FormattableString sql)
-        => SqlQueryRaw<TResult>(databaseFacade, sql.Format, sql.GetArguments()!);
+        => databaseFacade.SqlQueryRaw<TResult>(sql.Format, sql.GetArguments()!);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -485,11 +486,12 @@ public static class RelationalDatabaseFacadeExtensions
     ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [Obsolete("Use ExecuteSqlAsync() instead. This method is obsolete and will be removed in a future release.")]
     public static Task<int> ExecuteSqlInterpolatedAsync(
         this DatabaseFacade databaseFacade,
         FormattableString sql,
         CancellationToken cancellationToken = default)
-        => ExecuteSqlRawAsync(databaseFacade, sql.Format, sql.GetArguments()!, cancellationToken);
+        => databaseFacade.ExecuteSqlRawAsync(sql.Format, sql.GetArguments()!, cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -526,7 +528,7 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         FormattableString sql,
         CancellationToken cancellationToken = default)
-        => ExecuteSqlRawAsync(databaseFacade, sql.Format, sql.GetArguments()!, cancellationToken);
+        => databaseFacade.ExecuteSqlRawAsync(sql.Format, sql.GetArguments()!, cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -561,7 +563,7 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         string sql,
         CancellationToken cancellationToken = default)
-        => ExecuteSqlRawAsync(databaseFacade, sql, [], cancellationToken);
+        => databaseFacade.ExecuteSqlRawAsync(sql, parameters: [], cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -601,8 +603,8 @@ public static class RelationalDatabaseFacadeExtensions
     public static Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,
         string sql,
-        params object[] parameters)
-        => ExecuteSqlRawAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
+        params object?[] parameters)
+        => databaseFacade.ExecuteSqlRawAsync(sql, (IEnumerable<object>)parameters);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -644,7 +646,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static async Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,
         string sql,
-        IEnumerable<object> parameters,
+        IEnumerable<object?> parameters,
         CancellationToken cancellationToken = default)
     {
         Check.NotNull(sql);
@@ -868,7 +870,7 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         DbTransaction? transaction,
         Guid transactionId)
-        => GetTransactionManager(databaseFacade) is IRelationalTransactionManager relationalTransactionManager
+        => databaseFacade.GetTransactionManager() is IRelationalTransactionManager relationalTransactionManager
             ? relationalTransactionManager.UseTransaction(transaction, transactionId)
             : throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
 
@@ -906,7 +908,7 @@ public static class RelationalDatabaseFacadeExtensions
         DbTransaction? transaction,
         Guid transactionId,
         CancellationToken cancellationToken = default)
-        => GetTransactionManager(databaseFacade) is IRelationalTransactionManager relationalTransactionManager
+        => databaseFacade.GetTransactionManager() is IRelationalTransactionManager relationalTransactionManager
             ? relationalTransactionManager.UseTransactionAsync(transaction, transactionId, cancellationToken)
             : throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
 
@@ -956,7 +958,7 @@ public static class RelationalDatabaseFacadeExtensions
     {
         if (timeout == Timeout.InfiniteTimeSpan)
         {
-            SetCommandTimeout(databaseFacade, 0);
+            databaseFacade.SetCommandTimeout(0);
             return;
         }
 
@@ -970,7 +972,7 @@ public static class RelationalDatabaseFacadeExtensions
             throw new ArgumentException(RelationalStrings.TimeoutTooBig(timeout.TotalSeconds));
         }
 
-        SetCommandTimeout(databaseFacade, Convert.ToInt32(timeout.TotalSeconds));
+        databaseFacade.SetCommandTimeout(Convert.ToInt32(timeout.TotalSeconds));
     }
 
     /// <summary>
