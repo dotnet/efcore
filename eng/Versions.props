@@ -5,7 +5,7 @@
   <PropertyGroup Label="Version settings">
     <VersionPrefix>11.0.0</VersionPrefix>
     <PreReleaseVersionLabel>rc</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>2</PreReleaseVersionIteration>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- Allowed values: '', 'prerelease', 'release'. Set to 'release' when stabilizing. -->
     <DotNetFinalVersionKind></DotNetFinalVersionKind>
 
@@ -64,7 +64,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Tooling dependencies">
-    <ICSharpCodeDecompilerVersion>10.1.1.8388</ICSharpCodeDecompilerVersion>
+    <ICSharpCodeDecompilerVersion>11.0.0.9375</ICSharpCodeDecompilerVersion>
     <SystemCommandLineVersion>2.0.11</SystemCommandLineVersion>
   </PropertyGroup>
 

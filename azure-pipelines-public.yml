@@ -1,3 +1,8 @@
+parameters:
+  - name: jobs
+    type: string
+    default: '[]'
+
 variables:
   - name: _BuildConfig
     value: Release
@@ -52,6 +57,7 @@ stages:
         helixRepo: dotnet/efcore
         jobs:
           - job: Windows
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Windows"')) }}
             enablePublishTestResults: true
             timeoutInMinutes: 90
             pool:
@@ -113,6 +119,7 @@ stages:
 
           - job: Windows_SqlServer
             displayName: 'Windows SQL Server'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Windows_SqlServer"')) }}
             enablePublishTestResults: true
             timeoutInMinutes: 120
             pool:
@@ -156,6 +163,7 @@ stages:
                   parallel: true
 
           - job: macOS
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"macOS"')) }}
             enablePublishTestResults: true
             pool:
               vmImage: macOS-15
@@ -198,6 +206,7 @@ stages:
                   parallel: true
 
           - job: Linux
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Linux"')) }}
             timeoutInMinutes: 120
             enablePublishTestResults: true
             pool:
@@ -241,6 +250,7 @@ stages:
 
           - job: Helix_Windows
             displayName: 'Helix Windows'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -271,6 +281,7 @@ stages:
 
           - job: Helix_Windows_SqlServer
             displayName: 'Helix Windows SQL Server'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_SqlServer"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -301,6 +312,7 @@ stages:
 
           - job: Helix_Windows_Arm64
             displayName: 'Helix Windows ARM64'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_Arm64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -331,6 +343,7 @@ stages:
 
           - job: Helix_Windows_Cosmos
             displayName: 'Helix Windows Cosmos'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Windows_Cosmos"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -361,6 +374,7 @@ stages:
 
           - job: Helix_macOS_x64
             displayName: 'Helix macOS x64'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_macOS_x64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -391,6 +405,7 @@ stages:
 
           - job: Helix_macOS_ARM64
             displayName: 'Helix macOS ARM64'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_macOS_ARM64"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -421,6 +436,7 @@ stages:
 
           - job: Helix_Ubuntu_SqlServer
             displayName: 'Helix Ubuntu SQL Server'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu_SqlServer"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -452,6 +468,7 @@ stages:
 
           - job: Helix_Ubuntu_Cosmos
             displayName: 'Helix Ubuntu Cosmos'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu_Cosmos"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -482,6 +499,7 @@ stages:
 
           - job: Helix_Ubuntu
             displayName: 'Helix Ubuntu'
+            condition: ${{ or(eq(parameters.jobs, '[]'), contains(parameters.jobs, '"Helix_Ubuntu"')) }}
             timeoutInMinutes: 180
             pool:
               name: $(DncEngPublicBuildPool)
@@ -512,10 +530,11 @@ stages:
 - stage: validate
   displayName: Validate
   dependsOn: build
-  condition: always()
+  condition: and(always(), eq('${{ parameters.jobs }}', '[]'))
   jobs:
   - job: Validate_Job_Results
     displayName: Job Results
+    timeoutInMinutes: 200
     pool:
       name: $(DncEngPublicBuildPool)
       demands: ImageOverride -equals 1es-windows-2022-open
@@ -535,46 +554,23 @@ stages:
       HelixUbuntuCosmosResult: $[ stageDependencies.build.Helix_Ubuntu_Cosmos.result ]
     steps:
       - pwsh: |
-          $groupResults = @{
-              Windows = @("$(WindowsResult)", "$(HelixWindowsResult)")
-              Linux = @("$(LinuxResult)", "$(HelixUbuntuResult)")
-              MacOS = @("$(MacOsResult)", "$(HelixMacOsX64Result)")
-              Arm64 = @("$(HelixWindowsArm64Result)", "$(HelixMacOsArm64Result)")
-              Cosmos = @("$(HelixWindowsCosmosResult)", "$(HelixUbuntuCosmosResult)")
-              SqlServer = @("$(WindowsSqlServerResult)", "$(HelixWindowsSqlServerResult)", "$(HelixUbuntuSqlServerResult)")
+          $jobResults = @{
+            Windows = "$(WindowsResult)"
+            Helix_Windows = "$(HelixWindowsResult)"
+            Windows_SqlServer = "$(WindowsSqlServerResult)"
+            Helix_Windows_SqlServer = "$(HelixWindowsSqlServerResult)"
+            Helix_Windows_Cosmos = "$(HelixWindowsCosmosResult)"
+            Linux = "$(LinuxResult)"
+            Helix_Ubuntu = "$(HelixUbuntuResult)"
+            Helix_Ubuntu_SqlServer = "$(HelixUbuntuSqlServerResult)"
+            macOS = "$(MacOsResult)"
+            Helix_macOS_x64 = "$(HelixMacOsX64Result)"
+            Helix_macOS_ARM64 = "$(HelixMacOsArm64Result)"
+            Helix_Windows_Arm64 = "$(HelixWindowsArm64Result)"
+            Helix_Ubuntu_Cosmos = "$(HelixUbuntuCosmosResult)"
           }
 
-          $failedGroups = @()
-
-          foreach ($groupName in $groupResults.Keys)
-          {
-              $results = $groupResults[$groupName]
-              Write-Host "$groupName results: $($results -join ', ')"
-
-              # Ignore jobs that were skipped (e.g. condition-gated)
-              $ran = $results | Where-Object { $_ -ne 'Skipped' }
-              if (-not $ran)
-              {
-                  Write-Host "  -> all jobs skipped, treating group as successful"
-                  continue
-              }
-
-              # Only 'Succeeded' counts as success. 'SucceededWithIssues' is treated as failure
-              # because the jobs run with continueOnError: true, which maps task failures to warnings.
-              $hasSuccess = $ran | Where-Object { $_ -eq 'Succeeded' }
-              if ($hasSuccess)
-              {
-                  continue
-              }
-
-              $failedGroups += $groupName
-          }
-
-          if ($failedGroups.Count -gt 0)
-          {
-              Write-Error "No jobs succeeded for group(s): $($failedGroups -join ', ')."
-              exit 1
-          }
-
-          Write-Host 'Group validation passed.'
+          & eng/aggregate-azdo-tests.ps1 -JobResults $jobResults
         displayName: Evaluate grouped job outcomes
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
