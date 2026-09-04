@@ -156,6 +156,52 @@ ALTER TABLE [CustomersHistory] ADD [Number] int NOT NULL DEFAULT 0;
     }
 
     [Fact]
+    public virtual void AlterColumnOperation_default_constraint_name_not_propagated_to_history_table()
+    {
+        Generate(
+            modelBuilder => modelBuilder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<int>("Number");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        "Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("CustomersHistory");
+                            ttb.HasPeriodStart("PeriodStart");
+                            ttb.HasPeriodEnd("PeriodEnd");
+                        }));
+                }),
+            new AlterColumnOperation
+            {
+                Table = "Customers",
+                Name = "Number",
+                ClrType = typeof(int),
+                ColumnType = "int",
+                IsNullable = false,
+                OldColumn = new AddColumnOperation
+                {
+                    Table = "Customers",
+                    Name = "Number",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
+                    IsNullable = false,
+                    DefaultValue = 1,
+                    [RelationalAnnotationNames.DefaultConstraintName] = "DF_Customers_Number"
+                },
+                [SqlServerAnnotationNames.IsTemporal] = true,
+                [SqlServerAnnotationNames.TemporalHistoryTableName] = "CustomersHistory",
+                [SqlServerAnnotationNames.TemporalPeriodStartColumnName] = "PeriodStart",
+                [SqlServerAnnotationNames.TemporalPeriodEndColumnName] = "PeriodEnd"
+            });
+
+        Assert.DoesNotContain("[CustomersHistory] DROP CONSTRAINT [DF_Customers_Number]", Sql);
+    }
+
+    [Fact]
     public virtual void AddColumnOperation_identity_legacy_not_propagated_to_history_table()
     {
         var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.SqlServer");
