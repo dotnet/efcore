@@ -38,13 +38,13 @@ public class AnnotatableTest
 
         annotatable.AddAnnotations([new ConventionAnnotation("Foo", "Bar", ConfigurationSource.Convention)]);
 
-        Assert.Equal(typeof(Annotation), annotatable.FindAnnotation("Foo").GetType());
+        Assert.Equal(typeof(Annotation), annotatable.FindAnnotation("Foo")!.GetType());
 
         var conventionAnnotatable = new Model();
 
         conventionAnnotatable.AddAnnotations([new Annotation("Foo", "Bar")]);
 
-        Assert.Equal(typeof(ConventionAnnotation), conventionAnnotatable.FindAnnotation("Foo").GetType());
+        Assert.Equal(typeof(ConventionAnnotation), conventionAnnotatable.FindAnnotation("Foo")!.GetType());
     }
 
     [Fact]

@@ -12,7 +12,7 @@ public class IEntityTypeConfigurationTest
 
         builder.ApplyConfiguration(new CustomerConfiguration());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
         Assert.NotNull(entityType);
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
     }
@@ -25,7 +25,7 @@ public class IEntityTypeConfigurationTest
         builder.Entity<Customer>();
         builder.ApplyConfiguration(new CustomerConfiguration());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
     }
 
@@ -37,8 +37,8 @@ public class IEntityTypeConfigurationTest
         builder.Entity<Customer>().Property(c => c.Name).HasMaxLength(500);
         builder.ApplyConfiguration(new CustomerConfiguration());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
-        Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
+        Assert.Equal(200, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
     [Fact]
@@ -49,8 +49,8 @@ public class IEntityTypeConfigurationTest
         builder.ApplyConfiguration(new CustomerConfiguration());
         builder.Entity<Customer>().Property(c => c.Name).HasMaxLength(500);
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
-        Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
+        Assert.Equal(500, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
     [Fact]
@@ -61,9 +61,9 @@ public class IEntityTypeConfigurationTest
         builder.ApplyConfiguration(new CustomerConfiguration());
         builder.ApplyConfiguration(new CustomerConfiguration2());
 
-        var entityType = builder.Model.FindEntityType(typeof(Customer));
+        var entityType = builder.Model.FindEntityType(typeof(Customer))!;
         Assert.Equal(nameof(Customer.AlternateKey), entityType.GetKeys().Single().Properties.Single().Name);
-        Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
+        Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name))!.GetMaxLength());
     }
 
     private class CustomerConfiguration : IEntityTypeConfiguration<Customer>
@@ -88,15 +88,15 @@ public class IEntityTypeConfigurationTest
 
         public int? CustomerId { get; set; }
         public Guid AnotherCustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = null!;
     }
 
     protected class Customer
     {
         public int Id { get; set; }
         public Guid AlternateKey { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public IEnumerable<Order> Orders { get; set; }
+        public IEnumerable<Order> Orders { get; set; } = [];
     }
 }

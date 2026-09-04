@@ -15,14 +15,14 @@ public class ExpressionEqualityComparerTest
     {
         var expressionComparer = ExpressionEqualityComparer.Instance;
 
-        var addMethod = typeof(List<string>).GetTypeInfo().GetDeclaredMethod("Add");
+        var addMethod = typeof(List<string>).GetTypeInfo().GetDeclaredMethod("Add")!;
 
         var bindingMessages = ListBind(
-            typeof(Node).GetProperty("Messages"),
+            typeof(Node).GetProperty("Messages")!,
             ElementInit(addMethod, Constant("Constant1")));
 
         var bindingDescriptions = ListBind(
-            typeof(Node).GetProperty("Descriptions"),
+            typeof(Node).GetProperty("Descriptions")!,
             ElementInit(addMethod, Constant("Constant2")));
 
         Expression e1 = MemberInit(
@@ -126,10 +126,10 @@ public class ExpressionEqualityComparerTest
     private class Node
     {
         [UsedImplicitly]
-        public List<string> Messages { set; get; }
+        public List<string> Messages { set; get; } = null!;
 
         [UsedImplicitly]
-        public List<string> Descriptions { set; get; }
+        public List<string> Descriptions { set; get; } = null!;
     }
 
     private class Indexable

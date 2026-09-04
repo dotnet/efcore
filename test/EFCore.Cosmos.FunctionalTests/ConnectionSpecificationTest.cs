@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(typeof(CosmosTestEnvironment), nameof(CosmosTestEnvironment.DoesNotUseTokenCredential))]
 public class ConnectionSpecificationTest
 {
@@ -29,7 +27,8 @@ public class ConnectionSpecificationTest
             => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
                 .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs
+            => Set<Blog>();
     }
 
     [Fact]

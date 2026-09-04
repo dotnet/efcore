@@ -5,8 +5,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public class JsonUpdateSqliteTest : JsonUpdateTestBase<JsonUpdateSqliteFixture>
 {
     public JsonUpdateSqliteTest(JsonUpdateSqliteFixture fixture)

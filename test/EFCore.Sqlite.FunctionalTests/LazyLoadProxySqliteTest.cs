@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture fixture)
     : LazyLoadProxyRelationalTestBase<LazyLoadProxySqliteTest.LoadSqliteFixture>(fixture)
 {
@@ -14,17 +12,17 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
         using var context = Fixture.CreateContext();
 
         var principal = context.Set<Parent>().Single();
-        Assert.False(context.Entry(principal).Collection(e => e.Children).IsLoaded);
+        Assert.False(context.Entry(principal).Collection(e => e.Children!).IsLoaded);
 
         Fixture.Interceptor.Throw = true;
 
         Assert.Equal("Bang!", Assert.Throws<Exception>(() => principal.Children).Message);
-        Assert.False(context.Entry(principal).Collection(e => e.Children).IsLoaded);
+        Assert.False(context.Entry(principal).Collection(e => e.Children!).IsLoaded);
 
         Fixture.Interceptor.Throw = false;
 
-        Assert.NotEmpty(principal.Children);
-        Assert.True(context.Entry(principal).Collection(e => e.Children).IsLoaded);
+        Assert.NotEmpty(principal.Children!);
+        Assert.True(context.Entry(principal).Collection(e => e.Children!).IsLoaded);
     }
 
     [Fact]
@@ -52,17 +50,17 @@ public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture f
         using var context = Fixture.CreateContext();
 
         var principal = context.Set<Parent>().Single();
-        Assert.False(context.Entry(principal).Collection(e => e.ManyChildren).IsLoaded);
+        Assert.False(context.Entry(principal).Collection(e => e.ManyChildren!).IsLoaded);
 
         Fixture.Interceptor.Throw = true;
 
         Assert.Equal("Bang!", Assert.Throws<Exception>(() => principal.ManyChildren).Message);
-        Assert.False(context.Entry(principal).Collection(e => e.ManyChildren).IsLoaded);
+        Assert.False(context.Entry(principal).Collection(e => e.ManyChildren!).IsLoaded);
 
         Fixture.Interceptor.Throw = false;
 
-        Assert.NotEmpty(principal.ManyChildren);
-        Assert.True(context.Entry(principal).Collection(e => e.ManyChildren).IsLoaded);
+        Assert.NotEmpty(principal.ManyChildren!);
+        Assert.True(context.Entry(principal).Collection(e => e.ManyChildren!).IsLoaded);
     }
 
     [Fact]

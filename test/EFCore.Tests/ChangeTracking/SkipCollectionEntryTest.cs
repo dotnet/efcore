@@ -100,15 +100,15 @@ public class SkipCollectionEntryTest
         Assert.Same(chunky, cherry.Chunkies.Single());
         Assert.Same(cherry, chunky.Cherries.Single());
         Assert.Same(chunky, collection.CurrentValue.Cast<Chunky>().Single());
-        Assert.Same(cherry, inverseCollection.CurrentValue.Cast<Cherry>().Single());
-        Assert.Same(collection.FindEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
+        Assert.Same(cherry, inverseCollection.CurrentValue!.Cast<Cherry>().Single());
+        Assert.Same(collection.FindEntry(chunky)!.GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
 
         collection.CurrentValue = null;
 
         Assert.Empty(chunky.Cherries);
         Assert.Null(cherry.Chunkies);
         Assert.Null(collection.CurrentValue);
-        Assert.Empty(inverseCollection.CurrentValue);
+        Assert.Empty(inverseCollection.CurrentValue!);
         Assert.Null(collection.FindEntry(chunky));
     }
 
@@ -131,15 +131,15 @@ public class SkipCollectionEntryTest
         Assert.Same(chunky, cherry.Chunkies.Single());
         Assert.Same(cherry, chunky.Cherries.Single());
         Assert.Same(chunky, collection.CurrentValue.Single());
-        Assert.Same(cherry, inverseCollection.CurrentValue.Single());
-        Assert.Same(collection.FindEntry(chunky).GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
+        Assert.Same(cherry, inverseCollection.CurrentValue!.Single());
+        Assert.Same(collection.FindEntry(chunky)!.GetInfrastructure(), context.Entry(chunky).GetInfrastructure());
 
         collection.CurrentValue = null;
 
         Assert.Empty(chunky.Cherries);
         Assert.Null(cherry.Chunkies);
         Assert.Null(collection.CurrentValue);
-        Assert.Empty(inverseCollection.CurrentValue);
+        Assert.Empty(inverseCollection.CurrentValue!);
         Assert.Null(collection.FindEntry(chunky));
     }
 
@@ -218,7 +218,7 @@ public class SkipCollectionEntryTest
         Assert.Same(chunky, cherry.Chunkies.Single());
         Assert.Same(cherry, chunky.Cherries.Single());
         Assert.Same(chunky, collection.CurrentValue.Cast<Chunky>().Single());
-        Assert.Same(cherry, inverseCollection.CurrentValue.Cast<Cherry>().Single());
+        Assert.Same(cherry, inverseCollection.CurrentValue!.Cast<Cherry>().Single());
 
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
@@ -228,7 +228,7 @@ public class SkipCollectionEntryTest
         Assert.Empty(chunky.Cherries);
         Assert.Null(cherry.Chunkies);
         Assert.Null(collection.CurrentValue);
-        Assert.Empty(inverseCollection.CurrentValue);
+        Assert.Empty(inverseCollection.CurrentValue!);
 
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
@@ -253,7 +253,7 @@ public class SkipCollectionEntryTest
         Assert.Same(chunky, cherry.Chunkies.Single());
         Assert.Same(cherry, chunky.Cherries.Single());
         Assert.Same(chunky, collection.CurrentValue.Single());
-        Assert.Same(cherry, inverseCollection.CurrentValue.Single());
+        Assert.Same(cherry, inverseCollection.CurrentValue!.Single());
 
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
@@ -263,7 +263,7 @@ public class SkipCollectionEntryTest
         Assert.Empty(chunky.Cherries);
         Assert.Null(cherry.Chunkies);
         Assert.Null(collection.CurrentValue);
-        Assert.Empty(inverseCollection.CurrentValue);
+        Assert.Empty(inverseCollection.CurrentValue!);
 
         Assert.Equal(EntityState.Added, context.Entry(cherry).State);
         Assert.Equal(EntityState.Added, context.Entry(chunky).State);
@@ -536,13 +536,13 @@ public class SkipCollectionEntryTest
     private class Chunky
     {
         public int Id { get; set; }
-        public ICollection<Cherry> Cherries { get; set; }
+        public ICollection<Cherry> Cherries { get; set; } = null!;
     }
 
     private class Cherry
     {
         public int Id { get; set; }
-        public ICollection<Chunky> Chunkies { get; set; }
+        public ICollection<Chunky> Chunkies { get; set; } = null!;
     }
 
     private class FreezerContext : DbContext
@@ -552,7 +552,7 @@ public class SkipCollectionEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream { get; set; }
+        public DbSet<Chunky> Icecream { get; set; } = null!;
     }
 
     private class ExplicitFreezerContext : FreezerContext

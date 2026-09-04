@@ -22,13 +22,14 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
-        => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings())
+        => new ExpectedQueryRewritingVisitor(
+                Fixture.GetShadowPropertyMappings().ToDictionary(
+                    entry => entry.Key,
+                    entry => (Func<object, object>)(value => entry.Value(value)!)))
             .Visit(expectedQueryExpression);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -42,10 +43,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Include_multiple_one_to_one_and_one_to_many(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Include(t => t.Gear.Weapons),
+            ss => ss.Set<CogTag>().Include(t => t.Gear!.Weapons),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<CogTag>(t => t.Gear),
+                new ExpectedInclude<CogTag>(t => t.Gear!),
                 new ExpectedInclude<Gear>(g => g.Weapons, "Gear"),
                 new ExpectedInclude<Officer>(o => o.Weapons, "Gear")));
 
@@ -55,7 +56,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task ToString_string_property_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.Name.ToString()));
+            ss => ss.Set<Weapon>().Select(w => w.Name!.ToString()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ToString_boolean_property_non_nullable(bool async)
@@ -97,27 +98,27 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task ToString_nullable_enum_contains(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString().Contains("Cart")).Select(g => g.Name));
+            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString()!.Contains("Cart")).Select(g => g.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner.Weapons)));
+        => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner!.Weapons)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_optional_and_one_to_one_required(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Include(t => t.Gear.Squad),
+            ss => ss.Set<CogTag>().Include(t => t.Gear!.Squad),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<CogTag>(t => t.Gear),
+                new ExpectedInclude<CogTag>(t => t.Gear!),
                 new ExpectedInclude<Gear>(g => g.Squad, "Gear"),
                 new ExpectedInclude<Officer>(o => o.Squad, "Gear")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_one_and_one_to_many(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
-            async, ss => ss.Set<CogTag>().Include(t => t.Gear.Squad.Members)));
+            async, ss => ss.Set<CogTag>().Include(t => t.Gear!.Squad.Members)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_circular(bool async)
@@ -156,8 +157,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
             async,
             ss => ss.Set<Gear>()
-                .Include(g => g.AssignedCity.BornGears).ThenInclude(g => g.Tag)
-                .Include(g => g.AssignedCity.StationedGears).ThenInclude(g => g.Tag)
+                .Include(g => g.AssignedCity!.BornGears).ThenInclude(g => g.Tag)
+                .Include(g => g.AssignedCity!.StationedGears).ThenInclude(g => g.Tag)
                 .Include(g => g.CityOfBirth.BornGears).ThenInclude(g => g.Tag)
                 .Include(g => g.CityOfBirth.StationedGears).ThenInclude(g => g.Tag)
                 .OrderBy(g => g.Nickname)));
@@ -188,9 +189,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from t in ss.Set<CogTag>().Include(o => o.Gear)
-                  where t.Gear.Nickname == "Marcus"
+                where t.Gear!.Nickname == "Marcus"
                   select t,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<CogTag>(t => t.Gear)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<CogTag>(t => t.Gear!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_reference1(bool async)
@@ -199,7 +200,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().Join(
                 ss.Set<CogTag>(),
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 (g, t) => g).Include(g => g.CityOfBirth),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
@@ -212,7 +213,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>(),
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, g) => g).Include(g => g.CityOfBirth),
             elementAsserter: (e, a) => AssertInclude(
@@ -227,7 +228,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().Join(
                 ss.Set<CogTag>(),
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 (g, t) => g).Include(g => g.Weapons),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
@@ -240,7 +241,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>(),
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, g) => g).Include(g => g.Weapons),
             elementAsserter: (e, a) => AssertInclude(
@@ -317,7 +318,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().Join(
                 ss.Set<CogTag>(),
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 (g, t) => g).Include(g => g.CityOfBirth.StationedGears),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
@@ -331,7 +332,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>().OfType<Officer>(),
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 o => new { SquadId = (int?)o.SquadId, o.Nickname },
                 (t, o) => o).Include(o => o.CityOfBirth),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.CityOfBirth)));
@@ -342,7 +343,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<CogTag>().Join(
                     ss.Set<Gear>().OfType<Officer>().OrderBy(ee => ee.SquadId),
-                    t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                    t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                     o => new { SquadId = (int?)o.SquadId, o.Nickname },
                     (t, o) => o).OrderBy(ee => ee.FullName).Include(o => o.Reports).OrderBy(oo => oo.HasSoulPatch)
                 .ThenByDescending(oo => oo.Nickname),
@@ -356,7 +357,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().OfType<Officer>().Join(
                 ss.Set<CogTag>(),
                 o => new { SquadId = (int?)o.SquadId, o.Nickname },
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 (o, t) => o).Include(g => g.Weapons),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Weapons)));
 
@@ -366,7 +367,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>().OfType<Officer>(),
-                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName! },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, o) => o).Include(o => o.Reports),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
@@ -377,9 +378,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Weapon>()
                 .Include(w => w.Owner)
-                .Where(w => w.Owner.Nickname != "Paduk")
-                .OrderBy(e => e.Owner.CityOfBirth.Name).ThenBy(e => e.Id),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Weapon>(w => w.Owner)),
+                .Where(w => w.Owner!.Nickname != "Paduk")
+                .OrderBy(e => e.Owner!.CityOfBirth.Name).ThenBy(e => e.Id),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Weapon>(w => w.Owner!)),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -553,7 +554,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Where(g
-                => (null == EF.Property<string>(g, "LeaderNickname") ? null : g.LeaderNickname.Length) == 5 == (bool?)true));
+                => (null == EF.Property<string>(g, "LeaderNickname") ? null : g.LeaderNickname!.Length) == 5 == (bool?)true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Null_propagation_optimization5(bool async)
@@ -656,7 +657,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Select_null_propagation_negative8(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Select(t => t.Gear.Squad != null ? t.Gear.AssignedCity.Name : null));
+            ss => ss.Set<CogTag>().Select(t => t.Gear!.Squad != null ? t.Gear.AssignedCity!.Name : null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_null_propagation_negative9(bool async)
@@ -680,8 +681,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from t in ss.Set<CogTag>()
-                  select EF.Property<City>(EF.Property<CogTag>(t.Gear, "Tag").Gear, "AssignedCity") != null
-                      ? EF.Property<string>(EF.Property<Gear>(t.Gear.Tag, "Gear").AssignedCity, "Name")
+                  select EF.Property<City>(EF.Property<CogTag>(t.Gear!, "Tag").Gear!, "AssignedCity") != null
+                      ? EF.Property<string>(EF.Property<Gear>(t.Gear!.Tag!, "Gear").AssignedCity!, "Name")
                       : null);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -751,7 +752,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => from g in ss.Set<Gear>()
                   orderby g.Nickname
-                  select new { Name = g.LeaderNickname } ?? new { Name = g.FullName },
+                  select new { Name = g.LeaderNickname! } ?? new { Name = g.FullName },
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -759,7 +760,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from g in ss.Set<Gear>()
-                  where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
+                  where (new { Name = g.LeaderNickname! } ?? new { Name = g.FullName }) != null
                   select g.Nickname);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -809,7 +810,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from t in ss.Set<CogTag>()
-                  where t.Gear.Nickname == "Marcus"
+                  where t.Gear!.Nickname == "Marcus"
                   select t);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -818,7 +819,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => from t1 in ss.Set<CogTag>()
                   from t2 in ss.Set<CogTag>()
-                  where t1.Gear.Nickname == t2.Gear.Nickname
+                  where t1.Gear!.Nickname == t2.Gear!.Nickname
                   select new { Tag1 = t1, Tag2 = t2 },
             elementSorter: e => (e.Tag1.Id, e.Tag2.Id),
             elementAsserter: (e, a) =>
@@ -833,7 +834,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => from t1 in ss.Set<CogTag>()
                   from t2 in ss.Set<CogTag>()
-                  where t1.Gear.Nickname == t2.Gear.Nickname
+                  where t1.Gear!.Nickname == t2.Gear!.Nickname
                   select new { Id1 = t1.Id, Id2 = t2.Id },
             elementSorter: e => (e.Id1, e.Id2));
 
@@ -841,7 +842,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Optional_Navigation_Null_Coalesce_To_Clr_Type(bool async)
         => AssertFirst(
             async,
-            ss => ss.Set<Weapon>().OrderBy(w => w.Id).Select(w => new Weapon { IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false }));
+            ss => ss.Set<Weapon>().OrderBy(w => w.Id).Select(w => new Weapon { IsAutomatic = (bool?)w.SynergyWith!.IsAutomatic ?? false }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_boolean(bool async)
@@ -853,7 +854,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Where_subquery_boolean_with_pushdown(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+            ss => ss.Set<Gear>().Where(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_distinct_firstordefault_boolean(bool async)
@@ -866,7 +867,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Where_subquery_distinct_firstordefault_boolean_with_pushdown(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_distinct_first_boolean(bool async)
@@ -881,7 +882,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch
-                && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic)
+                && g.Weapons.Where(w => w.Name!.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic)
                     .SingleOrDefault()),
             assertOrder: true);
 
@@ -890,7 +891,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch
-                && g.Weapons.Where(w => w.Name.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct()
+                && g.Weapons.Where(w => w.Name!.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct()
                     .SingleOrDefault()),
             assertOrder: true);
 
@@ -899,7 +900,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(g => g.Nickname).Where(g
-                => g.HasSoulPatch && g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic),
+                => g.HasSoulPatch && g.Weapons.Where(w => w.Name!.Contains("Lancer")).Distinct().SingleOrDefault()!.IsAutomatic),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -908,7 +909,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Gear>()
                 .OrderBy(g => g.Nickname)
-                .Where(g => !g.Weapons.Distinct().OrderBy(w => w.Id).LastOrDefault().IsAutomatic),
+                .Where(g => !g.Weapons.Distinct().OrderBy(w => w.Id).LastOrDefault()!.IsAutomatic),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -931,20 +932,20 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_union_firstordefault_boolean(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Union(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Union(g.Weapons).OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_join_firstordefault_boolean(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Where(g => g.HasSoulPatch
-                && g.Weapons.Join(g.Weapons, e => e.Id, e => e.Id, (e1, e2) => e1).OrderBy(w => w.Id).FirstOrDefault()
+                && g.Weapons.Join(g.Weapons, e => e.Id, e => e.Id, (e1, e2) => e1).OrderBy(w => w.Id).FirstOrDefault()!
                     .IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -955,13 +956,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 && (from o in g.Weapons
                     join i in g.Weapons on o.Id equals i.Id into grouping
                     from i in grouping.DefaultIfEmpty()
-                    select o).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+                    select o).OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_concat_firstordefault_boolean(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_with_count(bool async)
@@ -1012,7 +1013,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Select_subquery_distinct_firstordefault(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().Name));
+            ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault()!.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_Where_Navigation_Client(bool async)
@@ -1078,7 +1079,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<LocustHorde>()
-                .Where(g => (g.DeputyCommander != null ? g.DeputyCommander : g.Commander).ThreatLevel == 4)
+                .Where(g => (g.DeputyCommander != null ? g.DeputyCommander : g.Commander!).ThreatLevel == 4)
                 .Select(g => new { g.Name }),
             elementSorter: e => e.Name);
 
@@ -1087,9 +1088,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from ct in ss.Set<CogTag>()
-                  where ct.Gear.Nickname == "Marcus"
-                  where ct.Gear.CityOfBirthName != "Ephyra"
-                  select new { B = ct.Gear.CityOfBirthName },
+                  where ct.Gear!.Nickname == "Marcus"
+                  where ct.Gear!.CityOfBirthName != "Ephyra"
+                  select new { B = ct.Gear!.CityOfBirthName },
             elementSorter: e => e.B);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1097,9 +1098,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from ct in ss.Set<CogTag>()
-                  where ct.Gear.Nickname == "Marcus"
-                  where ct.Gear.CityOfBirthName != "Ephyra"
-                  select new { A = ct.Gear, B = ct.Gear.CityOfBirthName },
+                  where ct.Gear!.Nickname == "Marcus"
+                  where ct.Gear!.CityOfBirthName != "Ephyra"
+                  select new { A = ct.Gear!, B = ct.Gear!.CityOfBirthName },
             elementSorter: e => e.A.Nickname,
             elementAsserter: (e, a) =>
             {
@@ -1124,7 +1125,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from g in ss.Set<Gear>()
-                  join t in ss.Set<CogTag>() on g.FullName equals t.Gear.FullName
+                  join t in ss.Set<CogTag>() on g.FullName equals t.Gear!.FullName
                   select new { g.FullName, t.Note },
             elementSorter: e => e.FullName);
 
@@ -1133,7 +1134,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from g in ss.Set<Gear>()
-                  join t in ss.Set<CogTag>().OrderBy(tt => tt.Id) on g.FullName equals t.Gear.FullName
+                  join t in ss.Set<CogTag>().OrderBy(tt => tt.Id) on g.FullName equals t.Gear!.FullName
                   select new { g.FullName, t.Note },
             elementSorter: e => e.FullName);
 
@@ -1207,7 +1208,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Non_unicode_string_literals_in_contains_is_used_for_non_unicode_column(bool async)
     {
-        var cities = new List<string>
+        var cities = new List<string?>
         {
             "Unknown",
             "Jacinto's location",
@@ -1242,7 +1243,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from c in ss.Set<City>()
-                  where c.Location.Contains("Jacinto")
+                  where c.Location!.Contains("Jacinto")
                   select c);
 
     [Theory, MemberData(nameof(IsAsyncData))] // Issue #32325
@@ -1397,58 +1398,58 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Coalesce_operator_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(x => (bool?)x.Gear.HasSoulPatch ?? false));
+            ss => ss.Set<CogTag>().Where(x => (bool?)x.Gear!.HasSoulPatch ?? false));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_operator_in_predicate_with_other_conditions(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(x => x.Note != "K.I.A." && ((bool?)x.Gear.HasSoulPatch ?? false)));
+            ss => ss.Set<CogTag>().Where(x => x.Note != "K.I.A." && ((bool?)x.Gear!.HasSoulPatch ?? false)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_operator_in_projection_with_other_conditions(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<CogTag>().Select(x => x.Note != "K.I.A." && ((bool?)x.Gear.HasSoulPatch ?? false)));
+            ss => ss.Set<CogTag>().Select(x => x.Note != "K.I.A." && ((bool?)x.Gear!.HasSoulPatch ?? false)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A." && t.Gear.HasSoulPatch));
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A." && t.Gear!.HasSoulPatch));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_predicate2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch),
-            ss => ss.Set<CogTag>().Where(t => t.Gear.MaybeScalar(x => x.HasSoulPatch) == true));
+            ss => ss.Set<CogTag>().Where(t => t.Gear!.HasSoulPatch),
+            ss => ss.Set<CogTag>().Where(t => t.Gear!.MaybeScalar(x => x.HasSoulPatch) == true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => !t.Gear.HasSoulPatch),
-            ss => ss.Set<CogTag>().Where(t => !t.Gear.MaybeScalar(x => x.HasSoulPatch) == true));
+            ss => ss.Set<CogTag>().Where(t => !t.Gear!.HasSoulPatch),
+            ss => ss.Set<CogTag>().Where(t => !t.Gear!.MaybeScalar(x => x.HasSoulPatch) == true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch)),
-            ss => ss.Set<CogTag>().Where(t => !(t.Gear.MaybeScalar(x => x.HasSoulPatch) == true
+                ss => ss.Set<CogTag>().Where(t => !(t.Gear!.HasSoulPatch ? true : t.Gear!.HasSoulPatch)),
+                ss => ss.Set<CogTag>().Where(t => !(t.Gear!.MaybeScalar(x => x.HasSoulPatch) == true
                     ? true
-                    : t.Gear.MaybeScalar(x => x.HasSoulPatch))
+                    : t.Gear!.MaybeScalar(x => x.HasSoulPatch))
                 == true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch)),
-            ss => ss.Set<CogTag>().Where(t => !(t.Gear.MaybeScalar(x => x.HasSoulPatch) == false
+                ss => ss.Set<CogTag>().Where(t => !(!t.Gear!.HasSoulPatch ? false : t.Gear!.HasSoulPatch)),
+                ss => ss.Set<CogTag>().Where(t => !(t.Gear!.MaybeScalar(x => x.HasSoulPatch) == false
                     ? false
-                    : t.Gear.MaybeScalar(x => x.HasSoulPatch))
+                    : t.Gear!.MaybeScalar(x => x.HasSoulPatch))
                 == true));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1456,38 +1457,38 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             // ReSharper disable once RedundantTernaryExpression
-            ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch ? true : false));
+            ss => ss.Set<CogTag>().Where(t => t.Gear!.HasSoulPatch ? true : false));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_binary_expression(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Gear.HasSoulPatch || t.Note.Contains("Cole")));
+            ss => ss.Set<CogTag>().Where(t => t.Gear!.HasSoulPatch || t.Note!.Contains("Cole")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_binary_and_expression(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<CogTag>().Select(t => t.Gear.HasSoulPatch && t.Note.Contains("Cole")));
+            ss => ss.Set<CogTag>().Select(t => t.Gear!.HasSoulPatch && t.Note!.Contains("Cole")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_projection(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => t.Gear.SquadId));
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => t.Gear!.SquadId));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_projection_into_anonymous_type(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => new { t.Gear.SquadId }),
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => new { t.Gear!.SquadId }),
             elementSorter: e => e.SquadId);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_DTOs(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => new Squad { Id = t.Gear.SquadId }));
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => new Squad { Id = t.Gear!.SquadId }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_list_initializers(bool async)
@@ -1496,8 +1497,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
                 .Select(t => new List<int>
                 {
-                    t.Gear.SquadId,
-                    t.Gear.SquadId + 1,
+                    t.Gear!.SquadId,
+                    t.Gear!.SquadId + 1,
                     42
                 }),
             assertOrder: true);
@@ -1506,33 +1507,33 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Optional_navigation_type_compensation_works_with_array_initializers(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => new[] { t.Gear.SquadId }),
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(t => new[] { t.Gear!.SquadId }),
             elementSorter: e => e[0]);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_orderby(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear.SquadId).Select(t => t));
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear!.SquadId).Select(t => t));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_all(bool async)
         => AssertAll(
             async,
             ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A."),
-            predicate: t => t.Gear.HasSoulPatch);
+            predicate: t => t.Gear!.HasSoulPatch);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_negated_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Where(t => !t.Gear.HasSoulPatch));
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Where(t => !t.Gear!.HasSoulPatch));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_contains(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A." && ss.Set<Gear>().Select(g => g.SquadId).Contains(t.Gear.SquadId)));
+            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A." && ss.Set<Gear>().Select(g => g.SquadId).Contains(t.Gear!.SquadId)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Optional_navigation_type_compensation_works_with_skip(bool async)
@@ -1540,7 +1541,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             () => AssertQuery(
                 async,
                 ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
-                    .Select(t => ss.Set<Gear>().OrderBy(g => g.Nickname).Skip(t.Gear.SquadId)),
+                    .Select(t => ss.Set<Gear>().OrderBy(g => g.Nickname).Skip(t.Gear!.SquadId)),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true)),
             "IEnumerable<T>");
@@ -1551,7 +1552,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             () => AssertQuery(
                 async,
                 ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
-                    .Select(t => ss.Set<Gear>().OrderBy(g => g.Nickname).Take(t.Gear.SquadId)),
+                    .Select(t => ss.Set<Gear>().OrderBy(g => g.Nickname).Take(t.Gear!.SquadId)),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true)),
             "IEnumerable<T>");
@@ -1675,7 +1676,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         // ReSharper disable PossibleMultipleEnumeration
-        => source?.Count() == 0 ? [default] : source;
+        => source.Count() == 0 ? [default!] : source;
     // ReSharper restore PossibleMultipleEnumeration
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1683,10 +1684,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from w in ss.Set<Weapon>()
-                  where w.Id != 50 && !w.Owner.HasSoulPatch
+                  where w.Id != 50 && !w.Owner!.HasSoulPatch
                   select w,
             ss => from w in ss.Set<Weapon>()
-                  where w.Id != 50 && w.Owner.MaybeScalar(x => x.HasSoulPatch) == false
+                  where w.Id != 50 && w.Owner!.MaybeScalar(x => x.HasSoulPatch) == false
                   select w);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1749,7 +1750,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().Where(g => ClientEquals(g.Tag.Note, prm)));
     }
 
-    private static bool ClientEquals(string first, string second)
+    private static bool ClientEquals(string? first, string? second)
         => first == second;
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -1956,7 +1957,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from w in ss.Set<Weapon>()
-                  select new { w.Name, w.Name.Length },
+                select new { w.Name, w.Name!.Length },
             elementSorter: e => e.Name);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2007,7 +2008,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     }
 
     private static Weapon FavoriteWeapon(IEnumerable<Weapon> weapons)
-        => weapons.OrderBy(w => w.Id).FirstOrDefault();
+        => weapons.OrderBy(w => w.Id).FirstOrDefault()!;
 
     private static IEnumerable<Gear> Veterans(IEnumerable<Gear> gears)
         => gears.Where(g => g.Nickname is "Marcus" or "Dom" or "Cole Train" or "Baird");
@@ -2066,7 +2067,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => from f in ss.Set<Faction>()
                   where f is LocustHorde
                   orderby f.Name
-                  select new { f.Name, Threat = ((LocustHorde)f).Commander.ThreatLevel },
+                  select new { f.Name, Threat = ((LocustHorde)f).Commander!.ThreatLevel },
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2080,7 +2081,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                   {
                       f,
                       f.Name,
-                      Threat = ((LocustHorde)f).Commander.ThreatLevel
+                      Threat = ((LocustHorde)f).Commander!.ThreatLevel
                   },
             assertOrder: true,
             elementAsserter: (e, a) =>
@@ -2107,7 +2108,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => from f in ss.Set<Faction>()
                   where f is LocustHorde
                   orderby f.Name
-                  select new { f.Name, CommanderName = ((LocustHorde)f).Commander.Name },
+                  select new { f.Name, CommanderName = ((LocustHorde)f).Commander!.Name },
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2139,7 +2140,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                   select lh,
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
+                new ExpectedInclude<LocustHorde>(e1 => e1.Commander!),
                 new ExpectedInclude<LocustHorde>(e2 => e2.Leaders)),
             assertOrder: true);
 
@@ -2152,7 +2153,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                    where f is LocustHorde
                    orderby f.Id
                    select f).Include(f => f.Capital),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Faction>(e1 => e1.Capital)),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Faction>(e1 => e1.Capital!)),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2191,7 +2192,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                   from o in ss.Set<Gear>().OfType<Officer>()
                   where f is LocustHorde && o.HasSoulPatch
                   // ReSharper disable once PossibleUnintendedReferenceComparison
-                  where ((LocustHorde)f).Commander.DefeatedBy.Weapons == o.Weapons
+                  where ((LocustHorde)f).Commander!.DefeatedBy!.Weapons == o.Weapons
                   select new { f.Name, o.Nickname },
             elementSorter: e => (e.Name, e.Nickname));
 
@@ -2213,7 +2214,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
         return AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.SquadId < 2 && cities.Contains(g.AssignedCity.Name)));
+            ss => ss.Set<Gear>().Where(g => g.SquadId < 2 && cities.Contains(g.AssignedCity!.Name)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2243,7 +2244,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Faction>().OfType<LocustHorde>()
-                .Select(h => new { h.Id, Leaders = EF.Property<ICollection<LocustLeader>>(h.Commander.CommandingFaction, "Leaders") }),
+                .Select(h => new { h.Id, Leaders = EF.Property<ICollection<LocustLeader>>(h.Commander!.CommandingFaction, "Leaders") }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -2256,7 +2257,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Faction>().OfType<LocustHorde>()
-                .Select(h => new { h.Id, Gears = EF.Property<ICollection<Gear>>((Officer)h.Commander.DefeatedBy, "Reports") }),
+                .Select(h => new { h.Id, Gears = EF.Property<ICollection<Gear>>((Officer)h.Commander!.DefeatedBy!, "Reports") }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -2273,7 +2274,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .Select(f => new
                 {
                     f.Id,
-                    Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
+                    Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander!.DefeatedBy!, "Reports")
                 }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -2287,14 +2288,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include("DefeatedBy"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_EF_Property(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include(lc => EF.Property<Gear>((LocustCommander)lc, "DefeatedBy")),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_string_nested1(bool async)
@@ -2303,7 +2304,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<LocustLeader>().Include("DefeatedBy.Squad"),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!),
                 new ExpectedInclude<Gear>(g => g.Squad, "DefeatedBy")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2313,7 +2314,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<LocustLeader>().Include("DefeatedBy.Reports.CityOfBirth"),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!),
                 new ExpectedInclude<Officer>(o => o.Reports, "DefeatedBy"),
                 new ExpectedInclude<Gear>(g => g.CityOfBirth, "DefeatedBy.Reports")));
 
@@ -2322,21 +2323,21 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_lambda_with_soft_cast(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<LocustLeader>().Include(ll => (ll as LocustCommander).DefeatedBy),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy)));
+            ss => ss.Set<LocustLeader>().Include(ll => (ll as LocustCommander)!.DefeatedBy),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_lambda_with_tracking(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().AsTracking().Include(ll => ((LocustCommander)ll).DefeatedBy),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_on_derived_type_using_string(bool async)
@@ -2363,7 +2364,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Include_collection_on_derived_type_using_lambda_with_soft_cast(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Include(g => (g as Officer).Reports),
+            ss => ss.Set<Gear>().Include(g => (g as Officer)!.Reports),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2380,21 +2381,21 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task ThenInclude_collection_on_derived_after_base_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Include(t => t.Gear).ThenInclude(g => (g as Officer).Weapons),
+            ss => ss.Set<CogTag>().Include(t => t.Gear).ThenInclude(g => (g as Officer)!.Weapons),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<CogTag>(e1 => e1.Gear),
+                new ExpectedInclude<CogTag>(e1 => e1.Gear!),
                 new ExpectedInclude<Officer>(e2 => e2.Weapons, "Gear")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task ThenInclude_collection_on_derived_after_derived_reference(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Faction>().Include(f => (f as LocustHorde).Commander).ThenInclude(c => (c.DefeatedBy as Officer).Reports),
+            ss => ss.Set<Faction>().Include(f => (f as LocustHorde)!.Commander!).ThenInclude(c => (c.DefeatedBy as Officer)!.Reports),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
-                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Commander"),
+                new ExpectedInclude<LocustHorde>(e1 => e1.Commander!),
+                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy!, "Commander"),
                 new ExpectedInclude<Officer>(e3 => e3.Reports, "Commander.DefeatedBy")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2415,17 +2416,17 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<LocustHorde>(e1 => e1.Leaders),
-                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Leaders")));
+                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy!, "Leaders")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_derived_included_on_one_method(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Faction>().Include(f => (((LocustHorde)f).Commander.DefeatedBy as Officer).Reports),
+            ss => ss.Set<Faction>().Include(f => (((LocustHorde)f).Commander!.DefeatedBy as Officer)!.Reports),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
-                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Commander"),
+                new ExpectedInclude<LocustHorde>(e1 => e1.Commander!),
+                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy!, "Commander"),
                 new ExpectedInclude<Officer>(e3 => e3.Reports, "Commander.DefeatedBy")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -2814,8 +2815,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 select new
                 {
                     o.FullName,
-                    OuterCollection2 = (from www in o.Tag.Gear.Weapons
-                                        orderby www.IsAutomatic, www.Owner.Nickname descending
+                    OuterCollection2 = (from www in o.Tag!.Gear!.Weapons
+                                        orderby www.IsAutomatic, www.Owner!.Nickname descending
                                         select www).ToList()
                 },
             elementSorter: e => e.FullName,
@@ -2837,9 +2838,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 select new
                 {
                     o.FullName,
-                    OuterCollection2 = (from www in o.Tag.Gear.Weapons
-                                        orderby www.IsAutomatic, www.Owner.Nickname descending
-                                        orderby www.IsAutomatic, www.Owner.Nickname descending
+                    OuterCollection2 = (from www in o.Tag!.Gear!.Weapons
+                                        orderby www.IsAutomatic, www.Owner!.Nickname descending
+                                        orderby www.IsAutomatic, www.Owner!.Nickname descending
                                         select www).ToList()
                 },
             elementSorter: e => e.FullName,
@@ -2861,8 +2862,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 select new
                 {
                     o.FullName,
-                    OuterCollection2 = (from www in o.Tag.Gear.Weapons
-                                        orderby www.Id descending, www.Owner.Weapons.Count
+                    OuterCollection2 = (from www in o.Tag!.Gear!.Weapons
+                                        orderby www.Id descending, www.Owner!.Weapons.Count
                                         select www).ToList()
                 },
             elementSorter: e => e.FullName,
@@ -2896,15 +2897,15 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                                                               {
                                                                   w.Id,
                                                                   InnerFirst =
-                                                                      w.Owner.Weapons.Select(ww => new { ww.Name, ww.IsAutomatic })
+                                                                      w.Owner!.Weapons.Select(ww => new { ww.Name, ww.IsAutomatic })
                                                                           .ToList(),
                                                                   InnerSecond =
-                                                                      w.Owner.Squad.Members.OrderBy(mm => mm.Nickname)
+                                                                      w.Owner!.Squad.Members.OrderBy(mm => mm.Nickname)
                                                                           .Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
                                                               }).ToList()
                                        }).ToList(),
-                    OuterCollection2 = (from www in o.Tag.Gear.Weapons
-                                        orderby www.IsAutomatic, www.Owner.Nickname descending
+                    OuterCollection2 = (from www in o.Tag!.Gear!.Weapons
+                                        orderby www.IsAutomatic, www.Owner!.Nickname descending
                                         select www).ToList()
                 },
             elementSorter: e => e.FullName,
@@ -3138,8 +3139,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                     g => g.Nickname,
                     t => t.GearNickName,
                     (g, c) => new { g, c })
-                .Where(t => !t.g.HasSoulPatch)
-                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+                .Where(t => !t.g!.HasSoulPatch)
+                .Select(t => new { t.g!.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
             ss => ss.Set<Gear>()
                 .RightJoin(
                     ss.Set<CogTag>(),
@@ -3147,7 +3148,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                     t => t.GearNickName,
                     (g, c) => new { g, c })
                 .Where(t => t.g != null && !t.g.HasSoulPatch)
-                .Select(t => new { t.g.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
+                .Select(t => new { t.g!.Nickname, WeaponNames = t.g.Weapons.Select(w => w.Name).ToList() }),
             elementSorter: e => e.Nickname,
             elementAsserter: (e, a) =>
             {
@@ -3163,13 +3164,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                   join g in ss.Set<Gear>() on t.GearNickName equals g.Nickname into grouping
                   from g in grouping.DefaultIfEmpty()
                   orderby t.Note
-                  select g.Weapons.Select(w => w.Name).ToList(),
+                  select g!.Weapons.Select(w => w.Name).ToList(),
             ss =>
                 from t in ss.Set<CogTag>()
                 join g in ss.Set<Gear>() on t.GearNickName equals g.Nickname into grouping
                 from g in grouping.DefaultIfEmpty()
                 orderby t.Note
-                select g != null ? g.Weapons.Select(w => w.Name).ToList() : new List<string>(),
+                select g != null ? g.Weapons.Select(w => w.Name).ToList() : new List<string?>(),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
@@ -3181,7 +3182,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 from t in ss.Set<CogTag>()
                 join o in ss.Set<Gear>().OfType<Officer>() on t.GearNickName equals o.Nickname into grouping
                 from o in grouping.DefaultIfEmpty()
-                select new { t.Note, ReportNames = o.Reports.Select(r => r.FullName).ToList() },
+                select new { t.Note, ReportNames = o!.Reports.Select(r => r.FullName).ToList() },
             ss =>
                 from t in ss.Set<CogTag>()
                 join o in ss.Set<Gear>().OfType<Officer>() on t.GearNickName equals o.Nickname into grouping
@@ -3203,7 +3204,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 join g in ss.Set<Gear>() on t.GearNickName equals g.Nickname into grouping
                 from g in grouping.DefaultIfEmpty()
                 orderby t.Note, g.Nickname descending
-                select g.Squad.Members.Where(m => m.HasSoulPatch)
+                select g!.Squad.Members.Where(m => m.HasSoulPatch)
                     .Select(m => new { m.Nickname, AutomaticWeapons = m.Weapons.Where(w => w.IsAutomatic).ToList() }).ToList(),
             ss =>
                 from t in ss.Set<CogTag>()
@@ -3214,7 +3215,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                     g != null
                         ? g.Squad.Members.Where(m => m.HasSoulPatch).OrderBy(m => m.Nickname)
                             .Select(m => new { m.Nickname, AutomaticWeapons = m.Weapons.Where(w => w.IsAutomatic).ToList() }).ToList()
-                        : Enumerable.Empty<int>().Select(x => new { Nickname = (string)null, AutomaticWeapons = new List<Weapon>() })
+                        : Enumerable.Empty<int>().Select(x => new { Nickname = (string)null!, AutomaticWeapons = new List<Weapon>() })
                             .ToList(),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(
@@ -3232,7 +3233,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Weapon>().OrderBy(w => w.Name).Select(w
-                => w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(m
+                => w.Owner!.Squad.Members.OrderByDescending(m => m.FullName).Select(m
                     => new { Weapons = m.Weapons.Where(ww => !ww.IsAutomatic).OrderBy(ww => ww.Id).ToList(), m.Rank }).ToList()),
             ss => ss.Set<Weapon>().OrderBy(w => w.Name).Select(w => w.Owner != null
                 ? w.Owner.Squad.Members.OrderByDescending(m => m.FullName).Select(m
@@ -3260,7 +3261,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                                        {
                                            w.Id,
                                            InnerCollection =
-                                               w.Owner.Squad.Members.OrderBy(mm => mm.Nickname)
+                                               w.Owner!.Squad.Members.OrderBy(mm => mm.Nickname)
                                                    .Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
                                        }).ToList()
                 },
@@ -3296,7 +3297,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                                                               select new
                                                               {
                                                                   w.Id,
-                                                                  InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname)
+                                                                  InnerSecond = w.Owner!.Squad.Members.OrderBy(mm => mm.Nickname)
                                                                       .Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
                                                               }).ToList()
                                        }).ToList()
@@ -3339,7 +3340,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                                        {
                                            w.Id,
                                            InnerCollection =
-                                               w.Owner.Squad.Members.OrderBy(mm => mm.Nickname)
+                                               w.Owner!.Squad.Members.OrderBy(mm => mm.Nickname)
                                                    .Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
                                        }).ToList()
                 },
@@ -3379,7 +3380,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                                                               select new
                                                               {
                                                                   w.Id,
-                                                                  InnerSecond = w.Owner.Squad.Members.OrderBy(mm => mm.Nickname)
+                                                                  InnerSecond = w.Owner!.Squad.Members.OrderBy(mm => mm.Nickname)
                                                                       .Select(mm => new { mm.Nickname, mm.HasSoulPatch }).ToList()
                                                               }).ToList()
                                        }).ToList()
@@ -3460,12 +3461,12 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Include_on_derived_type_with_order_by_and_paging(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy).ThenInclude(g => g.Weapons)
-                .OrderBy(ll => ((LocustCommander)ll).DefeatedBy.Tag.Note).Take(10),
+            ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy!).ThenInclude(g => g.Weapons)
+                .OrderBy(ll => ((LocustCommander)ll).DefeatedBy!.Tag.Note).Take(10),
             ss => ss.Set<LocustLeader>().Take(10),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustCommander>(e1 => e1.DefeatedBy),
+                new ExpectedInclude<LocustCommander>(e1 => e1.DefeatedBy!),
                 new ExpectedInclude<Gear>(e2 => e2.Weapons, "DefeatedBy")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3554,10 +3555,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Negated_bool_ternary_inside_anonymous_type_in_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Select(t => new { c = !(t.Gear.HasSoulPatch ? true : ((bool?)t.Gear.HasSoulPatch ?? true)) }),
+            ss => ss.Set<CogTag>().Select(t => new { c = !(t.Gear!.HasSoulPatch ? true : ((bool?)t.Gear!.HasSoulPatch ?? true)) }),
             ss => ss.Set<CogTag>().Select(t => new
             {
-                c = !((t.Gear.MaybeScalar(x => x.HasSoulPatch) ?? false) || (t.Gear.MaybeScalar(x => x.HasSoulPatch) ?? true))
+                c = !((t.Gear!.MaybeScalar(x => x.HasSoulPatch) ?? false) || (t.Gear!.MaybeScalar(x => x.HasSoulPatch) ?? true))
             }),
             elementSorter: e => e.c);
 
@@ -3566,7 +3567,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(g => g.AssignedCity).ThenByDescending(g => g.Nickname).Select(f => f.FullName),
-            ss => ss.Set<Gear>().OrderBy(g => g.AssignedCity.Name).ThenByDescending(g => g.Nickname).Select(f => f.FullName),
+            ss => ss.Set<Gear>().OrderBy(g => g.AssignedCity!.Name).ThenByDescending(g => g.Nickname).Select(f => f.FullName),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3582,8 +3583,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Weapon>().OrderBy(w => w.Owner).ThenBy(w => w.Id).Select(w => w.Name),
-            ss => ss.Set<Weapon>().OrderBy(w => w.Owner.Nickname)
-                .ThenBy(w => w.Owner.MaybeScalar(x => x.SquadId))
+            ss => ss.Set<Weapon>().OrderBy(w => w.Owner!.Nickname)
+                .ThenBy(w => w.Owner!.MaybeScalar(x => x.SquadId))
                 .ThenBy(w => w.Id).Select(w => w.Name),
             assertOrder: true);
 
@@ -3595,9 +3596,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .ThenBy(w => w.Name),
             ss => ss.Set<Weapon>()
                 .OrderBy(w => w.IsAutomatic)
-                .ThenByDescending(w => w.Owner.Nickname)
-                .ThenByDescending(w => w.Owner.MaybeScalar(x => x.SquadId))
-                .ThenBy(w => w.SynergyWith.MaybeScalar(x => x.Id))
+                .ThenByDescending(w => w.Owner!.Nickname)
+                .ThenByDescending(w => w.Owner!.MaybeScalar(x => x.SquadId))
+                .ThenBy(w => w.SynergyWith!.MaybeScalar(x => x.Id))
                 .ThenBy(w => w.Name),
             assertOrder: true);
 
@@ -3663,7 +3664,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss =>
                 from s in ss.Set<Squad>()
-                join w in ss.Set<Weapon>().Where(ww => ww.IsAutomatic) on s equals w.Owner.Squad
+                join w in ss.Set<Weapon>().Where(ww => ww.IsAutomatic) on s equals w.Owner!.Squad
                 select new { SquadName = s.Name, WeaponName = w.Name },
             elementSorter: e => (e.SquadName, e.WeaponName));
 
@@ -3672,7 +3673,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from s in ss.Set<Squad>()
-                  join w in ss.Set<Weapon>() on s equals w.Owner.Squad into grouping
+                  join w in ss.Set<Weapon>() on s equals w.Owner!.Squad into grouping
                   from w in grouping.DefaultIfEmpty()
                   select new { SquadName = s.Name, WeaponName = w.Name },
             elementSorter: e => (e.SquadName, e.WeaponName));
@@ -3819,7 +3820,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Squad>().Select(s
-                => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => (MyDTO)null).FirstOrDefault() }));
+                => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => (MyDTO)null!).FirstOrDefault() }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_subquery_projecting_single_constant_of_non_mapped_type(bool async)
@@ -3841,7 +3842,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().OrderByDescending(s => (MyDTO)null)
+            ss => ss.Set<Gear>().OrderByDescending(s => (MyDTO)null!)
                 .Select(g => new { g.Nickname, Weapons = g.Weapons.Select(w => w.Name).ToList() }),
             elementSorter: e => e.Nickname,
             elementAsserter: (e, a) =>
@@ -3866,7 +3867,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Gear>().OfType<Officer>()
                 .Include(o => o.Reports)
-                .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic).ThenBy(o => o.Nickname),
+                .OrderBy(o => o.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic).ThenBy(o => o.Nickname),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)),
             assertOrder: true);
 
@@ -3923,7 +3924,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Select_subquery_boolean_with_pushdown(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Gear>().Select(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
+            ss => ss.Set<Gear>().Select(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_subquery_int_with_inside_cast_and_coalesce(bool async)
@@ -3941,14 +3942,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Select_subquery_int_with_pushdown_and_coalesce(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Gear>().Select(g => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id ?? 42));
+            ss => ss.Set<Gear>().Select(g => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.Id ?? 42));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_subquery_int_with_pushdown_and_coalesce2(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().Select(g
-                => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id ?? g.Weapons.OrderBy(w => w.Id).FirstOrDefault().Id));
+                => (int?)g.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.Id ?? g.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.Id));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_subquery_boolean_empty(bool async)
@@ -3961,7 +3962,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Select_subquery_boolean_empty_with_pushdown(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Gear>().Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault().IsAutomatic),
+            ss => ss.Set<Gear>().Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").OrderBy(w => w.Id).FirstOrDefault()!.IsAutomatic),
             ss => ss.Set<Gear>().Select(g => (bool?)null));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3969,7 +3970,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().Where(g => g.HasSoulPatch)
-                .Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic).SingleOrDefault()),
+                .Select(g => g.Weapons.Where(w => w.Name!.Contains("Lancer")).Distinct().Select(w => w.IsAutomatic).SingleOrDefault()),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3977,7 +3978,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().Where(g => g.HasSoulPatch)
-                .Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct().SingleOrDefault()),
+                .Select(g => g.Weapons.Where(w => w.Name!.Contains("Lancer")).Select(w => w.IsAutomatic).Distinct().SingleOrDefault()),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -3985,7 +3986,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().Where(g => g.HasSoulPatch)
-                .Select(g => g.Weapons.Where(w => w.Name.Contains("Lancer")).Distinct().SingleOrDefault().IsAutomatic),
+                .Select(g => g.Weapons.Where(w => w.Name!.Contains("Lancer")).Distinct().SingleOrDefault()!.IsAutomatic),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -4007,7 +4008,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQueryScalar(
             async,
             ss => ss.Set<Gear>().Where(g => g.HasSoulPatch)
-                .Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").Distinct().SingleOrDefault().IsAutomatic),
+                .Select(g => (bool?)g.Weapons.Where(w => w.Name == "BFG").Distinct().SingleOrDefault()!.IsAutomatic),
             ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => (bool?)null),
             assertOrder: true);
 
@@ -4070,7 +4071,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Double_order_by_on_nullable_bool_coming_from_optional_navigation(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic).OrderBy(w => w.IsAutomatic).ThenBy(w => w.Id),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w!.IsAutomatic).OrderBy(w => w!.IsAutomatic).ThenBy(w => w!.Id),
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && w.IsAutomatic)
                 .ThenBy(w => w != null ? (int?)w.Id : null),
             assertOrder: true);
@@ -4079,25 +4080,25 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Double_order_by_on_Like(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => EF.Functions.Like(w.Name, "%Lancer"))
-                .OrderBy(w => EF.Functions.Like(w.Name, "%Lancer")).Select(w => w),
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && w.Name.EndsWith("Lancer"))
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => EF.Functions.Like(w!.Name, "%Lancer"))
+                .OrderBy(w => EF.Functions.Like(w!.Name, "%Lancer")).Select(w => w),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && w.Name!.EndsWith("Lancer"))
                 .Select(w => w));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Double_order_by_on_is_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.Name == null).OrderBy(w => w.Name == null).Select(w => w),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w!.Name == null).OrderBy(w => w!.Name == null).Select(w => w),
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && w.Name == null).Select(w => w));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Double_order_by_on_string_compare(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0)
-                .OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).ThenBy(w => w.Id),
-            ss => ss.Set<Weapon>().OrderBy(w => w != null && w.Name.CompareTo("Marcus' Lancer") == 0).ThenBy(w => w.Id),
+            ss => ss.Set<Weapon>().OrderBy(w => w.Name!.CompareTo("Marcus' Lancer") == 0)
+                .OrderBy(w => w.Name!.CompareTo("Marcus' Lancer") == 0).ThenBy(w => w.Id),
+            ss => ss.Set<Weapon>().OrderBy(w => w != null && w.Name!.CompareTo("Marcus' Lancer") == 0).ThenBy(w => w.Id),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -4110,15 +4111,15 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task String_compare_with_null_conditional_argument(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.Name.CompareTo("Marcus' Lancer") == 0).Select(c => c),
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && w.Name.CompareTo("Marcus' Lancer") == 0)
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w!.Name!.CompareTo("Marcus' Lancer") == 0).Select(c => c),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && w.Name!.CompareTo("Marcus' Lancer") == 0)
                 .Select(c => c));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_compare_with_null_conditional_argument2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => "Marcus' Lancer".CompareTo(w.Name) == 0).Select(w => w),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => "Marcus' Lancer".CompareTo(w!.Name) == 0).Select(w => w),
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null && "Marcus' Lancer".CompareTo(w.Name) == 0)
                 .Select(w => w));
 
@@ -4126,7 +4127,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task String_concat_with_null_conditional_argument(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.Name + 5),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w!.Name + 5),
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null ? w.Name + 5 : null),
             assertOrder: true);
 
@@ -4134,14 +4135,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task String_concat_with_null_conditional_argument2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => string.Concat(w.Name, "Marcus' Lancer")),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => string.Concat(w!.Name, "Marcus' Lancer")),
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w != null ? string.Concat(w.Name, "Marcus' Lancer") : null),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task String_concat_nullable_expressions_are_coalesced(bool async)
     {
-        object nullableParam = null;
+        object nullableParam = null!;
 
         return AssertQuery(
             async,
@@ -4229,11 +4230,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             {
                 Assert.Equal(e.Key, a.Key);
                 Assert.Equal(e.c, a.c);
-                Assert.Equal(e.element.Nickname, a.element.Nickname);
+                Assert.Equal(e.element!.Nickname, a.element!.Nickname);
                 Assert.Equal(e.element.CityOfBirth == null, a.element.CityOfBirth == null);
                 if (e.element.CityOfBirth != null)
                 {
-                    Assert.Equal(e.element.CityOfBirth.Name, a.element.CityOfBirth.Name);
+                    Assert.Equal(e.element.CityOfBirth.Name, a.element.CityOfBirth!.Name);
                 }
             });
 
@@ -4348,8 +4349,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task GetValueOrDefault_with_argument_complex(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Where(w => w.SynergyWithId.GetValueOrDefault(w.Name.Length + 42) > 10),
-            ss => ss.Set<Weapon>().Where(w => (w.SynergyWithId == null ? w.Name.Length + 42 : w.SynergyWithId) > 10));
+            ss => ss.Set<Weapon>().Where(w => w.SynergyWithId.GetValueOrDefault(w.Name!.Length + 42) > 10),
+            ss => ss.Set<Weapon>().Where(w => (w.SynergyWithId == null ? w.Name!.Length + 42 : w.SynergyWithId) > 10));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_with_complex_predicate_containing_subquery(bool async)
@@ -4369,7 +4370,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                       = g.Weapons
                           .OrderByDescending(w => w.AmmunitionType)
                           .Where(w => w.IsAutomatic)
-                  select new { g.Nickname, WeaponName = automaticWeapons.FirstOrDefault().Name },
+                  select new { g.Nickname, WeaponName = automaticWeapons.FirstOrDefault()!.Name },
             elementSorter: e => e.Nickname,
             elementAsserter: (e, a) =>
             {
@@ -4382,42 +4383,42 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note.Substring(0, t.Gear.SquadId) == t.GearNickName),
-            ss => ss.Set<CogTag>().Where(t => t.Gear.Maybe(x => t.Note.Substring(0, x.SquadId)) == t.GearNickName));
+            ss => ss.Set<CogTag>().Where(t => t.Note!.Substring(0, t.Gear!.SquadId) == t.GearNickName),
+            ss => ss.Set<CogTag>().Where(t => t.Gear!.Maybe(x => t.Note!.Substring(0, x.SquadId)) == t.GearNickName));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task
         Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Where(t => t.Note.Substring(0, t.Gear.Squad.Name.Length) == t.GearNickName),
-            ss => ss.Set<CogTag>().Where(t => t.Gear.Maybe(x => t.Note.Substring(0, x.Squad.Name.Length)) == t.GearNickName));
+            ss => ss.Set<CogTag>().Where(t => t.Note!.Substring(0, t.Gear!.Squad.Name!.Length) == t.GearNickName),
+            ss => ss.Set<CogTag>().Where(t => t.Gear!.Maybe(x => t.Note!.Substring(0, x.Squad.Name!.Length)) == t.GearNickName));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfTypeNav1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.Tag.Note != "Foo").OfType<Officer>().Where(o => o.Tag.Note != "Bar"));
+            ss => ss.Set<Gear>().Where(g => g.Tag!.Note != "Foo").OfType<Officer>().Where(o => o.Tag!.Note != "Bar"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfTypeNav2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(g => g.Tag.Note != "Foo").OfType<Officer>().Where(o => o.AssignedCity.Location != "Bar"));
+            ss => ss.Set<Gear>().Where(g => g.Tag!.Note != "Foo").OfType<Officer>().Where(o => o.AssignedCity!.Location != "Bar"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OfTypeNav3(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Gear>()
-                .Where(g => g.Tag.Note != "Foo")
+                .Where(g => g.Tag!.Note != "Foo")
                 .Join(
                     ss.Set<Weapon>(),
                     g => g.FullName,
                     w => w.OwnerFullName,
                     (o, i) => o)
                 .OfType<Officer>()
-                .Where(o => o.Tag.Note != "Bar"));
+                .Where(o => o.Tag!.Note != "Bar"));
 
     [Fact]
     public virtual Task Nav_rewrite_Distinct_with_convert()
@@ -4426,8 +4427,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         {
             using var ctx = CreateContext();
             _ = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
-                .Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f)
-                .Distinct().Where(lh => lh.Commander.Name != "Bar").ToList();
+                .Where(f => f.Capital!.Name != "Foo").Select(f => (LocustHorde)f)
+                .Distinct().Where(lh => lh.Commander!.Name != "Bar").ToList();
             return Task.CompletedTask;
         });
 
@@ -4438,8 +4439,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         {
             using var ctx = CreateContext();
             _ = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
-                .Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f })
-                .Distinct().Where(lh => lh.horde.Commander.Name != "Bar").ToList();
+                .Where(f => f.Capital!.Name != "Foo").Select(f => new { horde = (LocustHorde)f })
+                .Distinct().Where(lh => lh.horde.Commander!.Name != "Bar").ToList();
             return Task.CompletedTask;
         });
 
@@ -4447,25 +4448,25 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Nav_rewrite_with_convert1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Faction>().Where(f => f.Capital.Name != "Foo").Select(f => ((LocustHorde)f).Commander));
+            ss => ss.Set<Faction>().Where(f => f.Capital!.Name != "Foo").Select(f => ((LocustHorde)f).Commander));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_rewrite_with_convert2(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Faction>()
-                .Where(f => f.Capital.Name != "Foo")
+                .Where(f => f.Capital!.Name != "Foo")
                 .Select(f => (LocustHorde)f)
-                .Where(lh => lh.Commander.Name != "Bar"));
+                .Where(lh => lh.Commander!.Name != "Bar"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_rewrite_with_convert3(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Faction>()
-                .Where(f => f.Capital.Name != "Foo")
+                .Where(f => f.Capital!.Name != "Foo")
                 .Select(f => new { horde = (LocustHorde)f })
-                .Where(x => x.horde.Commander.Name != "Bar"),
+                .Where(x => x.horde.Commander!.Name != "Bar"),
             elementSorter: e => e.horde.Id,
             elementAsserter: (e, a) => AssertEqual(e.horde, a.horde));
 
@@ -4487,7 +4488,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Gear>()
                 .Include(g => g.Weapons)
-                .OrderBy(g => g.Weapons.FirstOrDefault(w => w.Name.Contains("Gnasher")).Name)
+                .OrderBy(g => g.Weapons.FirstOrDefault(w => w.Name!.Contains("Gnasher"))!.Name)
                 .ThenBy(g => g.Nickname),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Gear>(e => e.Weapons)),
             assertOrder: true);
@@ -4503,7 +4504,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Bool_projection_from_subquery_treated_appropriately_in_where(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<City>().Where(c => ss.Set<Gear>().OrderBy(g => g.Nickname).ThenBy(g => g.SquadId).FirstOrDefault().HasSoulPatch));
+            ss => ss.Set<City>().Where(c => ss.Set<Gear>().OrderBy(g => g.Nickname).ThenBy(g => g.SquadId).FirstOrDefault()!.HasSoulPatch));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task DateTimeOffset_Contains_Less_than_Greater_than(bool async)
@@ -4534,7 +4535,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Weapon>()
-                .Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith.OwnerFullName}" : string.Empty));
+                .Select(w => w.SynergyWithId.HasValue ? $"SynergyWithOwner: {w.SynergyWith!.OwnerFullName}" : string.Empty));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Left_join_projection_using_coalesce_tracking(bool async)
@@ -4562,7 +4563,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => from t in ss.Set<CogTag>()
                   where t.Gear is Officer
-                  select ((Officer)t.Gear).Reports.Take(50),
+                  select ((Officer)t.Gear!).Reports.Take(50),
             elementSorter: e => e?.Count() ?? 0,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
@@ -4572,7 +4573,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => from t in ss.Set<CogTag>()
                   where t.Gear is Officer
-                  select ((Officer)t.Gear).Reports,
+                  select ((Officer)t.Gear!).Reports,
             elementSorter: e => e?.Count ?? 0,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
@@ -4704,7 +4705,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Navigation_based_on_complex_expression1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Faction>().Where(f => f is LocustHorde ? (f as LocustHorde).Commander != null : false));
+            ss => ss.Set<Faction>().Where(f => f is LocustHorde ? (f as LocustHorde)!.Commander != null : false));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_based_on_complex_expression2(bool async)
@@ -4743,7 +4744,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => from lc1 in ss.Set<Faction>().OfType<LocustHorde>().Select(lh => lh.Commander)
                   join lc2 in ss.Set<LocustLeader>().OfType<LocustCommander>() on true equals true
-                  select (lc1.Name == "Queen Myrrah" ? lc1 : lc2).DefeatedBy));
+                  select (lc1!.Name == "Queen Myrrah" ? lc1 : lc2).DefeatedBy));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_as_operator(bool async)
@@ -4779,7 +4780,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 {
                     w.Id,
                     w.IsAutomatic,
-                    w.SynergyWith.Name
+                    w.SynergyWith!.Name
                 })
             }),
             assertOrder: true,
@@ -4789,10 +4790,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Reference_include_chain_loads_correctly_when_middle_is_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().AsTracking().OrderBy(t => t.Note).Include(t => t.Gear).ThenInclude(g => g.Squad),
+            ss => ss.Set<CogTag>().AsTracking().OrderBy(t => t.Note).Include(t => t.Gear).ThenInclude(g => g!.Squad),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<CogTag>(t => t.Gear), new ExpectedInclude<Gear>(t => t.Squad, "Gear")));
+                new ExpectedInclude<CogTag>(t => t.Gear!), new ExpectedInclude<Gear>(t => t.Squad, "Gear")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Accessing_property_of_optional_navigation_in_child_projection_works(bool async)
@@ -4801,7 +4802,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<CogTag>().OrderBy(e => e.Note).Select(t => new
             {
                 Items = t.Gear != null
-                    ? t.Gear.Weapons.Select(w => new { w.Owner.Nickname }).ToList()
+                    ? t.Gear.Weapons.Select(w => new { w.Owner!.Nickname }).ToList()
                     : null
             }),
             assertOrder: true,
@@ -4828,7 +4829,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             CoreStrings.IncludeOnNonEntity("c => c.BornGears"),
             (await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
                 async,
-                ss => ss.Set<Faction>().Select(f => f.Capital).Include(c => c.BornGears)))).Message);
+                ss => ss.Set<Faction>().Select(f => f.Capital!).Include(c => c.BornGears)))).Message);
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_after_select_anonymous_projection_throws(bool async)
@@ -4844,7 +4845,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Include_after_SelectMany_throws(bool async)
-        => AssertQuery(async, ss => ss.Set<Faction>().SelectMany(f => f.Capital.BornGears).Include(g => g.Squad));
+        => AssertQuery(async, ss => ss.Set<Faction>().SelectMany(f => f.Capital!.BornGears).Include(g => g.Squad));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Query_reusing_parameter_doesnt_declare_duplicate_parameter(bool async)
@@ -4910,13 +4911,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     private class ComplexParameter
     {
-        public ComplexParameterInner Inner { get; set; }
+        public ComplexParameterInner Inner { get; set; } = null!;
     }
 
     private class ComplexParameterInner
     {
-        public string Nickname { get; set; }
-        public Squad Squad { get; set; }
+        public string Nickname { get; set; } = null!;
+        public Squad Squad { get; set; } = null!;
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -4942,7 +4943,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => (from g in ss.Set<Gear>()
-                   select new { g.AssignedCity.Name, Count = g.Weapons.Count() }).Concat(
+                   select new { g.AssignedCity!.Name, Count = g.Weapons.Count() }).Concat(
                     from g in ss.Set<Gear>()
                     select new { g.CityOfBirth.Name, Count = g.Weapons.Count() })
                 .GroupBy(x => new { x.Name, x.Count })
@@ -4959,7 +4960,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => (from g in ss.Set<Gear>()
-                   select new { g.AssignedCity.Name, Count = g.Weapons.Count() }).Concat(
+                   select new { g.AssignedCity!.Name, Count = g.Weapons.Count() }).Concat(
                     from g in ss.Set<Gear>()
                     select new { g.CityOfBirth.Name, Count = g.Weapons.Count() })
                 .GroupBy(
@@ -5017,11 +5018,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<CogTag>()
-                .GroupBy(t => new { HasSoulPatch = (bool?)t.Gear.HasSoulPatch, t.Gear.Squad.Name })
-                .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name.ToLower() }),
+                .GroupBy(t => new { HasSoulPatch = (bool?)t.Gear!.HasSoulPatch, t.Gear!.Squad.Name })
+                .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name!.ToLower() }),
             ss => ss.Set<CogTag>()
-                .GroupBy(t => new { HasSoulPatch = t.Gear.MaybeScalar(x => x.HasSoulPatch), t.Gear.Squad.Name })
-                .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name.Maybe(x => x.ToLower()) }),
+                .GroupBy(t => new { HasSoulPatch = t.Gear!.MaybeScalar(x => x.HasSoulPatch), t.Gear!.Squad.Name })
+                .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name!.Maybe(x => x.ToLower())! }),
             elementSorter: e => (e.HasSoulPatch, e.Name));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -5032,7 +5033,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 .Select(g => new
                 {
                     g.Nickname,
-                    AssignedCityName = g.AssignedCity.Name,
+                    AssignedCityName = g.AssignedCity!.Name,
                     CityOfBirthName = g.CityOfBirth.Name,
                     SquadName = g.Squad.Name
                 })
@@ -5050,7 +5051,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
     {
-        var prm = (string)null;
+        var prm = (string)null!;
 
         return AssertQueryScalar(
             async,
@@ -5061,7 +5062,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Group_by_with_having_StartsWith_with_null_parameter_as_argument(bool async)
     {
-        var prm = (string)null;
+        var prm = (string)null!;
 
         return AssertQuery(
             async,
@@ -5073,7 +5074,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_StartsWith_with_null_parameter_as_argument(bool async)
     {
-        var prm = (string)null;
+        var prm = (string)null!;
 
         return AssertQueryScalar(
             async,
@@ -5084,7 +5085,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Select_null_parameter_is_not_null(bool async)
     {
-        var prm = (string)null;
+        var prm = (string)null!;
 
         return AssertQueryScalar(
             async,
@@ -5095,7 +5096,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Where_null_parameter_is_not_null(bool async)
     {
-        var prm = (string)null;
+        var prm = (string)null!;
 
         return AssertQuery(
             async,
@@ -5107,7 +5108,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_StartsWith_with_null_parameter_as_argument(bool async)
     {
-        var prm = (string)null;
+        var prm = (string)null!;
 
         return AssertQuery(
             async,
@@ -5157,7 +5158,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Gear>()
-                .Where(g => g.AssignedCity == ss.Set<Gear>().OrderBy(s => s.Nickname).FirstOrDefault().CityOfBirth));
+                .Where(g => g.AssignedCity == ss.Set<Gear>().OrderBy(s => s.Nickname).FirstOrDefault()!.CityOfBirth));
 
     //=> AssertQuery(
     //    async,
@@ -5168,7 +5169,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
     {
         var prm = true;
-        var prm2 = (string)null;
+        var prm2 = (string)null!;
 
         return AssertQuery(
             isAsync,
@@ -5182,7 +5183,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     {
         var prm = true;
         var prm2 = "Marcus' Lancer";
-        var prm3 = (string)null;
+        var prm3 = (string)null!;
 
         return AssertQuery(
             isAsync,
@@ -5287,8 +5288,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task OrderBy_bool_coming_from_optional_navigation(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.IsAutomatic),
-            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.MaybeScalar(x => x.IsAutomatic)),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w!.IsAutomatic),
+            ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w!.MaybeScalar(x => x.IsAutomatic)),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -5590,7 +5591,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task CompareTo_used_with_non_unicode_string_column_and_constant(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<City>().Where(c => c.Location.CompareTo("Unknown") == 0));
+            ss => ss.Set<City>().Where(c => c.Location!.CompareTo("Unknown") == 0));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_used_with_non_unicode_string_column_and_constant(bool async)
@@ -5603,7 +5604,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Weapon>()
-                .GroupBy(w => new { w.Owner.CityOfBirth.Name, w.Owner.CityOfBirth.Location })
+                .GroupBy(w => new { w.Owner!.CityOfBirth.Name, w.Owner.CityOfBirth.Location })
                 .Select(x => new
                 {
                     x.Key.Name,
@@ -5649,11 +5650,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => from g in ss.Set<Gear>()
-                  from w in ss.Set<Weapon>().Select(x => x.SynergyWith).Where(x => x.OwnerFullName != g.FullName).DefaultIfEmpty()
+                  from w in ss.Set<Weapon>().Select(x => x.SynergyWith).Where(x => x!.OwnerFullName != g.FullName).DefaultIfEmpty()
                   orderby g.Nickname, w.Id
                   select new { g, w },
             ss => from g in ss.Set<Gear>()
-                  from w in ss.Set<Weapon>().Select(x => x.SynergyWith).Where(x => x.OwnerFullName != g.FullName).MaybeDefaultIfEmpty()
+                  from w in ss.Set<Weapon>().Select(x => x.SynergyWith).Where(x => x!.OwnerFullName != g.FullName).MaybeDefaultIfEmpty()
                   orderby g.Nickname, w.MaybeScalar(xx => xx.Id)
                   select new { g, w },
             assertOrder: true,
@@ -5749,7 +5750,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
         await AssertQuery(
             async,
-            ss => ss.Set<LocustLeader>().Where(ll => ll is LocustCommander && (ll as LocustCommander).HighCommandId != 0));
+            ss => ss.Set<LocustLeader>().Where(ll => ll is LocustCommander && (ll as LocustCommander)!.HighCommandId != 0));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -5757,17 +5758,17 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertFirstOrDefault(
             async,
             ss => ss.Set<LocustLeader>().Where(ll => ll.Name.Contains("Queen")).Cast<LocustCommander>().Include(lc => lc.DefeatedBy),
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(x => x.DefeatedBy)));
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<LocustCommander>(x => x.DefeatedBy!)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Cast_to_derived_followed_by_multiple_includes(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Where(ll => ll.Name.Contains("Queen")).Cast<LocustCommander>().Include(lc => lc.DefeatedBy)
-                .ThenInclude(g => g.Weapons),
+                .ThenInclude(g => g!.Weapons),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<LocustCommander>(x => x.DefeatedBy),
+                new ExpectedInclude<LocustCommander>(x => x.DefeatedBy!),
                 new ExpectedInclude<Gear>(x => x.Weapons, "DefeatedBy")));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -5872,12 +5873,12 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                     ? new
                     {
-                        x.Gear.Nickname,
+                        x.Gear!.Nickname,
                         x.Gear.SquadId,
                         x.Gear.HasSoulPatch
                     }
                     : null
-            }).Where(x => x.Nullable.SquadId == 1));
+            }).Where(x => x.Nullable!.SquadId == 1));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_property_converted_to_nullable_with_addition(bool async)
@@ -5889,19 +5890,19 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                     ? new
                     {
-                        x.Gear.Nickname,
+                        x.Gear!.Nickname,
                         x.Gear.SquadId,
                         x.Gear.HasSoulPatch
                     }
                     : null
-            }).Where(x => x.Nullable.SquadId + 1 == 2),
+            }).Where(x => x.Nullable!.SquadId + 1 == 2),
             ss => ss.Set<CogTag>().Select(x => new
             {
                 x.Note,
                 Nullable = x.GearNickName != null
                     ? new
                     {
-                        x.Gear.Nickname,
+                        x.Gear!.Nickname,
                         x.Gear.SquadId,
                         x.Gear.HasSoulPatch
                     }
@@ -5918,14 +5919,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
-                .Select(x => new { x.Note, Value = x.Nullable.SquadId + 1 }));
+                .Where(x => x.Nullable!.Nickname != null)
+                .Select(x => new { x.Note, Value = x.Nullable!.SquadId + 1 }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_property_converted_to_nullable_with_conditional(bool async)
@@ -5937,12 +5938,12 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                     ? new
                     {
-                        x.Gear.Nickname,
+                        x.Gear!.Nickname,
                         x.Gear.SquadId,
                         x.Gear.HasSoulPatch
                     }
                     : null
-            }).Select(x => x.Note != "K.I.A." ? x.Nullable.SquadId : -1));
+            }).Select(x => x.Note != "K.I.A." ? x.Nullable!.SquadId : -1));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_property_converted_to_nullable_with_function_call(bool async)
@@ -5954,12 +5955,12 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                     ? new
                     {
-                        x.Gear.Nickname,
+                        x.Gear!.Nickname,
                         x.Gear.SquadId,
                         x.Gear.HasSoulPatch
                     }
                     : null
-            }).Select(x => x.Nullable.Nickname.Substring(0, 3)),
+            }).Select(x => x.Nullable!.Nickname.Substring(0, 3)),
             ss => ss.Set<CogTag>().Select(x => x.GearNickName == null ? null : x.GearNickName.Substring(0, 3)));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -5972,28 +5973,28 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
-                .Select(x => new { x.Note, Function = x.Note.Substring(0, x.Nullable.SquadId) }),
+                .Where(x => x.Nullable!.Nickname != null)
+                .Select(x => new { x.Note, Function = x.Note!.Substring(0, x.Nullable!.SquadId) }),
             ss => ss.Set<CogTag>().Select(x => new
             {
                 x.Note,
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
-                .Select(x => new { x.Note, Function = x.Nullable == null ? null : x.Note.Substring(0, x.Nullable.SquadId) }));
+                .Where(x => x.Nullable!.Nickname != null)
+                .Select(x => new { x.Note, Function = x.Nullable == null ? null! : x.Note!.Substring(0, x.Nullable.SquadId) }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Projecting_property_converted_to_nullable_into_element_init(bool async)
@@ -6005,17 +6006,17 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
+                .Where(x => x.Nullable!.Nickname != null)
                 .OrderBy(x => x.Note)
                 .Select(x => new List<int>
                 {
-                    x.Nullable.Nickname.Length,
+                    x.Nullable!.Nickname.Length,
                     x.Nullable.SquadId,
                     x.Nullable.SquadId + 1,
                     42
@@ -6032,15 +6033,15 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
+                .Where(x => x.Nullable!.Nickname != null)
                 .OrderBy(x => x.Note)
-                .Select(x => new Squad { Id = x.Nullable.SquadId }),
+                .Select(x => new Squad { Id = x.Nullable!.SquadId }),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -6053,15 +6054,15 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
+                .Where(x => x.Nullable!.Nickname != null)
                 .OrderBy(x => x.Note)
-                .Select(x => new[] { x.Nullable.Nickname.Length, x.Nullable.SquadId, x.Nullable.SquadId + 1, 42 }),
+                .Select(x => new[] { x.Nullable!.Nickname.Length, x.Nullable.SquadId, x.Nullable.SquadId + 1, 42 }),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -6074,15 +6075,15 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
+                .Where(x => x.Nullable!.Nickname != null)
                 .OrderBy(x => x.Note)
-                .Where(x => !x.Nullable.HasSoulPatch)
+                .Where(x => !x.Nullable!.HasSoulPatch)
                 .Select(x => x.Note),
             assertOrder: true);
 
@@ -6094,11 +6095,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             {
                 x.Nickname,
                 x.CityOfBirthName,
-                Nullable = x.CityOfBirthName != null ? new { x.Tag.IssueDate } : null
+                Nullable = x.CityOfBirthName != null ? new { x.Tag!.IssueDate } : null
             })
                 .Where(x => x.CityOfBirthName != null)
                 .OrderBy(x => x.Nickname)
-                .Where(x => x.Nullable.IssueDate.Month != 5)
+                .Where(x => x.Nullable!.IssueDate.Month != 5)
                 .Select(x => x.Nickname),
             assertOrder: true);
 
@@ -6112,14 +6113,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 Nullable = x.GearNickName != null
                         ? new
                         {
-                            x.Gear.Nickname,
+                            x.Gear!.Nickname,
                             x.Gear.SquadId,
                             x.Gear.HasSoulPatch
                         }
                         : null
             })
-                .Where(x => x.Nullable.Nickname != null)
-                .OrderBy(x => x.Nullable.SquadId).ThenBy(x => x.Note),
+                .Where(x => x.Nullable!.Nickname != null)
+                .OrderBy(x => x.Nullable!.SquadId).ThenBy(x => x.Note),
             assertOrder: true);
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -6256,7 +6257,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                         {
                             w.Name,
                             w.IsAutomatic,
-                            w.OwnerFullName.Length
+                            w.OwnerFullName!.Length
                         })
                         .Distinct().ToList()
                 }),
@@ -6373,7 +6374,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                     Key = g.Nickname,
                     Subquery = g.Weapons
                         .Select(w => new { w.Name, w.IsAutomatic })
-                        .GroupBy(x => x.Name.Length)
+                        .GroupBy(x => x.Name!.Length)
                         .Select(x => new { x.Key, Count = x.Count() }).ToList()
                 }),
             elementSorter: e => e.Key,
@@ -6397,11 +6398,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Gear>()
                 .OrderBy(g => g.Nickname)
-                .Select(g => g.Weapons.SelectMany(x => x.Owner.AssignedCity.BornGears)
+                .Select(g => g.Weapons.SelectMany(x => x.Owner!.AssignedCity!.BornGears)
                     .Select(x => (bool?)x.HasSoulPatch).Distinct().ToList()),
             ss => ss.Set<Gear>()
                 .OrderBy(g => g.Nickname)
-                .Select(g => g.Weapons.SelectMany(x => x.Owner.AssignedCity.Maybe(x => x.BornGears) ?? new List<Gear>())
+                .Select(g => g.Weapons.SelectMany(x => x.Owner!.AssignedCity!.Maybe(x => x.BornGears) ?? new List<Gear>())
                     .Select(x => (bool?)x.HasSoulPatch).Distinct().ToList()),
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee),
             assertOrder: true);
@@ -6413,7 +6414,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>()
                 .Select(g => g.Weapons)
                 .Distinct(),
-            elementSorter: e => e.OrderBy(w => w.Id).FirstOrDefault().Id,
+            elementSorter: e => e.OrderBy(w => w.Id).FirstOrDefault()!.Id,
             elementAsserter: (e, a) => AssertCollection(e, a));
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -6563,7 +6564,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Squad>()
-                .Select(s => new { s.Name.Length })
+                .Select(s => new { s.Name!.Length })
                 .Distinct()
                 .Select(x => new
                 {
@@ -6658,22 +6659,22 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<Gear>().Select(g => new
             {
                 Gear = g,
-                (g as Officer).Tag,
-                IsNull = (g as Officer).Tag == null,
-                Property = (g as Officer).Nickname,
-                PropertyAfterNavigation = (g as Officer).Tag.Id,
+                (g as Officer)!.Tag,
+                IsNull = (g as Officer)!.Tag == null,
+                Property = (g as Officer)!.Nickname,
+                PropertyAfterNavigation = (g as Officer)!.Tag!.Id,
                 NestedOuter = new
                 {
-                    (g as Officer).CityOfBirth,
-                    IsNull = (g as Officer).CityOfBirth == null,
-                    Property = (g as Officer).Nickname,
-                    PropertyAfterNavigation = (g as Officer).CityOfBirth.Name,
+                    (g as Officer)!.CityOfBirth,
+                    IsNull = (g as Officer)!.CityOfBirth == null,
+                    Property = (g as Officer)!.Nickname,
+                    PropertyAfterNavigation = (g as Officer)!.CityOfBirth.Name,
                     NestedInner = new
                     {
-                        (g as Officer).Squad,
-                        IsNull = (g as Officer).Squad == null,
-                        Property = (g as Officer).Nickname,
-                        PropertyAfterNavigation = (g as Officer).Squad.Id
+                        (g as Officer)!.Squad,
+                        IsNull = (g as Officer)!.Squad == null,
+                        Property = (g as Officer)!.Nickname,
+                        PropertyAfterNavigation = (g as Officer)!.Squad.Id
                     }
                 }
             }),
@@ -6683,19 +6684,19 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                 g.Tag,
                 IsNull = g.Tag == null,
                 Property = g.Nickname,
-                PropertyAfterNavigation = g.Tag.Id,
+                PropertyAfterNavigation = g.Tag!.Id,
                 NestedOuter = new
                 {
                     g.CityOfBirth,
                     IsNull = g.CityOfBirth == null,
                     Property = g.Nickname,
-                    PropertyAfterNavigation = g.CityOfBirth.Name,
+                    PropertyAfterNavigation = g.CityOfBirth!.Name,
                     NestedInner = new
                     {
                         g.Squad,
                         IsNull = g.Squad == null,
                         Property = g.Nickname,
-                        PropertyAfterNavigation = g.Squad.Id
+                        PropertyAfterNavigation = g.Squad!.Id
                     }
                 }
             }),
@@ -6726,44 +6727,44 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             ss => ss.Set<LocustLeader>().Select(l => new
             {
                 Leader = l,
-                (l as LocustCommander).DefeatedBy,
-                IsNull = (l as LocustCommander).DefeatedBy == null,
-                Property = (l as LocustCommander).DefeatedByNickname,
-                PropertyAfterNavigation = (bool?)(l as LocustCommander).DefeatedBy.HasSoulPatch,
+                (l as LocustCommander)!.DefeatedBy,
+                IsNull = (l as LocustCommander)!.DefeatedBy == null,
+                Property = (l as LocustCommander)!.DefeatedByNickname,
+                PropertyAfterNavigation = (bool?)(l as LocustCommander)!.DefeatedBy!.HasSoulPatch,
                 NestedOuter = new
                 {
-                    (l as LocustCommander).CommandingFaction,
-                    IsNull = (l as LocustCommander).CommandingFaction == null,
-                    Property = (int?)(l as LocustCommander).HighCommandId,
-                    PropertyAfterNavigation = (l as LocustCommander).CommandingFaction.Eradicated,
+                    (l as LocustCommander)!.CommandingFaction,
+                    IsNull = (l as LocustCommander)!.CommandingFaction == null,
+                    Property = (int?)(l as LocustCommander)!.HighCommandId,
+                    PropertyAfterNavigation = (l as LocustCommander)!.CommandingFaction!.Eradicated,
                     NestedInner = new
                     {
-                        (l as LocustCommander).HighCommand,
-                        IsNull = (l as LocustCommander).HighCommand == null,
-                        Property = (l as LocustCommander).DefeatedBySquadId,
-                        PropertyAfterNavigation = (l as LocustCommander).HighCommand.Name
+                        (l as LocustCommander)!.HighCommand,
+                        IsNull = (l as LocustCommander)!.HighCommand == null,
+                        Property = (l as LocustCommander)!.DefeatedBySquadId,
+                        PropertyAfterNavigation = (l as LocustCommander)!.HighCommand!.Name
                     }
                 }
             }),
             ss => ss.Set<LocustLeader>().Select(l => new
             {
                 Leader = l,
-                (l as LocustCommander).DefeatedBy,
-                IsNull = (l as LocustCommander).DefeatedBy == null,
-                Property = (l as LocustCommander).DefeatedByNickname,
-                PropertyAfterNavigation = (bool?)(l as LocustCommander).DefeatedBy.HasSoulPatch,
+                (l as LocustCommander)!.DefeatedBy,
+                IsNull = (l as LocustCommander)!.DefeatedBy == null,
+                Property = (l as LocustCommander)!.DefeatedByNickname,
+                PropertyAfterNavigation = (bool?)(l as LocustCommander)!.DefeatedBy!.HasSoulPatch,
                 NestedOuter = new
                 {
-                    (l as LocustCommander).CommandingFaction,
-                    IsNull = (l as LocustCommander).CommandingFaction == null,
-                    Property = (int?)(l as LocustCommander).HighCommandId,
-                    PropertyAfterNavigation = (l as LocustCommander).CommandingFaction.MaybeScalar(x => x.Eradicated),
+                    (l as LocustCommander)!.CommandingFaction,
+                    IsNull = (l as LocustCommander)!.CommandingFaction == null,
+                    Property = (int?)(l as LocustCommander)!.HighCommandId,
+                    PropertyAfterNavigation = (l as LocustCommander)!.CommandingFaction!.MaybeScalar(x => x.Eradicated),
                     NestedInner = new
                     {
-                        (l as LocustCommander).HighCommand,
-                        IsNull = (l as LocustCommander).HighCommand == null,
-                        Property = (l as LocustCommander).MaybeScalar(x => x.DefeatedBySquadId),
-                        PropertyAfterNavigation = (l as LocustCommander).HighCommand.Name
+                        (l as LocustCommander)!.HighCommand,
+                        IsNull = (l as LocustCommander)!.HighCommand == null,
+                        Property = (l as LocustCommander)!.MaybeScalar(x => x.DefeatedBySquadId),
+                        PropertyAfterNavigation = (l as LocustCommander)!.HighCommand!.Name
                     }
                 }
             }),
@@ -6897,7 +6898,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         => AssertQuery(
             async,
             ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAt(s.Id).Nickname == "Cole Train"),
-            ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAtOrDefault(s.Id).Nickname == "Cole Train"));
+            ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAtOrDefault(s.Id)!.Nickname == "Cole Train"));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Using_indexer_on_byte_array_and_string_in_projection(bool async)
@@ -6907,7 +6908,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             {
                 x.Id,
                 ByteArray = x.Banner[0],
-                String = x.Name[1]
+                String = x.Name![1]
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -6923,9 +6924,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
             async,
             ss => ss.Set<Gear>()
                 .Where(x => ss.Set<Gear>().Concat(ss.Set<Gear>()).Select(x => x.Nickname).Contains("Marcus"))
-                .Select(x => new { x.Squad.Name, x.CityOfBirth.Location })
+                .Select(x => new { x.Squad.Name, x.CityOfBirth!.Location })
                 .GroupBy(x => new { x.Name })
-                .Select(x => new { x.Key.Name, SumOfLengths = x.Sum(xx => xx.Location.Length) }));
+                .Select(x => new { x.Key.Name, SumOfLengths = x.Sum(xx => xx.Location!.Length) }));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_expansion_inside_Contains_argument(bool async)
@@ -6944,7 +6945,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
         return AssertQuery(
             async,
-            ss => ss.Set<Gear>().Where(x => weapons.Contains(x.Weapons.OrderBy(w => w.Id).FirstOrDefault().Name)));
+            ss => ss.Set<Gear>().Where(x => weapons.Contains(x.Weapons.OrderBy(w => w.Id).FirstOrDefault()!.Name)));
     }
 
     [Theory, MemberData(nameof(IsAsyncData))]
@@ -6971,7 +6972,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
     public virtual Task Nav_expansion_inside_Take_correlated_to_source(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(x => x.Weapons.OrderBy(g => g.Id).Take(x.AssignedCity.Name.Length)));
+            ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(x => x.Weapons.OrderBy(g => g.Id).Take(x.AssignedCity!.Name.Length)));
 
     [Theory(Skip = "issue #32303"), MemberData(nameof(IsAsyncData))]
     public virtual Task Nav_expansion_with_member_pushdown_inside_Take_correlated_to_source(bool async)
@@ -6981,7 +6982,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
         return AssertQuery(
             async,
             ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(x => x.Weapons.OrderBy(g => g.Id).Take(
-                ss.Set<Gear>().OrderBy(xx => xx.Nickname).FirstOrDefault().AssignedCity.Name.Length)),
+                ss.Set<Gear>().OrderBy(xx => xx.Nickname).FirstOrDefault()!.AssignedCity!.Name.Length)),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
     }
@@ -7009,7 +7010,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
                   join lc in ss.Set<LocustLeader>().OfType<LocustCommander>()
                       on g.Nickname equals lc.DefeatedByNickname into grouping
                   from lc in grouping.DefaultIfEmpty()
-                  select new GearLocustLeaderDto { FullName = g.FullName, ThreatLevel = lc.ThreatLevel },
+                  select new GearLocustLeaderDto { FullName = g.FullName, ThreatLevel = lc!.ThreatLevel },
             ss => from g in ss.Set<Gear>()
                   join lc in ss.Set<LocustLeader>().OfType<LocustCommander>()
                       on g.Nickname equals lc.DefeatedByNickname into grouping
@@ -7024,7 +7025,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     private class GearLocustLeaderDto
     {
-        public string FullName { get; set; }
+        public string FullName { get; set; } = null!;
         public int? ThreatLevel { get; set; }
     }
 

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindSelectQuerySqlServerTest : NorthwindSelectQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -2195,7 +2193,7 @@ LEFT JOIN (
     WHERE [o2].[UnitPrice] < 10.0
 ) AS [s2] ON [o].[OrderID] = [s2].[OrderID]
 WHERE [o].[OrderID] < 10350
-ORDER BY [o].[OrderID], [s].[OrderID], [s].[ProductID], [s2].[OrderID]
+ORDER BY [o].[OrderID], [s].[OrderID], [s].[ProductID], [s2].[OrderID], [s2].[ProductID]
 """);
     }
 
@@ -2406,7 +2404,7 @@ LEFT JOIN (
 ) AS [o4] ON [c].[CustomerID] = [o4].[CustomerID]
 LEFT JOIN [Order Details] AS [o2] ON [o4].[OrderID] = [o2].[OrderID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID], [o2].[OrderID]
+ORDER BY [c].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID], [o2].[OrderID], [o2].[ProductID]
 """);
     }
 
@@ -2798,7 +2796,7 @@ LEFT JOIN (
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [s] ON [c].[CustomerID] = [s].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [s].[OrderID], [s].[OrderID0]
+ORDER BY [c].[CustomerID], [s].[OrderID], [s].[OrderID0], [s].[ProductID]
 """);
     }
 
@@ -2857,7 +2855,7 @@ LEFT JOIN (
     WHERE [o1].[row] <= 1
 ) AS [o2] ON [c0].[CustomerID] = [o2].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o2].[OrderID] = [o0].[OrderID]
-ORDER BY [c0].[CustomerID], [o0].[OrderID]
+ORDER BY [c0].[CustomerID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 

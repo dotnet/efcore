@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
 public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : StoreValueGenerationFixtureBase
 {
@@ -133,7 +131,7 @@ public abstract class StoreValueGenerationTestBase<TFixture>(TFixture fixture) :
             };
 
         StoreValueGenerationData first;
-        StoreValueGenerationData second;
+        StoreValueGenerationData? second;
 
         switch (firstOperationType)
         {

@@ -102,15 +102,15 @@ public class ExceptionTest
         public DbContext Context
             => throw new NotImplementedException();
 
-        public void SetOriginalValue(IProperty property, object value)
+        public void SetOriginalValue(IProperty property, object? value)
             => throw new NotImplementedException();
 
         public void SetPropertyModified(IProperty property)
             => throw new NotImplementedException();
 
-        public IEntityType EntityType { get; }
+        public IEntityType EntityType { get; } = null!;
         public EntityState EntityState { get; set; }
-        public IUpdateEntry SharedIdentityEntry { get; }
+        public IUpdateEntry? SharedIdentityEntry { get; }
 
         public bool IsModified(IProperty property)
             => throw new NotImplementedException();
@@ -145,7 +145,7 @@ public class ExceptionTest
         public TProperty GetOriginalValue<TProperty>(IProperty property)
             => throw new NotImplementedException();
 
-        public void SetStoreGeneratedValue(IProperty property, object value, bool setModified = true)
+        public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
             => throw new NotImplementedException();
 
         public EntityEntry ToEntityEntry()
@@ -168,6 +168,6 @@ public class ExceptionTest
     {
         var model = new Model();
         model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention);
-        return model.FinalizeModel().FindEntityType(typeof(object));
+        return model.FinalizeModel().FindEntityType(typeof(object))!;
     }
 }

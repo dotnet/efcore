@@ -10,8 +10,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : FieldMappingTestBase<TFixture>.FieldMappingFixtureBase, new()
 {
@@ -28,9 +26,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
 
     protected class LoginSession
     {
-        private object _id;
-        private IUser2 _user;
-        private object _users;
+        private object _id = null!;
+        private IUser2 _user = null!;
+        private object _users = null!;
 
         public int Id
         {
@@ -60,7 +58,7 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         var entry = context.Entry(session);
 
         Assert.Same(session.User, entry.Reference(e => e.User).CurrentValue);
-        Assert.Same(session.Users.Single(), entry.Collection(e => e.Users).CurrentValue.Single());
+        Assert.Same(session.Users.Single(), entry.Collection(e => e.Users).CurrentValue!.Single());
         Assert.Equal(session.Id, entry.Property(e => e.Id).CurrentValue);
         Assert.Equal(session.Id, entry.Property(e => e.Id).OriginalValue);
 
@@ -798,8 +796,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Title { get; set; }
-        public IEnumerable<PostAuto> Posts { get; set; }
+        public string Title { get; set; } = null!;
+        public IEnumerable<PostAuto> Posts { get; set; } = null!;
 
         int IBlogAccessor.AccessId
         {
@@ -825,10 +823,10 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         public int BlogId { get; set; }
-        public BlogAuto Blog { get; set; }
+        public BlogAuto Blog { get; set; } = null!;
 
         int IPostAccessor.AccessId
         {
@@ -858,9 +856,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogFull : IBlogAccessor
     {
         private int _id;
-        private string _title;
+        private string _title = null!;
 #pragma warning disable 649
-        private List<PostFull> _posts;
+        private List<PostFull> _posts = null!;
 #pragma warning restore 649
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -912,10 +910,10 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostFull : IPostAccessor
     {
         private int _id;
-        private string _title;
+        private string _title = null!;
         private int _blogId;
 #pragma warning disable 649
-        private BlogFull _blog;
+        private BlogFull _blog = null!;
 #pragma warning restore 649
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -981,8 +979,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         private int _id;
 
-        private string _title;
-        private IList<PostNavFields> _posts;
+        private string _title = null!;
+        private IList<PostNavFields> _posts = null!;
 
         int IBlogAccessor.AccessId
         {
@@ -1008,10 +1006,10 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         private int _id;
 
-        private string _title;
+        private string _title = null!;
         private int _blogId;
 
-        private BlogNavFields _blog;
+        private BlogNavFields _blog = null!;
 
         int IPostAccessor.AccessId
         {
@@ -1041,8 +1039,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogFullExplicit : IBlogAccessor
     {
         private int _myid;
-        private string _mytitle;
-        private IList<PostFullExplicit> _myposts;
+        private string _mytitle = null!;
+        private IList<PostFullExplicit> _myposts = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1085,9 +1083,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostFullExplicit : IPostAccessor
     {
         private int _myid;
-        private string _mytitle;
+        private string _mytitle = null!;
         private int _myblogId;
-        private BlogFullExplicit _myblog;
+        private BlogFullExplicit _myblog = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1142,8 +1140,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogReadOnly : IBlogAccessor
     {
         private int _id;
-        private string _title;
-        private ObservableCollection<PostReadOnly> _posts;
+        private string _title = null!;
+        private ObservableCollection<PostReadOnly> _posts = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1177,9 +1175,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostReadOnly : IPostAccessor
     {
         private int _id;
-        private string _title;
+        private string _title = null!;
         private int _blogId;
-        private BlogReadOnly _blog;
+        private BlogReadOnly _blog = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1222,8 +1220,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogWithReadOnlyCollection : IBlogAccessor
     {
         private int _id;
-        private string _title;
-        private ICollection<PostWithReadOnlyCollection> _posts;
+        private string _title = null!;
+        private ICollection<PostWithReadOnlyCollection> _posts = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1257,9 +1255,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostWithReadOnlyCollection : IPostAccessor
     {
         private int _id;
-        private string _title;
+        private string _title = null!;
         private int _blogId;
-        private BlogWithReadOnlyCollection _blog;
+        private BlogWithReadOnlyCollection _blog = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1302,8 +1300,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogReadOnlyExplicit : IBlogAccessor
     {
         private int _myid;
-        private string _mytitle;
-        private Collection<PostReadOnlyExplicit> _myposts;
+        private string _mytitle = null!;
+        private Collection<PostReadOnlyExplicit> _myposts = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1337,9 +1335,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostReadOnlyExplicit : IPostAccessor
     {
         private int _myid;
-        private string _mytitle;
+        private string _mytitle = null!;
         private int _myblogId;
-        private BlogReadOnlyExplicit _myblog;
+        private BlogReadOnlyExplicit _myblog = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1382,8 +1380,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogWriteOnly : IBlogAccessor
     {
         private int _id;
-        private string _title;
-        private IEnumerable<PostWriteOnly> _posts;
+        private string _title = null!;
+        private IEnumerable<PostWriteOnly> _posts = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1424,9 +1422,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostWriteOnly : IPostAccessor
     {
         private int _id;
-        private string _title;
+        private string _title = null!;
         private int _blogId;
-        private BlogWriteOnly _blog;
+        private BlogWriteOnly _blog = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1477,8 +1475,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class BlogWriteOnlyExplicit : IBlogAccessor
     {
         private int _myid;
-        private string _mytitle;
-        private ICollection<PostWriteOnlyExplicit> _myposts;
+        private string _mytitle = null!;
+        private ICollection<PostWriteOnlyExplicit> _myposts = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1518,9 +1516,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     protected class PostWriteOnlyExplicit : IPostAccessor
     {
         private int _myid;
-        private string _mytitle;
+        private string _mytitle = null!;
         private int _myblogId;
-        private BlogWriteOnlyExplicit _myblog;
+        private BlogWriteOnlyExplicit _myblog = null!;
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -1573,9 +1571,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         private int _id;
 
-        private string _title;
+        private string _title = null!;
 
-        public IEnumerable<PostFields> Posts { get; set; }
+        public IEnumerable<PostFields> Posts { get; set; } = null!;
 
         int IBlogAccessor.AccessId
         {
@@ -1601,10 +1599,10 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         private int _id;
 
-        private string _title;
+        private string _title = null!;
         private int _blogId;
 
-        public BlogFields Blog { get; set; }
+        public BlogFields Blog { get; set; } = null!;
 
         int IPostAccessor.AccessId
         {
@@ -1692,8 +1690,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     {
         public object Id { get; set; } = 0;
 
-        public object Title { get; set; }
-        public object Posts { get; set; }
+        public object Title { get; set; } = null!;
+        public object Posts { get; set; } = null!;
     }
 
     protected class BlogHiding : BlogHidingBase, IBlogAccessor
@@ -1707,13 +1705,13 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
 
         public new string Title
         {
-            get => base.Title is string value ? value : default;
+            get => base.Title is string value ? value : default!;
             set => base.Title = value;
         }
 
         public new IEnumerable<PostHiding> Posts
         {
-            get => base.Posts is IEnumerable<PostHiding> value ? value : default;
+            get => base.Posts is IEnumerable<PostHiding> value ? value : default!;
             set => base.Posts = value;
         }
 
@@ -1740,10 +1738,10 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
     {
         public object Id { get; set; } = 0;
 
-        public object Title { get; set; }
+        public object Title { get; set; } = null!;
 
         public object BlogId { get; set; } = 0;
-        public object Blog { get; set; }
+        public object Blog { get; set; } = null!;
     }
 
     protected class PostHiding : PostHidingBase, IPostAccessor
@@ -1757,7 +1755,7 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
 
         public new string Title
         {
-            get => base.Title is string value ? value : default;
+            get => base.Title is string value ? value : default!;
             set => base.Title = value;
         }
 
@@ -1769,7 +1767,7 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
 
         public new BlogHiding Blog
         {
-            get => base.Blog is BlogHiding value ? value : default;
+            get => base.Blog is BlogHiding value ? value : default!;
             set => base.Blog = value;
         }
 
@@ -1803,9 +1801,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public NavDependent _unconventionalDependent; // won't be picked up by convention
+        public NavDependent _unconventionalDependent = null!; // won't be picked up by convention
 
         public NavDependent Dependent
         {
@@ -1819,9 +1817,9 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public OneToOneFieldNavPrincipal OneToOneFieldNavPrincipal { get; set; }
+        public OneToOneFieldNavPrincipal OneToOneFieldNavPrincipal { get; set; } = null!;
     }
 
     protected DbContext CreateContext()
@@ -1857,8 +1855,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
                 b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
             });
 
-            modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-            modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+            modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog")!.SetField("_myblog");
+            modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts")!.SetField("_myposts");
 
             modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -1920,8 +1918,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
                     b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
                 });
 
-                modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog")!.SetField("_myblog");
+                modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts")!.SetField("_myposts");
 
                 modelBuilder.Entity<PostWriteOnly>(b =>
                 {
@@ -1952,8 +1950,8 @@ public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassF
                     b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
                 });
 
-                modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
-                modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+                modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog")!.SetField("_myblog");
+                modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts")!.SetField("_myposts");
 
                 modelBuilder.Entity<PostFields>(b =>
                 {

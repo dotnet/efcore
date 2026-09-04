@@ -89,12 +89,13 @@ public class MigrationsBundleTest
     private static string GetFullName(CommandLineApplication command)
     {
         var names = new Stack<string>();
+        CommandLineApplication? currentCommand = command;
 
-        while (command != null)
+        while (currentCommand != null)
         {
-            names.Push(command.Name);
+            names.Push(currentCommand.Name!);
 
-            command = command.Parent;
+            currentCommand = currentCommand.Parent;
         }
 
         return string.Join(" ", names);

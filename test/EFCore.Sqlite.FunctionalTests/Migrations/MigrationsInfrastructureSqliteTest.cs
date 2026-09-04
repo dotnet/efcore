@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Data;
 using Identity30.Data;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
@@ -1095,19 +1093,19 @@ namespace ModelSnapshot22
     public class Blog
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Post> Posts { get; set; } = null!;
     }
 
     public class Post
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public string? Title { get; set; }
+        public string? Content { get; set; }
         public DateTime EditDate { get; set; }
 
-        public Blog Blog { get; set; }
+        public Blog? Blog { get; set; }
     }
 
     public class BloggingContext : DbContext
@@ -1115,7 +1113,7 @@ namespace ModelSnapshot22
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite("DataSource=Test.db");
 
-        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Blog> Blogs { get; set; } = null!;
     }
 }
 
@@ -1152,6 +1150,45 @@ namespace Identity30.Data
             builder.Entity<IdentityRoleClaim<string>>(b => b.ToTable("AspNetRoleClaims"));
 
             builder.Entity<IdentityUserRole<string>>(b => b.ToTable("AspNetUserRoles"));
+
+            builder.Entity<IdentityRole>(b =>
+            {
+                b.Property(e => e.ConcurrencyStamp).IsRequired(false);
+                b.Property(e => e.Name).IsRequired(false);
+                b.Property(e => e.NormalizedName).IsRequired(false);
+            });
+
+            builder.Entity<IdentityRoleClaim<string>>(b =>
+            {
+                b.Property(e => e.ClaimType).IsRequired(false);
+                b.Property(e => e.ClaimValue).IsRequired(false);
+            });
+
+            builder.Entity<IdentityUser>(b =>
+            {
+                b.Property(e => e.ConcurrencyStamp).IsRequired(false);
+                b.Property(e => e.Email).IsRequired(false);
+                b.Property(e => e.NormalizedEmail).IsRequired(false);
+                b.Property(e => e.NormalizedUserName).IsRequired(false);
+                b.Property(e => e.PasswordHash).IsRequired(false);
+                b.Property(e => e.PhoneNumber).IsRequired(false);
+                b.Property(e => e.SecurityStamp).IsRequired(false);
+                b.Property(e => e.UserName).IsRequired(false);
+            });
+
+            builder.Entity<IdentityUserClaim<string>>(b =>
+            {
+                b.Property(e => e.ClaimType).IsRequired(false);
+                b.Property(e => e.ClaimValue).IsRequired(false);
+            });
+
+            builder.Entity<IdentityUserLogin<string>>()
+                .Property(e => e.ProviderDisplayName)
+                .IsRequired(false);
+
+            builder.Entity<IdentityUserToken<string>>()
+                .Property(e => e.Value)
+                .IsRequired(false);
         }
     }
 }

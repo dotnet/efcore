@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsistencyFixture fixture)
     : ApiConsistencyTestBase<CosmosApiConsistencyTest.CosmosApiConsistencyFixture>(fixture)
 {
@@ -51,7 +49,7 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
                         typeof(CosmosModelExtensions),
                         typeof(CosmosModelExtensions),
                         typeof(CosmosModelBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -60,7 +58,7 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
                         typeof(CosmosEntityTypeExtensions),
                         typeof(CosmosEntityTypeExtensions),
                         typeof(CosmosEntityTypeBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
@@ -69,16 +67,16 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
                         typeof(CosmosPropertyExtensions),
                         typeof(CosmosPropertyExtensions),
                         typeof(CosmosPropertyBuilderExtensions),
-                        null
+                        null!
                     )
                 },
                 {
                     typeof(IReadOnlyComplexProperty), (
                         typeof(CosmosComplexPropertyExtensions),
-                        null,
-                        null,
+                        null!,
+                        null!,
                         typeof(CosmosComplexPropertyBuilderExtensions),
-                        null
+                        null!
                     )
                 },
             };

@@ -536,12 +536,12 @@ public class StateManagerTest
 
     private class SingleKeyOwned
     {
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 
     private class CompositeKeyOwned
     {
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 
     private class SingleKey
@@ -549,9 +549,9 @@ public class StateManagerTest
         public int? Id { get; set; }
         public int? AlternateId { get; set; }
 
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
 
-        public SingleKeyOwned Owned { get; set; }
+        public SingleKeyOwned Owned { get; set; } = null!;
     }
 
     private class CompositeKey
@@ -562,14 +562,14 @@ public class StateManagerTest
         public int? AlternateId1 { get; set; }
         public int? AlternateId2 { get; set; }
 
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
 
-        public CompositeKeyOwned Owned { get; set; }
+        public CompositeKeyOwned Owned { get; set; } = null!;
     }
 
     private class WidgetContext : DbContext
     {
-        public DbSet<Widget> Widgets { get; set; }
+        public DbSet<Widget> Widgets { get; set; } = null!;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -587,9 +587,9 @@ public class StateManagerTest
         var category = new Category { Id = 77, PrincipalId = 777 };
         var snapshot = new Snapshot<int, string, int>(77, "Bjork", 777);
 
-        var entry = stateManager.StartTrackingFromQuery(categoryType, category, snapshot);
+        var entry = stateManager.StartTrackingFromQuery(categoryType!, category, snapshot);
 
-        Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, snapshot));
+        Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType!, category, snapshot));
     }
 
     [Fact]
@@ -599,7 +599,7 @@ public class StateManagerTest
         var stateManager = CreateStateManager(model);
 
         var entry = stateManager.GetOrCreateEntry(
-            new Dogegory { Id = null });
+            new Dogegory { Id = null! });
 
         Assert.Equal(
             CoreStrings.InvalidKeyValue("Dogegory", "Id"),
@@ -963,8 +963,8 @@ public class StateManagerTest
         public void NavigationReferenceChanged(
             InternalEntityEntry entry,
             INavigationBase navigationBase,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
         }
 
@@ -985,8 +985,8 @@ public class StateManagerTest
             IProperty property,
             IEnumerable<IKey> containingPrincipalKeys,
             IEnumerable<IForeignKey> containingForeignKeys,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
         }
 
@@ -1126,7 +1126,7 @@ public class StateManagerTest
             stateManager.GetOrCreateEntry(
                 new Product { Id = Guid.NewGuid(), DependentId = null }));
 
-        var fk = model.FindEntityType(typeof(Product)).GetForeignKeys().Single();
+        var fk = model.FindEntityType(typeof(Product))!.GetForeignKeys().Single();
 
         Assert.Equal(
             [productEntry1, productEntry2],
@@ -1173,7 +1173,7 @@ public class StateManagerTest
         var destinationLongitude = destination.ComplexType.FindProperty(nameof(Coordinate.Longitude))!;
 
         var entry = stateManager.CreateEntry(
-            new Dictionary<IProperty, object>
+            new Dictionary<IProperty, object?>
             {
                 { id, 1 },
                 { note, "Somewhere" },
@@ -1213,7 +1213,7 @@ public class StateManagerTest
         // properties must fall back to their sentinel (default) values rather than null, which would
         // otherwise cause an invalid cast during materialization.
         var entry = stateManager.CreateEntry(
-            new Dictionary<IProperty, object> { { id, 1 }, { originLatitude, 11 } },
+            new Dictionary<IProperty, object?> { { id, 1 }, { originLatitude, 11 } },
             entityType);
 
         Assert.Equal(1, entry[id]);
@@ -1242,7 +1242,7 @@ public class StateManagerTest
             CoreStrings.PropertyDoesNotBelong(
                 foreignProperty.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
             Assert.Throws<InvalidOperationException>(() => stateManager.CreateEntry(
-                new Dictionary<IProperty, object> { { id, 1 }, { foreignProperty, "Mars" } },
+                new Dictionary<IProperty, object?> { { id, 1 }, { foreignProperty, "Mars" } },
                 entityType)).Message);
     }
 
@@ -1262,7 +1262,7 @@ public class StateManagerTest
             CoreStrings.PropertyDoesNotBelong(
                 foreignLatitude.Name, otherEntityType.DisplayName(), entityType.DisplayName()),
             Assert.Throws<InvalidOperationException>(() => stateManager.CreateEntry(
-                new Dictionary<IProperty, object> { { id, 1 }, { foreignLatitude, 11 } },
+                new Dictionary<IProperty, object?> { { id, 1 }, { foreignLatitude, 11 } },
                 entityType)).Message);
     }
 
@@ -1271,23 +1271,23 @@ public class StateManagerTest
         public int Id { get; set; }
 
         public int? ParentWidgetId { get; set; }
-        public Widget ParentWidget { get; set; }
+        public Widget ParentWidget { get; set; } = null!;
 
-        public List<Widget> ChildWidgets { get; set; }
+        public List<Widget> ChildWidgets { get; set; } = null!;
     }
 
     private class Category
     {
         public int Id { get; set; }
         public int? PrincipalId { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Product
     {
         public Guid Id { get; set; }
         public int? DependentId { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public decimal Price { get; set; }
     }
 
@@ -1295,13 +1295,13 @@ public class StateManagerTest
 
     private class Dogegory
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     private class Location
     {
         public int Id { get; set; }
-        public string Planet { get; set; }
+        public string Planet { get; set; } = null!;
     }
 
     private class Place

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -11,7 +9,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private sealed class ParameterInliner(
         ISqlExpressionFactory sqlExpressionFactory,
-        IReadOnlyDictionary<string, object> parametersValues)
+        IReadOnlyDictionary<string, object?> parametersValues)
         : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression expression)
@@ -37,7 +35,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             var typeMapping = valuesParameter.TypeMapping;
                             var mutableValues = new List<SqlExpression>();
-                            foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
+                            foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name]!)
                             {
                                 mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
                             }
@@ -68,7 +66,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         hybridSearch.ApplyLimit(
                             sqlExpressionFactory.Constant(
-                                parametersValues[limitPrm.Name],
+                                parametersValues[limitPrm.Name]!,
                                 limitPrm.TypeMapping));
                     }
 
@@ -76,7 +74,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     {
                         hybridSearch.ApplyOffset(
                             sqlExpressionFactory.Constant(
-                                parametersValues[offsetPrm.Name],
+                                parametersValues[offsetPrm.Name]!,
                                 offsetPrm.TypeMapping));
                     }
 
@@ -98,7 +96,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     when (name is "FullTextContainsAny" or "FullTextContainsAll" or "FullTextScore") && type == typeof(string[]):
                 {
                     var keywordValues = new List<SqlExpression>();
-                    foreach (var value in (IEnumerable)parametersValues[keywords.Name])
+                    foreach (var value in (IEnumerable)parametersValues[keywords.Name]!)
                     {
                         keywordValues.Add(sqlExpressionFactory.Constant(value, typeof(string), elementTypeMapping));
                     }

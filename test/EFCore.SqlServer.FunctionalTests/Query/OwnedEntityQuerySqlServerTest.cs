@@ -7,8 +7,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEntityQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -27,10 +25,10 @@ public class OwnedEntityQuerySqlServerTest(NonSharedFixture fixture) : OwnedEnti
         Assert.Null(query[0].Data);
         Assert.NotNull(query[1].Data);
         Assert.NotNull(query[1].Contact);
-        Assert.Null(query[1].Contact.Address);
+        Assert.Null(query[1].Contact!.Address);
         Assert.NotNull(query[2].Data);
         Assert.NotNull(query[2].Contact);
-        Assert.NotNull(query[2].Contact.Address);
+        Assert.NotNull(query[2].Contact!.Address);
 
         AssertSql(
             """
@@ -107,28 +105,28 @@ ORDER BY [u].[Id] DESC
         public class User22054
         {
             public int Id { get; set; }
-            public Data22054 Data { get; set; }
-            public Contact22054 Contact { get; set; }
-            public byte[] RowVersion { get; set; }
+            public Data22054? Data { get; set; }
+            public Contact22054? Contact { get; set; }
+            public byte[] RowVersion { get; set; } = null!;
         }
 
         public class Data22054
         {
-            public string Data { get; set; }
+            public string? Data { get; set; }
             public bool Exists { get; set; }
         }
 
         public class Contact22054
         {
-            public string MobileNumber { get; set; }
-            public string SharedProperty { get; set; }
-            public Address22054 Address { get; set; }
+            public string? MobileNumber { get; set; }
+            public string? SharedProperty { get; set; }
+            public Address22054? Address { get; set; }
         }
 
         public class Address22054
         {
-            public string City { get; set; }
-            public string SharedProperty { get; set; }
+            public string? City { get; set; }
+            public string? SharedProperty { get; set; }
             public int Zip { get; set; }
         }
     }
@@ -158,13 +156,13 @@ FROM (
 ) AS [s1]
 LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [s1].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
 LEFT JOIN [StaticBag_Currencies] AS [s0] ON [s1].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
-ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id]
+ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id]
 """);
     }
 
     protected class Context22340(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<MasterTrunk22340> MasterTrunk { get; set; }
+        public DbSet<MasterTrunk22340> MasterTrunk { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -204,13 +202,13 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
 
         public class MasterTrunk22340
         {
-            public CurrencyBag22340 FungibleBag { get; set; }
-            public CurrencyBag22340 StaticBag { get; set; }
+            public CurrencyBag22340? FungibleBag { get; set; }
+            public CurrencyBag22340? StaticBag { get; set; }
         }
 
         public class CurrencyBag22340
         {
-            public IEnumerable<Currency22340> Currencies { get; set; }
+            public IEnumerable<Currency22340> Currencies { get; set; } = null!;
         }
 
         public class Currency22340
@@ -237,9 +235,9 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
             Assert.NotNull(owner.Dependents);
             Assert.Equal(2, owner.Dependents.Count);
             Assert.NotNull(owner.Owned1);
-            Assert.Equal("A", owner.Owned1.Value);
+            Assert.Equal("A", owner.Owned1!.Value);
             Assert.NotNull(owner.Owned2);
-            Assert.Equal("B", owner.Owned2.Value);
+            Assert.Equal("B", owner.Owned2!.Value);
 
             AssertSql(
                 """
@@ -272,7 +270,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
             Assert.NotNull(owner.Dependents);
             Assert.Equal(2, owner.Dependents.Count);
             Assert.NotNull(owner.Owned);
-            Assert.Equal("A", owner.Owned.Value);
+            Assert.Equal("A", owner.Owned!.Value);
 
             AssertSql(
                 """
@@ -328,14 +326,14 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
         public class Owner23211
         {
             public int Id { get; set; }
-            public List<Dependent23211> Dependents { get; set; }
-            public OwnedType23211 Owned1 { get; set; }
-            public OwnedType23211 Owned2 { get; set; }
+            public List<Dependent23211> Dependents { get; set; } = null!;
+            public OwnedType23211? Owned1 { get; set; }
+            public OwnedType23211? Owned2 { get; set; }
         }
 
         public class OwnedType23211
         {
-            public string Value { get; set; }
+            public string? Value { get; set; }
         }
 
         public class Dependent23211
@@ -346,8 +344,8 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
         public class SecondOwner23211
         {
             public int Id { get; set; }
-            public List<SecondDependent23211> Dependents { get; set; }
-            public OwnedType23211 Owned { get; set; }
+            public List<SecondDependent23211> Dependents { get; set; } = null!;
+            public OwnedType23211? Owned { get; set; }
         }
 
         public class SecondDependent23211
@@ -486,7 +484,7 @@ LEFT JOIN (
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [s] ON [p].[Id] = [s].[ParentId]
-ORDER BY [p].[Id], [c].[Id], [s].[ParentId]
+ORDER BY [p].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
 """,
             //
             """
@@ -547,7 +545,7 @@ SELECT [b].[Id], (
     WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
 FROM [Blog] AS [b]
 LEFT JOIN [Post] AS [p0] ON [b].[Id] = [p0].[BlogId]
-ORDER BY [b].[Id], [p0].[BlogId]
+ORDER BY [b].[Id], [p0].[BlogId], [p0].[Id]
 """);
     }
 
@@ -560,7 +558,7 @@ ORDER BY [b].[Id], [p0].[BlogId]
 SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
 FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
-ORDER BY [w].[Id], [w0].[WarehouseCode]
+ORDER BY [w].[Id], [w0].[WarehouseCode], [w0].[Id]
 """);
     }
 

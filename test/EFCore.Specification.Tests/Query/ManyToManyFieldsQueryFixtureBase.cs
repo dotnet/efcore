@@ -5,14 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyToManyContext>
 {
     protected override string StoreName
         => "ManyToManyQueryTest";
 
-    private ManyToManyData _data;
+    private ManyToManyData _data = null!;
 
     public override ISetSource GetExpectedData()
     {
@@ -29,13 +27,13 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
     public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {
-        { typeof(EntityOne), e => ((EntityOne)e)?.Id },
-        { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
-        { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3) },
-        { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
-        { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
-        { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
+        { typeof(EntityOne), e => ((EntityOne)e).Id },
+        { typeof(EntityTwo), e => ((EntityTwo)e).Id },
+        { typeof(EntityThree), e => ((EntityThree)e).Id },
+        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e).Key1, ((EntityCompositeKey)e).Key2, ((EntityCompositeKey)e).Key3) },
+        { typeof(EntityRoot), e => ((EntityRoot)e).Id },
+        { typeof(EntityBranch), e => ((EntityBranch)e).Id },
+        { typeof(EntityLeaf), e => ((EntityLeaf)e).Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
@@ -47,7 +45,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityOne)e;
+                    var ee = (EntityOne)e!;
                     var aa = (EntityOne)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -62,7 +60,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityTwo)e;
+                    var ee = (EntityTwo)e!;
                     var aa = (EntityTwo)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -77,7 +75,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityThree)e;
+                    var ee = (EntityThree)e!;
                     var aa = (EntityThree)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -92,7 +90,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityCompositeKey)e;
+                    var ee = (EntityCompositeKey)e!;
                     var aa = (EntityCompositeKey)a;
 
                     Assert.Equal(ee.Key1, aa.Key1);
@@ -109,7 +107,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityRoot)e;
+                    var ee = (EntityRoot)e!;
                     var aa = (EntityRoot)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -124,7 +122,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityBranch)e;
+                    var ee = (EntityBranch)e!;
                     var aa = (EntityBranch)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -140,7 +138,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : QueryFixtureBase<ManyTo
 
                 if (a != null)
                 {
-                    var ee = (EntityLeaf)e;
+                    var ee = (EntityLeaf)e!;
                     var aa = (EntityLeaf)a;
 
                     Assert.Equal(ee.Id, aa.Id);

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 public abstract class RelationalTypeMappingTest
 {
     protected class FakeValueConverter<TModel, TProvider>()
-        : ValueConverter<TModel, TProvider>(_ => (TProvider)(object)_, _ => (TModel)(object)_)
+        : ValueConverter<TModel, TProvider>(_ => (TProvider)(object)_!, _ => (TModel)(object)_!)
     {
         public override Type ModelClrType { get; } = typeof(TModel);
         public override Type ProviderClrType { get; } = typeof(TProvider);
@@ -22,15 +22,15 @@ public abstract class RelationalTypeMappingTest
 
     public static ValueConverter CreateConverter(Type modelType)
         => (ValueConverter)Activator.CreateInstance(
-            typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)))!;
 
     public static ValueConverter CreateConverter(Type modelType, Type providerType)
         => (ValueConverter)Activator.CreateInstance(
-            typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType))!;
 
     public static ValueComparer CreateComparer(Type type)
         => (ValueComparer)Activator.CreateInstance(
-            typeof(FakeValueComparer<>).MakeGenericType(type));
+            typeof(FakeValueComparer<>).MakeGenericType(type))!;
 
     [Theory, InlineData(typeof(BoolTypeMapping), typeof(bool)), InlineData(typeof(ByteTypeMapping), typeof(byte)),
      InlineData(typeof(CharTypeMapping), typeof(char)), InlineData(typeof(DateTimeOffsetTypeMapping), typeof(DateTimeOffset)),
@@ -49,7 +49,7 @@ public abstract class RelationalTypeMappingTest
             null,
             [FakeTypeMapping.CreateParameters(type)],
             null,
-            null);
+            null)!;
 
         AssertClone(type, mapping);
     }
@@ -110,7 +110,7 @@ public abstract class RelationalTypeMappingTest
                     storeTypePostfix: StoreTypePostfix.Size)
             }.Concat(additionalArgs).ToArray(),
             null,
-            null);
+            null)!;
 
         var clone = mapping.WithStoreTypeAndSize("<clone>", 66);
 
@@ -174,7 +174,7 @@ public abstract class RelationalTypeMappingTest
                     storeTypePostfix: StoreTypePostfix.Size)
             }.Concat(additionalArgs).ToArray(),
             null,
-            null);
+            null)!;
 
         var clone = mapping.WithStoreTypeAndSize("<clone>", 66);
 
@@ -345,7 +345,7 @@ public abstract class RelationalTypeMappingTest
 
     protected virtual void Test_GenerateSqlLiteral_helper(
         RelationalTypeMapping typeMapping,
-        object value,
+        object? value,
         string literalValue)
         => Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
 
@@ -575,14 +575,14 @@ public abstract class RelationalTypeMappingTest
     {
         using var context = new FruityContext(ContextOptions);
         Assert.Same(
-            context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping(),
-            context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
+            context.Model.FindEntityType(typeof(Banana))!.FindProperty("Id")!.GetTypeMapping(),
+            context.Model.FindEntityType(typeof(Kiwi))!.FindProperty("BananaId")!.GetTypeMapping());
     }
 
     private class FruityContext(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Banana> Bananas { get; set; }
-        public DbSet<Kiwi> Kiwi { get; set; }
+        public DbSet<Banana> Bananas { get; set; } = null!;
+        public DbSet<Kiwi> Kiwi { get; set; } = null!;
     }
 
     [Fact]
@@ -591,8 +591,8 @@ public abstract class RelationalTypeMappingTest
         using var context = new MismatchedFruityContext(ContextOptions);
         Assert.Equal(
             typeof(short),
-            context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping().Converter.ProviderClrType);
-        Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
+            context.Model.FindEntityType(typeof(Banana))!.FindProperty("Id")!.GetTypeMapping().Converter!.ProviderClrType);
+        Assert.Null(context.Model.FindEntityType(typeof(Kiwi))!.FindProperty("Id")!.GetTypeMapping().Converter);
     }
 
     private class MismatchedFruityContext(DbContextOptions options) : FruityContext(options)
@@ -611,7 +611,7 @@ public abstract class RelationalTypeMappingTest
     {
         public int Id { get; set; }
 
-        public ICollection<Kiwi> Kiwis { get; set; }
+        public ICollection<Kiwi> Kiwis { get; set; } = null!;
     }
 
     private class Kiwi
@@ -619,7 +619,7 @@ public abstract class RelationalTypeMappingTest
         public int Id { get; set; }
 
         public int BananaId { get; set; }
-        public Banana Banana { get; set; }
+        public Banana Banana { get; set; } = null!;
     }
 
     protected abstract DbContextOptions ContextOptions { get; }

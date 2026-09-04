@@ -20,8 +20,8 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Customers", result["@odata.context"].ToString());
-        var customers = result["value"] as JArray;
+        Assert.Contains("$metadata#Customers", result["@odata.context"]!.ToString());
+        var customers = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(91, customers.Count);
     }
@@ -36,8 +36,8 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Customers/$entity", result["@odata.context"].ToString());
-        Assert.Equal("ALFKI", result["CustomerID"].ToString());
+        Assert.Contains("$metadata#Customers/$entity", result["@odata.context"]!.ToString());
+        Assert.Equal("ALFKI", result["CustomerID"]!.ToString());
     }
 
     [Fact]
@@ -50,12 +50,12 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Customers", result["@odata.context"].ToString());
-        var customers = result["value"] as JArray;
+        Assert.Contains("$metadata#Customers", result["@odata.context"]!.ToString());
+        var customers = Assert.IsType<JArray>(result["value"]);
 
         Assert.Single(customers);
         Assert.Equal("ALFKI", customers[0]["CustomerID"]);
-        var orders = customers[0]["Orders"] as JArray;
+        var orders = Assert.IsType<JArray>(customers[0]["Orders"]);
         Assert.Equal(6, orders.Count);
     }
 
@@ -69,8 +69,8 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Orders", result["@odata.context"].ToString());
-        var orders = result["value"] as JArray;
+        Assert.Contains("$metadata#Orders", result["@odata.context"]!.ToString());
+        var orders = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(830, orders.Count);
     }
@@ -85,8 +85,8 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Orders(OrderDate)", result["@odata.context"].ToString());
-        var orderDates = result["value"] as JArray;
+        Assert.Contains("$metadata#Orders(OrderDate)", result["@odata.context"]!.ToString());
+        var orderDates = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(830, orderDates.Count);
     }
@@ -101,7 +101,7 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Order%20Details", result["@odata.context"].ToString());
+        Assert.Contains("$metadata#Order%20Details", result["@odata.context"]!.ToString());
     }
 
     [Fact]
@@ -114,6 +114,6 @@ public class NorthwindODataQueryTests(NorthwindODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Order%20Details", result["@odata.context"].ToString());
+        Assert.Contains("$metadata#Order%20Details", result["@odata.context"]!.ToString());
     }
 }

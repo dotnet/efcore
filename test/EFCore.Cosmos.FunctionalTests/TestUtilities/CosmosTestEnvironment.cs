@@ -9,8 +9,6 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable disable
-
 public static class CosmosTestEnvironment
 {
     private static readonly string _emulatorAuthToken =
@@ -24,15 +22,15 @@ public static class CosmosTestEnvironment
         .Build()
         .GetSection("Test:Cosmos");
 
-    private static CosmosDbContainer _container;
+    private static CosmosDbContainer? _container;
     private static bool _initialized;
     private static readonly SemaphoreSlim _initSemaphore = new(1, 1);
 
     public static string DefaultConnection { get; private set; } = string.IsNullOrEmpty(Config["DefaultConnection"])
         ? "https://localhost:8081"
-        : Config["DefaultConnection"];
+        : Config["DefaultConnection"]!;
 
-    internal static HttpMessageHandler HttpMessageHandler { get; private set; }
+    internal static HttpMessageHandler? HttpMessageHandler { get; private set; }
 
     public static async Task InitializeAsync()
     {
@@ -93,7 +91,7 @@ public static class CosmosTestEnvironment
             {
                 try
                 {
-                    _container.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                    container.DisposeAsync().AsTask().GetAwaiter().GetResult();
                 }
                 catch
                 {
@@ -104,9 +102,9 @@ public static class CosmosTestEnvironment
 
             DefaultConnection = new UriBuilder(
                 Uri.UriSchemeHttp,
-                _container.Hostname,
-                _container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
-            HttpMessageHandler = _container.HttpMessageHandler;
+                container.Hostname,
+                container.GetMappedPublicPort(CosmosDbBuilder.CosmosDbPort)).ToString();
+            HttpMessageHandler = container.HttpMessageHandler;
 
             _initialized = true;
         }
@@ -139,7 +137,7 @@ public static class CosmosTestEnvironment
 
     public static string AuthToken { get; } = string.IsNullOrEmpty(Config["AuthToken"])
         ? _emulatorAuthToken
-        : Config["AuthToken"];
+        : Config["AuthToken"]!;
 
     public static string ConnectionString
         => $"AccountEndpoint={DefaultConnection};AccountKey={AuthToken}";
@@ -150,13 +148,13 @@ public static class CosmosTestEnvironment
     public static TokenCredential TokenCredential { get; } = new AzureCliCredential(
         new AzureCliCredentialOptions { ProcessTimeout = TimeSpan.FromMinutes(5) });
 
-    public static string SubscriptionId { get; } = Config["SubscriptionId"];
+    public static string SubscriptionId { get; } = Config["SubscriptionId"]!;
 
-    public static string ResourceGroup { get; } = Config["ResourceGroup"];
+    public static string ResourceGroup { get; } = Config["ResourceGroup"]!;
 
     public static AzureLocation AzureLocation { get; } = string.IsNullOrEmpty(Config["AzureLocation"])
         ? AzureLocation.WestUS
-        : Enum.Parse<AzureLocation>(Config["AzureLocation"]);
+        : Enum.Parse<AzureLocation>(Config["AzureLocation"]!);
 
     public static bool IsEmulator
         => !UseTokenCredential && (AuthToken == _emulatorAuthToken);

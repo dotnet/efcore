@@ -20,8 +20,8 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Gears", result["@odata.context"].ToString());
-        var gears = result["value"] as JArray;
+        Assert.Contains("$metadata#Gears", result["@odata.context"]!.ToString());
+        var gears = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(5, gears.Count);
     }
@@ -37,8 +37,9 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         var result = await response.Content.ReadAsObject<JObject>();
 
         Assert.Contains(
-            "$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer", result["@odata.context"].ToString());
-        var gears = result["value"] as JArray;
+            "$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer",
+            result["@odata.context"]!.ToString());
+        var gears = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(2, gears.Count);
     }
@@ -56,8 +57,8 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
 
         Assert.Contains(
             "$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer/$entity",
-            result["@odata.context"].ToString());
-        Assert.Equal("Marcus", result["Nickname"].ToString());
+            result["@odata.context"]!.ToString());
+        Assert.Equal("Marcus", result["Nickname"]!.ToString());
     }
 
     [Fact]
@@ -70,8 +71,8 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Gears", result["@odata.context"].ToString());
-        var officers = result["value"] as JArray;
+        Assert.Contains("$metadata#Gears", result["@odata.context"]!.ToString());
+        var officers = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(3, officers.Count);
     }
@@ -86,8 +87,10 @@ public class GearsOfWarODataQueryTests(GearsOfWarODataQueryTestFixture fixture)
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var result = await response.Content.ReadAsObject<JObject>();
 
-        Assert.Contains("$metadata#Gears(SquadId,Tag(Id))", result["@odata.context"].ToString());
-        var projections = result["value"] as JArray;
+        Assert.Contains(
+            "$metadata#Gears(SquadId,Tag(Id))",
+            result["@odata.context"]!.ToString());
+        var projections = Assert.IsType<JArray>(result["value"]);
 
         Assert.Equal(5, projections.Count);
     }

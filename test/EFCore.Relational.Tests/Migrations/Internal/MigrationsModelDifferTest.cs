@@ -324,40 +324,40 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
         public int Id { get; set; }
 
-        public Album Album { get; set; }
-        public User User { get; set; }
-        public ICollection<Album> Albums { get; set; }
-        public ICollection<User> Users { get; set; }
+        public Album Album { get; set; } = null!;
+        public User User { get; set; } = null!;
+        public ICollection<Album> Albums { get; set; } = null!;
+        public ICollection<User> Users { get; set; } = null!;
     }
 
     private class Album
     {
         public int Id { get; set; }
 
-        public User OwnerUser { get; set; }
-        public Book Book { get; set; }
-        public ICollection<Book> Books { get; set; }
-        public ICollection<Group> Groups { get; set; }
+        public User OwnerUser { get; set; } = null!;
+        public Book Book { get; set; } = null!;
+        public ICollection<Book> Books { get; set; } = null!;
+        public ICollection<Group> Groups { get; set; } = null!;
     }
 
     private class User
     {
         public int Id { get; set; }
 
-        public Book Book { get; set; }
-        public Group ReaderGroup { get; set; }
-        public ICollection<Album> AlbumOwnerUsers { get; set; }
-        public ICollection<Book> Books { get; set; }
-        public ICollection<Group> Groups { get; set; }
+        public Book Book { get; set; } = null!;
+        public Group ReaderGroup { get; set; } = null!;
+        public ICollection<Album> AlbumOwnerUsers { get; set; } = null!;
+        public ICollection<Book> Books { get; set; } = null!;
+        public ICollection<Group> Groups { get; set; } = null!;
     }
 
     private class Group
     {
         public int Id { get; set; }
 
-        public Album OwnerAlbum { get; set; }
-        public User OwnerUser { get; set; }
-        public ICollection<User> UserReaderGroups { get; set; }
+        public Album OwnerAlbum { get; set; } = null!;
+        public User OwnerUser { get; set; } = null!;
+        public ICollection<User> UserReaderGroups { get; set; } = null!;
     }
 
     [Fact]
@@ -418,7 +418,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
         public int Id { get; set; }
         public int E { get; set; }
-        public CreateTableEntity2B D { get; set; }
+        public CreateTableEntity2B D { get; set; } = null!;
         public int A { get; set; }
     }
 
@@ -1105,7 +1105,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
                 var createTableOperation = Assert.IsType<CreateTableOperation>(upOps[0]);
                 Assert.Equal("Animal", createTableOperation.Name);
-                Assert.Equal("Id", createTableOperation.PrimaryKey.Columns.Single());
+                Assert.Equal("Id", createTableOperation.PrimaryKey!.Columns.Single());
                 Assert.Equal(["Id", "MouseId", "BoneId"], createTableOperation.Columns.Select(c => c.Name));
                 Assert.Empty(createTableOperation.ForeignKeys);
                 Assert.Empty(createTableOperation.UniqueConstraints);
@@ -1333,7 +1333,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var m = Assert.IsType<CreateTableOperation>(o);
                     Assert.Equal("Animal", m.Name);
-                    Assert.Equal("Id", m.PrimaryKey.Columns.Single());
+                    Assert.Equal("Id", m.PrimaryKey!.Columns.Single());
                     Assert.Equal(["Id", "MouseId"], m.Columns.Select(c => c.Name));
                     Assert.Empty(m.ForeignKeys);
                 },
@@ -1341,7 +1341,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     var m = Assert.IsType<CreateTableOperation>(o);
                     Assert.Equal("AnimalDetails", m.Name);
-                    Assert.Equal("Id", m.PrimaryKey.Columns.Single());
+                    Assert.Equal("Id", m.PrimaryKey!.Columns.Single());
                     Assert.Equal(["Id", "BoneId"], m.Columns.Select(c => c.Name));
                     var fk = m.ForeignKeys.Single();
                     Assert.Equal("Animal", fk.PrincipalTable);
@@ -1608,6 +1608,52 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             TestHelpers.CreateContext(targetOptions).GetService<CommandBatchPreparerDependencies>(),
             logger);
     }
+
+    [Fact]
+    public void Remove_entity_splitting_from_excluded_table()
+        => Execute(
+            _ => { },
+            source =>
+            {
+                source.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                        x.SplitToTable(
+                            "Address", t => t.Property<string>("City"));
+                        x.ToTable("Company", tb => tb.ExcludeFromMigrations());
+                    });
+            },
+            target =>
+            {
+                target.Entity(
+                    "Company",
+                    x =>
+                    {
+                        x.Property<int>("CompanyId");
+                        x.Property<string>("Name");
+                        x.Property<string>("City");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Address", m.Name);
+                    var fk = m.ForeignKeys.Single();
+                    Assert.Equal("Company", fk.PrincipalTable);
+                }));
 
     [Fact]
     public void Add_owned_types()
@@ -2463,7 +2509,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public void Rename_property_and_column_when_snapshot()
         => Execute(
             source => source.Entity(
-                typeof(Crab).FullName,
+                typeof(Crab).FullName!,
                 x =>
                 {
                     x.ToTable("Crab");
@@ -2631,7 +2677,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     private class Crab
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
     }
 
     [Fact]
@@ -6359,7 +6405,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             Assert.Null(c.Collation);
                         });
 
-                    var pk = operation.PrimaryKey;
+                    var pk = operation.PrimaryKey!;
                     Assert.Equal("PK_Cats", pk.Name);
                     Assert.Equal("Cats", pk.Table);
                     Assert.Equal(new[] { "Id" }, pk.Columns);
@@ -6415,7 +6461,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             Assert.Null(c.Collation);
                         });
 
-                    var pk = operation.PrimaryKey;
+                    var pk = operation.PrimaryKey!;
                     Assert.Equal("PK_Mice", pk.Name);
                     Assert.Equal("Mice", pk.Table);
                     Assert.Equal(new[] { "Id" }, pk.Columns);
@@ -7000,7 +7046,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             Assert.Null(c.Collation);
                         });
 
-                    var pk = operation.PrimaryKey;
+                    var pk = operation.PrimaryKey!;
                     Assert.Equal("PK_Cats", pk.Name);
                     Assert.Equal("Cats", pk.Table);
                     Assert.Equal(new[] { "Id" }, pk.Columns);
@@ -7056,7 +7102,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             Assert.Null(c.Collation);
                         });
 
-                    var pk = operation.PrimaryKey;
+                    var pk = operation.PrimaryKey!;
                     Assert.Equal("PK_Mice", pk.Name);
                     Assert.Equal("Mice", pk.Table);
                     Assert.Equal(new[] { "Id" }, pk.Columns);
@@ -7700,7 +7746,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             Assert.True(c.IsNullable);
                         });
 
-                    var pk = operation.PrimaryKey;
+                    var pk = operation.PrimaryKey!;
                     Assert.Equal("PK_Mice", pk.Name);
                     Assert.Equal("Mice", pk.Table);
                     Assert.Equal(new[] { "Id" }, pk.Columns);
@@ -7745,7 +7791,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                             Assert.True(c.IsNullable);
                         });
 
-                    var pk = operation.PrimaryKey;
+                    var pk = operation.PrimaryKey!;
                     Assert.Equal("PK_Cats", pk.Name);
                     Assert.Equal("Cats", pk.Table);
                     Assert.Equal(new[] { "Id" }, pk.Columns);
@@ -9082,7 +9128,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     private class Animal
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     private class Eagle : Animal;
@@ -10143,7 +10189,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     public class Account
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
         public IEnumerable<AccountHolder> AccountHolders { get; set; } = [];
     }
 
@@ -10466,10 +10512,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     protected class MyJsonComplex
     {
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
         public DateTime Date { get; set; }
-        public MyNestedComplex Nested { get; set; }
-        public List<MyNestedComplex> NestedCollection { get; set; }
+        public MyNestedComplex Nested { get; set; } = null!;
+        public List<MyNestedComplex> NestedCollection { get; set; } = null!;
     }
 
     protected class MyNestedComplex
@@ -10764,8 +10810,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     private class RightmostValueComparer() : ValueComparer<byte[]>(false)
     {
-        public override bool Equals(byte[] left, byte[] right)
-            => object.Equals(left[^1], right[^1]);
+        public override bool Equals(byte[]? left, byte[]? right)
+            => object.Equals(left![^1], right![^1]);
     }
 
     [Fact]
@@ -11120,7 +11166,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             target => target.Entity(
                 "EntityWithEnumProperty",
                 x => x.Property<SomeEnum?>("Enum")
-                    .HasConversion(e => e.ToString(), e => (SomeEnum)Enum.Parse(typeof(SomeEnum), e))),
+                    .HasConversion(e => e.ToString(), e => (SomeEnum)Enum.Parse(typeof(SomeEnum), e!))),
             upOps => Assert.Collection(
                 upOps,
                 o =>
@@ -11840,10 +11886,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
         public int Id { get; set; }
 
-        public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
+        public string? AddressLine1 { get; set; }
+        public string? AddressLine2 { get; set; }
 
-        public Address Billing { get; set; }
+        public Address? Billing { get; set; }
     }
 
     private class Order
@@ -11859,22 +11905,22 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
         public int Id { get; set; }
 
-        public Address Billing { get; set; }
-        public Address Shipping { get; set; }
+        public Address? Billing { get; set; }
+        public Address? Shipping { get; set; }
     }
 
     private class Customer
     {
         public int Id { get; set; }
 
-        public Address Mailing { get; set; }
-        public ICollection<Order> Orders { get; set; }
+        public Address Mailing { get; set; } = null!;
+        public ICollection<Order> Orders { get; set; } = null!;
     }
 
     private class Address
     {
-        public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
+        public string? AddressLine1 { get; set; }
+        public string? AddressLine2 { get; set; }
     }
 
     [Fact]
@@ -12091,15 +12137,15 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public class Parent
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
-        public IEnumerable<Child> Children { get; set; }
+        public IEnumerable<Child> Children { get; set; } = null!;
     }
 
     public class Child
     {
         public Guid Id { get; set; }
-        public string ChildName { get; set; }
+        public string ChildName { get; set; } = null!;
     }
 
     [Fact]
@@ -12253,7 +12299,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
                 target.Entity(
                     "Order", b => b.OwnsOne(
-                        "OrderInfo", "OrderInfo", b1 => b1.ToTable("Order", (string)null)));
+                        "OrderInfo", "OrderInfo", b1 => b1.ToTable("Order", (string?)null)));
             },
             Assert.Empty,
             Assert.Empty);
@@ -12472,12 +12518,12 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     public class Customer13300 : ProviderTenantEntity13300
     {
-        public string DisplayName { get; set; }
+        public string DisplayName { get; set; } = null!;
     }
 
     public abstract class ProviderTenantEntity13300 : TenantEntity13300
     {
-        public string ProviderKey { get; set; }
+        public string ProviderKey { get; set; } = null!;
     }
 
     public abstract class TenantEntity13300
@@ -12488,7 +12534,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     public class ReferencePoint13300
     {
-        public string Reason { get; set; }
+        public string Reason { get; set; } = null!;
     }
 
     [Fact]
@@ -12525,8 +12571,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     public abstract class Base
     {
         public int? RealFkNavigationId { get; set; }
-        public Principal ShadowFkNavigation { get; set; }
-        public Principal RealFkNavigation { get; set; }
+        public Principal ShadowFkNavigation { get; set; } = null!;
+        public Principal RealFkNavigation { get; set; } = null!;
         public int Id3 { get; set; }
     }
 
@@ -12534,7 +12580,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
         public int Id2 { get; set; }
         public int Id1 { get; set; }
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 
     public class Principal
@@ -12544,7 +12590,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     private class Blog
     {
-        private readonly Action<object, string> _loader;
+        private readonly Action<object, string> _loader = null!;
 
         public Blog()
         {
@@ -12554,18 +12600,18 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             => _loader = lazyLoader;
 
         public int BlogId { get; set; }
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
         public ICollection<Post> Posts
         {
-            get => _loader.Load(this, ref field);
+            get => _loader.Load(this, ref field)!;
             set;
-        }
+        } = null!;
     }
 
     private class Post
     {
-        private readonly ILazyLoader _loader;
+        private readonly ILazyLoader _loader = null!;
 
         public Post()
         {
@@ -12575,10 +12621,10 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             => _loader = loader;
 
         public int PostId { get; set; }
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public int? BlogId { get; set; }
 
-        public Blog Blog
+        public Blog? Blog
         {
             get => _loader.Load(this, ref field);
             set;
@@ -12854,7 +12900,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     private class TestKeylessType
     {
-        public string Something { get; set; }
+        public string Something { get; set; } = null!;
     }
 
     private static IQueryable<TestKeylessType> GetCountByYear(int id)
@@ -12869,7 +12915,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 var function = modelBuilder.HasDbFunction(
                     typeof(MigrationsModelDifferTest).GetMethod(
                         nameof(GetCountByYear),
-                        BindingFlags.NonPublic | BindingFlags.Static)).Metadata;
+                        BindingFlags.NonPublic | BindingFlags.Static)!).Metadata;
 
                 modelBuilder.Entity<TestKeylessType>().ToFunction(function.ModelName);
             },

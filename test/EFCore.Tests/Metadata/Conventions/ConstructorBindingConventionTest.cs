@@ -373,10 +373,10 @@ public class ConstructorBindingConventionTest
     {
         var constructorBinding = GetBinding<BlogConflict>(e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
             typeof(BlogConflict).GetConstructor(
-                [typeof(string), typeof(int)]),
+                [typeof(string), typeof(int)])!,
             [
-                new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
-                new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
+                new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))!),
+                new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id))!)
             ]));
 
         Assert.NotNull(constructorBinding);
@@ -709,14 +709,14 @@ public class ConstructorBindingConventionTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-        public DbSet<NoField> NoFields { get; }
-        public DbSet<NoFieldRelated> NoFieldRelateds { get; }
+        public DbSet<NoField> NoFields { get; } = null!;
+        public DbSet<NoFieldRelated> NoFieldRelateds { get; } = null!;
     }
 
     private class NoField(Action<object, string> lazyLoader)
     {
         private readonly Action<object, string> _loader = lazyLoader;
-        private ICollection<NoFieldRelated> _hidden_noFieldRelated;
+        private ICollection<NoFieldRelated> _hidden_noFieldRelated = null!;
         public int Id { get; set; }
 
         public ICollection<NoFieldRelated> NoFieldRelated
@@ -729,10 +729,10 @@ public class ConstructorBindingConventionTest
     private class NoFieldRelated
     {
         public int Id { get; set; }
-        public NoField NoField { get; set; }
+        public NoField NoField { get; set; } = null!;
     }
 
-    private ConstructorBinding GetBinding<TEntity>(Action<IMutableEntityType> setBinding = null)
+    private ConstructorBinding GetBinding<TEntity>(Action<IMutableEntityType>? setBinding = null)
     {
         var entityType = ((IMutableModel)new Model()).AddEntityType(typeof(TEntity));
         entityType.AddProperty(nameof(Blog.Id), typeof(int));
@@ -755,7 +755,7 @@ public class ConstructorBindingConventionTest
         var convention = new ConstructorBindingConvention(CreateDependencies());
         convention.ProcessModelFinalizing(model.Builder, context);
 
-        return (ConstructorBinding)((EntityType)entityType).ConstructorBinding;
+        return (ConstructorBinding)((EntityType)entityType).ConstructorBinding!;
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -764,12 +764,12 @@ public class ConstructorBindingConventionTest
     private abstract class Blog
     {
 #pragma warning disable 649, IDE1006 // Naming Styles
-        public string _content;
+        public string _content = null!;
 
         public int m_follows;
 #pragma warning restore 649, IDE1006 // Naming Styles
 
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
     }
 }

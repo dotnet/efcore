@@ -14,12 +14,12 @@ public class TableValuedDbFunctionConventionTest
         modelBuilder.HasDbFunction(
             typeof(TableValuedDbFunctionConventionTest).GetMethod(
                 nameof(GetKeylessEntities),
-                BindingFlags.NonPublic | BindingFlags.Static));
+                BindingFlags.NonPublic | BindingFlags.Static)!);
 
         modelBuilder.Entity<KeylessEntity>().HasNoKey();
         var model = Finalize(modelBuilder);
 
-        var entityType = model.FindEntityType(typeof(KeylessEntity));
+        var entityType = model.FindEntityType(typeof(KeylessEntity))!;
 
         Assert.Null(entityType.FindPrimaryKey());
         Assert.Equal("KeylessEntity", entityType.GetTableMappings().Single().Table.Name);
@@ -33,13 +33,13 @@ public class TableValuedDbFunctionConventionTest
         modelBuilder.HasDbFunction(
             typeof(TableValuedDbFunctionConventionTest).GetMethod(
                 nameof(GetEntities),
-                BindingFlags.NonPublic | BindingFlags.Static));
+                BindingFlags.NonPublic | BindingFlags.Static)!);
 
         var model = Finalize(modelBuilder);
 
-        var entityType = model.FindEntityType(typeof(TestEntity));
+        var entityType = model.FindEntityType(typeof(TestEntity))!;
 
-        Assert.Equal(nameof(TestEntity.Name), entityType.FindPrimaryKey().Properties.Single().Name);
+        Assert.Equal(nameof(TestEntity.Name), entityType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal("TestTable", entityType.GetTableMappings().Single().Table.Name);
     }
 
@@ -51,7 +51,7 @@ public class TableValuedDbFunctionConventionTest
         modelBuilder.HasDbFunction(
             typeof(TableValuedDbFunctionConventionTest).GetMethod(
                 nameof(GetKeylessEntities),
-                BindingFlags.NonPublic | BindingFlags.Static));
+                BindingFlags.NonPublic | BindingFlags.Static)!);
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
@@ -68,7 +68,7 @@ public class TableValuedDbFunctionConventionTest
         modelBuilder.HasDbFunction(
             typeof(TableValuedDbFunctionConventionTest).GetMethod(
                 nameof(GetKeylessEntities),
-                BindingFlags.NonPublic | BindingFlags.Static));
+                BindingFlags.NonPublic | BindingFlags.Static)!);
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
@@ -84,7 +84,7 @@ public class TableValuedDbFunctionConventionTest
         modelBuilder.HasDbFunction(
             typeof(TableValuedDbFunctionConventionTest).GetMethod(
                 nameof(GetScalars),
-                BindingFlags.NonPublic | BindingFlags.Static));
+                BindingFlags.NonPublic | BindingFlags.Static)!);
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidIQueryableReturnType(
@@ -112,14 +112,14 @@ public class TableValuedDbFunctionConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [NotMapped]
-        public KeylessEntity KeylessEntity { get; set; }
+        public KeylessEntity KeylessEntity { get; set; } = null!;
     }
 
     private class KeylessEntity
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

@@ -18,7 +18,7 @@ public class SqlServerOnDeleteConventionTest
 
     public class SkippyDbContext : DbContext
     {
-        public DbSet<Arena> Areas { get; }
+        public DbSet<Arena> Areas { get; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer();
@@ -26,7 +26,7 @@ public class SqlServerOnDeleteConventionTest
 
     public class Arena : Propensity
     {
-        public virtual ICollection<Propensity> AreaProperties { get; set; }
+        public virtual ICollection<Propensity> AreaProperties { get; set; } = null!;
     }
 
     public abstract class Propensity
@@ -34,8 +34,8 @@ public class SqlServerOnDeleteConventionTest
         public int Id { get; set; }
 
         public int? PrimaryYId { get; set; }
-        public virtual Propensity PrimaryYProp { get; set; }
+        public virtual Propensity PrimaryYProp { get; set; } = null!;
 
-        public virtual ICollection<Arena> PropertyAreas { get; set; }
+        public virtual ICollection<Arena> PropertyAreas { get; set; } = null!;
     }
 }

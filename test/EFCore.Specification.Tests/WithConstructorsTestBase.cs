@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 #pragma warning disable IDE0052 // Remove unread private members
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : WithConstructorsTestBase<TFixture>.WithConstructorsFixtureBase, new()
 {
@@ -795,7 +793,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         public Post(
             string title,
             string content,
-            Blog blog = null)
+            Blog? blog = null)
             : this(0, title, content)
             => Blog = blog;
 
@@ -803,7 +801,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         public string Content { get; set; }
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
-        public Blog Blog { get; private set; }
+        public Blog? Blog { get; private set; }
     }
 
     protected class HasContext<TContext>
@@ -825,7 +823,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public bool Filler { get; private set; }
 
-        public TContext Context { get; }
+        public TContext Context { get; } = null!;
     }
 
     protected class HasContextProperty<TContext>
@@ -836,13 +834,13 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public bool Filler { get; private set; }
 
-        public TContext Context { get; private set; }
+        public TContext Context { get; private set; } = null!;
     }
 
     protected class HasContextPc<TContext>
         where TContext : DbContext
     {
-        private TContext _context;
+        private TContext _context = null!;
         private bool _setterCalled;
 
         public HasContextPc()
@@ -881,7 +879,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class HasEntityType
     {
-        private readonly IEntityType _entityType;
+        private readonly IEntityType _entityType = null!;
 
         public HasEntityType()
         {
@@ -904,12 +902,12 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
         public bool Filler { get; set; }
 
-        public IEntityType EntityType { get; set; }
+        public IEntityType EntityType { get; set; } = null!;
     }
 
     protected class HasEntityTypePc
     {
-        private IEntityType _entityType;
+        private IEntityType _entityType = null!;
         private bool _setterCalled;
 
         public HasEntityTypePc()
@@ -943,7 +941,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class HasStateManager
     {
-        private readonly IStateManager _stateManager;
+        private readonly IStateManager _stateManager = null!;
 
         public HasStateManager()
         {
@@ -966,12 +964,12 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
         public bool Filler { get; set; }
 
-        public IStateManager StateManager { get; set; }
+        public IStateManager StateManager { get; set; } = null!;
     }
 
     protected class HasStateManagerPc
     {
-        private IStateManager _stateManager;
+        private IStateManager _stateManager = null!;
         private bool _setterCalled;
         // ReSharper disable once ConvertToAutoProperty
 
@@ -1006,7 +1004,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyBlog
     {
-        private readonly ILazyLoader _loader;
+        private readonly ILazyLoader _loader = null!;
         private ICollection<LazyPost> _lazyPosts = new List<LazyPost>();
 
         public LazyBlog()
@@ -1024,13 +1022,13 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             => _lazyPosts.Add(post);
 
         public IEnumerable<LazyPost> LazyPosts
-            => _loader.Load(this, ref _lazyPosts);
+            => _loader.Load(this, ref _lazyPosts!)!;
     }
 
     protected class LazyPost
     {
-        private readonly ILazyLoader _loader;
-        private LazyBlog _lazyBlog;
+        private readonly ILazyLoader _loader = null!;
+        private LazyBlog _lazyBlog = null!;
 
         public LazyPost()
         {
@@ -1045,7 +1043,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
         public LazyBlog LazyBlog
         {
-            get => _loader.Load(this, ref _lazyBlog);
+            get => _loader.Load(this, ref _lazyBlog!)!;
             set => _lazyBlog = value;
         }
     }
@@ -1054,7 +1052,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
     {
         private ICollection<LazyPropertyPost> _lazyPropertyPosts = new List<LazyPropertyPost>();
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         public int Id { get; set; }
 
@@ -1064,14 +1062,14 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             => _lazyPropertyPosts.Add(post);
 
         public IEnumerable<LazyPropertyPost> LazyPropertyPosts
-            => Loader.Load(this, ref _lazyPropertyPosts);
+            => Loader.Load(this, ref _lazyPropertyPosts!)!;
     }
 
     protected class LazyPropertyPost
     {
-        private LazyPropertyBlog _lazyPropertyBlog;
+        private LazyPropertyBlog _lazyPropertyBlog = null!;
 
-        private ILazyLoader Loader { get; set; }
+        private ILazyLoader Loader { get; set; } = null!;
 
         public int Id { get; set; }
         public bool Filler { get; set; }
@@ -1079,7 +1077,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
         public LazyPropertyBlog LazyPropertyBlog
         {
-            get => Loader.Load(this, ref _lazyPropertyBlog);
+            get => Loader.Load(this, ref _lazyPropertyBlog!)!;
             set => _lazyPropertyBlog = value;
         }
 
@@ -1093,7 +1091,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
 #pragma warning disable 649
 #pragma warning disable IDE0044 // Add readonly modifier
-        private ILazyLoader _loader;
+        private ILazyLoader _loader = null!;
 #pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 649
 
@@ -1105,16 +1103,16 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             => _lazyFieldPosts.Add(post);
 
         public IEnumerable<LazyFieldPost> LazyFieldPosts
-            => _loader.Load(this, ref _lazyFieldPosts);
+            => _loader.Load(this, ref _lazyFieldPosts!)!;
     }
 
     protected class LazyFieldPost
     {
-        private LazyFieldBlog _lazyFieldBlog;
+        private LazyFieldBlog _lazyFieldBlog = null!;
 
 #pragma warning disable 649
 #pragma warning disable IDE0044 // Add readonly modifier
-        private ILazyLoader _loader;
+        private ILazyLoader _loader = null!;
 #pragma warning restore IDE0044 // Add readonly modifier
 #pragma warning restore 649
 
@@ -1124,7 +1122,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
         public LazyFieldBlog LazyFieldBlog
         {
-            get => _loader.Load(this, ref _lazyFieldBlog);
+            get => _loader.Load(this, ref _lazyFieldBlog!)!;
             set => _lazyFieldBlog = value;
         }
 
@@ -1136,7 +1134,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
     {
         private ICollection<LazyPsPost> _lazyPsPosts = new List<LazyPsPost>();
 
-        private Action<object, string> LazyLoader { get; set; }
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         public int Id { get; set; }
 
@@ -1151,9 +1149,9 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyPsPost
     {
-        private LazyPsBlog _lazyPsBlog;
+        private LazyPsBlog _lazyPsBlog = null!;
 
-        private Action<object, string> LazyLoader { get; set; }
+        private Action<object, string> LazyLoader { get; set; } = null!;
 
         public int Id { get; set; }
 
@@ -1170,7 +1168,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
     {
         private readonly ICollection<LazyAsyncPsPost> _lazyAsyncPsPosts = new List<LazyAsyncPsPost>();
 
-        private Func<object, CancellationToken, string, Task> LazyLoader { get; set; }
+        private Func<object, CancellationToken, string, Task> LazyLoader { get; set; } = null!;
 
         public int Id { get; set; }
 
@@ -1192,7 +1190,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyAsyncPsPost
     {
-        private Func<object, CancellationToken, string, Task> LazyLoader { get; set; }
+        private Func<object, CancellationToken, string, Task> LazyLoader { get; set; } = null!;
 
         public int Id { get; set; }
         public bool Filler { get; set; }
@@ -1204,13 +1202,13 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             return LazyAsyncPsBlog;
         }
 
-        public LazyAsyncPsBlog LazyAsyncPsBlog { get; set; }
+        public LazyAsyncPsBlog LazyAsyncPsBlog { get; set; } = null!;
     }
 
     protected class LazyPcBlog
     {
         private ICollection<LazyPcPost> _lazyPcPosts = new List<LazyPcPost>();
-        private ILazyLoader _loader;
+        private ILazyLoader _loader = null!;
 
         public LazyPcBlog()
         {
@@ -1241,13 +1239,13 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             => _lazyPcPosts.Add(post);
 
         public IEnumerable<LazyPcPost> LazyPcPosts
-            => Loader.Load(this, ref _lazyPcPosts);
+            => Loader.Load(this, ref _lazyPcPosts!)!;
     }
 
     protected class LazyPcPost
     {
-        private LazyPcBlog _lazyPcBlog;
-        private ILazyLoader _loader;
+        private LazyPcBlog _lazyPcBlog = null!;
+        private ILazyLoader _loader = null!;
 
         public LazyPcPost()
         {
@@ -1276,7 +1274,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
         public LazyPcBlog LazyPcBlog
         {
-            get => Loader.Load(this, ref _lazyPcBlog);
+            get => Loader.Load(this, ref _lazyPcBlog!)!;
             set => _lazyPcBlog = value;
         }
     }
@@ -1284,7 +1282,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
     protected class LazyPcsBlog
     {
         private ICollection<LazyPcsPost> _lazyPcsPosts = new List<LazyPcsPost>();
-        private Action<object, string> _loader;
+        private Action<object, string> _loader = null!;
 
         public LazyPcsBlog()
         {
@@ -1320,8 +1318,8 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyPcsPost
     {
-        private LazyPcsBlog _lazyPcsBlog;
-        private Action<object, string> _loader;
+        private LazyPcsBlog _lazyPcsBlog = null!;
+        private Action<object, string> _loader = null!;
 
         public LazyPcsPost()
         {
@@ -1360,7 +1358,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyPocoBlog
     {
-        private readonly Action<object, string> _loader;
+        private readonly Action<object, string> _loader = null!;
         private ICollection<LazyPocoPost> _lazyPocoPosts = new List<LazyPocoPost>();
 
         public LazyPocoBlog()
@@ -1383,8 +1381,8 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyPocoPost
     {
-        private readonly Action<object, string> _loader;
-        private LazyPocoBlog _lazyPocoBlog;
+        private readonly Action<object, string> _loader = null!;
+        private LazyPocoBlog _lazyPocoBlog = null!;
 
         public LazyPocoPost()
         {
@@ -1406,7 +1404,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyAsyncPocoBlog
     {
-        private readonly Func<object, CancellationToken, string, Task> _loader;
+        private readonly Func<object, CancellationToken, string, Task> _loader = null!;
         private readonly ICollection<LazyAsyncPocoPost> _lazyAsyncPocoPosts = new List<LazyAsyncPocoPost>();
 
         public LazyAsyncPocoBlog()
@@ -1436,7 +1434,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyAsyncPocoPost
     {
-        private readonly Func<object, CancellationToken, string, Task> _loader;
+        private readonly Func<object, CancellationToken, string, Task> _loader = null!;
 
         public LazyAsyncPocoPost()
         {
@@ -1456,12 +1454,12 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             return LazyAsyncPocoBlog;
         }
 
-        public LazyAsyncPocoBlog LazyAsyncPocoBlog { get; set; }
+        public LazyAsyncPocoBlog LazyAsyncPocoBlog { get; set; } = null!;
     }
 
     protected class LazyAsyncBlog
     {
-        private readonly ILazyLoader _loader;
+        private readonly ILazyLoader _loader = null!;
         private readonly ICollection<LazyAsyncPost> _lazyAsyncPosts = new List<LazyAsyncPost>();
 
         public LazyAsyncBlog()
@@ -1491,7 +1489,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
 
     protected class LazyAsyncPost
     {
-        private readonly ILazyLoader _loader;
+        private readonly ILazyLoader _loader = null!;
 
         public LazyAsyncPost()
         {
@@ -1511,7 +1509,7 @@ public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : ICl
             return LazyAsyncBlog;
         }
 
-        public LazyAsyncBlog LazyAsyncBlog { get; set; }
+        public LazyAsyncBlog LazyAsyncBlog { get; set; } = null!;
     }
 
     protected record BlogAsImmutableRecord

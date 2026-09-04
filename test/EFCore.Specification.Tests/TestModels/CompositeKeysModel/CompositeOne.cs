@@ -3,33 +3,31 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
 
-#nullable disable
-
 public class CompositeOne
 {
-    public string Id1 { get; set; }
+    public string Id1 { get; set; } = null!;
     public int Id2 { get; set; }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
     public DateTime Date { get; set; }
 
-    public CompositeTwo OneToOne_Required_PK1 { get; set; }
-    public CompositeTwo OneToOne_Optional_PK1 { get; set; }
+    public CompositeTwo OneToOne_Required_PK1 { get; set; } = null!;
+    public CompositeTwo? OneToOne_Optional_PK1 { get; set; }
 
-    public CompositeTwo OneToOne_Required_FK1 { get; set; }
-    public CompositeTwo OneToOne_Optional_FK1 { get; set; }
+    public CompositeTwo OneToOne_Required_FK1 { get; set; } = null!;
+    public CompositeTwo? OneToOne_Optional_FK1 { get; set; }
 
-    public ICollection<CompositeTwo> OneToMany_Required1 { get; set; }
-    public ICollection<CompositeTwo> OneToMany_Optional1 { get; set; }
+    public ICollection<CompositeTwo> OneToMany_Required1 { get; set; } = null!;
+    public ICollection<CompositeTwo> OneToMany_Optional1 { get; set; } = null!;
 
-    public CompositeOne OneToOne_Optional_Self1 { get; set; }
+    public CompositeOne? OneToOne_Optional_Self1 { get; set; }
 
-    public ICollection<CompositeOne> OneToMany_Required_Self1 { get; set; }
-    public ICollection<CompositeOne> OneToMany_Optional_Self1 { get; set; }
-    public CompositeOne OneToMany_Required_Self_Inverse1 { get; set; }
-    public CompositeOne OneToMany_Optional_Self_Inverse1 { get; set; }
+    public ICollection<CompositeOne> OneToMany_Required_Self1 { get; set; } = null!;
+    public ICollection<CompositeOne> OneToMany_Optional_Self1 { get; set; } = null!;
+    public CompositeOne OneToMany_Required_Self_Inverse1 { get; set; } = null!;
+    public CompositeOne? OneToMany_Optional_Self_Inverse1 { get; set; }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((CompositeOne)obj)));
 
     private bool Equals(CompositeOne other)

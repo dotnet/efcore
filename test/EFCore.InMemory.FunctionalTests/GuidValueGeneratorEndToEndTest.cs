@@ -50,12 +50,12 @@ public class GuidValueGeneratorEndToEndTest
                 .UseInternalServiceProvider(_serviceProvider);
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<Pegasus> Pegasuses { get; set; }
+        public DbSet<Pegasus> Pegasuses { get; set; } = null!;
     }
 
     private class Pegasus
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

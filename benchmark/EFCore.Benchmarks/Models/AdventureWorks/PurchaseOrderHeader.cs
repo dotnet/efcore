@@ -26,7 +26,7 @@ public class PurchaseOrderHeader
     public int VendorID { get; set; }
 
     public virtual ICollection<PurchaseOrderDetail> PurchaseOrderDetail { get; set; }
-    public virtual Employee Employee { get; set; }
-    public virtual ShipMethod ShipMethod { get; set; }
-    public virtual Vendor Vendor { get; set; }
+    public virtual Employee Employee { get; set; } = null!;
+    public virtual ShipMethod ShipMethod { get; set; } = null!;
+    public virtual Vendor Vendor { get; set; } = null!;
 }

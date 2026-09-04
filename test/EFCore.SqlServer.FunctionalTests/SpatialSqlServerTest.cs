@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 [ConditionalClass(typeof(SqlServerTestEnvironment), nameof(SqlServerTestEnvironment.IsSqlClrSupported))]
 public class SpatialSqlServerTest(SpatialSqlServerFixture fixture) : SpatialTestBase<SpatialSqlServerFixture>(fixture)
 {

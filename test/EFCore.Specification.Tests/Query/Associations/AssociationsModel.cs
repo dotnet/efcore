@@ -163,5 +163,5 @@ public class RootReferencingEntity
 {
     public int Id { get; set; }
 
-    public RootEntity? Root { get; set; } = null!;
+    public RootEntity? Root { get; set; }
 }

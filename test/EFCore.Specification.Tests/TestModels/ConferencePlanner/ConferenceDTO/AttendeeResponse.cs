@@ -5,5 +5,5 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceD
 
 public class AttendeeResponse : Attendee
 {
-    public ICollection<Session> Sessions { get; set; } = [];
+    public ICollection<Session>? Sessions { get; set; }
 }

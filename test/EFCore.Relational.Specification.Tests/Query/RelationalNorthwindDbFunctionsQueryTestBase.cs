@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFixture fixture)
     : NorthwindDbFunctionsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
@@ -18,7 +16,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
             c => EF.Functions.Collate(c.ContactName, CaseInsensitiveCollation) == "maria anders",
-            c => c.ContactName.Equals("maria anders", StringComparison.OrdinalIgnoreCase));
+            c => c.ContactName!.Equals("maria anders", StringComparison.OrdinalIgnoreCase));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_case_sensitive(bool async)
@@ -27,7 +25,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
             c => EF.Functions.Collate(c.ContactName, CaseSensitiveCollation) == "maria anders",
-            c => c.ContactName.Equals("maria anders", StringComparison.Ordinal));
+            c => c.ContactName!.Equals("maria anders", StringComparison.Ordinal));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_case_sensitive_constant(bool async)
@@ -36,7 +34,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFix
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
             c => c.ContactName == EF.Functions.Collate("maria anders", CaseSensitiveCollation),
-            c => c.ContactName.Equals("maria anders", StringComparison.Ordinal));
+            c => c.ContactName!.Equals("maria anders", StringComparison.Ordinal));
 
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Collate_is_null(bool async)

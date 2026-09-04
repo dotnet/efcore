@@ -6,20 +6,18 @@ using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSemanticsContext>, ITestSqlLoggerFactory
 {
     public override ISetSource GetExpectedData()
         => NullSemanticsData.Instance;
 
-    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object?>>
     {
         { typeof(NullSemanticsEntity1), e => ((NullSemanticsEntity1)e)?.Id },
         { typeof(NullSemanticsEntity2), e => ((NullSemanticsEntity2)e)?.Id }
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public override IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
     {
         {
             typeof(NullSemanticsEntity1), (e, a) =>
@@ -27,7 +25,7 @@ public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSeman
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (NullSemanticsEntity1)e;
+                    var ee = (NullSemanticsEntity1)e!;
                     var aa = (NullSemanticsEntity1)a;
 
                     Assert.Equal(ee.Id, aa.Id);
@@ -58,7 +56,7 @@ public abstract class NullSemanticsQueryFixtureBase : QueryFixtureBase<NullSeman
                 Assert.Equal(e == null, a == null);
                 if (a != null)
                 {
-                    var ee = (NullSemanticsEntity2)e;
+                    var ee = (NullSemanticsEntity2)e!;
                     var aa = (NullSemanticsEntity2)a;
 
                     Assert.Equal(ee.Id, aa.Id);

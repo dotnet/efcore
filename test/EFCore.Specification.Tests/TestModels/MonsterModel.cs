@@ -60,14 +60,14 @@ public interface IComputer
 public interface IConcurrencyInfo
 {
     public bool Active { get; set; }
-    public string Token { get; set; }
+    public string? Token { get; set; }
     public DateTime? QueriedDateTime { get; set; }
 }
 
 public interface IContactDetails
 {
     public bool Active { get; set; }
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     public IPhone HomePhone { get; set; }
     public IPhone WorkPhone { get; set; }
@@ -104,12 +104,12 @@ public interface IDriver
 public interface IIncorrectScan
 {
     public int IncorrectScanId { get; set; }
-    public byte[] ExpectedCode { get; set; }
-    public byte[] ActualCode { get; set; }
+    public byte[]? ExpectedCode { get; set; }
+    public byte[]? ActualCode { get; set; }
     public DateTime ScanDate { get; set; }
     public string Details { get; set; }
-    public IBarcode ExpectedBarcode { get; set; }
-    public IBarcode ActualBarcode { get; set; }
+    public IBarcode? ExpectedBarcode { get; set; }
+    public IBarcode? ActualBarcode { get; set; }
 }
 
 public interface ILastLogin
@@ -117,7 +117,7 @@ public interface ILastLogin
     public string Username { get; set; }
     public DateTime LoggedIn { get; set; }
     public DateTime? LoggedOut { get; set; }
-    public string SmartcardUsername { get; set; }
+    public string? SmartcardUsername { get; set; }
     public ILogin Login { get; set; }
 }
 
@@ -136,13 +136,13 @@ public interface IMessage
 {
     public int MessageId { get; set; }
     public string FromUsername { get; set; }
-    public string ToUsername { get; set; }
+    public string? ToUsername { get; set; }
     public DateTime Sent { get; set; }
     public string Subject { get; set; }
     public string Body { get; set; }
     public bool IsRead { get; set; }
     public ILogin Sender { get; set; }
-    public ILogin Recipient { get; set; }
+    public ILogin? Recipient { get; set; }
 }
 
 public interface IOrderLine
@@ -150,7 +150,7 @@ public interface IOrderLine
     public int OrderId { get; set; }
     public int ProductId { get; set; }
     public int Quantity { get; set; }
-    public string ConcurrencyToken { get; set; }
+    public string? ConcurrencyToken { get; set; }
     public IAnOrder Order { get; set; }
     public IProduct Product { get; set; }
 }
@@ -284,7 +284,7 @@ public interface ISmartCard
     public string CardSerial { get; set; }
     public DateTime Issued { get; set; }
     public ILogin Login { get; set; }
-    public ILastLogin LastLogin { get; set; }
+    public ILastLogin? LastLogin { get; set; }
 }
 
 public interface ISupplierInfo
@@ -321,7 +321,7 @@ public interface ISuspiciousActivity
 public interface IAuditInfo
 {
     public DateTime ModifiedDate { get; set; }
-    public string ModifiedBy { get; set; }
+    public string? ModifiedBy { get; set; }
 
     public IConcurrencyInfo Concurrency { get; set; }
 }
@@ -363,7 +363,7 @@ public interface ILogin
 
 public interface IPhone
 {
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     public string Extension { get; set; }
     public PhoneType PhoneType { get; set; }
 }

@@ -39,7 +39,7 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest(NorthwindQueryInMemory
 
     public override async Task Sum_over_scalar_returning_subquery(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Sum_over_scalar_returning_subquery(async))).Message);
 
     public override Task Collection_Last_member_access_in_projection_translated(bool async)

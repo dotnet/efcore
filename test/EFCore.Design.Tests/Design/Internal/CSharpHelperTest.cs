@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
-#nullable enable
-
 public class CSharpHelperTest
 {
     private static readonly string EOL = Environment.NewLine;
@@ -540,6 +538,16 @@ public class CSharpHelperTest
         Assert.Equal("builder.TestFunc(true, 42)", result);
     }
 #pragma warning restore CS0618
+
+    [Fact]
+    public void XmlComment_handles_all_line_terminators()
+    {
+        var result = new CSharpHelper(TypeMappingSource).XmlComment("one\r\ntwo\rthree\nfour\u0085five\u2028six\u2029seven", indent: 1);
+
+        Assert.Equal(
+            $"one{EOL}    /// two{EOL}    /// three{EOL}    /// four{EOL}    /// five{EOL}    /// six{EOL}    /// seven",
+            result);
+    }
 
     [Fact]
     public void Really_unknown_literal_with_no_mapping_support()

@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class AdHocQueryFiltersQuerySqlServerTest(NonSharedFixture fixture) : AdHocQueryFiltersQueryRelationalTestBase(fixture)
 {
     protected override ITestStoreFactory NonSharedTestStoreFactory
@@ -143,13 +141,13 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 
     protected class Context11803(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Faction11803> Factions { get; set; }
-        public DbSet<Leader11803> Leaders { get; set; }
-        public DbSet<LeaderQuery11803> LeadersQuery { get; set; }
+        public DbSet<Faction11803> Factions { get; set; } = null!;
+        public DbSet<Leader11803> Leaders { get; set; } = null!;
+        public DbSet<LeaderQuery11803> LeadersQuery { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Leader11803>().HasQueryFilter(l => l.Name.StartsWith("Bran")); // this one is ignored
+            modelBuilder.Entity<Leader11803>().HasQueryFilter(l => l.Name!.StartsWith("Bran")); // this one is ignored
             modelBuilder.Entity<Faction11803>().HasQueryFilter(f => Leaders.Any(l => l.Name == "Crach an Craite"));
 
             modelBuilder
@@ -189,21 +187,21 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
         public class Faction11803
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<Leader11803> Leaders { get; set; }
+            public List<Leader11803> Leaders { get; set; } = null!;
         }
 
         public class Leader11803
         {
             public int Id { get; set; }
-            public string Name { get; set; }
-            public Faction11803 Faction { get; set; }
+            public string? Name { get; set; }
+            public Faction11803? Faction { get; set; }
         }
 
         public class LeaderQuery11803
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
     }
 

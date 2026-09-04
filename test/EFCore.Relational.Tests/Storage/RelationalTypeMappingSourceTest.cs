@@ -107,11 +107,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "money",
-            GetMapping(mapper, model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyType))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "money",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1))!.FindProperty("Relationship1Id")!).StoreType);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "default_decimal_mapping",
-            GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType))!.FindProperty("Id")!).StoreType);
     }
 
     [Fact]
@@ -133,7 +133,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "decimal_mapping(16)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionOnly")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType))!.FindProperty("PrecisionOnly")!).StoreType);
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "decimal_mapping(18,7)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionAndScale")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType))!.FindProperty("PrecisionAndScale")!).StoreType);
     }
 
     [Fact]
@@ -243,10 +243,10 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     public RelationalTypeMapping GetMapping(Type type)
-        => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(type);
+        => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(type)!;
 
     public RelationalTypeMapping GetMapping(IProperty property)
-        => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(property);
+        => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(property)!;
 
     [Fact]
     public void String_key_with_max_fixed_length_is_picked_up_by_FK()
@@ -256,11 +256,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "just_string_fixed(200)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "just_string_fixed(200)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2))!.FindProperty("Relationship1Id")!).StoreType);
     }
 
     [Fact]
@@ -271,11 +271,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "just_binary_fixed(100)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "just_binary_fixed(100)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3))!.FindProperty("Relationship1Id")!).StoreType);
     }
 
     [Fact]
@@ -286,11 +286,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "ansi_string(900)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "ansi_string(900)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType4))!.FindProperty("Relationship1Id")!).StoreType);
     }
 
     [Fact]
@@ -301,11 +301,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "money",
-            GetMapping(mapper, model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyType))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "decimal_mapping(6,1)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1))!.FindProperty("Relationship2Id")!).StoreType);
     }
 
     [Fact]
@@ -316,11 +316,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "just_string_fixed(200)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "just_string_fixed(787)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2))!.FindProperty("Relationship2Id")!).StoreType);
     }
 
     [Fact]
@@ -331,11 +331,11 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "just_binary_fixed(100)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType2))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "just_binary_fixed(767)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3))!.FindProperty("Relationship2Id")!).StoreType);
     }
 
     [Fact]
@@ -346,18 +346,18 @@ public class RelationalTypeMappingSourceTest : RelationalTypeMappingSourceTestBa
 
         Assert.Equal(
             "ansi_string(900)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType3))!.FindProperty("Id")!).StoreType);
 
         Assert.Equal(
             "just_string(450)",
-            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
+            GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType4))!.FindProperty("Relationship2Id")!).StoreType);
     }
 
     public static RelationalTypeMapping GetMapping(
         IRelationalTypeMappingSource typeMappingSource,
         IProperty property)
-        => typeMappingSource.FindMapping(property);
+        => typeMappingSource.FindMapping(property)!;
 
-    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
+    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configureConventions = null)
         => FakeRelationalTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);
 }

@@ -8,8 +8,6 @@ using Xunit.Sdk;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -5229,7 +5227,7 @@ FROM (
     OFFSET @p ROWS
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5249,7 +5247,7 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5271,7 +5269,7 @@ FROM (
     OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5355,7 +5353,7 @@ FROM (
     OFFSET @p ROWS
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5375,7 +5373,7 @@ FROM (
     ORDER BY [o].[OrderID]
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5397,7 +5395,7 @@ FROM (
     OFFSET @p ROWS FETCH NEXT @p1 ROWS ONLY
 ) AS [o1]
 LEFT JOIN [Order Details] AS [o0] ON [o1].[OrderID] = [o0].[OrderID]
-ORDER BY [o1].[OrderID], [o0].[OrderID]
+ORDER BY [o1].[OrderID], [o0].[OrderID], [o0].[ProductID]
 """);
     }
 
@@ -5950,7 +5948,7 @@ ORDER BY [c].[CustomerID]
                            .Where(c => c.City == "London")
                            .OrderBy(c => c.CustomerID)
                            .Select(c => context.Orders
-                               .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate.Value.Year == 1997)
+                            .Where(o1 => o1.CustomerID == c.CustomerID && o1.OrderDate!.Value.Year == 1997)
                                .OrderBy(o1 => o1.OrderID)
                                .Select(o1 => context.Orders
                                    .Where(o2 => o1.CustomerID == c.CustomerID)

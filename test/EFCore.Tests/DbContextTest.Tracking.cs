@@ -2545,7 +2545,7 @@ public partial class DbContextTest
         public int Id { get; set; }
 
         public int? Parent77Id { get; set; }
-        public Parent77 Parent77 { get; set; }
+        public Parent77 Parent77 { get; set; } = null!;
     }
 
     private class Required77
@@ -2553,6 +2553,6 @@ public partial class DbContextTest
         public int Id { get; set; }
 
         public int Parent77Id { get; set; }
-        public Parent77 Parent77 { get; set; }
+        public Parent77 Parent77 { get; set; } = null!;
     }
 }

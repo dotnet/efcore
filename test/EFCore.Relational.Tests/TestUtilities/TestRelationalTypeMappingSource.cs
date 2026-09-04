@@ -148,7 +148,7 @@ public class TestRelationalTypeMappingSource(
                     : storeType;
     }
 
-    protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+    protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
@@ -221,8 +221,8 @@ public class TestRelationalTypeMappingSource(
                 : null;
     }
 
-    protected override string ParseStoreTypeName(
-        string storeTypeName,
+    protected override string? ParseStoreTypeName(
+        string? storeTypeName,
         ref bool? unicode,
         ref int? size,
         ref int? precision,

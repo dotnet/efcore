@@ -102,7 +102,7 @@ public class RelationalEntityTypeAttributeConventionTest
 
         var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
-        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit)!;
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -119,6 +119,6 @@ public class RelationalEntityTypeAttributeConventionTest
     {
         public int Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

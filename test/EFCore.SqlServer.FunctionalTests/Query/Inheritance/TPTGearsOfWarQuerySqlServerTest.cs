@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query.Inheritance;
 
-#nullable disable
-
 public class TPTGearsOfWarQuerySqlServerTest : TPTGearsOfWarQueryRelationalTestBase<TPTGearsOfWarQuerySqlServerFixture>
 {
     public TPTGearsOfWarQuerySqlServerTest(TPTGearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -2719,7 +2717,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname]
-ORDER BY [t].[Note], [t].[Id], [s].[Nickname]
+ORDER BY [t].[Note], [t].[Id], [s].[Nickname], [s].[SquadId]
 """);
     }
 
@@ -4053,7 +4051,7 @@ LEFT JOIN (
     INNER JOIN [Squads] AS [s] ON [g0].[SquadId] = [s].[Id]
     LEFT JOIN [SquadMissions] AS [s0] ON [s].[Id] = [s0].[SquadId]
 ) AS [s1] ON [g].[Nickname] = [s1].[LeaderNickname] AND [g].[SquadId] = [s1].[LeaderSquadId]
-ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0]
+ORDER BY [g].[Nickname], [g].[SquadId], [s1].[Nickname], [s1].[SquadId], [s1].[SquadId0], [s1].[MissionId]
 """);
     }
 
@@ -4344,7 +4342,7 @@ LEFT JOIN (
     WHERE [s0].[MissionId] <> 17
 ) AS [s1] ON [s].[Id] = [s1].[SquadId]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId]
+ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s1].[SquadId], [s1].[MissionId]
 """);
     }
 
@@ -7105,7 +7103,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 ) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] IS NOT NULL AND [t].[GearSquadId] = [s].[SquadId] AND [t].[GearNickName] IS NOT NULL AND [t].[Note] IS NOT NULL
-ORDER BY [t].[Id], [s].[Nickname]
+ORDER BY [t].[Id], [s].[Nickname], [s].[SquadId]
 """);
     }
 
@@ -8414,7 +8412,7 @@ WHERE @rank = [g].[Rank]
         await AssertQueryScalar(
             async,
             ss => ss.Set<Mission>().Select(m => EF.Functions.DataLength(m.CodeName)),
-            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName.Length * 2)));
+            ss => ss.Set<Mission>().Select(m => (int?)(m.CodeName!.Length * 2)));
 
         AssertSql(
             """

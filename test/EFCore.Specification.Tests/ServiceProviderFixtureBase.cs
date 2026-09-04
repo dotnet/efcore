@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract class ServiceProviderFixtureBase : FixtureBase
 {
     public IServiceProvider ServiceProvider { get; }
@@ -31,12 +29,12 @@ public abstract class ServiceProviderFixtureBase : FixtureBase
     protected virtual bool ShouldLogCategory(string logCategory)
         => false;
 
-    protected virtual object GetAdditionalModelCacheKey(DbContext context)
+    protected virtual object? GetAdditionalModelCacheKey(DbContext context)
         => null;
 
-    private class FuncCacheKeyFactory(Func<DbContext, object> getAdditionalKey) : IModelCacheKeyFactory
+    private class FuncCacheKeyFactory(Func<DbContext, object?> getAdditionalKey) : IModelCacheKeyFactory
     {
-        private readonly Func<DbContext, object> _getAdditionalKey = getAdditionalKey;
+        private readonly Func<DbContext, object?> _getAdditionalKey = getAdditionalKey;
 
         public object Create(DbContext context)
             => Tuple.Create(context.GetType(), _getAdditionalKey(context));

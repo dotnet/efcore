@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class GearsOfWarFromSqlQueryTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : GearsOfWarQueryRelationalFixture, new()
 {

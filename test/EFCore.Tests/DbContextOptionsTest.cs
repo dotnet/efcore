@@ -15,7 +15,7 @@ public class DbContextOptionsTest
         var optionsBuilder = new DbContextOptionsBuilder()
             .ConfigureWarnings(c => c.Default(WarningBehavior.Throw));
 
-        var warningConfiguration = optionsBuilder.Options.FindExtension<CoreOptionsExtension>().WarningsConfiguration;
+        var warningConfiguration = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.WarningsConfiguration;
 
         Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
     }
@@ -27,7 +27,7 @@ public class DbContextOptionsTest
 
         var optionsBuilder = new DbContextOptionsBuilder().UseModel(model.FinalizeModel());
 
-        Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
+        Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.Model);
     }
 
     [Fact]
@@ -37,8 +37,8 @@ public class DbContextOptionsTest
 
         var optionsBuilder = new DbContextOptionsBuilder().UseModel(model.FinalizeModel()).EnableSensitiveDataLogging();
 
-        Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
-        Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
+        Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.Model);
+        Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.IsSensitiveDataLoggingEnabled);
     }
 
     [Fact]
@@ -197,9 +197,9 @@ public class DbContextOptionsTest
 
     private class FakeDbContextOptionsExtension1 : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
-        public string Something { get; set; }
+        public string Something { get; set; } = null!;
 
         public DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
@@ -235,7 +235,7 @@ public class DbContextOptionsTest
 
     private class FakeDbContextOptionsExtension2 : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         public DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
@@ -271,7 +271,7 @@ public class DbContextOptionsTest
 
     private class FakeDbContextOptionsExtension3 : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         public DbContextOptionsExtensionInfo Info
             => _info ??= new ExtensionInfo(this);
@@ -312,7 +312,7 @@ public class DbContextOptionsTest
 
         var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseModel(model));
 
-        Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
+        Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.Model);
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public class DbContextOptionsTest
 
         var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseLoggerFactory(loggerFactory));
 
-        Assert.Same(loggerFactory, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().LoggerFactory);
+        Assert.Same(loggerFactory, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.LoggerFactory);
     }
 
     [Fact]
@@ -332,7 +332,7 @@ public class DbContextOptionsTest
 
         var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseMemoryCache(memoryCache));
 
-        Assert.Same(memoryCache, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().MemoryCache);
+        Assert.Same(memoryCache, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.MemoryCache);
     }
 
     private class FakeMemoryCache : IMemoryCache
@@ -357,7 +357,7 @@ public class DbContextOptionsTest
 
         var optionsBuilder = GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().UseInternalServiceProvider(serviceProvider));
 
-        Assert.Same(serviceProvider, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().InternalServiceProvider);
+        Assert.Same(serviceProvider, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.InternalServiceProvider);
     }
 
     private class FakeServiceProvider : IServiceProvider
@@ -381,7 +381,7 @@ public class DbContextOptionsTest
             new DbContextOptionsBuilder<UnkoolContext>().UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
         Assert.Equal(
-            QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().QueryTrackingBehavior);
+            QueryTrackingBehavior.NoTracking, optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.QueryTrackingBehavior);
     }
 
     [Fact]
@@ -390,7 +390,7 @@ public class DbContextOptionsTest
         var optionsBuilder = GenericCheck(
             new DbContextOptionsBuilder<UnkoolContext>().ConfigureWarnings(c => c.Default(WarningBehavior.Throw)));
 
-        var warningConfiguration = optionsBuilder.Options.FindExtension<CoreOptionsExtension>().WarningsConfiguration;
+        var warningConfiguration = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()!.WarningsConfiguration;
 
         Assert.Equal(WarningBehavior.Throw, warningConfiguration.DefaultBehavior);
     }

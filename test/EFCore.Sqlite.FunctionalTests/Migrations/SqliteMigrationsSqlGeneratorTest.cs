@@ -7,8 +7,6 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
 public class SqliteMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase(
     SqliteTestHelpers.Instance,
     new ServiceCollection().AddEntityFrameworkSqliteNetTopologySuite(),
@@ -105,7 +103,7 @@ CREATE TABLE "TestLineBreaks" (
     }
 
     [Theory, InlineData(true, null), InlineData(false, "PK_Id")]
-    public void CreateTableOperation_with_annotations(bool autoincrement, string pkName)
+    public void CreateTableOperation_with_annotations(bool autoincrement, string? pkName)
     {
         var addIdColumn = new AddColumnOperation
         {
@@ -118,6 +116,12 @@ CREATE TABLE "TestLineBreaks" (
         if (autoincrement)
         {
             addIdColumn.AddAnnotation(SqliteAnnotationNames.Autoincrement, true);
+        }
+
+        var primaryKey = new AddPrimaryKeyOperation { Columns = ["Id"] };
+        if (pkName is not null)
+        {
+            primaryKey.Name = pkName;
         }
 
         Generate(
@@ -144,7 +148,7 @@ CREATE TABLE "TestLineBreaks" (
                         IsNullable = true
                     }
                 },
-                PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = ["Id"] },
+                PrimaryKey = primaryKey,
                 UniqueConstraints = { new AddUniqueConstraintOperation { Columns = ["SSN"] } },
                 ForeignKeys =
                 {

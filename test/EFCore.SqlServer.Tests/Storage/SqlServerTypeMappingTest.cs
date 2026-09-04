@@ -56,12 +56,12 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     private class WithRowVersion
     {
         public int Id { get; set; }
-        public byte[] Version { get; set; }
+        public byte[] Version { get; set; } = null!;
     }
 
     private class OptimisticContext : DbContext
     {
-        public DbSet<WithRowVersion> _ { get; set; }
+        public DbSet<WithRowVersion> _ { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -90,7 +90,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             null,
             [FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime],
             null,
-            null);
+            null)!;
 
         var clone = AssertClone(typeof(SqlServerDateTimeTypeMapping), mapping);
 
@@ -180,7 +180,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<SqlServerSingletonOptions>())
-            .FindMapping(type);
+            .FindMapping(type)!;
 
     public override void ByteArray_literal_generated_correctly()
         => Test_GenerateSqlLiteral_helper(GetMapping(typeof(byte[])), new byte[] { 0xDA, 0x7A }, "0xDA7A");
@@ -495,7 +495,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     #endregion Vector
 
     public static RelationalTypeMapping GetMapping(string type)
-        => GetTypeMappingSource().FindMapping(type);
+        => GetTypeMappingSource().FindMapping(type)!;
 
     public static SqlServerTypeMappingSource GetTypeMappingSource()
         => new(

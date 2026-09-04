@@ -6,14 +6,12 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public abstract partial class ManyToManyTrackingTestBase<TFixture>
 {
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_with_navs_unidirectional(bool async)
     {
-        List<int> leftKeys = null;
+        List<int> leftKeys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -84,8 +82,8 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             },
             async context =>
             {
-                var queryable = context.Set<UnidirectionalEntityCompositeKey>().Where(e => leftKeys.Contains(e.Key1));
-                context.Set<UnidirectionalJoinCompositeKeyToLeaf>().Where(e => leftKeys.Contains(e.CompositeId1)).Include(e => e.Leaf)
+                var queryable = context.Set<UnidirectionalEntityCompositeKey>().Where(e => leftKeys!.Contains(e.Key1));
+                context.Set<UnidirectionalJoinCompositeKeyToLeaf>().Where(e => leftKeys!.Contains(e.CompositeId1)).Include(e => e.Leaf)
                     .Load();
 
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
@@ -427,7 +425,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_composite_additional_pk_with_navs_unidirectional(bool async)
     {
-        List<string> keys = null;
+        List<string> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -510,7 +508,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             },
             async context =>
             {
-                var queryable = context.Set<UnidirectionalEntityCompositeKey>().Where(e => keys.Contains(e.Key2))
+                var queryable = context.Set<UnidirectionalEntityCompositeKey>().Where(e => keys!.Contains(e.Key2))
                     .Include(e => e.ThreeSkipFull);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
@@ -571,7 +569,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Fact]
     public virtual Task Can_update_many_to_many_composite_additional_pk_with_navs_unidirectional()
     {
-        List<int> threeIds = null;
+        List<int> threeIds = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -695,9 +693,9 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             Assert.Equal(joinCount, context.ChangeTracker.Entries<UnidirectionalJoinThreeToCompositeKeyFull>().Count());
             Assert.Equal(leftCount + rightCount + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[0]);
-            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[1]);
-            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[2]);
+            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![0]);
+            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![1]);
+            Assert.Contains(leftEntities[0].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![2]);
 
             var rightNav0 = context.Entry(rightEntities[0])
                 .Collection<UnidirectionalEntityCompositeKey>("UnidirectionalEntityCompositeKey").CurrentValue!;
@@ -714,7 +712,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             }
 
             Assert.DoesNotContain(leftEntities[3].ThreeSkipFull, e => e.Name == "EntityThree 23");
-            Assert.Contains(leftEntities[3].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds[3]);
+            Assert.Contains(leftEntities[3].ThreeSkipFull, e => context.Entry(e).Property(e => e.Id).CurrentValue == threeIds![3]);
 
             var rightNav2 = context.Entry(rightEntities[2])
                 .Collection<UnidirectionalEntityCompositeKey>("UnidirectionalEntityCompositeKey").CurrentValue!;
@@ -758,7 +756,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                     if (rightNav?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.ThreeSkipFull);
+                        Assert.Contains(right, left.ThreeSkipFull!);
                         count++;
                     }
                 }
@@ -927,8 +925,8 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_shared_unidirectional(bool async)
     {
-        List<int> leftKeys = null;
-        List<int> rightKeys = null;
+        List<int> leftKeys = null!;
+        List<int> rightKeys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -990,7 +988,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             async context =>
             {
                 var queryable = context.Set<UnidirectionalEntityTwo>()
-                    .Where(e => leftKeys.Contains(e.Id) || rightKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id) || rightKeys!.Contains(e.Id))
                     .Include("UnidirectionalEntityTwo");
 
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
@@ -998,13 +996,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var leftEntities = context.ChangeTracker.Entries<UnidirectionalEntityTwo>()
                     .Select(e => e.Entity)
-                    .Where(e => leftKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
                 var rightEntities = context.ChangeTracker.Entries<UnidirectionalEntityTwo>()
                     .Select(e => e.Entity)
-                    .Where(e => rightKeys.Contains(e.Id))
+                    .Where(e => rightKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
@@ -1037,7 +1035,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Fact]
     public virtual Task Can_update_many_to_many_self_unidirectional()
     {
-        List<int> ids = null;
+        List<int> ids = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1150,25 +1148,25 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             Assert.Equal(joinCount, context.ChangeTracker.Entries<Dictionary<string, object>>().Count());
             Assert.Equal(count + joinCount, context.ChangeTracker.Entries().Count());
 
-            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[0]);
-            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[1]);
-            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[2]);
+            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![0]);
+            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![1]);
+            Assert.Contains(leftEntities[0].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![2]);
 
             var nav0 = context.Entry(rightEntities[0]).Collection<UnidirectionalEntityTwo>("UnidirectionalEntityTwo").CurrentValue!;
-            Assert.Contains(nav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[4]);
-            Assert.Contains(nav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[5]);
-            Assert.Contains(nav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[6]);
+            Assert.Contains(nav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![4]);
+            Assert.Contains(nav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![5]);
+            Assert.Contains(nav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![6]);
 
             var nav1 = context.Entry(rightEntities[1]).Collection<UnidirectionalEntityTwo>("UnidirectionalEntityTwo").CurrentValue!;
             Assert.DoesNotContain(leftEntities[0].SelfSkipSharedRight, e => e.Name == "EntityTwo 9");
             Assert.DoesNotContain(nav1, e => e.Name == "EntityTwo 1");
 
             Assert.DoesNotContain(leftEntities[4].SelfSkipSharedRight, e => e.Name == "EntityTwo 18");
-            Assert.Contains(leftEntities[4].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[3]);
+            Assert.Contains(leftEntities[4].SelfSkipSharedRight, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![3]);
 
             var nav5 = context.Entry(rightEntities[5]).Collection<UnidirectionalEntityTwo>("UnidirectionalEntityTwo").CurrentValue!;
             Assert.DoesNotContain(nav5, e => e.Name == "EntityTwo 12");
-            Assert.Contains(nav5, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids[7]);
+            Assert.Contains(nav5, e => context.Entry(e).Property(e => e.Id).CurrentValue == ids![7]);
 
             var allLeft = context.ChangeTracker.Entries<UnidirectionalEntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
             var allRight = context.ChangeTracker.Entries<UnidirectionalEntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
@@ -1190,7 +1188,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                     if (rightNav?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.SelfSkipSharedRight);
+                        Assert.Contains(right, left.SelfSkipSharedRight!);
                         joins++;
                     }
                 }
@@ -1204,7 +1202,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_with_inheritance_unidirectional(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1260,7 +1258,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             },
             async context =>
             {
-                var queryable = context.Set<UnidirectionalEntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.BranchSkip);
+                var queryable = context.Set<UnidirectionalEntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.BranchSkip);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -1434,13 +1432,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                     var rightNav = context.Entry(right).Collection<UnidirectionalEntityOne>("UnidirectionalEntityOne").CurrentValue;
                     if (left.BranchSkip?.Contains(right) == true)
                     {
-                        Assert.Contains(left, rightNav);
+                        Assert.Contains(left, rightNav!);
                         count++;
                     }
 
                     if (rightNav?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.BranchSkip);
+                        Assert.Contains(right, left.BranchSkip!);
                         count++;
                     }
                 }
@@ -1454,8 +1452,8 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_self_with_payload_unidirectional(bool async)
     {
-        List<int> leftKeys = null;
-        List<int> rightKeys = null;
+        List<int> leftKeys = null!;
+        List<int> rightKeys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1516,7 +1514,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             async context =>
             {
                 var queryable = context.Set<UnidirectionalEntityOne>()
-                    .Where(e => leftKeys.Contains(e.Id) || rightKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id) || rightKeys!.Contains(e.Id))
                     .Include(e => e.SelfSkipPayloadLeft);
 
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
@@ -1524,13 +1522,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 var leftEntities = context.ChangeTracker.Entries<UnidirectionalEntityOne>()
                     .Select(e => e.Entity)
-                    .Where(e => leftKeys.Contains(e.Id))
+                    .Where(e => leftKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
                 var rightEntities = context.ChangeTracker.Entries<UnidirectionalEntityOne>()
                     .Select(e => e.Entity)
-                    .Where(e => rightKeys.Contains(e.Id))
+                    .Where(e => rightKeys!.Contains(e.Id))
                     .OrderBy(e => e.Name)
                     .ToList();
 
@@ -1584,7 +1582,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Fact]
     public virtual Task Can_update_many_to_many_self_with_payload_unidirectional()
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1672,14 +1670,14 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 context.Find<UnidirectionalJoinOneSelfPayload>(
                         keys[5],
                         context.Entry(context.UnidirectionalEntityOnes.Local.Single(e => e.Name == "EntityOne 1")).Property(e => e.Id)
-                            .CurrentValue)
+                            .CurrentValue)!
                     .Payload = new DateTime(1973, 9, 3);
 
                 context.Find<UnidirectionalJoinOneSelfPayload>(
                         context.Entry(context.UnidirectionalEntityOnes.Local.Single(e => e.Name == "EntityOne 20")).Property(e => e.Id)
                             .CurrentValue,
                         context.Entry(context.UnidirectionalEntityOnes.Local.Single(e => e.Name == "EntityOne 16")).Property(e => e.Id)
-                            .CurrentValue)
+                            .CurrentValue)!
                     .Payload = new DateTime(1969, 8, 3);
 
                 ValidateFixup(context, leftEntities, rightEntities, 28, 37, postSave: false);
@@ -1713,13 +1711,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             Assert.Equal(count + joinCount, context.ChangeTracker.Entries().Count());
 
             var leftNav0 = context.Entry(leftEntities[0]).Collection<UnidirectionalEntityOne>("UnidirectionalEntityOne").CurrentValue!;
-            Assert.Contains(leftNav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[0]);
-            Assert.Contains(leftNav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[1]);
-            Assert.Contains(leftNav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[2]);
+            Assert.Contains(leftNav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![0]);
+            Assert.Contains(leftNav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![1]);
+            Assert.Contains(leftNav0, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![2]);
 
-            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[4]);
-            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[5]);
-            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[6]);
+            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![4]);
+            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![5]);
+            Assert.Contains(rightEntities[0].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![6]);
 
             var leftNav7 = context.Entry(leftEntities[7]).Collection<UnidirectionalEntityOne>("UnidirectionalEntityOne").CurrentValue!;
             Assert.DoesNotContain(leftNav7, e => e.Name == "EntityOne 6");
@@ -1727,10 +1725,10 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
             var leftNav4 = context.Entry(leftEntities[4]).Collection<UnidirectionalEntityOne>("UnidirectionalEntityOne").CurrentValue!;
             Assert.DoesNotContain(leftNav4, e => e.Name == "EntityOne 2");
-            Assert.Contains(leftNav4, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[3]);
+            Assert.Contains(leftNav4, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![3]);
 
             Assert.DoesNotContain(rightEntities[4].SelfSkipPayloadLeft, e => e.Name == "EntityOne 6");
-            Assert.Contains(rightEntities[4].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys[7]);
+            Assert.Contains(rightEntities[4].SelfSkipPayloadLeft, e => context.Entry(e).Property(e => e.Id).CurrentValue == keys![7]);
 
             var joinEntries = context.ChangeTracker.Entries<UnidirectionalJoinOneSelfPayload>().ToList();
             foreach (var joinEntry in joinEntries)
@@ -1741,7 +1739,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 Assert.Contains(joinEntity, joinEntity.Left.JoinSelfPayloadLeft);
                 Assert.Contains(joinEntity, joinEntity.Right.JoinSelfPayloadRight);
 
-                if (joinEntity.LeftId == keys[5]
+                if (joinEntity.LeftId == keys![5]
                     && joinEntity.RightId == 1)
                 {
                     Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Added, joinEntry.State);
@@ -1771,7 +1769,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
                 {
                     if (leftNav?.Contains(right) == true)
                     {
-                        Assert.Contains(left, right.SelfSkipPayloadLeft);
+                        Assert.Contains(left, right.SelfSkipPayloadLeft!);
                         joins++;
                     }
 
@@ -1791,7 +1789,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_with_payload_unidirectional(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -1849,7 +1847,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             },
             async context =>
             {
-                var queryable = context.Set<UnidirectionalEntityOne>().Where(e => keys.Contains(e.Id))
+                var queryable = context.Set<UnidirectionalEntityOne>().Where(e => keys!.Contains(e.Id))
                     .Include(e => e.ThreeSkipPayloadFullShared);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
@@ -2089,7 +2087,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                     if (rightNav?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.ThreeSkipPayloadFullShared);
+                        Assert.Contains(right, left.ThreeSkipPayloadFullShared!);
                         count++;
                     }
                 }
@@ -2103,7 +2101,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
     [Theory, InlineData(false), InlineData(true)]
     public virtual async Task Can_insert_many_to_many_shared_unidirectional(bool async)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2159,7 +2157,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             },
             async context =>
             {
-                var queryable = context.Set<UnidirectionalEntityOne>().Where(e => keys.Contains(e.Id)).Include(e => e.TwoSkipShared);
+                var queryable = context.Set<UnidirectionalEntityOne>().Where(e => keys!.Contains(e.Id)).Include(e => e.TwoSkipShared);
                 var results = async ? await queryable.ToListAsync() : queryable.ToList();
                 Assert.Equal(3, results.Count);
 
@@ -2351,7 +2349,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                     if (oneSkipNav?.Contains(left) == true)
                     {
-                        Assert.Contains(right, left.TwoSkipShared);
+                        Assert.Contains(right, left.TwoSkipShared!);
                         count++;
                     }
                 }
@@ -2370,7 +2368,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         bool useTrackGraph,
         bool useDetectChanges)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2489,7 +2487,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             async context =>
             {
                 var queryable = context.Set<UnidirectionalEntityOne>()
-                    .Where(e => keys.Contains(e.Id))
+                    .Where(e => keys!.Contains(e.Id))
                     .Include(e => e.TwoSkip)
                     .ThenInclude(e => e.Extra);
 
@@ -2547,7 +2545,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
         bool useTrackGraph,
         bool useDetectChanges)
     {
-        List<int> keys = null;
+        List<int> keys = null!;
 
         await ExecuteWithStrategyInTransactionAsync(
             async context =>
@@ -2628,7 +2626,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             async context =>
             {
                 var queryable = context.Set<UnidirectionalEntityOne>()
-                    .Where(e => keys.Contains(e.Id))
+                    .Where(e => keys!.Contains(e.Id))
                     .Include(e => e.TwoSkip)
                     .ThenInclude(e => e.Extra);
 
@@ -2695,13 +2693,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
 
                 await context.SaveChangesAsync();
 
-                id = (int)entity["Id"];
+                id = (int)entity["Id"]!;
             },
             async context =>
             {
-                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"] == id);
+                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"]! == id);
 
-                Assert.Equal("NewlyAdded", (string)entity["Payload"]);
+                Assert.Equal("NewlyAdded", (string)entity["Payload"]!);
 
                 entity["Payload"] = "AlreadyUpdated";
 
@@ -2714,15 +2712,15 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             },
             async context =>
             {
-                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"] == id);
+                var entity = await context.Set<ProxyableSharedType>("PST").SingleAsync(e => (int)e["Id"]! == id);
 
-                Assert.Equal("AlreadyUpdated", (string)entity["Payload"]);
+                Assert.Equal("AlreadyUpdated", (string)entity["Payload"]!);
 
                 context.Set<ProxyableSharedType>("PST").Remove(entity);
 
                 await context.SaveChangesAsync();
 
-                Assert.False(await context.Set<ProxyableSharedType>("PST").AnyAsync(e => (int)e["Id"] == id));
+                Assert.False(await context.Set<ProxyableSharedType>("PST").AnyAsync(e => (int)e["Id"]! == id));
             });
     }
 
@@ -2823,7 +2821,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture>
             async context =>
             {
                 var queryable = context.Set<UnidirectionalEntityTwo>()
-                    .Where(e => e.Name.StartsWith("Z"))
+                    .Where(e => e.Name!.StartsWith("Z"))
                     .OrderBy(e => e.Name)
                     .Include("UnidirectionalEntityThree");
 

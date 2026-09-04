@@ -5,8 +5,6 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
-#nullable disable
-
 public class ManyToManyData : ISetSource
 {
     private readonly bool _useGeneratedKeys;
@@ -157,8 +155,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        EntityOne referenceInverse,
-        EntityOne collectionInverse)
+        EntityOne? referenceInverse,
+        EntityOne? collectionInverse)
         => CreateInstance(
             context?.EntityTwos, (e, p) =>
             {
@@ -205,8 +203,8 @@ public class ManyToManyData : ISetSource
         ManyToManyContext context,
         int id,
         string name,
-        EntityTwo referenceInverse,
-        EntityTwo collectionInverse)
+        EntityTwo? referenceInverse,
+        EntityTwo? collectionInverse)
         => CreateInstance(
             context?.EntityThrees, (e, p) =>
             {
@@ -1253,7 +1251,7 @@ public class ManyToManyData : ISetSource
                 e["CompositeKeySkipSharedKey3"] = composite.Key3;
             });
 
-    private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity, bool> configureEntity)
+    private static TEntity CreateInstance<TEntity>(DbSet<TEntity>? set, Action<TEntity, bool> configureEntity)
         where TEntity : class, new()
     {
         if (set != null)

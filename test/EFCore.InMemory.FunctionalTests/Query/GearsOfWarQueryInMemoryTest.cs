@@ -17,7 +17,7 @@ public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
     public override async Task
         Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base
                 .Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
                     async))).Message);
@@ -126,7 +126,7 @@ public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
 
     public override async Task Find_underlying_property_after_GroupJoin_DefaultIfEmpty(bool async)
         => Assert.Equal(
-            "Nullable object must have a value.",
+            "Cannot read the Value property of a Nullable object that has no value. Check HasValue before reading Value.",
             (await Assert.ThrowsAsync<InvalidOperationException>(() => base
                 .Find_underlying_property_after_GroupJoin_DefaultIfEmpty(
                     async))).Message);
@@ -148,8 +148,8 @@ public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
     public virtual Task Select_ToString_on_non_nullable_property_of_an_optional_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<CogTag>().Select(x => new { x.Id, SquadIdString = x.Gear.SquadId.ToString() }),
-            ss => ss.Set<CogTag>().Select(x => new { x.Id, SquadIdString = x.Gear == null ? null : x.Gear.SquadId.ToString() }),
+            ss => ss.Set<CogTag>().Select(x => new { x.Id, SquadIdString = x.Gear!.SquadId.ToString() }),
+            ss => ss.Set<CogTag>().Select(x => new { x.Id, SquadIdString = x.Gear == null ? null! : x.Gear.SquadId.ToString() }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {

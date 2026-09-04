@@ -13,7 +13,7 @@ public class GuidValueGeneratorTest
         var values = new HashSet<Guid>();
         for (var i = 0; i < 100; i++)
         {
-            var generatedValue = sequentialGuidIdentityGenerator.Next(null);
+            var generatedValue = sequentialGuidIdentityGenerator.Next(null!);
 
             values.Add(generatedValue);
         }

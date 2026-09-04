@@ -34,7 +34,7 @@ public class ProviderSpecificServicesTest
         using var serviceScope = appServiceProvider
             .GetRequiredService<IServiceScopeFactory>()
             .CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+        var context = serviceScope.ServiceProvider.GetRequiredService<ConstructorTestContext1A>();
 
         Assert.Equal(
             RelationalStrings.RelationalNotInUse,

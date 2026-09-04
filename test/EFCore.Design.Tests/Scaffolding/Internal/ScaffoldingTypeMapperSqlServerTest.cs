@@ -385,7 +385,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     }
 
     private static void AssertMapping<T>(
-        TypeScaffoldingInfo mapping,
+        TypeScaffoldingInfo? mapping,
         bool inferred,
         int? maxLength,
         bool? unicode,
@@ -393,6 +393,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         int? precision,
         int? scale)
     {
+        Assert.NotNull(mapping);
         Assert.Same(typeof(T), mapping.ClrType);
         Assert.Equal(inferred, mapping.IsInferred);
         Assert.Equal(maxLength, mapping.ScaffoldMaxLength);

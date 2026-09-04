@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ComputedColumnTest : IAsyncLifetime
 {
     [Fact]
@@ -51,7 +49,7 @@ public class ComputedColumnTest : IAsyncLifetime
 
     private class Context(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
-        public DbSet<Entity> Entities { get; set; }
+        public DbSet<Entity> Entities { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -99,7 +97,7 @@ public class ComputedColumnTest : IAsyncLifetime
     private class NullableContext(IServiceProvider serviceProvider, string databaseName) : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public DbSet<EnumItem> EnumItems { get; set; }
+        public DbSet<EnumItem> EnumItems { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -128,7 +126,7 @@ public class ComputedColumnTest : IAsyncLifetime
         Assert.Equal(FlagEnum.AValue | FlagEnum.BValue, entity.CalculatedFlagEnum);
     }
 
-    protected SqlServerTestStore TestStore { get; private set; }
+    protected SqlServerTestStore TestStore { get; private set; } = null!;
 
     public async ValueTask InitializeAsync()
         => TestStore = await SqlServerTestStore.CreateInitializedAsync("ComputedColumnTest");
