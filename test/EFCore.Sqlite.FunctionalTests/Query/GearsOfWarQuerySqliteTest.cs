@@ -431,13 +431,9 @@ LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSqu
 
         AssertSql(
             """
-SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated", "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId", "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId"
+SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated", "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId", "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 LEFT JOIN "LocustLeaders" AS "l1" ON "f"."Id" = "l1"."LocustHordeId"
 ORDER BY "f"."Name", "f"."Id"
 """);
@@ -449,13 +445,9 @@ ORDER BY "f"."Name", "f"."Id"
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL)
 WHERE "g"."Nickname" <> 'Marcus'
 ORDER BY "g"."Nickname", "g"."SquadId"
 """);
@@ -472,13 +464,9 @@ FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname"
 LEFT JOIN "Squads" AS "s" ON "g"."SquadId" = "s"."Id"
 LEFT JOIN (
-    SELECT "g0"."Nickname", "g0"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+    SELECT "g0"."Nickname", "g0"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
     FROM "Gears" AS "g0"
-    LEFT JOIN (
-        SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-        FROM "Weapons" AS "w"
-        WHERE "w"."IsAutomatic"
-    ) AS "w0" ON "g0"."FullName" = "w0"."OwnerFullName"
+    LEFT JOIN "Weapons" AS "w" ON "g0"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic"
     WHERE "g0"."HasSoulPatch"
 ) AS "s0" ON "s"."Id" = "s0"."SquadId"
 ORDER BY "t"."Note", "g"."Nickname" DESC, "t"."Id", "g"."SquadId", "s0"."Nickname", "s0"."SquadId"
@@ -597,12 +585,8 @@ INNER JOIN (
             """
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
-WHERE "l0"."Name" IS NOT NULL
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
+WHERE "l"."Name" IS NOT NULL
 """);
     }
 
@@ -1045,16 +1029,12 @@ END
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Name", "w0"."IsAutomatic", "w0"."Id", "g0"."Nickname", "g0"."Rank", "g0"."SquadId"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Name", "w"."IsAutomatic", "w"."Id", "g0"."Nickname", "g0"."Rank", "g0"."SquadId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Name", "w"."IsAutomatic", "w"."Id", "w"."OwnerFullName"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic"
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic"
 LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId"
 WHERE "g"."Discriminator" = 'Officer'
-ORDER BY "g"."FullName", "g"."Nickname", "g"."SquadId", "w0"."Id", "g0"."FullName", "g0"."Nickname"
+ORDER BY "g"."FullName", "g"."Nickname", "g"."SquadId", "w"."Id", "g0"."FullName", "g0"."Nickname"
 """);
     }
 
@@ -1064,15 +1044,11 @@ ORDER BY "g"."FullName", "g"."Nickname", "g"."SquadId", "w0"."Id", "g0"."FullNam
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL)
 WHERE "g"."Nickname" <> 'Marcus'
-ORDER BY "g"."Nickname", "g"."SquadId", "w0"."Name" DESC
+ORDER BY "g"."Nickname", "g"."SquadId", "w"."Name" DESC
 """);
     }
 
@@ -1277,18 +1253,14 @@ WHERE "g"."Discriminator" = 'Officer'
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "g1"."Nickname", "g1"."SquadId", "g1"."AssignedCityName", "g1"."CityOfBirthName", "g1"."Discriminator", "g1"."FullName", "g1"."HasSoulPatch", "g1"."LeaderNickname", "g1"."LeaderSquadId", "g1"."Rank"
+SELECT "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
-    FROM "Gears" AS "g0"
-    WHERE NOT ("g0"."HasSoulPatch")
-) AS "g1" ON "g"."Nickname" = "g1"."LeaderNickname" AND "g"."SquadId" = "g1"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId" AND NOT ("g0"."HasSoulPatch")
 WHERE "g"."Discriminator" = 'Officer'
 ORDER BY (
     SELECT COUNT(*)
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName"), "g"."Nickname", "g"."SquadId", "g1"."Nickname"
+    WHERE "g"."FullName" = "w"."OwnerFullName"), "g"."Nickname", "g"."SquadId", "g0"."Nickname"
 """);
     }
 
@@ -1303,13 +1275,9 @@ FROM "Weapons" AS "w"
 LEFT JOIN "Gears" AS "g" ON "w"."OwnerFullName" = "g"."FullName"
 LEFT JOIN "Squads" AS "s" ON "g"."SquadId" = "s"."Id"
 LEFT JOIN (
-    SELECT "g0"."Nickname", "g0"."SquadId", "w1"."Id", "w1"."AmmunitionType", "w1"."IsAutomatic", "w1"."Name", "w1"."OwnerFullName", "w1"."SynergyWithId", "g0"."Rank", "g0"."FullName"
+    SELECT "g0"."Nickname", "g0"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId", "g0"."Rank", "g0"."FullName"
     FROM "Gears" AS "g0"
-    LEFT JOIN (
-        SELECT "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
-        FROM "Weapons" AS "w0"
-        WHERE NOT ("w0"."IsAutomatic")
-    ) AS "w1" ON "g0"."FullName" = "w1"."OwnerFullName"
+    LEFT JOIN "Weapons" AS "w0" ON "g0"."FullName" = "w0"."OwnerFullName" AND NOT ("w0"."IsAutomatic")
 ) AS "s0" ON "s"."Id" = "s0"."SquadId"
 ORDER BY "w"."Name", "w"."Id", "s0"."FullName" DESC, "s0"."Nickname", "s0"."SquadId", "s0"."Id"
 """);
@@ -1332,15 +1300,11 @@ FROM "Weapons" AS "w"
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "g1"."Nickname", "g1"."FullName", "g1"."SquadId"
+SELECT "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."FullName", "g0"."SquadId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "g0"."Nickname", "g0"."FullName", "g0"."SquadId", "g0"."LeaderNickname", "g0"."LeaderSquadId"
-    FROM "Gears" AS "g0"
-    WHERE NOT ("g0"."HasSoulPatch")
-) AS "g1" ON "g"."Nickname" = "g1"."LeaderNickname" AND "g"."SquadId" = "g1"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId" AND NOT ("g0"."HasSoulPatch")
 WHERE "g"."Discriminator" = 'Officer' AND "g"."Nickname" <> 'Foo'
-ORDER BY "g"."Nickname", "g"."SquadId", "g1"."Nickname"
+ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname"
 """);
     }
 
@@ -1429,13 +1393,9 @@ ORDER BY "g"."Nickname", "g"."SquadId"
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Name", "w0"."Id"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Name", "w"."Id"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Name", "w"."Id", "w"."OwnerFullName"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL)
 WHERE "g"."Nickname" <> 'Marcus'
 ORDER BY "g"."Nickname", "g"."SquadId"
 """);
@@ -1685,13 +1645,9 @@ ORDER BY "t"."Note"
 
         AssertSql(
             """
-SELECT "f"."Name", "l0"."ThreatLevel" AS "Threat"
+SELECT "f"."Name", "l"."ThreatLevel" AS "Threat"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name", "l"."ThreatLevel"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 ORDER BY "f"."Name"
 """);
     }
@@ -1859,12 +1815,8 @@ WHERE ("t"."Note" <> 'K.I.A.' OR "t"."Note" IS NULL) AND "g"."SquadId" IN (
             """
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
-WHERE "l0"."Name" IS NOT NULL
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
+WHERE "l"."Name" IS NOT NULL
 """);
     }
 
@@ -1889,21 +1841,13 @@ GROUP BY "g0"."CityOfBirthName", "g0"."HasSoulPatch", "g0"."IsMarcus"
 
         AssertSql(
             """
-SELECT "g"."Nickname", "s"."Name", "g"."SquadId", "s"."Id", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId", "g1"."Nickname", "g1"."SquadId", "g1"."AssignedCityName", "g1"."CityOfBirthName", "g1"."Discriminator", "g1"."FullName", "g1"."HasSoulPatch", "g1"."LeaderNickname", "g1"."LeaderSquadId", "g1"."Rank"
+SELECT "g"."Nickname", "s"."Name", "g"."SquadId", "s"."Id", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
 FROM "Gears" AS "g"
 CROSS JOIN "Squads" AS "s"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
-LEFT JOIN (
-    SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
-    FROM "Gears" AS "g0"
-    WHERE NOT ("g0"."HasSoulPatch")
-) AS "g1" ON "s"."Id" = "g1"."SquadId"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL)
+LEFT JOIN "Gears" AS "g0" ON "s"."Id" = "g0"."SquadId" AND NOT ("g0"."HasSoulPatch")
 WHERE "g"."HasSoulPatch"
-ORDER BY "g"."Nickname", "s"."Id" DESC, "g"."SquadId", "w0"."Id", "g1"."Nickname"
+ORDER BY "g"."Nickname", "s"."Id" DESC, "g"."SquadId", "w"."Id", "g0"."Nickname"
 """);
     }
 
@@ -2156,13 +2100,9 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "g2"."Nickname", "g2"."SquadId", "g2"."AssignedCityName", "g2"."CityOfBirthName", "g2"."Discriminator", "g2"."FullName", "g2"."HasSoulPatch", "g2"."LeaderNickname", "g2"."LeaderSquadId", "g2"."Rank"
+SELECT "g"."Nickname", "g"."SquadId", "g1"."Nickname", "g1"."SquadId", "g1"."AssignedCityName", "g1"."CityOfBirthName", "g1"."Discriminator", "g1"."FullName", "g1"."HasSoulPatch", "g1"."LeaderNickname", "g1"."LeaderSquadId", "g1"."Rank"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "g1"."Nickname", "g1"."SquadId", "g1"."AssignedCityName", "g1"."CityOfBirthName", "g1"."Discriminator", "g1"."FullName", "g1"."HasSoulPatch", "g1"."LeaderNickname", "g1"."LeaderSquadId", "g1"."Rank"
-    FROM "Gears" AS "g1"
-    WHERE NOT ("g1"."HasSoulPatch")
-) AS "g2" ON "g"."Nickname" = "g2"."LeaderNickname" AND "g"."SquadId" = "g2"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g1" ON "g"."Nickname" = "g1"."LeaderNickname" AND "g"."SquadId" = "g1"."LeaderSquadId" AND NOT ("g1"."HasSoulPatch")
 WHERE "g"."Discriminator" = 'Officer'
 ORDER BY (
     SELECT COUNT(*)
@@ -2171,7 +2111,7 @@ ORDER BY (
         SELECT "g0"."HasSoulPatch"
         FROM "Gears" AS "g0"
         WHERE "g0"."Nickname" = 'Marcus'
-        LIMIT 1), 0)), "g"."Nickname", "g"."SquadId", "g2"."Nickname"
+        LIMIT 1), 0)), "g"."Nickname", "g"."SquadId", "g1"."Nickname"
 """);
     }
 
@@ -2371,14 +2311,10 @@ ORDER BY "g"."Nickname"
 
         AssertSql(
             """
-SELECT "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId"
+SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "Factions" AS "f"
 LEFT JOIN "Cities" AS "c" ON "f"."CapitalName" = "c"."Name"
-LEFT JOIN (
-    SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 WHERE "c"."Name" <> 'Foo' OR "c"."Name" IS NULL
 """);
     }
@@ -2677,13 +2613,9 @@ END
 
         AssertSql(
             """
-SELECT "g"."FullName" AS "GearName", "g1"."FullName" AS "OfficerName"
+SELECT "g"."FullName" AS "GearName", "g0"."FullName" AS "OfficerName"
 FROM "Gears" AS "g"
-INNER JOIN (
-    SELECT "g0"."Nickname", "g0"."SquadId", "g0"."FullName"
-    FROM "Gears" AS "g0"
-    WHERE "g0"."Discriminator" = 'Officer'
-) AS "g1" ON "g"."Nickname" = "g1"."Nickname" AND "g"."SquadId" = "g1"."SquadId"
+INNER JOIN "Gears" AS "g0" ON "g"."Nickname" = "g0"."Nickname" AND "g"."SquadId" = "g0"."SquadId" AND "g0"."Discriminator" = 'Officer'
 """);
     }
 
@@ -3365,12 +3297,8 @@ WHERE COALESCE((
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "Factions" AS "f"
 LEFT JOIN "Cities" AS "c" ON "f"."CapitalName" = "c"."Name"
-LEFT JOIN (
-    SELECT "l"."Name"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
-WHERE ("c"."Name" <> 'Foo' OR "c"."Name" IS NULL) AND ("l0"."Name" <> 'Bar' OR "l0"."Name" IS NULL)
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
+WHERE ("c"."Name" <> 'Foo' OR "c"."Name" IS NULL) AND ("l"."Name" <> 'Bar' OR "l"."Name" IS NULL)
 """);
     }
 
@@ -3412,19 +3340,11 @@ ORDER BY "g"."Nickname"
 
         AssertSql(
             """
-SELECT "g"."FullName", "g"."Nickname", "g"."SquadId", "w1"."Id", "w1"."AmmunitionType", "w1"."IsAutomatic", "w1"."Name", "w1"."OwnerFullName", "w1"."SynergyWithId", "w2"."Id", "w2"."AmmunitionType", "w2"."IsAutomatic", "w2"."Name", "w2"."OwnerFullName", "w2"."SynergyWithId"
+SELECT "g"."FullName", "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic"
-) AS "w1" ON "g"."FullName" = "w1"."OwnerFullName"
-LEFT JOIN (
-    SELECT "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
-    FROM "Weapons" AS "w0"
-    WHERE NOT ("w0"."IsAutomatic")
-) AS "w2" ON "g"."FullName" = "w2"."OwnerFullName"
-ORDER BY "g"."Rank", "g"."Nickname", "g"."SquadId", "w1"."OwnerFullName", "w1"."Id", "w2"."IsAutomatic"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic"
+LEFT JOIN "Weapons" AS "w0" ON "g"."FullName" = "w0"."OwnerFullName" AND NOT ("w0"."IsAutomatic")
+ORDER BY "g"."Rank", "g"."Nickname", "g"."SquadId", "w"."OwnerFullName", "w"."Id", "w0"."IsAutomatic"
 """);
     }
 
@@ -3570,12 +3490,8 @@ WHERE "c"."Name" = (
 SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "Factions" AS "f"
 LEFT JOIN "Cities" AS "c" ON "f"."CapitalName" = "c"."Name"
-LEFT JOIN (
-    SELECT "l"."Name"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
-WHERE ("c"."Name" <> 'Foo' OR "c"."Name" IS NULL) AND ("l0"."Name" <> 'Bar' OR "l0"."Name" IS NULL)
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
+WHERE ("c"."Name" <> 'Foo' OR "c"."Name" IS NULL) AND ("l"."Name" <> 'Bar' OR "l"."Name" IS NULL)
 """);
     }
 
@@ -4326,15 +4242,11 @@ WHERE EXISTS (
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "g1"."Nickname", "g1"."SquadId", "g1"."AssignedCityName", "g1"."CityOfBirthName", "g1"."Discriminator", "g1"."FullName", "g1"."HasSoulPatch", "g1"."LeaderNickname", "g1"."LeaderSquadId", "g1"."Rank"
+SELECT "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "g0"."Nickname", "g0"."SquadId", "g0"."AssignedCityName", "g0"."CityOfBirthName", "g0"."Discriminator", "g0"."FullName", "g0"."HasSoulPatch", "g0"."LeaderNickname", "g0"."LeaderSquadId", "g0"."Rank"
-    FROM "Gears" AS "g0"
-    WHERE "g0"."Nickname" <> 'Dom'
-) AS "g1" ON "g"."Nickname" = "g1"."LeaderNickname" AND "g"."SquadId" = "g1"."LeaderSquadId"
+LEFT JOIN "Gears" AS "g0" ON "g"."Nickname" = "g0"."LeaderNickname" AND "g"."SquadId" = "g0"."LeaderSquadId" AND "g0"."Nickname" <> 'Dom'
 WHERE "g"."Discriminator" = 'Officer'
-ORDER BY "g"."Nickname", "g"."SquadId", "g1"."Nickname"
+ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname"
 """);
     }
 
@@ -4357,13 +4269,9 @@ WHERE "t"."Note" <> 'K.I.A.' OR "t"."Note" IS NULL
 
         AssertSql(
             """
-SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated", "l0"."ThreatLevel" AS "Threat"
+SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated", "l"."ThreatLevel" AS "Threat"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name", "l"."ThreatLevel"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 ORDER BY "f"."Name"
 """);
     }
@@ -4594,14 +4502,10 @@ ORDER BY "g0"."FullName", "g0"."Nickname", "g0"."SquadId"
 
         AssertSql(
             """
-SELECT "f0"."Id", "f0"."CapitalName", "f0"."Discriminator", "f0"."Name", "f0"."ServerAddress", "f0"."CommanderName", "f0"."DeputyCommanderName", "f0"."Eradicated"
+SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "LocustLeaders" AS "l"
-LEFT JOIN (
-    SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
-    FROM "Factions" AS "f"
-    WHERE "f"."Name" = 'Swarm'
-) AS "f0" ON "l"."Name" = "f0"."CommanderName"
-WHERE "f0"."Eradicated" <> 1 OR "f0"."Eradicated" IS NULL
+LEFT JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName" AND "f"."Name" = 'Swarm'
+WHERE "f"."Eradicated" <> 1 OR "f"."Eradicated" IS NULL
 """);
     }
 
@@ -4662,14 +4566,10 @@ WHERE "g"."Nickname" <> "g0"."Nickname" OR "g"."SquadId" <> "g0"."SquadId"
 
         AssertSql(
             """
-SELECT "f0"."Id", "f0"."CapitalName", "f0"."Discriminator", "f0"."Name", "f0"."ServerAddress", "f0"."CommanderName", "f0"."DeputyCommanderName", "f0"."Eradicated"
+SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
 FROM "LocustLeaders" AS "l"
-INNER JOIN (
-    SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."DeputyCommanderName", "f"."Eradicated"
-    FROM "Factions" AS "f"
-    WHERE "f"."Name" = 'Swarm'
-) AS "f0" ON "l"."Name" = "f0"."CommanderName"
-WHERE "f0"."Eradicated" <> 1 OR "f0"."Eradicated" IS NULL
+INNER JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName" AND "f"."Name" = 'Swarm'
+WHERE "f"."Eradicated" <> 1 OR "f"."Eradicated" IS NULL
 """);
     }
 
@@ -4684,11 +4584,7 @@ FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch" AND (
     SELECT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
-    INNER JOIN (
-        SELECT "w0"."Id"
-        FROM "Weapons" AS "w0"
-        WHERE "g"."FullName" = "w0"."OwnerFullName"
-    ) AS "w1" ON "w"."Id" = "w1"."Id"
+    INNER JOIN "Weapons" AS "w0" ON "w"."Id" = "w0"."Id" AND "g"."FullName" = "w0"."OwnerFullName"
     WHERE "g"."FullName" = "w"."OwnerFullName"
     ORDER BY "w"."Id"
     LIMIT 1)
@@ -4939,19 +4835,11 @@ LEFT JOIN "Squads" AS "s" ON "g"."SquadId" = "s"."Id"
 
         AssertSql(
             """
-SELECT "g"."FullName", "g"."Nickname", "g"."SquadId", "w1"."Id", "w1"."AmmunitionType", "w1"."IsAutomatic", "w1"."Name", "w1"."OwnerFullName", "w1"."SynergyWithId", "w2"."Id", "w2"."AmmunitionType", "w2"."IsAutomatic", "w2"."Name", "w2"."OwnerFullName", "w2"."SynergyWithId"
+SELECT "g"."FullName", "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic"
-) AS "w1" ON "g"."FullName" = "w1"."OwnerFullName"
-LEFT JOIN (
-    SELECT "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
-    FROM "Weapons" AS "w0"
-    WHERE "w0"."IsAutomatic"
-) AS "w2" ON "g"."FullName" = "w2"."OwnerFullName"
-ORDER BY "g"."Nickname", "g"."SquadId", "w1"."Id"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic"
+LEFT JOIN "Weapons" AS "w0" ON "g"."FullName" = "w0"."OwnerFullName" AND "w0"."IsAutomatic"
+ORDER BY "g"."Nickname", "g"."SquadId", "w"."Id"
 """);
     }
 
@@ -5138,13 +5026,9 @@ ORDER BY "g"."Nickname", "g"."SquadId"
 
         AssertSql(
             """
-SELECT "f"."Name", "l0"."Name" AS "CommanderName"
+SELECT "f"."Name", "l"."Name" AS "CommanderName"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 ORDER BY "f"."Name"
 """);
     }
@@ -5241,13 +5125,9 @@ ORDER BY "g"."HasSoulPatch" DESC, "t"."Note"
 
         AssertSql(
             """
-SELECT "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId"
+SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 """);
     }
 
@@ -5494,13 +5374,9 @@ WHERE "c"."Location" = 'Unknown' AND (
             """
 @prm='1'
 
-SELECT "g"."Nickname", "g"."FullName", "w0"."Id" IS NOT NULL AS "Collection"
+SELECT "g"."Nickname", "g"."FullName", "w"."Id" IS NOT NULL AS "Collection"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."OwnerFullName"
-    FROM "Weapons" AS "w"
-    WHERE "w"."Id" > @prm
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."Id" > @prm
 """);
     }
 
@@ -5510,15 +5386,11 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "m0"."Rating"
+SELECT "m"."Rating"
 FROM (
     SELECT 1
 ) AS "e"
-LEFT JOIN (
-    SELECT "m"."Rating"
-    FROM "Missions" AS "m"
-    WHERE "m"."Id" = -1
-) AS "m0" ON 1
+LEFT JOIN "Missions" AS "m" ON "m"."Id" = -1
 """);
     }
 
@@ -5614,13 +5486,9 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL)
 WHERE "g"."Nickname" <> 'Marcus'
 ORDER BY "g"."Nickname", "g"."SquadId"
 """);
@@ -5871,14 +5739,10 @@ END
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Gears" AS "g"
 INNER JOIN "Cities" AS "c" ON "g"."CityOfBirthName" = "c"."Name"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."Name" <> 'Lancer' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."Name" <> 'Lancer' OR "w"."Name" IS NULL)
 WHERE "c"."Name" IN ('Ephyra', 'Hanover')
 ORDER BY "g"."Nickname", "g"."SquadId"
 """);
@@ -6446,19 +6310,15 @@ ORDER BY "t"."Id", "g0"."Nickname", "g0"."SquadId", "g1"."Nickname"
 
         AssertSql(
             """
-SELECT "g0"."Nickname", "g0"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+SELECT "g0"."Nickname", "g0"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM (
     SELECT "g"."Nickname", "g"."SquadId", "g"."FullName"
     FROM "Gears" AS "g"
     ORDER BY "g"."Nickname"
     LIMIT 1
 ) AS "g0"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE NOT ("w"."IsAutomatic")
-) AS "w0" ON "g0"."FullName" = "w0"."OwnerFullName"
-ORDER BY "g0"."Nickname", "g0"."SquadId", "w0"."Id"
+LEFT JOIN "Weapons" AS "w" ON "g0"."FullName" = "w"."OwnerFullName" AND NOT ("w"."IsAutomatic")
+ORDER BY "g0"."Nickname", "g0"."SquadId", "w"."Id"
 """);
     }
 
@@ -6968,13 +6828,9 @@ FROM "Cities" AS "c"
             """
 @isAutomatic='True'
 
-SELECT "g"."Nickname", "g"."FullName", "w0"."Id" IS NOT NULL AS "Collection"
+SELECT "g"."Nickname", "g"."FullName", "w"."Id" IS NOT NULL AS "Collection"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."OwnerFullName"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" = @isAutomatic
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic" = @isAutomatic
 """);
     }
 
@@ -7010,13 +6866,9 @@ WHERE "g"."Nickname" = 'Marcus'
 
         AssertSql(
             """
-SELECT "f"."Name", "l0"."ThreatLevel" AS "Threat"
+SELECT "f"."Name", "l"."ThreatLevel" AS "Threat"
 FROM "Factions" AS "f"
-LEFT JOIN (
-    SELECT "l"."Name", "l"."ThreatLevel"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "f"."CommanderName" = "l0"."Name"
+LEFT JOIN "LocustLeaders" AS "l" ON "f"."CommanderName" = "l"."Name" AND "l"."Discriminator" = 'LocustCommander'
 ORDER BY "f"."Name"
 """);
     }
@@ -7041,13 +6893,9 @@ INNER JOIN "Weapons" AS "w" ON "w"."SynergyWithId" IS NOT NULL
             """
 @isAutomatic='True'
 
-SELECT "g"."Nickname", "g"."FullName", "w0"."Id" IS NOT NULL AS "Collection"
+SELECT "g"."Nickname", "g"."FullName", "w"."Id" IS NOT NULL AS "Collection"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."OwnerFullName"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" <> @isAutomatic
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND "w"."IsAutomatic" <> @isAutomatic
 """);
     }
 
@@ -7344,13 +7192,9 @@ WHERE ("t"."Note" <> 'Foo' OR "t"."Note" IS NULL) AND "g"."Discriminator" = 'Off
 
         AssertSql(
             """
-SELECT "g"."Nickname", "g"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
+SELECT "g"."Nickname", "g"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-    FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL
-) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
+LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName" AND ("w"."IsAutomatic" OR "w"."Name" <> 'foo' OR "w"."Name" IS NULL)
 WHERE "g"."Nickname" <> 'Marcus'
 ORDER BY "g"."Nickname", "g"."SquadId"
 """);
@@ -7664,13 +7508,9 @@ CROSS JOIN "Gears" AS "g0"
 SELECT "g"."FullName", "g"."Nickname", "g"."SquadId", "s"."FullName", "s"."Nickname", "s"."SquadId", "s"."Id", "s"."AmmunitionType", "s"."IsAutomatic", "s"."Name", "s"."OwnerFullName", "s"."SynergyWithId"
 FROM "Gears" AS "g"
 LEFT JOIN (
-    SELECT "g0"."FullName", "g0"."Nickname", "g0"."SquadId", "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId", "g0"."Rank", "g0"."LeaderNickname", "g0"."LeaderSquadId"
+    SELECT "g0"."FullName", "g0"."Nickname", "g0"."SquadId", "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId", "g0"."Rank", "g0"."LeaderNickname", "g0"."LeaderSquadId"
     FROM "Gears" AS "g0"
-    LEFT JOIN (
-        SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-        FROM "Weapons" AS "w"
-        WHERE "w"."Name" <> 'Bar' OR "w"."Name" IS NULL
-    ) AS "w0" ON "g0"."FullName" = "w0"."OwnerFullName"
+    LEFT JOIN "Weapons" AS "w" ON "g0"."FullName" = "w"."OwnerFullName" AND ("w"."Name" <> 'Bar' OR "w"."Name" IS NULL)
     WHERE "g0"."FullName" <> 'Foo'
 ) AS "s" ON "g"."Nickname" = "s"."LeaderNickname" AND "g"."SquadId" = "s"."LeaderSquadId"
 WHERE "g"."Discriminator" = 'Officer'
@@ -7859,14 +7699,10 @@ END = 'Tyrus'
 SELECT "f"."Name"
 FROM "Factions" AS "f"
 LEFT JOIN "LocustLeaders" AS "l" ON "f"."DeputyCommanderName" = "l"."Name"
-LEFT JOIN (
-    SELECT "l0"."Name", "l0"."ThreatLevel"
-    FROM "LocustLeaders" AS "l0"
-    WHERE "l0"."Discriminator" = 'LocustCommander'
-) AS "l1" ON "f"."CommanderName" = "l1"."Name"
+LEFT JOIN "LocustLeaders" AS "l0" ON "f"."CommanderName" = "l0"."Name" AND "l0"."Discriminator" = 'LocustCommander'
 WHERE CASE
     WHEN "l"."Name" IS NOT NULL THEN "l"."ThreatLevel"
-    ELSE "l1"."ThreatLevel"
+    ELSE "l0"."ThreatLevel"
 END = 4
 """);
     }
@@ -8272,18 +8108,14 @@ ORDER BY "g"."Nickname", "m"."Id"
 
         AssertSql(
             """
-SELECT 1, "l2"."Name", "l2"."Discriminator", "l2"."LocustHordeId", "l2"."ThreatLevel", "l2"."ThreatLevelByte", "l2"."ThreatLevelNullableByte", "l2"."DefeatedByNickname", "l2"."DefeatedBySquadId", "l2"."HighCommandId", "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId"
+SELECT 1, "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId", "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId"
 FROM "Factions" AS "f"
 CROSS JOIN (
     SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
     FROM "LocustLeaders" AS "l"
     WHERE "l"."Discriminator" = 'LocustCommander'
 ) AS "l0"
-LEFT JOIN (
-    SELECT "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId"
-    FROM "LocustLeaders" AS "l1"
-    WHERE "l1"."Discriminator" = 'LocustCommander'
-) AS "l2" ON "f"."CommanderName" = "l2"."Name"
+LEFT JOIN "LocustLeaders" AS "l1" ON "f"."CommanderName" = "l1"."Name" AND "l1"."Discriminator" = 'LocustCommander'
 """);
     }
 
@@ -8293,18 +8125,10 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "l2"."Name", "l2"."Discriminator", "l2"."LocustHordeId", "l2"."ThreatLevel", "l2"."ThreatLevelByte", "l2"."ThreatLevelNullableByte", "l2"."DefeatedByNickname", "l2"."DefeatedBySquadId", "l2"."HighCommandId", "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId"
+SELECT "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId", "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "Factions" AS "f"
-CROSS JOIN (
-    SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0"
-LEFT JOIN (
-    SELECT "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId"
-    FROM "LocustLeaders" AS "l1"
-    WHERE "l1"."Discriminator" = 'LocustCommander'
-) AS "l2" ON "f"."CommanderName" = "l2"."Name"
+INNER JOIN "LocustLeaders" AS "l" ON "l"."Discriminator" = 'LocustCommander'
+LEFT JOIN "LocustLeaders" AS "l1" ON "f"."CommanderName" = "l1"."Name" AND "l1"."Discriminator" = 'LocustCommander'
 """);
     }
 
@@ -8314,18 +8138,10 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "l2"."Name" = 'Queen Myrrah' AND "l2"."Name" IS NOT NULL, "l2"."Name", "l2"."Discriminator", "l2"."LocustHordeId", "l2"."ThreatLevel", "l2"."ThreatLevelByte", "l2"."ThreatLevelNullableByte", "l2"."DefeatedByNickname", "l2"."DefeatedBySquadId", "l2"."HighCommandId", "l0"."Name", "l0"."Discriminator", "l0"."LocustHordeId", "l0"."ThreatLevel", "l0"."ThreatLevelByte", "l0"."ThreatLevelNullableByte", "l0"."DefeatedByNickname", "l0"."DefeatedBySquadId", "l0"."HighCommandId"
+SELECT "l1"."Name" = 'Queen Myrrah' AND "l1"."Name" IS NOT NULL, "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId", "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "Factions" AS "f"
-CROSS JOIN (
-    SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0"
-LEFT JOIN (
-    SELECT "l1"."Name", "l1"."Discriminator", "l1"."LocustHordeId", "l1"."ThreatLevel", "l1"."ThreatLevelByte", "l1"."ThreatLevelNullableByte", "l1"."DefeatedByNickname", "l1"."DefeatedBySquadId", "l1"."HighCommandId"
-    FROM "LocustLeaders" AS "l1"
-    WHERE "l1"."Discriminator" = 'LocustCommander'
-) AS "l2" ON "f"."CommanderName" = "l2"."Name"
+INNER JOIN "LocustLeaders" AS "l" ON "l"."Discriminator" = 'LocustCommander'
+LEFT JOIN "LocustLeaders" AS "l1" ON "f"."CommanderName" = "l1"."Name" AND "l1"."Discriminator" = 'LocustCommander'
 """);
     }
 
@@ -8377,13 +8193,9 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "s"."Id", "t0"."Id" AS "TagId"
+SELECT "s"."Id", "t"."Id" AS "TagId"
 FROM "Squads" AS "s"
-CROSS JOIN (
-    SELECT "t"."Id"
-    FROM "Tags" AS "t"
-    WHERE "t"."Note" = 'Marcus'' Tag'
-) AS "t0"
+INNER JOIN "Tags" AS "t" ON "t"."Note" = 'Marcus'' Tag'
 """);
     }
 
@@ -8822,13 +8634,9 @@ ORDER BY "g"."SquadId", "g"."Nickname"
 
         AssertSql(
             """
-SELECT "g"."FullName", "l0"."ThreatLevel"
+SELECT "g"."FullName", "l"."ThreatLevel"
 FROM "Gears" AS "g"
-LEFT JOIN (
-    SELECT "l"."ThreatLevel", "l"."DefeatedByNickname"
-    FROM "LocustLeaders" AS "l"
-    WHERE "l"."Discriminator" = 'LocustCommander'
-) AS "l0" ON "g"."Nickname" = "l0"."DefeatedByNickname"
+LEFT JOIN "LocustLeaders" AS "l" ON "g"."Nickname" = "l"."DefeatedByNickname" AND "l"."Discriminator" = 'LocustCommander'
 """);
     }
 
