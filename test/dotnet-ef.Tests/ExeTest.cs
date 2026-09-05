@@ -30,9 +30,15 @@ public class ExeTest
             + "\"Needs escaping\\\\\\\\\" "
             + "\"Needs \\\"escaping\\\"\" "
             + "\"Needs \\\\\\\"escaping\\\"\" "
-            + "\"Needs escaping\\\\\\\\too\"",
+            + "\"Needs escaping\\\\too\"",
             result);
     }
+
+    [Fact]
+    public void ToArguments_does_not_escape_UNC_prefix()
+        => Assert.Equal(
+            "\"\\\\FILESERVER\\DevShare\\Sample Solution\\Api Project.csproj\"",
+            ToArguments(["\\\\FILESERVER\\DevShare\\Sample Solution\\Api Project.csproj"]));
 
     private static string ToArguments(IReadOnlyList<string> args)
         => (string)typeof(Exe).GetMethod("ToArguments", BindingFlags.Static | BindingFlags.Public)!
