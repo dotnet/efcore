@@ -39,6 +39,11 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
     public override Expression Process(Expression query)
     {
         var result = base.Process(query);
+
+        // SQLite has no APPLY, but its table-valued functions can reference preceding tables in FROM; rewrite what we can as joins
+        // before rejecting the rest.
+        result = new SqliteApplyFlatteningExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(result);
+
         _applyValidator.Visit(result);
 
         return result;
