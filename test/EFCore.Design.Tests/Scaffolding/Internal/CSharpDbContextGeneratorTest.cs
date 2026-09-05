@@ -396,6 +396,48 @@ optionsBuilder
                 });
 
         [Fact]
+        public Task IsRowVersion_is_still_generated_when_not_using_data_annotations()
+            => TestAsync(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                    }),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains("IsRowVersion()", code.ContextFile.Code),
+                model =>
+                {
+                    var property = model.FindEntityType("TestNamespace.Entity").GetProperty("Version");
+                    Assert.True(property.IsConcurrencyToken);
+                    Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+                });
+
+        [Fact]
+        public Task IsConcurrencyToken_is_still_generated_for_non_row_version_property_using_data_annotations()
+            => TestAsync(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Token").IsConcurrencyToken();
+                    }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    Assert.Contains("IsConcurrencyToken()", code.ContextFile.Code);
+                    Assert.DoesNotContain("[Timestamp]", code.AdditionalFiles.Single(f => f.Path == "Entity.cs").Code);
+                },
+                model =>
+                {
+                    var property = model.FindEntityType("TestNamespace.Entity").GetProperty("Token");
+                    Assert.True(property.IsConcurrencyToken);
+                    Assert.NotEqual(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
+                });
+
+        [Fact]
         public Task HasPrecision_works()
             => TestAsync(
                 modelBuilder => modelBuilder.Entity(
