@@ -2682,6 +2682,59 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [Fact]
+    public void Scaffold_skip_navigation_for_many_to_many_join_table_self_ref_with_colliding_navigation_names()
+    {
+        var database = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Name = "Products",
+                    Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
+                    PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
+                },
+                new DatabaseTable
+                {
+                    Name = "RelatedProducts",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "Product_Id", StoreType = "int" },
+                        new DatabaseColumn { Name = "ProductId", StoreType = "int" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey
+                    {
+                        Columns = { new DatabaseColumnRef("Product_Id"), new DatabaseColumnRef("ProductId") }
+                    },
+                    ForeignKeys =
+                    {
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("Product_Id") },
+                            PrincipalColumns = { new DatabaseColumnRef("Id") },
+                            PrincipalTable = new DatabaseTableRef("Products"),
+                        },
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("ProductId") },
+                            PrincipalColumns = { new DatabaseColumnRef("Id") },
+                            PrincipalTable = new DatabaseTableRef("Products"),
+                        }
+                    }
+                }
+            }
+        };
+
+        var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+        var product = model.GetEntityTypes().Single(e => e.Name == "Product");
+        var skipNavigationNames = product.GetSkipNavigations().Select(n => n.Name).ToList();
+
+        Assert.Equal(2, skipNavigationNames.Count);
+        Assert.Equal(skipNavigationNames.Count, skipNavigationNames.Distinct().Count());
+    }
+
+    [Fact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_composite_fk()
     {
         var database = new DatabaseModel
