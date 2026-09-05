@@ -76,13 +76,29 @@ public class SqlServerTimeOnlyMethodTranslator(ISqlExpressionFactory sqlExpressi
             var typeMapping = ExpressionExtensions.InferTypeMapping(instance, arguments[0], arguments[1]);
             instance = sqlExpressionFactory.ApplyTypeMapping(instance, typeMapping);
 
-            return sqlExpressionFactory.And(
-                sqlExpressionFactory.GreaterThanOrEqual(
-                    instance,
-                    sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping)),
-                sqlExpressionFactory.LessThan(
-                    instance,
-                    sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping)));
+            var start = sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping);
+            var end = sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping);
+
+            var isAfterStart = sqlExpressionFactory.GreaterThanOrEqual(instance, start);
+            var isBeforeEnd = sqlExpressionFactory.LessThan(instance, end);
+
+            // A range whose start is after its end wraps around midnight, and matches the times that are either after
+            // the start or before the end.
+            if (arguments is [SqlConstantExpression { Value: TimeOnly startValue }, SqlConstantExpression { Value: TimeOnly endValue }])
+            {
+                return startValue > endValue
+                    ? sqlExpressionFactory.OrElse(isAfterStart, isBeforeEnd)
+                    : sqlExpressionFactory.AndAlso(isAfterStart, isBeforeEnd);
+            }
+
+            // The bounds aren't known when translating, so both cases have to be handled in the SQL.
+            return sqlExpressionFactory.OrElse(
+                sqlExpressionFactory.AndAlso(
+                    sqlExpressionFactory.LessThanOrEqual(start, end),
+                    sqlExpressionFactory.AndAlso(isAfterStart, isBeforeEnd)),
+                sqlExpressionFactory.AndAlso(
+                    sqlExpressionFactory.GreaterThan(start, end),
+                    sqlExpressionFactory.OrElse(isAfterStart, isBeforeEnd)));
         }
 
         return null;
