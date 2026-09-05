@@ -408,6 +408,87 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_Any_through_filtered_navigation(bool async)
+    {
+        await base.GroupBy_Any_through_filtered_navigation(async);
+
+        AssertSql(
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+
+SELECT [o].[EmployeeID] AS [Key], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        LEFT JOIN (
+            SELECT [c2].[CustomerID], [c2].[City], [c2].[CompanyName]
+            FROM [Customers] AS [c2]
+            WHERE [c2].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+        ) AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
+        WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL AND ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c1].[City] = N'London') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [c].[CustomerID], [c].[CompanyName]
+    FROM [Customers] AS [c]
+    WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_Any_through_filtered_navigation_with_total(bool async)
+    {
+        await base.GroupBy_Any_through_filtered_navigation_with_total(async);
+
+        AssertSql(
+            """
+@ef_filter__TenantPrefix_startswith='B%' (Size = 40)
+
+SELECT [o].[EmployeeID] AS [Key], COUNT(*) AS [Total], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        LEFT JOIN (
+            SELECT [c2].[CustomerID], [c2].[City], [c2].[CompanyName]
+            FROM [Customers] AS [c2]
+            WHERE [c2].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+        ) AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
+        WHERE [c1].[CustomerID] IS NOT NULL AND [c1].[CompanyName] IS NOT NULL AND ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c1].[City] = N'London') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [c].[CustomerID], [c].[CompanyName]
+    FROM [Customers] AS [c]
+    WHERE [c].[CompanyName] LIKE @ef_filter__TenantPrefix_startswith ESCAPE N'\'
+) AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+WHERE [c0].[CustomerID] IS NOT NULL AND [c0].[CompanyName] IS NOT NULL
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_Any_through_filtered_navigation_ignore_query_filters(bool async)
+    {
+        await base.GroupBy_Any_through_filtered_navigation_ignore_query_filters(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+        WHERE ([o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AND [c].[City] = N'London') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Londons]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
     public override async Task Included_many_to_one_query2(bool async)
     {
         await base.Included_many_to_one_query2(async);

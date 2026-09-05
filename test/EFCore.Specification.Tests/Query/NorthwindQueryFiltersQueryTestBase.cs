@@ -163,6 +163,40 @@ public abstract class NorthwindQueryFiltersQueryTestBase<TFixture>(TFixture fixt
             elementSorter: e => e.Key.GetValueOrDefault());
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_through_filtered_navigation(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.Any(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key.GetValueOrDefault());
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_through_filtered_navigation_with_total(bool async)
+        => AssertFilteredQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.EmployeeID)
+                .Select(
+                    g => new
+                    {
+                        g.Key,
+                        Total = g.Count(),
+                        Londons = g.Any(o => o.Customer!.City == "London")
+                    }),
+            elementSorter: e => e.Key.GetValueOrDefault());
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_through_filtered_navigation_ignore_query_filters(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .IgnoreQueryFilters()
+                .GroupBy(o => o.EmployeeID)
+                .Select(g => new { g.Key, Londons = g.Any(o => o.Customer!.City == "London") }),
+            elementSorter: e => e.Key.GetValueOrDefault());
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task Included_many_to_one_query2(bool async)
         => AssertFilteredQuery(
             async,
