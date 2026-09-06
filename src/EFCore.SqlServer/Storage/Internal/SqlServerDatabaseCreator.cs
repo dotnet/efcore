@@ -294,7 +294,7 @@ SELECT 1 ELSE SELECT 0");
         => exception.Number is 4060 or 1832 or 5120;
 
     // See Issue #985
-    private bool RetryOnExistsFailure(SqlException exception, bool retryOnNotExists)
+    private bool RetryOnExistsFailure(SqlException exception, bool retryOnLoginFailure)
     {
         // This is to handle the case where Open throws (Number 233):
         //   Microsoft.Data.SqlClient.SqlException: A connection was successfully established with the
@@ -314,11 +314,11 @@ SELECT 1 ELSE SELECT 0");
         //   Microsoft.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
         // And (Number 5120)
         //   Microsoft.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
-        // And (Number 18456)
+        // And (Number 18456) when checking whether the database exists after creation
         //   Microsoft.Data.SqlClient.SqlException: Login failed for user 'xxxxxxx'.
         if ((exception.Number is 203 && exception.InnerException is Win32Exception)
             || (exception.Number is 233 or -2 or 4060 or 1832 or 5120)
-            || (retryOnNotExists && exception.Number is 18456))
+            || (retryOnLoginFailure && exception.Number is 18456))
         {
             ClearPool();
             return true;
