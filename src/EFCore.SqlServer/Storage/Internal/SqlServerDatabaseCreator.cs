@@ -205,7 +205,7 @@ SELECT 1 ELSE SELECT 0");
                         }
 
                         if (DateTime.UtcNow > giveUp
-                            || !RetryOnExistsFailure(e))
+                            || !RetryOnExistsFailure(e, retryOnNotExists))
                         {
                             throw;
                         }
@@ -270,7 +270,7 @@ SELECT 1 ELSE SELECT 0");
                         }
 
                         if (DateTime.UtcNow > giveUp
-                            || !RetryOnExistsFailure(e))
+                            || !RetryOnExistsFailure(e, retryOnNotExists))
                         {
                             throw;
                         }
@@ -294,7 +294,7 @@ SELECT 1 ELSE SELECT 0");
         => exception.Number is 4060 or 1832 or 5120;
 
     // See Issue #985
-    private bool RetryOnExistsFailure(SqlException exception)
+    private bool RetryOnExistsFailure(SqlException exception, bool retryOnNotExists)
     {
         // This is to handle the case where Open throws (Number 233):
         //   Microsoft.Data.SqlClient.SqlException: A connection was successfully established with the
@@ -317,7 +317,8 @@ SELECT 1 ELSE SELECT 0");
         // And (Number 18456)
         //   Microsoft.Data.SqlClient.SqlException: Login failed for user 'xxxxxxx'.
         if ((exception.Number is 203 && exception.InnerException is Win32Exception)
-            || (exception.Number is 233 or -2 or 4060 or 1832 or 5120 or 18456))
+            || (exception.Number is 233 or -2 or 4060 or 1832 or 5120)
+            || (retryOnNotExists && exception.Number is 18456))
         {
             ClearPool();
             return true;
