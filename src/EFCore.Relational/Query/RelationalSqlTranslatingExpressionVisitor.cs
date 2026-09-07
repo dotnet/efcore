@@ -1670,17 +1670,10 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     {
         if (expression is RelationalGroupByShaperExpression relationalGroupByShaperExpression)
         {
-            // A grouping from an enclosing query stays in scope inside a subquery, but once that subquery has a GROUP BY of
-            // its own an aggregate over the outer grouping cannot be folded into it - it would silently bind to the inner
-            // grouping instead (#27130). Refuse, so the caller falls back to a correlated subquery over the grouping element.
-            if (CurrentSelectExpression is { GroupBy.Count: > 0 }
-                && relationalGroupByShaperExpression.OwningSelectExpression != CurrentSelectExpression)
+            enumerableExpression = new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector)
             {
-                enumerableExpression = null;
-                return false;
-            }
-
-            enumerableExpression = new EnumerableExpression(relationalGroupByShaperExpression.ElementSelector);
+                GroupingOwner = relationalGroupByShaperExpression.OwningSelectExpression
+            };
             return true;
         }
 
@@ -1778,8 +1771,82 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             enumerableExpression = enumerableExpression.ApplySelector(selector);
         }
 
-        return Dependencies.AggregateMethodCallTranslatorProvider.Translate(
+        var translation = Dependencies.AggregateMethodCallTranslatorProvider.Translate(
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
+
+        // #27130: a grouping from an enclosing query is still in scope inside a subquery, and an aggregate over it lands in
+        // whichever GROUP BY is being composed here. That is only a problem when the aggregate carries no reference to the
+        // outer query - COUNT(*) and friends - because SQL then binds it to the inner grouping and it silently counts the
+        // wrong rows. An aggregate that does reference a column from outside this query (MIN([o].[OrderID]),
+        // COUNT(CASE WHEN [o].x ...)) is an outer aggregate and already evaluates against the enclosing group, so it is left
+        // alone. Refusing here makes the caller fall back to a correlated subquery over the grouping element.
+        if (translation is not null
+            && CurrentSelectExpression is { GroupBy.Count: > 0 } currentSelectExpression
+            && enumerableExpression.GroupingOwner is not null
+            && enumerableExpression.GroupingOwner != currentSelectExpression
+            && !ReferencesOuterColumn(translation, currentSelectExpression))
+        {
+            return null;
+        }
+
+        return translation;
+
+        static bool ReferencesOuterColumn(SqlExpression expression, SelectExpression currentSelectExpression)
+        {
+            var aliasesInScope = new HashSet<string>();
+            foreach (var table in currentSelectExpression.Tables)
+            {
+                if (table.UnwrapJoin().Alias is string alias)
+                {
+                    aliasesInScope.Add(alias);
+                }
+            }
+
+            var finder = new OuterColumnFindingExpressionVisitor(aliasesInScope);
+            finder.Visit(expression);
+            return finder.FoundOuterColumn;
+        }
+    }
+
+    // Finds a column belonging to a table that is not in scope in the SelectExpression being composed - i.e. an outer
+    // reference. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and SqlServerAggregateOverSubqueryPostprocessor
+    // decide whether a subquery is correlated.
+    private sealed class OuterColumnFindingExpressionVisitor(HashSet<string> aliasesInScope) : ExpressionVisitor
+    {
+        public bool FoundOuterColumn { get; private set; }
+
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+            => FoundOuterColumn ? node : base.Visit(node);
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            switch (node)
+            {
+                // A nested subquery brings its own tables into scope; without tracking them its columns would look outer.
+                case SelectExpression selectExpression:
+                {
+                    List<string> tableAliases =
+                        selectExpression.Tables.Select(t => t.UnwrapJoin().Alias).Where(a => a is not null).ToList()!;
+                    aliasesInScope.UnionWith(tableAliases);
+                    var visited = base.VisitExtension(selectExpression);
+                    aliasesInScope.ExceptWith(tableAliases);
+
+                    return visited;
+                }
+
+                case ColumnExpression columnExpression:
+                    if (!aliasesInScope.Contains(columnExpression.TableAlias))
+                    {
+                        FoundOuterColumn = true;
+                    }
+
+                    return columnExpression;
+
+                default:
+                    return base.VisitExtension(node);
+            }
+        }
     }
 
     private Expression RemapLambda(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)

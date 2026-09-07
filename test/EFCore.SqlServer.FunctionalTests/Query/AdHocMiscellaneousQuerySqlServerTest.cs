@@ -2439,10 +2439,7 @@ GROUP BY [t].[Value]
         AssertSql(
             """
 SELECT [t].[Value] AS [A], ISNULL(SUM([t].[Id]), 0) AS [B], ISNULL((
-    SELECT TOP(1) (
-        SELECT ISNULL(SUM([t1].[Id]), 0)
-        FROM [Tables] AS [t1]
-        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) + ISNULL(SUM([t0].[Id]), 0)
+    SELECT TOP(1) ISNULL(SUM([t].[Id]), 0) + ISNULL(SUM([t0].[Id]), 0)
     FROM [Tables] AS [t0]
     GROUP BY [t0].[Value]
     ORDER BY (SELECT 1)), 0) AS [C]
