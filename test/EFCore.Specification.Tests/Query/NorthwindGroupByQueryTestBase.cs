@@ -3910,6 +3910,21 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_with_predicate_on_inner_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                        .Select(g2 => g.Count(o => g2.Key.Length > 3))
+                        .OrderBy(e => e)
+                        .FirstOrDefault()
+                }),
+            elementSorter: e => e.Key);
+
     #endregion
 
     #region GroupByAndDistinctWithCorrelatedCollection

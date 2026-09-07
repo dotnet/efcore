@@ -4668,10 +4668,7 @@ OUTER APPLY (
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], ISNULL((
-    SELECT TOP(1) COUNT(*) + (
-        SELECT MIN([o0].[OrderID])
-        FROM [Orders] AS [o0]
-        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    SELECT TOP(1) COUNT(*) + MIN([o].[OrderID])
     FROM [Employees] AS [e]
     WHERE [e].[City] = N'Seattle'
     GROUP BY [e].[City]
@@ -4719,6 +4716,29 @@ SELECT [o].[CustomerID] AS [Key], (
         FROM [Orders] AS [o0]
         WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) > 5
     ORDER BY [e].[City]) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_with_predicate_on_inner_key(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_with_predicate_on_inner_key(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND CAST(LEN([e].[City]) AS int) > 3)
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND CAST(LEN([e].[City]) AS int) > 3)), 0) AS [A]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
