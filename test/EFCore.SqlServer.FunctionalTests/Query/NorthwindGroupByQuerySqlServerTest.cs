@@ -2808,6 +2808,103 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_element_selector_with_aggregates_through_navigation_property(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregates_through_navigation_property(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons], ISNULL(SUM([o].[OrderID]), 0) AS [Total], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_projecting_navigation_with_aggregate(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_navigation_with_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX([c].[Region]) AS [Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_aggregate_through_two_level_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_aggregate_through_two_level_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[ProductID] AS [Key], ISNULL(SUM(CASE
+    WHEN [c].[City] = N'London' THEN 1
+    ELSE 0
+END), 0) AS [Londons]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[ProductID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_predicate_aggregate_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_predicate_aggregate_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], COUNT(CASE
+    WHEN [c].[City] = N'London' THEN 1
+END) AS [Londons]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_without_aggregate_selector_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_without_aggregate_selector_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], (
+    SELECT MAX(CAST(LEN([c].[City]) AS int))
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_with_identity_aggregate_selector_through_navigation(bool async)
+    {
+        await base.GroupBy_element_selector_with_identity_aggregate_selector_through_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o].[EmployeeID] AS [Key], MAX(CAST(LEN([c].[City]) AS int)) AS [Max]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+GROUP BY [o].[EmployeeID]
+""");
+    }
+
+    public override async Task GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(bool async)
+    {
+        await base.GroupBy_element_selector_projecting_constructor_bound_type_with_aggregate(async);
+
+        AssertSql();
+    }
+
     public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
     {
         await base.GroupBy_with_aggregate_containing_complex_where(async);

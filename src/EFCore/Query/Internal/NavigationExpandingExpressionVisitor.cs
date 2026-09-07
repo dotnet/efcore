@@ -1163,6 +1163,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var originalKeySelector = keySelector;
         var keySelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, keySelector));
 
+        // The shape the key and element selectors were written over. ProcessSelect below swaps the pending selector for the
+        // projected element shape, so the aggregate lift needs this stashed to remap those lambdas onto the pre-GroupBy source.
+        var parentShape = source.PendingSelector;
+
         // Need to generate lambda after processing element/result selector
         if (elementSelector != null)
         {
@@ -1184,9 +1188,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             return new GroupByNavigationExpansionExpression(
                 innerSource, groupingParameter, source.CurrentTree, source.PendingSelector, innerParameterName,
-                // Lift state — an element selector reshapes the source, so no lift in that case.
-                elementSelector == null ? source : null,
-                elementSelector == null ? originalKeySelector : null);
+                // Lift state. An element selector reshapes the grouping element, but the lift inlines it into the aggregate
+                // selectors to get lambdas over the pre-GroupBy source back (#38775).
+                source, originalKeySelector, parentShape, elementSelector);
         }
 
         var enumerableParameter = Expression.Parameter(
@@ -1670,9 +1674,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // Lift aggregates over reference navigations into the grouped query instead of a
         // correlated subquery per group (#27933).
         if (_extensibilityHelper.SupportsNavigationExpansionJoins
-            && groupBySource is { Parent: NavigationExpansionExpression parent, OriginalKeySelector: LambdaExpression originalKeySelector })
+            && groupBySource is
+            {
+                Parent: NavigationExpansionExpression parent,
+                OriginalKeySelector: LambdaExpression originalKeySelector,
+                ParentShape: Expression parentShape
+            })
         {
-            var lifted = TryLiftAggregatesOverNavigations(parent, originalKeySelector, selector);
+            var lifted = TryLiftAggregatesOverNavigations(
+                parent, parentShape, originalKeySelector, groupBySource.OriginalElementSelector, selector);
             if (lifted != null)
             {
                 return lifted;
@@ -1725,7 +1735,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     /// </summary>
     private NavigationExpansionExpression? TryLiftAggregatesOverNavigations(
         NavigationExpansionExpression parent,
+        Expression parentShape,
         LambdaExpression originalKeySelector,
+        LambdaExpression? originalElementSelector,
         LambdaExpression selector)
     {
         var scanner = new GroupingAggregateScanner(selector.Parameters[0]);
@@ -1736,12 +1748,42 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
+        // With an element selector the aggregate selectors are written over the projected element, so inline the element
+        // selector into each of them to get lambdas over the pre-GroupBy element back (#38775). Both are evaluated per source
+        // row, so the composition sees exactly the values the aggregate would have seen over the projected group.
+        var elementShape = originalElementSelector == null
+            ? null
+            : RemapLambdaExpression(parentShape, originalElementSelector);
+
+        var aggregateBodies = new Expression?[scanner.Aggregates.Count];
+        for (var i = 0; i < scanner.Aggregates.Count; i++)
+        {
+            var aggregateSelector = scanner.Aggregates[i].Selector;
+            if (aggregateSelector == null)
+            {
+                continue;
+            }
+
+            var aggregateBody = RemapLambdaExpression(elementShape ?? parentShape, aggregateSelector);
+
+            // A member the inlining could not bind back to what the element selector projects (a projection into a type whose
+            // members don't map onto its constructor arguments) would be left reading a member the pre-GroupBy element does
+            // not have. Those shapes keep the translation they have today.
+            if (elementShape != null
+                && ContainsUnboundProjectionMemberAccess(aggregateBody))
+            {
+                return null;
+            }
+
+            aggregateBodies[i] = aggregateBody;
+        }
+
         // Flat-aggregate queries keep the existing translation unchanged.
         var traversesNavigation = false;
-        foreach (var aggregate in scanner.Aggregates)
+        foreach (var aggregateBody in aggregateBodies)
         {
-            if (aggregate.Selector != null
-                && ContainsReferenceNavigationAccess(RemapLambdaExpression(parent, aggregate.Selector)))
+            if (aggregateBody != null
+                && ContainsReferenceNavigationAccess(aggregateBody))
             {
                 traversesNavigation = true;
                 break;
@@ -1756,14 +1798,13 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         // Expand every body on the parent first (this applies the joins and may widen the parent's
         // element shape), then generate all lambdas over the final parameter. Re-expanding the key
         // selector is idempotent with respect to joins already applied by ProcessGroupBy.
-        var keyBody = ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, originalKeySelector));
-        var aggregateBodies = new Expression?[scanner.Aggregates.Count];
-        for (var i = 0; i < scanner.Aggregates.Count; i++)
+        var keyBody = ExpandNavigationsForSource(parent, RemapLambdaExpression(parentShape, originalKeySelector));
+        for (var i = 0; i < aggregateBodies.Length; i++)
         {
-            var aggregateSelector = scanner.Aggregates[i].Selector;
-            aggregateBodies[i] = aggregateSelector == null
-                ? null
-                : ExpandNavigationsForSource(parent, RemapLambdaExpression(parent, aggregateSelector));
+            if (aggregateBodies[i] is Expression aggregateBody)
+            {
+                aggregateBodies[i] = ExpandNavigationsForSource(parent, aggregateBody);
+            }
         }
 
         var keySelector = GenerateLambda(keyBody, parent.CurrentParameter);
@@ -1836,6 +1877,34 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
+    /// <summary>
+    ///     Detects a member access left standing over an inlined projection, i.e. one that could not be bound to the member the
+    ///     element selector projects.
+    /// </summary>
+    private static bool ContainsUnboundProjectionMemberAccess(Expression body)
+    {
+        var detector = new UnboundProjectionMemberAccessDetector();
+        detector.Visit(body);
+        return detector.Found;
+    }
+
+    private sealed class UnboundProjectionMemberAccessDetector : ExpressionVisitor
+    {
+        public bool Found { get; private set; }
+
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            if (memberExpression.Expression is NewExpression or MemberInitExpression)
+            {
+                Found = true;
+
+                return memberExpression;
+            }
+
+            return base.VisitMember(memberExpression);
+        }
+    }
+
     private sealed record GroupingAggregateCall(MethodCallExpression Call, LambdaExpression? Selector, bool SourceAsQueryable);
 
     private static MethodCallExpression RebuildLiftedAggregate(
@@ -1846,8 +1915,15 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         LambdaExpression? newSelector)
     {
         var method = aggregate.Call.Method;
-        var newMethod = method.GetGenericMethodDefinition().MakeGenericMethod(
-            method.GetGenericArguments().Select(t => t == originalElementType ? newElementType : t).ToArray());
+
+        // The grouping element is always the first generic argument of these overloads; the others (Min/Max's TResult) keep
+        // their own type, which with an element selector can coincide with the element type - g.Max(x => x) over a grouping
+        // whose element selector projects a scalar.
+        var genericArguments = method.GetGenericArguments();
+        Check.DebugAssert(
+            genericArguments[0] == originalElementType, "Aggregate source is not typed as the grouping element");
+        genericArguments[0] = newElementType;
+        var newMethod = method.GetGenericMethodDefinition().MakeGenericMethod(genericArguments);
 
         Expression newSource = aggregate.SourceAsQueryable
             ? Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(newElementType), groupingParameter)
@@ -2420,7 +2496,10 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     }
 
     private static Expression RemapLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
-        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], source.PendingSelector, lambdaExpression.Body);
+        => RemapLambdaExpression(source.PendingSelector, lambdaExpression);
+
+    private static Expression RemapLambdaExpression(Expression shape, LambdaExpression lambdaExpression)
+        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], shape, lambdaExpression.Body);
 
     private LambdaExpression ProcessLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
         => GenerateLambda(ExpandNavigationsForSource(source, RemapLambdaExpression(source, lambdaExpression)), source.CurrentParameter);
