@@ -1775,49 +1775,56 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
             _model, method, enumerableExpression, scalarArguments, _queryCompilationContext.Logger);
 
         // #27130: a grouping from an enclosing query is still in scope inside a subquery, and an aggregate over it lands in
-        // whichever GROUP BY is being composed here. That is only a problem when the aggregate carries no reference to the
-        // outer query - COUNT(*) and friends - because SQL then binds it to the inner grouping and it silently counts the
-        // wrong rows. An aggregate that does reference a column from outside this query (MIN([o].[OrderID]),
-        // COUNT(CASE WHEN [o].x ...)) is an outer aggregate and already evaluates against the enclosing group, so it is left
-        // alone. Refusing here makes the caller fall back to a correlated subquery over the grouping element.
+        // whichever GROUP BY is being composed here. Leave it folded in only when it is unambiguously an aggregate over the
+        // enclosing group - every column it references comes from outside this query (MIN([o].[OrderID]),
+        // COUNT(CASE WHEN [o].x ...)), so SQL evaluates it against that group. Anything else is refused: an aggregate with no
+        // outer reference at all (COUNT(*) and friends) would silently bind to the inner grouping and count the wrong rows,
+        // and one mixing outer and inner columns is not an outer aggregate either. Refusing makes the caller fall back to a
+        // correlated subquery over the grouping element.
         if (translation is not null
             && CurrentSelectExpression is { GroupBy.Count: > 0 } currentSelectExpression
             && enumerableExpression.GroupingOwner is not null
             && enumerableExpression.GroupingOwner != currentSelectExpression
-            && !ReferencesOuterColumn(translation, currentSelectExpression))
+            && !IsAggregateOverEnclosingGroup(translation, currentSelectExpression))
         {
             return null;
         }
 
         return translation;
 
-        static bool ReferencesOuterColumn(SqlExpression expression, SelectExpression currentSelectExpression)
+        static bool IsAggregateOverEnclosingGroup(SqlExpression expression, SelectExpression currentSelectExpression)
         {
-            var aliasesInScope = new HashSet<string>();
+            var ownAliases = new HashSet<string>();
             foreach (var table in currentSelectExpression.Tables)
             {
                 if (table.UnwrapJoin().Alias is string alias)
                 {
-                    aliasesInScope.Add(alias);
+                    ownAliases.Add(alias);
                 }
             }
 
-            var finder = new OuterColumnFindingExpressionVisitor(aliasesInScope);
+            var finder = new OuterColumnFindingExpressionVisitor(ownAliases);
             finder.Visit(expression);
-            return finder.FoundOuterColumn;
+            return finder.FoundOuterColumn && !finder.FoundInnerColumn;
         }
     }
 
-    // Finds a column belonging to a table that is not in scope in the SelectExpression being composed - i.e. an outer
-    // reference. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and SqlServerAggregateOverSubqueryPostprocessor
-    // decide whether a subquery is correlated.
-    private sealed class OuterColumnFindingExpressionVisitor(HashSet<string> aliasesInScope) : ExpressionVisitor
+    // Classifies the columns an aggregate references, relative to the SelectExpression being composed: those belonging to that
+    // query's own tables are inner, those belonging to a table nested inside the expression are local and ignored, and anything
+    // else is an outer reference. Mirrors how SelectExpressionCorrelationFindingExpressionVisitor and
+    // SqlServerAggregateOverSubqueryPostprocessor decide whether a subquery is correlated.
+    private sealed class OuterColumnFindingExpressionVisitor(HashSet<string> ownAliases) : ExpressionVisitor
     {
+        private readonly HashSet<string> _nestedAliases = [];
+
         public bool FoundOuterColumn { get; private set; }
+
+        public bool FoundInnerColumn { get; private set; }
 
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
-            => FoundOuterColumn ? node : base.Visit(node);
+            // An inner column already settles the question; an outer one does not, since a later inner column still matters.
+            => FoundInnerColumn ? node : base.Visit(node);
 
         protected override Expression VisitExtension(Expression node)
         {
@@ -1828,17 +1835,24 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
                 {
                     List<string> tableAliases =
                         selectExpression.Tables.Select(t => t.UnwrapJoin().Alias).Where(a => a is not null).ToList()!;
-                    aliasesInScope.UnionWith(tableAliases);
+                    _nestedAliases.UnionWith(tableAliases);
                     var visited = base.VisitExtension(selectExpression);
-                    aliasesInScope.ExceptWith(tableAliases);
+                    _nestedAliases.ExceptWith(tableAliases);
 
                     return visited;
                 }
 
                 case ColumnExpression columnExpression:
-                    if (!aliasesInScope.Contains(columnExpression.TableAlias))
+                    if (!_nestedAliases.Contains(columnExpression.TableAlias))
                     {
-                        FoundOuterColumn = true;
+                        if (ownAliases.Contains(columnExpression.TableAlias))
+                        {
+                            FoundInnerColumn = true;
+                        }
+                        else
+                        {
+                            FoundOuterColumn = true;
+                        }
                     }
 
                     return columnExpression;
