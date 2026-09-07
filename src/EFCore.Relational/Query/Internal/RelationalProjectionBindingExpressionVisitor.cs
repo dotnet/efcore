@@ -550,11 +550,12 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 if (_indexBasedBinding)
                 {
                     _clientProjections!.Add(jsonQuery);
+
+                    return collectionResult.Update(
+                        new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, collectionResult.Type));
                 }
-                else
-                {
-                    _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
-                }
+
+                _projectionMapping[_projectionMembers.Peek()] = jsonQuery;
 
                 return collectionResult.Update(
                     new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), collectionResult.Type));
