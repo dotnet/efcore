@@ -4744,6 +4744,29 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_aggregate_from_multiple_query_with_predicate_on_both_keys(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_with_predicate_on_both_keys(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL((
+    SELECT TOP(1) (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o0].[OrderID] > CAST(LEN([e].[City]) AS int))
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o0].[OrderID] > CAST(LEN([e].[City]) AS int))), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_scalar_aggregate_in_set_operation(bool async)
     {
         await base.GroupBy_scalar_aggregate_in_set_operation(async);
