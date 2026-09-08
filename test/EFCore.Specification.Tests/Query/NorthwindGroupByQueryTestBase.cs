@@ -387,6 +387,90 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
             elementSorter: e => e.Key);
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AnyBig = g.Any(o => o.OrderID > 10500) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_All_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AllBig = g.All(o => o.OrderID > 10500) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_without_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, HasAny = g.Any() }),
+            elementSorter: e => e.Key);
+
+    // The shape reported in #27953: a quantifier guarding an aggregate expression that would otherwise divide by zero.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_guarding_aggregate_expression(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, Average = !g.Any() ? 0 : g.Sum(o => o.OrderID) / g.Count() }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate_and_other_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Total = g.Sum(o => o.OrderID),
+                    AnyBig = g.Any(o => o.OrderID > 10500)
+                }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_predicate_guarding_nullable_Sum(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Employees = g.Any(o => o.EmployeeID != null) ? g.Sum(o => (int?)o.EmployeeID) : null
+                }),
+            elementSorter: e => e.Key);
+
+    // EmployeeID is nullable, so the predicate is NULL rather than false on a row with no employee. Enumerable.Any/All
+    // treat that as "does not satisfy"; the SQL must too, so such a row has to be left out of the match count.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Any_with_nullable_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AnySenior = g.Any(o => o.EmployeeID > 5) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_All_with_nullable_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AllSenior = g.All(o => o.EmployeeID > 5) }),
+            elementSorter: e => e.Key);
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
         => AssertQuery(
             async,

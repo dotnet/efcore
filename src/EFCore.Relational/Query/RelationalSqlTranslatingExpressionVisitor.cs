@@ -1485,6 +1485,25 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
                         break;
 
+                    // Any/All over a grouping element are quantifiers rather than aggregates, but over a GROUP BY they can be
+                    // computed as one, which avoids a correlated EXISTS that re-derives the whole grouping source.
+                    case nameof(Queryable.Any)
+                        when genericMethod == QueryableMethods.AnyWithoutPredicate
+                        || genericMethod == QueryableMethods.AnyWithPredicate:
+                    case nameof(Queryable.All)
+                        when genericMethod == QueryableMethods.All:
+                        if (TryTranslateQuantifierOverGrouping(
+                                genericMethod,
+                                enumerableExpression,
+                                arguments.Count > 1 ? arguments[1].UnwrapLambdaFromQuote() : null,
+                                out translation))
+                        {
+                            return true;
+                        }
+
+                        abortTranslation = true;
+                        break;
+
                     default:
                         abortTranslation = true;
                         break;
@@ -1502,6 +1521,79 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         translation = null;
         return false;
+    }
+
+    /// <summary>
+    ///     Translates <see cref="Queryable.Any{TSource}(IQueryable{TSource})" />,
+    ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> and
+    ///     <see cref="Queryable.All{TSource}" /> over a grouping element into an aggregate over the enclosing GROUP BY.
+    ///     The fallback translation is a correlated EXISTS, which cannot share the outer query's FROM and so re-derives the
+    ///     whole grouping source once per group.
+    /// </summary>
+    private bool TryTranslateQuantifierOverGrouping(
+        MethodInfo genericMethod,
+        EnumerableExpression enumerableExpression,
+        LambdaExpression? predicateLambda,
+        [NotNullWhen(true)] out SqlExpression? translation)
+    {
+        translation = null;
+
+        // DISTINCT cannot change whether any/all rows satisfy a predicate.
+        enumerableExpression = enumerableExpression.SetDistinct(false);
+
+        var isAll = genericMethod == QueryableMethods.All;
+
+        if (predicateLambda == null && enumerableExpression.Predicate == null)
+        {
+            // Any() over an unfiltered grouping element: GROUP BY never produces an empty group.
+            translation = _sqlExpressionFactory.Constant(true);
+            return true;
+        }
+
+        // COUNT over the group as it stands, before the quantifier's own predicate narrows it. Only All needs this.
+        SqlExpression? total = null;
+        if (isAll && !TryTranslateCount(enumerableExpression, out total))
+        {
+            return false;
+        }
+
+        if (predicateLambda != null)
+        {
+            if (TranslateInternal(RemapLambda(enumerableExpression, predicateLambda)) is not SqlExpression predicate)
+            {
+                return false;
+            }
+
+            enumerableExpression = enumerableExpression.ApplyPredicate(predicate);
+        }
+
+        if (!TryTranslateCount(enumerableExpression, out var matched))
+        {
+            return false;
+        }
+
+        // Any(p) is "at least one row matched". All(p) is "every row matched", expressed by comparing the match count against
+        // the size of the group rather than by negating the predicate: NOT p is NULL wherever p is, and inside the CASE that
+        // COUNT filters on, NULL reads as false - the row would go uncounted and All would wrongly come out true. Counting
+        // matches sidesteps that, since a row whose predicate is NULL simply fails to match.
+        //
+        // COUNT is also non-nullable, so no null guard is wrapped around either comparison, and both stay correct when the
+        // grouping element was already filtered down to no rows: Any is false, All is true.
+        translation = isAll
+            ? _sqlExpressionFactory.Equal(matched, total!)
+            : _sqlExpressionFactory.GreaterThan(matched, _sqlExpressionFactory.Constant(0));
+
+        return true;
+
+        bool TryTranslateCount(EnumerableExpression source, [NotNullWhen(true)] out SqlExpression? count)
+        {
+            count = TranslateAggregateMethod(
+                source,
+                QueryableMethods.CountWithoutPredicate.MakeGenericMethod(source.Selector.Type),
+                []) as SqlExpression;
+
+            return count != null;
+        }
     }
 
     /// <summary>

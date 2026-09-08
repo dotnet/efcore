@@ -2422,6 +2422,125 @@ GROUP BY [o].[EmployeeID]
 """);
     }
 
+    public override async Task GroupBy_Any_with_predicate(bool async)
+    {
+        await base.GroupBy_Any_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT(CASE
+        WHEN [o].[OrderID] > 10500 THEN 1
+    END) > 0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_All_with_predicate(bool async)
+    {
+        await base.GroupBy_All_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT(CASE
+    WHEN [o].[OrderID] > 10500 THEN 1
+END) ^ COUNT(*) AS bit) AS [AllBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_without_predicate(bool async)
+    {
+        await base.GroupBy_Any_without_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CAST(1 AS bit) AS [HasAny]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_guarding_aggregate_expression(bool async)
+    {
+        await base.GroupBy_Any_guarding_aggregate_expression(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) / COUNT(*) AS [Average]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_with_predicate_and_other_aggregate(bool async)
+    {
+        await base.GroupBy_Any_with_predicate_and_other_aggregate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Total], CASE
+    WHEN COUNT(CASE
+        WHEN [o].[OrderID] > 10500 THEN 1
+    END) > 0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_with_predicate_guarding_nullable_Sum(bool async)
+    {
+        await base.GroupBy_Any_with_predicate_guarding_nullable_Sum(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT(CASE
+        WHEN [o].[EmployeeID] IS NOT NULL THEN 1
+    END) > 0 THEN ISNULL(SUM([o].[EmployeeID]), 0)
+END AS [Employees]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Any_with_nullable_predicate(bool async)
+    {
+        await base.GroupBy_Any_with_nullable_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT(CASE
+        WHEN [o].[EmployeeID] > 5 THEN 1
+    END) > 0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnySenior]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_All_with_nullable_predicate(bool async)
+    {
+        await base.GroupBy_All_with_nullable_predicate(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT(CASE
+    WHEN [o].[EmployeeID] > 5 THEN 1
+END) ^ COUNT(*) AS bit) AS [AllSenior]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
     {
         await base.GroupBy_Any_with_predicate_through_navigation_property(async);
