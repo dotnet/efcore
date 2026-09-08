@@ -157,7 +157,7 @@ public class SqlServerDatabaseCreatorTest
         }
         else
         {
-            Assert.Throws<SqlException>(creator.Exists);
+            Assert.Throws<SqlException>(() => creator.Exists());
         }
 
         Assert.Equal(1, connection.OpenCount);
