@@ -20,6 +20,17 @@
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
   <Import Project="eng\testing\linker\trimmingTests.targets" Condition="'$(IsPublishedAppTestProject)' == 'true'" />
 
+  <Target Name="UpdateAspNetCoreRuntimeFrameworkVersion"
+          AfterTargets="ResolveTargetingPackAssets"
+          BeforeTargets="_GenerateRuntimeConfigurationFilesInputCache"
+          Condition="('$(TargetFramework)' == '$(DefaultNetCoreTargetFramework)') AND
+                     ('$(PackAsTool)' != 'true')">
+    <ItemGroup>
+      <RuntimeFramework Update="Microsoft.AspNetCore.App"
+                        Version="$(MicrosoftNETCoreAppRefVersion)" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="GetCustomAssemblyAttributes"
           BeforeTargets="GetAssemblyAttributes"
           Condition=" '$(MSBuildProjectExtension)' == '.csproj' "
