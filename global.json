@@ -17,6 +17,9 @@
     "runtimes": {
       "dotnet": [
         "$(MicrosoftNETCorePlatformsVersion)"
+      ],
+      "aspnetcore": [
+        "$(MicrosoftNETCorePlatformsVersion)"
       ]
     }
   },
