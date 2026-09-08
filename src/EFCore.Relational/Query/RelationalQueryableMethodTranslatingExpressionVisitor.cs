@@ -1709,8 +1709,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         return ExpandSharedTypeEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
     }
 
-    // Mutates selectExpression. When expanding over a grouped SelectExpression (e.g. aggregate lambdas remapped onto a grouping element),
-    // allowOwnerJoin should be false so that own-table owned types are left unexpanded (avoiding appending owner joins and dependent key identifiers).
+    // Mutates selectExpression. When expanding over a grouped SelectExpression, such as an aggregate lambda remapped onto a
+    // grouping element, allowOwnerJoin should be false so that a dependent in its own table is left unexpanded rather than
+    // appending an owner join and the dependent's key as an identifier.
     // Also called by RelationalSqlTranslatingExpressionVisitor, which remaps aggregate lambdas onto the grouping element itself.
     internal Expression ExpandSharedTypeEntities(
         SelectExpression selectExpression,
