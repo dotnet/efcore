@@ -3,7 +3,6 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 
@@ -16,9 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     where TEntity : class
 {
-    private static readonly bool UseOldBehavior32314 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32314", out var enabled32314) && enabled32314;
-
     private readonly IStateManager _stateManager;
     private readonly IDbSetSource _setSource;
     private readonly IDbSetCache _setCache;
@@ -719,8 +715,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         for (var i = 0; i < values.Length; i++)
         {
             var property = properties[i];
-            if (property.IsShadowProperty() && (detached
-                    || ((UseOldBehavior32314 || entry.EntityState != EntityState.Added) && entry.IsUnknown(property))))
+            if (property.IsShadowProperty() && (detached || (entry.EntityState != EntityState.Added && entry.IsUnknown(property))))
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotLoadDetachedShadow(navigation.Name, entry.EntityType.DisplayName()));
@@ -820,7 +815,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         return (IQueryable)(collectionNavigation ? SelectManyMethod : SelectMethod)
             .MakeGenericMethod(ownerEntityType.ClrType, entityType.ClrType)
-            .Invoke(null, new object[] { queryRoot, navigationName })!;
+            .Invoke(null, [queryRoot, navigationName])!;
     }
 
     private static readonly MethodInfo SelectMethod
@@ -860,53 +855,34 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var entityParameter = Expression.Parameter(typeof(object), "e");
 
         var projections = new List<Expression>();
-
-        if (EntityMaterializerSource.UseOldBehavior32701)
+        foreach (var property in entityType.GetFlattenedProperties())
         {
-            foreach (var property in entityType.GetProperties())
+            var path = new List<IPropertyBase> { property };
+            while (path[^1].DeclaringType is IComplexType complexType)
             {
-                projections.Add(
-                    Expression.Convert(
-                        Expression.Convert(
-                            Expression.Call(
-                                EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                                entityParameter,
-                                Expression.Constant(property.Name, typeof(string))),
-                            property.ClrType),
-                        typeof(object)));
+                path.Add(complexType.ComplexProperty);
             }
-        }
-        else
-        {
-            foreach (var property in entityType.GetFlattenedProperties())
-            {
-                var path = new List<IPropertyBase> { property };
-                while (path[^1].DeclaringType is IComplexType complexType)
-                {
-                    path.Add(complexType.ComplexProperty);
-                }
 
-                Expression instanceExpression = entityParameter;
-                for (var i = path.Count - 1; i >= 0; i--)
+            Expression instanceExpression = entityParameter;
+            for (var i = path.Count - 1; i >= 0; i--)
+            {
+                instanceExpression = Expression.Call(
+                    EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
+                    instanceExpression,
+                    Expression.Constant(path[i].Name, typeof(string)));
+
+                if (i != 0 && instanceExpression.Type.IsValueType)
                 {
-                    instanceExpression = Expression.Call(
-                        EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
+                    instanceExpression = Expression.Convert(instanceExpression, typeof(object));
+                }
+            }
+
+            projections.Add(
+                Expression.Convert(
+                    Expression.Convert(
                         instanceExpression,
-                        Expression.Constant(path[i].Name, typeof(string)));
-
-                    if (i != 0 && instanceExpression.Type.IsValueType)
-                    {
-                        instanceExpression = Expression.Convert(instanceExpression, typeof(object));
-                    }
-                }
-
-                projections.Add(
-                    Expression.Convert(
-                        Expression.Convert(
-                            instanceExpression,
-                            property.ClrType),
-                        typeof(object)));
-            }
+                        property.ClrType),
+                    typeof(object)));
         }
 
         return Expression.Lambda<Func<object, object[]>>(

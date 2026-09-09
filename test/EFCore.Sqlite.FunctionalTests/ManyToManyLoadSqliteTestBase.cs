@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ManyToManyLoadSqliteTestBase<TFixture> : ManyToManyLoadTestBase<TFixture>
+#nullable disable
+
+public abstract class ManyToManyLoadSqliteTestBase<TFixture>(TFixture fixture) : ManyToManyLoadTestBase<TFixture>(fixture)
     where TFixture : ManyToManyLoadSqliteTestBase<TFixture>.ManyToManyLoadSqliteFixtureBase
 {
-    protected ManyToManyLoadSqliteTestBase(TFixture fixture)
-        : base(fixture)
+    public class ManyToManyLoadSqliteFixtureBase : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory
     {
-    }
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    public class ManyToManyLoadSqliteFixtureBase : ManyToManyLoadFixtureBase
-    {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 

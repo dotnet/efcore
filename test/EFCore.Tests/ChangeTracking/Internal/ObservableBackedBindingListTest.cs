@@ -539,7 +539,7 @@ public class ObservableBackedBindingListTest
             String = i.ToString();
             XNode = new NotXText(i.ToString());
             Random = Random.Shared;
-            ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
+            ByteArray = [(byte)i, (byte)i, (byte)i, (byte)i];
         }
 
         public static implicit operator ListElement(int i)
@@ -556,17 +556,10 @@ public class ObservableBackedBindingListTest
             => TypeDescriptor.GetProperties(typeof(ListElement))[name];
     }
 
-    private abstract class NotXNode
-    {
-    }
+    private abstract class NotXNode;
 
-    private class NotXText : NotXNode
+    private class NotXText(string value) : NotXNode
     {
-        private readonly string _value;
-
-        public NotXText(string value)
-        {
-            _value = value;
-        }
+        private readonly string _value = value;
     }
 }

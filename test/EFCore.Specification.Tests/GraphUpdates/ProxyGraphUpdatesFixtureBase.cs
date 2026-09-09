@@ -3,15 +3,12 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
-    protected ProxyGraphUpdatesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected abstract bool DoesLazyLoading { get; }
     protected abstract bool DoesChangeTracking { get; }
@@ -628,7 +625,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                     };
                 });
 
-        protected override void Seed(DbContext context)
+        protected override Task SeedAsync(DbContext context)
         {
             var tracker = new KeyValueEntityTracker();
 
@@ -648,7 +645,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             dependent.Parent = parent;
             context.Add(dependent);
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
 
         public class KeyValueEntityTracker
@@ -679,12 +676,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     protected Expression<Func<Root, bool>> IsTheRoot
         => r => r.AlternateId == Fixture.RootAK;
 
-    protected Root LoadRoot(DbContext context)
-        => context.Set<Root>().Single(IsTheRoot);
+    protected Task<Root> LoadRootAsync(DbContext context)
+        => context.Set<Root>().SingleAsync(IsTheRoot);
 
-    protected Root LoadRequiredGraph(DbContext context)
+    protected Task<Root> LoadRequiredGraphAsync(DbContext context)
         => QueryRequiredGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredGraph(DbContext context)
         => context.Set<Root>()
@@ -692,9 +689,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
-    protected Root LoadOptionalGraph(DbContext context)
+    protected Task<Root> LoadOptionalGraphAsync(DbContext context)
         => QueryOptionalGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryOptionalGraph(DbContext context)
         => context.Set<Root>()
@@ -705,9 +702,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredNonPkGraph(DbContext context)
+    protected Task<Root> LoadRequiredNonPkGraphAsync(DbContext context)
         => QueryRequiredNonPkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredNonPkGraph(DbContext context)
         => context.Set<Root>()
@@ -719,9 +716,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredAkGraph(DbContext context)
+    protected Task<Root> LoadRequiredAkGraphAsync(DbContext context)
         => QueryRequiredAkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredAkGraph(DbContext context)
         => context.Set<Root>()
@@ -731,9 +728,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
             .OrderBy(e => e.Id);
 
-    protected Root LoadOptionalAkGraph(DbContext context)
+    protected Task<Root> LoadOptionalAkGraphAsync(DbContext context)
         => QueryOptionalAkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryOptionalAkGraph(DbContext context)
         => context.Set<Root>()
@@ -745,9 +742,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredNonPkAkGraph(DbContext context)
+    protected Task<Root> LoadRequiredNonPkAkGraphAsync(DbContext context)
         => QueryRequiredNonPkAkGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredNonPkAkGraph(DbContext context)
         => context.Set<Root>()
@@ -759,9 +756,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
             .OrderBy(e => e.Id);
 
-    protected Root LoadOptionalOneToManyGraph(DbContext context)
+    protected Task<Root> LoadOptionalOneToManyGraphAsync(DbContext context)
         => QueryOptionalOneToManyGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryOptionalOneToManyGraph(DbContext context)
         => context.Set<Root>()
@@ -771,9 +768,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
             .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
             .OrderBy(e => e.Id);
 
-    protected Root LoadRequiredCompositeGraph(DbContext context)
+    protected Task<Root> LoadRequiredCompositeGraphAsync(DbContext context)
         => QueryRequiredCompositeGraph(context)
-            .Single(IsTheRoot);
+            .SingleAsync(IsTheRoot);
 
     protected IOrderedQueryable<Root> QueryRequiredCompositeGraph(DbContext context)
         => context.Set<Root>()
@@ -784,7 +781,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     {
         var newEntities = new HashSet<object>(actualEntries.Select(ne => ne.Entity));
         var missingEntities = expectedEntries.Select(e => e.Entity).Where(e => !newEntities.Contains(e)).ToList();
-        Assert.Equal(Array.Empty<object>(), missingEntities);
+        Assert.Equal([], missingEntities);
         Assert.Equal(expectedEntries.Count, actualEntries.Count);
     }
 
@@ -2026,12 +2023,12 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
-    protected virtual void ExecuteWithStrategyInTransaction(
-        Action<DbContext> testOperation,
-        Action<DbContext> nestedTestOperation1 = null,
-        Action<DbContext> nestedTestOperation2 = null,
-        Action<DbContext> nestedTestOperation3 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
+    protected virtual Task ExecuteWithStrategyInTransactionAsync(
+        Func<DbContext, Task> testOperation,
+        Func<DbContext, Task> nestedTestOperation1 = null,
+        Func<DbContext, Task> nestedTestOperation2 = null,
+        Func<DbContext, Task> nestedTestOperation3 = null)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 

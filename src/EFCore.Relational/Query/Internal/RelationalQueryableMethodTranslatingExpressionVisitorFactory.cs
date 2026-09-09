@@ -45,5 +45,5 @@ public class RelationalQueryableMethodTranslatingExpressionVisitorFactory : IQue
         => new RelationalQueryableMethodTranslatingExpressionVisitor(
             Dependencies,
             RelationalDependencies,
-            queryCompilationContext);
+            (RelationalQueryCompilationContext)queryCompilationContext);
 }

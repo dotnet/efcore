@@ -19,10 +19,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
-    private static readonly bool UseOldBehavior32375 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32375", out var enabled32375) && enabled32375;
+    private bool _withinTable;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +37,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         _typeMappingSource = typeMappingSource;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -64,19 +63,24 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         var selectExpression = deleteExpression.SelectExpression;
 
-        if (selectExpression.Offset == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+        if (selectExpression is
+            {
+                GroupBy: [],
+                Having: null,
+                Projection: [],
+                Orderings: [],
+                Offset: null
+            })
         {
             Sql.Append("DELETE ");
             GenerateTop(selectExpression);
 
+            _withinTable = true;
             Sql.AppendLine($"FROM {Dependencies.SqlGenerationHelper.DelimitIdentifier(deleteExpression.Table.Alias)}");
 
             Sql.Append("FROM ");
             GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+            _withinTable = false;
 
             if (selectExpression.Predicate != null)
             {
@@ -91,7 +95,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)));
     }
 
     /// <summary>
@@ -100,13 +105,15 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void GenerateEmptyProjection(SelectExpression selectExpression)
+    protected override Expression VisitSelect(SelectExpression selectExpression)
     {
-        base.GenerateEmptyProjection(selectExpression);
-        if (selectExpression.Alias != null)
-        {
-            Sql.Append(" AS empty");
-        }
+        // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
+        // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // generate "1 AS empty" instead of just "1".
+        var parentWithinTable = _withinTable;
+        base.VisitSelect(selectExpression);
+        _withinTable = parentWithinTable;
+        return selectExpression;
     }
 
     /// <summary>
@@ -119,11 +126,14 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         var selectExpression = updateExpression.SelectExpression;
 
-        if (selectExpression.Offset == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+        if (selectExpression is
+            {
+                GroupBy: [],
+                Having: null,
+                Projection: [],
+                Orderings: [],
+                Offset: null
+            })
         {
             Sql.Append("UPDATE ");
             GenerateTop(selectExpression);
@@ -145,8 +155,10 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 }
             }
 
+            _withinTable = true;
             Sql.AppendLine().Append("FROM ");
             GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+            _withinTable = false;
 
             if (selectExpression.Predicate != null)
             {
@@ -158,7 +170,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)));
     }
 
     /// <summary>
@@ -197,7 +210,12 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override void GenerateValues(ValuesExpression valuesExpression)
     {
-        if (!UseOldBehavior32375 && valuesExpression.RowValues.Count == 0)
+        if (valuesExpression.RowValues is null)
+        {
+            throw new UnreachableException();
+        }
+
+        if (valuesExpression.RowValues.Count == 0)
         {
             throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
         }
@@ -230,6 +248,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override void GenerateTop(SelectExpression selectExpression)
     {
+        var parentWithinTable = _withinTable;
+        _withinTable = false;
+
         if (selectExpression is { Limit: not null, Offset: null })
         {
             Sql.Append("TOP(");
@@ -238,6 +259,48 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             Sql.Append(") ");
         }
+
+        _withinTable = parentWithinTable;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateProjection(SelectExpression selectExpression)
+    {
+        // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
+        // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // generate "1 AS empty" instead of just "1".
+        if (selectExpression.Projection.Count == 0)
+        {
+            Sql.Append(_withinTable ? "1 AS empty" : "1");
+        }
+        else
+        {
+            var parentWithinTable = _withinTable;
+            _withinTable = false;
+            GenerateList(selectExpression.Projection, e => Visit(e));
+            _withinTable = parentWithinTable;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateFrom(SelectExpression selectExpression)
+    {
+        // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
+        // a requirement in other databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // generate "1 AS empty" instead of just "1".
+        _withinTable = true;
+        base.GenerateFrom(selectExpression);
+        _withinTable = false;
     }
 
     /// <summary>
@@ -412,7 +475,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             return jsonScalarExpression;
         }
 
-        if (jsonScalarExpression.TypeMapping is SqlServerJsonTypeMapping
+        if (jsonScalarExpression.TypeMapping is SqlServerOwnedJsonTypeMapping
             || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null)
         {
             Sql.Append("JSON_QUERY(");
@@ -431,7 +494,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         GenerateJsonPath(jsonScalarExpression.Path);
         Sql.Append(")");
 
-        if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
+        if (jsonScalarExpression.TypeMapping is not SqlServerOwnedJsonTypeMapping and not StringTypeMapping)
         {
             Sql.Append(" AS ");
             Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
@@ -450,7 +513,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             switch (pathSegment)
             {
                 case { PropertyName: string propertyName }:
-                    Sql.Append(".").Append(propertyName);
+                    Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     break;
 
                 case { ArrayIndex: SqlExpression arrayIndex }:
@@ -462,18 +525,28 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     {
                         Visit(arrayIndex);
                     }
-                    else if (_sqlServerCompatibilityLevel >= 140)
-                    {
-                        Sql.Append("' + CAST(");
-                        Visit(arrayIndex);
-                        Sql.Append(" AS ");
-                        Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
-                        Sql.Append(") + '");
-                    }
                     else
                     {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.JsonValuePathExpressionsNotSupported(_sqlServerCompatibilityLevel));
+                        switch (_sqlServerSingletonOptions.EngineType)
+                        {
+                            case SqlServerEngineType.SqlServer when _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140:
+                            case SqlServerEngineType.AzureSql when _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140:
+                            case SqlServerEngineType.AzureSynapse:
+                                Sql.Append("' + CAST(");
+                                Visit(arrayIndex);
+                                Sql.Append(" AS ");
+                                Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
+                                Sql.Append(") + '");
+                                break;
+                            case SqlServerEngineType.SqlServer:
+                                throw new InvalidOperationException(
+                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(
+                                        _sqlServerSingletonOptions.SqlServerCompatibilityLevel));
+                            case SqlServerEngineType.AzureSql:
+                                throw new InvalidOperationException(
+                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(
+                                        _sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
+                        }
                     }
 
                     Sql.Append("]");
@@ -593,16 +666,17 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 ExpressionType.Multiply => (900, true),
                 ExpressionType.Divide => (900, false),
                 ExpressionType.Modulo => (900, false),
-                ExpressionType.Add => (800, true),
-                ExpressionType.Subtract => (800, false),
+                ExpressionType.Add => (700, true),
+                ExpressionType.Subtract => (700, false),
                 ExpressionType.And => (700, true),
                 ExpressionType.Or => (700, true),
+                ExpressionType.ExclusiveOr => (700, true),
                 ExpressionType.LeftShift => (700, true),
                 ExpressionType.RightShift => (700, true),
-                ExpressionType.LessThan => (600, false),
-                ExpressionType.LessThanOrEqual => (600, false),
-                ExpressionType.GreaterThan => (600, false),
-                ExpressionType.GreaterThanOrEqual => (600, false),
+                ExpressionType.LessThan => (500, false),
+                ExpressionType.LessThanOrEqual => (500, false),
+                ExpressionType.GreaterThan => (500, false),
+                ExpressionType.GreaterThanOrEqual => (500, false),
                 ExpressionType.Equal => (500, false),
                 ExpressionType.NotEqual => (500, false),
                 ExpressionType.AndAlso => (200, true),
@@ -614,6 +688,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             SqlUnaryExpression sqlUnaryExpression => sqlUnaryExpression.OperatorType switch
             {
                 ExpressionType.Convert => (1300, false),
+                ExpressionType.OnesComplement => (1200, false),
                 ExpressionType.Not when sqlUnaryExpression.Type != typeof(bool) => (1200, false),
                 ExpressionType.Negate => (1100, false),
                 ExpressionType.Equal => (500, false), // IS NULL

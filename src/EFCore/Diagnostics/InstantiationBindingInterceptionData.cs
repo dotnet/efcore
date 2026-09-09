@@ -20,9 +20,7 @@ public readonly struct InstantiationBindingInterceptionData
     [EntityFrameworkInternal]
     [UsedImplicitly]
     public InstantiationBindingInterceptionData(ITypeBase typeBase)
-    {
-        TypeBase = typeBase;
-    }
+        => TypeBase = typeBase;
 
     /// <summary>
     ///     The entity type for which the binding is being used.

@@ -11,15 +11,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class NorthwindStringIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
-
-    protected NorthwindStringIncludeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

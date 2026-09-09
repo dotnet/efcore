@@ -36,9 +36,7 @@ public readonly struct MemberIdentity : IEquatable<MemberIdentity>
 
     [DebuggerStepThrough]
     private MemberIdentity(object? nameOrMember)
-    {
-        _nameOrMember = nameOrMember;
-    }
+        => _nameOrMember = nameOrMember;
 
     /// <summary>
     ///     A <see cref="MemberIdentity" /> instance that does not represent any member.

@@ -6,15 +6,12 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class GearsOfWarFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
+#nullable disable
+
+public abstract class GearsOfWarFromSqlQueryTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : GearsOfWarQueryRelationalFixture, new()
 {
-    protected GearsOfWarFromSqlQueryTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void From_sql_queryable_simple_columns_out_of_order()

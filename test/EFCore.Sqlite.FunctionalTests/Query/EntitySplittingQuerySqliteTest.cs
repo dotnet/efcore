@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class EntitySplittingQuerySqliteTest : EntitySplittingQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -41,15 +43,15 @@ LEFT JOIN "OwnedReferenceExtras2" AS "o0" ON "o"."EntityOneId" = "o0"."EntityOne
 
         AssertSql(
             """
-SELECT "e"."Id", "e"."EntityThreeId", "e"."IntValue1", "e"."IntValue2", "e"."IntValue3", "e"."IntValue4", "e"."StringValue1", "e"."StringValue2", "e"."StringValue3", "e"."StringValue4", "t"."EntityOneId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+SELECT "e"."Id", "e"."EntityThreeId", "e"."IntValue1", "e"."IntValue2", "e"."IntValue3", "e"."IntValue4", "e"."StringValue1", "e"."StringValue2", "e"."StringValue3", "e"."StringValue4", "s"."EntityOneId", "s"."Id", "s"."OwnedIntValue1", "s"."OwnedIntValue2", "s"."OwnedIntValue3", "s"."OwnedIntValue4", "s"."OwnedStringValue1", "s"."OwnedStringValue2", "s"."OwnedStringValue3", "s"."OwnedStringValue4"
 FROM "EntityOnes" AS "e"
 LEFT JOIN (
     SELECT "o"."EntityOneId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
     FROM "OwnedCollection" AS "o"
     INNER JOIN "OwnedCollectionExtras2" AS "o0" ON "o"."EntityOneId" = "o0"."EntityOneId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedCollectionExtras1" AS "o1" ON "o"."EntityOneId" = "o1"."EntityOneId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "e"."Id" = "t"."EntityOneId"
-ORDER BY "e"."Id", "t"."EntityOneId"
+) AS "s" ON "e"."Id" = "s"."EntityOneId"
+ORDER BY "e"."Id", "s"."EntityOneId"
 """);
     }
 
@@ -75,7 +77,7 @@ LEFT JOIN "OwnedReferenceExtras1" AS "o1" ON "o"."EntityOneId" = "o1"."EntityOne
 
         AssertSql(
             """
-SELECT "e"."Id", "e"."EntityThreeId", "e"."IntValue1", "e"."IntValue2", "s0"."IntValue3", "s"."IntValue4", "e"."StringValue1", "e"."StringValue2", "s0"."StringValue3", "s"."StringValue4", "t"."EntityOneId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+SELECT "e"."Id", "e"."EntityThreeId", "e"."IntValue1", "e"."IntValue2", "s0"."IntValue3", "s"."IntValue4", "e"."StringValue1", "e"."StringValue2", "s0"."StringValue3", "s"."StringValue4", "s1"."EntityOneId", "s1"."Id", "s1"."OwnedIntValue1", "s1"."OwnedIntValue2", "s1"."OwnedIntValue3", "s1"."OwnedIntValue4", "s1"."OwnedStringValue1", "s1"."OwnedStringValue2", "s1"."OwnedStringValue3", "s1"."OwnedStringValue4"
 FROM "EntityOne" AS "e"
 INNER JOIN "SplitEntityOnePart3" AS "s" ON "e"."Id" = "s"."Id"
 INNER JOIN "SplitEntityOnePart2" AS "s0" ON "e"."Id" = "s0"."Id"
@@ -84,8 +86,8 @@ LEFT JOIN (
     FROM "OwnedCollection" AS "o"
     INNER JOIN "OwnedCollectionExtras2" AS "o0" ON "o"."EntityOneId" = "o0"."EntityOneId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedCollectionExtras1" AS "o1" ON "o"."EntityOneId" = "o1"."EntityOneId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "e"."Id" = "t"."EntityOneId"
-ORDER BY "e"."Id", "t"."EntityOneId"
+) AS "s1" ON "e"."Id" = "s1"."EntityOneId"
+ORDER BY "e"."Id", "s1"."EntityOneId"
 """);
     }
 
@@ -215,7 +217,7 @@ LEFT JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntity
 
         AssertSql(
             """
-SELECT "t"."Id", "t"."BaseValue", "t"."MiddleValue", "t"."SiblingValue", "t"."LeafValue", "t"."Discriminator", "o"."LeafEntityId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
+SELECT "u"."Id", "u"."BaseValue", "u"."MiddleValue", "u"."SiblingValue", "u"."LeafValue", "u"."Discriminator", "o"."LeafEntityId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
 FROM (
     SELECT "b"."Id", "b"."BaseValue", NULL AS "MiddleValue", NULL AS "SiblingValue", NULL AS "LeafValue", 'BaseEntity' AS "Discriminator"
     FROM "BaseEntity" AS "b"
@@ -228,8 +230,8 @@ FROM (
     UNION ALL
     SELECT "l"."Id", "l"."BaseValue", "l"."MiddleValue", NULL AS "SiblingValue", "l"."LeafValue", 'LeafEntity' AS "Discriminator"
     FROM "LeafEntity" AS "l"
-) AS "t"
-LEFT JOIN "OwnedReferencePart1" AS "o" ON "t"."Id" = "o"."LeafEntityId"
+) AS "u"
+LEFT JOIN "OwnedReferencePart1" AS "o" ON "u"."Id" = "o"."LeafEntityId"
 LEFT JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId"
 LEFT JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId"
 """);
@@ -241,15 +243,15 @@ LEFT JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntity
 
         AssertSql(
             """
-SELECT "b"."Id", "b"."BaseValue", "b"."Discriminator", "b"."MiddleValue", "b"."SiblingValue", "b"."LeafValue", "t"."BaseEntityId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+SELECT "b"."Id", "b"."BaseValue", "b"."Discriminator", "b"."MiddleValue", "b"."SiblingValue", "b"."LeafValue", "s"."BaseEntityId", "s"."Id", "s"."OwnedIntValue1", "s"."OwnedIntValue2", "s"."OwnedIntValue3", "s"."OwnedIntValue4", "s"."OwnedStringValue1", "s"."OwnedStringValue2", "s"."OwnedStringValue3", "s"."OwnedStringValue4"
 FROM "BaseEntity" AS "b"
 LEFT JOIN (
     SELECT "o"."BaseEntityId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."BaseEntityId" = "o0"."BaseEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."BaseEntityId" = "o1"."BaseEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "b"."Id" = "t"."BaseEntityId"
-ORDER BY "b"."Id", "t"."BaseEntityId"
+) AS "s" ON "b"."Id" = "s"."BaseEntityId"
+ORDER BY "b"."Id", "s"."BaseEntityId"
 """);
     }
 
@@ -263,7 +265,7 @@ SELECT "b"."Id", "b"."BaseValue", "m"."MiddleValue", "s"."SiblingValue", "l"."Le
     WHEN "l"."Id" IS NOT NULL THEN 'LeafEntity'
     WHEN "s"."Id" IS NOT NULL THEN 'SiblingEntity'
     WHEN "m"."Id" IS NOT NULL THEN 'MiddleEntity'
-END AS "Discriminator", "t"."BaseEntityId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+END AS "Discriminator", "s0"."BaseEntityId", "s0"."Id", "s0"."OwnedIntValue1", "s0"."OwnedIntValue2", "s0"."OwnedIntValue3", "s0"."OwnedIntValue4", "s0"."OwnedStringValue1", "s0"."OwnedStringValue2", "s0"."OwnedStringValue3", "s0"."OwnedStringValue4"
 FROM "BaseEntity" AS "b"
 LEFT JOIN "MiddleEntity" AS "m" ON "b"."Id" = "m"."Id"
 LEFT JOIN "SiblingEntity" AS "s" ON "b"."Id" = "s"."Id"
@@ -273,8 +275,8 @@ LEFT JOIN (
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."BaseEntityId" = "o0"."BaseEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."BaseEntityId" = "o1"."BaseEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "b"."Id" = "t"."BaseEntityId"
-ORDER BY "b"."Id", "t"."BaseEntityId"
+) AS "s0" ON "b"."Id" = "s0"."BaseEntityId"
+ORDER BY "b"."Id", "s0"."BaseEntityId"
 """);
     }
 
@@ -284,15 +286,15 @@ ORDER BY "b"."Id", "t"."BaseEntityId"
 
         AssertSql(
             """
-SELECT "b"."Id", "b"."BaseValue", "b"."Discriminator", "b"."MiddleValue", "b"."SiblingValue", "b"."LeafValue", "t"."MiddleEntityId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+SELECT "b"."Id", "b"."BaseValue", "b"."Discriminator", "b"."MiddleValue", "b"."SiblingValue", "b"."LeafValue", "s"."MiddleEntityId", "s"."Id", "s"."OwnedIntValue1", "s"."OwnedIntValue2", "s"."OwnedIntValue3", "s"."OwnedIntValue4", "s"."OwnedStringValue1", "s"."OwnedStringValue2", "s"."OwnedStringValue3", "s"."OwnedStringValue4"
 FROM "BaseEntity" AS "b"
 LEFT JOIN (
     SELECT "o"."MiddleEntityId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."MiddleEntityId" = "o0"."MiddleEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."MiddleEntityId" = "o1"."MiddleEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "b"."Id" = "t"."MiddleEntityId"
-ORDER BY "b"."Id", "t"."MiddleEntityId"
+) AS "s" ON "b"."Id" = "s"."MiddleEntityId"
+ORDER BY "b"."Id", "s"."MiddleEntityId"
 """);
     }
 
@@ -306,7 +308,7 @@ SELECT "b"."Id", "b"."BaseValue", "m"."MiddleValue", "s"."SiblingValue", "l"."Le
     WHEN "l"."Id" IS NOT NULL THEN 'LeafEntity'
     WHEN "s"."Id" IS NOT NULL THEN 'SiblingEntity'
     WHEN "m"."Id" IS NOT NULL THEN 'MiddleEntity'
-END AS "Discriminator", "t"."MiddleEntityId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+END AS "Discriminator", "s0"."MiddleEntityId", "s0"."Id", "s0"."OwnedIntValue1", "s0"."OwnedIntValue2", "s0"."OwnedIntValue3", "s0"."OwnedIntValue4", "s0"."OwnedStringValue1", "s0"."OwnedStringValue2", "s0"."OwnedStringValue3", "s0"."OwnedStringValue4"
 FROM "BaseEntity" AS "b"
 LEFT JOIN "MiddleEntity" AS "m" ON "b"."Id" = "m"."Id"
 LEFT JOIN "SiblingEntity" AS "s" ON "b"."Id" = "s"."Id"
@@ -316,8 +318,8 @@ LEFT JOIN (
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."MiddleEntityId" = "o0"."MiddleEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."MiddleEntityId" = "o1"."MiddleEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "b"."Id" = "t"."MiddleEntityId"
-ORDER BY "b"."Id", "t"."MiddleEntityId"
+) AS "s0" ON "b"."Id" = "s0"."MiddleEntityId"
+ORDER BY "b"."Id", "s0"."MiddleEntityId"
 """);
     }
 
@@ -327,15 +329,15 @@ ORDER BY "b"."Id", "t"."MiddleEntityId"
 
         AssertSql(
             """
-SELECT "b"."Id", "b"."BaseValue", "b"."Discriminator", "b"."MiddleValue", "b"."SiblingValue", "b"."LeafValue", "t"."LeafEntityId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+SELECT "b"."Id", "b"."BaseValue", "b"."Discriminator", "b"."MiddleValue", "b"."SiblingValue", "b"."LeafValue", "s"."LeafEntityId", "s"."Id", "s"."OwnedIntValue1", "s"."OwnedIntValue2", "s"."OwnedIntValue3", "s"."OwnedIntValue4", "s"."OwnedStringValue1", "s"."OwnedStringValue2", "s"."OwnedStringValue3", "s"."OwnedStringValue4"
 FROM "BaseEntity" AS "b"
 LEFT JOIN (
     SELECT "o"."LeafEntityId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "b"."Id" = "t"."LeafEntityId"
-ORDER BY "b"."Id", "t"."LeafEntityId"
+) AS "s" ON "b"."Id" = "s"."LeafEntityId"
+ORDER BY "b"."Id", "s"."LeafEntityId"
 """);
     }
 
@@ -349,7 +351,7 @@ SELECT "b"."Id", "b"."BaseValue", "m"."MiddleValue", "s"."SiblingValue", "l"."Le
     WHEN "l"."Id" IS NOT NULL THEN 'LeafEntity'
     WHEN "s"."Id" IS NOT NULL THEN 'SiblingEntity'
     WHEN "m"."Id" IS NOT NULL THEN 'MiddleEntity'
-END AS "Discriminator", "t"."LeafEntityId", "t"."Id", "t"."OwnedIntValue1", "t"."OwnedIntValue2", "t"."OwnedIntValue3", "t"."OwnedIntValue4", "t"."OwnedStringValue1", "t"."OwnedStringValue2", "t"."OwnedStringValue3", "t"."OwnedStringValue4"
+END AS "Discriminator", "s0"."LeafEntityId", "s0"."Id", "s0"."OwnedIntValue1", "s0"."OwnedIntValue2", "s0"."OwnedIntValue3", "s0"."OwnedIntValue4", "s0"."OwnedStringValue1", "s0"."OwnedStringValue2", "s0"."OwnedStringValue3", "s0"."OwnedStringValue4"
 FROM "BaseEntity" AS "b"
 LEFT JOIN "MiddleEntity" AS "m" ON "b"."Id" = "m"."Id"
 LEFT JOIN "SiblingEntity" AS "s" ON "b"."Id" = "s"."Id"
@@ -359,8 +361,8 @@ LEFT JOIN (
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t" ON "b"."Id" = "t"."LeafEntityId"
-ORDER BY "b"."Id", "t"."LeafEntityId"
+) AS "s0" ON "b"."Id" = "s0"."LeafEntityId"
+ORDER BY "b"."Id", "s0"."LeafEntityId"
 """);
     }
 
@@ -370,7 +372,7 @@ ORDER BY "b"."Id", "t"."LeafEntityId"
 
         AssertSql(
             """
-SELECT "t"."Id", "t"."BaseValue", "t"."MiddleValue", "t"."SiblingValue", "t"."LeafValue", "t"."Discriminator", "t0"."LeafEntityId", "t0"."Id", "t0"."OwnedIntValue1", "t0"."OwnedIntValue2", "t0"."OwnedIntValue3", "t0"."OwnedIntValue4", "t0"."OwnedStringValue1", "t0"."OwnedStringValue2", "t0"."OwnedStringValue3", "t0"."OwnedStringValue4"
+SELECT "u"."Id", "u"."BaseValue", "u"."MiddleValue", "u"."SiblingValue", "u"."LeafValue", "u"."Discriminator", "s0"."LeafEntityId", "s0"."Id", "s0"."OwnedIntValue1", "s0"."OwnedIntValue2", "s0"."OwnedIntValue3", "s0"."OwnedIntValue4", "s0"."OwnedStringValue1", "s0"."OwnedStringValue2", "s0"."OwnedStringValue3", "s0"."OwnedStringValue4"
 FROM (
     SELECT "b"."Id", "b"."BaseValue", NULL AS "MiddleValue", NULL AS "SiblingValue", NULL AS "LeafValue", 'BaseEntity' AS "Discriminator"
     FROM "BaseEntity" AS "b"
@@ -383,14 +385,14 @@ FROM (
     UNION ALL
     SELECT "l"."Id", "l"."BaseValue", "l"."MiddleValue", NULL AS "SiblingValue", "l"."LeafValue", 'LeafEntity' AS "Discriminator"
     FROM "LeafEntity" AS "l"
-) AS "t"
+) AS "u"
 LEFT JOIN (
     SELECT "o"."LeafEntityId", "o"."Id", "o"."OwnedIntValue1", "o"."OwnedIntValue2", "o1"."OwnedIntValue3", "o0"."OwnedIntValue4", "o"."OwnedStringValue1", "o"."OwnedStringValue2", "o1"."OwnedStringValue3", "o0"."OwnedStringValue4"
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
-) AS "t0" ON "t"."Id" = "t0"."LeafEntityId"
-ORDER BY "t"."Id", "t0"."LeafEntityId"
+) AS "s0" ON "u"."Id" = "s0"."LeafEntityId"
+ORDER BY "u"."Id", "s0"."LeafEntityId"
 """);
     }
 }

@@ -29,6 +29,7 @@ public interface IDependentKeyValueFactory<TKey> : IDependentKeyValueFactory
     /// <param name="key">The key instance.</param>
     /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
     [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
+    [Obsolete]
     bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key);
 
     /// <summary>

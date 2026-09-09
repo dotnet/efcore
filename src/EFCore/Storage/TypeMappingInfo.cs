@@ -221,24 +221,19 @@ public readonly record struct TypeMappingInfo
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+    /// <param name="typeMappingConfiguration">The type mapping configuration.</param>
     /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
-    /// <param name="keyOrIndex">If <see langword="true" />, then a special mapping for a key or index may be returned.</param>
-    /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
-    /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
-    /// <param name="rowVersion">Specifies a row-version, or <see langword="null" /> for default.</param>
-    /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
-    /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
-    [Obsolete("Use overload that takes 'key' parameter.")]
     public TypeMappingInfo(
-        Type? type,
-        CoreTypeMapping? elementTypeMapping,
-        bool keyOrIndex,
-        bool? unicode,
-        int? size,
-        bool? rowVersion,
-        int? precision,
-        int? scale)
-        : this(type, elementTypeMapping, keyOrIndex, unicode, size, rowVersion, precision, scale, false)
+        Type type,
+        ITypeMappingConfiguration typeMappingConfiguration,
+        CoreTypeMapping? elementTypeMapping = null)
+        : this(
+            typeMappingConfiguration.GetValueConverter()?.ProviderClrType ?? type,
+            elementTypeMapping,
+            unicode: typeMappingConfiguration.IsUnicode(),
+            size: typeMappingConfiguration.GetMaxLength(),
+            precision: typeMappingConfiguration.GetPrecision(),
+            scale: typeMappingConfiguration.GetScale())
     {
     }
 
@@ -267,6 +262,7 @@ public readonly record struct TypeMappingInfo
     {
         ClrType = type?.UnwrapNullableType();
         ElementTypeMapping = elementTypeMapping;
+
         IsKey = key;
         IsKeyOrIndex = keyOrIndex;
         Size = size;
@@ -334,7 +330,7 @@ public readonly record struct TypeMappingInfo
     public bool IsKeyOrIndex { get; init; }
 
     /// <summary>
-    ///     Indicates the store-size to use for the mapping, or null if none.
+    ///     Indicates the store-size to use for the mapping, or <see langword="null" /> if none.
     /// </summary>
     public int? Size { get; init; }
 

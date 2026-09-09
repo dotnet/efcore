@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
@@ -54,18 +57,60 @@ public class QueryCompiler : IQueryCompiler
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual TResult Execute<TResult>(Expression query)
+        => ExecuteCore<TResult>(query, async: false, CancellationToken.None);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
+        => ExecuteCore<TResult>(query, async: true, cancellationToken);
+
+    private TResult ExecuteCore<TResult>(Expression query, bool async, CancellationToken cancellationToken)
     {
         var queryContext = _queryContextFactory.Create();
 
-        query = ExtractParameters(query, queryContext, _logger);
+        queryContext.CancellationToken = cancellationToken;
+
+        var queryAfterExtraction = ExtractParameters(query, queryContext, _logger);
 
         var compiledQuery
             = _compiledQueryCache
                 .GetOrAddQuery(
-                    _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
-                    () => CompileQueryCore<TResult>(_database, query, _model, false));
+                    _compiledQueryCacheKeyGenerator.GenerateCacheKey(queryAfterExtraction, async),
+                    () => RuntimeFeature.IsDynamicCodeSupported
+                        ? CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, async)
+                        : throw new InvalidOperationException("Query wasn't precompiled and dynamic code isn't supported (NativeAOT)"));
 
         return compiledQuery(queryContext);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<QueryContext, TResult> CreateCompiledQuery<TResult>(Expression query)
+    {
+        var queryAfterExtraction = ExtractParameters(query, _queryContextFactory.Create(), _logger, compiledQuery: true);
+
+        return CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, false);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>(Expression query)
+    {
+        var queryAfterExtraction = ExtractParameters(query, _queryContextFactory.Create(), _logger, compiledQuery: true);
+
+        return CompileQueryCore<TResult>(_database, queryAfterExtraction, _model, true);
     }
 
     /// <summary>
@@ -87,47 +132,15 @@ public class QueryCompiler : IQueryCompiler
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<QueryContext, TResult> CreateCompiledQuery<TResult>(Expression query)
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual Expression<Func<QueryContext, TResult>> PrecompileQuery<TResult>(Expression query, bool async)
     {
-        query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
+        query = new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, _logger)
+            .ExtractParameters(
+                query, _queryContextFactory.Create(), parameterize: true, clearParameterizedValues: true, precompiledQuery: true,
+                out var nonNullableReferenceTypeParameters);
 
-        return CompileQueryCore<TResult>(_database, query, _model, false);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
-    {
-        var queryContext = _queryContextFactory.Create();
-
-        queryContext.CancellationToken = cancellationToken;
-
-        query = ExtractParameters(query, queryContext, _logger);
-
-        var compiledQuery
-            = _compiledQueryCache
-                .GetOrAddQuery(
-                    _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
-                    () => CompileQueryCore<TResult>(_database, query, _model, true));
-
-        return compiledQuery(queryContext);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>(Expression query)
-    {
-        query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
-
-        return CompileQueryCore<TResult>(_database, query, _model, true);
+        return _database.CompileQueryExpression<TResult>(query, async, nonNullableReferenceTypeParameters);
     }
 
     /// <summary>
@@ -140,18 +153,8 @@ public class QueryCompiler : IQueryCompiler
         Expression query,
         IParameterValues parameterValues,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-        bool parameterize = true,
+        bool compiledQuery = false,
         bool generateContextAccessors = false)
-    {
-        var visitor = new ParameterExtractingExpressionVisitor(
-            _evaluatableExpressionFilter,
-            parameterValues,
-            _contextType,
-            _model,
-            logger,
-            parameterize,
-            generateContextAccessors);
-
-        return visitor.ExtractParameters(query);
-    }
+        => new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, logger)
+            .ExtractParameters(query, parameterValues, parameterize: !compiledQuery, clearParameterizedValues: true);
 }

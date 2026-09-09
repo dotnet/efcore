@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerLineStringMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo GetPointN = typeof(LineString).GetRuntimeMethod(
-        nameof(LineString.GetPointN), new[] { typeof(int) })!;
+        nameof(LineString.GetPointN), [typeof(int)])!;
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

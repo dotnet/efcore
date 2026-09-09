@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class ManyToManyQuerySqlServerFixture : ManyToManyQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory

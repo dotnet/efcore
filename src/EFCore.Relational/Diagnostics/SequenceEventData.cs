@@ -23,9 +23,7 @@ public class SequenceEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         IReadOnlySequence sequence)
         : base(eventDefinition, messageGenerator)
-    {
-        Sequence = sequence;
-    }
+        => Sequence = sequence;
 
     /// <summary>
     ///     The sequence.

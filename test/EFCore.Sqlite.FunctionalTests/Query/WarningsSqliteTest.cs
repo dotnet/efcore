@@ -3,10 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class WarningsSqliteTest : WarningsTestBase<QueryNoClientEvalSqliteFixture>
-{
-    public WarningsSqliteTest(QueryNoClientEvalSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+#nullable disable
+
+public class WarningsSqliteTest(QueryNoClientEvalSqliteFixture fixture) : WarningsTestBase<QueryNoClientEvalSqliteFixture>(fixture);

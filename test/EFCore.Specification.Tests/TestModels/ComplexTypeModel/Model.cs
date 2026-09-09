@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
-#nullable enable
-
 public class Customer
 {
     public int Id { get; set; }
@@ -19,6 +17,7 @@ public record Address
     public required string AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
     public int ZipCode { get; set; }
+    public List<string> Tags { get; set; } = new();
 
     public required Country Country { get; set; }
 }

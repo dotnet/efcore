@@ -1,17 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
+public abstract class ConnectionInterceptionSqliteTestBase(ConnectionInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : ConnectionInterceptionTestBase(fixture)
 {
-    protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     protected override DbContextOptionsBuilder ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlite();
 
@@ -32,14 +26,9 @@ public abstract class ConnectionInterceptionSqliteTestBase : ConnectionIntercept
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
     }
 
-    public class ConnectionInterceptionSqliteTest
-        : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionSqliteTest.InterceptionSqliteFixture>
+    public class ConnectionInterceptionSqliteTest(ConnectionInterceptionSqliteTest.InterceptionSqliteFixture fixture)
+        : ConnectionInterceptionSqliteTestBase(fixture), IClassFixture<ConnectionInterceptionSqliteTest.InterceptionSqliteFixture>
     {
-        public ConnectionInterceptionSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -47,14 +36,11 @@ public abstract class ConnectionInterceptionSqliteTestBase : ConnectionIntercept
         }
     }
 
-    public class ConnectionInterceptionWithDiagnosticsSqliteTest
-        : ConnectionInterceptionSqliteTestBase, IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
+    public class ConnectionInterceptionWithDiagnosticsSqliteTest(
+        ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+        : ConnectionInterceptionSqliteTestBase(fixture),
+            IClassFixture<ConnectionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
-        public ConnectionInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener

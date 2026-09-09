@@ -3,26 +3,23 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class Driver
 {
-    public class DriverProxy : Driver, IF1Proxy
+    public class DriverProxy(
+        ILazyLoader loader,
+        int id,
+        string name,
+        int? carNumber,
+        int championships,
+        int races,
+        int wins,
+        int podiums,
+        int poles,
+        int fastestLaps,
+        int teamId) : Driver(loader, id, name, carNumber, championships, races, wins, podiums, poles, fastestLaps, teamId), IF1Proxy
     {
-        public DriverProxy(
-            ILazyLoader loader,
-            int id,
-            string name,
-            int? carNumber,
-            int championships,
-            int races,
-            int wins,
-            int podiums,
-            int poles,
-            int fastestLaps,
-            int teamId)
-            : base(loader, id, name, carNumber, championships, races, wins, podiums, poles, fastestLaps, teamId)
-        {
-        }
-
         public bool CreatedCalled { get; set; }
         public bool InitializingCalled { get; set; }
         public bool InitializedCalled { get; set; }

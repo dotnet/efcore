@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class JsonScalarExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="JsonScalarExpression" /> class.
     /// </summary>
@@ -122,6 +124,17 @@ public class JsonScalarExpression : SqlExpression
         => json != Json
             ? new JsonScalarExpression(json, Path, Type, TypeMapping!, IsNullable)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(JsonScalarExpression).GetConstructor(
+                [typeof(SqlExpression), typeof(IReadOnlyList<PathSegment>), typeof(Type), typeof(RelationalTypeMapping), typeof(bool)])!,
+            Json.Quote(),
+            NewArrayInit(typeof(PathSegment), initializers: Path.Select(s => s.Quote())),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping),
+            Constant(IsNullable));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

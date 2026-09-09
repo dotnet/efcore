@@ -68,6 +68,12 @@ public partial class ConventionDispatcher
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)
     {
+        if (name == CoreAnnotationNames.EmbeddedDiscriminatorName)
+        {
+            _scope.OnModelEmbeddedDiscriminatorNameChanged(modelBuilder, (string?)oldAnnotation?.Value, (string?)annotation?.Value);
+            return annotation;
+        }
+
         if (CoreAnnotationNames.AllNames.Contains(name))
         {
             return annotation;

@@ -66,7 +66,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             _indexBasedBinding = true;
             _projectionBindingCache = new Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
-            _clientProjections = new List<Expression>();
+            _clientProjections = [];
 
             result = Visit(expression);
 
@@ -93,7 +93,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         switch (expression)
@@ -653,7 +653,13 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
 
-    private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
 #pragma warning restore IDE0052 // Remove unread private members
         => (T)queryContext.ParameterValues[parameterName]!;
 
@@ -670,7 +676,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             return _containsInclude;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => _containsInclude ? expression : base.Visit(expression);
 

@@ -19,7 +19,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     // Note: this array will be accessed using the precision as an index
     // so the order of the entries in this array is important
     private readonly string[] _timeFormats =
-    {
+    [
         @"'{0:hh\:mm\:ss}'",
         @"'{0:hh\:mm\:ss\.F}'",
         @"'{0:hh\:mm\:ss\.FF}'",
@@ -28,7 +28,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
         @"'{0:hh\:mm\:ss\.FFFFF}'",
         @"'{0:hh\:mm\:ss\.FFFFFF}'",
         @"'{0:hh\:mm\:ss\.FFFFFFF}'"
-    };
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

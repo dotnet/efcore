@@ -19,9 +19,7 @@ public class IndexAttributeConvention :
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
     public IndexAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.
@@ -107,7 +105,7 @@ public class IndexAttributeConvention :
                 {
                     if (indexAttribute.AllDescending)
                     {
-                        indexBuilder.IsDescending(Array.Empty<bool>(), fromDataAnnotation: true);
+                        indexBuilder.IsDescending([], fromDataAnnotation: true);
                     }
                     else if (indexAttribute.IsDescending is not null)
                     {

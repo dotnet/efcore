@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class MappingQuerySqliteTest : MappingQueryTestBase<MappingQuerySqliteTest.MappingQuerySqliteFixture>
-{
-    public MappingQuerySqliteTest(MappingQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class MappingQuerySqliteTest(MappingQuerySqliteTest.MappingQuerySqliteFixture fixture)
+    : MappingQueryTestBase<MappingQuerySqliteTest.MappingQuerySqliteFixture>(fixture)
+{
     public override void All_customers()
     {
         base.All_customers();

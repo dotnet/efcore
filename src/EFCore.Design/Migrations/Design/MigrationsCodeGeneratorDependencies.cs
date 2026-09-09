@@ -41,13 +41,16 @@ public sealed record MigrationsCodeGeneratorDependencies
         IRelationalTypeMappingSource relationalTypeMappingSource,
         IAnnotationCodeGenerator annotationCodeGenerator)
     {
+#pragma warning disable CS0612 // Type or member is obsolete
         RelationalTypeMappingSource = relationalTypeMappingSource;
+#pragma warning restore CS0612 // Type or member is obsolete
         AnnotationCodeGenerator = annotationCodeGenerator;
     }
 
     /// <summary>
     ///     The type mapper.
     /// </summary>
+    [Obsolete]
     public IRelationalTypeMappingSource RelationalTypeMappingSource { get; init; }
 
     /// <summary>

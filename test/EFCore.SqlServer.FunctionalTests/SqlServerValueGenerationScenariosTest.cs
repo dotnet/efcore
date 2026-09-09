@@ -6,6 +6,8 @@ using NetTopologySuite.Geometries;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerValueGenerationScenariosTest : SqlServerValueGenerationScenariosTestBase
 {
     protected override string DatabaseName

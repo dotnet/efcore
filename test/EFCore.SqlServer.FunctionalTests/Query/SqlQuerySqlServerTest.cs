@@ -5,13 +5,13 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SqlQuerySqlServerTest : SqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public SqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+        => Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
 
     public override async Task SqlQueryRaw_queryable_simple(bool async)
     {
@@ -454,7 +454,7 @@ SELECT * FROM "Customers"
         await base.SqlQueryRaw_composed_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
@@ -781,6 +781,34 @@ FROM (
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.SqlQueryRaw_composed_with_common_table_expression(async));
 
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
+    }
+
+    public override async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_Length(async);
+
+        AssertSql(
+            """
+SELECT [s].[Value]
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS [s]
+WHERE CAST(LEN([s].[Value]) AS int) = 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_ToUpper_String_Length(async);
+
+        AssertSql(
+            """
+SELECT [s].[Value]
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS [s]
+WHERE CAST(LEN(UPPER([s].[Value])) AS int) = 0
+""");
     }
 
     protected override DbParameter CreateDbParameter(string name, object value)

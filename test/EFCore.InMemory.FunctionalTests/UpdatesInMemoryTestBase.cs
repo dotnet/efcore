@@ -6,31 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixture>
+public abstract class UpdatesInMemoryTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesInMemoryTestBase<TFixture>.UpdatesInMemoryFixtureBase
 {
-    protected UpdatesInMemoryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override string UpdateConcurrencyMessage
         => InMemoryStrings.UpdateConcurrencyException;
-
-    protected override void ExecuteWithStrategyInTransaction(
-        Action<UpdatesContext> testOperation,
-        Action<UpdatesContext> nestedTestOperation1 = null,
-        Action<UpdatesContext> nestedTestOperation2 = null)
-    {
-        try
-        {
-            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2);
-        }
-        finally
-        {
-            Fixture.Reseed();
-        }
-    }
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<UpdatesContext, Task> testOperation,
@@ -43,7 +23,7 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
         }
         finally
         {
-            Fixture.Reseed();
+            await Fixture.ReseedAsync();
         }
     }
 

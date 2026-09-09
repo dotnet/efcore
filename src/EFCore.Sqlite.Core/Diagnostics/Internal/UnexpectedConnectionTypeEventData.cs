@@ -20,9 +20,7 @@ public class UnexpectedConnectionTypeEventData : EventData
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         Type connectionType)
         : base(eventDefinition, messageGenerator)
-    {
-        ConnectionType = connectionType;
-    }
+        => ConnectionType = connectionType;
 
     /// <summary>
     ///     The connection type.

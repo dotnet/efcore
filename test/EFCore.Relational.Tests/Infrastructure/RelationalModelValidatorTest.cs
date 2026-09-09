@@ -3,7 +3,6 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit.Sdk;
 
@@ -187,8 +186,12 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var model = modelBuilder.Model;
 
         var entityType = model.AddEntityType(typeof(WithEnum));
-        entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!.SetDefaultValue(X.A);
-        entityType.FindProperty(nameof(WithEnum.NullableEnum))!.SetDefaultValue(X.B);
+        var defaultEnum = entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!;
+        defaultEnum!.SetDefaultValue(X.A);
+        defaultEnum.Sentinel = X.A;
+        var nullableEnum = entityType.FindProperty(nameof(WithEnum.NullableEnum))!;
+        nullableEnum.SetDefaultValue(X.B);
+        nullableEnum.Sentinel = X.B;
 
         Validate(modelBuilder);
 
@@ -209,7 +212,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyWarning(
             RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "A", "X"), modelBuilder);
+                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "0", "X"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -257,7 +260,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyWarning(
             RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "A", "X"), modelBuilder);
+                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "0", "X"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -1392,7 +1395,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         // Should throw. Issue #23144.
         Assert.Contains(
-            "(No exception was thrown)",
+            "No exception was thrown",
             Assert.Throws<ThrowsException>(
                 () => VerifyError(
                     RelationalStrings.DuplicateForeignKeyTableMismatch(
@@ -1967,7 +1970,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var model = Validate(modelBuilder);
 
         var animalType = model.FindEntityType(typeof(Animal));
-        Assert.Empty(animalType.GetProperties().Where(p => p.IsConcurrencyToken));
+        Assert.DoesNotContain(animalType.GetProperties(), p => p.IsConcurrencyToken);
     }
 
     [ConditionalFact]
@@ -2507,10 +2510,11 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         modelBuilder.Entity<LivingBeing>()
             .UseTptMappingStrategy()
-            .OwnsOne(b => b.Details, ob =>
-            {
-                ob.ToTable((string)null);
-            });
+            .OwnsOne(
+                b => b.Details, ob =>
+                {
+                    ob.ToTable((string)null);
+                });
 
         modelBuilder.Entity<Animal>()
             .ToView("Animal");
@@ -2716,7 +2720,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var methodInfo
             = typeof(TestMethods)
-                .GetRuntimeMethod(nameof(TestMethods.MethodA), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(TestMethods.MethodA), []);
 
         modelBuilder.HasDbFunction(methodInfo);
 
@@ -2750,7 +2754,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var methodInfo
             = typeof(TestMethods)
-                .GetRuntimeMethod(nameof(TestMethods.MethodA), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(TestMethods.MethodA), []);
 
         var function = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
@@ -3557,7 +3561,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>().ToTable((string)null);
         modelBuilder.Entity<Animal>()
             .HasIndex(
-                new[] { nameof(Animal.Id), nameof(Animal.Name) },
+                [nameof(Animal.Id), nameof(Animal.Name)],
                 "IX_AllPropertiesNotMapped");
 
         var definition = RelationalResources
@@ -3579,7 +3583,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>().ToTable((string)null);
         modelBuilder.Entity<Cat>().ToTable("Cats")
             .HasIndex(
-                new[] { nameof(Cat.Identity), nameof(Animal.Name) },
+                [nameof(Cat.Identity), nameof(Animal.Name)],
                 "IX_MixOfMappedAndUnmappedProperties");
 
         Validate(modelBuilder);
@@ -3614,7 +3618,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().ToTable((string)null)
             .HasIndex(
-                new[] { nameof(Cat.Identity), nameof(Animal.Name) },
+                [nameof(Cat.Identity), nameof(Animal.Name)],
                 "IX_MixOfMappedAndUnmappedProperties");
 
         var definition = RelationalResources
@@ -3641,9 +3645,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         Validate(modelBuilder);
 
-        Assert.Empty(
-            LoggerFactory.Log
-                .Where(l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug));
+        Assert.DoesNotContain(
+            LoggerFactory.Log,
+            l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug);
     }
 
     [ConditionalFact]
@@ -3679,7 +3683,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToTable("Cats");
         modelBuilder.Entity<Cat>()
             .HasIndex(
-                new[] { nameof(Animal.Name), nameof(Cat.Identity) },
+                [nameof(Animal.Name), nameof(Cat.Identity)],
                 "IX_MappedToDifferentTables");
 
         var definition = RelationalResources
@@ -3806,8 +3810,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().ToTable(tb => tb.HasTrigger("SomeTrigger"));
 
-        VerifyWarning(RelationalResources.LogTriggerOnNonRootTphEntity(new TestLogger<TestRelationalLoggingDefinitions>())
-            .GenerateMessage("Cat", "Animal"), modelBuilder);
+        VerifyWarning(
+            RelationalResources.LogTriggerOnNonRootTphEntity(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage("Cat", "Animal"), modelBuilder);
     }
 
     private class TpcBase
@@ -3840,26 +3845,17 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         entityType.SetDiscriminatorValue(entityType.Name);
     }
 
-    public class TestDecimalToLongConverter : ValueConverter<decimal, long>
+    public class TestDecimalToLongConverter() : ValueConverter<decimal, long>(convertToProviderExpression, convertFromProviderExpression)
     {
         private static readonly Expression<Func<decimal, long>> convertToProviderExpression = d => (long)(d * 100);
         private static readonly Expression<Func<long, decimal>> convertFromProviderExpression = l => l / 100m;
-
-        public TestDecimalToLongConverter()
-            : base(convertToProviderExpression, convertFromProviderExpression)
-        {
-        }
     }
 
-    public class TestDecimalToDecimalConverter : ValueConverter<decimal, decimal>
+    public class TestDecimalToDecimalConverter()
+        : ValueConverter<decimal, decimal>(convertToProviderExpression, convertFromProviderExpression)
     {
         private static readonly Expression<Func<decimal, decimal>> convertToProviderExpression = d => d * 100m;
         private static readonly Expression<Func<decimal, decimal>> convertFromProviderExpression = l => l / 100m;
-
-        public TestDecimalToDecimalConverter()
-            : base(convertToProviderExpression, convertFromProviderExpression)
-        {
-        }
     }
 
     private class BaseTestMethods

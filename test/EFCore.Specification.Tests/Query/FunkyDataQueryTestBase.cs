@@ -9,14 +9,11 @@ using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
+#nullable disable
+
+public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, new()
 {
-    protected FunkyDataQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task String_contains_on_argument_with_wildcard_constant(bool async)
@@ -542,7 +539,6 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 AssertEqual(e.last, a.last);
             });
 
-
     [ConditionalTheory] // #32432
     [MemberData(nameof(IsAsyncData))]
     public virtual Task String_Contains_and_StartsWith_with_same_parameter(bool async)
@@ -606,7 +602,7 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             return context;
         }
 
-        protected override void Seed(FunkyDataContext context)
-            => FunkyDataContext.Seed(context);
+        protected override Task SeedAsync(FunkyDataContext context)
+            => FunkyDataContext.SeedAsync(context);
     }
 }

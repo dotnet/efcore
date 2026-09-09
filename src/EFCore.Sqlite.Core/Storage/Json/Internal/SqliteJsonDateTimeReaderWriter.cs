@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 /// </remarks>
 public sealed class SqliteJsonDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(SqliteJsonDateTimeReaderWriter).GetProperty(nameof(Instance))!;
+
     private const string DateTimeFormatConst = @"{0:yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF}";
 
     /// <summary>
@@ -50,4 +52,8 @@ public sealed class SqliteJsonDateTimeReaderWriter : JsonValueReaderWriter<DateT
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
         => writer.WriteStringValue(string.Format(CultureInfo.InvariantCulture, DateTimeFormatConst, value));
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

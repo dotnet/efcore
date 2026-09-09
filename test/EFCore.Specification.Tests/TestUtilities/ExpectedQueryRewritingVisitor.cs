@@ -1,23 +1,25 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class ExpectedQueryRewritingVisitor : ExpressionVisitor
+public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>>? shadowPropertyMappings = null)
+    : ExpressionVisitor
 {
     private static readonly MethodInfo _maybeDefaultIfEmpty
-        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.MaybeDefaultIfEmpty));
+        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.MaybeDefaultIfEmpty))!;
 
     private static readonly MethodInfo _maybeMethod
-        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.Maybe));
+        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.Maybe))!;
 
     private static readonly MethodInfo _getShadowPropertyValueMethodInfo
-        = typeof(ExpectedQueryRewritingVisitor).GetMethod(nameof(GetShadowPropertyValue));
+        = typeof(ExpectedQueryRewritingVisitor).GetMethod(nameof(GetShadowPropertyValue))!;
 
     private static readonly MethodInfo _maybeScalarNullableMethod;
     private static readonly MethodInfo _maybeScalarNonNullableMethod;
 
-    private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings;
+    private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings =
+        shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
 
     private bool _negated;
 
@@ -29,11 +31,6 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
 
         _maybeScalarNullableMethod = maybeScalarMethods.Single(x => x.argument.IsNullableValueType()).method;
         _maybeScalarNonNullableMethod = maybeScalarMethods.Single(x => !x.argument.IsNullableValueType()).method;
-    }
-
-    public ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>> shadowPropertyMappings = null)
-    {
-        _shadowPropertyMappings = shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
     }
 
     protected override Expression VisitMember(MemberExpression memberExpression)
@@ -171,7 +168,7 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
     }
 
     public static TResult GetShadowPropertyValue<TEntity, TResult>(TEntity entity, Func<object, object> shadowPropertyAccessor)
-        => (TResult)shadowPropertyAccessor(entity);
+        => (TResult)shadowPropertyAccessor(entity!);
 
     private Expression TryConvertEFPropertyToMemberAccess(Expression expression)
     {
@@ -180,7 +177,7 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
         {
             var caller = RemoveConvertToObject(methodCallExpression.Arguments[0]);
             var propertyName = (methodCallExpression.Arguments[1] as ConstantExpression)?.Value as string
-                ?? Expression.Lambda<Func<string>>(methodCallExpression.Arguments[1]).Compile().Invoke();
+                ?? Expression.Lambda<Func<string?>>(methodCallExpression.Arguments[1]).Compile().Invoke();
 
             if (propertyName != null)
             {
@@ -242,7 +239,7 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
 
             var maybeMethodCall = Expression.Call(methodInfo, instance, maybeLambda);
 
-            return memberExpression.Member.DeclaringType.IsNullableType()
+            return memberExpression.Member.DeclaringType!.IsNullableType()
                 && memberExpression.Member.Name == "HasValue"
                     ? Expression.Coalesce(maybeMethodCall, Expression.Constant(false))
                     : maybeMethodCall;

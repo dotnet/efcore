@@ -36,7 +36,9 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         bool collection,
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
-        bool propertyBag)
+        bool propertyBag,
+        int propertyCount,
+        int complexPropertyCount)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
         DeclaringType = declaringType;
@@ -44,7 +46,9 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         _isNullable = nullable;
         _isCollection = collection;
         ComplexType = new RuntimeComplexType(
-            targetTypeName, targetType, this, changeTrackingStrategy, indexerPropertyInfo, propertyBag);
+            targetTypeName, targetType, this, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            propertyCount: propertyCount,
+            complexPropertyCount: complexPropertyCount);
     }
 
     /// <summary>

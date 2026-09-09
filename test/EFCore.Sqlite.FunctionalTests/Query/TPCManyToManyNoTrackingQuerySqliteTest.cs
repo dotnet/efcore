@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TPCManyToManyNoTrackingQuerySqliteTest : TPCManyToManyNoTrackingQueryRelationalTestBase<TPCManyToManyQuerySqliteFixture>
-{
-    public TPCManyToManyNoTrackingQuerySqliteTest(TPCManyToManyQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class TPCManyToManyNoTrackingQuerySqliteTest(TPCManyToManyQuerySqliteFixture fixture)
+    : TPCManyToManyNoTrackingQueryRelationalTestBase<TPCManyToManyQuerySqliteFixture>(fixture)
+{
     public override async Task Skip_navigation_order_by_single_or_default(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

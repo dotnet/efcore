@@ -30,14 +30,14 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
-    /// <param name="complexProperty">The entity type to which the annotations are applied.</param>
+    /// <param name="complexProperty">The complex property to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IComplexProperty complexProperty, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
-    /// <param name="complexType">The entity type to which the annotations are applied.</param>
+    /// <param name="complexType">The complex type to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IComplexType complexType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
@@ -114,9 +114,7 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
         CoreTypeMapping typeMapping,
         IProperty property,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => Create(
-            typeMapping, parameters,
-            property.GetValueComparer(), property.GetKeyValueComparer(), property.GetProviderValueComparer());
+        => Create(typeMapping, parameters);
 
     /// <summary>
     ///     Generates code to create the given property type mapping.
@@ -132,4 +130,18 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
         ValueComparer? valueComparer = null,
         ValueComparer? keyValueComparer = null,
         ValueComparer? providerValueComparer = null);
+
+    /// <summary>
+    ///     Generates code to create the given value comparer.
+    /// </summary>
+    /// <param name="comparer">The value comparer to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given value converter.
+    /// </summary>
+    /// <param name="converter">The value converter to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Create(ValueConverter converter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 }

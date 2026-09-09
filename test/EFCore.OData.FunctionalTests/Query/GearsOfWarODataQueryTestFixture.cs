@@ -16,10 +16,8 @@ public class GearsOfWarODataQueryTestFixture : GearsOfWarQuerySqlServerFixture, 
         => "ODataGearsOfWarQueryTest";
 
     public GearsOfWarODataQueryTestFixture()
-    {
-        (BaseAddress, ClientFactory, _selfHostServer)
+        => (BaseAddress, ClientFactory, _selfHostServer)
             = ODataQueryTestFixtureInitializer.Initialize<GearsOfWarODataContext>(StoreName, GetEdmModel());
-    }
 
     private static IEdmModel GetEdmModel()
     {

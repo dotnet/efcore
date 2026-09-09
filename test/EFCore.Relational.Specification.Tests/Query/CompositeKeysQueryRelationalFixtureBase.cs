@@ -3,7 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class CompositeKeysQueryRelationalFixtureBase : CompositeKeysQueryFixtureBase
+#nullable disable
+
+public abstract class CompositeKeysQueryRelationalFixtureBase : CompositeKeysQueryFixtureBase, ITestSqlLoggerFactory
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

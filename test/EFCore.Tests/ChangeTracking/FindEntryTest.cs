@@ -1092,7 +1092,7 @@ public class FindEntryTest
 
         AssertSingle(
             context.Set<CompositeKey>(),
-            new[] { nameof(CompositeKey.Id1), nameof(CompositeKey.Id2), nameof(CompositeKey.Foo) }, entities, keyType, isPk: true);
+            [nameof(CompositeKey.Id1), nameof(CompositeKey.Id2), nameof(CompositeKey.Foo)], entities, keyType, isPk: true);
     }
 
     [ConditionalTheory]
@@ -1132,12 +1132,11 @@ public class FindEntryTest
 
         AssertSingle(
             context.Set<AlternateCompositeKey>(),
-            new[]
-            {
+            [
                 nameof(AlternateCompositeKey.AlternateId1),
                 nameof(AlternateCompositeKey.AlternateId2),
                 nameof(AlternateCompositeKey.AlternateFoo)
-            },
+            ],
             entities, keyType);
     }
 
@@ -1201,12 +1200,11 @@ public class FindEntryTest
 
         AssertMultiple(
             context.Set<ForeignCompositeKey>(),
-            new[]
-            {
+            [
                 nameof(ForeignCompositeKey.CompositeKeyId1),
                 nameof(ForeignCompositeKey.CompositeKeyId2),
                 nameof(ForeignCompositeKey.CompositeKeyFoo)
-            },
+            ],
             entities, keyType);
     }
 
@@ -1255,7 +1253,7 @@ public class FindEntryTest
 
         AssertMultiple(
             context.Set<CompositeNonKey>(),
-            new[] { nameof(CompositeNonKey.Int), nameof(CompositeNonKey.String), nameof(CompositeNonKey.Foo) },
+            [nameof(CompositeNonKey.Int), nameof(CompositeNonKey.String), nameof(CompositeNonKey.Foo)],
             entities, keyType);
     }
 
@@ -1270,21 +1268,21 @@ public class FindEntryTest
         {
             CreateShadowEntity<ShadowCompositeKey>(
                 context,
-                new[] { "Id1", "Id2", "Foo" },
-                new object[] { 1, "87", "foo" }),
+                ["Id1", "Id2", "Foo"],
+                [1, "87", "foo"]),
             CreateShadowEntity<ShadowCompositeKey>(
                 context,
-                new[] { "Id1", "Id2", "Foo" },
-                new object[] { 1, "88", "foo" }),
+                ["Id1", "Id2", "Foo"],
+                [1, "88", "foo"]),
             CreateShadowEntity<ShadowCompositeKey>(
                 context,
-                new[] { "Id1", "Id2", "Foo" },
-                new object[] { 1, "89", "foo" })
+                ["Id1", "Id2", "Foo"],
+                [1, "89", "foo"])
         };
 
         AssertSingle(
             context.Set<ShadowCompositeKey>(),
-            new[] { "Id1", "Id2", "Foo" }, entities, keyType, isPk: true);
+            ["Id1", "Id2", "Foo"], entities, keyType, isPk: true);
     }
 
     [ConditionalTheory]
@@ -1298,21 +1296,21 @@ public class FindEntryTest
         {
             CreateShadowEntity<ShadowAlternateCompositeKey>(
                 context,
-                new[] { "AlternateId1", "AlternateId2", "AlternateFoo" },
-                new object[] { 1, "87", "foo" }),
+                ["AlternateId1", "AlternateId2", "AlternateFoo"],
+                [1, "87", "foo"]),
             CreateShadowEntity<ShadowAlternateCompositeKey>(
                 context,
-                new[] { "AlternateId1", "AlternateId2", "AlternateFoo" },
-                new object[] { 1, "88", "foo" }),
+                ["AlternateId1", "AlternateId2", "AlternateFoo"],
+                [1, "88", "foo"]),
             CreateShadowEntity<ShadowAlternateCompositeKey>(
                 context,
-                new[] { "AlternateId1", "AlternateId2", "AlternateFoo" },
-                new object[] { 1, "89", "foo" })
+                ["AlternateId1", "AlternateId2", "AlternateFoo"],
+                [1, "89", "foo"])
         };
 
         AssertSingle(
             context.Set<ShadowAlternateCompositeKey>(),
-            new[] { "AlternateId1", "AlternateId2", "AlternateFoo" }, entities, keyType);
+            ["AlternateId1", "AlternateId2", "AlternateFoo"], entities, keyType);
     }
 
     [ConditionalTheory]
@@ -1341,25 +1339,25 @@ public class FindEntryTest
         {
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object[] { 1, "87", "foo" }),
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, "87", "foo"]),
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object[] { 1, "88", "foo" }),
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, "88", "foo"]),
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object[] { 1, "88", "foo" }),
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, "88", "foo"]),
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object[] { 1, "89", "foo" })
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, "89", "foo"])
         };
 
         AssertMultiple(
             context.Set<ShadowForeignCompositeKey>(),
-            new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" }, entities, keyType);
+            ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"], entities, keyType);
     }
 
     [ConditionalTheory]
@@ -1373,25 +1371,25 @@ public class FindEntryTest
         {
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object[] { 1, "87", "foo" }),
+                ["Int", "String", "Foo"],
+                [1, "87", "foo"]),
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object[] { 1, "88", "foo" }),
+                ["Int", "String", "Foo"],
+                [1, "88", "foo"]),
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object[] { 1, "88", "foo" }),
+                ["Int", "String", "Foo"],
+                [1, "88", "foo"]),
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object[] { 1, "89", "foo" })
+                ["Int", "String", "Foo"],
+                [1, "89", "foo"])
         };
 
         AssertMultiple(
             context.Set<ShadowCompositeNonKey>(),
-            new[] { "Int", "String", "Foo" }, entities, keyType);
+            ["Int", "String", "Foo"], entities, keyType);
     }
 
     [ConditionalTheory]
@@ -1440,12 +1438,11 @@ public class FindEntryTest
 
         AssertMultiple(
             context.Set<ForeignCompositeKey>(),
-            new[]
-            {
+            [
                 nameof(ForeignCompositeKey.CompositeKeyId1),
                 nameof(ForeignCompositeKey.CompositeKeyId2),
                 nameof(ForeignCompositeKey.CompositeKeyFoo)
-            },
+            ],
             entities, keyType, withNulls: true);
     }
 
@@ -1494,7 +1491,7 @@ public class FindEntryTest
 
         AssertMultiple(
             context.Set<CompositeNonKey>(),
-            new[] { nameof(CompositeNonKey.Int), nameof(CompositeNonKey.String), nameof(CompositeNonKey.Foo) },
+            [nameof(CompositeNonKey.Int), nameof(CompositeNonKey.String), nameof(CompositeNonKey.Foo)],
             entities, keyType, withNulls: true);
     }
 
@@ -1510,25 +1507,25 @@ public class FindEntryTest
         {
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object?[] { 1, "87", "foo" }),
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, "87", "foo"]),
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object?[] { 1, null, "foo" }),
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, null, "foo"]),
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object?[] { 1, null, "foo" }),
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, null, "foo"]),
             CreateShadowEntity<ShadowForeignCompositeKey>(
                 context,
-                new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" },
-                new object?[] { 1, "89", "foo" })
+                ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"],
+                [1, "89", "foo"])
         };
 
         AssertMultiple(
             context.Set<ShadowForeignCompositeKey>(),
-            new[] { "CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo" }, entities, keyType, withNulls: true);
+            ["CompositeKeyId1", "CompositeKeyId2", "CompositeKeyFoo"], entities, keyType, withNulls: true);
     }
 
     [ConditionalTheory]
@@ -1542,25 +1539,25 @@ public class FindEntryTest
         {
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object?[] { 1, "87", "foo" }),
+                ["Int", "String", "Foo"],
+                [1, "87", "foo"]),
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object?[] { 1, null, "foo" }),
+                ["Int", "String", "Foo"],
+                [1, null, "foo"]),
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object?[] { 1, null, "foo" }),
+                ["Int", "String", "Foo"],
+                [1, null, "foo"]),
             CreateShadowEntity<ShadowCompositeNonKey>(
                 context,
-                new[] { "Int", "String", "Foo" },
-                new object?[] { 1, "89", "foo" })
+                ["Int", "String", "Foo"],
+                [1, "89", "foo"])
         };
 
         AssertMultiple(
             context.Set<ShadowCompositeNonKey>(),
-            new[] { "Int", "String", "Foo" }, entities, keyType, withNulls: true);
+            ["Int", "String", "Foo"], entities, keyType, withNulls: true);
     }
 
     [ConditionalTheory]
@@ -2127,9 +2124,7 @@ public class FindEntryTest
         public int Int { get; set; }
     }
 
-    protected class ShadowIntKey
-    {
-    }
+    protected class ShadowIntKey;
 
     protected class ShadowAlternateIntKey
     {
@@ -2172,9 +2167,7 @@ public class FindEntryTest
         public int? NullableInt { get; set; }
     }
 
-    protected class ShadowNullableIntKey
-    {
-    }
+    protected class ShadowNullableIntKey;
 
     protected class ShadowAlternateNullableIntKey
     {
@@ -2216,9 +2209,7 @@ public class FindEntryTest
         public string? String { get; set; }
     }
 
-    protected class ShadowStringKey
-    {
-    }
+    protected class ShadowStringKey;
 
     protected class ShadowAlternateStringKey
     {
@@ -2268,9 +2259,7 @@ public class FindEntryTest
         public string? Foo { get; set; }
     }
 
-    protected class ShadowCompositeKey
-    {
-    }
+    protected class ShadowCompositeKey;
 
     protected class ShadowAlternateCompositeKey
     {
@@ -2290,12 +2279,7 @@ public class FindEntryTest
 
     private class FindContext : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public FindContext()
-        {
-            _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-        }
+        private readonly IServiceProvider _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -2419,12 +2403,7 @@ public class FindEntryTest
 
     private class FindContextShared : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public FindContextShared()
-        {
-            _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-        }
+        private readonly IServiceProvider _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -4,7 +4,6 @@
 #nullable enable
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 

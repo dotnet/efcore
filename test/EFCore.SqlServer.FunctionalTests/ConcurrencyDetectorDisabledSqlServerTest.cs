@@ -3,14 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ConcurrencyDetectorDisabledSqlServerTest : ConcurrencyDetectorDisabledRelationalTestBase<
     ConcurrencyDetectorDisabledSqlServerTest.ConcurrencyDetectorSqlServerFixture>
 {
     public ConcurrencyDetectorDisabledSqlServerTest(ConcurrencyDetectorSqlServerFixture fixture)
         : base(fixture)
-    {
-        Fixture.TestSqlLoggerFactory.Clear();
-    }
+        => Fixture.TestSqlLoggerFactory.Clear();
 
     protected override async Task ConcurrencyDetectorTest(Func<ConcurrencyDetectorDbContext, Task<object>> test)
     {

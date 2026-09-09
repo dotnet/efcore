@@ -5,17 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ManyToManyQueryRelationalTestBase<TFixture> : ManyToManyQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class ManyToManyQueryRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyQueryTestBase<TFixture>(fixture)
     where TFixture : ManyToManyQueryFixtureBase, new()
 {
-    protected ManyToManyQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_split(bool async)
@@ -264,6 +258,5 @@ public abstract class ManyToManyQueryRelationalTestBase<TFixture> : ManyToManyQu
             fixture,
             RewriteExpectedQueryExpression,
             RewriteServerQueryExpression,
-            ignoreEntryCount: IgnoreEntryCount,
-            canExecuteQueryString: CanExecuteQueryString);
+            ignoreEntryCount: IgnoreEntryCount);
 }

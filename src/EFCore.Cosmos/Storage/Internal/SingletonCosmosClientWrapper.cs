@@ -3,6 +3,7 @@
 
 using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -108,7 +109,9 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     public virtual CosmosClient Client
         => _client ??= string.IsNullOrEmpty(_connectionString)
             ? _tokenCredential == null
-                ? new CosmosClient(_endpoint, _key, _options)
+                ? _endpoint == null
+                    ? throw new InvalidOperationException(CosmosStrings.ConnectionInfoMissing)
+                    : new CosmosClient(_endpoint, _key, _options)
                 : new CosmosClient(_endpoint, _tokenCredential, _options)
             : new CosmosClient(_connectionString, _options);
 

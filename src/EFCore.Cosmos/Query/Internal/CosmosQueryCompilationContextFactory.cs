@@ -18,9 +18,7 @@ public class CosmosQueryCompilationContextFactory : IQueryCompilationContextFact
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public CosmosQueryCompilationContextFactory(QueryCompilationContextDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Dependencies for this service.

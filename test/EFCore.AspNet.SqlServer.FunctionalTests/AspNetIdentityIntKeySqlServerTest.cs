@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class AspNetIdentityIntKeySqlServerTest
-    : AspNetIdentityIntKeyTestBase<AspNetIdentityIntKeySqlServerTest.AspNetIdentityIntKeySqlServerFixture>
+public class AspNetIdentityIntKeySqlServerTest(AspNetIdentityIntKeySqlServerTest.AspNetIdentityIntKeySqlServerFixture fixture)
+    : AspNetIdentityIntKeyTestBase<AspNetIdentityIntKeySqlServerTest.AspNetIdentityIntKeySqlServerFixture>(fixture)
 {
-    public AspNetIdentityIntKeySqlServerTest(AspNetIdentityIntKeySqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class AspNetIdentityIntKeySqlServerFixture : AspNetIdentityFixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory

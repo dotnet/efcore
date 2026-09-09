@@ -15,11 +15,11 @@ public class StoredProcedure :
     IMutableStoredProcedure,
     IConventionStoredProcedure
 {
-    private readonly List<StoredProcedureParameter> _parameters = new();
+    private readonly List<StoredProcedureParameter> _parameters = [];
     private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = new();
     private readonly Dictionary<string, StoredProcedureParameter> _originalValueParameters = new();
     private StoredProcedureParameter? _rowsAffectedParameter;
-    private readonly List<StoredProcedureResultColumn> _resultColumns = new();
+    private readonly List<StoredProcedureResultColumn> _resultColumns = [];
     private StoredProcedureResultColumn? _rowsAffectedResultColumn;
     private readonly Dictionary<string, StoredProcedureResultColumn> _propertyResultColumns = new();
     private string? _schema;
@@ -59,7 +59,7 @@ public class StoredProcedure :
     public virtual InternalStoredProcedureBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>
@@ -505,9 +505,7 @@ public class StoredProcedure :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual StoredProcedureParameter? FindParameter(string propertyName)
-        => _currentValueParameters.TryGetValue(propertyName, out var parameter)
-            ? parameter
-            : null;
+        => _currentValueParameters.GetValueOrDefault(propertyName);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -538,9 +536,7 @@ public class StoredProcedure :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual StoredProcedureParameter? FindOriginalValueParameter(string propertyName)
-        => _originalValueParameters.TryGetValue(propertyName, out var parameter)
-            ? parameter
-            : null;
+        => _originalValueParameters.GetValueOrDefault(propertyName);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -616,9 +612,7 @@ public class StoredProcedure :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual StoredProcedureResultColumn? FindResultColumn(string propertyName)
-        => _propertyResultColumns.TryGetValue(propertyName, out var resultColumn)
-            ? resultColumn
-            : null;
+        => _propertyResultColumns.GetValueOrDefault(propertyName);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

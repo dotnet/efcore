@@ -7,6 +7,9 @@ using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
+[SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
 public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
 {
     public SpatialQuerySqlServerGeographyTest(SpatialQuerySqlServerGeographyFixture fixture, ITestOutputHelper testOutputHelper)
@@ -15,9 +18,6 @@ public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     // TODO: Remove after NetTopologySuite/NetTopologySuite#233
     protected override bool AssertDistances
@@ -845,14 +845,14 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[c], [t].[c0], [p0].[Id], [p0].[Geometry], [p0].[Group], [p0].[Point], [p0].[PointM], [p0].[PointZ], [p0].[PointZM]
+SELECT [p1].[Id], [p1].[c], [p1].[c0], [p0].[Id], [p0].[Geometry], [p0].[Group], [p0].[Point], [p0].[PointM], [p0].[PointZ], [p0].[PointZM]
 FROM (
     SELECT TOP(1) [p].[Id], [p].[Point].Long AS [c], [p].[Point].Lat AS [c0]
     FROM [PointEntity] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-LEFT JOIN [PointEntity] AS [p0] ON [t].[Id] = [p0].[Id]
-ORDER BY [t].[Id]
+) AS [p1]
+LEFT JOIN [PointEntity] AS [p0] ON [p1].[Id] = [p0].[Id]
+ORDER BY [p1].[Id]
 """);
     }
 

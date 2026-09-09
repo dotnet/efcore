@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class TPTInheritanceBulkUpdatesSqlServerFixture : TPTInheritanceBulkUpdatesFixture
 {
     protected override ITestStoreFactory TestStoreFactory

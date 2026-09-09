@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
-public class DerivedCollectionOnDerived : BaseCollectionOnDerived
-{
-}
+public class DerivedCollectionOnDerived : BaseCollectionOnDerived;

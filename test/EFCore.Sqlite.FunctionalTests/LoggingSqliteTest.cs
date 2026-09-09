@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>
 {
     [ConditionalFact]
@@ -29,13 +31,8 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
                 () => context.SaveChanges()).Message);
     }
 
-    protected class AmbientTransactionWarningContext : DbContext
+    protected class AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
     {
-        public AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Animal>();
     }

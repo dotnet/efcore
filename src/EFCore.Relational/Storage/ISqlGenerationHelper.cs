@@ -119,6 +119,13 @@ public interface ISqlGenerationHelper
     void DelimitIdentifier(StringBuilder builder, string name, string? schema);
 
     /// <summary>
+    ///     Writes the delimited SQL representation of an element in a JSON path.
+    /// </summary>
+    /// <param name="pathElement">The JSON path element to delimit.</param>
+    /// <returns>The generated string.</returns>
+    public string DelimitJsonPathElement(string pathElement);
+
+    /// <summary>
     ///     Generates a SQL comment.
     /// </summary>
     /// <param name="text">The comment text.</param>

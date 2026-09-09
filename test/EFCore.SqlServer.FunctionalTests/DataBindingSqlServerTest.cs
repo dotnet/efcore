@@ -3,10 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DataBindingSqlServerTest : DataBindingTestBase<F1SqlServerFixture>
-{
-    public DataBindingSqlServerTest(F1SqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+#nullable disable
+
+public class DataBindingSqlServerTest(F1SqlServerFixture fixture) : DataBindingTestBase<F1SqlServerFixture>(fixture);

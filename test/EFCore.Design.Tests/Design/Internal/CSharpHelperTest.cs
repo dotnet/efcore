@@ -320,14 +320,10 @@ public class CSharpHelperTest
 
     private static class Nested
     {
-        public class DoubleNested
-        {
-        }
+        public class DoubleNested;
     }
 
-    internal class NestedGeneric<T>
-    {
-    }
+    internal class NestedGeneric<T>;
 
     private enum SomeEnum
     {
@@ -609,7 +605,7 @@ public class CSharpHelperTest
     {
         var typeMapping = CreateTypeMappingSource<SimpleTestType>(
             v => Expression.New(
-                typeof(SimpleTestType).GetConstructor(new[] { typeof(string) })!,
+                typeof(SimpleTestType).GetConstructor([typeof(string)])!,
                 Expression.Constant(v.Arg1, typeof(string))));
 
         Assert.Equal(
@@ -622,7 +618,7 @@ public class CSharpHelperTest
     {
         var typeMapping = CreateTypeMappingSource<SimpleTestType>(
             v => Expression.New(
-                typeof(SimpleTestType).GetConstructor(new[] { typeof(string), typeof(int?) })!,
+                typeof(SimpleTestType).GetConstructor([typeof(string), typeof(int?)])!,
                 Expression.Constant(v.Arg1, typeof(string)),
                 Expression.Constant(v.Arg2, typeof(int?))));
 
@@ -652,7 +648,7 @@ public class CSharpHelperTest
             v => Expression.Call(
                 typeof(SimpleTestTypeFactory).GetMethod(
                     nameof(SimpleTestTypeFactory.StaticCreate),
-                    new[] { typeof(string) })!,
+                    [typeof(string)])!,
                 Expression.Constant(v.Arg1, typeof(string))));
 
         Assert.Equal(
@@ -667,7 +663,7 @@ public class CSharpHelperTest
             v => Expression.Call(
                 typeof(SimpleTestTypeFactory).GetMethod(
                     nameof(SimpleTestTypeFactory.StaticCreate),
-                    new[] { typeof(string), typeof(int?) })!,
+                    [typeof(string), typeof(int?)])!,
                 Expression.Constant(v.Arg1, typeof(string)),
                 Expression.Constant(v.Arg2, typeof(int?))));
 
@@ -700,7 +696,7 @@ public class CSharpHelperTest
                     Expression.New(typeof(SimpleTestTypeFactory)),
                     typeof(SimpleTestTypeFactory).GetMethod(
                         nameof(SimpleTestTypeFactory.Create),
-                        new[] { typeof(string) })!,
+                        [typeof(string)])!,
                     Expression.Constant(v.Arg1, typeof(string))),
                 typeof(SimpleTestType)));
 
@@ -716,11 +712,11 @@ public class CSharpHelperTest
             v => Expression.Convert(
                 Expression.Call(
                     Expression.New(
-                        typeof(SimpleTestTypeFactory).GetConstructor(new[] { typeof(string) })!,
+                        typeof(SimpleTestTypeFactory).GetConstructor([typeof(string)])!,
                         Expression.Constant("4096", typeof(string))),
                     typeof(SimpleTestTypeFactory).GetMethod(
                         nameof(SimpleTestTypeFactory.Create),
-                        new[] { typeof(string), typeof(int?) })!,
+                        [typeof(string), typeof(int?)])!,
                     Expression.Constant(v.Arg1, typeof(string)),
                     Expression.Constant(v.Arg2, typeof(int?))),
                 typeof(SimpleTestType)));
@@ -737,11 +733,11 @@ public class CSharpHelperTest
             v => Expression.Convert(
                 Expression.Call(
                     Expression.New(
-                        typeof(SimpleTestTypeFactory).GetConstructor(new[] { typeof(string) })!,
+                        typeof(SimpleTestTypeFactory).GetConstructor([typeof(string)])!,
                         Expression.Constant("4096", typeof(string))),
                     typeof(SimpleTestTypeFactory).GetMethod(
                         nameof(SimpleTestTypeFactory.Create),
-                        new[] { typeof(string), typeof(int?) })!,
+                        [typeof(string), typeof(int?)])!,
                     Expression.Constant(v.Arg1, typeof(string)),
                     Expression.Convert(
                         Expression.Constant(v.Arg2, typeof(int)),
@@ -828,14 +824,9 @@ public class CSharpHelperTest
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             new RelationalTypeMappingSourceDependencies(plugins));
 
-    private class TestTypeMappingPlugin<T> : IRelationalTypeMappingSourcePlugin
+    private class TestTypeMappingPlugin<T>(Func<T, Expression>? literalExpressionFunc) : IRelationalTypeMappingSourcePlugin
     {
-        private readonly Func<T, Expression>? _literalExpressionFunc;
-
-        public TestTypeMappingPlugin(Func<T, Expression>? literalExpressionFunc)
-        {
-            _literalExpressionFunc = literalExpressionFunc;
-        }
+        private readonly Func<T, Expression>? _literalExpressionFunc = literalExpressionFunc;
 
         public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => _literalExpressionFunc == null
@@ -843,16 +834,10 @@ public class CSharpHelperTest
                 : new SimpleTestTypeMapping<T>(_literalExpressionFunc);
     }
 
-    private class SimpleTestTypeMapping<T> : RelationalTypeMapping
+    private class SimpleTestTypeMapping<T>(
+        Func<T, Expression> literalExpressionFunc) : RelationalTypeMapping("storeType", typeof(SimpleTestType))
     {
-        private readonly Func<T, Expression> _literalExpressionFunc;
-
-        public SimpleTestTypeMapping(
-            Func<T, Expression> literalExpressionFunc)
-            : base("storeType", typeof(SimpleTestType))
-        {
-            _literalExpressionFunc = literalExpressionFunc;
-        }
+        private readonly Func<T, Expression> _literalExpressionFunc = literalExpressionFunc;
 
         public override Expression GenerateCodeLiteral(object value)
             => _literalExpressionFunc((T)value);
@@ -861,13 +846,8 @@ public class CSharpHelperTest
             => throw new NotSupportedException();
     }
 
-    private class SimpleTestNonImplementedTypeMapping : RelationalTypeMapping
+    private class SimpleTestNonImplementedTypeMapping() : RelationalTypeMapping("storeType", typeof(SimpleTestType))
     {
-        public SimpleTestNonImplementedTypeMapping()
-            : base("storeType", typeof(SimpleTestType))
-        {
-        }
-
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => throw new NotSupportedException();
     }
@@ -875,7 +855,7 @@ public class CSharpHelperTest
     private static readonly MethodInfo _testFuncMethodInfo
         = typeof(CSharpHelperTest).GetRuntimeMethod(
             nameof(TestFunc),
-            new[] { typeof(object), typeof(object), typeof(object), typeof(object) })!;
+            [typeof(object), typeof(object), typeof(object), typeof(object)])!;
 
     public static void TestFunc(object builder, object o1, object o2, object o3)
         => throw new NotSupportedException();
@@ -914,9 +894,7 @@ internal class SimpleTestTypeFactory
     }
 
     public SimpleTestTypeFactory(string factoryArg)
-    {
-        FactoryArg = factoryArg;
-    }
+        => FactoryArg = factoryArg;
 
     public string FactoryArg { get; } = null!;
 
@@ -939,10 +917,6 @@ internal class SimpleTestTypeFactory
         => new SimpleTestType(arg1, arg2);
 }
 
-internal class Generic<T>
-{
-}
+internal class Generic<T>;
 
-internal class MultiGeneric<T1, T2>
-{
-}
+internal class MultiGeneric<T1, T2>;

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,15 +12,10 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : LazyLoadProxyTestBase<TFixture>.LoadFixtureBase
 {
-    protected LazyLoadProxyTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory] // Issue #32390
     [InlineData(false)]
@@ -57,17 +50,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         {
             tests[i] = () =>
             {
-                Assert.Equal(children, parent.Children!);
+                Assert.Equal(children, parent.Children);
                 Assert.Equal(singlePkToPk, parent.SinglePkToPk);
                 Assert.Equal(single, parent.Single);
                 Assert.Equal(childrenAk, parent.ChildrenAk!);
                 Assert.Equal(singleAk, parent.SingleAk);
-                Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk!);
+                Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk);
                 Assert.Equal(singleShadowFk, parent.SingleShadowFk);
-                Assert.Equal(childrenCompositeKey, parent.ChildrenCompositeKey!);
+                Assert.Equal(childrenCompositeKey, parent.ChildrenCompositeKey);
                 Assert.Equal(singleCompositeKey, parent.SingleCompositeKey);
                 Assert.Equal(withRecursiveProperty, parent.WithRecursiveProperty);
-                Assert.Equal(manyChildren, parent.ManyChildren!);
+                Assert.Equal(manyChildren, parent.ManyChildren);
             };
         }
 
@@ -4540,9 +4533,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public Applicant(FullName name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+            => Name = name ?? throw new ArgumentNullException(nameof(name));
     }
 
     public class FirstName
@@ -4554,9 +4545,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private FirstName(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public static FirstName Create(string firstName)
             => new(firstName);
@@ -4571,9 +4560,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         private LastName(string value)
-        {
-            _value = value;
-        }
+            => _value = value;
 
         public static LastName Create(string lastName)
             => new(lastName);
@@ -4590,9 +4577,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         public Pyrson(FullName name)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-        }
+            => Name = name ?? throw new ArgumentNullException(nameof(name));
 
         public virtual Culture Culture { get; set; }
         public virtual Milk Milk { get; set; } = null!;
@@ -5025,15 +5010,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
     {
     }
 
-    protected class ChangeDetectorProxy : ChangeDetector
+    protected class ChangeDetectorProxy(
+        IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+        ILoggingOptions loggingOptions) : ChangeDetector(logger, loggingOptions)
     {
-        public ChangeDetectorProxy(
-            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            ILoggingOptions loggingOptions)
-            : base(logger, loggingOptions)
-        {
-        }
-
         public bool DetectChangesCalled { get; set; }
 
         public override void DetectChanges(IStateManager stateManager)
@@ -5235,7 +5215,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             configurationBuilder.ComplexProperties<Tog>();
         }
 
-        protected override void Seed(DbContext context)
+        protected override Task SeedAsync(DbContext context)
         {
             context.Add(
                 new Quest
@@ -5586,7 +5566,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                     Milk = CreateMilk()
                 });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
 
         protected static Culture CreateCulture()

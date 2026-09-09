@@ -4,7 +4,9 @@
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using SQLitePCL;
 using Xunit;
 
@@ -86,6 +88,47 @@ public class SqliteConnectionFactoryTest : IDisposable
         connection.Open();
 
         Assert.NotSame(db, connection.Handle);
+    }
+
+    [Fact]
+    public void Can_clear_pools_while_connections_are_being_used()
+    {
+        const int threadCount = 20;
+        var connectionStrings = Enumerable.Range(30, 30 + threadCount - 1)
+            .Select(i => $"Data Source={FileName};Cache=Shared;Pooling=True;Command Timeout={i}").ToArray();
+
+        var usingTasks = new Action[threadCount];
+        for (var i = 0; i < threadCount; i++)
+        {
+            var captured = i;
+            usingTasks[i] = () =>
+            {
+                for (var j = 0; j < 10000; j++)
+                {
+                    using (var connection = new SqliteConnection(connectionStrings[captured]))
+                    {
+                        connection.Open();
+                        Task.Yield();
+                        connection.Close();
+                    }
+                }
+            };
+        }
+
+        for (int j = 0; j < 30; j++)
+        {
+            var runningTasks = usingTasks.Select(Task.Run).ToArray();
+
+            for (var i = 0; i < 10000; i++)
+            {
+                SqliteConnection.ClearAllPools();
+                Task.Yield();
+            }
+
+#pragma warning disable xUnit1031
+            Task.WaitAll(runningTasks);
+#pragma warning restore xUnit1031
+        }
     }
 
     [Theory]

@@ -18,9 +18,7 @@ public sealed class SplitQueryResultCoordinator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SplitQueryResultCoordinator()
-    {
-        ResultContext = new ResultContext();
-    }
+        => ResultContext = new ResultContext();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

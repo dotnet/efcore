@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 /// </remarks>
 public class MigrationCommandListBuilder
 {
-    private readonly List<MigrationCommand> _commands = new();
+    private readonly List<MigrationCommand> _commands = [];
 
     private IRelationalCommandBuilder _commandBuilder;
 

@@ -126,10 +126,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasSentinel(1, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasSentinel(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(2, metadata.Sentinel);
+        Assert.Equal("2", metadata.Sentinel);
 
         Assert.Null(builder.HasSentinel(1, ConfigurationSource.Convention));
-        Assert.Equal(2, metadata.Sentinel);
+        Assert.Equal("2", metadata.Sentinel);
     }
 
     [ConditionalFact]
@@ -139,13 +139,13 @@ public class InternalPropertyBuilderTest
         metadata.SetSentinel(1, ConfigurationSource.Explicit);
         var builder = metadata.Builder;
 
-        Assert.NotNull(builder.HasSentinel(1, ConfigurationSource.DataAnnotation));
-        Assert.Null(builder.HasSentinel(2, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasSentinel("1", ConfigurationSource.DataAnnotation));
+        Assert.Null(builder.HasSentinel("2", ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(1, metadata.Sentinel);
+        Assert.Equal("1", metadata.Sentinel);
 
-        Assert.NotNull(builder.HasSentinel(2, ConfigurationSource.Explicit));
-        Assert.Equal(2, metadata.Sentinel);
+        Assert.NotNull(builder.HasSentinel("2", ConfigurationSource.Explicit));
+        Assert.Equal("2", metadata.Sentinel);
     }
 
     [ConditionalFact]
@@ -382,13 +382,7 @@ public class InternalPropertyBuilderTest
         Assert.Null(metadata[CoreAnnotationNames.ValueConverterType]);
     }
 
-    private class UTF8StringToBytesConverter : StringToBytesConverter
-    {
-        public UTF8StringToBytesConverter()
-            : base(Encoding.UTF8)
-        {
-        }
-    }
+    private class UTF8StringToBytesConverter() : StringToBytesConverter(Encoding.UTF8);
 
     [ConditionalFact]
     public void Can_only_override_lower_or_equal_source_ValueComparer()
@@ -416,13 +410,7 @@ public class InternalPropertyBuilderTest
         Assert.Null(metadata[CoreAnnotationNames.ValueComparerType]);
     }
 
-    private class CustomValueComparer<T> : ValueComparer<T>
-    {
-        public CustomValueComparer()
-            : base(false)
-        {
-        }
-    }
+    private class CustomValueComparer<T>() : ValueComparer<T>(false);
 
     [ConditionalFact]
     public void Can_only_override_lower_or_equal_source_ProviderValueComparer()

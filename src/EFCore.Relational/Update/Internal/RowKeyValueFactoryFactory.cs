@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
 
 /// <summary>
@@ -23,13 +21,12 @@ public class RowKeyValueFactoryFactory : IRowKeyValueFactoryFactory
         => key.Columns.Count == 1
             ? (IRowKeyValueFactory)_createMethod
                 .MakeGenericMethod(key.Columns.First().ProviderClrType)
-                .Invoke(null, new object[] { key })!
+                .Invoke(null, [key])!
             : new CompositeRowKeyValueFactory(key);
 
     private static readonly MethodInfo _createMethod = typeof(RowKeyValueFactoryFactory).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreateSimpleFactory))!;
 
-    [UsedImplicitly]
     private static IRowKeyValueFactory<TKey> CreateSimpleFactory<TKey>(IUniqueConstraint key)
         => new SimpleRowKeyValueFactory<TKey>(key);
 }

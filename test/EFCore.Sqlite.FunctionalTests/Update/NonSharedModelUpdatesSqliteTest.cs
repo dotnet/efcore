@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class NonSharedModelUpdatesSqliteTest : NonSharedModelUpdatesTestBase
 {
     public override async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)

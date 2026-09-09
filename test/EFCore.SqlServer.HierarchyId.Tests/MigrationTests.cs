@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Microsoft.EntityFrameworkCore.SqlServer.Test.Models.Migrations;
+using Microsoft.EntityFrameworkCore.SqlServer.TestModels.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -54,7 +54,7 @@ public class MigrationTests
         //this works because we have placed the DesignTimeServicesReferenceAttribute
         //in the test project's properties, which simulates
         //the nuget package's build target
-        var migration = new DesignTimeServicesBuilder(assembly, assembly, reporter, Array.Empty<string>())
+        var migration = new DesignTimeServicesBuilder(assembly, assembly, reporter, [])
             .Build(context)
             .GetRequiredService<IMigrationsScaffolder>()
             .ScaffoldMigration(migrationName, rootNamespace);

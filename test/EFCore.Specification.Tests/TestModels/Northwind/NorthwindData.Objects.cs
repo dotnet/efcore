@@ -8,8 +8,8 @@ public partial class NorthwindData
     #region Customers
 
     public static Customer[] CreateCustomers()
-        => new[]
-        {
+        =>
+        [
             new Customer
             {
                 CustomerID = "ALFKI",
@@ -1284,15 +1284,15 @@ public partial class NorthwindData
                 Phone = "(26) 642-7012",
                 Fax = "(26) 642-7012"
             }
-        };
+        ];
 
     #endregion
 
     #region Employees
 
     public static Employee[] CreateEmployees()
-        => new[]
-        {
+        =>
+        [
             new Employee
             {
                 EmployeeID = 1,
@@ -1511,15 +1511,15 @@ Winchester Way",
                 ReportsTo = 5,
                 PhotoPath = "http://accweb/emmployees/davolio.bmp"
             }
-        };
+        ];
 
     #endregion
 
     #region Products
 
     public static Product[] CreateProducts()
-        => new[]
-        {
+        =>
+        [
             new Product
             {
                 ProductID = 1,
@@ -2521,15 +2521,15 @@ Winchester Way",
                 ReorderLevel = 15,
                 Discontinued = false
             }
-        };
+        ];
 
     #endregion
 
     #region Orders
 
     public static Order[] CreateOrders()
-        => new[]
-        {
+        =>
+        [
             new Order
             {
                 OrderID = 10248,
@@ -17470,15 +17470,15 @@ Winchester Way",
                 ShipPostalCode = "87110",
                 ShipCountry = "USA"
             }
-        };
+        ];
 
     #endregion
 
     #region OrderDetails
 
     public static OrderDetail[] CreateOrderDetails()
-        => new[]
-        {
+        =>
+        [
             new OrderDetail
             {
                 OrderID = 10248,
@@ -34719,7 +34719,7 @@ Winchester Way",
                 Quantity = 2,
                 Discount = 0f
             }
-        };
+        ];
 
     #endregion
 }

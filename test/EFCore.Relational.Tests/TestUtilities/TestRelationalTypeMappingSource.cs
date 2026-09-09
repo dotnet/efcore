@@ -5,7 +5,9 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
+public class TestRelationalTypeMappingSource(
+    TypeMappingSourceDependencies dependencies,
+    RelationalTypeMappingSourceDependencies relationalDependencies) : RelationalTypeMappingSource(dependencies, relationalDependencies)
 {
     private static readonly RelationalTypeMapping _string
         = new StringTypeMapping("just_string(2000)", DbType.String);
@@ -116,33 +118,21 @@ public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
             { "dec", _defaultDecimalMapping }
         };
 
-    public TestRelationalTypeMappingSource(
-        TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies)
-        : base(dependencies, relationalDependencies)
+    private class TestStringTypeMapping(
+        string storeType,
+        DbType? dbType,
+        bool unicode = false,
+        int? size = null,
+        bool fixedLength = false) : StringTypeMapping(
+        new RelationalTypeMappingParameters(
+            new CoreTypeMappingParameters(typeof(string)),
+            storeType,
+            StoreTypePostfix.None,
+            dbType,
+            unicode,
+            size,
+            fixedLength))
     {
-    }
-
-    private class TestStringTypeMapping : StringTypeMapping
-    {
-        public TestStringTypeMapping(
-            string storeType,
-            DbType? dbType,
-            bool unicode = false,
-            int? size = null,
-            bool fixedLength = false)
-            : base(
-                new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(string)),
-                    storeType,
-                    StoreTypePostfix.None,
-                    dbType,
-                    unicode,
-                    size,
-                    fixedLength))
-        {
-        }
-
         protected override string ProcessStoreType(
             RelationalTypeMappingParameters parameters,
             string storeType,

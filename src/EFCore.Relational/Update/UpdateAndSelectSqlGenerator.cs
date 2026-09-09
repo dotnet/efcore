@@ -67,7 +67,7 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
         var writeOperations = operations.Where(o => o.IsWrite).ToList();
         var readOperations = operations.Where(o => o.IsRead).ToList();
 
-        AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations: Array.Empty<IColumnModification>());
+        AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations: []);
 
         if (readOperations.Count > 0)
         {
@@ -114,7 +114,7 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
         var conditionOperations = operations.Where(o => o.IsCondition).ToList();
         var readOperations = operations.Where(o => o.IsRead).ToList();
 
-        AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, Array.Empty<IColumnModification>(), conditionOperations);
+        AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, [], conditionOperations);
 
         if (readOperations.Count > 0)
         {
@@ -160,7 +160,7 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
 
         requiresTransaction = false;
 
-        AppendDeleteCommand(commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations);
+        AppendDeleteCommand(commandStringBuilder, name, schema, [], conditionOperations);
 
         return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
     }

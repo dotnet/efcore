@@ -3,15 +3,13 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
-public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsistencyTest.CosmosApiConsistencyFixture>
+#nullable disable
+
+public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsistencyFixture fixture)
+    : ApiConsistencyTestBase<CosmosApiConsistencyTest.CosmosApiConsistencyFixture>(fixture)
 {
-    public CosmosApiConsistencyTest(CosmosApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkCosmos();
 
@@ -20,15 +18,15 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
 
     public class CosmosApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(CosmosPrimitiveCollectionBuilderExtensions),
             typeof(CosmosModelBuilderExtensions),
             typeof(CosmosPropertyBuilderExtensions),
             typeof(CosmosServiceCollectionExtensions),
             typeof(CosmosDbContextOptionsExtensions),
             typeof(CosmosDbContextOptionsBuilder)
-        };
+        ];
 
         public override
             Dictionary<Type, (Type ReadonlyExtensions,

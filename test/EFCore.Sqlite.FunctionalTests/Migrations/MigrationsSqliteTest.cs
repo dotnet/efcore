@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 
@@ -109,6 +107,37 @@ CREATE TABLE "People" (
     "Sum" AS ("X" + "Y"){computedColumnTypeSql},
     "X" INTEGER NOT NULL,
     "Y" INTEGER NOT NULL
+);
+""");
+    }
+
+    public override async Task Create_table_with_json_column()
+    {
+        await base.Create_table_with_json_column();
+
+        AssertSql(
+            """
+CREATE TABLE "Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedCollection" TEXT NULL,
+    "OwnedReference" TEXT NULL,
+    "OwnedRequiredReference" TEXT NOT NULL
+);
+""");
+    }
+
+    public override async Task Create_table_with_json_column_explicit_json_column_names()
+    {
+        await base.Create_table_with_json_column_explicit_json_column_names();
+
+        AssertSql(
+            """
+CREATE TABLE "Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "json_collection" TEXT NULL,
+    "json_reference" TEXT NULL
 );
 """);
     }
@@ -331,6 +360,47 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Rename_table_with_json_column()
+    {
+        await base.Rename_table_with_json_column();
+
+        AssertSql(
+            """
+ALTER TABLE "Entities" RENAME TO "NewEntities";
+""",
+            //
+            """
+CREATE TABLE "ef_temp_NewEntities" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_NewEntities" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedCollection" TEXT NULL,
+    "OwnedReference" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_NewEntities" ("Id", "Name", "OwnedCollection", "OwnedReference")
+SELECT "Id", "Name", "OwnedCollection", "OwnedReference"
+FROM "NewEntities";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "NewEntities";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_NewEntities" RENAME TO "NewEntities";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
     // SQLite does not support schemas.
     public override async Task Move_table()
     {
@@ -369,6 +439,24 @@ ALTER TABLE "People" ADD "Birthday" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00';
         AssertSql(
             """
 ALTER TABLE "People" ADD "Sum" INTEGER NOT NULL DEFAULT (1 + 2);
+""");
+    }
+
+    public override async Task Add_json_columns_to_existing_table()
+    {
+        await base.Add_json_columns_to_existing_table();
+
+        AssertSql(
+            """
+ALTER TABLE "Entity" ADD "OwnedCollection" TEXT NULL;
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedReference" TEXT NULL;
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedRequiredReference" TEXT NOT NULL DEFAULT '{}';
 """);
     }
 
@@ -1010,6 +1098,189 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Convert_json_entities_to_regular_owned()
+    {
+        await base.Convert_json_entities_to_regular_owned();
+
+        AssertSql(
+            """
+ALTER TABLE "Entity" RENAME COLUMN "OwnedReference" TO "OwnedReference_Date";
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedReference_NestedReference_Number" INTEGER NULL;
+""",
+            //
+            """
+CREATE TABLE "Entity_NestedCollection" (
+    "OwnedEntityId" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Number2" INTEGER NOT NULL,
+    CONSTRAINT "PK_Entity_NestedCollection" PRIMARY KEY ("OwnedEntityId", "Id"),
+    CONSTRAINT "FK_Entity_NestedCollection_Entity_OwnedEntityId" FOREIGN KEY ("OwnedEntityId") REFERENCES "Entity" ("Id") ON DELETE CASCADE
+);
+""",
+            //
+            """
+CREATE TABLE "Entity_OwnedCollection" (
+    "EntityId" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Date2" TEXT NOT NULL,
+    "NestedReference2_Number3" INTEGER NULL,
+    CONSTRAINT "PK_Entity_OwnedCollection" PRIMARY KEY ("EntityId", "Id"),
+    CONSTRAINT "FK_Entity_OwnedCollection_Entity_EntityId" FOREIGN KEY ("EntityId") REFERENCES "Entity" ("Id") ON DELETE CASCADE
+);
+""",
+            //
+            """
+CREATE TABLE "Entity_OwnedCollection_NestedCollection2" (
+    "Owned2EntityId" INTEGER NOT NULL,
+    "Owned2Id" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Number4" INTEGER NOT NULL,
+    CONSTRAINT "PK_Entity_OwnedCollection_NestedCollection2" PRIMARY KEY ("Owned2EntityId", "Owned2Id", "Id"),
+    CONSTRAINT "FK_Entity_OwnedCollection_NestedCollection2_Entity_OwnedCollection_Owned2EntityId_Owned2Id" FOREIGN KEY ("Owned2EntityId", "Owned2Id") REFERENCES "Entity_OwnedCollection" ("EntityId", "Id") ON DELETE CASCADE
+);
+""",
+            //
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedReference_Date" TEXT NULL,
+    "OwnedReference_NestedReference_Number" INTEGER NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name", "OwnedReference_Date", "OwnedReference_NestedReference_Number")
+SELECT "Id", "Name", "OwnedReference_Date", "OwnedReference_NestedReference_Number"
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_regular_owned_entities_to_json()
+    {
+        await base.Convert_regular_owned_entities_to_json();
+
+        AssertSql(
+            """
+DROP TABLE "Entity_NestedCollection";
+""",
+            //
+            """
+DROP TABLE "Entity_OwnedCollection_NestedCollection2";
+""",
+            //
+            """
+DROP TABLE "Entity_OwnedCollection";
+""",
+            //
+            """
+ALTER TABLE "Entity" RENAME COLUMN "OwnedReference_Date" TO "OwnedReference";
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedCollection" TEXT NULL;
+""",
+            //
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedCollection" TEXT NULL,
+    "OwnedReference" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name", "OwnedCollection", "OwnedReference")
+SELECT "Id", "Name", "OwnedCollection", "OwnedReference"
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_string_column_to_a_json_column_containing_reference()
+    {
+        await base.Convert_string_column_to_a_json_column_containing_reference();
+
+        AssertSql();
+    }
+
+    public override async Task Convert_string_column_to_a_json_column_containing_required_reference()
+    {
+        await base.Convert_string_column_to_a_json_column_containing_required_reference();
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name")
+SELECT "Id", IFNULL("Name", '{}')
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_string_column_to_a_json_column_containing_collection()
+    {
+        await base.Convert_string_column_to_a_json_column_containing_collection();
+
+        AssertSql();
+    }
+
     public override async Task Drop_column()
     {
         await base.Drop_column();
@@ -1078,6 +1349,41 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Drop_json_columns_from_existing_table()
+    {
+        await base.Drop_json_columns_from_existing_table();
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name")
+SELECT "Id", "Name"
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
     public override async Task Rename_column()
     {
         await base.Rename_column();
@@ -1085,6 +1391,20 @@ PRAGMA foreign_keys = 1;
         AssertSql(
             """
 ALTER TABLE "People" RENAME COLUMN "SomeColumn" TO "SomeOtherColumn";
+""");
+    }
+
+    public override async Task Rename_json_column()
+    {
+        await base.Rename_json_column();
+
+        AssertSql(
+            """
+ALTER TABLE "Entity" RENAME COLUMN "json_reference" TO "new_json_reference";
+""",
+            //
+            """
+ALTER TABLE "Entity" RENAME COLUMN "json_collection" TO "new_json_collection";
 """);
     }
 
@@ -1707,7 +2027,7 @@ CREATE TABLE "Person" (
         await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Contacts" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Contacts" PRIMARY KEY AUTOINCREMENT,
     "Discriminator" TEXT NOT NULL,
@@ -1750,6 +2070,10 @@ CREATE TABLE "Contacts" (
     public override Task Move_sequence()
         => AssertNotSupportedAsync(base.Move_sequence, SqliteStrings.SequencesNotSupported);
 
+    public override Task Multiop_rename_table_and_drop()
+        => AssertNotSupportedAsync(
+            base.Multiop_rename_table_and_drop,
+            SqliteStrings.InvalidMigrationOperation(nameof(DropPrimaryKeyOperation)));
 
     [ConditionalFact]
     public override async Task Add_required_primitve_collection_to_existing_table()
@@ -1757,7 +2081,7 @@ CREATE TABLE "Contacts" (
         await base.Add_required_primitve_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
 """);
     }
@@ -1768,7 +2092,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
         await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
 """);
     }
@@ -1776,10 +2100,10 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
     [ConditionalFact]
     public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
     {
-        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'"); 
+        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
 """);
     }
@@ -1790,7 +2114,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
         await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
 """);
     }
@@ -1801,7 +2125,62 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
-"""
+            """
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_to_existing_table();
+
+        AssertSql(
+            """
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
+
+        AssertSql(
+            """
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
+
+        AssertSql(
+            """
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
+""");
+    }
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
+
+        AssertSql(
+            """
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
+
+        AssertSql(
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
 """);
     }
@@ -1812,7 +2191,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
         await base.Add_optional_primitive_collection_to_existing_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
 """);
     }
@@ -1823,7 +2202,7 @@ ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
         await base.Create_table_with_required_primitive_collection();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Customers" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Customers" PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NULL,
@@ -1838,7 +2217,7 @@ CREATE TABLE "Customers" (
         await base.Create_table_with_optional_primitive_collection();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Customers" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Customers" PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NULL,

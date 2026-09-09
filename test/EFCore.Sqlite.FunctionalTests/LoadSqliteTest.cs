@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class LoadSqliteTest : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>
-{
-    public LoadSqliteTest(LoadSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class LoadSqliteTest(LoadSqliteTest.LoadSqliteFixture fixture) : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>(fixture)
+{
     public class LoadSqliteFixture : LoadFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

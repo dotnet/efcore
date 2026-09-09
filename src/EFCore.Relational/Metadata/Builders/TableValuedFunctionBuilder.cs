@@ -17,9 +17,7 @@ public class TableValuedFunctionBuilder : DbFunctionBuilderBase, IInfrastructure
     [EntityFrameworkInternal]
     public TableValuedFunctionBuilder(IMutableDbFunction function, EntityTypeBuilder entityTypeBuilder)
         : base(function)
-    {
-        EntityTypeBuilder = entityTypeBuilder;
-    }
+        => EntityTypeBuilder = entityTypeBuilder;
 
     private EntityTypeBuilder EntityTypeBuilder { get; }
 

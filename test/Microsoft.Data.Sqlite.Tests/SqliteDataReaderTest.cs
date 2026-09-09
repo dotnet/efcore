@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
@@ -116,9 +117,9 @@ public class SqliteDataReaderTest
                 }
 
                 Assert.Equal(3, list.Count);
-                Assert.Equal(new byte[6] { 0x42, 0x7E, 0x57, 0x43, 0, 0 }, list[0]);
-                Assert.Equal(new byte[6] { 0x53, 0x8F, 0x68, 0x54, 0, 0 }, list[1]);
-                Assert.Equal(new byte[6] { 0x64, 0x9A, 0x79, 0x65, 0, 0 }, list[2]);
+                Assert.Equal([0x42, 0x7E, 0x57, 0x43, 0, 0], list[0]);
+                Assert.Equal([0x53, 0x8F, 0x68, 0x54, 0, 0], list[1]);
+                Assert.Equal([0x64, 0x9A, 0x79, 0x65, 0, 0], list[2]);
             }
         }
     }
@@ -139,7 +140,45 @@ public class SqliteDataReaderTest
 
                 var buffer = new byte[2];
                 reader.GetBytes(1, 1, buffer, 0, buffer.Length);
-                Assert.Equal(new byte[] { 0x02, 0x03 }, buffer);
+                Assert.Equal([0x02, 0x03], buffer);
+            }
+        }
+    }
+
+    [Fact]
+    public void GetBytes_works_streaming_join()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            connection.ExecuteNonQuery("CREATE TABLE A (ID INTEGER PRIMARY KEY,VALUE BLOB); INSERT INTO A (ID, VALUE) VALUES (1,x'01020304');");
+            connection.ExecuteNonQuery("CREATE TABLE B (ID INTEGER PRIMARY KEY,FATHER_ID INTEGER NOT NULL,VALUE BLOB); INSERT INTO B (ID,FATHER_ID, VALUE) VALUES (1000,1,x'05060708');");
+
+            using (var reader = connection.ExecuteReader(@"SELECT 
+                                                A.ID as AID,
+                                                A.VALUE as AVALUE,
+                                                B.ID as BID,
+                                                B.VALUE as BVALUE
+                                            FROM 
+                                                A JOIN B
+                                                ON B.FATHER_ID=A.ID "))
+            {
+                var hasData = reader.Read();
+                Assert.True(hasData);
+
+                //reading fields that does not involve blobs should be ok
+                Console.WriteLine($"A.ID={reader.GetInt32(0)} B.ID={reader.GetInt32(2)}");
+
+                //get len of abuff
+                var abuff = new byte[2];
+                reader.GetBytes(1, 1, abuff, 0, abuff.Length);
+                Assert.Equal([0x02, 0x03], abuff);
+
+                var bbuff = new byte[2];
+                reader.GetBytes(3, 1, bbuff, 0, bbuff.Length);  //this was failing. now should be fixed
+                Assert.Equal([0x06, 0x07], bbuff);
+
             }
         }
     }
@@ -232,7 +271,7 @@ public class SqliteDataReaderTest
 
                 var buffer = new char[2];
                 reader.GetChars(0, 1, buffer, 0, buffer.Length);
-                Assert.Equal(new char[2] { 'ê', 's' }, buffer);
+                Assert.Equal(new[] { 'ê', 's' }, buffer);
             }
         }
     }
@@ -440,7 +479,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -467,7 +506,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -495,7 +534,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -523,7 +562,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -872,8 +911,7 @@ public class SqliteDataReaderTest
     [Fact]
     public void GetFieldValue_of_byteArray_empty()
         => GetFieldValue_works(
-            "SELECT X'';",
-            new byte[0]);
+            "SELECT X'';", Array.Empty<byte>());
 
     [Fact]
     public void GetFieldValue_of_byteArray_throws_when_null()
@@ -1455,7 +1493,7 @@ public class SqliteDataReaderTest
                 var hasData = reader.Read();
                 Assert.True(hasData);
 
-                var values = new object[0];
+                var values = Array.Empty<object>();
                 Assert.Throws<IndexOutOfRangeException>(() => reader.GetValues(values));
             }
         }
@@ -2220,6 +2258,111 @@ public class SqliteDataReaderTest
             ((IDisposable)reader).Dispose();
 
             Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT count() FROM Test;"));
+        }
+    }
+
+    [Fact] // Issue #29744
+    public void DataTable_load_handles_nulls()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            connection.ExecuteNonQuery(
+        """
+        CREATE TABLE Member (
+          ID INTEGER,
+          Lastname TEXT NOT NULL,
+          Firstname TEXT NOT NULL,
+          Type INTEGER,
+          Hidden INTEGER,
+          PRIMARY KEY (ID AUTOINCREMENT)
+        );
+
+        CREATE TABLE Types (
+          ID INTEGER,
+          Description TEXT NOT NULL,
+          Hidden INTEGER,
+          PRIMARY KEY (ID AUTOINCREMENT)
+        );
+
+        INSERT INTO Types (Description) VALUES ('Administrator');
+        INSERT INTO Types (Description) VALUES ('User');
+
+        INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Mustermann', 'Max', 1, 0);
+        INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Weber', 'Max', 2, 0);
+        INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Müller', 'Willhelm', NULL, 0);
+        """);
+
+            string sql =
+                """
+                SELECT
+                  Member.ID AS ID,
+                  Member.Lastname,
+                  Member.Firstname,
+                  Types.ID AS TypeID,
+                  Types.Description AS Type,
+                  Member.Hidden
+                FROM Member
+                LEFT OUTER JOIN Types ON Types.ID = Member.Type;
+                """;
+
+            var table = new DataTable();
+            using (var command = new SqliteCommand(sql, connection))
+            {
+                using (var dataReader = command.ExecuteReader())
+                {
+                    table.Load(dataReader);
+                }
+            }
+        }
+    }
+
+    [Fact] // Issue #30765
+    public void DataTable_load_handles_unique_columns()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            connection.ExecuteNonQuery(
+        """
+        CREATE TABLE "characters" (
+        	"id"	INTEGER,
+        	"name"	TEXT UNIQUE,
+        	"guild"	INTEGER
+        );
+
+        CREATE TABLE "guilds" (
+        	"id"	INTEGER NOT NULL UNIQUE,
+        	"name"	TEXT UNIQUE,
+        	UNIQUE("name"),
+        	PRIMARY KEY("id" AUTOINCREMENT)
+        );
+        CREATE UNIQUE INDEX guildname
+        ON guilds(name);
+
+        INSERT INTO characters (id, name, guild) VALUES (1, 'John', 1);
+        INSERT INTO characters (id, name, guild) VALUES (2, 'Jeanette', 1);
+
+        INSERT INTO guilds (id, name) VALUES (1, 'Testers');
+        """);
+
+            string sql =
+                """
+                SELECT guilds.name as guildName, characters.name as charName FROM guilds
+                LEFT JOIN characters
+                ON guilds.id = characters.guild
+                """;
+
+            var table = new DataTable();
+            using (var command = new SqliteCommand(sql, connection))
+            {
+                using (var dataReader = command.ExecuteReader())
+                {
+                    table.Load(dataReader);
+                }
+            }
         }
     }
 

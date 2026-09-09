@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MusicStoreSqliteTest : MusicStoreTestBase<MusicStoreSqliteTest.MusicStoreSqliteFixture>
-{
-    public MusicStoreSqliteTest(MusicStoreSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
+#nullable disable
 
+public class MusicStoreSqliteTest(MusicStoreSqliteTest.MusicStoreSqliteFixture fixture)
+    : MusicStoreTestBase<MusicStoreSqliteTest.MusicStoreSqliteFixture>(fixture)
+{
     public class MusicStoreSqliteFixture : MusicStoreFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

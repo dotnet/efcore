@@ -18,17 +18,11 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
     InternalMixedEntityEntryTest.KMixedContext,
     InternalMixedEntityEntryTest.KMixedSnapContext>
 {
-    public class SomeCompositeEntityBase
-    {
-    }
+    public class SomeCompositeEntityBase;
 
-    public class SomeDependentEntity : SomeCompositeEntityBase
-    {
-    }
+    public class SomeDependentEntity : SomeCompositeEntityBase;
 
-    public class SomeMoreDependentEntity : SomeSimpleEntityBase
-    {
-    }
+    public class SomeMoreDependentEntity : SomeSimpleEntityBase;
 
     public class Root : IRoot
     {
@@ -106,19 +100,11 @@ public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase<
         }
     }
 
-    public class SomeSimpleEntityBase
-    {
-    }
+    public class SomeSimpleEntityBase;
 
-    public class SomeEntity : SomeSimpleEntityBase
-    {
-    }
+    public class SomeEntity : SomeSimpleEntityBase;
 
-    public class KMixedContext : KContext
-    {
-    }
+    public class KMixedContext : KContext;
 
-    public class KMixedSnapContext : KContext
-    {
-    }
+    public class KMixedSnapContext : KContext;
 }

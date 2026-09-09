@@ -5,13 +5,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public static class QueryTestGenerationExtensions
 {
-    public static TResult Choose<TResult>(this Random random, List<TResult> list)
-    {
-        if (list.Count == 0)
-        {
-            return default;
-        }
-
-        return list[random.Next(list.Count)];
-    }
+    public static TResult? Choose<TResult>(this Random random, List<TResult> list)
+        => list.Count == 0 ? default : list[random.Next(list.Count)];
 }

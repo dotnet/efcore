@@ -3,14 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class NorthwindNavigationsQueryInMemoryTest : NorthwindNavigationsQueryTestBase<
-    NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
-{
-    public NorthwindNavigationsQueryInMemoryTest(
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-}
+public class NorthwindNavigationsQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+    : NorthwindNavigationsQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>(fixture);

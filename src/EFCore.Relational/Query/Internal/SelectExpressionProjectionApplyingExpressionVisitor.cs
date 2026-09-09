@@ -22,9 +22,7 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpressionProjectionApplyingExpressionVisitor(QuerySplittingBehavior? querySplittingBehavior)
-    {
-        _querySplittingBehavior = querySplittingBehavior ?? QuerySplittingBehavior.SingleQuery;
-    }
+        => _querySplittingBehavior = querySplittingBehavior ?? QuerySplittingBehavior.SingleQuery;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

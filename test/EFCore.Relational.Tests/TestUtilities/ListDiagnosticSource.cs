@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class ListDiagnosticSource : DiagnosticSource
+public class ListDiagnosticSource(List<Tuple<string, object>> diagnosticList) : DiagnosticSource
 {
-    public ListDiagnosticSource(List<Tuple<string, object>> diagnosticList)
-    {
-        DiagnosticList = diagnosticList;
-    }
-
-    public List<Tuple<string, object>> DiagnosticList { get; }
+    public List<Tuple<string, object>> DiagnosticList { get; } = diagnosticList;
 
     public override void Write(string diagnosticName, object parameters)
         => DiagnosticList?.Add(new Tuple<string, object>(diagnosticName, parameters));

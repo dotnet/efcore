@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
+#nullable disable
+
 public class Order
 {
     [ScaffoldColumn(false)]

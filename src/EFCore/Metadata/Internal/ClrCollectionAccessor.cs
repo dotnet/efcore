@@ -17,6 +17,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     where TElement : class
 {
     private readonly string _propertyName;
+    private readonly bool _shadow;
     private readonly Func<TEntity, TCollection>? _getCollection;
     private readonly Action<TEntity, TCollection>? _setCollection;
     private readonly Action<TEntity, TCollection>? _setCollectionForMaterialization;
@@ -40,6 +41,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     /// </summary>
     public ClrICollectionAccessor(
         string propertyName,
+        bool shadow,
         Func<TEntity, TCollection>? getCollection,
         Action<TEntity, TCollection>? setCollection,
         Action<TEntity, TCollection>? setCollectionForMaterialization,
@@ -47,6 +49,7 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
         Func<TCollection>? createCollection)
     {
         _propertyName = propertyName;
+        _shadow = shadow;
         _getCollection = getCollection;
         _setCollection = setCollection;
         _setCollectionForMaterialization = setCollectionForMaterialization;
@@ -137,6 +140,13 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
 
     private ICollection<TElement>? GetCollection(object instance)
     {
+        if (_shadow)
+        {
+            // This method is only used when getting a collection from a not tracked or not-yet tracked entity,
+            // which means there is never an existing collection.
+            return (ICollection<TElement>?)_createCollection?.Invoke();
+        }
+
         var enumerable = _getCollection!((TEntity)instance);
         var collection = enumerable as ICollection<TElement>;
 

@@ -70,20 +70,23 @@ public interface ITableMapping : ITableMappingBase
                 .Append(" - ")
                 .Append(Table.Name);
 
-            builder.Append(" ");
-            if (!IncludesDerivedTypes)
+            if (IncludesDerivedTypes != null)
             {
-                builder.Append("!");
-            }
+                builder.Append(' ');
+                if (!IncludesDerivedTypes.Value)
+                {
+                    builder.Append('!');
+                }
 
-            builder.Append("IncludesDerivedTypes");
+                builder.Append("IncludesDerivedTypes");
+            }
 
             if (IsSharedTablePrincipal != null)
             {
-                builder.Append(" ");
+                builder.Append(' ');
                 if (!IsSharedTablePrincipal.Value)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
 
                 builder.Append("IsSharedTablePrincipal");
@@ -91,10 +94,10 @@ public interface ITableMapping : ITableMappingBase
 
             if (IsSplitEntityTypePrincipal != null)
             {
-                builder.Append(" ");
+                builder.Append(' ');
                 if (!IsSplitEntityTypePrincipal.Value)
                 {
-                    builder.Append("!");
+                    builder.Append('!');
                 }
 
                 builder.Append("IsSplitEntityTypePrincipal");

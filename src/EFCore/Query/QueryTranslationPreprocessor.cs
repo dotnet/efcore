@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -79,7 +80,7 @@ public class QueryTranslationPreprocessor
     /// <returns>A query expression after normalization has been done.</returns>
     public virtual Expression NormalizeQueryableMethod(Expression expression)
     {
-        expression = new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext).Normalize(expression);
+        expression = new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext, IsEfConstantSupported).Normalize(expression);
         expression = ProcessQueryRoots(expression);
 
         return expression;
@@ -92,4 +93,11 @@ public class QueryTranslationPreprocessor
     /// <returns>A query expression after query roots have been added.</returns>
     protected virtual Expression ProcessQueryRoots(Expression expression)
         => new QueryRootProcessor(Dependencies, QueryCompilationContext).Visit(expression);
+
+    /// <summary>
+    ///     A value indicating whether 'EF.Constant' are handled appropriately in postprocessing of query.
+    /// </summary>
+    [Experimental(EFDiagnostics.ProviderExperimentalApi)]
+    protected virtual bool IsEfConstantSupported
+        => false;
 }

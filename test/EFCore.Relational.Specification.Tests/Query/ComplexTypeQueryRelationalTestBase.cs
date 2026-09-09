@@ -3,14 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ComplexTypeQueryRelationalTestBase<TFixture> : ComplexTypeQueryTestBase<TFixture>
+#nullable disable
+
+public abstract class ComplexTypeQueryRelationalTestBase<TFixture>(TFixture fixture) : ComplexTypeQueryTestBase<TFixture>(fixture)
     where TFixture : ComplexTypeQueryRelationalFixtureBase, new()
 {
-    protected ComplexTypeQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Subquery_over_complex_type(bool async)
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Subquery_over_complex_type(async));

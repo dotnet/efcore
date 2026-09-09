@@ -5,14 +5,9 @@ using IdentityServer4.EntityFramework.DbContexts;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class PersistedGrantDbContextInMemoryTest
-    : PersistedGrantDbContextTestBase<PersistedGrantDbContextInMemoryTest.PersistedGrantDbContextInMemoryFixture>
+public class PersistedGrantDbContextInMemoryTest(PersistedGrantDbContextInMemoryTest.PersistedGrantDbContextInMemoryFixture fixture)
+    : PersistedGrantDbContextTestBase<PersistedGrantDbContextInMemoryTest.PersistedGrantDbContextInMemoryFixture>(fixture)
 {
-    public PersistedGrantDbContextInMemoryTest(PersistedGrantDbContextInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
     }

@@ -11,13 +11,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
+    public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+        : ModelCodeGeneratorTestBase(fixture, output)
     {
-        public CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
-            : base(fixture, output)
-        {
-        }
-
         [ConditionalFact]
         public Task Empty_model()
             => TestAsync(
@@ -598,10 +594,10 @@ optionsBuilder
                             x.Property<int>("B");
                             x.Property<int>("C");
                             x.HasKey("Id");
-                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                            x.HasIndex(["A", "B"], "IndexOnAAndB")
                                 .IsUnique()
                                 .IsDescending(false, true);
-                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                            x.HasIndex(["B", "C"], "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
@@ -670,10 +666,10 @@ public partial class TestDbContext : DbContext
                             x.Property<int>("B");
                             x.Property<int>("C");
                             x.HasKey("Id");
-                            x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                            x.HasIndex(["A", "B"], "IndexOnAAndB")
                                 .IsUnique()
                                 .IsDescending(false, true);
-                            x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                            x.HasIndex(["B", "C"], "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
                         }),
@@ -738,14 +734,14 @@ public partial class TestDbContext : DbContext
                             x.Property<int>("Y");
                             x.Property<int>("Z");
                             x.HasKey("Id");
-                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_unspecified");
-                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_empty")
+                            x.HasIndex(["X", "Y", "Z"], "IX_unspecified");
+                            x.HasIndex(["X", "Y", "Z"], "IX_empty")
                                 .IsDescending();
-                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_ascending")
+                            x.HasIndex(["X", "Y", "Z"], "IX_all_ascending")
                                 .IsDescending(false, false, false);
-                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_descending")
+                            x.HasIndex(["X", "Y", "Z"], "IX_all_descending")
                                 .IsDescending(true, true, true);
-                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_mixed")
+                            x.HasIndex(["X", "Y", "Z"], "IX_mixed")
                                 .IsDescending(false, true, false);
                         }),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
@@ -808,13 +804,13 @@ public partial class TestDbContext : DbContext
                     Assert.Null(unspecifiedIndex.IsDescending);
 
                     var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-                    Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
+                    Assert.Equal([], emptyIndex.IsDescending);
 
                     var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
                     Assert.Null(allAscendingIndex.IsDescending);
 
                     var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
-                    Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
+                    Assert.Equal([], allDescendingIndex.IsDescending);
 
                     var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
                     Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
@@ -973,7 +969,7 @@ public partial class TestDbContext : DbContext
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
                 model =>
-                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
+                    Assert.True(model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
 
         [ConditionalFact]
         public Task Global_namespace_works()
@@ -1359,19 +1355,15 @@ public partial class TestDbContext : DbContext
                     Assert.Null(entity.GetProperty("Property").GetColumnOrder());
                 });
 
-        protected override void AddModelServices(IServiceCollection services)
+        protected override IServiceCollection AddModelServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 
-        protected override void AddScaffoldingServices(IServiceCollection services)
+        protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-        private class TestModelAnnotationProvider : SqlServerAnnotationProvider
+        private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+            : SqlServerAnnotationProvider(dependencies)
         {
-            public TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-
             public override IEnumerable<IAnnotation> For(IRelationalModel database, bool designTime)
             {
                 foreach (var annotation in base.For(database, designTime))
@@ -1386,16 +1378,12 @@ public partial class TestDbContext : DbContext
             }
         }
 
-        private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+        private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+            : SqlServerAnnotationCodeGenerator(dependencies)
         {
             private static readonly MethodInfo _testFluentApiCallMethodInfo
                 = typeof(TestModelBuilderExtensions).GetRuntimeMethod(
-                    nameof(TestModelBuilderExtensions.TestFluentApiCall), new[] { typeof(ModelBuilder) })!;
-
-            public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
-                : base(dependencies)
-            {
-            }
+                    nameof(TestModelBuilderExtensions.TestFluentApiCall), [typeof(ModelBuilder)])!;
 
             protected override MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
                 => annotation.Name switch
@@ -1409,11 +1397,11 @@ public partial class TestDbContext : DbContext
         {
             private static readonly MethodInfo _setProviderOptionMethodInfo
                 = typeof(TestCodeGeneratorPlugin).GetRuntimeMethod(
-                    nameof(SetProviderOption), new[] { typeof(SqlServerDbContextOptionsBuilder) });
+                    nameof(SetProviderOption), [typeof(SqlServerDbContextOptionsBuilder)]);
 
             private static readonly MethodInfo _setContextOptionMethodInfo
                 = typeof(TestCodeGeneratorPlugin).GetRuntimeMethod(
-                    nameof(SetContextOption), new[] { typeof(DbContextOptionsBuilder) });
+                    nameof(SetContextOption), [typeof(DbContextOptionsBuilder)]);
 
             public override MethodCallCodeFragment GenerateProviderOptions()
                 => new(_setProviderOptionMethodInfo);

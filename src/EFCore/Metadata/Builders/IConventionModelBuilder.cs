@@ -341,4 +341,20 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given property access mode can be set.</returns>
     bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Sets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was successful, <see langword="null" /> otherwise.</returns>
+    IConventionModelBuilder? HasEmbeddedDiscriminatorName(string? name, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given name can be set from the current configuration source
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given property access mode can be set.</returns>
+    bool CanSetEmbeddedDiscriminatorName(string? name, bool fromDataAnnotation = false);
 }

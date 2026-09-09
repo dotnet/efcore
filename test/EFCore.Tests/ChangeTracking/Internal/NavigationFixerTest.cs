@@ -43,7 +43,7 @@ public class NavigationFixerTest
     private class Blog
     {
         public int Id { get; set; }
-        public HashSet<Post> Posts { get; } = new();
+        public HashSet<Post> Posts { get; } = [];
     }
 
     private class Post
@@ -495,7 +495,7 @@ public class NavigationFixerTest
         fixer.KeyPropertyChanged(
             dependentEntry,
             categoryIdProperty,
-            Array.Empty<IKey>(),
+            [],
             productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
             12,
             11);
@@ -537,7 +537,7 @@ public class NavigationFixerTest
         fixer.KeyPropertyChanged(
             dependentEntry,
             categoryIdProperty,
-            Array.Empty<IKey>(),
+            [],
             productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
             12,
             11);
@@ -579,7 +579,7 @@ public class NavigationFixerTest
         fixer.KeyPropertyChanged(
             dependentEntry,
             categoryIdProperty,
-            Array.Empty<IKey>(),
+            [],
             productType.GetForeignKeys().Where(k => k.Properties.Contains(categoryIdProperty)).ToList(),
             12,
             11);
@@ -750,7 +750,7 @@ public class NavigationFixerTest
         fixer.KeyPropertyChanged(
             entry1,
             alternateProductId,
-            Array.Empty<IKey>(),
+            [],
             productType.GetForeignKeys().Where(k => k.Properties.Contains(alternateProductId)).ToList(),
             22,
             23);
@@ -804,7 +804,7 @@ public class NavigationFixerTest
         fixer.KeyPropertyChanged(
             entry1,
             alternateProductId,
-            Array.Empty<IKey>(),
+            [],
             productType.GetForeignKeys().Where(k => k.Properties.Contains(alternateProductId)).ToList(),
             22,
             23);
@@ -936,14 +936,14 @@ public class NavigationFixerTest
         tagEntry7.SetEntityState(EntityState.Added);
         tagEntry8.SetEntityState(EntityState.Added);
 
-        Assert.Equal(new[] { tag1, tag2 }, photo1.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag3, tag4 }, photo2.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag5, tag6 }, photo3.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag7, tag8 }, photo4.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag1, tag3 }, review1.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag2, tag4 }, review2.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag5, tag7 }, review3.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag6, tag8 }, review4.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag1, tag2], photo1.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag3, tag4], photo2.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag5, tag6], photo3.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag7, tag8], photo4.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag1, tag3], review1.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag2, tag4], review2.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag5, tag7], review3.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag6, tag8], review4.ProductTags.OrderBy(t => t.Id).ToArray());
 
         Assert.Same(photo1, tag1.Photo);
         Assert.Same(photo1, tag2.Photo);
@@ -972,19 +972,19 @@ public class NavigationFixerTest
         fixer.KeyPropertyChanged(
             tagEntry1,
             productId,
-            Array.Empty<IKey>(),
+            [],
             productTagType.GetForeignKeys().Where(k => k.Properties.Contains(productId)).ToList(),
             1,
             2);
 
-        Assert.Equal(new[] { tag2 }, photo1.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag3, tag4 }, photo2.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag1, tag5, tag6 }, photo3.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag7, tag8 }, photo4.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag3 }, review1.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag2, tag4 }, review2.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag1, tag5, tag7 }, review3.ProductTags.OrderBy(t => t.Id).ToArray());
-        Assert.Equal(new[] { tag6, tag8 }, review4.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag2], photo1.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag3, tag4], photo2.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag1, tag5, tag6], photo3.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag7, tag8], photo4.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag3], review1.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag2, tag4], review2.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag1, tag5, tag7], review3.ProductTags.OrderBy(t => t.Id).ToArray());
+        Assert.Equal([tag6, tag8], review4.ProductTags.OrderBy(t => t.Id).ToArray());
 
         Assert.Same(photo3, tag1.Photo);
         Assert.Same(photo1, tag2.Photo);

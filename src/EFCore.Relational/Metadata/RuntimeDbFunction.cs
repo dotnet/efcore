@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
 {
-    private readonly List<RuntimeDbFunctionParameter> _parameters = new();
+    private readonly List<RuntimeDbFunctionParameter> _parameters = [];
     private readonly MethodInfo? _methodInfo;
     private readonly Type _returnType;
     private readonly bool _isScalar;
@@ -140,6 +140,15 @@ public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
     }
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IStoreFunction? StoreFunction
+        => _storeFunction;
+
+    /// <summary>
     ///     Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
@@ -232,12 +241,21 @@ public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
     IStoreFunction IDbFunction.StoreFunction
     {
         [DebuggerStepThrough]
-        get => _storeFunction!;
+        get
+        {
+            Model.EnsureRelationalModel();
+            return _storeFunction!;
+        }
     }
 
     IStoreFunction IRuntimeDbFunction.StoreFunction
     {
-        get => _storeFunction!;
+        get
+        {
+            Model.EnsureRelationalModel();
+            return _storeFunction!;
+        }
+
         set => _storeFunction = value;
     }
 

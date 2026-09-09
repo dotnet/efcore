@@ -36,7 +36,7 @@ public interface IDbContextLogger
     void Log(EventData eventData);
 
     /// <summary>
-    ///     Determines whether or not the given event should be logged.
+    ///     Determines whether the given event should be logged.
     /// </summary>
     /// <param name="eventId">The ID of the event.</param>
     /// <param name="logLevel">The level of the event.</param>

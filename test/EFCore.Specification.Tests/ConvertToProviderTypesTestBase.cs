@@ -1,16 +1,11 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataTypesTestBase<TFixture>
+public abstract class ConvertToProviderTypesTestBase<TFixture>(TFixture fixture) : BuiltInDataTypesTestBase<TFixture>(fixture)
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    protected ConvertToProviderTypesTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual void Equals_method_over_enum_works()
     {
@@ -31,7 +26,8 @@ public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataType
         Assert.Empty(query);
     }
 
-    public override void Object_to_string_conversion() { }
+    public override Task Object_to_string_conversion()
+        => Task.CompletedTask;
 
     public abstract class ConvertToProviderTypesFixtureBase : BuiltInDataTypesFixtureBase
     {

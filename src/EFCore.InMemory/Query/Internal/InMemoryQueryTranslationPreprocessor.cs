@@ -46,4 +46,8 @@ public class InMemoryQueryTranslationPreprocessor : QueryTranslationPreprocessor
 
         return result;
     }
+
+    /// <inheritdoc />
+    protected override bool IsEfConstantSupported
+        => true;
 }

@@ -77,7 +77,7 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         if (expression is not FromSqlExpression fromSql)
@@ -180,7 +180,9 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
             }
 
             return _sqlExpressionFactory.Constant(
-                existingConstantValue, _typeMappingSource.GetMappingForValue(existingConstantValue));
+                existingConstantValue,
+                existingConstantValue?.GetType() ?? typeof(object),
+                _typeMappingSource.GetMappingForValue(existingConstantValue));
         }
     }
 }

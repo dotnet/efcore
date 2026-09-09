@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -16,9 +18,6 @@ public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelat
         ClearLog();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -77,6 +76,8 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderDate] <= @__myDatetime_0
 """);
     }
+
+    #region String.StartsWith
 
     public override async Task String_StartsWith_Literal(bool async)
     {
@@ -140,6 +141,31 @@ WHERE [c].[ContactName] LIKE N'M%'
 """);
     }
 
+    public override async Task String_StartsWith_with_StringComparison_Ordinal(bool async)
+    {
+        await base.String_StartsWith_with_StringComparison_Ordinal(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+    {
+        await base.String_StartsWith_with_StringComparison_OrdinalIgnoreCase(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_StartsWith_with_StringComparison_unsupported(bool async)
+    {
+        await base.String_StartsWith_with_StringComparison_unsupported(async);
+
+        AssertSql();
+    }
+
+    #endregion String.StartsWith
+
+    #region String.EndsWith
+
     public override async Task String_EndsWith_Literal(bool async)
     {
         await base.String_EndsWith_Literal(async);
@@ -202,6 +228,29 @@ WHERE [c].[ContactName] LIKE N'%m'
 """);
     }
 
+    public override async Task String_EndsWith_with_StringComparison_Ordinal(bool async)
+    {
+        await base.String_EndsWith_with_StringComparison_Ordinal(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+    {
+        await base.String_EndsWith_with_StringComparison_OrdinalIgnoreCase(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_EndsWith_with_StringComparison_unsupported(bool async)
+    {
+        await base.String_EndsWith_with_StringComparison_unsupported(async);
+
+        AssertSql();
+    }
+
+    #endregion String.EndsWith
+
     public override async Task String_Contains_Literal(bool async)
     {
         await AssertQuery(
@@ -237,7 +286,7 @@ WHERE [c].[ContactName] IS NOT NULL AND (CHARINDEX([c].[ContactName], [c].[Conta
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0 OR [c].[ContactName] LIKE N'')
+WHERE [c].[ContactName] IS NOT NULL AND (CHARINDEX([c].[ContactName], [c].[CompanyName]) > 0 OR [c].[ContactName] LIKE N'')
 """);
     }
 
@@ -361,6 +410,21 @@ GROUP BY [c].[City]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
+    public override async Task String_Join_non_aggregate(bool async)
+    {
+        await base.String_Join_non_aggregate(async);
+
+        AssertSql(
+            """
+@__foo_0='foo' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CONCAT_WS(N'|', [c].[CompanyName], @__foo_0, N'', N'bar') = N'Around the Horn|foo||bar'
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2017)]
     public override async Task String_Concat(bool async)
     {
         await base.String_Concat(async);
@@ -383,32 +447,32 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
@@ -425,32 +489,32 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] < N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= N'AROUT'
@@ -469,40 +533,40 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] < @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -617,32 +681,32 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
@@ -659,32 +723,32 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] < N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= N'AROUT'
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= N'AROUT'
@@ -703,40 +767,40 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] < @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] >= @__customer_CustomerID_0
 """,
-                //
-                """
+            //
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -791,32 +855,32 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> N'M' + [c].[CustomerID]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = UPPER([c].[CustomerID])
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > REPLACE(N'AROUT', N'OUT', [c].[CustomerID])
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <= N'M' + [c].[CustomerID]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > UPPER([c].[CustomerID])
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] < REPLACE(N'AROUT', N'OUT', [c].[CustomerID])
@@ -1221,7 +1285,7 @@ WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o
             """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < 0.0E0
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < -1.0E0
 """);
     }
 
@@ -1333,21 +1397,23 @@ WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0
 """);
     }
 
-    public override async Task Where_math_min(bool async)
-    {
-        // Translate Math.Min.
-        await AssertTranslationFailed(() => base.Where_math_min(async));
+    public override Task Where_math_min(bool async)
+        => AssertTranslationFailed(() => base.Where_math_min(async));
 
-        AssertSql();
-    }
+    public override Task Where_math_min_nested(bool async)
+        => AssertTranslationFailed(() => base.Where_math_min_nested(async));
 
-    public override async Task Where_math_max(bool async)
-    {
-        // Translate Math.Max.
-        await AssertTranslationFailed(() => base.Where_math_max(async));
+    public override Task Where_math_min_nested_twice(bool async)
+        => AssertTranslationFailed(() => base.Where_math_min_nested_twice(async));
 
-        AssertSql();
-    }
+    public override Task Where_math_max(bool async)
+        => AssertTranslationFailed(() => base.Where_math_max(async));
+
+    public override Task Where_math_max_nested(bool async)
+        => AssertTranslationFailed(() => base.Where_math_max_nested(async));
+
+    public override Task Where_math_max_nested_twice(bool async)
+        => AssertTranslationFailed(() => base.Where_math_max_nested_twice(async));
 
     public override async Task Where_math_degrees(bool async)
     {
@@ -1537,7 +1603,7 @@ WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Di
             """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real)
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(-1 AS real)
 """);
     }
 
@@ -1772,6 +1838,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(int, [o].[OrderID] % 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(bigint, [o].[OrderID] % 3)) = CAST(1 AS bit)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(int, [o].[OrderID] % 3)) = CAST(1 AS bit)
 """);
     }
 
@@ -1826,6 +1898,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(int, [o].[OrderID
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS tinyint)
 """,
             //
             """
@@ -1892,6 +1970,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(bigint, [o
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0
 """);
     }
 
@@ -1946,6 +2030,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(int, [o].[OrderID] 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0E0
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0E0
 """,
             //
             """
@@ -2012,6 +2102,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(bigint, [o].[Ord
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)
 """);
     }
 
@@ -2072,6 +2168,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(bigint, [o].[OrderID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0
 """);
     }
 
@@ -2126,6 +2228,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(int, [o].[OrderID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS bigint)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint)
 """,
             //
             """
@@ -2197,6 +2305,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(nvarchar(ma
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10'
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%' OR CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%')
 """);
     }
@@ -2209,6 +2323,9 @@ WHERE [o].[CustomerID] = N'ALFKI' AND (CONVERT(nvarchar(max), [o].[OrderDate]) L
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[Region] IS NOT NULL THEN 0
+END = 0
 """);
     }
 
@@ -2234,9 +2351,9 @@ WHERE CHARINDEX(N'a', [c].[ContactName]) - 1 = 1
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
+WHERE CHARINDEX(@__pattern_0, [c].[ContactName]) - CASE
     WHEN @__pattern_0 = N'' THEN 0
-    ELSE CHARINDEX(@__pattern_0, [c].[ContactName]) - 1
+    ELSE 1
 END = 1
 """);
     }
@@ -2479,21 +2596,11 @@ WHERE LTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
-    public override async Task TrimStart_with_char_argument_in_predicate(bool async)
-    {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_argument_in_predicate(async));
+    public override Task TrimStart_with_char_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimStart_with_char_argument_in_predicate(async));
 
-        AssertSql();
-    }
-
-    public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
-    {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
-
-        AssertSql();
-    }
+    public override Task TrimStart_with_char_array_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
 
     public override async Task TrimEnd_without_arguments_in_predicate(bool async)
     {
@@ -2507,21 +2614,11 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
-    public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
-    {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument_in_predicate(async));
+    public override Task TrimEnd_with_char_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimEnd_with_char_argument_in_predicate(async));
 
-        AssertSql();
-    }
-
-    public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
-    {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument_in_predicate(async));
-
-        AssertSql();
-    }
+    public override Task TrimEnd_with_char_array_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument_in_predicate(async));
 
     public override async Task Trim_without_argument_in_predicate(bool async)
     {
@@ -2661,6 +2758,94 @@ WHERE [o].[OrderDate] IS NOT NULL AND CAST([o].[OrderDate] AS date) = '1996-09-1
 
     public override Task Datetime_subtraction_TotalDays(bool async)
         => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
+
+    public override async Task Select_ToString_IndexOf(bool async)
+    {
+        await base.Select_ToString_IndexOf(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CHARINDEX('123', CONVERT(varchar(11), [o].[OrderID])) - 1 = -1
+""");
+    }
+
+    public override async Task Select_IndexOf_ToString(bool async)
+    {
+        await base.Select_IndexOf_ToString(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), '123') - CASE
+    WHEN CONVERT(varchar(11), [o].[OrderID]) = '' THEN 0
+    ELSE 1
+END = -1
+""");
+    }
+
+    public override async Task String_Contains_in_projection(bool async)
+    {
+        await base.String_Contains_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID] AS [Id], CASE
+    WHEN [c].[ContactName] IS NOT NULL AND (CHARINDEX([c].[ContactName], [c].[CompanyName]) > 0 OR [c].[ContactName] LIKE N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Value]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task String_Contains_negated_in_predicate(bool async)
+    {
+        await base.String_Contains_negated_in_predicate(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] IS NULL OR (CHARINDEX([c].[ContactName], [c].[CompanyName]) <= 0 AND [c].[ContactName] NOT LIKE N'')
+""");
+    }
+
+    public override async Task String_Contains_negated_in_projection(bool async)
+    {
+        await base.String_Contains_negated_in_projection(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID] AS [Id], CASE
+    WHEN [c].[ContactName] IS NULL OR (CHARINDEX([c].[ContactName], [c].[CompanyName]) <= 0 AND [c].[ContactName] NOT LIKE N'') THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Value]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task String_Contains_with_StringComparison_Ordinal(bool async)
+    {
+        await base.String_Contains_with_StringComparison_Ordinal(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
+    {
+        await base.String_Contains_with_StringComparison_OrdinalIgnoreCase(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_Contains_with_StringComparison_unsupported(bool async)
+    {
+        await base.String_Contains_with_StringComparison_unsupported(async);
+
+        AssertSql();
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

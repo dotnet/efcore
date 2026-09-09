@@ -1,20 +1,18 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
 public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => base.OnConfiguring(optionsBuilder.ReplaceService<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>());
+    protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+        => serviceCollection.AddSingleton<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>();
 
     private class TestSqlServerTypeMappingSource(
-            TypeMappingSourceDependencies dependencies,
-            RelationalTypeMappingSourceDependencies relationalDependencies)
+        TypeMappingSourceDependencies dependencies,
+        RelationalTypeMappingSourceDependencies relationalDependencies)
         : SqlServerTypeMappingSource(dependencies, relationalDependencies)
     {
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)

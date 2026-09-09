@@ -86,9 +86,7 @@ public class TableBase : Annotatable, ITableBase
 
     /// <inheritdoc />
     public virtual IColumnBase? FindColumn(string name)
-        => Columns.TryGetValue(name, out var column)
-            ? column
-            : null;
+        => Columns.GetValueOrDefault(name);
 
     /// <inheritdoc />
     public virtual IColumnBase? FindColumn(IProperty property)

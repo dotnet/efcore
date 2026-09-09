@@ -25,9 +25,7 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
+        => Dependencies = dependencies;
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.

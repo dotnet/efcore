@@ -18,66 +18,72 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        switch (extensionExpression)
+        => extensionExpression switch
         {
-            case ShapedQueryExpression shapedQueryExpression:
-                return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
+            ShapedQueryExpression shapedQueryExpression
+                => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression)),
+            SelectExpression selectExpression => VisitSelect(selectExpression),
+            ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
+            EntityProjectionExpression entityProjectionExpression => VisitEntityProjection(entityProjectionExpression),
+            ObjectArrayAccessExpression arrayProjectionExpression => VisitObjectArrayAccess(arrayProjectionExpression),
+            FromSqlExpression fromSqlExpression => VisitFromSql(fromSqlExpression),
+            ObjectReferenceExpression objectReferenceExpression => VisitObjectReference(objectReferenceExpression),
+            ScalarAccessExpression keyAccessExpression => VisitScalarAccess(keyAccessExpression),
+            ObjectAccessExpression objectAccessExpression => VisitObjectAccess(objectAccessExpression),
+            ScalarSubqueryExpression scalarSubqueryExpression => VisitScalarSubquery(scalarSubqueryExpression),
+            SqlBinaryExpression sqlBinaryExpression => VisitSqlBinary(sqlBinaryExpression),
+            ObjectBinaryExpression objectBinaryExpression => VisitObjectBinary(objectBinaryExpression),
+            SqlConstantExpression sqlConstantExpression => VisitSqlConstant(sqlConstantExpression),
+            FragmentExpression jsonFragmentExpression => VisitFragment(jsonFragmentExpression),
+            SqlUnaryExpression sqlUnaryExpression => VisitSqlUnary(sqlUnaryExpression),
+            SqlConditionalExpression sqlConditionalExpression => VisitSqlConditional(sqlConditionalExpression),
+            SqlParameterExpression sqlParameterExpression => VisitSqlParameter(sqlParameterExpression),
+            InExpression inExpression => VisitIn(inExpression),
+            ArrayConstantExpression inlineArrayExpression => VisitArrayConstant(inlineArrayExpression),
+            SourceExpression sourceExpression => VisitSource(sourceExpression),
+            ObjectFunctionExpression objectFunctionExpression => VisitObjectFunction(objectFunctionExpression),
+            SqlFunctionExpression sqlFunctionExpression => VisitSqlFunction(sqlFunctionExpression),
+            OrderingExpression orderingExpression => VisitOrdering(orderingExpression),
+            ScalarReferenceExpression valueReferenceExpression => VisitValueReference(valueReferenceExpression),
+            ExistsExpression existsExpression => VisitExists(existsExpression),
+            ObjectArrayExpression arrayExpression => VisitObjectArray(arrayExpression),
+            ScalarArrayExpression arrayExpression => VisitScalarArray(arrayExpression),
+            ObjectArrayIndexExpression objectArrayIndexExpression => VisitObjectArrayIndex(objectArrayIndexExpression),
 
-            case ReadItemExpression readItemExpression:
-                return readItemExpression;
+            _ => base.VisitExtension(extensionExpression)
+        };
 
-            case SelectExpression selectExpression:
-                return VisitSelect(selectExpression);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitExists(ExistsExpression existsExpression);
 
-            case ProjectionExpression projectionExpression:
-                return VisitProjection(projectionExpression);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitObjectArray(ObjectArrayExpression objectArrayExpression);
 
-            case EntityProjectionExpression entityProjectionExpression:
-                return VisitEntityProjection(entityProjectionExpression);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitScalarArray(ScalarArrayExpression scalarArrayExpression);
 
-            case ObjectArrayProjectionExpression arrayProjectionExpression:
-                return VisitObjectArrayProjection(arrayProjectionExpression);
-
-            case FromSqlExpression fromSqlExpression:
-                return VisitFromSql(fromSqlExpression);
-
-            case RootReferenceExpression rootReferenceExpression:
-                return VisitRootReference(rootReferenceExpression);
-
-            case KeyAccessExpression keyAccessExpression:
-                return VisitKeyAccess(keyAccessExpression);
-
-            case ObjectAccessExpression objectAccessExpression:
-                return VisitObjectAccess(objectAccessExpression);
-
-            case SqlBinaryExpression sqlBinaryExpression:
-                return VisitSqlBinary(sqlBinaryExpression);
-
-            case SqlConstantExpression sqlConstantExpression:
-                return VisitSqlConstant(sqlConstantExpression);
-
-            case SqlUnaryExpression sqlUnaryExpression:
-                return VisitSqlUnary(sqlUnaryExpression);
-
-            case SqlConditionalExpression sqlConditionalExpression:
-                return VisitSqlConditional(sqlConditionalExpression);
-
-            case SqlParameterExpression sqlParameterExpression:
-                return VisitSqlParameter(sqlParameterExpression);
-
-            case InExpression inExpression:
-                return VisitIn(inExpression);
-
-            case SqlFunctionExpression sqlFunctionExpression:
-                return VisitSqlFunction(sqlFunctionExpression);
-
-            case OrderingExpression orderingExpression:
-                return VisitOrdering(orderingExpression);
-        }
-
-        return base.VisitExtension(extensionExpression);
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitObjectArrayIndex(ObjectArrayIndexExpression objectArrayIndexExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -101,6 +107,14 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected abstract Expression VisitObjectFunction(ObjectFunctionExpression objectFunctionExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
 
     /// <summary>
@@ -110,6 +124,22 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected abstract Expression VisitIn(InExpression inExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitArrayConstant(ArrayConstantExpression arrayConstantExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitSource(SourceExpression sourceExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,6 +179,14 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected abstract Expression VisitFragment(FragmentExpression fragmentExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
 
     /// <summary>
@@ -157,7 +195,15 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression);
+    protected abstract Expression VisitObjectBinary(ObjectBinaryExpression objectBinaryExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitScalarAccess(ScalarAccessExpression scalarAccessExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -173,7 +219,15 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract Expression VisitRootReference(RootReferenceExpression rootReferenceExpression);
+    protected abstract Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitObjectReference(ObjectReferenceExpression objectReferenceExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -189,7 +243,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression);
+    protected abstract Expression VisitObjectArrayAccess(ObjectArrayAccessExpression objectArrayAccessExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -206,4 +260,12 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected abstract Expression VisitSelect(SelectExpression selectExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitValueReference(ScalarReferenceExpression scalarReferenceExpression);
 }

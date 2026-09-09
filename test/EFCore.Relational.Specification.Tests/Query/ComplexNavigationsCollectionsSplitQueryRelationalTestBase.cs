@@ -3,15 +3,13 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class
-    ComplexNavigationsCollectionsSplitQueryRelationalTestBase<TFixture> : ComplexNavigationsCollectionsQueryTestBase<TFixture>
+    ComplexNavigationsCollectionsSplitQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : ComplexNavigationsCollectionsQueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsQueryFixtureBase, new()
 {
-    protected ComplexNavigationsCollectionsSplitQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);

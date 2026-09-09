@@ -17,9 +17,10 @@
 #
 # Note that the NuGetAuthenticate task should be called after SetupNugetSources.
 # This ensures that:
-# - Appropriate creds are set for the added internal feeds (if not supplied to the script)
+# - Appropriate creds are set for the added internal feeds (if not supplied to the scrupt)
 # - The credential provider is installed.
 #
+# This logic is also abstracted into enable-internal-sources.yml.
 
 [CmdletBinding()]
 param (
@@ -156,7 +157,7 @@ if ($dotnet31Source -ne $null) {
     AddPackageSource -Sources $sources -SourceName "dotnet3.1-internal-transport" -SourceEndPoint "https://pkgs.dev.azure.com/dnceng/_packaging/dotnet3.1-internal-transport/nuget/v2" -Creds $creds -Username $userName -pwd $Password
 }
 
-$dotnetVersions = @('5','6','7','8')
+$dotnetVersions = @('5','6','7','8','9')
 
 foreach ($dotnetVersion in $dotnetVersions) {
     $feedPrefix = "dotnet" + $dotnetVersion;

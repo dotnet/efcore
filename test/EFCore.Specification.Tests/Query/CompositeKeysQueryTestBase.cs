@@ -5,16 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class CompositeKeysQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class CompositeKeysQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : CompositeKeysQueryFixtureBase, new()
 {
     protected CompositeKeysContext CreateContext()
         => Fixture.CreateContext();
-
-    protected CompositeKeysQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);
