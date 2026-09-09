@@ -1454,6 +1454,35 @@ INNER JOIN "HookMetadata" AS "h0" ON "h"."Id" = "h0"."HookId"
 """);
     }
 
+    public override async Task Project_json_complex_collection_together_with_collection_navigation()
+    {
+        await base.Project_json_complex_collection_together_with_collection_navigation();
+
+        AssertSql(
+            """
+            SELECT "p"."Id", "p"."Items"
+            FROM "Parent" AS "p"
+            ORDER BY "p"."Id"
+            LIMIT 2
+            """,
+            //
+            """
+            SELECT "s"."Id", "p3"."Id"
+            FROM (
+                SELECT "p"."Id"
+                FROM "Parent" AS "p"
+                ORDER BY "p"."Id"
+                LIMIT 1
+            ) AS "p3"
+            INNER JOIN (
+                SELECT "l1"."Id", "p2"."ParentsId"
+                FROM "ParentLinks" AS "p2"
+                INNER JOIN "Link" AS "l1" ON "p2"."LinksId" = "l1"."Id"
+            ) AS "s" ON "p3"."Id" = "s"."ParentsId"
+            ORDER BY "p3"."Id"
+            """);
+    }
+
     #endregion Non-shared test resources
 
     [Fact]
