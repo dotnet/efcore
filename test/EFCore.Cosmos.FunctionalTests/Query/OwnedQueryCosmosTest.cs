@@ -957,6 +957,10 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["Cl
         => AssertTranslationFailed(() => base.GroupBy_ordered_aggregate_on_owned_navigation(async));
 
     // TODO: GroupBy, #17313
+    public override Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_first_entity_ordered_by_owned_navigation(async));
+
+    // TODO: GroupBy, #17313
     public override Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
         => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_having(async));
 

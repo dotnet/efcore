@@ -878,6 +878,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Select(g => g.OrderByDescending(e => (int)e.PersonAddress!["ZipCode"]).Select(e => e.Id).First()));
 
     [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .GroupBy(e => (int)e.PersonAddress!["ZipCode"] > 20000)
+                .Select(g => g.OrderByDescending(e => (int)e.PersonAddress!["ZipCode"]).First()));
+
+    [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
         => AssertQuery(
             async,

@@ -1605,6 +1605,47 @@ GROUP BY [s].[Key]
 """);
     }
 
+    public override async Task GroupBy_first_entity_ordered_by_owned_navigation(bool async)
+    {
+        await base.GroupBy_first_entity_ordered_by_owned_navigation(async);
+
+        AssertSql(
+            """
+SELECT [o7].[Id], [o7].[Discriminator], [o7].[Name], [o5].[Key], [s].[ClientId], [s].[Id], [s].[OrderDate], [s].[OrderClientId], [s].[OrderId], [s].[Id0], [s].[Detail], [o7].[PersonAddress_AddressLine], [o7].[PersonAddress_PlaceType], [o7].[PersonAddress_ZipCode], [o7].[PersonAddress_Country_Name], [o7].[PersonAddress_Country_PlanetId], [o7].[BranchAddress_BranchName], [o7].[BranchAddress_PlaceType], [o7].[BranchAddress_Country_Name], [o7].[BranchAddress_Country_PlanetId], [o7].[LeafBAddress_LeafBType], [o7].[LeafBAddress_PlaceType], [o7].[LeafBAddress_Country_Name], [o7].[LeafBAddress_Country_PlanetId], [o7].[LeafAAddress_LeafType], [o7].[LeafAAddress_PlaceType], [o7].[LeafAAddress_Country_Name], [o7].[LeafAAddress_Country_PlanetId]
+FROM (
+    SELECT [o0].[Key]
+    FROM (
+        SELECT CASE
+            WHEN [o].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+            ELSE CAST(0 AS bit)
+        END AS [Key]
+        FROM [OwnedPerson] AS [o]
+    ) AS [o0]
+    GROUP BY [o0].[Key]
+) AS [o5]
+LEFT JOIN (
+    SELECT [o6].[Id], [o6].[Discriminator], [o6].[Name], [o6].[PersonAddress_AddressLine], [o6].[PersonAddress_PlaceType], [o6].[PersonAddress_ZipCode], [o6].[PersonAddress_Country_Name], [o6].[PersonAddress_Country_PlanetId], [o6].[BranchAddress_BranchName], [o6].[BranchAddress_PlaceType], [o6].[BranchAddress_Country_Name], [o6].[BranchAddress_Country_PlanetId], [o6].[LeafBAddress_LeafBType], [o6].[LeafBAddress_PlaceType], [o6].[LeafBAddress_Country_Name], [o6].[LeafBAddress_Country_PlanetId], [o6].[LeafAAddress_LeafType], [o6].[LeafAAddress_PlaceType], [o6].[LeafAAddress_Country_Name], [o6].[LeafAAddress_Country_PlanetId], [o6].[Key]
+    FROM (
+        SELECT [o1].[Id], [o1].[Discriminator], [o1].[Name], [o1].[PersonAddress_AddressLine], [o1].[PersonAddress_PlaceType], [o1].[PersonAddress_ZipCode], [o1].[PersonAddress_Country_Name], [o1].[PersonAddress_Country_PlanetId], [o1].[BranchAddress_BranchName], [o1].[BranchAddress_PlaceType], [o1].[BranchAddress_Country_Name], [o1].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o1].[LeafAAddress_LeafType], [o1].[LeafAAddress_PlaceType], [o1].[LeafAAddress_Country_Name], [o1].[LeafAAddress_Country_PlanetId], [o1].[Key], ROW_NUMBER() OVER(PARTITION BY [o1].[Key] ORDER BY [o1].[PersonAddress_ZipCode] DESC) AS [row]
+        FROM (
+            SELECT [o2].[Id], [o2].[Discriminator], [o2].[Name], [o2].[PersonAddress_AddressLine], [o2].[PersonAddress_PlaceType], [o2].[PersonAddress_ZipCode], CASE
+                WHEN [o2].[PersonAddress_ZipCode] > 20000 THEN CAST(1 AS bit)
+                ELSE CAST(0 AS bit)
+            END AS [Key], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [o2].[BranchAddress_BranchName], [o2].[BranchAddress_PlaceType], [o2].[BranchAddress_Country_Name], [o2].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
+            FROM [OwnedPerson] AS [o2]
+        ) AS [o1]
+    ) AS [o6]
+    WHERE [o6].[row] <= 1
+) AS [o7] ON [o5].[Key] = [o7].[Key]
+LEFT JOIN (
+    SELECT [o3].[ClientId], [o3].[Id], [o3].[OrderDate], [o4].[OrderClientId], [o4].[OrderId], [o4].[Id] AS [Id0], [o4].[Detail]
+    FROM [Order] AS [o3]
+    LEFT JOIN [OrderDetail] AS [o4] ON [o3].[ClientId] = [o4].[OrderClientId] AND [o3].[Id] = [o4].[OrderId]
+) AS [s] ON [o7].[Id] = [s].[ClientId]
+ORDER BY [o5].[Key], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId], [s].[Id0]
+""");
+    }
+
     public override async Task GroupBy_aggregate_on_owned_navigation_in_having(bool async)
     {
         await base.GroupBy_aggregate_on_owned_navigation_in_having(async);
