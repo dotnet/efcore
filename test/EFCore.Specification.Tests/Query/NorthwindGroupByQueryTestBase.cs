@@ -488,6 +488,33 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 }),
             elementSorter: e => e.Key);
 
+    // A grouping element filtered by Where rather than by the quantifier's own predicate: the aggregate reads the filter
+    // already on the element, so Any needs no predicate of its own to count against.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Where_Any_over_grouping_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new { g.Key, AnyBig = g.Where(o => o.OrderID > 10500).Any() }),
+            elementSorter: e => e.Key);
+
+    // The same, with a filter that leaves no rows in any group. Both counts come out 0, which has to read as Any false and
+    // All true - the Enumerable semantics for an empty sequence.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Where_quantifiers_over_empty_filtered_grouping_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Any = g.Where(o => o.OrderID > 999999).Any(),
+                    All = g.Where(o => o.OrderID > 999999).All(o => o.OrderID > 0)
+                }),
+            elementSorter: e => e.Key);
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
         => AssertQuery(

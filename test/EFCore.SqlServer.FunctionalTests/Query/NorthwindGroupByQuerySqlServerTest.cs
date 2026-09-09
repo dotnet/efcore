@@ -2559,6 +2559,44 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_Where_Any_over_grouping_element(bool async)
+    {
+        await base.GroupBy_Where_Any_over_grouping_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT(CASE
+        WHEN [o].[OrderID] > 10500 THEN 1
+    END) > 0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyBig]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
+    public override async Task GroupBy_Where_quantifiers_over_empty_filtered_grouping_element(bool async)
+    {
+        await base.GroupBy_Where_quantifiers_over_empty_filtered_grouping_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], CASE
+    WHEN COUNT(CASE
+        WHEN [o].[OrderID] > 999999 THEN 1
+    END) > 0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Any], ~CAST(COUNT(CASE
+    WHEN [o].[OrderID] > 999999 AND [o].[OrderID] > 0 THEN 1
+END) ^ COUNT(CASE
+    WHEN [o].[OrderID] > 999999 THEN 1
+END) AS bit) AS [All]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
     {
         await base.GroupBy_Any_with_predicate_through_navigation_property(async);
