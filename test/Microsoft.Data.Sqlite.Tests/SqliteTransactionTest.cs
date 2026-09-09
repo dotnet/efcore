@@ -447,4 +447,21 @@ public class SqliteTransactionTest
 
         Assert.True(transaction.ExternalRollback);
     }
+
+    [Fact]
+    public void Rollback_works_when_the_handle_is_already_closed()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        var transaction = connection.BeginTransaction();
+
+        // Clearing the hook first means closing the handle does not run RollbackExternal, so
+        // ExternalRollback stays false and RollbackInternal is the one that reaches for the handle.
+        sqlite3_rollback_hook(connection.Handle, null, null);
+        connection.Handle!.Dispose();
+
+        Assert.False(transaction.ExternalRollback);
+
+        transaction.Rollback();
+    }
 }
