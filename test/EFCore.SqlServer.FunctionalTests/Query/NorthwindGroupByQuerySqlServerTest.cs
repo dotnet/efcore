@@ -2429,9 +2429,9 @@ GROUP BY [o].[EmployeeID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT(CASE
+    WHEN COUNT_BIG(CASE
         WHEN [o].[OrderID] > 10500 THEN 1
-    END) > 0 THEN CAST(1 AS bit)
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [AnyBig]
 FROM [Orders] AS [o]
@@ -2445,9 +2445,9 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT(CASE
+SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT_BIG(CASE
     WHEN [o].[OrderID] > 10500 THEN 1
-END) ^ COUNT(*) AS bit) AS [AllBig]
+END) ^ COUNT_BIG(*) AS bit) AS [AllBig]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2484,9 +2484,9 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], ISNULL(SUM([o].[OrderID]), 0) AS [Total], CASE
-    WHEN COUNT(CASE
+    WHEN COUNT_BIG(CASE
         WHEN [o].[OrderID] > 10500 THEN 1
-    END) > 0 THEN CAST(1 AS bit)
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [AnyBig]
 FROM [Orders] AS [o]
@@ -2501,9 +2501,9 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT(CASE
+    WHEN COUNT_BIG(CASE
         WHEN [o].[EmployeeID] IS NOT NULL THEN 1
-    END) > 0 THEN ISNULL(SUM([o].[EmployeeID]), 0)
+    END) > CAST(0 AS bigint) THEN ISNULL(SUM([o].[EmployeeID]), 0)
 END AS [Employees]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -2517,9 +2517,9 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT(CASE
+    WHEN COUNT_BIG(CASE
         WHEN [o].[EmployeeID] > 5 THEN 1
-    END) > 0 THEN CAST(1 AS bit)
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [AnySenior]
 FROM [Orders] AS [o]
@@ -2533,9 +2533,9 @@ GROUP BY [o].[CustomerID]
 
         AssertSql(
             """
-SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT(CASE
+SELECT [o].[CustomerID] AS [Key], ~CAST(COUNT_BIG(CASE
     WHEN [o].[EmployeeID] > 5 THEN 1
-END) ^ COUNT(*) AS bit) AS [AllSenior]
+END) ^ COUNT_BIG(*) AS bit) AS [AllSenior]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
 """);
@@ -2566,9 +2566,9 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT(CASE
+    WHEN COUNT_BIG(CASE
         WHEN [o].[OrderID] > 10500 THEN 1
-    END) > 0 THEN CAST(1 AS bit)
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [AnyBig]
 FROM [Orders] AS [o]
@@ -2583,13 +2583,13 @@ GROUP BY [o].[CustomerID]
         AssertSql(
             """
 SELECT [o].[CustomerID] AS [Key], CASE
-    WHEN COUNT(CASE
+    WHEN COUNT_BIG(CASE
         WHEN [o].[OrderID] > 999999 THEN 1
-    END) > 0 THEN CAST(1 AS bit)
+    END) > CAST(0 AS bigint) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END AS [Any], ~CAST(COUNT(CASE
+END AS [Any], ~CAST(COUNT_BIG(CASE
     WHEN [o].[OrderID] > 999999 AND [o].[OrderID] > 0 THEN 1
-END) ^ COUNT(CASE
+END) ^ COUNT_BIG(CASE
     WHEN [o].[OrderID] > 999999 THEN 1
 END) AS bit) AS [All]
 FROM [Orders] AS [o]
