@@ -470,6 +470,24 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture>(TFixture fixture) 
                 .Select(g => new { g.Key, AllSenior = g.All(o => o.EmployeeID > 5) }),
             elementSorter: e => e.Key);
 
+    // A Select over the grouping element keeps a scalar element selector on the aggregate, which COUNT would treat as a
+    // value to count rather than a row - dropping the NULL elements this predicate matches. GroupingAggregateScanner only
+    // lifts aggregates whose source is the grouping parameter itself, so the shape falls back to EXISTS and keeps
+    // Enumerable's semantics. Asserted here so that widening the whitelist has to revisit the counts.
+    [Theory, MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Select_Distinct_Any_with_nullable_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .GroupBy(o => o.CustomerID)
+                .Select(g => new
+                {
+                    g.Key,
+                    Employees = g.Select(o => o.EmployeeID).Distinct().Count(),
+                    AnyUnassigned = g.Select(o => o.EmployeeID).Distinct().Any(id => id == null)
+                }),
+            elementSorter: e => e.Key);
+
     [Theory, MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
         => AssertQuery(

@@ -1526,7 +1526,8 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
     /// <summary>
     ///     Translates <see cref="Queryable.Any{TSource}(IQueryable{TSource})" />,
     ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> and
-    ///     <see cref="Queryable.All{TSource}" /> over a grouping element into an aggregate over the enclosing GROUP BY.
+    ///     <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> over a grouping element
+    ///     into an aggregate over the enclosing GROUP BY.
     ///     The fallback translation is a correlated EXISTS, which cannot share the outer query's FROM and so re-derives the
     ///     whole grouping source once per group.
     /// </summary>
@@ -1587,6 +1588,13 @@ public partial class RelationalSqlTranslatingExpressionVisitor : ExpressionVisit
 
         bool TryTranslateCount(EnumerableExpression source, [NotNullWhen(true)] out SqlExpression? count)
         {
+            // COUNT ignores NULL values, so counting the grouping element itself would drop every row whose element is NULL -
+            // including, for Any, the very rows a predicate such as "x == null" matched. Count the star fragment instead: the
+            // aggregate translator renders that as COUNT(*), or as COUNT(CASE WHEN <predicate> THEN 1 END) once a predicate is
+            // applied, so rows are counted rather than values. An element selector that isn't a scalar already counts that way;
+            // this makes a scalar one (from a Select over the grouping element) behave the same.
+            source = source.ApplySelector(_sqlExpressionFactory.Fragment("*"));
+
             count = TranslateAggregateMethod(
                 source,
                 QueryableMethods.CountWithoutPredicate.MakeGenericMethod(source.Selector.Type),

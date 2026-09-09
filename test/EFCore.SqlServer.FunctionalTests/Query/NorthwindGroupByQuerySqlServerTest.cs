@@ -2541,6 +2541,24 @@ GROUP BY [o].[CustomerID]
 """);
     }
 
+    public override async Task GroupBy_Select_Distinct_Any_with_nullable_element(bool async)
+    {
+        await base.GroupBy_Select_Distinct_Any_with_nullable_element(async);
+
+        AssertSql(
+            """
+SELECT [o].[CustomerID] AS [Key], COUNT(DISTINCT ([o].[EmployeeID])) AS [Employees], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AND [o0].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [AnyUnassigned]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]
+""");
+    }
+
     public override async Task GroupBy_Any_with_predicate_through_navigation_property(bool async)
     {
         await base.GroupBy_Any_with_predicate_through_navigation_property(async);
