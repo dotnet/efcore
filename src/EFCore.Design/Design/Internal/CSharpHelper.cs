@@ -680,6 +680,12 @@ public class CSharpHelper : ICSharpHelper
             {
                 builder.Append(" object");
             }
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                // Elements are emitted as their underlying type, so an implicitly-typed array would be inferred as
+                // the non-nullable type; emit the element type explicitly to keep the array type correct.
+                builder.Append(' ').Append(Reference(type));
+            }
 
             if (vertical)
             {
